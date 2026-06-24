@@ -1,0 +1,107 @@
+import 'package:dio/dio.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import '../config/app_config.dart';
+
+/// Wrapper Dio dengan interceptor otomatis:
+///   - Inject Bearer token dari secure storage
+///   - Inject X-Device-ID header
+///   - Tangani error 401/403 secara terpusat
+class ApiClient {
+  ApiClient._();
+
+  static const _storage = FlutterSecureStorage(
+    aOptions: AndroidOptions(encryptedSharedPreferences: true),
+  );
+
+  static final Dio _dio = _buildDio();
+
+  static Dio _buildDio() {
+    final dio = Dio(
+      BaseOptions(
+        baseUrl:        AppConfig.baseUrl,
+        connectTimeout: AppConfig.connectTimeout,
+        receiveTimeout: AppConfig.receiveTimeout,
+        headers: {
+          'Accept':       'application/json',
+          'Content-Type': 'application/json',
+        },
+      ),
+    );
+
+    dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) async {
+          final token    = await _storage.read(key: 'auth_token');
+          final deviceId = await _storage.read(key: 'device_id');
+
+          if (token != null) {
+            options.headers['Authorization'] = 'Bearer $token';
+          }
+          if (deviceId != null) {
+            options.headers['X-Device-ID'] = deviceId;
+          }
+
+          handler.next(options);
+        },
+        onError: (error, handler) {
+          // Biarkan caller yang handle error spesifik
+          handler.next(error);
+        },
+      ),
+    );
+
+    return dio;
+  }
+
+  // ─── Public methods ──────────────────────────────────────────────────────
+
+  static Future<Map<String, dynamic>> get(
+    String path, {
+    Map<String, dynamic>? params,
+  }) async {
+    final resp = await _dio.get(path, queryParameters: params);
+    return resp.data as Map<String, dynamic>;
+  }
+
+  static Future<Map<String, dynamic>> post(
+    String path, {
+    Map<String, dynamic>? data,
+  }) async {
+    final resp = await _dio.post(path, data: data);
+    return resp.data as Map<String, dynamic>;
+  }
+
+  static Future<Map<String, dynamic>> postForm(
+    String path,
+    FormData formData,
+  ) async {
+    final resp = await _dio.post(
+      path,
+      data: formData,
+      options: Options(contentType: 'multipart/form-data'),
+    );
+    return resp.data as Map<String, dynamic>;
+  }
+
+  /// Extrak pesan error dari DioException
+  static String extractError(Object error) {
+    if (error is DioException) {
+      final data = error.response?.data;
+      if (data is Map && data['message'] != null) {
+        return data['message'] as String;
+      }
+      return switch (error.type) {
+        DioExceptionType.connectionTimeout => 'Koneksi timeout. Periksa internet.',
+        DioExceptionType.receiveTimeout    => 'Server tidak merespons.',
+        DioExceptionType.connectionError   => 'Tidak dapat terhubung ke server.',
+        _                                  => 'Terjadi kesalahan. Coba lagi.',
+      };
+    }
+    return error.toString();
+  }
+
+  static Future<void> saveToken(String token)    => _storage.write(key: 'auth_token', value: token);
+  static Future<void> saveDeviceId(String id)    => _storage.write(key: 'device_id',  value: id);
+  static Future<String?> getToken()              => _storage.read(key: 'auth_token');
+  static Future<void> clearAuth()                => _storage.deleteAll();
+}

@@ -1,0 +1,84 @@
+<?php
+
+namespace App\Http\Controllers\Auth;
+
+use App\Http\Controllers\Controller;
+use App\Models\ActivityLog;
+use App\Models\User;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
+
+class LoginController extends Controller
+{
+    public function showForm(): View|RedirectResponse
+    {
+        if (Auth::check()) {
+            /** @var User $user */
+            $user = Auth::user();
+            return redirect($user->dashboardRoute());
+        }
+
+        return view('auth.login');
+    }
+
+    public function login(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'login'    => 'required|string',
+            'password' => 'required',
+        ]);
+
+        $loginInput = trim($request->input('login'));
+
+        // Cari user berdasarkan email, NIS/NISN (siswa), atau NIP (guru)
+        // Untuk NIS/NISN numerik: abaikan leading zeros (0001233344 = 1233344)
+        $user = str_contains($loginInput, '@')
+            ? User::where('email', $loginInput)->first()
+            : $this->findByUsername($loginInput);
+
+        if (! $user || ! Auth::attempt(
+            ['email' => $user->email, 'password' => $request->input('password')],
+            $request->boolean('remember')
+        )) {
+            return back()
+                ->withErrors(['login' => 'Email/NIS/NIP atau password salah.'])
+                ->onlyInput('login');
+        }
+
+        $request->session()->regenerate();
+
+        /** @var User $user */
+        $user = Auth::user();
+        ActivityLog::record('login');
+
+        return redirect($user->dashboardRoute());
+    }
+
+    private function findByUsername(string $input): ?User
+    {
+        $query = User::where('nis', $input)
+            ->orWhere('nisn', $input)
+            ->orWhere('nip', $input);
+
+        // NISN selalu 10 digit — jika input numerik kurang dari 10 digit, coba zero-pad
+        if (ctype_digit($input) && strlen($input) < 10) {
+            $padded = str_pad($input, 10, '0', STR_PAD_LEFT);
+            $query->orWhere('nisn', $padded)->orWhere('nis', $padded);
+        }
+
+        return $query->first();
+    }
+
+    public function logout(Request $request): RedirectResponse
+    {
+        ActivityLog::record('logout');
+
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('login');
+    }
+}

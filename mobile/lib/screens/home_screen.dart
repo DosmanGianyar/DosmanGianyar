@@ -1,0 +1,1455 @@
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import '../providers/auth_provider.dart';
+import '../providers/attendance_provider.dart';
+import '../providers/notification_provider.dart';
+import '../models/attendance.dart';
+import '../models/announcement.dart';
+import '../models/notification_item.dart';
+import '../models/user.dart';
+import '../theme/app_colors.dart';
+import 'login_screen.dart';
+import 'attendance/attendance_screen.dart';
+import 'attendance/history_screen.dart';
+import 'kesiswaan/kesiswaan_screen.dart';
+
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  // -1 = beranda (dashboard); 0-3 = Kesiswaan/Kurikulum/Prasarana/Humas
+  int _selectedTab = -1;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final attProv  = context.read<AttendanceProvider>();
+      final notifProv = context.read<NotificationProvider>();
+      attProv.fetchStatus();
+      attProv.fetchCurrentMonthDots();
+      notifProv.fetchUnreadCount();
+      notifProv.fetchAnnouncements();
+    });
+  }
+
+  void _onTabTap(int i) {
+    setState(() => _selectedTab = (_selectedTab == i) ? -1 : i);
+  }
+
+  void _onPresensiTap() {
+    final status     = context.read<AttendanceProvider>().status;
+    final canCheckin  = status?.canCheckin  ?? false;
+    final canCheckout = status?.canCheckout ?? false;
+
+    if (!canCheckin && !canCheckout) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Saat ini bukan waktu absensi.'),
+          backgroundColor: AppColors.amber500,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
+        ),
+      );
+      return;
+    }
+    _goToAttendance(isCheckOut: canCheckout && !canCheckin);
+  }
+
+  void _goToAttendance({required bool isCheckOut}) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => AttendanceScreen(isCheckOut: isCheckOut)),
+    ).then((_) => context.read<AttendanceProvider>().fetchStatus());
+  }
+
+  Future<void> _logout() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Konfirmasi Logout'),
+        content: const Text('Yakin ingin keluar dari aplikasi?'),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Batal'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: FilledButton.styleFrom(backgroundColor: AppColors.red500),
+            child: const Text('Logout'),
+          ),
+        ],
+      ),
+    );
+    if (confirm == true && mounted) {
+      await context.read<AuthProvider>().logout();
+      if (mounted) {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const LoginScreen()),
+          (_) => false,
+        );
+      }
+    }
+  }
+
+  void _openNotifications() {
+    final notifProv = context.read<NotificationProvider>();
+    notifProv.fetchAll();
+    showModalBottomSheet(
+      context:          context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => ChangeNotifierProvider.value(
+        value: notifProv,
+        child: const _NotificationSheet(),
+      ),
+    );
+  }
+
+  Widget _buildBody() {
+    if (_selectedTab < 0) {
+      return RefreshIndicator(
+        onRefresh: () async {
+          final attProv   = context.read<AttendanceProvider>();
+          final notifProv = context.read<NotificationProvider>();
+          await Future.wait([
+            attProv.fetchStatus(),
+            attProv.fetchCurrentMonthDots(),
+            notifProv.fetchUnreadCount(),
+            notifProv.fetchAnnouncements(),
+          ]);
+        },
+        child: _DashboardBody(
+          onCheckin:  () => _goToAttendance(isCheckOut: false),
+          onCheckout: () => _goToAttendance(isCheckOut: true),
+          onHistory:  () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const HistoryScreen()),
+          ),
+        ),
+      );
+    }
+
+    if (_selectedTab == 0) {
+      return const KesiswaanScreen();
+    }
+
+    const labels = ['Kesiswaan', 'Kurikulum', 'Prasarana', 'Humas'];
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.construction_outlined, size: 52, color: AppColors.gray400),
+          const SizedBox(height: 12),
+          Text(
+            labels[_selectedTab],
+            style: const TextStyle(
+              fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.gray700,
+            ),
+          ),
+          const SizedBox(height: 4),
+          const Text('Fitur segera hadir',
+            style: TextStyle(color: AppColors.gray400, fontSize: 13)),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final user = context.watch<AuthProvider>().user;
+
+    return Scaffold(
+      backgroundColor: AppColors.slate100,
+      body: SafeArea(
+        bottom: false,
+        child: Column(
+          children: [
+            _TopHeader(user: user, onLogout: _logout, onNotifTap: _openNotifications),
+            Expanded(child: _buildBody()),
+          ],
+        ),
+      ),
+      bottomNavigationBar: _BottomNav(
+        selectedTab:  _selectedTab,
+        onTabTap:     _onTabTap,
+        onPresensi:   _onPresensiTap,
+      ),
+    );
+  }
+}
+
+// ─── Top Header ───────────────────────────────────────────────────────────────
+
+class _TopHeader extends StatelessWidget {
+  final User?        user;
+  final VoidCallback onLogout;
+  final VoidCallback onNotifTap;
+
+  const _TopHeader({this.user, required this.onLogout, required this.onNotifTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 56,
+      decoration: const BoxDecoration(
+        color:  AppColors.white,
+        border: Border(bottom: BorderSide(color: AppColors.gray200)),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        children: [
+          // ── Kiri: Logo + nama sekolah ──────────────────────────────
+          Row(
+            children: [
+              Container(
+                width: 32, height: 32,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  color: AppColors.blue50,
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: Image.asset(
+                  'assets/images/logo_sekolah.png',
+                  fit: BoxFit.contain,
+                  errorBuilder: (_, __, ___) => const Icon(
+                    Icons.school_rounded,
+                    color: AppColors.blue600,
+                    size: 20,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: const [
+                  Text('SMA N 1 Gianyar',
+                    style: TextStyle(
+                      color:       AppColors.blue700,
+                      fontSize:    11,
+                      fontWeight:  FontWeight.w800,
+                      height:      1.2,
+                    ),
+                  ),
+                  Text('SIMS',
+                    style: TextStyle(
+                      color:    AppColors.gray400,
+                      fontSize: 10,
+                      height:   1.2,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+
+          // ── Tengah: Judul halaman ────────────────────────────────
+          const Expanded(
+            child: Text(
+              'Beranda',
+              style: TextStyle(
+                fontSize:   14,
+                fontWeight: FontWeight.w600,
+                color:      AppColors.gray700,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+
+          // ── Kanan: Bell + Avatar ─────────────────────────────────
+          Row(
+            children: [
+              GestureDetector(
+                onTap: onNotifTap,
+                child: SizedBox(
+                  width: 36, height: 36,
+                  child: Stack(
+                    children: [
+                      const Center(
+                        child: Icon(Icons.notifications_none_rounded,
+                          size: 22, color: AppColors.gray400),
+                      ),
+                      Consumer<NotificationProvider>(
+                        builder: (_, prov, __) {
+                          if (prov.unreadCount == 0) return const SizedBox.shrink();
+                          return Positioned(
+                            top: 4, right: 4,
+                            child: Container(
+                              width: 16, height: 16,
+                              decoration: const BoxDecoration(
+                                color: AppColors.red500,
+                                shape: BoxShape.circle,
+                              ),
+                              alignment: Alignment.center,
+                              child: Text(
+                                prov.unreadCount > 9 ? '9+' : '${prov.unreadCount}',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(width: 4),
+              GestureDetector(
+                onLongPress: onLogout,
+                child: _UserAvatar(user: user, size: 32),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _UserAvatar extends StatelessWidget {
+  final User?  user;
+  final double size;
+
+  const _UserAvatar({this.user, required this.size});
+
+  String get _initials {
+    final name  = user?.name.trim() ?? '';
+    final parts = name.split(' ');
+    if (parts.length >= 2) return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
+    return name.isNotEmpty ? name[0].toUpperCase() : '?';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final photoUrl = user?.photoUrl;
+    if (photoUrl != null) {
+      return ClipOval(
+        child: Image.network(
+          photoUrl,
+          width: size, height: size,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => _circle(),
+        ),
+      );
+    }
+    return _circle();
+  }
+
+  Widget _circle() {
+    return Container(
+      width: size, height: size,
+      decoration: const BoxDecoration(
+        shape: BoxShape.circle,
+        color: AppColors.blue600,
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        _initials,
+        style: TextStyle(
+          color:      Colors.white,
+          fontSize:   size * 0.38,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Dashboard Body ───────────────────────────────────────────────────────────
+
+class _DashboardBody extends StatelessWidget {
+  final VoidCallback onCheckin;
+  final VoidCallback onCheckout;
+  final VoidCallback onHistory;
+
+  const _DashboardBody({
+    required this.onCheckin,
+    required this.onCheckout,
+    required this.onHistory,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final user       = context.watch<AuthProvider>().user;
+    final attendProv = context.watch<AttendanceProvider>();
+    final status     = attendProv.status;
+
+    return SingleChildScrollView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _GreetingCard(user: user),
+          const SizedBox(height: 8),
+          _MiniCalendar(records: attendProv.currentMonthRecords),
+          const SizedBox(height: 8),
+
+          if (attendProv.isLoadingStatus)
+            const Center(
+              child: Padding(
+                padding: EdgeInsets.all(32),
+                child: CircularProgressIndicator(),
+              ),
+            )
+          else if (attendProv.error != null)
+            _ErrorBanner(message: attendProv.error!)
+          else if (status != null) ...[
+            _CheckInCard(status: status, onPresensi: onCheckin),
+            const SizedBox(height: 8),
+
+            if (status.attendance?.checkInTime != null) ...[
+              _CheckOutCard(status: status, onCheckout: onCheckout),
+              const SizedBox(height: 8),
+            ],
+
+            _ShiftCard(status: status),
+            const SizedBox(height: 8),
+            _HistoryButton(onTap: onHistory),
+          ],
+
+          // Pengumuman
+          const SizedBox(height: 8),
+          _AnnouncementSection(
+            announcements: context.watch<NotificationProvider>().announcements,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Greeting Card ────────────────────────────────────────────────────────────
+
+class _GreetingCard extends StatelessWidget {
+  final User? user;
+  const _GreetingCard({this.user});
+
+  @override
+  Widget build(BuildContext context) {
+    final now       = DateTime.now();
+    final dateStr   = DateFormat('EEEE, d MMMM y', 'id_ID').format(now);
+    final firstName = (user?.name.trim() ?? '').split(' ').first;
+
+    return Container(
+      decoration: const BoxDecoration(
+        gradient:     AppColors.primaryGradient,
+        borderRadius: AppRadius.card,
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Row(
+        children: [
+          // Foto / avatar
+          Container(
+            width: 56, height: 56,
+            decoration: BoxDecoration(
+              borderRadius: AppRadius.avatar,
+              border:       Border.all(color: Colors.white.withOpacity(0.40), width: 2),
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: user?.photoUrl != null
+                ? Image.network(
+                    user!.photoUrl!,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => _avatarFallback(),
+                  )
+                : _avatarFallback(),
+          ),
+          const SizedBox(width: 12),
+
+          // Info
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(dateStr,
+                  style: const TextStyle(color: AppColors.blue200, fontSize: 11)),
+                const SizedBox(height: 2),
+                Text(
+                  'Halo, $firstName!',
+                  style: const TextStyle(
+                    color: Colors.white, fontSize: 18,
+                    fontWeight: FontWeight.bold, height: 1.2,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  [
+                    if (user?.className != null) user!.className!,
+                    if (user?.nis        != null) 'NIS ${user!.nis}',
+                  ].join('  ·  ').ifEmpty('SMA Negeri 1 Gianyar'),
+                  style: const TextStyle(color: AppColors.blue200, fontSize: 11),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _avatarFallback() {
+    return Container(
+      color: Colors.white.withOpacity(0.20),
+      alignment: Alignment.bottomCenter,
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 2),
+        child: Icon(Icons.person_rounded,
+          color: Colors.white.withOpacity(0.90), size: 44),
+      ),
+    );
+  }
+}
+
+extension _StringX on String {
+  String ifEmpty(String fallback) => isEmpty ? fallback : this;
+}
+
+// ─── Mini Calendar ────────────────────────────────────────────────────────────
+
+class _MiniCalendar extends StatelessWidget {
+  final List<AttendanceRecord> records;
+  const _MiniCalendar({required this.records});
+
+  static const _dayLabels = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
+
+  Color _dotColor(String? status) => switch (status) {
+    'hadir'      => AppColors.green500,
+    'terlambat'  => AppColors.yellow500,
+    'izin'       => AppColors.blue600,
+    'sakit'      => const Color(0xFFA855F7),
+    'dispensasi' => AppColors.teal500,
+    'alpa'       => AppColors.red500,
+    _            => Colors.transparent,
+  };
+
+  @override
+  Widget build(BuildContext context) {
+    final now        = DateTime.now();
+    final firstOfMonth = DateTime(now.year, now.month, 1);
+    final daysInMonth  = DateTime(now.year, now.month + 1, 0).day;
+    // weekday: Mon=1 .. Sun=7; offset to Mon-based grid
+    final startOffset  = (firstOfMonth.weekday - 1) % 7;
+
+    final statusMap = <int, String>{
+      for (final r in records)
+        DateTime.parse(r.date).day: r.status,
+    };
+
+    final totalCells = startOffset + daysInMonth;
+    final rows       = (totalCells / 7).ceil();
+
+    return Container(
+      decoration: BoxDecoration(
+        color:        AppColors.white,
+        borderRadius: AppRadius.card,
+        border:       Border.all(color: AppColors.gray100),
+        boxShadow:    AppShadow.sm,
+      ),
+      padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header
+          Row(
+            children: [
+              const Icon(Icons.calendar_month_rounded, size: 14, color: AppColors.blue600),
+              const SizedBox(width: 6),
+              Text(
+                'Kehadiran ${_monthName(now.month)} ${now.year}',
+                style: const TextStyle(
+                  fontSize:   12,
+                  fontWeight: FontWeight.w600,
+                  color:      AppColors.gray700,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+
+          // Day-of-week headers
+          Row(
+            children: _dayLabels.map((d) => Expanded(
+              child: Text(
+                d,
+                style: const TextStyle(fontSize: 9, color: AppColors.gray400, fontWeight: FontWeight.w600),
+                textAlign: TextAlign.center,
+              ),
+            )).toList(),
+          ),
+          const SizedBox(height: 4),
+
+          // Calendar grid
+          for (int row = 0; row < rows; row++) ...[
+            Row(
+              children: List.generate(7, (col) {
+                final cell = row * 7 + col;
+                final day  = cell - startOffset + 1;
+
+                if (day < 1 || day > daysInMonth) {
+                  return const Expanded(child: SizedBox(height: 28));
+                }
+
+                final isToday  = day == now.day;
+                final status   = statusMap[day];
+                final dotColor = _dotColor(status);
+                final isWeekend = col >= 5; // Sat/Sun
+
+                return Expanded(
+                  child: Container(
+                    height: 28,
+                    alignment: Alignment.center,
+                    child: Container(
+                      width: 22, height: 22,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: isToday
+                            ? AppColors.blue600
+                            : status != null
+                                ? dotColor.withOpacity(0.15)
+                                : Colors.transparent,
+                        border: isToday
+                            ? null
+                            : status != null
+                                ? Border.all(color: dotColor.withOpacity(0.60), width: 1)
+                                : null,
+                      ),
+                      child: Center(
+                        child: status != null && !isToday
+                            ? Container(
+                                width: 6, height: 6,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: dotColor,
+                                ),
+                              )
+                            : Text(
+                                '$day',
+                                style: TextStyle(
+                                  fontSize:   9,
+                                  fontWeight: isToday ? FontWeight.bold : FontWeight.normal,
+                                  color:      isToday
+                                      ? Colors.white
+                                      : isWeekend
+                                          ? AppColors.gray400
+                                          : AppColors.gray500,
+                                ),
+                              ),
+                      ),
+                    ),
+                  ),
+                );
+              }),
+            ),
+          ],
+
+          // Legend
+          const SizedBox(height: 8),
+          const Divider(height: 1, color: AppColors.gray100),
+          const SizedBox(height: 6),
+          Wrap(
+            spacing: 10,
+            children: const [
+              _LegendDot(color: AppColors.green500,   label: 'Hadir'),
+              _LegendDot(color: AppColors.yellow500,  label: 'Terlambat'),
+              _LegendDot(color: AppColors.red500,     label: 'Alpa'),
+              _LegendDot(color: AppColors.blue600,    label: 'Izin'),
+              _LegendDot(color: Color(0xFFA855F7),    label: 'Sakit'),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _monthName(int m) => const [
+    '', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+    'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
+  ][m];
+}
+
+class _LegendDot extends StatelessWidget {
+  final Color  color;
+  final String label;
+  const _LegendDot({required this.color, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 7, height: 7,
+          decoration: BoxDecoration(shape: BoxShape.circle, color: color),
+        ),
+        const SizedBox(width: 3),
+        Text(label, style: const TextStyle(fontSize: 9, color: AppColors.gray500)),
+      ],
+    );
+  }
+}
+
+// ─── Check-in Card ────────────────────────────────────────────────────────────
+
+class _CheckInCard extends StatelessWidget {
+  final AttendanceStatus status;
+  final VoidCallback     onPresensi;
+
+  const _CheckInCard({required this.status, required this.onPresensi});
+
+  @override
+  Widget build(BuildContext context) {
+    final att  = status.attendance;
+    final done = att?.checkInTime != null;
+
+    final (bg, border, textMain, textSub) = done
+        ? (AppColors.green100,              const Color(0xFF86EFAC),
+           AppColors.green900,              const Color(0xFF15803D))
+        : (const Color(0xFFF3F4F6),        AppColors.gray200,
+           AppColors.gray500,              AppColors.gray400);
+
+    return _AttCard(
+      bg: bg, border: border,
+      iconBg: done ? _circleColor(att!.status) : AppColors.gray400,
+      icon:   _icon(att?.status),
+      title:  done ? att!.statusLabel : 'Belum Presensi',
+      sub:    done
+          ? 'Tercatat jam ${att!.checkInTime!.substring(0, 5)}'
+          : 'Segera lakukan presensi masuk',
+      textMain: textMain,
+      textSub:  textSub,
+      trailing: !done && status.canCheckin
+          ? _Pill(label: 'Presensi', color: AppColors.blue600, onTap: onPresensi)
+          : done
+              ? _PhotoBox(borderColor: border, photoUrl: att!.checkInPhotoUrl)
+              : null,
+    );
+  }
+
+  Color _circleColor(String s) => switch (s) {
+    'hadir'      => AppColors.green500,
+    'terlambat'  => AppColors.yellow500,
+    'izin'       => AppColors.blue600,
+    'sakit'      => AppColors.blue600,
+    'alpa'       => AppColors.red500,
+    'dispensasi' => AppColors.teal500,
+    _            => AppColors.gray400,
+  };
+
+  IconData _icon(String? s) => switch (s) {
+    'hadir'      => Icons.check_rounded,
+    'terlambat'  => Icons.access_time_rounded,
+    'izin'       => Icons.description_outlined,
+    'sakit'      => Icons.healing_outlined,
+    'alpa'       => Icons.close_rounded,
+    'dispensasi' => Icons.event_available_outlined,
+    _            => Icons.access_time_rounded,
+  };
+}
+
+// ─── Check-out Card ───────────────────────────────────────────────────────────
+
+class _CheckOutCard extends StatelessWidget {
+  final AttendanceStatus status;
+  final VoidCallback     onCheckout;
+
+  const _CheckOutCard({required this.status, required this.onCheckout});
+
+  @override
+  Widget build(BuildContext context) {
+    final att  = status.attendance;
+    final done = att?.checkOutTime != null;
+
+    final (bg, border, textMain, textSub) = done
+        ? (AppColors.emerald100,            const Color(0xFF6EE7B7),
+           AppColors.emerald900,            AppColors.emerald600)
+        : (const Color(0xFFF3F4F6),        AppColors.gray200,
+           AppColors.gray500,              AppColors.gray400);
+
+    return _AttCard(
+      bg: bg, border: border,
+      iconBg: done ? AppColors.emerald500 : AppColors.gray400,
+      icon:   done ? Icons.logout_rounded : Icons.access_time_rounded,
+      title:  'Absen Pulang',
+      sub:    done
+          ? 'Tercatat jam ${att!.checkOutTime!.substring(0, 5)}'
+          : 'Belum melakukan absen pulang',
+      textMain: textMain,
+      textSub:  textSub,
+      trailing: !done && status.canCheckout
+          ? _Pill(
+              label: 'Absen\nPulang',
+              color: AppColors.emerald600,
+              onTap: onCheckout,
+            )
+          : done
+              ? _PhotoBox(
+                  borderColor: border,
+                  photoUrl:    att!.checkOutPhotoUrl,
+                  icon:        Icons.check_circle_outline,
+                  iconColor:   AppColors.emerald500,
+                )
+              : null,
+    );
+  }
+}
+
+// ─── Shared attendance card scaffold ──────────────────────────────────────────
+
+class _AttCard extends StatelessWidget {
+  final Color    bg;
+  final Color    border;
+  final Color    iconBg;
+  final IconData icon;
+  final String   title;
+  final String   sub;
+  final Color    textMain;
+  final Color    textSub;
+  final Widget?  trailing;
+
+  const _AttCard({
+    required this.bg,
+    required this.border,
+    required this.iconBg,
+    required this.icon,
+    required this.title,
+    required this.sub,
+    required this.textMain,
+    required this.textSub,
+    this.trailing,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color:        bg,
+        borderRadius: AppRadius.card,
+        border:       Border.all(color: border),
+        boxShadow:    AppShadow.sm,
+      ),
+      padding: const EdgeInsets.all(12),
+      child: Row(
+        children: [
+          Container(
+            width: 44, height: 44,
+            decoration: BoxDecoration(shape: BoxShape.circle, color: iconBg),
+            child: Icon(icon, color: Colors.white, size: 20),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title,
+                  style: TextStyle(
+                    fontSize: 14, fontWeight: FontWeight.w600, color: textMain)),
+                const SizedBox(height: 2),
+                Text(sub,
+                  style: TextStyle(fontSize: 12, color: textSub)),
+              ],
+            ),
+          ),
+          if (trailing != null) ...[
+            const SizedBox(width: 8),
+            trailing!,
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _Pill extends StatelessWidget {
+  final String       label;
+  final Color        color;
+  final VoidCallback onTap;
+
+  const _Pill({required this.label, required this.color, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color:        color,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Text(
+          label,
+          style: const TextStyle(
+            color: Colors.white, fontSize: 12,
+            fontWeight: FontWeight.bold, height: 1.3,
+          ),
+          textAlign: TextAlign.center,
+        ),
+      ),
+    );
+  }
+}
+
+class _PhotoBox extends StatelessWidget {
+  final Color    borderColor;
+  final String?  photoUrl;
+  final IconData icon;
+  final Color    iconColor;
+
+  const _PhotoBox({
+    required this.borderColor,
+    this.photoUrl,
+    this.icon       = Icons.person_rounded,
+    this.iconColor  = AppColors.gray400,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 56, height: 56,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        color:        Colors.white.withOpacity(0.50),
+        border:       Border.all(color: borderColor),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: photoUrl != null
+          ? Image.network(
+              photoUrl!,
+              fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) => Icon(icon, color: iconColor, size: 28),
+            )
+          : Icon(icon, color: iconColor, size: 28),
+    );
+  }
+}
+
+// ─── Shift Card ───────────────────────────────────────────────────────────────
+
+class _ShiftCard extends StatelessWidget {
+  final AttendanceStatus status;
+  const _ShiftCard({required this.status});
+
+  @override
+  Widget build(BuildContext context) {
+    final s = status.shift;
+    return Container(
+      decoration: BoxDecoration(
+        color:        AppColors.white,
+        borderRadius: AppRadius.card,
+        border:       Border.all(color: AppColors.gray100),
+        boxShadow:    AppShadow.sm,
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Row(
+            children: [
+              Icon(Icons.schedule_rounded, size: 16, color: AppColors.blue600),
+              SizedBox(width: 6),
+              Text('Jadwal Absensi',
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize:   13,
+                  color:      AppColors.gray700,
+                )),
+            ],
+          ),
+          const Divider(height: 16, color: AppColors.gray100),
+          _row('Buka Absen',   s.checkInOpen,  AppColors.green500),
+          _row('Batas Tepat',  s.checkInLate,  AppColors.yellow500),
+          _row('Tutup Absen',  s.checkInClose, AppColors.red500),
+          _row('Absen Pulang', s.checkOutOpen, AppColors.blue600),
+        ],
+      ),
+    );
+  }
+
+  Widget _row(String label, String time, Color color) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 3),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: const TextStyle(fontSize: 12, color: AppColors.gray500)),
+          Text(
+            time.length >= 5 ? time.substring(0, 5) : time,
+            style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: color),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── History Button ───────────────────────────────────────────────────────────
+
+class _HistoryButton extends StatelessWidget {
+  final VoidCallback onTap;
+  const _HistoryButton({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          color:        AppColors.white,
+          borderRadius: AppRadius.card,
+          border:       Border.all(color: AppColors.gray100),
+          boxShadow:    AppShadow.sm,
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        child: const Row(
+          children: [
+            Icon(Icons.history_rounded, size: 18, color: AppColors.blue600),
+            SizedBox(width: 10),
+            Expanded(
+              child: Text('Riwayat Absensi',
+                style: TextStyle(
+                  fontSize:   13,
+                  fontWeight: FontWeight.w600,
+                  color:      AppColors.gray700,
+                )),
+            ),
+            Icon(Icons.chevron_right, color: AppColors.gray400, size: 20),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Error Banner ─────────────────────────────────────────────────────────────
+
+class _ErrorBanner extends StatelessWidget {
+  final String message;
+  const _ErrorBanner({required this.message});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color:        AppColors.red100,
+        borderRadius: AppRadius.card,
+        border:       Border.all(color: AppColors.red500.withOpacity(0.40)),
+      ),
+      padding: const EdgeInsets.all(14),
+      child: Row(
+        children: [
+          const Icon(Icons.error_outline, color: AppColors.red500),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(message,
+              style: const TextStyle(color: AppColors.red500, fontSize: 13)),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Announcement Section ─────────────────────────────────────────────────────
+
+class _AnnouncementSection extends StatelessWidget {
+  final List<AnnouncementItem> announcements;
+  const _AnnouncementSection({required this.announcements});
+
+  @override
+  Widget build(BuildContext context) {
+    if (announcements.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const Row(
+          children: [
+            Icon(Icons.campaign_rounded, size: 16, color: AppColors.blue600),
+            SizedBox(width: 6),
+            Text('Pengumuman',
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize:   13,
+                color:      AppColors.gray700,
+              )),
+          ],
+        ),
+        const SizedBox(height: 8),
+        ...announcements.map((a) => _AnnouncementCard(item: a)),
+      ],
+    );
+  }
+}
+
+class _AnnouncementCard extends StatelessWidget {
+  final AnnouncementItem item;
+  const _AnnouncementCard({required this.item});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      decoration: BoxDecoration(
+        color:        AppColors.white,
+        borderRadius: AppRadius.card,
+        border:       Border.all(
+          color: item.isPinned ? AppColors.blue600.withOpacity(0.30) : AppColors.gray100,
+        ),
+        boxShadow: AppShadow.sm,
+      ),
+      padding: const EdgeInsets.all(14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              if (item.isPinned) ...[
+                const Icon(Icons.push_pin_rounded, size: 14, color: AppColors.blue600),
+                const SizedBox(width: 4),
+              ],
+              Expanded(
+                child: Text(item.title,
+                  style: const TextStyle(
+                    fontSize:   13,
+                    fontWeight: FontWeight.w600,
+                    color:      AppColors.gray800,
+                  )),
+              ),
+              Text(
+                DateFormat('d MMM', 'id_ID').format(item.publishedAt.toLocal()),
+                style: const TextStyle(fontSize: 10, color: AppColors.gray400),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            item.body,
+            style: const TextStyle(fontSize: 12, color: AppColors.gray500, height: 1.5),
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
+          ),
+          if (item.authorName != null) ...[
+            const SizedBox(height: 6),
+            Text(
+              'Oleh ${item.authorName}',
+              style: const TextStyle(fontSize: 10, color: AppColors.gray400),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Notification Sheet ───────────────────────────────────────────────────────
+
+class _NotificationSheet extends StatelessWidget {
+  const _NotificationSheet();
+
+  @override
+  Widget build(BuildContext context) {
+    final prov = context.watch<NotificationProvider>();
+
+    return DraggableScrollableSheet(
+      initialChildSize: 0.65,
+      minChildSize:     0.40,
+      maxChildSize:     0.90,
+      builder: (_, scrollCtrl) => Container(
+        decoration: const BoxDecoration(
+          color:        AppColors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Column(
+          children: [
+            // Handle
+            Container(
+              margin: const EdgeInsets.symmetric(vertical: 10),
+              width: 36, height: 4,
+              decoration: BoxDecoration(
+                color:        AppColors.gray200,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+
+            // Header
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                children: [
+                  const Expanded(
+                    child: Text('Notifikasi',
+                      style: TextStyle(
+                        fontSize:   16,
+                        fontWeight: FontWeight.bold,
+                        color:      AppColors.gray800,
+                      )),
+                  ),
+                  if (prov.unreadCount > 0)
+                    TextButton(
+                      onPressed: () => context.read<NotificationProvider>().markAllRead(),
+                      child: const Text('Baca Semua',
+                        style: TextStyle(fontSize: 12, color: AppColors.blue600)),
+                    ),
+                ],
+              ),
+            ),
+            const Divider(height: 1, color: AppColors.gray100),
+
+            // List
+            Expanded(
+              child: prov.isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : prov.notifications.isEmpty
+                      ? const Center(
+                          child: Text('Tidak ada notifikasi',
+                            style: TextStyle(color: AppColors.gray400, fontSize: 13)),
+                        )
+                      : ListView.separated(
+                          controller:  scrollCtrl,
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          itemCount:   prov.notifications.length,
+                          separatorBuilder: (_, __) =>
+                              const Divider(height: 1, indent: 56, color: AppColors.gray100),
+                          itemBuilder: (_, i) => _NotifTile(item: prov.notifications[i]),
+                        ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _NotifTile extends StatelessWidget {
+  final NotificationItem item;
+  const _NotifTile({required this.item});
+
+  Color get _iconColor => switch (item.type) {
+    'success' => AppColors.green500,
+    'warning' => AppColors.amber500,
+    _         => AppColors.blue600,
+  };
+
+  Color get _iconBg => switch (item.type) {
+    'success' => AppColors.green100,
+    'warning' => AppColors.amber100,
+    _         => AppColors.blue50,
+  };
+
+  IconData get _icon => switch (item.type) {
+    'success' => Icons.check_circle_outline,
+    'warning' => Icons.warning_amber_outlined,
+    _         => Icons.info_outline,
+  };
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: item.isRead ? null : () => context.read<NotificationProvider>().markRead(item.id),
+      child: Container(
+        color: item.isRead ? null : AppColors.blue50.withOpacity(0.40),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 36, height: 36,
+              decoration: BoxDecoration(shape: BoxShape.circle, color: _iconBg),
+              child: Icon(_icon, color: _iconColor, size: 18),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(item.title,
+                    style: TextStyle(
+                      fontSize:   13,
+                      fontWeight: item.isRead ? FontWeight.normal : FontWeight.w600,
+                      color:      AppColors.gray800,
+                    )),
+                  const SizedBox(height: 2),
+                  Text(item.body,
+                    style: const TextStyle(fontSize: 12, color: AppColors.gray500),
+                    maxLines: 2, overflow: TextOverflow.ellipsis),
+                  const SizedBox(height: 4),
+                  Text(
+                    DateFormat('d MMM y, HH:mm', 'id_ID').format(item.createdAt.toLocal()),
+                    style: const TextStyle(fontSize: 10, color: AppColors.gray400),
+                  ),
+                ],
+              ),
+            ),
+            if (!item.isRead)
+              Container(
+                margin: const EdgeInsets.only(top: 4, left: 8),
+                width: 8, height: 8,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle, color: AppColors.blue600),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Bottom Navigation ────────────────────────────────────────────────────────
+
+class _BottomNav extends StatelessWidget {
+  final int              selectedTab;  // -1 = beranda, 0-3 = sections
+  final void Function(int) onTabTap;
+  final VoidCallback     onPresensi;
+
+  const _BottomNav({
+    required this.selectedTab,
+    required this.onTabTap,
+    required this.onPresensi,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+        color:  AppColors.white,
+        border: Border(top: BorderSide(color: AppColors.gray200)),
+      ),
+      child: SafeArea(
+        top: false,
+        child: SizedBox(
+          height: 64,
+          child: Row(
+            children: [
+              _NavItem(
+                icon:       Icons.group_outlined,
+                iconFilled: Icons.group,
+                label:      'Kesiswaan',
+                selected:   selectedTab == 0,
+                onTap:      () => onTabTap(0),
+              ),
+              _NavItem(
+                icon:       Icons.menu_book_outlined,
+                iconFilled: Icons.menu_book,
+                label:      'Kurikulum',
+                selected:   selectedTab == 1,
+                onTap:      () => onTabTap(1),
+              ),
+
+              // ── Presensi — tombol tengah yang naik ──────────────
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    GestureDetector(
+                      onTap: onPresensi,
+                      child: Transform.translate(
+                        offset: const Offset(0, -12),
+                        child: Container(
+                          width: 52, height: 52,
+                          decoration: BoxDecoration(
+                            color:     AppColors.blue600,
+                            shape:     BoxShape.circle,
+                            border:    Border.all(color: AppColors.white, width: 4),
+                            boxShadow: [
+                              BoxShadow(
+                                color:      AppColors.blue600.withOpacity(0.40),
+                                blurRadius: 12,
+                                offset:     const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: const Icon(
+                            Icons.camera_alt_rounded,
+                            color: Colors.white,
+                            size:  24,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const Text(
+                      'Presensi',
+                      style: TextStyle(
+                        fontSize:   10,
+                        fontWeight: FontWeight.w500,
+                        color:      AppColors.blue600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              _NavItem(
+                icon:       Icons.business_outlined,
+                iconFilled: Icons.business,
+                label:      'Prasarana',
+                selected:   selectedTab == 2,
+                onTap:      () => onTabTap(2),
+              ),
+              _NavItem(
+                icon:       Icons.campaign_outlined,
+                iconFilled: Icons.campaign,
+                label:      'Humas',
+                selected:   selectedTab == 3,
+                onTap:      () => onTabTap(3),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _NavItem extends StatelessWidget {
+  final IconData     icon;
+  final IconData     iconFilled;
+  final String       label;
+  final bool         selected;
+  final VoidCallback onTap;
+
+  const _NavItem({
+    required this.icon,
+    required this.iconFilled,
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final color = selected ? AppColors.blue600 : AppColors.gray400;
+    return Expanded(
+      child: GestureDetector(
+        onTap:     onTap,
+        behavior:  HitTestBehavior.opaque,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(selected ? iconFilled : icon, color: color, size: 22),
+            const SizedBox(height: 2),
+            Text(label,
+              style: TextStyle(
+                fontSize:   10,
+                fontWeight: FontWeight.w500,
+                color:      color,
+              )),
+          ],
+        ),
+      ),
+    );
+  }
+}

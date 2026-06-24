@@ -1,0 +1,56 @@
+{
+    "name": "SIMS — SMA Negeri 1 Gianyar",
+    "short_name": "SIMS",
+    "description": "Sistem Informasi Manajemen Sekolah — SMA Negeri 1 Gianyar",
+    "start_url": "/siswa/dashboard",
+    "scope": "/",
+    "display": "standalone",
+    "orientation": "portrait-primary",
+    "theme_color": "#2563eb",
+    "background_color": "#f9fafb",
+    "lang": "id",
+    "categories": ["education", "productivity"],
+    "icons": [
+        {
+            "src": "/img/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/img/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/img/icon-maskable-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "maskable"
+        },
+        {
+            "src": "/img/icon-maskable-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
+        }
+    ],
+    "screenshots": [],
+    "shortcuts": [
+        {
+            "name": "Presensi",
+            "short_name": "Presensi",
+            "description": "Lakukan presensi selfie",
+            "url": "/siswa/attendance",
+            "icons": [{ "src": "/img/icon-192.png", "sizes": "192x192" }]
+        },
+        {
+            "name": "Kesiswaan",
+            "short_name": "Kesiswaan",
+            "description": "Lihat data kesiswaan",
+            "url": "/siswa/kesiswaan",
+            "icons": [{ "src": "/img/icon-192.png", "sizes": "192x192" }]
+        }
+    ]
+}
