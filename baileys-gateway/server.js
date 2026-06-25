@@ -45,9 +45,15 @@ async function startBaileys() {
     const { state, saveCreds } = await useMultiFileAuthState(AUTH_DIR);
 
     sock = makeWASocket({
-        auth   : state,
-        logger : pino({ level: 'silent' }),
-        printQRInTerminal: false,
+        auth                   : state,
+        logger                 : pino({ level: 'silent' }),
+        printQRInTerminal      : true,   // tampilkan QR di terminal juga
+        browser                : ['SIMS-Gateway', 'Chrome', '124.0.0'],
+        connectTimeoutMs       : 60_000,
+        defaultQueryTimeoutMs  : 60_000,
+        keepAliveIntervalMs    : 15_000,
+        retryRequestDelayMs    : 2_000,
+        qrTimeout              : 60_000,
     });
 
     // Event: QR Code
@@ -65,16 +71,21 @@ async function startBaileys() {
 
         if (connection === 'close') {
             isConnected = false;
-            const shouldReconnect =
-                (lastDisconnect?.error instanceof Boom)
-                    ? lastDisconnect.error.output.statusCode !== DisconnectReason.loggedOut
-                    : true;
+            const statusCode   = (lastDisconnect?.error instanceof Boom)
+                ? lastDisconnect.error.output.statusCode
+                : 0;
+            const shouldReconnect = statusCode !== DisconnectReason.loggedOut;
 
-            console.log('Koneksi terputus. Reconnect:', shouldReconnect);
-            if (shouldReconnect) {
-                setTimeout(startBaileys, 3000);
-            } else {
+            console.log(`Koneksi terputus (kode: ${statusCode}). Reconnect: ${shouldReconnect}`);
+
+            if (statusCode === DisconnectReason.loggedOut) {
                 console.log('Sesi logout. Hapus folder auth_info lalu restart untuk scan ulang.');
+            } else if (statusCode === DisconnectReason.restartRequired) {
+                console.log('Restart diperlukan...');
+                setTimeout(startBaileys, 2000);
+            } else if (shouldReconnect) {
+                // Tunggu lebih lama sebelum reconnect agar tidak flood
+                setTimeout(startBaileys, 5000);
             }
         }
 
