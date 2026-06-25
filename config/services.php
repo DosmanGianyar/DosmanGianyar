@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    'baileys' => [
+        'url'    => env('BAILEYS_URL', 'http://localhost:3000'),
+        'secret' => env('BAILEYS_SECRET', ''),
+    ],
+
 ];

@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Siswa;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\SendWhatsappJob;
 use App\Models\Permit;
+use App\Services\WhatsappService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -44,6 +46,24 @@ class PermitController extends Controller
             'file'       => $filePath,
             'status'     => 'pending',
         ]);
+
+        // Kirim notifikasi WA ke orang tua
+        /** @var \App\Models\User $siswa */
+        $siswa = Auth::user();
+        if ($siswa->parent_phone) {
+            $wa      = new WhatsappService();
+            $kelas   = $siswa->schoolClass?->name ?? '-';
+            $message = $wa->templatePermit(
+                parentName  : $siswa->parent_name ?? 'Orang Tua',
+                studentName : $siswa->name,
+                className   : $kelas,
+                typeLabel   : (new Permit(['type' => $data['type']]))->typeLabel(),
+                startDate   : $data['start_date'],
+                endDate     : $data['end_date'],
+                reason      : $data['reason']
+            );
+            SendWhatsappJob::dispatch($siswa->parent_phone, $message);
+        }
 
         $label = (new Permit(['type' => $data['type']]))->typeLabel();
         return redirect()->route('siswa.permit.index')
