@@ -2,24 +2,27 @@ const {
     default: makeWASocket,
     useMultiFileAuthState,
     DisconnectReason,
-    makeInMemoryStore,
+    makeCacheableSignalKeyStore,
 } = require('@whiskeysockets/baileys');
-const { Boom }   = require('@hapi/boom');
-const express    = require('express');
-const qrcode     = require('qrcode-terminal');
-const pino       = require('pino');
-const path       = require('path');
+const { Boom }  = require('@hapi/boom');
+const express   = require('express');
+const pino      = require('pino');
+const path      = require('path');
+const readline  = require('readline');
 
 // ── Konfigurasi ───────────────────────────────────────────────────────────
-const PORT          = process.env.PORT   || 3000;
-const SECRET        = process.env.SECRET || '';          // kosongkan = tanpa auth
-const AUTH_DIR      = path.join(__dirname, 'auth_info'); // folder simpan sesi WA
+const PORT     = process.env.PORT   || 3000;
+const SECRET   = process.env.SECRET || '';
+const AUTH_DIR = path.join(__dirname, 'auth_info');
+
+// Nomor HP pengirim WA (format: 628xxx tanpa + dan spasi)
+// Diisi via env SENDER_PHONE atau diinput manual saat pertama kali
+let SENDER_PHONE = process.env.SENDER_PHONE || '';
 
 // ── Express ───────────────────────────────────────────────────────────────
 const app = express();
 app.use(express.json());
 
-// Middleware: cek secret key jika dikonfigurasi
 app.use((req, res, next) => {
     if (!SECRET) return next();
     const key = req.headers['x-api-key'] || req.body?.secret;
@@ -27,17 +30,35 @@ app.use((req, res, next) => {
     next();
 });
 
-// ── State socket ──────────────────────────────────────────────────────────
+// ── State ─────────────────────────────────────────────────────────────────
 let sock        = null;
 let isConnected = false;
-let qrString    = null;
+let pairingCode = null;
 
-// ── Format nomor WA ───────────────────────────────────────────────────────
+// ── Format nomor ──────────────────────────────────────────────────────────
 function formatPhone(phone) {
-    phone = String(phone).replace(/\D/g, ''); // hapus non-digit
-    if (phone.startsWith('0'))  phone = '62' + phone.slice(1);
+    phone = String(phone).replace(/\D/g, '');
+    if (phone.startsWith('0'))   phone = '62' + phone.slice(1);
     if (!phone.startsWith('62')) phone = '62' + phone;
     return phone + '@s.whatsapp.net';
+}
+
+function cleanPhone(phone) {
+    phone = String(phone).replace(/\D/g, '');
+    if (phone.startsWith('0')) phone = '62' + phone.slice(1);
+    if (!phone.startsWith('62')) phone = '62' + phone;
+    return phone;
+}
+
+// ── Input nomor dari terminal ──────────────────────────────────────────────
+function promptPhone() {
+    return new Promise((resolve) => {
+        const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+        rl.question('\n📱 Masukkan nomor WA pengirim (format: 628xxx): ', (answer) => {
+            rl.close();
+            resolve(answer.trim());
+        });
+    });
 }
 
 // ── Inisialisasi Baileys ──────────────────────────────────────────────────
@@ -45,58 +66,68 @@ async function startBaileys() {
     const { state, saveCreds } = await useMultiFileAuthState(AUTH_DIR);
 
     sock = makeWASocket({
-        auth                   : state,
-        logger                 : pino({ level: 'silent' }),
-        printQRInTerminal      : true,   // tampilkan QR di terminal juga
-        browser                : ['SIMS-Gateway', 'Chrome', '124.0.0'],
-        connectTimeoutMs       : 60_000,
-        defaultQueryTimeoutMs  : 60_000,
-        keepAliveIntervalMs    : 15_000,
-        retryRequestDelayMs    : 2_000,
-        qrTimeout              : 60_000,
+        auth: {
+            creds: state.creds,
+            keys : makeCacheableSignalKeyStore(state.keys, pino({ level: 'silent' })),
+        },
+        logger              : pino({ level: 'silent' }),
+        connectTimeoutMs    : 60_000,
+        keepAliveIntervalMs : 15_000,
+        browser             : ['SIMS-Gateway', 'Chrome', '124.0.0'],
     });
 
-    // Event: QR Code
-    sock.ev.on('connection.update', (update) => {
-        const { connection, lastDisconnect, qr } = update;
-
-        if (qr) {
-            qrString = qr;
-            console.log('\n==============================');
-            console.log('  Scan QR code berikut dengan WhatsApp HP sekolah:');
-            console.log('==============================\n');
-            qrcode.generate(qr, { small: true });
-            console.log('\nAtau buka http://localhost:' + PORT + '/qr di browser\n');
+    // Pairing code — minta nomor jika belum ada
+    if (!sock.authState.creds.registered) {
+        if (!SENDER_PHONE) {
+            SENDER_PHONE = await promptPhone();
         }
+        const phone = cleanPhone(SENDER_PHONE);
+
+        await new Promise(r => setTimeout(r, 2000)); // tunggu socket siap
+
+        try {
+            pairingCode = await sock.requestPairingCode(phone);
+            console.log('\n==============================');
+            console.log('  KODE PAIRING WhatsApp:');
+            console.log(`  👉  ${pairingCode}`);
+            console.log('==============================');
+            console.log('Langkah:');
+            console.log('1. Buka WhatsApp di HP');
+            console.log('2. Ketuk Titik tiga → Perangkat tertaut → Tautkan perangkat');
+            console.log('3. Pilih "Tautkan dengan nomor telepon"');
+            console.log(`4. Masukkan kode: ${pairingCode}\n`);
+        } catch (err) {
+            console.error('Gagal mendapatkan pairing code:', err.message);
+        }
+    }
+
+    sock.ev.on('connection.update', (update) => {
+        const { connection, lastDisconnect } = update;
 
         if (connection === 'close') {
-            isConnected = false;
-            const statusCode   = (lastDisconnect?.error instanceof Boom)
+            isConnected  = false;
+            pairingCode  = null;
+            const status = (lastDisconnect?.error instanceof Boom)
                 ? lastDisconnect.error.output.statusCode
                 : 0;
-            const shouldReconnect = statusCode !== DisconnectReason.loggedOut;
 
-            console.log(`Koneksi terputus (kode: ${statusCode}). Reconnect: ${shouldReconnect}`);
+            console.log(`Koneksi terputus (kode: ${status}).`);
 
-            if (statusCode === DisconnectReason.loggedOut) {
-                console.log('Sesi logout. Hapus folder auth_info lalu restart untuk scan ulang.');
-            } else if (statusCode === DisconnectReason.restartRequired) {
-                console.log('Restart diperlukan...');
-                setTimeout(startBaileys, 2000);
-            } else if (shouldReconnect) {
-                // Tunggu lebih lama sebelum reconnect agar tidak flood
+            if (status === DisconnectReason.loggedOut) {
+                console.log('Logout. Hapus folder auth_info lalu restart.');
+            } else {
+                console.log('Mencoba reconnect dalam 5 detik...');
                 setTimeout(startBaileys, 5000);
             }
         }
 
         if (connection === 'open') {
             isConnected = true;
-            qrString    = null;
-            console.log('✅ WhatsApp terhubung!');
+            pairingCode = null;
+            console.log('✅ WhatsApp terhubung! Siap kirim pesan.');
         }
     });
 
-    // Event: simpan kredensial
     sock.ev.on('creds.update', saveCreds);
 }
 
@@ -107,57 +138,63 @@ app.post('/send', async (req, res) => {
     if (!phone || !message) {
         return res.status(400).json({ success: false, message: 'phone dan message wajib diisi.' });
     }
-
     if (!isConnected || !sock) {
-        return res.status(503).json({ success: false, message: 'WhatsApp belum terhubung. Scan QR terlebih dahulu.' });
+        return res.status(503).json({ success: false, message: 'WhatsApp belum terhubung.' });
     }
 
     try {
-        const jid = formatPhone(phone);
-        await sock.sendMessage(jid, { text: message });
+        await sock.sendMessage(formatPhone(phone), { text: message });
         console.log(`✉️  Pesan terkirim ke ${phone}`);
         return res.json({ success: true, message: 'Pesan berhasil dikirim.' });
     } catch (err) {
-        console.error('Gagal kirim pesan:', err.message);
+        console.error('Gagal kirim:', err.message);
         return res.status(500).json({ success: false, message: err.message });
     }
 });
 
-// ── Endpoint: status koneksi ──────────────────────────────────────────────
+// ── Endpoint: status + pairing code ──────────────────────────────────────
 app.get('/status', (req, res) => {
-    res.json({ connected: isConnected });
+    res.json({
+        connected   : isConnected,
+        pairingCode : pairingCode ?? null,
+    });
 });
 
-// ── Endpoint: tampilkan QR di browser ────────────────────────────────────
-app.get('/qr', (req, res) => {
+app.get('/pairing', (req, res) => {
     if (isConnected) {
-        return res.send('<h2>✅ WhatsApp sudah terhubung!</h2>');
+        return res.send('<h2 style="font-family:sans-serif;padding:40px">✅ WhatsApp sudah terhubung!</h2>');
     }
-    if (!qrString) {
-        return res.send('<h2>Menunggu QR code... Refresh halaman ini.</h2><script>setTimeout(()=>location.reload(),3000)</script>');
-    }
-
-    // Render QR sebagai gambar via qrcode library
-    const QRCode = require('qrcode');
-    QRCode.toDataURL(qrString, (err, url) => {
-        if (err) return res.send('Error generate QR');
-        res.send(`
-            <!DOCTYPE html><html><head><title>SIMS WA Gateway QR</title></head>
-            <body style="font-family:sans-serif;text-align:center;padding:40px">
-                <h2>Scan QR Code dengan WhatsApp HP Sekolah</h2>
-                <img src="${url}" style="width:300px;height:300px"/>
-                <p style="color:#888">QR akan refresh otomatis setiap 5 detik</p>
-                <script>setTimeout(()=>location.reload(), 5000)</script>
-            </body></html>
+    if (!pairingCode) {
+        return res.send(`
+            <h2 style="font-family:sans-serif;padding:40px">Menunggu pairing code...</h2>
+            <script>setTimeout(()=>location.reload(),3000)</script>
         `);
-    });
+    }
+    res.send(`
+        <!DOCTYPE html><html><head><title>SIMS WA Pairing</title></head>
+        <body style="font-family:sans-serif;text-align:center;padding:60px;background:#f0f4ff">
+            <h2>🔗 Tautkan WhatsApp ke SIMS</h2>
+            <div style="font-size:48px;font-weight:bold;letter-spacing:12px;
+                background:#fff;border:3px solid #2563eb;border-radius:16px;
+                padding:20px 40px;display:inline-block;margin:20px 0;color:#1e3a8a">
+                ${pairingCode}
+            </div>
+            <p style="color:#555;max-width:400px;margin:auto">
+                1. Buka WhatsApp di HP<br>
+                2. Titik tiga → <b>Perangkat tertaut</b><br>
+                3. <b>Tautkan perangkat</b> → <b>Tautkan dengan nomor telepon</b><br>
+                4. Masukkan kode di atas
+            </p>
+            <script>setTimeout(()=>location.reload(),10000)</script>
+        </body></html>
+    `);
 });
 
 // ── Start ─────────────────────────────────────────────────────────────────
 app.listen(PORT, () => {
     console.log(`\n🚀 Baileys WA Gateway berjalan di port ${PORT}`);
-    console.log(`   Status : http://localhost:${PORT}/status`);
-    console.log(`   QR     : http://localhost:${PORT}/qr\n`);
+    console.log(`   Status  : http://localhost:${PORT}/status`);
+    console.log(`   Pairing : http://localhost:${PORT}/pairing\n`);
 });
 
 startBaileys();
