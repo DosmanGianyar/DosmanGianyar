@@ -74,15 +74,15 @@
     {{-- ─── E-Kartu Pelajar (Flip: Depan & Belakang) ─────────────── --}}
     <div x-data="{ flipped: false }" class="select-none">
 
-        {{-- Wrapper perspektif --}}
-        <div style="perspective:1200px; width:100%; aspect-ratio:85.6/54; cursor:pointer;"
+        {{-- Wrapper perspektif — position:relative agar anak bisa absolute fill --}}
+        <div style="position:relative; perspective:1200px; width:100%; aspect-ratio:85.6/54; cursor:pointer;"
              @click="flipped = !flipped">
 
-            <div style="position:relative; width:100%; height:100%; transform-style:preserve-3d; transition:transform .65s cubic-bezier(.4,0,.2,1);"
-                 :style="flipped ? 'transform:rotateY(180deg)' : 'transform:rotateY(0deg)'">
+            <div style="position:absolute; top:0; left:0; right:0; bottom:0; transform-style:preserve-3d; transition:transform .65s cubic-bezier(.4,0,.2,1);"
+                 :style="{ transform: flipped ? 'rotateY(180deg)' : 'rotateY(0deg)' }">
 
                 {{-- ══════════ DEPAN ══════════ --}}
-                <div style="position:absolute; inset:0;
+                <div style="position:absolute; top:0; left:0; right:0; bottom:0;
                             backface-visibility:hidden; -webkit-backface-visibility:hidden;
                             border-radius:16px; overflow:hidden;
                             box-shadow:0 16px 48px rgba(29,78,216,.4),0 4px 16px rgba(0,0,0,.2);
@@ -193,7 +193,7 @@
                 </div>
 
                 {{-- ══════════ BELAKANG ══════════ --}}
-                <div style="position:absolute; inset:0;
+                <div style="position:absolute; top:0; left:0; right:0; bottom:0;
                             backface-visibility:hidden; -webkit-backface-visibility:hidden;
                             transform:rotateY(180deg);
                             border-radius:16px; overflow:hidden;
