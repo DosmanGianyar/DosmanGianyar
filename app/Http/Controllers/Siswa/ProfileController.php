@@ -22,10 +22,8 @@ class ProfileController extends Controller
         $siswa->load('schoolClass');
 
         $qrContent = (string) ($siswa->nis ?? $siswa->id);
-        $options   = new QROptions(['outputType' => 'svg', 'svgAddXmlHeader' => false]);
+        $options   = new QROptions(['outputType' => 'svg']);
         $qrSvg     = (new QRCode($options))->render($qrContent);
-        // Force SVG to fill its container — default QR SVG has hardcoded pixel size
-        $qrSvg     = preg_replace('/<svg\b/', '<svg width="100%" height="100%"', $qrSvg, 1);
 
         return view('siswa.profile', compact('siswa', 'qrSvg'));
     }
