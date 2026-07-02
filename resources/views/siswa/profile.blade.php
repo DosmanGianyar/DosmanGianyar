@@ -107,7 +107,7 @@
                 </div>
                 <div style="line-height:1.25;">
                     <p style="font-size:clamp(8px,2.6vw,12px);font-weight:800;color:white;letter-spacing:.03em;">SMA NEGERI 1 GIANYAR</p>
-                    <p style="font-size:clamp(6px,1.9vw,9px);color:rgba(186,230,253,.9);">Jl. Ratna No.1, Gianyar · NPSN 50101048</p>
+                    <p style="font-size:clamp(6px,1.9vw,9px);color:rgba(186,230,253,.9);">Jl. Ratna No.1, Gianyar · NPSN 50102079</p>
                 </div>
             </div>
             <div style="text-align:right;flex-shrink:0;">
@@ -160,10 +160,14 @@
                     <p style="font-size:clamp(11px,3.5vw,16px);font-weight:700;color:white;line-height:1.2;
                                white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ $siswa->name }}</p>
                 </div>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:5% 4%;">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:4% 4%;">
                     <div>
                         <p style="font-size:clamp(6px,1.6vw,7.5px);color:rgba(186,230,253,.7);letter-spacing:.08em;text-transform:uppercase;">NIS</p>
                         <p style="font-size:clamp(9px,2.7vw,12px);font-weight:600;color:white;">{{ $siswa->nis ?? '—' }}</p>
+                    </div>
+                    <div>
+                        <p style="font-size:clamp(6px,1.6vw,7.5px);color:rgba(186,230,253,.7);letter-spacing:.08em;text-transform:uppercase;">NISN</p>
+                        <p style="font-size:clamp(9px,2.7vw,12px);font-weight:600;color:white;">{{ $siswa->nisn ?? '—' }}</p>
                     </div>
                     <div>
                         <p style="font-size:clamp(6px,1.6vw,7.5px);color:rgba(186,230,253,.7);letter-spacing:.08em;text-transform:uppercase;">Kelas</p>
@@ -174,11 +178,12 @@
                         <p style="font-size:clamp(6px,1.6vw,7.5px);color:rgba(186,230,253,.7);letter-spacing:.08em;text-transform:uppercase;">Tgl. Lahir</p>
                         <p style="font-size:clamp(8px,2.4vw,11px);font-weight:500;color:rgba(255,255,255,.9);">{{ $siswa->birth_date->isoFormat('D MMM Y') }}</p>
                     </div>
-                    @endif
+                    @else
                     <div>
                         <p style="font-size:clamp(6px,1.6vw,7.5px);color:rgba(186,230,253,.7);letter-spacing:.08em;text-transform:uppercase;">Tahun Ajaran</p>
                         <p style="font-size:clamp(8px,2.4vw,11px);font-weight:500;color:rgba(255,255,255,.9);">2025 / 2026</p>
                     </div>
+                    @endif
                 </div>
             </div>
         </div>
