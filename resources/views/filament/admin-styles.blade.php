@@ -164,16 +164,22 @@
     border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
 }
 
-/* ─── Scrollbar: tetap bisa scroll tapi scrollbar tersembunyi ── */
+/* ─── Sidebar scroll fix ──────────────────────────────────────── */
+/* Sidebar luar: flex column dengan tinggi tetap, tidak boleh scroll */
 .fi-sidebar {
-    overflow-y: auto !important;
-    scrollbar-width: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
 }
+
+/* Nav dalam: min-height:0 wajib agar flex child mau shrink & scroll */
 .fi-sidebar-nav {
+    flex: 1 1 0% !important;
+    min-height: 0 !important;
+    overflow-x: hidden !important;
     overflow-y: auto !important;
     scrollbar-width: none !important;
 }
-.fi-sidebar::-webkit-scrollbar,
 .fi-sidebar-nav::-webkit-scrollbar {
     display: none !important;
     width: 0 !important;
