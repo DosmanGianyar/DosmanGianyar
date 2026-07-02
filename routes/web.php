@@ -14,8 +14,9 @@ use App\Http\Controllers\Siswa\ExitPassController;
 use App\Http\Controllers\Siswa\PermitController;
 use App\Http\Controllers\Siswa\ProfileController as SiswaProfile;
 use App\Http\Controllers\Siswa\SarprasController as SiswaSarpras;
-use App\Http\Controllers\Admin\UserImportController;
 use App\Http\Controllers\Admin\AttendanceReportController as AdminAttendanceReport;
+use App\Http\Controllers\Admin\StudentCardController;
+use App\Http\Controllers\Admin\UserImportController;
 use App\Http\Controllers\Guru\ExportController as GuruExport;
 use App\Http\Controllers\Guru\TeacherAttendanceController as GuruTeacherAttendance;
 use App\Http\Controllers\Siswa\TeacherAttendanceController as SiswaTeacherAttendance;
@@ -58,6 +59,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     // Laporan Presensi
     Route::get('/attendance-report/excel', [AdminAttendanceReport::class, 'downloadExcel'])->name('attendance-report.excel');
     Route::get('/attendance-report/pdf',   [AdminAttendanceReport::class, 'downloadPdf'])->name('attendance-report.pdf');
+
+    // Download Kartu Pelajar
+    Route::get('/student-card/{user}/download', [StudentCardController::class, 'download'])->name('student-card.download');
 
     // Rekap Ekstrakurikuler
     Route::get('/extracurricular/session/{session}/pdf', [\App\Http\Controllers\Admin\ExtracurricularExportController::class, 'pdf'])
