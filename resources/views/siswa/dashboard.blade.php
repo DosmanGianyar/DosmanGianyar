@@ -23,8 +23,12 @@
         </a>
         <div class="flex-1 min-w-0">
             <p class="text-blue-200 text-xs">{{ now()->isoFormat('dddd, D MMMM Y') }}</p>
-            <h2 class="text-lg font-bold leading-tight truncate">
-                Halo, {{ explode(' ', $siswa->name)[0] }}!
+            @php
+                $nl = mb_strlen($siswa->name);
+                $nf = $nl <= 15 ? 'text-lg' : ($nl <= 22 ? 'text-base' : ($nl <= 30 ? 'text-sm' : 'text-xs'));
+            @endphp
+            <h2 class="{{ $nf }} font-bold leading-tight whitespace-nowrap overflow-hidden">
+                {{ $siswa->name }}
             </h2>
             <p class="text-blue-100 text-xs mt-0.5 truncate">
                 {{ $siswa->schoolClass?->name ?? 'SMA Negeri 1 Gianyar' }} · NIS {{ $siswa->nis ?? '—' }}
