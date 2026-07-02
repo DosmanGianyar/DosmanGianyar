@@ -114,6 +114,7 @@ html, body {
     top: 13.5mm; left: 0; right: 0;
     bottom: 10mm;
     padding: 2mm 3mm;
+    background: #f3f4f6;
 }
 
 .photo-wrap {
@@ -124,27 +125,29 @@ html, body {
 .photo-box {
     width: 15.5mm;
     height: 20.7mm; /* 3:4 ratio */
-    border: 1.2pt solid rgba(253,224,71,.85);
+    border: 1.2pt solid #1d4ed8;
     border-radius: 1.5mm;
     overflow: hidden;
-    background: #2563eb;
+    background: #dbeafe;
 }
 .photo-box img { width: 100%; height: 100%; }
 .photo-label {
     text-align: center;
     font-size: 3.5pt;
-    color: rgba(255,255,255,.35);
+    color: #9ca3af;
     margin-top: 1mm;
 }
 
 .info-wrap {
     position: absolute;
-    left: 20mm; top: 1mm;
+    left: 21mm; top: 1mm;
     right: 3mm; bottom: 0;
+    border-left: 0.5pt solid #d1d5db;
+    padding-left: 2.5mm;
 }
 .info-label {
     font-size: 4pt;
-    color: rgba(186,230,253,.65);
+    color: #6b7280;
     letter-spacing: .08em;
     text-transform: uppercase;
     line-height: 1;
@@ -153,7 +156,7 @@ html, body {
 .info-name {
     font-size: 8.5pt;
     font-weight: bold;
-    color: white;
+    color: #111827;
     line-height: 1.15;
     margin-bottom: 2.5mm;
     white-space: nowrap;
@@ -171,7 +174,7 @@ html, body {
 }
 .cell-label {
     font-size: 3.8pt;
-    color: rgba(186,230,253,.6);
+    color: #9ca3af;
     letter-spacing: .06em;
     text-transform: uppercase;
     line-height: 1;
@@ -180,13 +183,13 @@ html, body {
 .cell-value {
     font-size: 6pt;
     font-weight: bold;
-    color: white;
+    color: #1d4ed8;
     line-height: 1.2;
 }
 .cell-value-sm {
     font-size: 5.5pt;
     font-weight: 600;
-    color: rgba(255,255,255,.9);
+    color: #374151;
     line-height: 1.2;
 }
 
