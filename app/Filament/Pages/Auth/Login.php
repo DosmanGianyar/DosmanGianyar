@@ -11,7 +11,7 @@ class Login extends BaseLogin
 
     public function getMaxWidth(): Width | string | null
     {
-        return Width::TwoExtraLarge;
+        return Width::FourExtraLarge;
     }
 
     public function hasLogo(): bool
