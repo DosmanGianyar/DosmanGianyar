@@ -9,6 +9,7 @@
     <link rel="manifest" href="/manifest.json">
     <link rel="apple-touch-icon" href="/img/logo_sekolah.png">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @stack('head')
 </head>
 <body class="bg-gray-50 font-sans pb-20">
 

@@ -39,40 +39,33 @@ html, body {
 }
 .header-logo {
     position: absolute;
-    top: 2.3mm; left: 2.5mm;
-    width: 9.4mm; height: 9.4mm;
+    top: 1mm; left: 2mm;
+    width: 12mm; height: 12mm;
     border-radius: 50%;
     background: white;
-    overflow: hidden;
+    overflow: visible;
+    box-shadow: 0 3px 10px rgba(0,0,0,.5);
 }
-.header-logo img { width: 100%; height: 100%; object-fit: contain; }
+.header-logo img { width: 130%; height: 130%; object-fit: contain;
+    position: relative; left: -15%; top: -15%; }
 
 .header-text {
     position: absolute;
-    top: 2.5mm; left: 13.5mm; right: 2mm;
-}
-.hdr-gov {
-    font-size: 4pt;
-    color: rgba(255,255,255,.8);
-    letter-spacing: .06em;
-    text-transform: uppercase;
-    font-weight: bold;
-    line-height: 1;
+    top: 3mm; left: 15.5mm; right: 2mm;
 }
 .hdr-name {
-    font-size: 8.5pt;
+    font-size: 9.5pt;
     font-weight: bold;
     color: white;
-    letter-spacing: .03em;
-    line-height: 1.15;
+    letter-spacing: .04em;
+    line-height: 1.1;
     text-transform: uppercase;
-    margin-top: 1mm;
 }
 .hdr-addr {
     font-size: 3.8pt;
     color: rgba(255,255,255,.78);
     line-height: 1.2;
-    margin-top: 0.8mm;
+    margin-top: 1mm;
 }
 
 /* Body */
@@ -90,21 +83,29 @@ html, body {
     width: 14mm; height: 18.7mm;
     border: 1.5pt solid #dc2626;
     overflow: hidden;
-    background: #fee2e2;
+    background: #e9eaec;
 }
 .photo-wrap img { width: 100%; height: 100%; }
 .photo-placeholder {
     width: 100%; height: 100%;
     display: table;
-    background: #fee2e2;
+    background: #e9eaec;
     text-align: center;
 }
 .photo-placeholder span {
     display: table-cell;
     vertical-align: middle;
-    font-size: 10pt;
-    font-weight: bold;
-    color: #dc2626;
+    font-size: 14pt;
+    color: #b0b5bc;
+}
+
+/* Watermark logo di body */
+.body-watermark {
+    position: absolute;
+    right: 3mm; top: 50%;
+    width: 26mm; height: 26mm;
+    margin-top: -13mm;
+    opacity: .05;
 }
 
 /* Info kanan */
@@ -326,7 +327,6 @@ html, body {
         </div>
         @endif
         <div class="header-text" style="{{ $logoBase64 ? '' : 'left:2.5mm;' }}">
-            <div class="hdr-gov">Pemerintah Kabupaten Gianyar</div>
             <div class="hdr-name">SMA Negeri 1 Gianyar</div>
             <div class="hdr-addr">Jl. Ratna No.1, Gianyar, Bali · Telp. (0361) 943443 · NPSN 50102079</div>
         </div>
@@ -335,13 +335,20 @@ html, body {
     {{-- Body --}}
     <div class="front-body">
 
+        {{-- Watermark logo --}}
+        @if($logoBase64)
+        <div class="body-watermark">
+            <img src="{{ $logoBase64 }}" alt="" style="width:100%;height:100%;object-fit:contain;">
+        </div>
+        @endif
+
         {{-- Foto siswa --}}
         <div class="photo-wrap">
             @if($photoBase64)
                 <img src="{{ $photoBase64 }}" alt="{{ $siswa->name }}">
             @else
                 <div class="photo-placeholder">
-                    <span>{{ $siswa->initials }}</span>
+                    <span style="color:#b0b5bc;">{{ $siswa->initials }}</span>
                 </div>
             @endif
         </div>

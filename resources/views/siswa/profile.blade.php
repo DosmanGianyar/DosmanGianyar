@@ -1,5 +1,11 @@
 @extends('layouts.siswa')
 
+@push('head')
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@600;700&display=swap" rel="stylesheet">
+@endpush
+
 @section('title', 'Profil')
 @section('page-title', 'Profil')
 
@@ -96,22 +102,24 @@
 
                     {{-- Header biru ─────────────────────────────────────────── --}}
                     <div style="flex-shrink:0;background:linear-gradient(180deg,#0d47a1 0%,#1565c0 100%);
-                                padding:2.2% 3%;display:flex;align-items:center;gap:2.5%;">
-                        <div style="width:11%;aspect-ratio:1;border-radius:50%;background:white;
-                                    padding:2px;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.35);">
+                                padding:2.5% 3%;display:flex;align-items:center;gap:3%;">
+                        {{-- Logo "keluar" dari lingkaran: overflow visible + scale --}}
+                        <div style="width:14%;aspect-ratio:1;border-radius:50%;background:white;
+                                    flex-shrink:0;overflow:visible;position:relative;
+                                    box-shadow:0 4px 18px rgba(0,0,0,.45),0 2px 6px rgba(0,0,0,.3);">
                             <img src="{{ asset('img/logo_sekolah.png') }}" alt="Logo"
-                                 style="width:100%;height:100%;object-fit:contain;">
+                                 style="width:130%;height:130%;object-fit:contain;
+                                        position:absolute;top:50%;left:50%;
+                                        transform:translate(-50%,-50%);
+                                        filter:drop-shadow(0 2px 4px rgba(0,0,0,.25));">
                         </div>
-                        <div style="line-height:1.25;min-width:0;">
-                            <p style="font-size:clamp(4.5px,1.45cqw,999px);color:rgba(255,255,255,.8);
-                                       letter-spacing:.06em;text-transform:uppercase;font-weight:600;">
-                                Pemerintah Kabupaten Gianyar
-                            </p>
-                            <p style="font-size:clamp(9px,3.3cqw,999px);font-weight:900;color:white;
-                                       letter-spacing:.02em;line-height:1.05;text-transform:uppercase;">
+                        <div style="line-height:1.2;min-width:0;">
+                            <p style="font-size:clamp(9px,3.6cqw,999px);font-weight:700;color:white;
+                                       letter-spacing:.06em;line-height:1.1;text-transform:uppercase;
+                                       font-family:'Oswald',Arial Narrow,Arial,sans-serif;">
                                 SMA Negeri 1 Gianyar
                             </p>
-                            <p style="font-size:clamp(4px,1.4cqw,999px);color:rgba(255,255,255,.75);margin-top:1px;">
+                            <p style="font-size:clamp(4px,1.4cqw,999px);color:rgba(255,255,255,.75);margin-top:2px;">
                                 Jl. Ratna No.1, Gianyar, Bali · Telp. (0361) 943443
                             </p>
                         </div>
@@ -120,26 +128,11 @@
                     {{-- Body putih ──────────────────────────────────────────── --}}
                     <div style="flex:1;background:#f9f8f5;display:flex;min-height:0;overflow:hidden;position:relative;">
 
-                        {{-- Watermark bunga kanan --}}
-                        <div style="position:absolute;right:-2%;top:-5%;bottom:-5%;width:38%;
-                                    opacity:.06;pointer-events:none;color:#1565c0;">
-                            <svg viewBox="0 0 100 140" xmlns="http://www.w3.org/2000/svg"
-                                 style="width:100%;height:100%;" fill="currentColor">
-                                <ellipse cx="50" cy="18" rx="9" ry="18"/>
-                                <ellipse cx="50" cy="122" rx="9" ry="18"/>
-                                <ellipse cx="18" cy="70" rx="18" ry="9"/>
-                                <ellipse cx="82" cy="70" rx="18" ry="9"/>
-                                <ellipse cx="25" cy="28" rx="9" ry="18" transform="rotate(45 25 28)"/>
-                                <ellipse cx="75" cy="112" rx="9" ry="18" transform="rotate(45 75 112)"/>
-                                <ellipse cx="75" cy="28" rx="9" ry="18" transform="rotate(-45 75 28)"/>
-                                <ellipse cx="25" cy="112" rx="9" ry="18" transform="rotate(-45 25 112)"/>
-                                <circle cx="50" cy="70" r="14"/>
-                                <circle cx="50" cy="70" r="7" fill="white" opacity=".4"/>
-                                <circle cx="50" cy="2" r="5"/><circle cx="50" cy="138" r="5"/>
-                                <circle cx="2" cy="70" r="5"/><circle cx="98" cy="70" r="5"/>
-                                <circle cx="12" cy="12" r="4"/><circle cx="88" cy="128" r="4"/>
-                                <circle cx="88" cy="12" r="4"/><circle cx="12" cy="128" r="4"/>
-                            </svg>
+                        {{-- Watermark logo sekolah --}}
+                        <div style="position:absolute;right:3%;top:50%;transform:translateY(-50%);
+                                    width:40%;aspect-ratio:1;opacity:.05;pointer-events:none;">
+                            <img src="{{ asset('img/logo_sekolah.png') }}"
+                                 style="width:100%;height:100%;object-fit:contain;">
                         </div>
 
                         {{-- Foto ───────────────────────────────────────────── --}}
@@ -152,15 +145,14 @@
                                     <img src="{{ $siswa->photo_url }}"
                                          style="width:100%;height:100%;object-fit:cover;object-position:top;">
                                 @else
-                                    <div style="width:100%;height:100%;display:flex;flex-direction:column;
-                                                align-items:center;justify-content:center;background:#fee2e2;">
-                                        <svg style="width:38%;height:38%;color:#dc2626;opacity:.5;"
-                                             fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                                    <div style="width:100%;height:100%;background:#e9eaec;
+                                                display:flex;align-items:center;justify-content:center;">
+                                        <svg viewBox="0 0 24 30" fill="none" xmlns="http://www.w3.org/2000/svg"
+                                             style="width:60%;height:60%;color:#b0b5bc;">
+                                            <ellipse cx="12" cy="8.5" rx="5.5" ry="6" fill="currentColor"/>
+                                            <path d="M1 28c0-6.075 4.925-11 11-11s11 4.925 11 11"
+                                                  stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                                         </svg>
-                                        <span style="font-size:clamp(7px,3cqw,999px);font-weight:700;
-                                                     color:#dc2626;margin-top:4%;opacity:.6;">{{ $siswa->initials }}</span>
                                     </div>
                                 @endif
                             </div>
