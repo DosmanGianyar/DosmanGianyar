@@ -164,9 +164,13 @@
     border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
 }
 
-/* ─── Scrollbar ──────────────────────────────────────────────── */
-.fi-sidebar,
+/* ─── Scrollbar: tetap bisa scroll tapi scrollbar tersembunyi ── */
+.fi-sidebar {
+    overflow-y: auto !important;
+    scrollbar-width: none !important;
+}
 .fi-sidebar-nav {
+    overflow-y: auto !important;
     scrollbar-width: none !important;
 }
 .fi-sidebar::-webkit-scrollbar,
