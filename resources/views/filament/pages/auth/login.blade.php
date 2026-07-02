@@ -149,9 +149,62 @@
     margin-bottom: 1.75rem;
     text-align: center;
 }
-.lc-form {
-    width: 100%;
+.lc-form { width: 100%; }
+
+/* Form fields */
+.lc-field { margin-bottom: 1rem; }
+.lc-label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #9ca3af;
+    margin-bottom: 0.375rem;
 }
+.lc-input {
+    width: 100%;
+    padding: 0.625rem 0.875rem;
+    background: rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 0.5rem;
+    color: #f9fafb;
+    font-size: 0.875rem;
+    outline: none;
+    box-sizing: border-box;
+    transition: border-color .15s;
+}
+.lc-input:focus {
+    border-color: #f59e0b;
+    background: rgba(255,255,255,.09);
+}
+.lc-input::placeholder { color: #4b5563; }
+.lc-error {
+    color: #f87171;
+    font-size: 0.7rem;
+    margin-top: 0.3rem;
+    display: block;
+}
+.lc-remember {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+}
+.lc-remember input[type="checkbox"] { accent-color: #f59e0b; }
+.lc-remember label { font-size: 0.78rem; color: #9ca3af; cursor: pointer; }
+.lc-btn {
+    width: 100%;
+    padding: 0.7rem;
+    background: #d97706;
+    color: white;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: background .15s;
+    letter-spacing: 0.02em;
+}
+.lc-btn:hover { background: #b45309; }
 .lc-footer {
     font-size: 0.6rem;
     color: #374151;
@@ -195,9 +248,36 @@
             <h1 class="lc-heading">Login Admin</h1>
             <p class="lc-subheading">Masuk ke panel administrasi SIMS</p>
 
-            <div class="lc-form">
-                {{ $this->content }}
-            </div>
+            {{-- Plain HTML form → LoginController (tidak pakai Livewire) --}}
+            <form class="lc-form" method="POST" action="{{ route('login') }}">
+                @csrf
+
+                <div class="lc-field">
+                    <label class="lc-label" for="lc-email">Alamat Email</label>
+                    <input id="lc-email" class="lc-input" type="email" name="login"
+                        value="{{ old('login') }}" required autofocus
+                        placeholder="admin@sims.sch.id">
+                    @error('login')
+                        <span class="lc-error">{{ $message }}</span>
+                    @enderror
+                </div>
+
+                <div class="lc-field">
+                    <label class="lc-label" for="lc-password">Kata Sandi</label>
+                    <input id="lc-password" class="lc-input" type="password" name="password"
+                        required placeholder="••••••••">
+                    @error('password')
+                        <span class="lc-error">{{ $message }}</span>
+                    @enderror
+                </div>
+
+                <div class="lc-remember">
+                    <input type="checkbox" id="lc-remember" name="remember">
+                    <label for="lc-remember">Ingat saya</label>
+                </div>
+
+                <button type="submit" class="lc-btn">Masuk</button>
+            </form>
 
             <p class="lc-footer">&copy; {{ date('Y') }} SMA Negeri 1 Gianyar &middot; SIMS</p>
         </div>
