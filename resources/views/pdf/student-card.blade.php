@@ -178,12 +178,12 @@ html, body {
 /* Tanda tangan kanan bawah */
 .signature-wrap {
     position: absolute;
-    right: 2mm; bottom: 1mm;
+    right: 6mm; bottom: 3mm;
     text-align: center;
     width: 30mm;
 }
 .sig-role {
-    font-size: 4.2pt;
+    font-size: 5pt;
     color: #374151;
     line-height: 1;
     margin-bottom: 4mm;
@@ -193,13 +193,13 @@ html, body {
     padding-top: 0.5mm;
 }
 .sig-name {
-    font-size: 4.2pt;
+    font-size: 5pt;
     font-weight: bold;
     color: #111827;
     line-height: 1.2;
 }
 .sig-nip {
-    font-size: 3.5pt;
+    font-size: 4pt;
     color: #6b7280;
     line-height: 1.2;
 }
@@ -208,7 +208,7 @@ html, body {
 .front-strip {
     position: absolute;
     bottom: 0; left: 0; right: 0;
-    height: 1.8mm;
+    height: 2.5mm;
     background: #1565c0;
 }
 

@@ -204,24 +204,24 @@
                                            max-width:48%;line-height:1.4;">
                                     Kartu ini berlaku selama menjadi siswa SMA Negeri 1 Gianyar
                                 </p>
-                                <div style="text-align:center;flex-shrink:0;">
-                                    <p style="font-size:clamp(4px,1.4cqw,999px);color:#374151;margin-bottom:0.3%;">
+                                <div style="text-align:center;flex-shrink:0;margin-right:3%;">
+                                    <p style="font-size:clamp(6px,1.9cqw,999px);color:#374151;margin-bottom:0.3%;">
                                         Kepala Sekolah,
                                     </p>
-                                    <div style="height:4.5cqw;"></div>
-                                    <div style="display:inline-block;min-width:12cqw;
-                                                border-top:clamp(0.5px,0.15cqw,999px) solid #374151;padding-top:0.5%;">
+                                    <div style="height:4cqw;"></div>
+                                    <div style="display:inline-block;min-width:14cqw;
+                                                border-top:clamp(0.5px,0.2cqw,999px) solid #374151;padding-top:0.5%;">
                                         @if($principalName)
-                                        <p style="font-size:clamp(4px,1.45cqw,999px);font-weight:700;color:#111827;">
+                                        <p style="font-size:clamp(6px,1.9cqw,999px);font-weight:700;color:#111827;">
                                             {{ $principalName }}
                                         </p>
                                         @else
-                                        <p style="font-size:clamp(4px,1.45cqw,999px);color:#c0c0c0;letter-spacing:.08em;">
+                                        <p style="font-size:clamp(6px,1.9cqw,999px);color:#c0c0c0;letter-spacing:.08em;">
                                             .......................
                                         </p>
                                         @endif
                                         @if($principalNip)
-                                        <p style="font-size:clamp(3.5px,1.2cqw,999px);color:#6b7280;">
+                                        <p style="font-size:clamp(5px,1.6cqw,999px);color:#6b7280;">
                                             NIP. {{ $principalNip }}
                                         </p>
                                         @endif
@@ -231,8 +231,8 @@
                         </div>
                     </div>
 
-                    {{-- Strip bawah biru tipis --}}
-                    <div style="flex-shrink:0;height:1.5%;background:#1565c0;"></div>
+                    {{-- Strip bawah biru --}}
+                    <div style="flex-shrink:0;height:3.5%;background:#1565c0;"></div>
                 </div>
 
                 {{-- ══════════ BELAKANG ══════════ --}}
