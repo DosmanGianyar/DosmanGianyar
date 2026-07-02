@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Dashboard') — SIMS | SMA Negeri 1 Gianyar</title>
     <link rel="icon" type="image/png" href="/img/logo_sekolah.png">
-    <meta name="theme-color" content="#2563eb">
+    <meta name="theme-color" content="#1e3a8a">
     <link rel="manifest" href="/manifest.json">
     <link rel="apple-touch-icon" href="/img/logo_sekolah.png">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -13,7 +13,9 @@
 <body class="bg-gray-50 font-sans pb-20">
 
 {{-- ─── Top Header ──────────────────────────────────────────────────── --}}
-<header class="fixed top-0 left-0 right-0 z-20 bg-white border-b border-gray-200 h-14 flex items-center justify-between px-4">
+<header class="fixed top-0 left-0 right-0 z-20 h-14 flex items-center justify-between px-4"
+    style="background: linear-gradient(135deg, #0f2460 0%, #1a3a8f 50%, #1e3fad 100%);
+           box-shadow: 0 2px 16px rgba(15,36,96,0.45);">
     @php
         $isRootPage = request()->routeIs(
             'siswa.dashboard', 'siswa.kesiswaan',
@@ -24,31 +26,32 @@
     {{-- Kiri: logo di halaman utama, tombol back di sub-halaman --}}
     @if($isRootPage)
         <a href="{{ route('siswa.dashboard') }}" class="flex items-center gap-2">
-            <img src="/img/logo_sekolah.png" alt="Logo"
-                class="w-8 h-8 rounded-lg object-contain">
+            <div class="w-8 h-8 rounded-lg overflow-hidden bg-white/15 flex items-center justify-center p-1 ring-1 ring-white/25">
+                <img src="/img/logo_sekolah.png" alt="Logo" class="w-full h-full object-contain">
+            </div>
             <div class="leading-tight">
-                <p class="font-bold text-blue-700 text-xs leading-none">SMA N 1 Gianyar</p>
-                <p class="text-gray-400 text-[10px]">SIMS</p>
+                <p class="font-bold text-white text-xs leading-none tracking-wide">SMA N 1 Gianyar</p>
+                <p class="text-blue-200 text-[10px] tracking-widest uppercase">SIMS</p>
             </div>
         </a>
     @else
         <button onclick="history.back()"
-            class="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-gray-100 transition-colors -ml-1">
-            <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            class="w-9 h-9 flex items-center justify-center rounded-xl bg-white/10 hover:bg-white/20 transition-colors -ml-1">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/>
             </svg>
         </button>
     @endif
 
-    <h2 class="text-sm font-semibold text-gray-700">@yield('page-title', 'Beranda')</h2>
+    <h2 class="text-sm font-semibold text-white tracking-wide">@yield('page-title', 'Beranda')</h2>
 
     <div class="flex items-center gap-2">
         {{-- Bell notifikasi --}}
         @php
             $unreadCount = \App\Models\AppNotification::forUser(auth()->id())->unread()->count();
         @endphp
-        <a href="{{ route('siswa.notifications.index') }}" class="relative w-8 h-8 flex items-center justify-center">
-            <svg class="w-5 h-5 {{ $unreadCount > 0 ? 'text-blue-600' : 'text-gray-400' }}"
+        <a href="{{ route('siswa.notifications.index') }}" class="relative w-8 h-8 flex items-center justify-center rounded-xl bg-white/10 hover:bg-white/20 transition-colors">
+            <svg class="w-5 h-5 text-white"
                 fill="{{ $unreadCount > 0 ? 'currentColor' : 'none' }}" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
@@ -62,9 +65,9 @@
 
         <a href="{{ route('siswa.profile') }}" class="flex items-center">
             @if(auth()->user()->photo)
-                <img src="{{ auth()->user()->photo_url }}" class="w-8 h-8 rounded-full object-cover border-2 border-blue-200">
+                <img src="{{ auth()->user()->photo_url }}" class="w-8 h-8 rounded-full object-cover ring-2 ring-white/40">
             @else
-                <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-xs font-bold">
+                <div class="w-8 h-8 rounded-full bg-white/20 ring-2 ring-white/40 flex items-center justify-center text-white text-xs font-bold">
                     {{ auth()->user()->initials }}
                 </div>
             @endif
