@@ -136,7 +136,7 @@
                         </div>
 
                         {{-- Foto ───────────────────────────────────────────── --}}
-                        <div style="flex-shrink:0;padding:2% 0 4% 3%;display:flex;align-items:flex-start;">
+                        <div style="flex-shrink:0;padding:7% 0 2% 3%;display:flex;align-items:flex-start;">
                             <div style="width:17cqw;aspect-ratio:3/4;
                                         border:clamp(2px,0.65cqw,999px) solid #dc2626;
                                         background:#fee2e2;overflow:hidden;
