@@ -74,11 +74,13 @@
     {{-- ─── E-Kartu Pelajar (Flip: Depan & Belakang) ─────────────── --}}
     <div x-data="{ flipped: false }" class="select-none">
 
-        {{-- Wrapper perspektif — position:relative agar anak bisa absolute fill --}}
-        <div style="position:relative; perspective:1200px; width:100%; aspect-ratio:85.6/54; cursor:pointer;"
+        {{-- container-type:inline-size → agar cqw merujuk lebar kartu ini --}}
+        <div style="position:relative; perspective:1200px; width:100%; aspect-ratio:85.6/54;
+                    cursor:pointer; container-type:inline-size;"
              @click="flipped = !flipped">
 
-            <div style="position:absolute; top:0; left:0; right:0; bottom:0; transform-style:preserve-3d; transition:transform .65s cubic-bezier(.4,0,.2,1);"
+            <div style="position:absolute; top:0; left:0; right:0; bottom:0;
+                        transform-style:preserve-3d; transition:transform .65s cubic-bezier(.4,0,.2,1);"
                  :style="{ transform: flipped ? 'rotateY(180deg)' : 'rotateY(0deg)' }">
 
                 {{-- ══════════ DEPAN ══════════ --}}
@@ -100,20 +102,22 @@
                                 display:flex; align-items:center; justify-content:space-between;
                                 border-bottom:1px solid rgba(255,255,255,.16); background:rgba(0,0,0,.14);">
                         <div style="display:flex;align-items:center;gap:2.5%;">
-                            <div style="width:clamp(28px,9%,40px);aspect-ratio:1;border-radius:50%;
+                            {{-- logo: % width sudah responsif terhadap lebar kartu --}}
+                            <div style="width:9%;aspect-ratio:1;border-radius:50%;
                                         background:white;padding:2px;
                                         box-shadow:0 0 0 2px rgba(212,175,55,.75);flex-shrink:0;">
                                 <img src="{{ asset('img/logo_sekolah.png') }}" alt="Logo"
                                      style="width:100%;height:100%;object-fit:contain;">
                             </div>
                             <div style="line-height:1.2;">
-                                <p style="font-size:clamp(9px,2.8vw,13px);font-weight:800;color:white;letter-spacing:.02em;">SMA NEGERI 1 GIANYAR</p>
-                                <p style="font-size:clamp(7px,2vw,9px);color:rgba(186,230,253,.85);">Jl. Ratna No.1 · NPSN 50102079</p>
+                                {{-- cqw = % lebar kontainer kartu ini → selalu proporsional --}}
+                                <p style="font-size:clamp(8px,2.8cqw,999px);font-weight:800;color:white;letter-spacing:.02em;">SMA NEGERI 1 GIANYAR</p>
+                                <p style="font-size:clamp(6px,1.9cqw,999px);color:rgba(186,230,253,.85);">Jl. Ratna No.1 · NPSN 50102079</p>
                             </div>
                         </div>
                         <div style="text-align:right;flex-shrink:0;">
-                            <p style="font-size:clamp(7px,2.2vw,10px);font-weight:700;color:rgba(253,224,71,1);letter-spacing:.1em;text-transform:uppercase;">KARTU PELAJAR</p>
-                            <p style="font-size:clamp(6px,1.8vw,8px);color:rgba(255,255,255,.55);">TA 2025/2026</p>
+                            <p style="font-size:clamp(6px,2.1cqw,999px);font-weight:700;color:rgba(253,224,71,1);letter-spacing:.1em;text-transform:uppercase;">KARTU PELAJAR</p>
+                            <p style="font-size:clamp(5px,1.7cqw,999px);color:rgba(255,255,255,.55);">TA 2025/2026</p>
                         </div>
                     </div>
 
@@ -122,7 +126,7 @@
 
                         {{-- Foto --}}
                         <div style="flex-shrink:0; margin-right:4%;">
-                            <div style="width:clamp(52px,18%,76px); aspect-ratio:3/4;
+                            <div style="width:18%; aspect-ratio:3/4;
                                         border-radius:8px; overflow:hidden;
                                         border:2.5px solid rgba(253,224,71,.85);
                                         box-shadow:0 4px 20px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.12);
@@ -139,38 +143,38 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                                                   d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                                         </svg>
-                                        <span style="font-size:clamp(13px,4.5vw,20px);font-weight:700;color:white;margin-top:4%;">{{ $siswa->initials }}</span>
+                                        <span style="font-size:clamp(10px,4.5cqw,999px);font-weight:700;color:white;margin-top:4%;">{{ $siswa->initials }}</span>
                                     </div>
                                 @endif
                             </div>
-                            <p style="font-size:clamp(6px,1.6vw,8px);color:rgba(255,255,255,.35);text-align:center;margin-top:3px;">3 × 4</p>
+                            <p style="font-size:clamp(5px,1.5cqw,999px);color:rgba(255,255,255,.35);text-align:center;margin-top:3px;">3 × 4</p>
                         </div>
 
                         {{-- Info --}}
                         <div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;">
                             <div style="margin-bottom:5%;">
-                                <p style="font-size:clamp(7px,1.9vw,9px);color:rgba(186,230,253,.65);
+                                <p style="font-size:clamp(6px,1.8cqw,999px);color:rgba(186,230,253,.65);
                                            letter-spacing:.1em;text-transform:uppercase;margin-bottom:2px;">Nama Lengkap</p>
-                                <p style="font-size:clamp(13px,4.2vw,19px);font-weight:800;color:white;line-height:1.15;
+                                <p style="font-size:clamp(11px,4.2cqw,999px);font-weight:800;color:white;line-height:1.15;
                                            white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ $siswa->name }}</p>
                             </div>
                             <div style="display:grid;grid-template-columns:1fr 1fr;gap:4% 3%;">
                                 <div>
-                                    <p style="font-size:clamp(7px,1.9vw,9px);color:rgba(186,230,253,.6);letter-spacing:.08em;text-transform:uppercase;">NIS</p>
-                                    <p style="font-size:clamp(10px,3.1vw,14px);font-weight:700;color:white;">{{ $siswa->nis ?? '—' }}</p>
+                                    <p style="font-size:clamp(6px,1.8cqw,999px);color:rgba(186,230,253,.6);letter-spacing:.08em;text-transform:uppercase;">NIS</p>
+                                    <p style="font-size:clamp(9px,3cqw,999px);font-weight:700;color:white;">{{ $siswa->nis ?? '—' }}</p>
                                 </div>
                                 <div>
-                                    <p style="font-size:clamp(7px,1.9vw,9px);color:rgba(186,230,253,.6);letter-spacing:.08em;text-transform:uppercase;">NISN</p>
-                                    <p style="font-size:clamp(10px,3.1vw,14px);font-weight:700;color:white;">{{ $siswa->nisn ?? '—' }}</p>
+                                    <p style="font-size:clamp(6px,1.8cqw,999px);color:rgba(186,230,253,.6);letter-spacing:.08em;text-transform:uppercase;">NISN</p>
+                                    <p style="font-size:clamp(9px,3cqw,999px);font-weight:700;color:white;">{{ $siswa->nisn ?? '—' }}</p>
                                 </div>
                                 <div>
-                                    <p style="font-size:clamp(7px,1.9vw,9px);color:rgba(186,230,253,.6);letter-spacing:.08em;text-transform:uppercase;">Kelas</p>
-                                    <p style="font-size:clamp(10px,3.1vw,14px);font-weight:700;color:white;">{{ $siswa->schoolClass?->name ?? '—' }}</p>
+                                    <p style="font-size:clamp(6px,1.8cqw,999px);color:rgba(186,230,253,.6);letter-spacing:.08em;text-transform:uppercase;">Kelas</p>
+                                    <p style="font-size:clamp(9px,3cqw,999px);font-weight:700;color:white;">{{ $siswa->schoolClass?->name ?? '—' }}</p>
                                 </div>
                                 @if($siswa->birth_date)
                                 <div>
-                                    <p style="font-size:clamp(7px,1.9vw,9px);color:rgba(186,230,253,.6);letter-spacing:.08em;text-transform:uppercase;">Tgl. Lahir</p>
-                                    <p style="font-size:clamp(9px,2.8vw,12px);font-weight:600;color:rgba(255,255,255,.9);">{{ $siswa->birth_date->isoFormat('D MMM Y') }}</p>
+                                    <p style="font-size:clamp(6px,1.8cqw,999px);color:rgba(186,230,253,.6);letter-spacing:.08em;text-transform:uppercase;">Tgl. Lahir</p>
+                                    <p style="font-size:clamp(8px,2.7cqw,999px);font-weight:600;color:rgba(255,255,255,.9);">{{ $siswa->birth_date->isoFormat('D MMM Y') }}</p>
                                 </div>
                                 @endif
                             </div>
@@ -181,11 +185,11 @@
                     <div style="flex-shrink:0; padding:2% 4%;
                                 display:flex; align-items:center; justify-content:space-between;
                                 border-top:1px solid rgba(255,255,255,.13); background:rgba(0,0,0,.2);">
-                        <p style="font-size:clamp(7px,2vw,10px);color:rgba(186,230,253,.55);">SMA Negeri 1 Gianyar · Bali</p>
-                        <div style="display:flex;align-items:center;gap:6px;">
-                            <span style="font-size:clamp(6px,1.7vw,8px);color:rgba(255,255,255,.4);">Klik untuk QR →</span>
+                        <p style="font-size:clamp(6px,1.9cqw,999px);color:rgba(186,230,253,.55);">SMA Negeri 1 Gianyar · Bali</p>
+                        <div style="display:flex;align-items:center;gap:4%;">
+                            <span style="font-size:clamp(5px,1.6cqw,999px);color:rgba(255,255,255,.4);">Klik untuk QR →</span>
                             <div style="background:linear-gradient(135deg,#d97706,#fbbf24);color:white;
-                                        font-size:clamp(7px,2vw,9px);font-weight:700;
+                                        font-size:clamp(6px,1.9cqw,999px);font-weight:700;
                                         padding:2% 5%;border-radius:20px;letter-spacing:.1em;
                                         box-shadow:0 2px 8px rgba(217,119,6,.5);">SISWA</div>
                         </div>
@@ -211,25 +215,25 @@
                     <div style="flex-shrink:0;padding:3.5% 4%;
                                 display:flex;align-items:center;gap:3%;
                                 border-bottom:1px solid rgba(255,255,255,.1); background:rgba(0,0,0,.2);">
-                        <div style="width:clamp(22px,7%,32px);aspect-ratio:1;border-radius:50%;
+                        <div style="width:7%;aspect-ratio:1;border-radius:50%;
                                     background:white;padding:2px;flex-shrink:0;">
                             <img src="{{ asset('img/logo_sekolah.png') }}" alt="Logo"
                                  style="width:100%;height:100%;object-fit:contain;">
                         </div>
                         <div>
-                            <p style="font-size:clamp(8px,2.5vw,12px);font-weight:700;color:white;">SMA NEGERI 1 GIANYAR</p>
-                            <p style="font-size:clamp(6px,1.8vw,8px);color:rgba(148,163,184,.7);">NPSN 50102079 · Gianyar, Bali</p>
+                            <p style="font-size:clamp(8px,2.5cqw,999px);font-weight:700;color:white;">SMA NEGERI 1 GIANYAR</p>
+                            <p style="font-size:clamp(6px,1.7cqw,999px);color:rgba(148,163,184,.7);">NPSN 50102079 · Gianyar, Bali</p>
                         </div>
                     </div>
 
-                    {{-- QR besar di tengah --}}
+                    {{-- QR besar di tengah: % width otomatis scale dengan lebar kartu --}}
                     <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2% 6%;min-height:0;">
-                        <div style="width:clamp(80px,50%,130px); aspect-ratio:1;
+                        <div style="width:50%; aspect-ratio:1;
                                     background:white; border-radius:10px; padding:5px;
                                     box-shadow:0 8px 32px rgba(0,0,0,.55),0 0 0 2px rgba(253,224,71,.35);">
                             <img src="{{ $qrSvg }}" alt="QR Code" style="width:100%;height:100%;display:block;">
                         </div>
-                        <p style="font-size:clamp(7px,2.1vw,10px);color:rgba(148,163,184,.7);margin-top:5%;
+                        <p style="font-size:clamp(6px,2cqw,999px);color:rgba(148,163,184,.7);margin-top:4%;
                                    letter-spacing:.04em;text-align:center;">
                             Scan untuk melihat biodata siswa
                         </p>
@@ -240,14 +244,14 @@
                                 border-top:1px solid rgba(255,255,255,.1); background:rgba(0,0,0,.25);
                                 display:flex;align-items:center;justify-content:space-between;">
                         <div style="min-width:0;">
-                            <p style="font-size:clamp(9px,3vw,14px);font-weight:700;color:white;
+                            <p style="font-size:clamp(8px,3cqw,999px);font-weight:700;color:white;
                                        white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ $siswa->name }}</p>
-                            <p style="font-size:clamp(7px,2vw,9px);color:rgba(148,163,184,.65);">
+                            <p style="font-size:clamp(6px,1.9cqw,999px);color:rgba(148,163,184,.65);">
                                 NIS: {{ $siswa->nis ?? '—' }}{{ $siswa->nisn ? ' · NISN: '.$siswa->nisn : '' }}
                             </p>
                         </div>
                         <div style="background:linear-gradient(135deg,#d97706,#fbbf24);color:white;
-                                    font-size:clamp(7px,2vw,9px);font-weight:700;
+                                    font-size:clamp(6px,1.9cqw,999px);font-weight:700;
                                     padding:2.5% 6%;border-radius:20px;letter-spacing:.1em;flex-shrink:0;
                                     box-shadow:0 2px 8px rgba(217,119,6,.5);">SISWA</div>
                     </div>
