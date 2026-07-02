@@ -79,7 +79,7 @@ html, body {
 /* Foto */
 .photo-wrap {
     position: absolute;
-    left: 2.5mm; top: 2mm;
+    left: 2.5mm; top: 1mm;
     width: 14mm; height: 18.7mm;
     border: 1.5pt solid #dc2626;
     overflow: hidden;
