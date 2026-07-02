@@ -21,7 +21,7 @@ class ProfileController extends Controller
         $siswa = Auth::user();
         $siswa->load('schoolClass');
 
-        $qrContent = (string) ($siswa->nis ?? $siswa->id);
+        $qrContent = url('/biodata/' . ($siswa->nis ?? $siswa->id));
         $options   = new QROptions(['outputType' => 'svg']);
         $qrSvg     = (new QRCode($options))->render($qrContent);
 

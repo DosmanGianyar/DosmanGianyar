@@ -37,10 +37,14 @@ use App\Http\Controllers\Siswa\ForgotAttendanceController as SiswaForgotAttendan
 use App\Http\Controllers\Guru\ForgotAttendanceController as GuruForgotAttendance;
 use App\Http\Controllers\Siswa\EarlyCheckoutRequestController as SiswaEarlyCheckout;
 use App\Http\Controllers\Guru\EarlyCheckoutRequestController as GuruEarlyCheckout;
+use App\Http\Controllers\PublicBiodataController;
 use Illuminate\Support\Facades\Route;
 
 // ─── Halaman Utama ────────────────────────────────────────────────────────────
 Route::get('/', fn() => redirect()->route('login'));
+
+// ─── Biodata Publik (akses tanpa login, untuk scan QR) ───────────────────────
+Route::get('/biodata/{identifier}', [PublicBiodataController::class, 'show'])->name('public.biodata');
 
 // ─── PWA Offline Fallback ─────────────────────────────────────────────────────
 Route::get('/offline', fn() => response(view('offline'))->header('Cache-Control', 'public, max-age=86400'))->name('offline');
