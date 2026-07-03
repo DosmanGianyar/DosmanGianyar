@@ -128,13 +128,13 @@ class _BluePanelTop extends StatelessWidget {
                 padding: const EdgeInsets.all(10),
                 child: Image.asset('assets/images/logo_sekolah.png', fit: BoxFit.contain),
               ),
-              const SizedBox(height: 16),
-              Text(
-                AppConfig.schoolName.toUpperCase(),
-                style: const TextStyle(
-                  color:       AppColors.blue200,
-                  fontSize:    10,
-                  fontWeight:  FontWeight.w700,
+              const SizedBox(height: 14),
+              const Text(
+                'VISI SMAN 1 GIANYAR',
+                style: TextStyle(
+                  color:         Colors.white,
+                  fontSize:      11,
+                  fontWeight:    FontWeight.w800,
                   letterSpacing: 1.5,
                 ),
                 textAlign: TextAlign.center,
@@ -242,6 +242,11 @@ class _WhitePanelBottom extends StatelessWidget {
 
           const Text('Login SIMS',
             style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.gray800),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 2),
+          const Text('Sistem Informasi Manajemen Siswa',
+            style: TextStyle(fontSize: 10, color: AppColors.blue600, fontWeight: FontWeight.w600, letterSpacing: 0.3),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 4),

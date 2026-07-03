@@ -86,18 +86,43 @@ class ApiClient {
   /// Extrak pesan error dari DioException
   static String extractError(Object error) {
     if (error is DioException) {
+      // Prioritas: ambil pesan dari body response server
       final data = error.response?.data;
-      if (data is Map && data['message'] != null) {
-        return data['message'] as String;
+      if (data is Map) {
+        if (data['message'] != null) return data['message'] as String;
+        if (data['error']   != null) return data['error']   as String;
+        // Laravel validation errors
+        final errors = data['errors'];
+        if (errors is Map && errors.isNotEmpty) {
+          final first = errors.values.first;
+          if (first is List && first.isNotEmpty) return first.first as String;
+        }
       }
+
+      // Fallback berdasarkan HTTP status
+      final status = error.response?.statusCode;
+      if (status != null) {
+        return switch (status) {
+          401 => 'Email/NIS atau password salah.',
+          403 => 'Akses ditolak. Hubungi admin.',
+          422 => 'Data tidak valid. Periksa kembali.',
+          429 => 'Terlalu banyak percobaan. Tunggu sebentar.',
+          500 => 'Server error. Hubungi admin.',
+          _   => 'Terjadi kesalahan ($status).',
+        };
+      }
+
+      // Fallback berdasarkan tipe koneksi
       return switch (error.type) {
         DioExceptionType.connectionTimeout => 'Koneksi timeout. Periksa internet.',
         DioExceptionType.receiveTimeout    => 'Server tidak merespons.',
-        DioExceptionType.connectionError   => 'Tidak dapat terhubung ke server.',
+        DioExceptionType.connectionError   => 'Tidak dapat terhubung ke server.\nPastikan internet aktif.',
+        DioExceptionType.badCertificate    => 'Sertifikat SSL tidak valid. Hubungi admin.',
+        DioExceptionType.cancel            => 'Permintaan dibatalkan.',
         _                                  => 'Terjadi kesalahan. Coba lagi.',
       };
     }
-    return error.toString();
+    return 'Error: ${error.toString()}';
   }
 
   static Future<void> saveToken(String token)    => _storage.write(key: 'auth_token', value: token);
