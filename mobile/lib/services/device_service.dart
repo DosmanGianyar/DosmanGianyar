@@ -47,8 +47,12 @@ class DeviceService {
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
     }
-    if (permission == LocationPermission.denied ||
-        permission == LocationPermission.deniedForever) {
+    if (permission == LocationPermission.deniedForever) {
+      throw const LocationPermissionDeniedForeverException(
+        'Izin lokasi diblokir permanen. Buka pengaturan untuk mengaktifkan.',
+      );
+    }
+    if (permission == LocationPermission.denied) {
       throw const LocationPermissionException('Izin lokasi ditolak.');
     }
 
@@ -97,6 +101,13 @@ class LocationServiceException implements Exception {
 class LocationPermissionException implements Exception {
   final String message;
   const LocationPermissionException(this.message);
+  @override
+  String toString() => message;
+}
+
+class LocationPermissionDeniedForeverException implements Exception {
+  final String message;
+  const LocationPermissionDeniedForeverException(this.message);
   @override
   String toString() => message;
 }

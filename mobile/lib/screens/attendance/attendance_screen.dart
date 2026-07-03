@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import '../../models/attendance.dart';
 import '../../providers/attendance_provider.dart';
@@ -33,6 +34,7 @@ class _AttendanceScreenState extends State<AttendanceScreen>
   String?         _locationErrorTitle;
   String?         _locationErrorBody;
   bool            _isOutsideArea  = false;
+  bool            _isPermDeniedForever = false;
 
   // ── Camera phase state ──────────────────────────────────────────────────
   CameraController? _camera;
@@ -75,12 +77,13 @@ class _AttendanceScreenState extends State<AttendanceScreen>
 
   Future<void> _verifyLocation() async {
     setState(() {
-      _phase              = _Phase.loading;
-      _locationErrorTitle = null;
-      _locationErrorBody  = null;
-      _isOutsideArea      = false;
-      _position           = null;
-      _distanceMeters     = null;
+      _phase                 = _Phase.loading;
+      _locationErrorTitle    = null;
+      _locationErrorBody     = null;
+      _isOutsideArea         = false;
+      _isPermDeniedForever   = false;
+      _position              = null;
+      _distanceMeters        = null;
     });
 
     try {
@@ -135,13 +138,24 @@ class _AttendanceScreenState extends State<AttendanceScreen>
             'lalu coba kembali.';
         _phase = _Phase.locationError;
       });
+    } on LocationPermissionDeniedForeverException {
+      if (!mounted) return;
+      setState(() {
+        _locationErrorTitle    = 'Izin Lokasi Diblokir';
+        _locationErrorBody     =
+            'Izin lokasi diblokir secara permanen.\n\n'
+            'Buka Pengaturan → Aplikasi → SIMS_DOSMAN → Izin → '
+            'Lokasi → Izinkan saat menggunakan aplikasi.';
+        _isPermDeniedForever   = true;
+        _phase                 = _Phase.locationError;
+      });
     } on LocationPermissionException {
       if (!mounted) return;
       setState(() {
         _locationErrorTitle = 'Izin Lokasi Diperlukan';
         _locationErrorBody  =
             'Aplikasi membutuhkan izin akses lokasi untuk memverifikasi '
-            'kehadiran Anda.\n\nBuka Pengaturan → Aplikasi → Izin Lokasi.';
+            'kehadiran Anda.';
         _phase = _Phase.locationError;
       });
     } catch (e) {
@@ -159,12 +173,50 @@ class _AttendanceScreenState extends State<AttendanceScreen>
   // ─── Phase 2: Camera ──────────────────────────────────────────────────────
 
   Future<void> _proceedToCamera() async {
+    // Cek camera permission sebelum membuka kamera
+    var camStatus = await Permission.camera.status;
+    if (camStatus.isDenied) {
+      camStatus = await Permission.camera.request();
+    }
+    if (camStatus.isPermanentlyDenied) {
+      if (!mounted) return;
+      _showSettingsDialog(
+        title:   'Izin Kamera Diblokir',
+        message: 'Izin kamera diblokir secara permanen.\n\n'
+                 'Buka Pengaturan → Aplikasi → SIMS_DOSMAN → Izin → Kamera → Izinkan.',
+      );
+      return;
+    }
+    if (!camStatus.isGranted) return;
+
     setState(() {
       _phase              = _Phase.camera;
       _initializingCamera = true;
       _capturedPhoto      = null;
     });
     await _initCamera();
+  }
+
+  void _showSettingsDialog({required String title, required String message}) {
+    showDialog<void>(
+      context: context,
+      builder: (_) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: AppRadius.card),
+        title: Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        content: Text(message, style: const TextStyle(fontSize: 13, color: AppColors.gray500, height: 1.5)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Batal', style: TextStyle(color: AppColors.gray500)),
+          ),
+          FilledButton(
+            onPressed: () { Navigator.pop(context); openAppSettings(); },
+            style: FilledButton.styleFrom(backgroundColor: AppColors.blue600),
+            child: const Text('Buka Pengaturan'),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _initCamera() async {
@@ -404,6 +456,24 @@ class _AttendanceScreenState extends State<AttendanceScreen>
 
                     if (_activeShift != null) const SizedBox(height: 24),
 
+                    // Buka Pengaturan (hanya saat deniedForever)
+                    if (_isPermDeniedForever) ...[
+                      SizedBox(
+                        width: double.infinity,
+                        child: FilledButton.icon(
+                          onPressed: () => openAppSettings(),
+                          icon:  const Icon(Icons.settings_rounded),
+                          label: const Text('Buka Pengaturan'),
+                          style: FilledButton.styleFrom(
+                            backgroundColor: AppColors.blue600,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                    ],
+
                     // Retry button
                     SizedBox(
                       width: double.infinity,
@@ -412,7 +482,9 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                         icon:  const Icon(Icons.refresh_rounded),
                         label: const Text('Coba Lagi'),
                         style: FilledButton.styleFrom(
-                          backgroundColor: AppColors.blue600,
+                          backgroundColor: _isPermDeniedForever
+                              ? AppColors.gray500
+                              : AppColors.blue600,
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
                         ),
