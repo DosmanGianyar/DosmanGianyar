@@ -47,9 +47,12 @@
                     enctype="multipart/form-data" class="hidden">
                     @csrf
                     <input type="file" id="photo-input" name="photo" accept="image/*"
-                        onchange="document.getElementById('photo-form').submit()">
+                        onchange="this.form.submit()">
                 </form>
             </div>
+            @error('photo')
+            <p class="text-xs text-red-500 text-center mt-1">{{ $message }}</p>
+            @enderror
             <h2 class="text-base font-bold text-gray-800 text-center mt-1">{{ $siswa->name }}</h2>
             <p class="text-xs text-gray-500 text-center">{{ $siswa->schoolClass?->name ?? '—' }}</p>
         </div>

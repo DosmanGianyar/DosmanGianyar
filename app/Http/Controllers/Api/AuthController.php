@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\ImageService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 class AuthController extends Controller
 {
@@ -151,6 +153,35 @@ class AuthController extends Controller
         return response()->json([
             'message' => 'Profil berhasil diperbarui.',
             'user'    => $this->userPayload($user),
+        ]);
+    }
+
+    /** Ganti foto profil (multipart). */
+    public function updatePhoto(Request $request): JsonResponse
+    {
+        $request->validate([
+            'photo' => 'required|image|mimes:jpg,jpeg,png,webp|max:5120',
+        ], [
+            'photo.required' => 'Pilih foto terlebih dahulu.',
+            'photo.image'    => 'File harus berupa gambar.',
+            'photo.mimes'    => 'Format foto harus JPG, PNG, atau WebP.',
+            'photo.max'      => 'Ukuran foto maksimal 5 MB.',
+        ]);
+
+        /** @var User $user */
+        $user = $request->user();
+
+        if ($user->photo) {
+            Storage::disk('public')->delete($user->photo);
+        }
+
+        $path = ImageService::storeAvatar($request->file('photo'), 'avatars');
+        $user->update(['photo' => $path]);
+
+        return response()->json([
+            'message'   => 'Foto profil berhasil diperbarui.',
+            'photo_url' => $user->fresh()->photo_url,
+            'user'      => $this->userPayload($user->fresh()),
         ]);
     }
 

@@ -1,4 +1,7 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import '../models/user.dart';
 import '../providers/auth_provider.dart';
@@ -20,11 +23,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final _newPassCtrl = TextEditingController();
   final _confPassCtrl = TextEditingController();
 
-  bool _savingProfile  = false;
-  bool _savingPassword = false;
-  bool _obscureCur     = true;
-  bool _obscureNew     = true;
-  bool _obscureConf    = true;
+  bool _savingProfile   = false;
+  bool _savingPassword  = false;
+  bool _uploadingPhoto  = false;
+  bool _obscureCur      = true;
+  bool _obscureNew      = true;
+  bool _obscureConf     = true;
 
   @override
   void initState() {
@@ -117,6 +121,68 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  Future<void> _changePhoto() async {
+    // Cek permission galeri
+    final photoStatus   = await Permission.photos.status;
+    final storageStatus = await Permission.storage.status;
+    if (photoStatus.isPermanentlyDenied || storageStatus.isPermanentlyDenied) {
+      if (!mounted) return;
+      _showSettingsDialog();
+      return;
+    }
+
+    final picked = await ImagePicker().pickImage(
+      source:       ImageSource.gallery,
+      imageQuality: 85,
+      maxWidth:     1024,
+    );
+    if (picked == null) {
+      // Cek ulang apakah baru saja diblokir
+      final blocked = (await Permission.photos.status).isPermanentlyDenied ||
+                      (await Permission.storage.status).isPermanentlyDenied;
+      if (blocked && mounted) _showSettingsDialog();
+      return;
+    }
+
+    setState(() => _uploadingPhoto = true);
+    try {
+      final formData = FormData.fromMap({
+        'photo': await MultipartFile.fromFile(picked.path, filename: 'photo.jpg'),
+      });
+      final body = await ApiClient.postForm('/auth/profile/photo', formData);
+      if (!mounted) return;
+      final updatedUser = User.fromJson(body['user'] as Map<String, dynamic>);
+      context.read<AuthProvider>().updateUser(updatedUser);
+      _showSnack('Foto profil berhasil diperbarui.', success: true);
+    } catch (e) {
+      if (mounted) _showSnack(ApiClient.extractError(e));
+    } finally {
+      if (mounted) setState(() => _uploadingPhoto = false);
+    }
+  }
+
+  void _showSettingsDialog() {
+    showDialog<void>(
+      context: context,
+      builder: (_) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: AppRadius.card),
+        title: const Text('Izin Galeri Diblokir',
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        content: const Text(
+          'Izin akses galeri diblokir. Buka Pengaturan → Izin → File dan media → Izinkan.',
+          style: TextStyle(fontSize: 13, color: AppColors.gray500, height: 1.5)),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context),
+            child: const Text('Batal', style: TextStyle(color: AppColors.gray500))),
+          FilledButton(
+            onPressed: () { Navigator.pop(context); openAppSettings(); },
+            style: FilledButton.styleFrom(backgroundColor: AppColors.blue600),
+            child: const Text('Buka Pengaturan')),
+        ],
+      ),
+    );
+  }
+
   void _showSnack(String msg, {bool success = false}) {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -145,7 +211,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _IdentityCard(user: user),
+            _IdentityCard(
+              user:          user,
+              uploadingPhoto: _uploadingPhoto,
+              onChangePhoto: _changePhoto,
+            ),
             const SizedBox(height: 12),
             _StudentIdCard(user: user),
             const SizedBox(height: 12),
@@ -195,8 +265,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
 // ─── Identity Card ────────────────────────────────────────────────────────────
 
 class _IdentityCard extends StatelessWidget {
-  final User? user;
-  const _IdentityCard({this.user});
+  final User?        user;
+  final bool         uploadingPhoto;
+  final VoidCallback onChangePhoto;
+  const _IdentityCard({
+    this.user,
+    required this.uploadingPhoto,
+    required this.onChangePhoto,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -223,18 +299,48 @@ class _IdentityCard extends StatelessWidget {
             offset: const Offset(0, -32),
             child: Column(
               children: [
-                Container(
-                  width: 72, height: 72,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: Colors.white, width: 3),
-                    boxShadow: AppShadow.sm,
-                  ),
-                  clipBehavior: Clip.antiAlias,
-                  child: user?.photoUrl != null
-                      ? Image.network(user!.photoUrl!, fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => _avatarPlaceholder())
-                      : _avatarPlaceholder(),
+                Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    Container(
+                      width: 72, height: 72,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: Colors.white, width: 3),
+                        boxShadow: AppShadow.sm,
+                      ),
+                      clipBehavior: Clip.antiAlias,
+                      child: uploadingPhoto
+                          ? Container(
+                              color: AppColors.gray100,
+                              child: const Center(
+                                child: SizedBox(width: 28, height: 28,
+                                  child: CircularProgressIndicator(strokeWidth: 2.5))))
+                          : user?.photoUrl != null
+                              ? Image.network(user!.photoUrl!, fit: BoxFit.cover,
+                                  errorBuilder: (_, __, ___) => _avatarPlaceholder())
+                              : _avatarPlaceholder(),
+                    ),
+                    // Tombol kamera
+                    if (!uploadingPhoto)
+                      Positioned(
+                        bottom: -4, right: -4,
+                        child: GestureDetector(
+                          onTap: onChangePhoto,
+                          child: Container(
+                            width: 26, height: 26,
+                            decoration: BoxDecoration(
+                              color:  AppColors.blue600,
+                              shape:  BoxShape.circle,
+                              border: Border.all(color: Colors.white, width: 2),
+                              boxShadow: AppShadow.sm,
+                            ),
+                            child: const Icon(Icons.camera_alt_rounded,
+                              size: 13, color: Colors.white),
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
                 const SizedBox(height: 8),
                 Text(user?.name ?? '—',

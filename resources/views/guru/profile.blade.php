@@ -34,9 +34,12 @@
                     <form id="photo-form" method="POST" action="{{ route('guru.profile.photo') }}" enctype="multipart/form-data" class="hidden">
                         @csrf
                         <input type="file" id="photo-input" name="photo" accept="image/*"
-                            onchange="document.getElementById('photo-form').submit()">
+                            onchange="this.form.submit()">
                     </form>
                 </div>
+                @error('photo')
+                <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
+                @enderror
 
                 <div class="mb-1">
                     <h2 class="text-lg font-bold text-gray-800">{{ $guru->name }}</h2>
