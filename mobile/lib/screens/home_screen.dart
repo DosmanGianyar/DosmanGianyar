@@ -17,6 +17,7 @@ import 'kurikulum/kurikulum_screen.dart';
 import 'prasarana/prasarana_screen.dart';
 import 'humas/humas_screen.dart';
 import 'profile_screen.dart';
+import 'announcement_list_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -1191,8 +1192,8 @@ class _AnnouncementSection extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: Row(
-              children: const [
-                Expanded(
+              children: [
+                const Expanded(
                   child: Text('Pengumuman',
                     style: TextStyle(
                       fontSize:   13,
@@ -1200,8 +1201,12 @@ class _AnnouncementSection extends StatelessWidget {
                       color:      AppColors.gray700,
                     )),
                 ),
-                Text('Lihat Semua',
-                  style: TextStyle(fontSize: 11, color: AppColors.blue600)),
+                GestureDetector(
+                  onTap: () => Navigator.push(context,
+                    MaterialPageRoute(builder: (_) => const AnnouncementListScreen())),
+                  child: const Text('Lihat Semua',
+                    style: TextStyle(fontSize: 11, color: AppColors.blue600)),
+                ),
               ],
             ),
           ),

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_colors.dart';
+import 'grade_screen.dart';
+import 'teacher_attendance_screen.dart';
+import '../kesiswaan/homeroom_consultation_screen.dart';
 
 class KurikulumScreen extends StatefulWidget {
   const KurikulumScreen({super.key});
@@ -23,15 +26,6 @@ class _KurikulumScreenState extends State<KurikulumScreen>
   void dispose() {
     _tabCtrl.dispose();
     super.dispose();
-  }
-
-  void _showComingSoon(String title) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text('$title — fitur segera hadir.'),
-      backgroundColor: AppColors.gray700,
-      behavior: SnackBarBehavior.floating,
-      shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
-    ));
   }
 
   @override
@@ -80,7 +74,7 @@ class _KurikulumScreenState extends State<KurikulumScreen>
             iconColor: AppColors.blue600,
             title: 'Absensi Guru Mengajar',
             subtitle: 'Lihat kehadiran guru di kelas kamu',
-            onTap: () => _showComingSoon('Absensi Guru Mengajar'),
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TeacherAttendanceScreen())),
           ),
           const SizedBox(height: 8),
           _QuickLink(
@@ -89,7 +83,7 @@ class _KurikulumScreenState extends State<KurikulumScreen>
             iconColor: AppColors.violet600,
             title: 'Bimbingan Wali Kelas',
             subtitle: 'Ajukan dan lihat riwayat bimbingan',
-            onTap: () => _showComingSoon('Bimbingan Wali Kelas'),
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const HomeroomConsultationScreen())),
           ),
           const SizedBox(height: 12),
 
@@ -114,7 +108,9 @@ class _KurikulumScreenState extends State<KurikulumScreen>
                       label: _tabs[i],
                       selected: _tabCtrl.index == i,
                       selectedColor: AppColors.emerald600,
-                      onTap: () => setState(() => _tabCtrl.index = i),
+                      onTap: i == 3
+                          ? () => Navigator.push(context, MaterialPageRoute(builder: (_) => const GradeScreen()))
+                          : () => setState(() => _tabCtrl.index = i),
                     ),
                   );
                 })),

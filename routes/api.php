@@ -1,18 +1,20 @@
 <?php
 
 use App\Http\Controllers\Api\AchievementController;
-use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\Api\AttendanceController;
 use App\Http\Controllers\Api\AnnouncementController;
+use App\Http\Controllers\Api\AttendanceController;
+use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ConductController;
 use App\Http\Controllers\Api\EarlyCheckoutController;
 use App\Http\Controllers\Api\ExtracurricularController;
 use App\Http\Controllers\Api\ForgotAttendanceController;
+use App\Http\Controllers\Api\GradeController;
 use App\Http\Controllers\Api\HomeroomConsultationController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\PermitController;
 use App\Http\Controllers\Api\SchoolRegulationController;
 use App\Http\Controllers\Api\ShiftController;
+use App\Http\Controllers\Api\TeacherAttendanceController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -56,7 +58,9 @@ Route::prefix('v1')->group(function () {
             Route::post('/notifications/read-all',    [NotificationController::class, 'markAllRead']);
 
             // Pengumuman
-            Route::get('/announcements', [AnnouncementController::class, 'index']);
+            Route::get('/announcements',        [AnnouncementController::class, 'index']);
+            Route::get('/announcements/all',    [AnnouncementController::class, 'all']);
+            Route::get('/announcements/{id}',   [AnnouncementController::class, 'show']);
 
             // Tata Tertib Sekolah
             Route::get('/school-regulations', [SchoolRegulationController::class, 'index']);
@@ -89,6 +93,13 @@ Route::prefix('v1')->group(function () {
             Route::get('/achievement-categories', [AchievementController::class, 'categories']);
             Route::get('/achievements',            [AchievementController::class, 'index']);
             Route::post('/achievements',           [AchievementController::class, 'store']);
+
+            // Nilai / Rapor
+            Route::get('/grades',         [GradeController::class, 'index']);
+            Route::get('/grades/summary', [GradeController::class, 'summary']);
+
+            // Absensi Guru Mengajar (untuk siswa)
+            Route::get('/teacher-attendance', [TeacherAttendanceController::class, 'index']);
 
             // Bimbingan Wali Kelas
             Route::get('/homeroom-consultations',             [HomeroomConsultationController::class, 'index']);
