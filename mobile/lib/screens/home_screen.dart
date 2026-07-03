@@ -444,6 +444,10 @@ class _DashboardBody extends StatelessWidget {
           _GreetingCard(user: user, records: records),
           const SizedBox(height: 8),
 
+          // ── Kalender kehadiran bulanan ───────────────────────────
+          _MiniCalendar(records: records),
+          const SizedBox(height: 8),
+
           // ── Card absen masuk ─────────────────────────────────────
           if (attendProv.isLoadingStatus)
             const Center(
@@ -647,31 +651,39 @@ class _MiniCalendar extends StatelessWidget {
 
   static const _dayLabels = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
 
-  Color _dotColor(String? status) => switch (status) {
-    'hadir'      => AppColors.green500,
-    'terlambat'  => AppColors.yellow500,
-    'izin'       => AppColors.blue600,
-    'sakit'      => const Color(0xFFA855F7),
-    'dispensasi' => AppColors.teal500,
-    'alpa'       => AppColors.red500,
-    _            => Colors.transparent,
-  };
+  // Kelompokkan status:
+  //   hijau  = hadir / terlambat / izin / sakit / dispensasi (ada keterangan)
+  //   merah  = alpa ATAU hari kerja lampau tanpa keterangan
+  //   biru   = hari ini (override semua)
+  //   kosong = hari mendatang atau weekend tanpa record
+  _DayState _dayState(int day, int weekdayOfDay, bool isToday, bool isPast, String? status) {
+    if (isToday) return _DayState.today;
+    if (!isPast) return _DayState.future;         // hari ini/mendatang
+    final isWeekend = weekdayOfDay >= 6;          // Sat=6, Sun=7
+    if (status == null) {
+      return isWeekend ? _DayState.weekend : _DayState.absent;
+    }
+    return switch (status) {
+      'hadir' || 'terlambat' || 'izin' || 'sakit' || 'dispensasi' => _DayState.present,
+      'alpa' => _DayState.absent,
+      _ => _DayState.future,
+    };
+  }
 
   @override
   Widget build(BuildContext context) {
-    final now        = DateTime.now();
+    final now          = DateTime.now();
+    final today        = DateTime(now.year, now.month, now.day);
     final firstOfMonth = DateTime(now.year, now.month, 1);
     final daysInMonth  = DateTime(now.year, now.month + 1, 0).day;
-    // weekday: Mon=1 .. Sun=7; offset to Mon-based grid
-    final startOffset  = (firstOfMonth.weekday - 1) % 7;
+    final startOffset  = (firstOfMonth.weekday - 1) % 7; // Mon=0
 
     final statusMap = <int, String>{
       for (final r in records)
         DateTime.parse(r.date).day: r.status,
     };
 
-    final totalCells = startOffset + daysInMonth;
-    final rows       = (totalCells / 7).ceil();
+    final rows = ((startOffset + daysInMonth) / 7).ceil();
 
     return Container(
       decoration: BoxDecoration(
@@ -680,115 +692,93 @@ class _MiniCalendar extends StatelessWidget {
         border:       Border.all(color: AppColors.gray100),
         boxShadow:    AppShadow.sm,
       ),
-      padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+      padding: const EdgeInsets.fromLTRB(12, 12, 12, 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header
-          Row(
-            children: [
-              const Icon(Icons.calendar_month_rounded, size: 14, color: AppColors.blue600),
-              const SizedBox(width: 6),
-              Text(
-                'Kehadiran ${_monthName(now.month)} ${now.year}',
-                style: const TextStyle(
-                  fontSize:   12,
-                  fontWeight: FontWeight.w600,
-                  color:      AppColors.gray700,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
+          Row(children: [
+            const Icon(Icons.calendar_month_rounded, size: 14, color: AppColors.blue600),
+            const SizedBox(width: 6),
+            Text(
+              'Kehadiran ${_monthName(now.month)} ${now.year}',
+              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.gray700),
+            ),
+          ]),
+          const SizedBox(height: 10),
 
           // Day-of-week headers
           Row(
             children: _dayLabels.map((d) => Expanded(
-              child: Text(
-                d,
+              child: Text(d,
                 style: const TextStyle(fontSize: 9, color: AppColors.gray400, fontWeight: FontWeight.w600),
-                textAlign: TextAlign.center,
-              ),
+                textAlign: TextAlign.center),
             )).toList(),
           ),
           const SizedBox(height: 4),
 
           // Calendar grid
-          for (int row = 0; row < rows; row++) ...[
+          for (int row = 0; row < rows; row++)
             Row(
               children: List.generate(7, (col) {
-                final cell = row * 7 + col;
-                final day  = cell - startOffset + 1;
+                final day = row * 7 + col - startOffset + 1;
 
                 if (day < 1 || day > daysInMonth) {
-                  return const Expanded(child: SizedBox(height: 28));
+                  return const Expanded(child: SizedBox(height: 30));
                 }
 
-                final isToday  = day == now.day;
-                final status   = statusMap[day];
-                final dotColor = _dotColor(status);
-                final isWeekend = col >= 5; // Sat/Sun
+                final dayDate   = DateTime(now.year, now.month, day);
+                final isToday   = dayDate == today;
+                final isPast    = dayDate.isBefore(today);
+                final weekdayN  = dayDate.weekday; // Mon=1..Sun=7
+                final status    = statusMap[day];
+                final state     = _dayState(day, weekdayN, isToday, isPast, status);
 
                 return Expanded(
-                  child: Container(
-                    height: 28,
-                    alignment: Alignment.center,
-                    child: Container(
-                      width: 22, height: 22,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: isToday
-                            ? AppColors.blue600
-                            : status != null
-                                ? dotColor.withOpacity(0.15)
-                                : Colors.transparent,
-                        border: isToday
-                            ? null
-                            : status != null
-                                ? Border.all(color: dotColor.withOpacity(0.60), width: 1)
-                                : null,
-                      ),
-                      child: Center(
-                        child: status != null && !isToday
-                            ? Container(
-                                width: 6, height: 6,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: dotColor,
-                                ),
-                              )
-                            : Text(
-                                '$day',
-                                style: TextStyle(
-                                  fontSize:   9,
-                                  fontWeight: isToday ? FontWeight.bold : FontWeight.normal,
-                                  color:      isToday
-                                      ? Colors.white
-                                      : isWeekend
-                                          ? AppColors.gray400
-                                          : AppColors.gray500,
-                                ),
-                              ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 2),
+                    child: Center(
+                      child: Container(
+                        width: 26, height: 26,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: switch (state) {
+                            _DayState.today   => AppColors.blue600,
+                            _DayState.present => AppColors.green500,
+                            _DayState.absent  => AppColors.red500,
+                            _                 => Colors.transparent,
+                          },
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          '$day',
+                          style: TextStyle(
+                            fontSize:   10,
+                            fontWeight: isToday ? FontWeight.bold : FontWeight.w500,
+                            color: switch (state) {
+                              _DayState.today || _DayState.present || _DayState.absent => Colors.white,
+                              _DayState.weekend => AppColors.gray300,
+                              _                 => AppColors.gray500,
+                            },
+                          ),
+                        ),
                       ),
                     ),
                   ),
                 );
               }),
             ),
-          ],
 
           // Legend
           const SizedBox(height: 8),
           const Divider(height: 1, color: AppColors.gray100),
           const SizedBox(height: 6),
-          Wrap(
-            spacing: 10,
-            children: const [
-              _LegendDot(color: AppColors.green500,   label: 'Hadir'),
-              _LegendDot(color: AppColors.yellow500,  label: 'Terlambat'),
-              _LegendDot(color: AppColors.red500,     label: 'Alpa'),
-              _LegendDot(color: AppColors.blue600,    label: 'Izin'),
-              _LegendDot(color: Color(0xFFA855F7),    label: 'Sakit'),
+          const Wrap(
+            spacing: 12,
+            children: [
+              _LegendDot(color: AppColors.blue600,  label: 'Hari ini'),
+              _LegendDot(color: AppColors.green500, label: 'Hadir'),
+              _LegendDot(color: AppColors.red500,   label: 'Tidak hadir'),
             ],
           ),
         ],
@@ -801,6 +791,8 @@ class _MiniCalendar extends StatelessWidget {
     'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
   ][m];
 }
+
+enum _DayState { today, present, absent, weekend, future }
 
 class _LegendDot extends StatelessWidget {
   final Color  color;
