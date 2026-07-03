@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Models\Announcement;
 use App\Models\ConductLog;
+use App\Observers\AnnouncementObserver;
 use App\Observers\ConductLogObserver;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
@@ -15,6 +17,7 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        Announcement::observe(AnnouncementObserver::class);
         ConductLog::observe(ConductLogObserver::class);
 
         // Max 5 login attempts per minute per login+IP
