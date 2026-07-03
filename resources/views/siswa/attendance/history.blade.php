@@ -80,13 +80,18 @@
 
     @forelse($records as $rec)
     @php
-        $color = match($rec->status) {
+        $effStatus = $effectiveStatuses[$rec->date->format('Y-m-d')] ?? $rec->status;
+        $color = match($effStatus) {
             'hadir'      => ['dot' => 'bg-green-500', 'badge' => 'bg-green-100 text-green-700'],
             'terlambat'  => ['dot' => 'bg-yellow-500', 'badge' => 'bg-yellow-100 text-yellow-700'],
             'izin'       => ['dot' => 'bg-blue-500',  'badge' => 'bg-blue-100 text-blue-700'],
             'sakit'      => ['dot' => 'bg-purple-500','badge' => 'bg-purple-100 text-purple-700'],
             'dispensasi' => ['dot' => 'bg-indigo-500','badge' => 'bg-indigo-100 text-indigo-700'],
             default      => ['dot' => 'bg-red-500',   'badge' => 'bg-red-100 text-red-700'],
+        };
+        $effLabel = match($effStatus) {
+            'hadir' => 'Hadir', 'terlambat' => 'Terlambat', 'izin' => 'Izin',
+            'sakit' => 'Sakit', 'dispensasi' => 'Dispensasi', default => 'Alpa',
         };
     @endphp
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 px-4 py-3 flex items-center gap-3">
@@ -97,7 +102,7 @@
                     {{ $rec->date->isoFormat('dddd, D MMM Y') }}
                 </p>
                 <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full shrink-0 {{ $color['badge'] }}">
-                    {{ $rec->status_label }}
+                    {{ $effLabel }}
                 </span>
             </div>
             <div class="flex items-center gap-3 mt-0.5 text-xs text-gray-400">

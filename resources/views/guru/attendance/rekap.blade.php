@@ -98,7 +98,7 @@
                     </td>
                     @foreach($schoolDays as $day)
                     @php
-                        $status = $row['records']->get($day->format('Y-m-d'))?->status ?? 'alpa';
+                        $status = $row['effective_statuses'][$day->format('Y-m-d')] ?? 'alpa';
                         $cell   = match($status) {
                             'hadir'       => ['bg-green-500','H'],
                             'terlambat'   => ['bg-yellow-400','T'],

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Guru;
 
 use App\Http\Controllers\Controller;
 use App\Models\Attendance;
+use App\Models\EarlyCheckoutRequest;
 use App\Models\Permit;
 use App\Models\SchoolClass;
 use App\Models\User;
@@ -31,6 +32,14 @@ class AttendanceController extends Controller
             ->orderBy('name')
             ->get();
 
+        $studentIds = $students->pluck('id')->all();
+        $approvedEarlyCheckouts = EarlyCheckoutRequest::whereIn('student_id', $studentIds)
+            ->whereDate('date', $date)
+            ->where('status', 'approved')
+            ->pluck('student_id')
+            ->mapWithKeys(fn($id) => [$id => true])
+            ->all();
+
         $summary = [
             'hadir'      => 0,
             'terlambat'  => 0,
@@ -40,16 +49,19 @@ class AttendanceController extends Controller
             'dispensasi' => 0,
         ];
 
+        $effectiveStatuses = [];
         foreach ($students as $student) {
             $att = $student->attendances->first();
-            $status = $att ? $att->status : 'alpa';
+            $hasEarlyApproval = isset($approvedEarlyCheckouts[$student->id]);
+            $status = $att ? $att->effectiveStatus($hasEarlyApproval) : 'alpa';
+            $effectiveStatuses[$student->id] = $status;
             if (isset($summary[$status])) {
                 $summary[$status]++;
             }
         }
 
         return view('guru.attendance.index', compact(
-            'classes', 'selectedClassId', 'date', 'students', 'summary'
+            'classes', 'selectedClassId', 'date', 'students', 'summary', 'effectiveStatuses'
         ));
     }
 
@@ -90,18 +102,33 @@ class AttendanceController extends Controller
             ->get()
             ->groupBy('user_id');
 
+        // Load approved early checkouts for all students for the month
+        $approvedEarlyCheckouts = EarlyCheckoutRequest::whereIn('student_id', $students->pluck('id'))
+            ->whereBetween('date', [$start, $end])
+            ->where('status', 'approved')
+            ->get(['student_id', 'date'])
+            ->groupBy('student_id')
+            ->map(fn($g) => $g->mapWithKeys(fn($r) => [$r->date->format('Y-m-d') => true])->all());
+
         // Per-student summary
-        $studentData = $students->map(function ($student) use ($attendances, $schoolDays) {
-            $recs   = $attendances->get($student->id, collect())->keyBy(fn($a) => $a->date->format('Y-m-d'));
-            $counts = ['hadir' => 0, 'terlambat' => 0, 'izin' => 0, 'sakit' => 0, 'alpa' => 0, 'dispensasi' => 0];
+        $studentData = $students->map(function ($student) use ($attendances, $schoolDays, $approvedEarlyCheckouts) {
+            $recs             = $attendances->get($student->id, collect())->keyBy(fn($a) => $a->date->format('Y-m-d'));
+            $studentApprovals = $approvedEarlyCheckouts->get($student->id, []);
+            $counts           = ['hadir' => 0, 'terlambat' => 0, 'izin' => 0, 'sakit' => 0, 'alpa' => 0, 'dispensasi' => 0];
+            $effectiveStatuses = [];
             foreach ($schoolDays as $day) {
-                $status = $recs->get($day->format('Y-m-d'))?->status ?? 'alpa';
+                $dateStr          = $day->format('Y-m-d');
+                $att              = $recs->get($dateStr);
+                $hasEarlyApproval = isset($studentApprovals[$dateStr]);
+                $status           = $att ? $att->effectiveStatus($hasEarlyApproval) : 'alpa';
+                $effectiveStatuses[$dateStr] = $status;
                 if (isset($counts[$status])) $counts[$status]++;
             }
             return [
-                'student' => $student,
-                'records' => $recs,
-                'counts'  => $counts,
+                'student'            => $student,
+                'records'            => $recs,
+                'effective_statuses' => $effectiveStatuses,
+                'counts'             => $counts,
             ];
         });
 

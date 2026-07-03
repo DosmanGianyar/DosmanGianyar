@@ -241,23 +241,30 @@ class AttendanceController extends Controller
             ->orderBy('date', 'desc')
             ->get(['date', 'check_in_time', 'check_out_time', 'status', 'is_fake_gps', 'photo', 'check_out_photo']);
 
+        $approvedDates = EarlyCheckoutRequest::where('student_id', $user->id)
+            ->whereBetween('date', [$start, $end])
+            ->where('status', 'approved')
+            ->pluck('date')
+            ->mapWithKeys(fn($d) => [$d->format('Y-m-d') => true])
+            ->all();
+
         $records = $rows->map(fn ($r) => [
             'date'                => (string) $r->date,
             'check_in_time'       => $r->check_in_time,
             'check_out_time'      => $r->check_out_time,
-            'status'              => $r->status,
+            'status'              => $r->effectiveStatus(isset($approvedDates[(string) $r->date])),
             'is_fake_gps'         => (bool) $r->is_fake_gps,
             'check_in_photo_url'  => $r->photo            ? Storage::url($r->photo)            : null,
             'check_out_photo_url' => $r->check_out_photo  ? Storage::url($r->check_out_photo)  : null,
         ]);
 
         $summary = [
-            'hadir'      => $rows->where('status', 'hadir')->count(),
-            'terlambat'  => $rows->where('status', 'terlambat')->count(),
-            'izin'       => $rows->where('status', 'izin')->count(),
-            'sakit'      => $rows->where('status', 'sakit')->count(),
-            'alpa'       => $rows->where('status', 'alpa')->count(),
-            'dispensasi' => $rows->where('status', 'dispensasi')->count(),
+            'hadir'      => $records->where('status', 'hadir')->count(),
+            'terlambat'  => $records->where('status', 'terlambat')->count(),
+            'izin'       => $records->where('status', 'izin')->count(),
+            'sakit'      => $records->where('status', 'sakit')->count(),
+            'alpa'       => $records->where('status', 'alpa')->count(),
+            'dispensasi' => $records->where('status', 'dispensasi')->count(),
         ];
 
         return response()->json([

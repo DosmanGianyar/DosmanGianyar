@@ -261,14 +261,21 @@ class AttendanceController extends Controller
             ->orderBy('date', 'desc')
             ->get();
 
-        $summary = [
-            'hadir'      => $records->where('status', 'hadir')->count(),
-            'terlambat'  => $records->where('status', 'terlambat')->count(),
-            'izin'       => $records->where('status', 'izin')->count(),
-            'sakit'      => $records->where('status', 'sakit')->count(),
-            'alpa'       => $records->where('status', 'alpa')->count(),
-            'dispensasi' => $records->where('status', 'dispensasi')->count(),
-        ];
+        $approvedDates = EarlyCheckoutRequest::where('student_id', $siswa->id)
+            ->whereBetween('date', [$start, $end])
+            ->where('status', 'approved')
+            ->pluck('date')
+            ->mapWithKeys(fn($d) => [$d->format('Y-m-d') => true])
+            ->all();
+
+        $summary = ['hadir' => 0, 'terlambat' => 0, 'izin' => 0, 'sakit' => 0, 'alpa' => 0, 'dispensasi' => 0];
+        $effectiveStatuses = [];
+        foreach ($records as $rec) {
+            $dateStr = $rec->date->format('Y-m-d');
+            $effective = $rec->effectiveStatus(isset($approvedDates[$dateStr]));
+            $effectiveStatuses[$dateStr] = $effective;
+            if (isset($summary[$effective])) $summary[$effective]++;
+        }
 
         // Monthly trend: last 6 months
         $trend = collect();
@@ -288,7 +295,7 @@ class AttendanceController extends Controller
 
         return view('siswa.attendance.history', compact(
             'siswa', 'records', 'summary', 'trend', 'month', 'year',
-            'start', 'prevMonth', 'nextMonth', 'canNext'
+            'start', 'prevMonth', 'nextMonth', 'canNext', 'effectiveStatuses'
         ));
     }
 

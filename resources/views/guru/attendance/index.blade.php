@@ -68,7 +68,7 @@
         @forelse($students as $student)
         @php
             $att         = $student->attendances->first();
-            $status      = $att ? $att->status : 'alpa';
+            $status      = $effectiveStatuses[$student->id] ?? 'alpa';
             $statusChip  = $chips[$status] ?? ['bg' => 'bg-gray-100', 'text' => 'text-gray-600', 'label' => $status];
             $checkInTime = $att?->check_in_time ? \Carbon\Carbon::parse($att->check_in_time)->format('H:i') : null;
         @endphp
@@ -129,7 +129,7 @@
                 @forelse($students as $student)
                 @php
                     $att        = $student->attendances->first();
-                    $status     = $att ? $att->status : 'alpa';
+                    $status     = $effectiveStatuses[$student->id] ?? 'alpa';
                     $statusChip = $chips[$status] ?? ['bg' => 'bg-gray-100', 'text' => 'text-gray-600', 'label' => $status];
                 @endphp
                 <tr class="hover:bg-gray-50 transition-colors">

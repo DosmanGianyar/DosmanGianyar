@@ -53,4 +53,23 @@ class Attendance extends Model
             default       => 'gray',
         };
     }
+
+    /**
+     * Returns the true attendance status.
+     * A student who checked in but never checked out (and has no approved early checkout)
+     * is counted as alpa for past days.
+     */
+    public function effectiveStatus(bool $hasApprovedEarlyCheckout = false): string
+    {
+        // no check-in → izin/sakit/dispensasi/alpa, keep raw status
+        if (! $this->check_in_time) return $this->status;
+        // completed checkout → hadir/terlambat as recorded
+        if ($this->check_out_time) return $this->status;
+        // approved early checkout → treat as present
+        if ($hasApprovedEarlyCheckout) return $this->status;
+        // still today → student may still check out
+        if ($this->date->isToday()) return $this->status;
+        // past day with no checkout → alpa
+        return 'alpa';
+    }
 }
