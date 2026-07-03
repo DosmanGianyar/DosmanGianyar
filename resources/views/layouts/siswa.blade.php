@@ -88,7 +88,7 @@
 @endif
 
 {{-- ─── Main Content ────────────────────────────────────────────────── --}}
-<main class="pt-16 px-4 pb-4">
+<main class="pt-16 px-4 pb-24" style="padding-bottom: max(6rem, calc(4rem + env(safe-area-inset-bottom) + 1rem))">
     @yield('content')
 </main>
 

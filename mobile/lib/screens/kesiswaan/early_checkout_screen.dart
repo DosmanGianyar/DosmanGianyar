@@ -109,7 +109,7 @@ class _EarlyCheckoutScreenState extends State<EarlyCheckoutScreen> {
                   child: _items.isEmpty
                       ? const _EmptyView()
                       : ListView.separated(
-                          padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
+                          padding: EdgeInsets.fromLTRB(16, 16, 16, 100 + MediaQuery.of(context).padding.bottom),
                           itemCount: _items.length,
                           separatorBuilder: (_, __) => const SizedBox(height: 10),
                           itemBuilder: (_, i) => _ItemCard(
@@ -193,13 +193,14 @@ class _CreateSheetState extends State<_CreateSheet> {
   @override
   Widget build(BuildContext context) {
     final bottom = MediaQuery.of(context).viewInsets.bottom;
+    final safeBot = MediaQuery.of(context).padding.bottom;
     return Container(
       margin: const EdgeInsets.fromLTRB(12, 0, 12, 12),
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.all(Radius.circular(20)),
       ),
-      padding: EdgeInsets.fromLTRB(20, 20, 20, 20 + bottom),
+      padding: EdgeInsets.fromLTRB(20, 20, 20, 20 + bottom + safeBot),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
