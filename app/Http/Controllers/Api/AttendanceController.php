@@ -234,8 +234,9 @@ class AttendanceController extends Controller
         $month = max(1, min(12, $month));
         $year  = max(2020, min(now()->year + 1, $year));
 
-        $start   = Carbon::createFromDate($year, $month, 1)->startOfMonth();
-        $end     = $start->copy()->endOfMonth();
+        $start = Carbon::createFromDate($year, $month, 1)->startOfMonth();
+        $end   = $start->copy()->endOfMonth();
+
         $rows = Attendance::where('user_id', $user->id)
             ->whereBetween('date', [$start, $end])
             ->orderBy('date', 'desc')
@@ -248,30 +249,54 @@ class AttendanceController extends Controller
             ->mapWithKeys(fn($d) => [$d->format('Y-m-d') => true])
             ->all();
 
+        // Existing DB records with effective status applied
         $records = $rows->map(fn ($r) => [
-            'date'                => (string) $r->date,
+            'date'                => $r->date->format('Y-m-d'),
             'check_in_time'       => $r->check_in_time,
             'check_out_time'      => $r->check_out_time,
-            'status'              => $r->effectiveStatus(isset($approvedDates[(string) $r->date])),
+            'status'              => $r->effectiveStatus(isset($approvedDates[$r->date->format('Y-m-d')])),
             'is_fake_gps'         => (bool) $r->is_fake_gps,
-            'check_in_photo_url'  => $r->photo            ? Storage::url($r->photo)            : null,
-            'check_out_photo_url' => $r->check_out_photo  ? Storage::url($r->check_out_photo)  : null,
+            'check_in_photo_url'  => $r->photo           ? Storage::url($r->photo)           : null,
+            'check_out_photo_url' => $r->check_out_photo ? Storage::url($r->check_out_photo) : null,
         ]);
 
+        // Synthetic alpa for past school days with no attendance record
+        $recordedDates = $rows->pluck('date')->mapWithKeys(fn($d) => [$d->format('Y-m-d') => true])->all();
+        $holidays      = Holiday::whereBetween('date', [$start, $end])
+            ->pluck('date')->mapWithKeys(fn($d) => [$d->format('Y-m-d') => true])->all();
+        $today         = today();
+
+        $synthetic = collect();
+        for ($day = $start->copy(); $day->lt($today) && $day->lte($end); $day->addDay()) {
+            $ds = $day->format('Y-m-d');
+            if ($day->isWeekend() || isset($holidays[$ds]) || isset($recordedDates[$ds])) continue;
+            $synthetic->push([
+                'date'                => $ds,
+                'check_in_time'       => null,
+                'check_out_time'      => null,
+                'status'              => 'alpa',
+                'is_fake_gps'         => false,
+                'check_in_photo_url'  => null,
+                'check_out_photo_url' => null,
+            ]);
+        }
+
+        $all = $synthetic->concat($records)->sortByDesc('date')->values();
+
         $summary = [
-            'hadir'      => $records->where('status', 'hadir')->count(),
-            'terlambat'  => $records->where('status', 'terlambat')->count(),
-            'izin'       => $records->where('status', 'izin')->count(),
-            'sakit'      => $records->where('status', 'sakit')->count(),
-            'alpa'       => $records->where('status', 'alpa')->count(),
-            'dispensasi' => $records->where('status', 'dispensasi')->count(),
+            'hadir'      => $all->where('status', 'hadir')->count(),
+            'terlambat'  => $all->where('status', 'terlambat')->count(),
+            'izin'       => $all->where('status', 'izin')->count(),
+            'sakit'      => $all->where('status', 'sakit')->count(),
+            'alpa'       => $all->where('status', 'alpa')->count(),
+            'dispensasi' => $all->where('status', 'dispensasi')->count(),
         ];
 
         return response()->json([
             'month'       => $month,
             'year'        => $year,
             'summary'     => $summary,
-            'records'     => $records,
+            'records'     => $all,
             'server_time' => now()->toIso8601String(),
         ]);
     }
