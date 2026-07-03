@@ -70,7 +70,10 @@ abstract final class AppColors {
 
   // ─── Status warna (sesuai card di web) ──────────────────────────────────
   static const green500   = Color(0xFF22C55E); // bg-green-500  · hadir
+  static const green400   = Color(0xFF4ADE80); // text-green-400
   static const green100   = Color(0xFFDCFCE7); // bg-green-100  · card hadir
+  static const green50    = Color(0xFFF0FDF4); // bg-green-50
+  static const green600   = Color(0xFF16A34A); // text-green-600
   static const green900   = Color(0xFF14532D); // text-green-900
 
   static const emerald500 = Color(0xFF10B981); // bg-emerald-500 · pulang
@@ -83,7 +86,9 @@ abstract final class AppColors {
   static const amber500   = Color(0xFFF59E0B); // bg-amber-500
 
   static const red500     = Color(0xFFEF4444); // bg-red-500    · alpa
+  static const red300     = Color(0xFFFCA5A5); // text-red-300
   static const red100     = Color(0xFFFEE2E2); // bg-red-100
+  static const red50      = Color(0xFFFEF2F2); // bg-red-50
 
   static const blue50     = Color(0xFFEFF6FF); // bg-blue-50
   static const blue100    = Color(0xFFDBEAFE); // bg-blue-100

@@ -6,8 +6,11 @@ import '../../providers/extracurricular_provider.dart';
 import '../../theme/app_colors.dart';
 import '../attendance/history_screen.dart';
 import '../extracurricular/extracurricular_screen.dart';
+import 'achievement_screen.dart';
+import 'conduct_screen.dart';
 import 'early_checkout_screen.dart';
 import 'forgot_attendance_screen.dart';
+import 'homeroom_consultation_screen.dart';
 import 'permit_screen.dart';
 import 'school_regulation_screen.dart';
 
@@ -125,7 +128,8 @@ class _KesiswaanScreenState extends State<KesiswaanScreen>
 
           // ─── Prestasi Card ───────────────────────────────────────────
           GestureDetector(
-            onTap: () => _showComingSoon('Prestasi'),
+            onTap: () => Navigator.push(context,
+              MaterialPageRoute(builder: (_) => const AchievementScreen())),
             child: Container(
               decoration: BoxDecoration(
                 color: AppColors.white,
@@ -187,8 +191,22 @@ class _KesiswaanScreenState extends State<KesiswaanScreen>
                     controller: _tabCtrl,
                     children: [
                       _PresensiTab(records: records),
-                      _EmptyTab(icon: Icons.check_circle_outline, message: 'Tidak ada catatan pelanggaran', iconColor: AppColors.green500),
-                      _EmptyTab(icon: Icons.star_outline_rounded, message: 'Belum ada prestasi tercatat', iconColor: AppColors.yellow500),
+                      _NavTab(
+                        icon: Icons.shield_outlined,
+                        iconColor: AppColors.blue600,
+                        message: 'Lihat catatan pelanggaran & poin',
+                        buttonLabel: 'Buka Detail',
+                        onTap: () => Navigator.push(context,
+                          MaterialPageRoute(builder: (_) => const ConductScreen())),
+                      ),
+                      _NavTab(
+                        icon: Icons.workspace_premium_rounded,
+                        iconColor: AppColors.yellow600,
+                        message: 'Lihat dan laporkan prestasi',
+                        buttonLabel: 'Buka Prestasi',
+                        onTap: () => Navigator.push(context,
+                          MaterialPageRoute(builder: (_) => const AchievementScreen())),
+                      ),
                     ],
                   ),
                 ),
@@ -263,6 +281,18 @@ class _KesiswaanScreenState extends State<KesiswaanScreen>
           ),
           const SizedBox(height: 8),
 
+          // ─── Bimbingan Wali Kelas ─────────────────────────────────────
+          _LinkRow(
+            icon: Icons.support_agent_rounded,
+            iconBg: AppColors.blue50,
+            iconColor: AppColors.blue600,
+            title: 'Bimbingan Wali Kelas',
+            subtitle: 'Ajukan konsultasi dengan wali kelas',
+            onTap: () => Navigator.push(context,
+              MaterialPageRoute(builder: (_) => const HomeroomConsultationScreen())),
+          ),
+          const SizedBox(height: 8),
+
           // ─── Izin Keluar Kelas ────────────────────────────────────────
           _LinkRow(
             icon: Icons.door_front_door_outlined,
@@ -309,9 +339,11 @@ class _KesiswaanScreenState extends State<KesiswaanScreen>
                 ]),
                 const SizedBox(height: 12),
                 Row(children: [
-                  Expanded(child: _IzinButton(label: 'Laporkan', color: AppColors.yellow50, textColor: AppColors.yellow600, onTap: () => _showComingSoon('Laporkan Prestasi'))),
+                  Expanded(child: _IzinButton(label: 'Laporkan', color: AppColors.yellow50, textColor: AppColors.yellow600,
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AchievementScreen())))),
                   const SizedBox(width: 8),
-                  Expanded(child: _IzinButton(label: 'Prestasi Saya', color: AppColors.gray50, textColor: AppColors.gray700, onTap: () => _showComingSoon('Prestasi Saya'))),
+                  Expanded(child: _IzinButton(label: 'Prestasi Saya', color: AppColors.gray50, textColor: AppColors.gray700,
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AchievementScreen())))),
                 ]),
               ],
             ),
@@ -452,17 +484,50 @@ class _PresensiTab extends StatelessWidget {
 class _EmptyTab extends StatelessWidget {
   final IconData icon;
   final String   message;
-  final Color    iconColor;
-  const _EmptyTab({required this.icon, required this.message, this.iconColor = AppColors.gray300});
+  const _EmptyTab({required this.icon, required this.message});
 
   @override
   Widget build(BuildContext context) {
     return Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
-      Icon(icon, size: 36, color: iconColor),
+      Icon(icon, size: 36, color: AppColors.gray300),
       const SizedBox(height: 8),
       Text(message, style: const TextStyle(fontSize: 13, color: AppColors.gray400)),
     ]));
   }
+}
+
+// ─── Nav Tab ──────────────────────────────────────────────────────────────────
+
+class _NavTab extends StatelessWidget {
+  final IconData     icon;
+  final Color        iconColor;
+  final String       message;
+  final String       buttonLabel;
+  final VoidCallback onTap;
+  const _NavTab({
+    required this.icon, required this.iconColor,
+    required this.message, required this.buttonLabel, required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) => Center(
+    child: Column(mainAxisSize: MainAxisSize.min, children: [
+      Icon(icon, size: 36, color: iconColor),
+      const SizedBox(height: 8),
+      Text(message, style: const TextStyle(fontSize: 12, color: AppColors.gray400)),
+      const SizedBox(height: 10),
+      OutlinedButton(
+        onPressed: onTap,
+        style: OutlinedButton.styleFrom(
+          foregroundColor: iconColor,
+          side: BorderSide(color: iconColor),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+          shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
+        ),
+        child: Text(buttonLabel, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+      ),
+    ]),
+  );
 }
 
 // ─── Link Row ─────────────────────────────────────────────────────────────────

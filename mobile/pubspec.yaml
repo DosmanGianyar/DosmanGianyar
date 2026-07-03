@@ -34,6 +34,9 @@ dependencies:
   # Formatting tanggal & locale Indonesia
   intl: ^0.19.0
 
+  # Pilih gambar dari galeri / kamera (untuk upload foto prestasi)
+  image_picker: ^1.1.2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

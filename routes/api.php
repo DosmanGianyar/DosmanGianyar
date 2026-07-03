@@ -1,11 +1,14 @@
 <?php
 
+use App\Http\Controllers\Api\AchievementController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\AttendanceController;
 use App\Http\Controllers\Api\AnnouncementController;
+use App\Http\Controllers\Api\ConductController;
 use App\Http\Controllers\Api\EarlyCheckoutController;
 use App\Http\Controllers\Api\ExtracurricularController;
 use App\Http\Controllers\Api\ForgotAttendanceController;
+use App\Http\Controllers\Api\HomeroomConsultationController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\PermitController;
 use App\Http\Controllers\Api\SchoolRegulationController;
@@ -78,6 +81,19 @@ Route::prefix('v1')->group(function () {
             Route::get('/early-checkout',         [EarlyCheckoutController::class, 'index']);
             Route::post('/early-checkout',        [EarlyCheckoutController::class, 'store']);
             Route::delete('/early-checkout/{id}', [EarlyCheckoutController::class, 'destroy']);
+
+            // Pelanggaran & Poin
+            Route::get('/conduct', [ConductController::class, 'index']);
+
+            // Prestasi
+            Route::get('/achievement-categories', [AchievementController::class, 'categories']);
+            Route::get('/achievements',            [AchievementController::class, 'index']);
+            Route::post('/achievements',           [AchievementController::class, 'store']);
+
+            // Bimbingan Wali Kelas
+            Route::get('/homeroom-consultations',             [HomeroomConsultationController::class, 'index']);
+            Route::post('/homeroom-consultations',            [HomeroomConsultationController::class, 'store']);
+            Route::patch('/homeroom-consultations/{id}/cancel', [HomeroomConsultationController::class, 'cancel']);
 
             // Sesi Ekstrakurikuler
             Route::get('/extracurricular-sessions',                          [ExtracurricularController::class, 'sessions']);

@@ -79,6 +79,14 @@ class ApiClient {
     return resp.data as Map<String, dynamic>;
   }
 
+  static Future<Map<String, dynamic>> patch(
+    String path, {
+    Map<String, dynamic>? data,
+  }) async {
+    final resp = await _dio.patch(path, data: data);
+    return resp.data as Map<String, dynamic>;
+  }
+
   static Future<Map<String, dynamic>> delete(String path) async {
     final resp = await _dio.delete(path);
     return resp.data as Map<String, dynamic>;
