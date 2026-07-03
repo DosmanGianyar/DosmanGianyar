@@ -20,22 +20,19 @@ class ConductController extends Controller
             ->orderByDesc('created_at')
             ->get();
 
-        $totalPoint      = $logs->sum('point');
-        $prestasiPoint   = $logs->where('point', '>', 0)->sum('point');
-        $pelanggaranPoint = abs($logs->where('point', '<', 0)->sum('point'));
+        $prestasiCount    = $logs->filter(fn ($l) => $l->category?->type === 'prestasi')->count();
+        $pelanggaranCount = $logs->filter(fn ($l) => $l->category?->type === 'pelanggaran')->count();
 
         return response()->json([
             'summary' => [
-                'total_point'       => $totalPoint,
-                'prestasi_point'    => $prestasiPoint,
-                'pelanggaran_point' => $pelanggaranPoint,
+                'prestasi_count'    => $prestasiCount,
+                'pelanggaran_count' => $pelanggaranCount,
             ],
             'logs' => $logs->map(fn ($log) => [
                 'id'            => $log->id,
                 'category_name' => $log->category->name,
                 'type'          => $log->category->type,
                 'context'       => $log->category->context,
-                'point'         => $log->point,
                 'note'          => $log->note,
                 'photo_url'     => $log->photo ? Storage::url($log->photo) : null,
                 'teacher_name'  => $log->teacher?->name,

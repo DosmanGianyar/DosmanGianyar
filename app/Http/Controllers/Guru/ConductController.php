@@ -36,8 +36,8 @@ class ConductController extends Controller
             ->orderBy('name')
             ->get()
             ->map(function ($student) {
-                $student->prestasi_count    = $student->conductLogs->where('point', '>', 0)->count();
-                $student->pelanggaran_count = $student->conductLogs->where('point', '<', 0)->count();
+                $student->prestasi_count    = $student->conductLogs->filter(fn ($l) => $l->category?->type === 'prestasi')->count();
+                $student->pelanggaran_count = $student->conductLogs->filter(fn ($l) => $l->category?->type === 'pelanggaran')->count();
                 return $student;
             });
 
@@ -91,7 +91,7 @@ class ConductController extends Controller
             $catName  = $type === 'prestasi' ? '__sistem__prestasi_lainnya' : '__sistem__pelanggaran_lainnya';
             $category = ConductCategory::firstOrCreate(
                 ['name' => $catName],
-                ['type' => $type, 'context' => $request->context, 'point_value' => 0, 'is_active' => true]
+                ['type' => $type, 'context' => $request->context, 'is_active' => true]
             );
         } else {
             $category = ConductCategory::findOrFail($request->category_id);
@@ -106,7 +106,6 @@ class ConductController extends Controller
             'student_id'  => $request->student_id,
             'teacher_id'  => Auth::id(),
             'category_id' => $category->id,
-            'point'       => $category->point_value,
             'photo'       => $photoPath,
             'note'        => $request->note,
         ]);
@@ -118,7 +117,7 @@ class ConductController extends Controller
             $request->student_id,
             "{$label}: {$desc}",
             "Telah dicatat oleh guru: {$desc}.",
-            $category->point_value >= 0 ? 'success' : 'warning',
+            $category->type === 'prestasi' ? 'success' : 'warning',
             route('siswa.conduct.index'),
         );
 
@@ -133,9 +132,10 @@ class ConductController extends Controller
             ->latest()
             ->paginate(20);
 
-        $totalPoint = $student->conductLogs()->sum('point');
-        $bkLogs     = $student->bkLogs()->with('counselor')->latest()->get();
+        $prestasiCount    = $student->conductLogs()->whereHas('category', fn ($q) => $q->where('type', 'prestasi'))->count();
+        $pelanggaranCount = $student->conductLogs()->whereHas('category', fn ($q) => $q->where('type', 'pelanggaran'))->count();
+        $bkLogs           = $student->bkLogs()->with('counselor')->latest()->get();
 
-        return view('guru.conduct.student-detail', compact('student', 'logs', 'totalPoint', 'bkLogs'));
+        return view('guru.conduct.student-detail', compact('student', 'logs', 'prestasiCount', 'pelanggaranCount', 'bkLogs'));
     }
 }

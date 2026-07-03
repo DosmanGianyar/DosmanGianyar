@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class BkLog extends Model
 {
     protected $fillable = [
-        'student_id', 'counselor_id', 'coaching_note', 'point_at_time', 'is_auto', 'date',
+        'student_id', 'counselor_id', 'coaching_note', 'is_auto', 'date',
     ];
 
     protected function casts(): array

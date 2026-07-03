@@ -22,10 +22,6 @@
         </div>
 
         {{-- Ringkasan Prestasi & Pelanggaran --}}
-        @php
-            $prestasiCount    = $logs->where('point', '>', 0)->count();
-            $pelanggaranCount = $logs->where('point', '<', 0)->count();
-        @endphp
         <div class="grid grid-cols-2 gap-3 text-center">
             <div class="bg-green-50 rounded-xl py-3">
                 <p class="text-lg font-bold text-green-600">{{ $prestasiCount }}</p>
@@ -47,10 +43,10 @@
             @forelse($logs as $log)
             <div class="flex items-start gap-3 px-4 py-3">
                 <div class="w-9 h-9 rounded-full shrink-0 flex items-center justify-center
-                    {{ $log->point > 0 ? 'bg-green-100' : 'bg-red-100' }}">
-                    <svg class="w-4 h-4 {{ $log->point > 0 ? 'text-green-600' : 'text-red-600' }}"
+                    {{ $log->isPrestasi() ? 'bg-green-100' : 'bg-red-100' }}">
+                    <svg class="w-4 h-4 {{ $log->isPrestasi() ? 'text-green-600' : 'text-red-600' }}"
                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        @if($log->point > 0)
+                        @if($log->isPrestasi())
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
                         @else
@@ -71,8 +67,8 @@
                 </div>
                 <div class="flex items-center gap-2 shrink-0">
                     <span class="text-xs font-semibold px-2 py-0.5 rounded-lg
-                        {{ $log->point > 0 ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700' }}">
-                        {{ $log->point > 0 ? 'Prestasi' : 'Pelanggaran' }}
+                        {{ $log->isPrestasi() ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700' }}">
+                        {{ $log->isPrestasi() ? 'Prestasi' : 'Pelanggaran' }}
                     </span>
                     @if($log->photo)
                     <a href="{{ Storage::url($log->photo) }}" target="_blank"
@@ -115,7 +111,7 @@
                 </div>
                 <p class="text-xs text-orange-600 mt-1">
                     {{ $bk->date->isoFormat('D MMM Y') }}
-                    · Poin saat itu: {{ $bk->point_at_time }}
+                    · Konselor: {{ $bk->counselor?->name ?? '—' }}
                 </p>
             </div>
             @endforeach

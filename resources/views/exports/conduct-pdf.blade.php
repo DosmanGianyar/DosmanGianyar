@@ -16,8 +16,8 @@
     th { background: #1d4ed8; color: white; padding: 6px 8px; text-align: left; font-size: 10px; }
     td { padding: 5px 8px; border-bottom: 1px solid #e5e7eb; font-size: 10px; }
     tr:nth-child(even) td { background: #f8fafc; }
-    .plus { color: #059669; font-weight: bold; }
-    .minus { color: #dc2626; font-weight: bold; }
+    .prestasi { color: #059669; font-weight: bold; }
+    .pelanggaran { color: #dc2626; font-weight: bold; }
     .footer { margin-top: 16px; font-size: 9px; color: #9ca3af; text-align: right; }
     .summary { margin-bottom: 10px; font-size: 10px; }
 </style>
@@ -32,7 +32,7 @@
     </div>
 </div>
 
-<div class="title">Rekap Poin Perilaku Siswa</div>
+<div class="title">Rekap Catatan Perilaku Siswa</div>
 <div class="subtitle">
     Periode: {{ \Carbon\Carbon::parse($month . '-01')->isoFormat('MMMM Y') }}
     @if($className) · Kelas: {{ $className }} @endif
@@ -53,27 +53,25 @@
             <th>Kelas</th>
             <th>Kategori</th>
             <th>Tipe</th>
-            <th>Poin</th>
             <th>Dicatat Oleh</th>
             <th>Tanggal</th>
         </tr>
     </thead>
     <tbody>
         @forelse($records as $i => $r)
-        @php $sign = $r->point > 0 ? '+' : ''; $cls = $r->point > 0 ? 'plus' : 'minus'; @endphp
+        @php $isPrestasi = $r->category?->type === 'prestasi'; @endphp
         <tr>
             <td>{{ $i + 1 }}</td>
             <td>{{ $r->student?->name }}</td>
             <td>{{ $r->student?->nis }}</td>
             <td>{{ $r->student?->schoolClass?->name }}</td>
             <td>{{ $r->category?->name }}</td>
-            <td>{{ ucfirst($r->category?->type) }}</td>
-            <td class="{{ $cls }}">{{ $sign }}{{ $r->point }}</td>
+            <td class="{{ $isPrestasi ? 'prestasi' : 'pelanggaran' }}">{{ $isPrestasi ? 'Prestasi' : 'Pelanggaran' }}</td>
             <td>{{ $r->teacher?->name }}</td>
             <td>{{ $r->created_at->isoFormat('D MMM Y') }}</td>
         </tr>
         @empty
-        <tr><td colspan="9" style="text-align:center;color:#9ca3af;padding:12px;">Tidak ada data</td></tr>
+        <tr><td colspan="8" style="text-align:center;color:#9ca3af;padding:12px;">Tidak ada data</td></tr>
         @endforelse
     </tbody>
 </table>

@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ConductCategory extends Model
 {
-    protected $fillable = ['name', 'point_value', 'type', 'context', 'is_active'];
+    protected $fillable = ['name', 'type', 'context', 'is_active'];
 
     protected function casts(): array
     {

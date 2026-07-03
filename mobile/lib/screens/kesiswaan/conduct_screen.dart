@@ -44,7 +44,7 @@ class _ConductScreenState extends State<ConductScreen> {
     return Scaffold(
       backgroundColor: AppColors.slate100,
       appBar: AppBar(
-        title: const Text('Pelanggaran & Poin',
+        title: const Text('Pelanggaran & Prestasi',
           style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
         backgroundColor: const Color(0xFF0F2460),
         foregroundColor: Colors.white,
@@ -65,7 +65,7 @@ class _ConductScreenState extends State<ConductScreen> {
                             child: Column(mainAxisSize: MainAxisSize.min, children: [
                               Icon(Icons.verified_user_outlined, size: 56, color: AppColors.gray300),
                               SizedBox(height: 12),
-                              Text('Tidak ada catatan pelanggaran atau poin',
+                              Text('Belum ada catatan',
                                 style: TextStyle(fontSize: 13, color: AppColors.gray400)),
                             ]),
                           ),
@@ -94,76 +94,52 @@ class _SummaryCards extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final total = summary.totalPoint;
-    return Container(
-      margin: const EdgeInsets.all(16),
+    return Padding(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF0F2460), Color(0xFF1E3A8A)],
-          begin: Alignment.topLeft, end: Alignment.bottomRight,
-        ),
-        borderRadius: AppRadius.card,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text('Total Poin Anda',
-            style: TextStyle(color: Color(0xFFBFDBFE), fontSize: 12)),
-          const SizedBox(height: 4),
-          Row(children: [
-            Text('$total',
-              style: TextStyle(
-                color: total >= 0 ? Colors.white : AppColors.red300,
-                fontSize: 32, fontWeight: FontWeight.bold, height: 1,
-              )),
-            const SizedBox(width: 6),
-            Text('poin',
-              style: const TextStyle(color: Color(0xFFBFDBFE), fontSize: 14)),
-          ]),
-          const SizedBox(height: 16),
-          Row(children: [
-            Expanded(child: _MiniStat(
-              label: 'Poin Prestasi',
-              value: '+${summary.prestasiPoint}',
-              color: AppColors.green400,
-              icon: Icons.arrow_upward_rounded,
-            )),
-            const SizedBox(width: 12),
-            Expanded(child: _MiniStat(
-              label: 'Poin Pelanggaran',
-              value: '-${summary.pelanggaranPoint}',
-              color: AppColors.red300,
-              icon: Icons.arrow_downward_rounded,
-            )),
-          ]),
-        ],
-      ),
+      child: Row(children: [
+        Expanded(child: _CountCard(
+          label: 'Prestasi',
+          count: summary.prestasiCount,
+          color: AppColors.green600,
+          bg: AppColors.green50,
+          icon: Icons.star_rounded,
+        )),
+        const SizedBox(width: 12),
+        Expanded(child: _CountCard(
+          label: 'Pelanggaran',
+          count: summary.pelanggaranCount,
+          color: AppColors.red500,
+          bg: AppColors.red50,
+          icon: Icons.warning_rounded,
+        )),
+      ]),
     );
   }
 }
 
-class _MiniStat extends StatelessWidget {
-  final String label, value;
-  final Color  color;
+class _CountCard extends StatelessWidget {
+  final String  label;
+  final int     count;
+  final Color   color, bg;
   final IconData icon;
-  const _MiniStat({required this.label, required this.value, required this.color, required this.icon});
+  const _CountCard({
+    required this.label, required this.count,
+    required this.color, required this.bg, required this.icon,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Row(children: [
-        Icon(icon, color: color, size: 16),
-        const SizedBox(width: 6),
-        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(label, style: const TextStyle(color: Color(0xFFBFDBFE), fontSize: 10)),
-          Text(value, style: TextStyle(color: color, fontSize: 15, fontWeight: FontWeight.bold)),
-        ])),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(color: bg, borderRadius: AppRadius.card),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Icon(icon, color: color, size: 20),
+        const SizedBox(height: 8),
+        Text('$count',
+          style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: color, height: 1)),
+        const SizedBox(height: 2),
+        Text(label,
+          style: const TextStyle(fontSize: 11, color: AppColors.gray500)),
       ]),
     );
   }
@@ -196,10 +172,10 @@ class _LogCard extends StatelessWidget {
         Container(
           width: 40, height: 40,
           decoration: BoxDecoration(color: log.typeBg, borderRadius: BorderRadius.circular(10)),
-          child: Center(child: Text(log.pointLabel,
-            style: TextStyle(
-              color: log.typeColor,
-              fontWeight: FontWeight.bold, fontSize: 13))),
+          child: Center(child: Icon(
+            log.isPrestasi ? Icons.star_rounded : Icons.warning_rounded,
+            color: log.typeColor, size: 20,
+          )),
         ),
         const SizedBox(width: 12),
         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [

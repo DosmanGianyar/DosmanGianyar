@@ -25,9 +25,9 @@ class ConductCategoryResource extends Resource
     protected static string|\BackedEnum|null $navigationIcon       = 'heroicon-o-tag';
     protected static string|\UnitEnum|null   $navigationGroup      = 'Kesiswaan';
     protected static ?string                 $navigationParentItem = 'Prestasi';
-    protected static ?string                 $navigationLabel      = 'Kategori Poin';
-    protected static ?string                 $modelLabel           = 'Kategori Poin';
-    protected static ?string                 $pluralModelLabel     = 'Kategori Poin';
+    protected static ?string                 $navigationLabel      = 'Kategori Catatan';
+    protected static ?string                 $modelLabel           = 'Kategori Catatan';
+    protected static ?string                 $pluralModelLabel     = 'Kategori Catatan';
 
     public static function form(Schema $schema): Schema
     {
@@ -53,12 +53,6 @@ class ConductCategoryResource extends Resource
                     'sidak'    => 'Pelanggaran Sidak',
                 ])
                 ->required(),
-
-            TextInput::make('point_value')
-                ->label('Nilai Poin')
-                ->numeric()
-                ->required()
-                ->helperText('Positif untuk prestasi, negatif untuk pelanggaran'),
 
             Toggle::make('is_active')
                 ->label('Aktif')
@@ -103,11 +97,6 @@ class ConductCategoryResource extends Resource
                         'sidak'    => 'Sidak',
                         default    => '—',
                     }),
-
-                TextColumn::make('point_value')
-                    ->label('Poin')
-                    ->sortable()
-                    ->formatStateUsing(fn ($state) => ($state > 0 ? '+' : '') . $state),
 
                 IconColumn::make('is_active')
                     ->label('Aktif')

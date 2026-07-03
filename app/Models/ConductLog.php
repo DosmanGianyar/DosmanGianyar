@@ -8,13 +8,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class ConductLog extends Model
 {
     protected $fillable = [
-        'student_id', 'teacher_id', 'category_id', 'point', 'photo', 'note',
+        'student_id', 'teacher_id', 'category_id', 'photo', 'note',
     ];
-
-    protected function casts(): array
-    {
-        return ['point' => 'integer'];
-    }
 
     public function student(): BelongsTo
     {
@@ -31,6 +26,6 @@ class ConductLog extends Model
         return $this->belongsTo(ConductCategory::class, 'category_id');
     }
 
-    public function isPrestasi(): bool   { return $this->point > 0; }
-    public function isPelanggaran(): bool { return $this->point < 0; }
+    public function isPrestasi(): bool   { return $this->category?->type === 'prestasi'; }
+    public function isPelanggaran(): bool { return $this->category?->type === 'pelanggaran'; }
 }
