@@ -79,6 +79,11 @@ class ApiClient {
     return resp.data as Map<String, dynamic>;
   }
 
+  static Future<Map<String, dynamic>> delete(String path) async {
+    final resp = await _dio.delete(path);
+    return resp.data as Map<String, dynamic>;
+  }
+
   static Future<Map<String, dynamic>> postForm(
     String path,
     FormData formData,

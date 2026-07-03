@@ -3,8 +3,11 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\AttendanceController;
 use App\Http\Controllers\Api\AnnouncementController;
+use App\Http\Controllers\Api\EarlyCheckoutController;
 use App\Http\Controllers\Api\ExtracurricularController;
+use App\Http\Controllers\Api\ForgotAttendanceController;
 use App\Http\Controllers\Api\NotificationController;
+use App\Http\Controllers\Api\PermitController;
 use App\Http\Controllers\Api\SchoolRegulationController;
 use App\Http\Controllers\Api\ShiftController;
 use Illuminate\Support\Facades\Route;
@@ -60,6 +63,21 @@ Route::prefix('v1')->group(function () {
             Route::get('/extracurriculars/my',      [ExtracurricularController::class, 'myExtras']);
             Route::post('/extracurriculars/{extracurricular}/join',  [ExtracurricularController::class, 'join']);
             Route::post('/extracurriculars/{extracurricular}/leave', [ExtracurricularController::class, 'leave']);
+
+            // Izin / Sakit / Dispensasi
+            Route::get('/permits',        [PermitController::class, 'index']);
+            Route::post('/permits',       [PermitController::class, 'store']);
+            Route::delete('/permits/{id}',[PermitController::class, 'destroy']);
+
+            // Lupa Absen
+            Route::get('/forgot-attendance',         [ForgotAttendanceController::class, 'index']);
+            Route::post('/forgot-attendance',        [ForgotAttendanceController::class, 'store']);
+            Route::delete('/forgot-attendance/{id}', [ForgotAttendanceController::class, 'destroy']);
+
+            // Izin Pulang Lebih Awal
+            Route::get('/early-checkout',         [EarlyCheckoutController::class, 'index']);
+            Route::post('/early-checkout',        [EarlyCheckoutController::class, 'store']);
+            Route::delete('/early-checkout/{id}', [EarlyCheckoutController::class, 'destroy']);
 
             // Sesi Ekstrakurikuler
             Route::get('/extracurricular-sessions',                          [ExtracurricularController::class, 'sessions']);

@@ -6,6 +6,9 @@ import '../../providers/extracurricular_provider.dart';
 import '../../theme/app_colors.dart';
 import '../attendance/history_screen.dart';
 import '../extracurricular/extracurricular_screen.dart';
+import 'early_checkout_screen.dart';
+import 'forgot_attendance_screen.dart';
+import 'permit_screen.dart';
 import 'school_regulation_screen.dart';
 
 class KesiswaanScreen extends StatefulWidget {
@@ -222,11 +225,14 @@ class _KesiswaanScreenState extends State<KesiswaanScreen>
                 ]),
                 const SizedBox(height: 12),
                 Row(children: [
-                  Expanded(child: _IzinButton(label: 'Izin', color: AppColors.sky50, textColor: AppColors.sky700, onTap: () => _showComingSoon('Izin'))),
+                  Expanded(child: _IzinButton(label: 'Izin', color: AppColors.sky50, textColor: AppColors.sky700,
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PermitScreen())))),
                   const SizedBox(width: 8),
-                  Expanded(child: _IzinButton(label: 'Dispensasi', color: AppColors.orange50, textColor: AppColors.orange600, onTap: () => _showComingSoon('Dispensasi'))),
+                  Expanded(child: _IzinButton(label: 'Dispensasi', color: AppColors.orange50, textColor: AppColors.orange600,
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PermitScreen())))),
                   const SizedBox(width: 8),
-                  Expanded(child: _IzinButton(label: 'Riwayat', color: AppColors.gray50, textColor: AppColors.gray600, onTap: () => _showComingSoon('Riwayat Izin'))),
+                  Expanded(child: _IzinButton(label: 'Riwayat', color: AppColors.gray50, textColor: AppColors.gray600,
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PermitScreen())))),
                 ]),
               ],
             ),
@@ -240,7 +246,8 @@ class _KesiswaanScreenState extends State<KesiswaanScreen>
             iconColor: AppColors.emerald600,
             title: 'Izin Pulang Lebih Awal',
             subtitle: 'Ajukan izin pulang sebelum jam normal',
-            onTap: () => _showComingSoon('Izin Pulang Lebih Awal'),
+            onTap: () => Navigator.push(context,
+              MaterialPageRoute(builder: (_) => const EarlyCheckoutScreen())),
           ),
           const SizedBox(height: 8),
 
@@ -251,7 +258,8 @@ class _KesiswaanScreenState extends State<KesiswaanScreen>
             iconColor: AppColors.amber500,
             title: 'Lupa Absen',
             subtitle: 'Ajukan koreksi presensi ke wali kelas',
-            onTap: () => _showComingSoon('Lupa Absen'),
+            onTap: () => Navigator.push(context,
+              MaterialPageRoute(builder: (_) => const ForgotAttendanceScreen())),
           ),
           const SizedBox(height: 8),
 

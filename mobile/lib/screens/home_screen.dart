@@ -6,10 +6,10 @@ import '../providers/attendance_provider.dart';
 import '../providers/notification_provider.dart';
 import '../models/attendance.dart';
 import '../models/announcement.dart';
-import '../models/notification_item.dart';
 import '../models/user.dart';
 import '../theme/app_colors.dart';
 import 'login_screen.dart';
+import 'notifications_screen.dart';
 import 'attendance/attendance_screen.dart';
 import 'attendance/history_screen.dart';
 import 'kesiswaan/kesiswaan_screen.dart';
@@ -115,17 +115,10 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _openNotifications() {
-    final notifProv = context.read<NotificationProvider>();
-    notifProv.fetchAll();
-    showModalBottomSheet(
-      context:          context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => ChangeNotifierProvider.value(
-        value: notifProv,
-        child: const _NotificationSheet(),
-      ),
-    );
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const NotificationsScreen()),
+    ).then((_) => context.read<NotificationProvider>().fetchUnreadCount());
   }
 
   Widget _buildBody() {
@@ -1050,65 +1043,6 @@ class _PhotoBox extends StatelessWidget {
   }
 }
 
-// ─── Shift Card ───────────────────────────────────────────────────────────────
-
-class _ShiftCard extends StatelessWidget {
-  final AttendanceStatus status;
-  const _ShiftCard({required this.status});
-
-  @override
-  Widget build(BuildContext context) {
-    final s = status.shift;
-    return Container(
-      decoration: BoxDecoration(
-        color:        AppColors.white,
-        borderRadius: AppRadius.card,
-        border:       Border.all(color: AppColors.gray100),
-        boxShadow:    AppShadow.sm,
-      ),
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Row(
-            children: [
-              Icon(Icons.schedule_rounded, size: 16, color: AppColors.blue600),
-              SizedBox(width: 6),
-              Text('Jadwal Absensi',
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize:   13,
-                  color:      AppColors.gray700,
-                )),
-            ],
-          ),
-          const Divider(height: 16, color: AppColors.gray100),
-          _row('Buka Absen',   s.checkInOpen,  AppColors.green500),
-          _row('Batas Tepat',  s.checkInLate,  AppColors.yellow500),
-          _row('Tutup Absen',  s.checkInClose, AppColors.red500),
-          _row('Absen Pulang', s.checkOutOpen, AppColors.blue600),
-        ],
-      ),
-    );
-  }
-
-  Widget _row(String label, String time, Color color) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 3),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label, style: const TextStyle(fontSize: 12, color: AppColors.gray500)),
-          Text(
-            time.length >= 5 ? time.substring(0, 5) : time,
-            style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: color),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 // ─── History Button ───────────────────────────────────────────────────────────
 
 class _HistoryButton extends StatelessWidget {
@@ -1352,159 +1286,6 @@ class _AnnouncementTile extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-// ─── Notification Sheet ───────────────────────────────────────────────────────
-
-class _NotificationSheet extends StatelessWidget {
-  const _NotificationSheet();
-
-  @override
-  Widget build(BuildContext context) {
-    final prov = context.watch<NotificationProvider>();
-
-    return DraggableScrollableSheet(
-      initialChildSize: 0.65,
-      minChildSize:     0.40,
-      maxChildSize:     0.90,
-      builder: (_, scrollCtrl) => Container(
-        decoration: const BoxDecoration(
-          color:        AppColors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        child: Column(
-          children: [
-            // Handle
-            Container(
-              margin: const EdgeInsets.symmetric(vertical: 10),
-              width: 36, height: 4,
-              decoration: BoxDecoration(
-                color:        AppColors.gray200,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-
-            // Header
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                children: [
-                  const Expanded(
-                    child: Text('Notifikasi',
-                      style: TextStyle(
-                        fontSize:   16,
-                        fontWeight: FontWeight.bold,
-                        color:      AppColors.gray800,
-                      )),
-                  ),
-                  if (prov.unreadCount > 0)
-                    TextButton(
-                      onPressed: () => context.read<NotificationProvider>().markAllRead(),
-                      child: const Text('Baca Semua',
-                        style: TextStyle(fontSize: 12, color: AppColors.blue600)),
-                    ),
-                ],
-              ),
-            ),
-            const Divider(height: 1, color: AppColors.gray100),
-
-            // List
-            Expanded(
-              child: prov.isLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  : prov.notifications.isEmpty
-                      ? const Center(
-                          child: Text('Tidak ada notifikasi',
-                            style: TextStyle(color: AppColors.gray400, fontSize: 13)),
-                        )
-                      : ListView.separated(
-                          controller:  scrollCtrl,
-                          padding: const EdgeInsets.symmetric(vertical: 8),
-                          itemCount:   prov.notifications.length,
-                          separatorBuilder: (_, __) =>
-                              const Divider(height: 1, indent: 56, color: AppColors.gray100),
-                          itemBuilder: (_, i) => _NotifTile(item: prov.notifications[i]),
-                        ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _NotifTile extends StatelessWidget {
-  final NotificationItem item;
-  const _NotifTile({required this.item});
-
-  Color get _iconColor => switch (item.type) {
-    'success' => AppColors.green500,
-    'warning' => AppColors.amber500,
-    _         => AppColors.blue600,
-  };
-
-  Color get _iconBg => switch (item.type) {
-    'success' => AppColors.green100,
-    'warning' => AppColors.amber100,
-    _         => AppColors.blue50,
-  };
-
-  IconData get _icon => switch (item.type) {
-    'success' => Icons.check_circle_outline,
-    'warning' => Icons.warning_amber_outlined,
-    _         => Icons.info_outline,
-  };
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: item.isRead ? null : () => context.read<NotificationProvider>().markRead(item.id),
-      child: Container(
-        color: item.isRead ? null : AppColors.blue50.withOpacity(0.40),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: 36, height: 36,
-              decoration: BoxDecoration(shape: BoxShape.circle, color: _iconBg),
-              child: Icon(_icon, color: _iconColor, size: 18),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(item.title,
-                    style: TextStyle(
-                      fontSize:   13,
-                      fontWeight: item.isRead ? FontWeight.normal : FontWeight.w600,
-                      color:      AppColors.gray800,
-                    )),
-                  const SizedBox(height: 2),
-                  Text(item.body,
-                    style: const TextStyle(fontSize: 12, color: AppColors.gray500),
-                    maxLines: 2, overflow: TextOverflow.ellipsis),
-                  const SizedBox(height: 4),
-                  Text(
-                    DateFormat('d MMM y, HH:mm', 'id_ID').format(item.createdAt.toLocal()),
-                    style: const TextStyle(fontSize: 10, color: AppColors.gray400),
-                  ),
-                ],
-              ),
-            ),
-            if (!item.isRead)
-              Container(
-                margin: const EdgeInsets.only(top: 4, left: 8),
-                width: 8, height: 8,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle, color: AppColors.blue600),
-              ),
-          ],
-        ),
       ),
     );
   }
