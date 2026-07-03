@@ -163,6 +163,77 @@
 </div>
 @endif
 
+{{-- ─── Kalender Kehadiran Bulanan ──────────────────────────────── --}}
+@php
+    $calNow        = \Carbon\Carbon::now();
+    $calFirst      = $calNow->copy()->startOfMonth();
+    $calDays       = $calNow->daysInMonth;
+    $startDow      = (int) $calFirst->dayOfWeek;            // 0=Sun,1=Mon…6=Sat
+    $startOffset   = ($startDow + 6) % 7;                   // Monday-first offset
+    $todayDate     = $calNow->toDateString();
+    $hadir_set     = ['hadir', 'terlambat', 'izin', 'sakit', 'dispensasi'];
+@endphp
+<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3">
+    <div class="flex items-center justify-between mb-3">
+        <h3 class="text-sm font-semibold text-gray-700">Kalender Kehadiran</h3>
+        <span class="text-xs text-gray-400">{{ $calNow->isoFormat('MMMM Y') }}</span>
+    </div>
+    {{-- Day headers --}}
+    <div class="grid grid-cols-7 gap-0.5 mb-1">
+        @foreach(['Sen','Sel','Rab','Kam','Jum','Sab','Min'] as $dh)
+            <div class="text-center text-[10px] font-semibold text-gray-400">{{ $dh }}</div>
+        @endforeach
+    </div>
+    {{-- Calendar cells --}}
+    <div class="grid grid-cols-7 gap-0.5">
+        @for($i = 0; $i < $startOffset; $i++)
+            <div></div>
+        @endfor
+        @for($day = 1; $day <= $calDays; $day++)
+            @php
+                $ds  = $calFirst->copy()->addDays($day - 1)->toDateString();
+                $dow = (int) \Carbon\Carbon::parse($ds)->dayOfWeek;   // 0=Sun,6=Sat
+                $isWeekend = in_array($dow, [0, 6]);
+                $isFuture  = $ds > $todayDate;
+                $isToday   = $ds === $todayDate;
+                $st        = $monthlyByDate[$ds] ?? null;
+
+                if ($isToday) {
+                    $cls = 'bg-blue-500 text-white font-bold';
+                } elseif ($isFuture || $isWeekend) {
+                    $cls = 'text-gray-300';
+                } elseif ($st && in_array($st, $hadir_set)) {
+                    $cls = 'bg-green-500 text-white';
+                } elseif ($st === 'alpa' || (!$st && !$isWeekend && !$isFuture)) {
+                    $cls = 'bg-red-500 text-white';
+                } else {
+                    $cls = 'text-gray-300';
+                }
+            @endphp
+            <div class="flex items-center justify-center py-0.5">
+                <div class="w-7 h-7 rounded-full flex items-center justify-center {{ $cls }} text-[11px]">
+                    {{ $day }}
+                </div>
+            </div>
+        @endfor
+    </div>
+    {{-- Legend --}}
+    <div class="flex items-center gap-4 mt-3 flex-wrap">
+        <div class="flex items-center gap-1.5">
+            <div class="w-3 h-3 rounded-full bg-blue-500 shrink-0"></div>
+            <span class="text-[10px] text-gray-400">Hari Ini</span>
+        </div>
+        <div class="flex items-center gap-1.5">
+            <div class="w-3 h-3 rounded-full bg-green-500 shrink-0"></div>
+            <span class="text-[10px] text-gray-400">Hadir</span>
+        </div>
+        <div class="flex items-center gap-1.5">
+            <div class="w-3 h-3 rounded-full bg-red-500 shrink-0"></div>
+            <span class="text-[10px] text-gray-400">Tidak Hadir</span>
+        </div>
+    </div>
+</div>
+
 @if(false) {{-- SISTEM POIN: Riwayat Poin Terbaru --}}
 {{-- ─── Riwayat Poin Terbaru ────────────────────────────────────────── --}}
 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 mb-4 overflow-hidden">

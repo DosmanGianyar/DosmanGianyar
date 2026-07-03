@@ -141,11 +141,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
         elevation: 0,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             _IdentityCard(user: user),
+            const SizedBox(height: 12),
+            _StudentIdCard(user: user),
             const SizedBox(height: 12),
             if (user?.parentName != null || user?.parentPhone != null)
               _ParentCard(user: user!),
@@ -571,6 +573,297 @@ class _ChangePasswordCard extends StatelessWidget {
     );
   }
 }
+
+// ─── E-Kartu Pelajar ─────────────────────────────────────────────────────────
+
+class _StudentIdCard extends StatefulWidget {
+  final User? user;
+  const _StudentIdCard({this.user});
+  @override
+  State<_StudentIdCard> createState() => _StudentIdCardState();
+}
+
+class _StudentIdCardState extends State<_StudentIdCard> {
+  bool _showFront = true;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          children: [
+            const Text('E-Kartu Pelajar',
+              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.gray700)),
+            const Spacer(),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              decoration: BoxDecoration(
+                color: AppColors.blue100,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: const Text('Ketuk untuk membalik',
+                style: TextStyle(fontSize: 9, color: AppColors.blue600)),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        GestureDetector(
+          onTap: () => setState(() => _showFront = !_showFront),
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 350),
+            switchInCurve:  Curves.easeOut,
+            switchOutCurve: Curves.easeIn,
+            transitionBuilder: (child, anim) => FadeTransition(
+              opacity: anim,
+              child: ScaleTransition(scale: Tween(begin: 0.93, end: 1.0).animate(anim), child: child),
+            ),
+            child: _showFront
+                ? _IdFront(key: const ValueKey('f'), user: widget.user)
+                : _IdBack (key: const ValueKey('b'), user: widget.user),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _IdFront extends StatelessWidget {
+  final User? user;
+  const _IdFront({super.key, this.user});
+
+  String _fmtDate(String? s) {
+    if (s == null) return '—';
+    try {
+      final d = DateTime.parse(s);
+      const m = ['','Januari','Februari','Maret','April','Mei','Juni',
+                    'Juli','Agustus','September','Oktober','November','Desember'];
+      return '${d.day} ${m[d.month]} ${d.year}';
+    } catch (_) { return s; }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: AppRadius.card,
+        border: Border.all(color: AppColors.gray200),
+        boxShadow: AppShadow.sm,
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Header navy
+          Container(
+            decoration: const BoxDecoration(gradient: AppColors.topbarGradient),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            child: Row(
+              children: [
+                Image.asset('assets/images/logo_sekolah.png',
+                  width: 38, height: 38,
+                  errorBuilder: (_, __, ___) => const SizedBox(width: 38)),
+                const SizedBox(width: 8),
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('SMA NEGERI 1 GIANYAR',
+                        style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 0.3)),
+                      Text('Jl. Ngurah Rai No.1, Gianyar, Bali',
+                        style: TextStyle(color: Color(0xFFBFDBFE), fontSize: 7.5, height: 1.5)),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(4),
+                    border: Border.all(color: Colors.white30),
+                  ),
+                  child: const Text('KARTU PELAJAR',
+                    style: TextStyle(color: Colors.white, fontSize: 7.5, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
+                ),
+              ],
+            ),
+          ),
+
+          // Body: photo + data
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Photo 3:4
+                Container(
+                  width: 72, height: 96,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(color: AppColors.red500, width: 2),
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  child: user?.photoUrl != null
+                      ? Image.network(user!.photoUrl!, fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => _photoPlaceholder())
+                      : _photoPlaceholder(),
+                ),
+                const SizedBox(width: 12),
+                // Data rows
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _KidRow('NISN',         user?.nisn ?? '—'),
+                      _KidRow('Nama',         user?.name ?? '—'),
+                      _KidRow('NIS',          user?.nis  ?? '—'),
+                      _KidRow('Kelas',        user?.className ?? '—'),
+                      _KidRow('Tgl. Lahir',   _fmtDate(user?.birthDate)),
+                      _KidRow('Jenis Kelamin',user?.genderLabel ?? '—'),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Signature footer
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12, 0, 16, 12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Text('Kepala Sekolah,',
+                      style: TextStyle(fontSize: 8.5, color: AppColors.gray500)),
+                    const SizedBox(height: 30),
+                    Container(width: 80, height: 1, color: AppColors.gray300),
+                    const SizedBox(height: 2),
+                    const Text('NIP. ——————',
+                      style: TextStyle(fontSize: 7.5, color: AppColors.gray400)),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _photoPlaceholder() => Container(
+    color: AppColors.gray100,
+    child: const Column(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        Icon(Icons.person, size: 44, color: AppColors.gray300),
+        SizedBox(height: 4),
+      ],
+    ),
+  );
+}
+
+class _IdBack extends StatelessWidget {
+  final User? user;
+  const _IdBack({super.key, this.user});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end:   Alignment.bottomRight,
+          colors: [Color(0xFF0F2460), Color(0xFF1E3FAD)],
+        ),
+        borderRadius: AppRadius.card,
+        boxShadow: AppShadow.sm,
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        children: [
+          const SizedBox(height: 20),
+          // QR placeholder
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(Icons.qr_code_2_rounded, size: 110, color: Color(0xFF0F2460)),
+          ),
+          const SizedBox(height: 8),
+          const Text('Scan untuk verifikasi identitas',
+            style: TextStyle(color: Colors.white54, fontSize: 9.5)),
+          const SizedBox(height: 16),
+          // SISWA badge
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 4),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.15),
+              borderRadius: BorderRadius.circular(4),
+              border: Border.all(color: Colors.white30),
+            ),
+            child: const Text('SISWA',
+              style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 2.5)),
+          ),
+          const SizedBox(height: 14),
+          // Name + NIS
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Column(
+              children: [
+                Text(user?.name ?? '—',
+                  style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center),
+                const SizedBox(height: 4),
+                Text('NIS: ${user?.nis ?? '—'}   NISN: ${user?.nisn ?? '—'}',
+                  style: const TextStyle(color: Colors.white70, fontSize: 9.5),
+                  textAlign: TextAlign.center),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+        ],
+      ),
+    );
+  }
+}
+
+class _KidRow extends StatelessWidget {
+  final String label;
+  final String value;
+  const _KidRow(this.label, this.value);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 1.5),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 70,
+            child: Text(label,
+              style: const TextStyle(fontSize: 9, color: AppColors.gray500, fontWeight: FontWeight.w500)),
+          ),
+          const Text(': ',
+            style: TextStyle(fontSize: 9, color: AppColors.gray400)),
+          Expanded(
+            child: Text(value,
+              style: const TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: AppColors.gray800),
+              overflow: TextOverflow.ellipsis, maxLines: 2),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Profile Input ────────────────────────────────────────────────────────────
 
 class _ProfileInput extends StatelessWidget {
   final TextEditingController controller;

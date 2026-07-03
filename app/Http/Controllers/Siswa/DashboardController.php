@@ -94,10 +94,17 @@ class DashboardController extends Controller
             'dispensasi' => (int) ($monthlyRaw['dispensasi'] ?? 0),
         ];
 
+        // ─── Per-day Calendar Data ─────────────────────────────────────
+        $monthlyByDate = Attendance::where('user_id', $siswa->id)
+            ->whereMonth('date', now()->month)
+            ->whereYear('date', now()->year)
+            ->pluck('status', 'date')
+            ->toArray();
+
         return view('siswa.dashboard', compact(
             'siswa', 'todayStatus', 'pointSummary',
             'recentPoints', 'announcements', 'unreadNotifications',
-            'monthlySummary'
+            'monthlySummary', 'monthlyByDate'
         ));
     }
 }
