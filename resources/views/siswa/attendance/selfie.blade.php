@@ -217,6 +217,10 @@ startCamera();
 
 // ── Ambil GPS ─────────────────────────────────────────────────────────────
 function startGPS() {
+    if (!window.isSecureContext) {
+        showError('Presensi membutuhkan koneksi HTTPS. Hubungi admin sekolah.');
+        return;
+    }
     if (!navigator.geolocation) {
         showError('Browser tidak mendukung GPS.');
         return;

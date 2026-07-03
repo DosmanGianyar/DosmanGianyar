@@ -26,8 +26,10 @@ Route::prefix('v1')->group(function () {
     // ── Protected ─────────────────────────────────────────────────────────
     Route::middleware('auth:sanctum')->group(function () {
 
-        Route::post('/auth/logout', [AuthController::class, 'logout']);
-        Route::get('/auth/me',     [AuthController::class, 'me']);
+        Route::post('/auth/logout',             [AuthController::class, 'logout']);
+        Route::get('/auth/me',                  [AuthController::class, 'me']);
+        Route::put('/auth/profile',             [AuthController::class, 'updateProfile']);
+        Route::put('/auth/change-password',     [AuthController::class, 'changePassword']);
 
         // Semua route di bawah ini wajib menyertakan X-Device-ID yang cocok
         Route::middleware('device.lock')->group(function () {

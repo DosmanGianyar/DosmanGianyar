@@ -36,10 +36,10 @@ class AttendanceLocation {
 
   factory AttendanceLocation.fromJson(Map<String, dynamic> json) {
     return AttendanceLocation(
-      name:         json['name']           as String,
-      lat:          (json['lat']           as num).toDouble(),
-      lng:          (json['lng']           as num).toDouble(),
-      radiusMeters: (json['radius_meters'] as num).toInt(),
+      name:         json['name']                                    as String,
+      lat:          ((json['latitude']  ?? json['lat'])             as num).toDouble(),
+      lng:          ((json['longitude'] ?? json['lng'])             as num).toDouble(),
+      radiusMeters: (json['radius_meters']                         as num).toInt(),
     );
   }
 }

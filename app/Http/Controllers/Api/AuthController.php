@@ -127,6 +127,50 @@ class AuthController extends Controller
             'class_id'     => $user->class_id,
             'class_name'   => $user->schoolClass?->name,
             'device_bound' => $user->hasDeviceLocked(),
+            'phone'        => $user->phone,
+            'address'      => $user->address,
+            'birth_date'   => $user->birth_date?->toDateString(),
+            'gender'       => $user->gender,
+            'parent_name'  => $user->parent_name,
+            'parent_phone' => $user->parent_phone,
         ];
+    }
+
+    /** Update profil (phone, address). */
+    public function updateProfile(Request $request): JsonResponse
+    {
+        $request->validate([
+            'phone'   => 'nullable|string|max:20',
+            'address' => 'nullable|string|max:255',
+        ]);
+
+        /** @var User $user */
+        $user = $request->user();
+        $user->update($request->only('phone', 'address'));
+
+        return response()->json([
+            'message' => 'Profil berhasil diperbarui.',
+            'user'    => $this->userPayload($user),
+        ]);
+    }
+
+    /** Ganti password. */
+    public function changePassword(Request $request): JsonResponse
+    {
+        $request->validate([
+            'current_password'      => 'required|string',
+            'password'              => 'required|string|min:8|confirmed',
+        ]);
+
+        /** @var User $user */
+        $user = $request->user();
+
+        if (! Hash::check($request->input('current_password'), $user->password)) {
+            return response()->json(['message' => 'Password saat ini salah.'], 422);
+        }
+
+        $user->update(['password' => Hash::make($request->input('password'))]);
+
+        return response()->json(['message' => 'Password berhasil diperbarui.']);
     }
 }

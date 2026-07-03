@@ -59,6 +59,13 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  // ─── Update user ─────────────────────────────────────────────────────────
+
+  void updateUser(User updated) {
+    _user = updated;
+    notifyListeners();
+  }
+
   // ─── Logout ───────────────────────────────────────────────────────────────
 
   Future<void> logout() async {

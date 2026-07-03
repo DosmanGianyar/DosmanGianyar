@@ -104,6 +104,7 @@ class _BluePanelTop extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 36, horizontal: 24),
       decoration: const BoxDecoration(gradient: AppColors.loginGradient),
       child: Stack(
+        alignment: Alignment.topCenter,
         children: [
           // Dekorasi lingkaran blur (sesuai web)
           Positioned(

@@ -13,6 +13,10 @@ import 'login_screen.dart';
 import 'attendance/attendance_screen.dart';
 import 'attendance/history_screen.dart';
 import 'kesiswaan/kesiswaan_screen.dart';
+import 'kurikulum/kurikulum_screen.dart';
+import 'prasarana/prasarana_screen.dart';
+import 'humas/humas_screen.dart';
+import 'profile_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -99,6 +103,17 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  void _goHome() {
+    setState(() => _selectedTab = -1);
+  }
+
+  void _openProfile() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const ProfileScreen()),
+    );
+  }
+
   void _openNotifications() {
     final notifProv = context.read<NotificationProvider>();
     notifProv.fetchAll();
@@ -133,33 +148,17 @@ class _HomeScreenState extends State<HomeScreen> {
             context,
             MaterialPageRoute(builder: (_) => const HistoryScreen()),
           ),
+          onNotifTap: _openNotifications,
         ),
       );
     }
 
-    if (_selectedTab == 0) {
-      return const KesiswaanScreen();
-    }
-
-    const labels = ['Kesiswaan', 'Kurikulum', 'Prasarana', 'Humas'];
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Icon(Icons.construction_outlined, size: 52, color: AppColors.gray400),
-          const SizedBox(height: 12),
-          Text(
-            labels[_selectedTab],
-            style: const TextStyle(
-              fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.gray700,
-            ),
-          ),
-          const SizedBox(height: 4),
-          const Text('Fitur segera hadir',
-            style: TextStyle(color: AppColors.gray400, fontSize: 13)),
-        ],
-      ),
-    );
+    return switch (_selectedTab) {
+      0 => const KesiswaanScreen(),
+      1 => const KurikulumScreen(),
+      2 => const PrasaranaScreen(),
+      _ => const HumasScreen(),
+    };
   }
 
   @override
@@ -172,7 +171,13 @@ class _HomeScreenState extends State<HomeScreen> {
         bottom: false,
         child: Column(
           children: [
-            _TopHeader(user: user, onLogout: _logout, onNotifTap: _openNotifications),
+            _TopHeader(
+              user:          user,
+              onLogout:      _logout,
+              onNotifTap:    _openNotifications,
+              onProfileTap:  _openProfile,
+              onHomeTap:     _goHome,
+            ),
             Expanded(child: _buildBody()),
           ],
         ),
@@ -192,8 +197,16 @@ class _TopHeader extends StatelessWidget {
   final User?        user;
   final VoidCallback onLogout;
   final VoidCallback onNotifTap;
+  final VoidCallback onProfileTap;
+  final VoidCallback onHomeTap;
 
-  const _TopHeader({this.user, required this.onLogout, required this.onNotifTap});
+  const _TopHeader({
+    this.user,
+    required this.onLogout,
+    required this.onNotifTap,
+    required this.onProfileTap,
+    required this.onHomeTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -213,7 +226,9 @@ class _TopHeader extends StatelessWidget {
       child: Row(
         children: [
           // ── Kiri: Logo + nama sekolah ──────────────────────────────
-          Row(
+          GestureDetector(
+            onTap: onHomeTap,
+            child: Row(
             children: [
               Container(
                 width: 32, height: 32,
@@ -262,6 +277,7 @@ class _TopHeader extends StatelessWidget {
               ),
             ],
           ),
+          ), // end GestureDetector onHomeTap
 
           // ── Tengah: Judul halaman ────────────────────────────────
           const Expanded(
@@ -326,6 +342,7 @@ class _TopHeader extends StatelessWidget {
               ),
               const SizedBox(width: 6),
               GestureDetector(
+                onTap:      onProfileTap,
                 onLongPress: onLogout,
                 child: Container(
                   width: 32, height: 32,
@@ -400,18 +417,22 @@ class _DashboardBody extends StatelessWidget {
   final VoidCallback onCheckin;
   final VoidCallback onCheckout;
   final VoidCallback onHistory;
+  final VoidCallback onNotifTap;
 
   const _DashboardBody({
     required this.onCheckin,
     required this.onCheckout,
     required this.onHistory,
+    required this.onNotifTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    final user       = context.watch<AuthProvider>().user;
-    final attendProv = context.watch<AttendanceProvider>();
-    final status     = attendProv.status;
+    final user        = context.watch<AuthProvider>().user;
+    final attendProv  = context.watch<AttendanceProvider>();
+    final notifProv   = context.watch<NotificationProvider>();
+    final status      = attendProv.status;
+    final records     = attendProv.currentMonthRecords;
 
     return SingleChildScrollView(
       physics: const AlwaysScrollableScrollPhysics(),
@@ -419,11 +440,11 @@ class _DashboardBody extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _GreetingCard(user: user),
-          const SizedBox(height: 8),
-          _MiniCalendar(records: attendProv.currentMonthRecords),
+          // ── Greeting card (sama persis dengan web) ──────────────
+          _GreetingCard(user: user, records: records),
           const SizedBox(height: 8),
 
+          // ── Card absen masuk ─────────────────────────────────────
           if (attendProv.isLoadingStatus)
             const Center(
               child: Padding(
@@ -437,21 +458,24 @@ class _DashboardBody extends StatelessWidget {
             _CheckInCard(status: status, onPresensi: onCheckin),
             const SizedBox(height: 8),
 
+            // ── Card absen pulang (hanya jika sudah check-in) ──────
             if (status.attendance?.checkInTime != null) ...[
               _CheckOutCard(status: status, onCheckout: onCheckout),
               const SizedBox(height: 8),
             ],
 
-            _ShiftCard(status: status),
-            const SizedBox(height: 8),
             _HistoryButton(onTap: onHistory),
           ],
 
-          // Pengumuman
+          // ── Banner notifikasi (jika ada yang belum dibaca) ───────
+          if (notifProv.unreadCount > 0) ...[
+            const SizedBox(height: 8),
+            _NotifBanner(count: notifProv.unreadCount, onTap: onNotifTap),
+          ],
+
+          // ── Pengumuman ───────────────────────────────────────────
           const SizedBox(height: 8),
-          _AnnouncementSection(
-            announcements: context.watch<NotificationProvider>().announcements,
-          ),
+          _AnnouncementSection(announcements: notifProv.announcements),
         ],
       ),
     );
@@ -461,16 +485,27 @@ class _DashboardBody extends StatelessWidget {
 // ─── Greeting Card ────────────────────────────────────────────────────────────
 
 class _GreetingCard extends StatelessWidget {
-  final User? user;
-  const _GreetingCard({this.user});
+  final User?                  user;
+  final List<AttendanceRecord> records;
+
+  const _GreetingCard({this.user, required this.records});
+
+  Map<String, int> get _summary {
+    final m = {'terlambat': 0, 'alpa': 0, 'izin': 0, 'sakit': 0, 'dispensasi': 0};
+    for (final r in records) {
+      if (m.containsKey(r.status)) m[r.status] = m[r.status]! + 1;
+    }
+    return m;
+  }
 
   @override
   Widget build(BuildContext context) {
-    final now     = DateTime.now();
-    final dateStr = DateFormat('EEEE, d MMMM y', 'id_ID').format(now);
-    final name    = user?.name.trim() ?? '';
-    final nl      = name.length;
+    final now      = DateTime.now();
+    final dateStr  = DateFormat('EEEE, d MMMM y', 'id_ID').format(now);
+    final name     = user?.name.trim() ?? '';
+    final nl       = name.length;
     final nameFontSize = nl <= 15 ? 18.0 : nl <= 22 ? 16.0 : nl <= 30 ? 14.0 : 12.0;
+    final summary  = _summary;
 
     return Container(
       decoration: const BoxDecoration(
@@ -526,6 +561,23 @@ class _GreetingCard extends StatelessWidget {
                   style: const TextStyle(color: AppColors.blue200, fontSize: 11),
                   overflow: TextOverflow.ellipsis,
                 ),
+                // Dot ringkasan kehadiran bulan ini (sama seperti web)
+                if (records.isNotEmpty) ...[
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      _SummaryDot(color: const Color(0xFFFACC15), textColor: const Color(0xFFFEF08A), count: summary['terlambat']!),
+                      const SizedBox(width: 10),
+                      _SummaryDot(color: const Color(0xFFF87171), textColor: const Color(0xFFFCA5A5), count: summary['alpa']!),
+                      const SizedBox(width: 10),
+                      _SummaryDot(color: const Color(0xFF38BDF8), textColor: const Color(0xFF7DD3FC), count: summary['izin']!),
+                      const SizedBox(width: 10),
+                      _SummaryDot(color: const Color(0xFFC084FC), textColor: const Color(0xFFD8B4FE), count: summary['sakit']!),
+                      const SizedBox(width: 10),
+                      _SummaryDot(color: const Color(0xFFFB923C), textColor: const Color(0xFFFDBA74), count: summary['dispensasi']!),
+                    ],
+                  ),
+                ],
               ],
             ),
           ),
@@ -543,6 +595,42 @@ class _GreetingCard extends StatelessWidget {
         child: Icon(Icons.person_rounded,
           color: Colors.white.withOpacity(0.90), size: 44),
       ),
+    );
+  }
+}
+
+class _SummaryDot extends StatelessWidget {
+  final Color dotColor;
+  final Color textColor;
+  final int   count;
+
+  const _SummaryDot({
+    required Color color,
+    required Color textColor,
+    required this.count,
+  })  : dotColor  = color,
+        textColor = textColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 8, height: 8,
+          decoration: BoxDecoration(shape: BoxShape.circle, color: dotColor),
+        ),
+        const SizedBox(width: 3),
+        Text(
+          '$count',
+          style: TextStyle(
+            fontSize:   11,
+            fontWeight: FontWeight.bold,
+            color:      textColor,
+            height:     1,
+          ),
+        ),
+      ],
     );
   }
 }
@@ -1096,6 +1184,65 @@ class _ErrorBanner extends StatelessWidget {
   }
 }
 
+// ─── Notification Banner ─────────────────────────────────────────────────────
+
+class _NotifBanner extends StatelessWidget {
+  final int          count;
+  final VoidCallback onTap;
+
+  const _NotifBanner({required this.count, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          color:        AppColors.blue50,
+          borderRadius: AppRadius.card,
+          border:       Border.all(color: AppColors.blue100),
+          boxShadow:    AppShadow.sm,
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Row(
+          children: [
+            Container(
+              width: 36, height: 36,
+              decoration: BoxDecoration(
+                color:        AppColors.blue600,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(Icons.notifications_rounded,
+                color: Colors.white, size: 18),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '$count notifikasi belum dibaca',
+                    style: const TextStyle(
+                      fontSize:   13,
+                      fontWeight: FontWeight.w600,
+                      color:      AppColors.blue800,
+                    ),
+                  ),
+                  const Text(
+                    'Tap untuk melihat',
+                    style: TextStyle(fontSize: 11, color: AppColors.blue500),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right, color: AppColors.blue400, size: 20),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 // ─── Announcement Section ─────────────────────────────────────────────────────
 
 class _AnnouncementSection extends StatelessWidget {
@@ -1104,84 +1251,114 @@ class _AnnouncementSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (announcements.isEmpty) return const SizedBox.shrink();
+    return Container(
+      decoration: BoxDecoration(
+        color:        AppColors.white,
+        borderRadius: AppRadius.card,
+        border:       Border.all(color: AppColors.gray100),
+        boxShadow:    AppShadow.sm,
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        children: [
+          // Header seperti web
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Row(
+              children: const [
+                Expanded(
+                  child: Text('Pengumuman',
+                    style: TextStyle(
+                      fontSize:   13,
+                      fontWeight: FontWeight.w600,
+                      color:      AppColors.gray700,
+                    )),
+                ),
+                Text('Lihat Semua',
+                  style: TextStyle(fontSize: 11, color: AppColors.blue600)),
+              ],
+            ),
+          ),
+          const Divider(height: 1, color: AppColors.gray100),
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        const Row(
-          children: [
-            Icon(Icons.campaign_rounded, size: 16, color: AppColors.blue600),
-            SizedBox(width: 6),
-            Text('Pengumuman',
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize:   13,
-                color:      AppColors.gray700,
-              )),
-          ],
-        ),
-        const SizedBox(height: 8),
-        ...announcements.map((a) => _AnnouncementCard(item: a)),
-      ],
+          // List item
+          if (announcements.isEmpty)
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 24),
+              child: Center(
+                child: Text('Tidak ada pengumuman',
+                  style: TextStyle(fontSize: 13, color: AppColors.gray400)),
+              ),
+            )
+          else
+            ...announcements.asMap().entries.map((entry) {
+              final i    = entry.key;
+              final item = entry.value;
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (i > 0) const Divider(height: 1, color: AppColors.gray100),
+                  _AnnouncementTile(item: item),
+                ],
+              );
+            }),
+        ],
+      ),
     );
   }
 }
 
-class _AnnouncementCard extends StatelessWidget {
+class _AnnouncementTile extends StatelessWidget {
   final AnnouncementItem item;
-  const _AnnouncementCard({required this.item});
+  const _AnnouncementTile({required this.item});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      decoration: BoxDecoration(
-        color:        AppColors.white,
-        borderRadius: AppRadius.card,
-        border:       Border.all(
-          color: item.isPinned ? AppColors.blue600.withOpacity(0.30) : AppColors.gray100,
-        ),
-        boxShadow: AppShadow.sm,
-      ),
-      padding: const EdgeInsets.all(14),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: Row(
         children: [
-          Row(
-            children: [
-              if (item.isPinned) ...[
-                const Icon(Icons.push_pin_rounded, size: 14, color: AppColors.blue600),
-                const SizedBox(width: 4),
-              ],
-              Expanded(
-                child: Text(item.title,
-                  style: const TextStyle(
-                    fontSize:   13,
-                    fontWeight: FontWeight.w600,
-                    color:      AppColors.gray800,
-                  )),
-              ),
-              Text(
-                DateFormat('d MMM', 'id_ID').format(item.publishedAt.toLocal()),
-                style: const TextStyle(fontSize: 10, color: AppColors.gray400),
-              ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          Text(
-            item.body,
-            style: const TextStyle(fontSize: 12, color: AppColors.gray500, height: 1.5),
-            maxLines: 3,
-            overflow: TextOverflow.ellipsis,
-          ),
-          if (item.authorName != null) ...[
-            const SizedBox(height: 6),
-            Text(
-              'Oleh ${item.authorName}',
-              style: const TextStyle(fontSize: 10, color: AppColors.gray400),
+          Container(
+            width: 36, height: 36,
+            decoration: const BoxDecoration(
+              color:  AppColors.blue50,
+              shape:  BoxShape.circle,
             ),
-          ],
+            child: const Icon(Icons.campaign_rounded,
+              size: 18, color: AppColors.blue600),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    if (item.isPinned) ...[
+                      const Icon(Icons.push_pin_rounded,
+                        size: 11, color: AppColors.blue600),
+                      const SizedBox(width: 3),
+                    ],
+                    Expanded(
+                      child: Text(item.title,
+                        style: const TextStyle(
+                          fontSize:   13,
+                          fontWeight: FontWeight.w500,
+                          color:      AppColors.gray800,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  DateFormat('d MMM y', 'id_ID').format(item.publishedAt.toLocal()),
+                  style: const TextStyle(fontSize: 11, color: AppColors.gray400),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );

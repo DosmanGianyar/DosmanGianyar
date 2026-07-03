@@ -23,6 +23,27 @@ abstract final class AppColors {
     colors: [Color(0xFF0F2460), Color(0xFF1A3A8F), Color(0xFF1E3FAD)],
   );
 
+  /// Kurikulum: from-emerald-500 to-teal-600
+  static const LinearGradient kurikulumGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end:   Alignment.bottomRight,
+    colors: [Color(0xFF10B981), Color(0xFF0D9488)],
+  );
+
+  /// Prasarana: from-violet-500 to-purple-600
+  static const LinearGradient prasaranaGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end:   Alignment.bottomRight,
+    colors: [Color(0xFF8B5CF6), Color(0xFF9333EA)],
+  );
+
+  /// Humas: from-orange-500 to-rose-500
+  static const LinearGradient humasGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end:   Alignment.bottomRight,
+    colors: [Color(0xFFF97316), Color(0xFFF43F5E)],
+  );
+
   /// Login panel kiri: from-blue-600 via-blue-700 to-indigo-800
   static const LinearGradient loginGradient = LinearGradient(
     begin: Alignment.topLeft,
@@ -38,10 +59,12 @@ abstract final class AppColors {
   static const white     = Color(0xFFFFFFFF);
   static const gray100   = Color(0xFFF3F4F6); // border-gray-100 · border card
   static const gray200   = Color(0xFFE5E7EB); // border-gray-200 · border nav
+  static const gray300   = Color(0xFFD1D5DB); // border-gray-300
 
   // ─── Text ────────────────────────────────────────────────────────────────
   static const gray800 = Color(0xFF1F2937); // text-gray-800 · teks utama
   static const gray700 = Color(0xFF374151); // text-gray-700 · teks sub-judul
+  static const gray600 = Color(0xFF4B5563); // text-gray-600
   static const gray500 = Color(0xFF6B7280); // text-gray-500 · teks sekunder
   static const gray400 = Color(0xFF9CA3AF); // text-gray-400 · placeholder / muted
 
@@ -65,10 +88,46 @@ abstract final class AppColors {
   static const blue50     = Color(0xFFEFF6FF); // bg-blue-50
   static const blue100    = Color(0xFFDBEAFE); // bg-blue-100
   static const blue200    = Color(0xFFBFDBFE); // text-blue-200 · subtitle hero
+  static const blue400    = Color(0xFF60A5FA); // text-blue-400
+  static const blue500    = Color(0xFF3B82F6); // text-blue-500
+  static const blue800    = Color(0xFF1E40AF); // text-blue-800 · banner notif
 
   static const purple500  = Color(0xFFA855F7); // sakit
   static const teal500    = Color(0xFF14B8A6);  // dispensasi
+
+  // ─── Violet (Prasarana) ──────────────────────────────────────────────────
+  static const violet50   = Color(0xFFF5F3FF);
+  static const violet100  = Color(0xFFEDE9FE);
+  static const violet500  = Color(0xFF8B5CF6);
+  static const violet600  = Color(0xFF7C3AED);
+
+  // ─── Orange / Rose (Humas) ───────────────────────────────────────────────
+  static const orange50   = Color(0xFFFFF7ED);
+  static const orange100  = Color(0xFFFFEDD5);
+  static const orange500  = Color(0xFFF97316);
+  static const orange600  = Color(0xFFEA580C);
+  static const rose500    = Color(0xFFF43F5E);
+  static const rose100    = Color(0xFFFFE4E6);
+  static const pink100    = Color(0xFFFFE4E6);
+  static const pink500    = Color(0xFFEC4899);
+
+  // ─── Sky (Izin) ──────────────────────────────────────────────────────────
+  static const sky50      = Color(0xFFF0F9FF);
+  static const sky100     = Color(0xFFE0F2FE);
+  static const sky500     = Color(0xFF0EA5E9);
+  static const sky600     = Color(0xFF0284C7);
+  static const sky700     = Color(0xFF0369A1);
+
+  // ─── Emerald extras ──────────────────────────────────────────────────────
+  static const emerald50  = Color(0xFFECFDF5);
+  static const teal600    = Color(0xFF0D9488);
+
+  // ─── Yellow extras ───────────────────────────────────────────────────────
+  static const yellow50   = Color(0xFFFFFBEB);
+  static const yellow100  = Color(0xFFFEF3C7);
+  static const yellow600  = Color(0xFFCA8A04);
 }
+
 
 /// Border radius yang dipakai web — rounded-xl = 12, rounded-2xl = 16
 abstract final class AppRadius {

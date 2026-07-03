@@ -71,6 +71,14 @@ class ApiClient {
     return resp.data as Map<String, dynamic>;
   }
 
+  static Future<Map<String, dynamic>> put(
+    String path, {
+    Map<String, dynamic>? data,
+  }) async {
+    final resp = await _dio.put(path, data: data);
+    return resp.data as Map<String, dynamic>;
+  }
+
   static Future<Map<String, dynamic>> postForm(
     String path,
     FormData formData,
