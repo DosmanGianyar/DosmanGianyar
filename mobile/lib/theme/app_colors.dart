@@ -16,6 +16,13 @@ abstract final class AppColors {
     colors: [blue600, blue700, indigo700],
   );
 
+  /// Topbar header: sesuai web — linear-gradient(135deg, #0f2460, #1a3a8f, #1e3fad)
+  static const LinearGradient topbarGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end:   Alignment.bottomRight,
+    colors: [Color(0xFF0F2460), Color(0xFF1A3A8F), Color(0xFF1E3FAD)],
+  );
+
   /// Login panel kiri: from-blue-600 via-blue-700 to-indigo-800
   static const LinearGradient loginGradient = LinearGradient(
     begin: Alignment.topLeft,

@@ -200,8 +200,14 @@ class _TopHeader extends StatelessWidget {
     return Container(
       height: 56,
       decoration: const BoxDecoration(
-        color:  AppColors.white,
-        border: Border(bottom: BorderSide(color: AppColors.gray200)),
+        gradient: AppColors.topbarGradient,
+        boxShadow: [
+          BoxShadow(
+            color:      Color(0x740F2460),
+            blurRadius: 16,
+            offset:     Offset(0, 2),
+          ),
+        ],
       ),
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
@@ -213,16 +219,20 @@ class _TopHeader extends StatelessWidget {
                 width: 32, height: 32,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(8),
-                  color: AppColors.blue50,
+                  color:  Colors.white.withOpacity(0.15),
+                  border: Border.all(color: Colors.white.withOpacity(0.25)),
                 ),
                 clipBehavior: Clip.antiAlias,
-                child: Image.asset(
-                  'assets/images/logo_sekolah.png',
-                  fit: BoxFit.contain,
-                  errorBuilder: (_, __, ___) => const Icon(
-                    Icons.school_rounded,
-                    color: AppColors.blue600,
-                    size: 20,
+                child: Padding(
+                  padding: const EdgeInsets.all(4),
+                  child: Image.asset(
+                    'assets/images/logo_sekolah.png',
+                    fit: BoxFit.contain,
+                    errorBuilder: (_, __, ___) => const Icon(
+                      Icons.school_rounded,
+                      color: Colors.white,
+                      size: 18,
+                    ),
                   ),
                 ),
               ),
@@ -233,17 +243,19 @@ class _TopHeader extends StatelessWidget {
                 children: const [
                   Text('SMA N 1 Gianyar',
                     style: TextStyle(
-                      color:       AppColors.blue700,
+                      color:       Colors.white,
                       fontSize:    11,
                       fontWeight:  FontWeight.w800,
                       height:      1.2,
+                      letterSpacing: 0.5,
                     ),
                   ),
                   Text('SIMS',
                     style: TextStyle(
-                      color:    AppColors.gray400,
-                      fontSize: 10,
-                      height:   1.2,
+                      color:         AppColors.blue200,
+                      fontSize:      10,
+                      height:        1.2,
+                      letterSpacing: 1.5,
                     ),
                   ),
                 ],
@@ -258,7 +270,7 @@ class _TopHeader extends StatelessWidget {
               style: TextStyle(
                 fontSize:   14,
                 fontWeight: FontWeight.w600,
-                color:      AppColors.gray700,
+                color:      Colors.white,
               ),
               textAlign: TextAlign.center,
             ),
@@ -273,15 +285,22 @@ class _TopHeader extends StatelessWidget {
                   width: 36, height: 36,
                   child: Stack(
                     children: [
-                      const Center(
-                        child: Icon(Icons.notifications_none_rounded,
-                          size: 22, color: AppColors.gray400),
+                      Center(
+                        child: Container(
+                          width: 32, height: 32,
+                          decoration: BoxDecoration(
+                            color:        Colors.white.withOpacity(0.10),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Icon(Icons.notifications_none_rounded,
+                            size: 20, color: Colors.white),
+                        ),
                       ),
                       Consumer<NotificationProvider>(
                         builder: (_, prov, __) {
                           if (prov.unreadCount == 0) return const SizedBox.shrink();
                           return Positioned(
-                            top: 4, right: 4,
+                            top: 2, right: 2,
                             child: Container(
                               width: 16, height: 16,
                               decoration: const BoxDecoration(
@@ -305,10 +324,18 @@ class _TopHeader extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: 4),
+              const SizedBox(width: 6),
               GestureDetector(
                 onLongPress: onLogout,
-                child: _UserAvatar(user: user, size: 32),
+                child: Container(
+                  width: 32, height: 32,
+                  decoration: BoxDecoration(
+                    shape:  BoxShape.circle,
+                    border: Border.all(color: Colors.white.withOpacity(0.40), width: 2),
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  child: _UserAvatar(user: user, size: 32),
+                ),
               ),
             ],
           ),
@@ -439,9 +466,11 @@ class _GreetingCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final now       = DateTime.now();
-    final dateStr   = DateFormat('EEEE, d MMMM y', 'id_ID').format(now);
-    final firstName = (user?.name.trim() ?? '').split(' ').first;
+    final now     = DateTime.now();
+    final dateStr = DateFormat('EEEE, d MMMM y', 'id_ID').format(now);
+    final name    = user?.name.trim() ?? '';
+    final nl      = name.length;
+    final nameFontSize = nl <= 15 ? 18.0 : nl <= 22 ? 16.0 : nl <= 30 ? 14.0 : 12.0;
 
     return Container(
       decoration: const BoxDecoration(
@@ -478,11 +507,15 @@ class _GreetingCard extends StatelessWidget {
                   style: const TextStyle(color: AppColors.blue200, fontSize: 11)),
                 const SizedBox(height: 2),
                 Text(
-                  'Halo, $firstName!',
-                  style: const TextStyle(
-                    color: Colors.white, fontSize: 18,
-                    fontWeight: FontWeight.bold, height: 1.2,
+                  name.isEmpty ? 'SMA Negeri 1 Gianyar' : name,
+                  style: TextStyle(
+                    color:      Colors.white,
+                    fontSize:   nameFontSize,
+                    fontWeight: FontWeight.bold,
+                    height:     1.2,
                   ),
+                  maxLines:  1,
+                  overflow:  TextOverflow.clip,
                 ),
                 const SizedBox(height: 2),
                 Text(
