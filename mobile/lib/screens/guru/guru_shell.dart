@@ -9,9 +9,13 @@ import '../../theme/app_colors.dart';
 import '../login_screen.dart';
 import '../notifications_screen.dart';
 import '../profile_screen.dart';
+import 'guru_absensi_harian_screen.dart';
+import 'guru_conduct_screen.dart';
+import 'guru_early_checkout_screen.dart';
+import 'guru_forgot_attendance_screen.dart';
 import 'guru_home_screen.dart';
-import 'guru_presensi_screen.dart';
-import 'guru_kesiswaan_screen.dart';
+import 'guru_permit_screen.dart';
+import 'guru_rekap_screen.dart';
 
 class GuruShell extends StatefulWidget {
   const GuruShell({super.key});
@@ -21,9 +25,9 @@ class GuruShell extends StatefulWidget {
 }
 
 class _GuruShellState extends State<GuruShell> {
-  int _tab = 0;
   List<GuruClass> _classes = [];
   bool _classesError = false;
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
@@ -43,12 +47,13 @@ class _GuruShellState extends State<GuruShell> {
     }
   }
 
-  int? get _homeroomClassId {
-    final user = context.read<AuthProvider>().user;
-    return user?.homeroomClassId;
-  }
+  int? get _homeroomClassId =>
+      context.read<AuthProvider>().user?.homeroomClassId;
 
   Future<void> _logout() async {
+    _scaffoldKey.currentState?.closeDrawer();
+    await Future.delayed(const Duration(milliseconds: 250));
+    if (!mounted) return;
     final confirm = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
@@ -79,129 +84,81 @@ class _GuruShellState extends State<GuruShell> {
     }
   }
 
-  Widget _buildTab() {
-    // Tabs 1 & 2 need classes — show loader/error while fetching
-    if (_tab != 0 && _classes.isEmpty) {
-      if (_classesError) {
-        return Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.cloud_off_rounded, size: 48, color: AppColors.gray400),
-              const SizedBox(height: 12),
-              const Text('Gagal memuat data kelas', style: TextStyle(color: AppColors.gray600)),
-              const SizedBox(height: 8),
-              TextButton(onPressed: _loadClasses, child: const Text('Coba Lagi')),
-            ],
-          ),
-        );
-      }
-      return const Center(child: CircularProgressIndicator());
-    }
-    return switch (_tab) {
-      0 => const GuruHomeScreen(),
-      1 => GuruPresensiScreen(classes: _classes, homeroomClassId: _homeroomClassId),
-      2 => GuruKesiswaanScreen(classes: _classes, homeroomClassId: _homeroomClassId),
-      _ => const GuruHomeScreen(),
-    };
+  void _go(Widget screen) {
+    _scaffoldKey.currentState?.closeDrawer();
+    Navigator.push(context, MaterialPageRoute(builder: (_) => screen));
   }
 
   @override
   Widget build(BuildContext context) {
-    final user  = context.watch<AuthProvider>().user;
+    final user   = context.watch<AuthProvider>().user;
     final unread = context.watch<NotificationProvider>().unreadCount;
 
     return Scaffold(
+      key: _scaffoldKey,
       backgroundColor: AppColors.slate100,
+      drawer: _GuruDrawer(
+        user:            user,
+        classes:         _classes,
+        homeroomClassId: _homeroomClassId,
+        classesError:    _classesError,
+        onReloadClasses: _loadClasses,
+        onNavigate:      _go,
+        onLogout:        _logout,
+      ),
       body: SafeArea(
         bottom: false,
         child: Column(
           children: [
             _GuruTopBar(
-              user: user,
-              unread: unread,
-              onNotifTap: () {
+              user:        user,
+              unread:      unread,
+              onMenuTap:   () => _scaffoldKey.currentState?.openDrawer(),
+              onNotifTap:  () {
                 final notifProv = context.read<NotificationProvider>();
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (_) => const NotificationsScreen()),
                 ).then((_) => notifProv.fetchUnreadCount());
               },
-              onProfileTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const ProfileScreen()),
-              ),
-              onLogout: _logout,
             ),
-            Expanded(child: _buildTab()),
+            const Expanded(child: GuruHomeScreen()),
           ],
         ),
-      ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _tab,
-        onDestinationSelected: (i) => setState(() => _tab = i),
-        backgroundColor: AppColors.white,
-        indicatorColor: AppColors.blue100,
-        height: 68,
-        labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home_rounded),
-            label: 'Beranda',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.calendar_today_outlined),
-            selectedIcon: Icon(Icons.calendar_today_rounded),
-            label: 'Presensi',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.groups_outlined),
-            selectedIcon: Icon(Icons.groups_rounded),
-            label: 'Kesiswaan',
-          ),
-        ],
       ),
     );
   }
 }
 
+// ─── Top Bar ─────────────────────────────────────────────────────────────────
+
 class _GuruTopBar extends StatelessWidget {
   final User? user;
   final int unread;
+  final VoidCallback onMenuTap;
   final VoidCallback onNotifTap;
-  final VoidCallback onProfileTap;
-  final VoidCallback onLogout;
 
   const _GuruTopBar({
     required this.user,
     required this.unread,
+    required this.onMenuTap,
     required this.onNotifTap,
-    required this.onProfileTap,
-    required this.onLogout,
   });
 
   @override
   Widget build(BuildContext context) {
-    final initials = user?.initials ?? 'G';
-
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
       decoration: const BoxDecoration(gradient: AppColors.topbarGradient),
       child: Row(
         children: [
-          GestureDetector(
-            onTap: onProfileTap,
-            child: CircleAvatar(
-              radius: 18,
-              backgroundColor: Colors.white.withValues(alpha: 0.2),
-              child: Text(
-                initials,
-                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.white),
-              ),
-            ),
+          // Hamburger
+          IconButton(
+            onPressed: onMenuTap,
+            icon: const Icon(Icons.menu_rounded, color: Colors.white, size: 22),
           ),
-          const SizedBox(width: 10),
+
+          // Title
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -219,6 +176,8 @@ class _GuruTopBar extends StatelessWidget {
               ],
             ),
           ),
+
+          // Notification
           Stack(
             children: [
               IconButton(
@@ -235,11 +194,342 @@ class _GuruTopBar extends StatelessWidget {
                 ),
             ],
           ),
-          IconButton(
-            onPressed: onLogout,
-            icon: const Icon(Icons.logout_rounded, color: Colors.white54, size: 20),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Sidebar Drawer ───────────────────────────────────────────────────────────
+
+class _GuruDrawer extends StatelessWidget {
+  final User? user;
+  final List<GuruClass> classes;
+  final int? homeroomClassId;
+  final bool classesError;
+  final VoidCallback onReloadClasses;
+  final void Function(Widget) onNavigate;
+  final VoidCallback onLogout;
+
+  const _GuruDrawer({
+    required this.user,
+    required this.classes,
+    required this.homeroomClassId,
+    required this.classesError,
+    required this.onReloadClasses,
+    required this.onNavigate,
+    required this.onLogout,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Drawer(
+      backgroundColor: Colors.white,
+      child: Column(
+        children: [
+          _buildLogo(),
+          _buildUserCard(),
+          Expanded(child: _buildNav()),
+          _buildLogout(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLogo() {
+    return Container(
+      height: 70,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: const BoxDecoration(
+        border: Border(bottom: BorderSide(color: AppColors.gray100)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 36, height: 36,
+            decoration: BoxDecoration(
+              color: AppColors.blue100,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: const Icon(Icons.school_rounded, color: AppColors.blue600, size: 20),
+          ),
+          const SizedBox(width: 12),
+          const Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'SMA Negeri 1 Gianyar',
+                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.gray800),
+              ),
+              Text(
+                'Portal Guru',
+                style: TextStyle(fontSize: 11, color: AppColors.gray400),
+              ),
+            ],
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildUserCard() {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+      decoration: const BoxDecoration(
+        border: Border(bottom: BorderSide(color: AppColors.gray100)),
+      ),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          color: AppColors.gray50,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            CircleAvatar(
+              radius: 18,
+              backgroundColor: AppColors.blue600,
+              child: Text(
+                user?.initials ?? 'G',
+                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    user?.name ?? '',
+                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.gray800),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text(
+                    user?.subject ?? 'Guru',
+                    style: const TextStyle(fontSize: 11, color: AppColors.gray400),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNav() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Dashboard
+          _NavTile(
+            icon:  Icons.home_rounded,
+            label: 'Dashboard',
+            onTap: () {/* already on home — drawer will close via back tap */},
+          ),
+          const SizedBox(height: 6),
+
+          // Kesiswaan
+          _NavSection(
+            icon:  Icons.groups_rounded,
+            label: 'Kesiswaan',
+            initiallyExpanded: true,
+            children: [
+              _NavTile(
+                icon:  Icons.calendar_today_rounded,
+                label: 'Absensi Harian',
+                onTap: () => onNavigate(GuruAbsensiHarianScreen(
+                  classes: classes,
+                  initialClassId: homeroomClassId,
+                )),
+              ),
+              _NavTile(
+                icon:  Icons.manage_accounts_rounded,
+                label: 'Rekap Siswa',
+                onTap: () => onNavigate(GuruConductScreen(
+                  classes: classes,
+                  initialClassId: homeroomClassId,
+                )),
+              ),
+              _NavTile(
+                icon:  Icons.add_circle_outline_rounded,
+                label: 'Catat Prestasi/Peln.',
+                onTap: null,
+                comingSoon: true,
+              ),
+              _NavTile(
+                icon:  Icons.check_circle_outline_rounded,
+                label: 'Approval Izin/Sakit',
+                onTap: () => onNavigate(const GuruPermitScreen()),
+              ),
+              _NavTile(
+                icon:  Icons.history_rounded,
+                label: 'Lupa Absen Siswa',
+                onTap: () => onNavigate(const GuruForgotAttendanceScreen()),
+              ),
+              _NavTile(
+                icon:  Icons.exit_to_app_rounded,
+                label: 'Izin Pulang Awal',
+                onTap: () => onNavigate(const GuruEarlyCheckoutScreen()),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+
+          // Kurikulum (all coming soon)
+          _NavSection(
+            icon:  Icons.menu_book_rounded,
+            label: 'Kurikulum',
+            children: [
+              _NavTile(icon: Icons.assignment_rounded,  label: 'Input Nilai',      onTap: null, comingSoon: true),
+              _NavTile(icon: Icons.how_to_reg_rounded,  label: 'Absensi Mengajar', onTap: null, comingSoon: true),
+              _NavTile(icon: Icons.chat_bubble_outline, label: 'Jurnal Bimbingan', onTap: null, comingSoon: true),
+            ],
+          ),
+          const SizedBox(height: 6),
+
+          // Laporan
+          _NavSection(
+            icon:  Icons.bar_chart_rounded,
+            label: 'Laporan',
+            children: [
+              _NavTile(
+                icon:  Icons.bar_chart_rounded,
+                label: 'Rekap Absensi',
+                onTap: () => onNavigate(GuruRekapScreen(
+                  classes: classes,
+                  initialClassId: homeroomClassId,
+                )),
+              ),
+              _NavTile(icon: Icons.download_rounded, label: 'Export Absensi', onTap: null, comingSoon: true),
+            ],
+          ),
+          const SizedBox(height: 6),
+
+          // Akun
+          _NavSection(
+            icon:  Icons.person_rounded,
+            label: 'Akun',
+            children: [
+              _NavTile(
+                icon:  Icons.person_outline_rounded,
+                label: 'Profil Saya',
+                onTap: () => onNavigate(const ProfileScreen()),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLogout() {
+    return Column(
+      children: [
+        const Divider(height: 1, color: AppColors.gray100),
+        InkWell(
+          onTap: onLogout,
+          child: const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+            child: Row(
+              children: [
+                Icon(Icons.logout_rounded, size: 18, color: AppColors.gray400),
+                SizedBox(width: 12),
+                Text('Keluar', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: AppColors.gray500)),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+      ],
+    );
+  }
+}
+
+// ─── Nav helpers ─────────────────────────────────────────────────────────────
+
+class _NavTile extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback? onTap;
+  final bool comingSoon;
+
+  const _NavTile({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+    this.comingSoon = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Opacity(
+      opacity: comingSoon ? 0.5 : 1.0,
+      child: InkWell(
+        onTap: comingSoon ? null : onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          child: Row(
+            children: [
+              Icon(icon, size: 16, color: AppColors.gray400),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  label,
+                  style: const TextStyle(fontSize: 13, color: AppColors.gray600, fontWeight: FontWeight.w500),
+                ),
+              ),
+              if (comingSoon)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: AppColors.gray100,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: const Text('Segera', style: TextStyle(fontSize: 9, fontWeight: FontWeight.w600, color: AppColors.gray400)),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _NavSection extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final List<Widget> children;
+  final bool initiallyExpanded;
+
+  const _NavSection({
+    required this.icon,
+    required this.label,
+    required this.children,
+    this.initiallyExpanded = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Theme(
+      data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+      child: ExpansionTile(
+        leading: Icon(icon, size: 18, color: AppColors.gray500),
+        title: Text(
+          label,
+          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.gray700),
+        ),
+        initiallyExpanded: initiallyExpanded,
+        tilePadding: const EdgeInsets.symmetric(horizontal: 10),
+        childrenPadding: const EdgeInsets.only(left: 14),
+        iconColor: AppColors.gray400,
+        collapsedIconColor: AppColors.gray400,
+        children: children,
       ),
     );
   }
