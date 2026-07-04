@@ -54,10 +54,14 @@ class User extends Authenticatable implements FilamentUser
     public function dashboardRoute(): string
     {
         return match($this->role) {
-            'admin'            => '/admin',
+            'admin',
+            'admin_kesiswaan',
+            'admin_kurikulum',
+            'admin_sarpras',
+            'admin_humas'      => '/admin',
             'guru'             => route('guru.dashboard'),
             'siswa'            => route('siswa.dashboard'),
-            'pengelola'  => route('siswa.dashboard'),
+            'pengelola'        => route('siswa.dashboard'),
             default            => '/',
         };
     }
