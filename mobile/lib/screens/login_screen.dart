@@ -240,7 +240,87 @@ class _BlurCircle extends StatelessWidget {
   }
 }
 
-// ─── Panel Bawah: Putih (form login) ─────────────────────────────────────────
+// ─── DOSMAN Brand Lockup ─────────────────────────────────────────────────────
+class _DosmanBrand extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        // Logo bulat besar dengan lingkaran glow tipis
+        Container(
+          width: 72, height: 72,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: AppColors.blue50,
+            border: Border.all(color: AppColors.blue200, width: 2),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.blue600.withValues(alpha: 0.12),
+                blurRadius: 16,
+                spreadRadius: 2,
+              ),
+            ],
+          ),
+          padding: const EdgeInsets.all(10),
+          child: Image.asset('assets/images/logo_sekolah.png', fit: BoxFit.contain),
+        ),
+        const SizedBox(height: 14),
+
+        // Wordmark DOSMAN dengan gradient
+        ShaderMask(
+          shaderCallback: (bounds) => const LinearGradient(
+            begin: Alignment.topLeft,
+            end:   Alignment.bottomRight,
+            colors: [AppColors.blue600, AppColors.indigo700],
+          ).createShader(bounds),
+          child: const Text(
+            'DOSMAN',
+            style: TextStyle(
+              color:         Colors.white,
+              fontSize:      30,
+              fontWeight:    FontWeight.w900,
+              letterSpacing: 6,
+              height:        1,
+            ),
+          ),
+        ),
+        const SizedBox(height: 6),
+
+        // Aksen bawah — garis pendek + titik tengah
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(width: 28, height: 1.5, color: AppColors.blue200),
+            const SizedBox(width: 6),
+            Container(
+              width: 5, height: 5,
+              decoration: BoxDecoration(
+                color:  AppColors.blue600,
+                shape:  BoxShape.circle,
+              ),
+            ),
+            const SizedBox(width: 6),
+            Container(width: 28, height: 1.5, color: AppColors.blue200),
+          ],
+        ),
+        const SizedBox(height: 6),
+
+        // Nama sekolah
+        const Text(
+          'SMA Negeri 1 Gianyar',
+          style: TextStyle(
+            fontSize:      11,
+            fontWeight:    FontWeight.w500,
+            color:         AppColors.gray500,
+            letterSpacing: 0.3,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ─── Panel Bawah: Putih (logo DOSMAN + form login) ───────────────────────────
 class _WhitePanelBottom extends StatelessWidget {
   final GlobalKey<FormState> formKey;
   final TextEditingController loginCtrl;
@@ -264,91 +344,64 @@ class _WhitePanelBottom extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: AppColors.white,
-      padding: const EdgeInsets.all(28),
+      padding: const EdgeInsets.fromLTRB(28, 28, 28, 24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Logo horizontal kecil
+          // ── Logo + Wordmark DOSMAN ──────────────────────────────────
+          _DosmanBrand(),
+          const SizedBox(height: 24),
+
+          // ── Separator ───────────────────────────────────────────────
           Row(
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Image.asset('assets/images/logo_sekolah.png', width: 40, height: 40, fit: BoxFit.contain),
-              const SizedBox(width: 10),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  Text('SMAN 1 GIANYAR',
-                    style: TextStyle(
-                      fontSize:    13,
-                      fontWeight:  FontWeight.w800,
-                      letterSpacing: 1,
-                      color:       AppColors.gray700,
-                    ),
-                  ),
-                  Text('SMA Negeri 1 Gianyar',
-                    style: TextStyle(fontSize: 11, color: AppColors.gray400),
-                  ),
-                ],
+              Expanded(child: Container(height: 1, color: AppColors.gray100)),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: Text(
+                  'Masuk ke akun Anda',
+                  style: TextStyle(fontSize: 11, color: AppColors.gray400, fontWeight: FontWeight.w500),
+                ),
               ),
+              Expanded(child: Container(height: 1, color: AppColors.gray100)),
             ],
           ),
           const SizedBox(height: 20),
 
-          const Text('Login SIMS',
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.gray800),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 2),
-          const Text('Sistem Informasi Manajemen Siswa',
-            style: TextStyle(fontSize: 10, color: AppColors.blue600, fontWeight: FontWeight.w600, letterSpacing: 0.3),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 4),
-          const Text('Silakan masukkan kredensial Anda',
-            style: TextStyle(fontSize: 11, color: AppColors.gray400),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 24),
-
+          // ── Form ─────────────────────────────────────────────────────
           Form(
             key: formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Input NIS / Email
                 _SIMSInput(
-                  controller:  loginCtrl,
-                  hint:        'Email / NIS / NIP',
-                  prefixIcon:  Icons.person_outline_rounded,
-                  keyboardType: TextInputType.text,
+                  controller:      loginCtrl,
+                  hint:            'Email / NIS / NIP',
+                  prefixIcon:      Icons.person_outline_rounded,
+                  keyboardType:    TextInputType.text,
                   textInputAction: TextInputAction.next,
                   validator: (v) => (v == null || v.trim().isEmpty) ? 'Wajib diisi' : null,
                 ),
                 const SizedBox(height: 12),
-
-                // Input Password
                 _SIMSInput(
-                  controller:     passwordCtrl,
-                  hint:           'Password',
-                  prefixIcon:     Icons.lock_outline_rounded,
-                  obscureText:    obscure,
-                  textInputAction: TextInputAction.done,
+                  controller:       passwordCtrl,
+                  hint:             'Password',
+                  prefixIcon:       Icons.lock_outline_rounded,
+                  obscureText:      obscure,
+                  textInputAction:  TextInputAction.done,
                   onFieldSubmitted: (_) => onSubmit(),
                   validator: (v) => (v == null || v.isEmpty) ? 'Wajib diisi' : null,
                   suffixIcon: IconButton(
                     icon: Icon(
                       obscure ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                      size:  18,
-                      color: AppColors.gray400,
+                      size: 18, color: AppColors.gray400,
                     ),
                     onPressed: onToggleObscure,
                   ),
                 ),
                 const SizedBox(height: 20),
-
-                // Tombol Login (gradient biru seperti web)
                 _GradientButton(
-                  label:     isLoading ? 'Memverifikasi...' : 'Login',
+                  label:     isLoading ? 'Memverifikasi...' : 'Masuk',
                   isLoading: isLoading,
                   onPressed: isLoading ? null : onSubmit,
                 ),
@@ -356,10 +409,10 @@ class _WhitePanelBottom extends StatelessWidget {
             ),
           ),
 
-          const SizedBox(height: 20),
+          const SizedBox(height: 18),
           const Text(
-            '© 2025 SMA Negeri 1 Gianyar · SIMS',
-            style: TextStyle(fontSize: 9, color: AppColors.gray400),
+            '© 2025 SMA Negeri 1 Gianyar',
+            style: TextStyle(fontSize: 9, color: AppColors.gray300),
             textAlign: TextAlign.center,
           ),
         ],

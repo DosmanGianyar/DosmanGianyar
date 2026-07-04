@@ -164,7 +164,7 @@ class _GuruTopBar extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'SIMS — Portal Guru',
+                  'DOSMAN — Portal Guru',
                   style: TextStyle(fontSize: 11, color: Colors.white54, fontWeight: FontWeight.w500, letterSpacing: 0.5),
                 ),
                 if (user != null)
