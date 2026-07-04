@@ -37,6 +37,9 @@ dependencies:
   # Pilih gambar dari galeri / kamera (untuk upload foto prestasi)
   image_picker: ^1.1.2
 
+  # QR code generator untuk kartu pelajar
+  qr_flutter: ^4.1.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

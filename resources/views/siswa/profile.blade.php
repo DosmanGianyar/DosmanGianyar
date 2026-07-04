@@ -83,77 +83,83 @@
     {{-- ─── E-Kartu Pelajar (Flip: Depan & Belakang) ─────────────── --}}
     <div x-data="{ flipped: false }" class="select-none">
 
-        {{-- container-type:inline-size → agar cqw merujuk lebar kartu ini --}}
-        <div style="position:relative; perspective:1200px; width:100%; aspect-ratio:85.6/54;
+        <div style="position:relative; perspective:1400px; width:100%; aspect-ratio:85.6/54;
                     cursor:pointer; container-type:inline-size;"
              @click="flipped = !flipped">
 
             <div style="position:absolute; top:0; left:0; right:0; bottom:0;
-                        transform-style:preserve-3d; transition:transform .65s cubic-bezier(.4,0,.2,1);"
+                        transform-style:preserve-3d; transition:transform .7s cubic-bezier(.4,0,.2,1);"
                  :style="{ transform: flipped ? 'rotateY(180deg)' : 'rotateY(0deg)' }">
 
                 {{-- ══════════ DEPAN ══════════ --}}
-                @php
-                    $principalName = '';
-                    $principalNip  = '';
-                @endphp
                 <div style="position:absolute; top:0; left:0; right:0; bottom:0;
                             backface-visibility:hidden; -webkit-backface-visibility:hidden;
-                            border-radius:16px; overflow:hidden;
+                            border-radius:14px; overflow:hidden;
                             box-shadow:0 8px 32px rgba(0,0,0,.22);
-                            background:white; display:flex; flex-direction:column; font-family:inherit;">
+                            background:#f8f7f4; display:flex; flex-direction:column; font-family:inherit;">
 
-                    {{-- Header biru ─────────────────────────────────────────── --}}
-                    <div style="flex-shrink:0;background:linear-gradient(180deg,#0d47a1 0%,#1565c0 100%);
-                                padding:2.5% 3%;display:flex;align-items:center;gap:3%;">
-                        {{-- Logo "keluar" dari lingkaran: overflow visible + scale --}}
-                        <div style="width:14%;aspect-ratio:1;border-radius:50%;background:white;
-                                    flex-shrink:0;overflow:visible;position:relative;
-                                    box-shadow:0 4px 18px rgba(0,0,0,.45),0 2px 6px rgba(0,0,0,.3);">
+                    {{-- ── Header biru ─── --}}
+                    <div style="flex-shrink:0; background:linear-gradient(135deg,#0a3880 0%,#1565c0 60%,#1976d2 100%);
+                                padding:2.5% 3%; display:flex; align-items:center; gap:2.5%;">
+                        <div style="width:12%; aspect-ratio:1; border-radius:50%; background:white;
+                                    flex-shrink:0; overflow:visible; position:relative;
+                                    box-shadow:0 3px 14px rgba(0,0,0,.4);">
                             <img src="{{ asset('img/logo_sekolah.png') }}" alt="Logo"
-                                 style="width:130%;height:130%;object-fit:contain;
-                                        position:absolute;top:50%;left:50%;
+                                 style="width:130%; height:130%; object-fit:contain;
+                                        position:absolute; top:50%; left:50%;
                                         transform:translate(-50%,-50%);
-                                        filter:drop-shadow(0 2px 4px rgba(0,0,0,.25));">
+                                        filter:drop-shadow(0 1px 3px rgba(0,0,0,.3));">
                         </div>
-                        <div style="line-height:1.2;min-width:0;">
-                            <p style="font-size:clamp(9px,3.6cqw,999px);font-weight:700;color:white;
-                                       letter-spacing:.06em;line-height:1.1;text-transform:uppercase;
-                                       font-family:'Oswald',Arial Narrow,Arial,sans-serif;">
+                        <div style="flex:1; min-width:0; line-height:1.25;">
+                            <p style="font-size:clamp(7px,3cqw,999px); font-weight:800; color:white;
+                                       letter-spacing:.05em; text-transform:uppercase;
+                                       font-family:'Oswald',Arial Narrow,Arial,sans-serif; line-height:1.1;">
                                 SMA Negeri 1 Gianyar
                             </p>
-                            <p style="font-size:clamp(4px,1.4cqw,999px);color:rgba(255,255,255,.75);margin-top:2px;">
-                                Jl. Ratna No.1, Gianyar, Bali · Telp. (0361) 943443
+                            <p style="font-size:clamp(3.5px,1.35cqw,999px); color:rgba(255,255,255,.72); margin-top:1.5%;">
+                                Jl. Ratna No.1, Gianyar, Bali 80511 &nbsp;·&nbsp; Telp. (0361) 943443
+                            </p>
+                        </div>
+                        {{-- Badge KARTU PELAJAR --}}
+                        <div style="flex-shrink:0; border:clamp(1px,.35cqw,999px) solid rgba(255,255,255,.4);
+                                    border-radius:5px; padding:1.8% 2.5%; text-align:center;
+                                    background:rgba(255,255,255,.12);">
+                            <p style="font-size:clamp(4px,1.7cqw,999px); font-weight:800; color:white;
+                                       letter-spacing:.12em; text-transform:uppercase; line-height:1.3;">
+                                KARTU<br>PELAJAR
                             </p>
                         </div>
                     </div>
 
-                    {{-- Body putih ──────────────────────────────────────────── --}}
-                    <div style="flex:1;background:#f9f8f5;display:flex;min-height:0;overflow:hidden;position:relative;">
+                    {{-- ── Accent strip emas ─── --}}
+                    <div style="flex-shrink:0; height:.9%;
+                                background:linear-gradient(90deg,#b45309 0%,#f59e0b 40%,#fbbf24 55%,#f59e0b 70%,#b45309 100%);"></div>
 
-                        {{-- Watermark logo sekolah --}}
-                        <div style="position:absolute;right:3%;top:50%;transform:translateY(-50%);
-                                    width:40%;aspect-ratio:1;opacity:.05;pointer-events:none;">
-                            <img src="{{ asset('img/logo_sekolah.png') }}"
-                                 style="width:100%;height:100%;object-fit:contain;">
+                    {{-- ── Body ─── --}}
+                    <div style="flex:1; display:flex; min-height:0; overflow:hidden; position:relative; padding:3.5% 3% 2.5% 3%;">
+
+                        {{-- Watermark --}}
+                        <div style="position:absolute; right:2%; top:50%; transform:translateY(-50%);
+                                    width:36%; aspect-ratio:1; opacity:.04; pointer-events:none;">
+                            <img src="{{ asset('img/logo_sekolah.png') }}" style="width:100%; height:100%; object-fit:contain;">
                         </div>
 
-                        {{-- Foto ───────────────────────────────────────────── --}}
-                        <div style="flex-shrink:0;padding:7% 0 2% 3%;display:flex;align-items:flex-start;">
-                            <div style="width:17cqw;aspect-ratio:3/4;
-                                        border:clamp(2px,0.65cqw,999px) solid #dc2626;
-                                        background:#fee2e2;overflow:hidden;
-                                        box-shadow:0 clamp(1px,0.4cqw,999px) clamp(4px,1.5cqw,999px) rgba(220,38,38,.2);">
+                        {{-- Foto --}}
+                        <div style="flex-shrink:0; display:flex; align-items:flex-start; margin-right:3%;">
+                            <div style="width:16cqw; aspect-ratio:3/4;
+                                        border:clamp(2px,.65cqw,999px) solid #1565c0;
+                                        background:#dce8f8; overflow:hidden;
+                                        box-shadow:0 clamp(2px,.5cqw,999px) clamp(8px,2cqw,999px) rgba(21,101,192,.25);">
                                 @if($siswa->photo)
                                     <img src="{{ $siswa->photo_url }}"
-                                         style="width:100%;height:100%;object-fit:cover;object-position:top;">
+                                         style="width:100%; height:100%; object-fit:cover; object-position:top;">
                                 @else
-                                    <div style="width:100%;height:100%;background:#e9eaec;
-                                                display:flex;align-items:center;justify-content:center;">
+                                    <div style="width:100%; height:100%; background:#dce8f8;
+                                                display:flex; flex-direction:column; align-items:center; justify-content:flex-end;">
                                         <svg viewBox="0 0 24 30" fill="none" xmlns="http://www.w3.org/2000/svg"
-                                             style="width:60%;height:60%;color:#b0b5bc;">
-                                            <ellipse cx="12" cy="8.5" rx="5.5" ry="6" fill="currentColor"/>
-                                            <path d="M1 28c0-6.075 4.925-11 11-11s11 4.925 11 11"
+                                             style="width:72%; color:#6fa3d8;">
+                                            <ellipse cx="12" cy="9" rx="6" ry="6.5" fill="currentColor"/>
+                                            <path d="M0 29c0-6.627 5.373-12 12-12s12 5.373 12 12"
                                                   stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                                         </svg>
                                     </div>
@@ -161,141 +167,185 @@
                             </div>
                         </div>
 
-                        {{-- Info ───────────────────────────────────────────── --}}
-                        <div style="flex:1;padding:2% 3% 2% 2%;display:flex;flex-direction:column;
-                                    min-width:0;position:relative;z-index:1;">
+                        {{-- Data --}}
+                        <div style="flex:1; min-width:0; display:flex; flex-direction:column; position:relative; z-index:1;">
 
-                            {{-- Judul --}}
-                            <p style="font-size:clamp(7px,2.7cqw,999px);font-weight:900;text-align:center;
-                                       text-decoration:underline;letter-spacing:.12em;color:#0d47a1;
-                                       margin-bottom:1.8%;text-transform:uppercase;
-                                       text-underline-offset:clamp(1px,0.4cqw,999px);">
+                            {{-- Sub-judul --}}
+                            <p style="font-size:clamp(5.5px,2.2cqw,999px); font-weight:900; color:#0a3880;
+                                       letter-spacing:.16em; text-align:center; text-transform:uppercase;
+                                       text-decoration:underline; text-underline-offset:clamp(1px,.4cqw,999px);
+                                       margin-bottom:2%;">
                                 KARTU PELAJAR
                             </p>
 
-                            {{-- Baris data --}}
+                            {{-- Baris data dengan ikon --}}
                             @php
-                            $infoRows = [
-                                ['NISN',          $siswa->nisn ?? '—'],
-                                ['Nama',          $siswa->name],
-                                ['NIS',           $siswa->nis  ?? '—'],
-                                ['Kelas',         $siswa->schoolClass?->name ?? '—'],
-                                ['Tgl. Lahir',    $siswa->birth_date?->isoFormat('D MMMM Y') ?? '—'],
-                                ['Jenis Kelamin', match($siswa->gender ?? '') {
-                                    'L' => 'Laki-laki', 'P' => 'Perempuan', default => '—'
-                                }],
+                            $dataRows = [
+                                [
+                                    'icon' => 'M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v2h20v-2c0-3.3-6.7-5-10-5z',
+                                    'label' => 'Nama',
+                                    'value' => $siswa->name,
+                                    'bold'  => true,
+                                ],
+                                [
+                                    'icon' => 'M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V6h16v12zM6 10h12v2H6zm0 4h8v2H6z',
+                                    'label' => 'NIS / NISN',
+                                    'value' => ($siswa->nis ?? '—') . ' / ' . ($siswa->nisn ?? '—'),
+                                    'bold'  => false,
+                                ],
+                                [
+                                    'icon' => 'M19 3h-1V1h-2v2H8V1H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z',
+                                    'label' => 'Tgl. Lahir',
+                                    'value' => $siswa->birth_date?->isoFormat('D MMMM Y') ?? '—',
+                                    'bold'  => false,
+                                ],
+                                [
+                                    'icon' => 'M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82zM12 3L1 9l11 6 9-4.91V17h2V9L12 3z',
+                                    'label' => 'Kelas',
+                                    'value' => $siswa->schoolClass?->name ?? '—',
+                                    'bold'  => false,
+                                ],
+                                [
+                                    'icon' => 'M11 6C9.34 6 8 7.34 8 9s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3zm0 2c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm6 9.59C17 15.09 14.03 14 11 14s-6 1.09-6 2.59V18h12v-1.41zM7.2 16c.62-.56 2.04-1 3.8-1s3.18.44 3.8 1H7.2zM20 3H4v14h2V5h14v12h2V3z',
+                                    'label' => 'Jenis Kelamin',
+                                    'value' => match($siswa->gender ?? '') { 'L' => 'Laki-laki', 'P' => 'Perempuan', default => '—' },
+                                    'bold'  => false,
+                                ],
+                                [
+                                    'icon' => 'M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z',
+                                    'label' => 'Alamat',
+                                    'value' => $siswa->address ?? '—',
+                                    'bold'  => false,
+                                ],
                             ];
                             @endphp
-                            @foreach($infoRows as $ri => [$lbl, $val])
-                            <div style="display:flex;align-items:baseline;gap:1%;
-                                        margin-bottom:{{ $ri === 1 ? '1.8' : '1.4' }}%;line-height:1.2;">
-                                <span style="font-size:clamp(5px,1.85cqw,999px);color:#4b5563;
-                                              flex-shrink:0;width:28%;">{{ $lbl }}</span>
-                                <span style="font-size:clamp(5px,1.85cqw,999px);color:#4b5563;flex-shrink:0;">:</span>
-                                <span style="font-size:clamp(5px,{{ $ri === 1 ? '2.1' : '1.85' }}cqw,999px);
-                                              font-weight:{{ $ri === 1 ? 700 : 600 }};
-                                              color:{{ $ri === 1 ? '#111827' : '#1f2937' }};
-                                              overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;">
-                                    {{ $val }}
+
+                            @foreach($dataRows as $row)
+                            <div style="display:flex; align-items:flex-start; gap:1.5%; margin-bottom:1.4%; line-height:1.25;">
+                                <svg viewBox="0 0 24 24" fill="#1565c0"
+                                     style="width:clamp(6px,1.9cqw,999px); height:clamp(6px,1.9cqw,999px);
+                                            flex-shrink:0; margin-top:.15em; opacity:.7;">
+                                    <path d="{{ $row['icon'] }}"/>
+                                </svg>
+                                <span style="font-size:clamp(4px,1.5cqw,999px); color:#6b7280;
+                                              flex-shrink:0; width:26%;">{{ $row['label'] }}</span>
+                                <span style="font-size:clamp(4px,1.5cqw,999px); color:#9ca3af; flex-shrink:0;">:</span>
+                                <span style="font-size:clamp(4px,{{ $row['bold'] ? '1.8' : '1.5' }}cqw,999px);
+                                              font-weight:{{ $row['bold'] ? 700 : 600 }};
+                                              color:{{ $row['bold'] ? '#111827' : '#374151' }};
+                                              overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0;">
+                                    {{ $row['value'] }}
                                 </span>
                             </div>
                             @endforeach
 
-                            {{-- Tanda tangan --}}
-                            <div style="margin-top:auto;display:flex;justify-content:space-between;align-items:flex-end;">
-                                <p style="font-size:clamp(4px,1.3cqw,999px);color:#9ca3af;font-style:italic;
-                                           max-width:48%;line-height:1.4;">
-                                    Kartu ini berlaku selama menjadi siswa SMA Negeri 1 Gianyar
+                            {{-- Footer: berlaku + tanda tangan --}}
+                            <div style="margin-top:auto; display:flex; justify-content:space-between; align-items:flex-end;">
+                                <p style="font-size:clamp(3.5px,1.25cqw,999px); color:#9ca3af; font-style:italic;
+                                           max-width:42%; line-height:1.5;">
+                                    Berlaku selama menjadi<br>siswa SMAN 1 Gianyar
                                 </p>
-                                <div style="text-align:center;flex-shrink:0;margin-right:8%;">
-                                    <p style="font-size:clamp(7px,2.4cqw,999px);color:#374151;margin-bottom:0.3%;">
+                                <div style="text-align:center; flex-shrink:0;">
+                                    <p style="font-size:clamp(3.5px,1.35cqw,999px); color:#4b5563; margin-bottom:.8%;">
+                                        Gianyar, {{ now()->isoFormat('D MMMM Y') }}
+                                    </p>
+                                    <p style="font-size:clamp(3.5px,1.35cqw,999px); color:#4b5563; margin-bottom:3.5%;">
                                         Kepala Sekolah,
                                     </p>
-                                    <div style="height:4cqw;"></div>
-                                    <div style="display:inline-block;min-width:16cqw;
-                                                border-top:clamp(0.5px,0.2cqw,999px) solid #374151;padding-top:0.5%;">
-                                        @if($principalName)
-                                        <p style="font-size:clamp(7px,2.4cqw,999px);font-weight:700;color:#111827;">
-                                            {{ $principalName }}
+                                    <div style="height:3.2cqw; position:relative;">
+                                        {{-- Lingkaran stempel dekoratif --}}
+                                        <div style="position:absolute; left:50%; top:50%; transform:translate(-55%,-50%);
+                                                    width:7cqw; aspect-ratio:1; border-radius:50%;
+                                                    border:clamp(1px,.35cqw,999px) solid rgba(13,71,161,.2);
+                                                    pointer-events:none;"></div>
+                                    </div>
+                                    <div style="display:inline-block; min-width:15cqw;
+                                                border-top:clamp(.5px,.18cqw,999px) solid #374151; padding-top:.5%;">
+                                        <p style="font-size:clamp(3.5px,1.35cqw,999px); color:#c0c0c0; letter-spacing:.04em;">
+                                            ..............................
                                         </p>
-                                        @else
-                                        <p style="font-size:clamp(7px,2.4cqw,999px);color:#c0c0c0;letter-spacing:.08em;">
-                                            .......................
+                                        <p style="font-size:clamp(3px,1.15cqw,999px); color:#9ca3af;">
+                                            NIP. ———————————
                                         </p>
-                                        @endif
-                                        @if($principalNip)
-                                        <p style="font-size:clamp(6px,2cqw,999px);color:#6b7280;">
-                                            NIP. {{ $principalNip }}
-                                        </p>
-                                        @endif
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    {{-- Strip bawah biru --}}
-                    <div style="flex-shrink:0;height:3.5%;background:#1565c0;"></div>
+                    {{-- ── Strip bawah biru ─── --}}
+                    <div style="flex-shrink:0; height:3.8%;
+                                background:linear-gradient(90deg,#0a3880 0%,#1565c0 50%,#1976d2 100%);"></div>
                 </div>
 
                 {{-- ══════════ BELAKANG ══════════ --}}
                 <div style="position:absolute; top:0; left:0; right:0; bottom:0;
                             backface-visibility:hidden; -webkit-backface-visibility:hidden;
                             transform:rotateY(180deg);
-                            border-radius:16px; overflow:hidden;
-                            box-shadow:0 16px 48px rgba(29,78,216,.4),0 4px 16px rgba(0,0,0,.2);
-                            background:linear-gradient(150deg,#0f172a 0%,#1e293b 55%,#1e3a8a 100%);
-                            display:flex; flex-direction:column; font-family:inherit;">
+                            border-radius:14px; overflow:hidden;
+                            box-shadow:0 8px 32px rgba(0,0,0,.22);
+                            background:white; display:flex; flex-direction:column; font-family:inherit;">
 
-                    {{-- Dekorasi --}}
-                    <div style="position:absolute;top:-20%;left:-10%;width:55%;height:75%;
-                                background:rgba(59,130,246,.07);border-radius:50%;pointer-events:none;"></div>
-                    <div style="position:absolute;bottom:-20%;right:-10%;width:50%;height:70%;
-                                background:rgba(99,102,241,.09);border-radius:50%;pointer-events:none;"></div>
-
-                    {{-- Header belakang --}}
-                    <div style="flex-shrink:0;padding:3.5% 4%;
-                                display:flex;align-items:center;gap:3%;
-                                border-bottom:1px solid rgba(255,255,255,.1); background:rgba(0,0,0,.2);">
-                        <div style="width:7%;aspect-ratio:1;border-radius:50%;
-                                    background:white;padding:2px;flex-shrink:0;">
-                            <img src="{{ asset('img/logo_sekolah.png') }}" alt="Logo"
-                                 style="width:100%;height:100%;object-fit:contain;">
+                    {{-- ── Strip atas biru ─── --}}
+                    <div style="flex-shrink:0; height:5%;
+                                background:linear-gradient(90deg,#0a3880 0%,#1565c0 50%,#1976d2 100%);
+                                display:flex; align-items:center; padding:0 3%; gap:2%;">
+                        <div style="width:3.5%; aspect-ratio:1; border-radius:50%; background:white; flex-shrink:0; overflow:hidden;">
+                            <img src="{{ asset('img/logo_sekolah.png') }}" style="width:100%; height:100%; object-fit:contain;">
                         </div>
-                        <div>
-                            <p style="font-size:clamp(8px,2.5cqw,999px);font-weight:700;color:white;">SMA NEGERI 1 GIANYAR</p>
-                            <p style="font-size:clamp(6px,1.7cqw,999px);color:rgba(148,163,184,.7);">NPSN 50102079 · Gianyar, Bali</p>
-                        </div>
-                    </div>
-
-                    {{-- QR di tengah — 32% agar tidak melebihi tinggi body --}}
-                    <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1% 6%;min-height:0;overflow:hidden;">
-                        <div style="width:32%; aspect-ratio:1;
-                                    background:white; border-radius:clamp(5px,1.5cqw,999px); padding:clamp(3px,1cqw,999px);
-                                    box-shadow:0 4px 20px rgba(0,0,0,.5),0 0 0 2px rgba(253,224,71,.3);">
-                            <img src="{{ $qrSvg }}" alt="QR Code" style="width:100%;height:100%;display:block;">
-                        </div>
-                        <p style="font-size:clamp(6px,1.9cqw,999px);color:rgba(148,163,184,.7);margin-top:3%;
-                                   letter-spacing:.04em;text-align:center;">
-                            Scan untuk melihat biodata siswa
+                        <p style="font-size:clamp(5px,1.8cqw,999px); font-weight:700; color:white; letter-spacing:.06em; text-transform:uppercase;">
+                            SMA NEGERI 1 GIANYAR
+                        </p>
+                        <p style="font-size:clamp(3.5px,1.2cqw,999px); color:rgba(255,255,255,.65); margin-left:auto;">
+                            NPSN 50102079
                         </p>
                     </div>
 
-                    {{-- Footer belakang --}}
-                    <div style="flex-shrink:0;padding:2.5% 4%;
-                                border-top:1px solid rgba(255,255,255,.1); background:rgba(0,0,0,.25);
-                                display:flex;align-items:center;justify-content:space-between;">
-                        <div style="min-width:0;">
-                            <p style="font-size:clamp(8px,3cqw,999px);font-weight:700;color:white;
-                                       white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ $siswa->name }}</p>
-                            <p style="font-size:clamp(6px,1.9cqw,999px);color:rgba(148,163,184,.65);">
-                                NIS: {{ $siswa->nis ?? '—' }}{{ $siswa->nisn ? ' · NISN: '.$siswa->nisn : '' }}
-                            </p>
+                    {{-- ── Body tengah ─── --}}
+                    <div style="flex:1; display:flex; flex-direction:column; align-items:center;
+                                justify-content:center; padding:2% 5%; gap:0; overflow:hidden;">
+
+                        {{-- QR code --}}
+                        <div style="width:34%; aspect-ratio:1;
+                                    border:clamp(1.5px,.5cqw,999px) solid #e5e7eb;
+                                    border-radius:clamp(5px,1.5cqw,999px); padding:clamp(3px,1cqw,999px);
+                                    box-shadow:0 2px 12px rgba(0,0,0,.1);">
+                            <img src="{{ $qrSvg }}" alt="QR Code" style="width:100%; height:100%; display:block;">
                         </div>
-                        <div style="background:linear-gradient(135deg,#d97706,#fbbf24);color:white;
-                                    font-size:clamp(6px,1.9cqw,999px);font-weight:700;
-                                    padding:2.5% 6%;border-radius:20px;letter-spacing:.1em;flex-shrink:0;
-                                    box-shadow:0 2px 8px rgba(217,119,6,.5);">SISWA</div>
+
+                        <p style="font-size:clamp(4.5px,1.6cqw,999px); color:#9ca3af; margin-top:2%;
+                                   letter-spacing:.03em; text-align:center;">
+                            Scan untuk verifikasi identitas siswa
+                        </p>
+
+                        {{-- Divider --}}
+                        <div style="width:55%; height:1px;
+                                    background:linear-gradient(90deg,transparent,#e5e7eb,transparent);
+                                    margin:2% 0;"></div>
+
+                        {{-- Nama + NIS --}}
+                        <p style="font-size:clamp(6.5px,2.6cqw,999px); font-weight:700; color:#111827;
+                                   text-align:center; max-width:90%; overflow:hidden;
+                                   text-overflow:ellipsis; white-space:nowrap;">
+                            {{ $siswa->name }}
+                        </p>
+                        <p style="font-size:clamp(5px,1.7cqw,999px); color:#6b7280; text-align:center; margin-top:.5%;">
+                            NIS: {{ $siswa->nis ?? '—' }}
+                            @if($siswa->nisn)&nbsp;·&nbsp; NISN: {{ $siswa->nisn }}@endif
+                        </p>
+                        <p style="font-size:clamp(4px,1.4cqw,999px); color:#9ca3af; text-align:center; margin-top:.3%;">
+                            {{ $siswa->schoolClass?->name ?? '' }}
+                            @if($siswa->schoolClass?->name && ($siswa->gender ?? '')) &nbsp;·&nbsp; @endif
+                            {{ match($siswa->gender ?? '') { 'L' => 'Laki-laki', 'P' => 'Perempuan', default => '' } }}
+                        </p>
+                    </div>
+
+                    {{-- ── Strip bawah emas ─── --}}
+                    <div style="flex-shrink:0; height:3.8%;
+                                background:linear-gradient(90deg,#b45309 0%,#f59e0b 40%,#fbbf24 55%,#f59e0b 70%,#b45309 100%);
+                                display:flex; align-items:center; justify-content:center;">
+                        <p style="font-size:clamp(4px,1.5cqw,999px); font-weight:700; color:white;
+                                   letter-spacing:.25em; text-transform:uppercase; opacity:.9;">SISWA</p>
                     </div>
                 </div>
 
@@ -303,9 +353,9 @@
         </div>
 
         {{-- Hint teks --}}
-        <p style="text-align:center;font-size:11px;color:#9ca3af;margin-top:8px;">
-            <span x-show="!flipped">Klik kartu untuk melihat QR Code &rarr;</span>
-            <span x-show="flipped">&larr; Klik kartu untuk kembali ke depan</span>
+        <p style="text-align:center; font-size:11px; color:#9ca3af; margin-top:8px;">
+            <span x-show="!flipped">Ketuk kartu untuk melihat QR Code &rarr;</span>
+            <span x-show="flipped">&larr; Ketuk kartu untuk kembali ke depan</span>
         </p>
     </div>
 

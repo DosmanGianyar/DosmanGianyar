@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import '../models/user.dart';
 import '../providers/auth_provider.dart';
 import '../services/api_client.dart';
@@ -752,107 +753,155 @@ class _IdFront extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: const Color(0xFFF8F7F4),
         borderRadius: AppRadius.card,
-        border: Border.all(color: AppColors.gray200),
         boxShadow: AppShadow.sm,
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Header navy
+          // ── Header biru ──────────────────────────────────────────
           Container(
-            decoration: const BoxDecoration(gradient: AppColors.topbarGradient),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            child: Row(
-              children: [
-                Image.asset('assets/images/logo_sekolah.png',
-                  width: 46, height: 46,
-                  errorBuilder: (_, __, ___) => const SizedBox(width: 46)),
-                const SizedBox(width: 10),
-                const Expanded(
-                  child: Column(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Color(0xFF0A3880), Color(0xFF1565C0), Color(0xFF1976D2)],
+              ),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            child: Row(children: [
+              // Logo
+              Container(
+                width: 38, height: 38,
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                  boxShadow: [BoxShadow(color: Color(0x55000000), blurRadius: 8, offset: Offset(0, 2))],
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(2),
+                  child: Image.asset('assets/images/logo_sekolah.png',
+                    fit: BoxFit.contain,
+                    errorBuilder: (_, __, ___) => const Icon(Icons.school, color: Color(0xFF0A3880), size: 24)),
+                ),
+              ),
+              const SizedBox(width: 8),
+              // Nama sekolah
+              const Expanded(child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('SMA NEGERI 1 GIANYAR',
+                    style: TextStyle(
+                      color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.w800,
+                      letterSpacing: 0.3, height: 1.1)),
+                  SizedBox(height: 2),
+                  Text('Jl. Ratna No.1, Gianyar, Bali 80511',
+                    style: TextStyle(color: Color(0xFFBFDBFE), fontSize: 8, height: 1.3)),
+                ],
+              )),
+              // Badge Kartu Pelajar
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.white38, width: 1),
+                  borderRadius: BorderRadius.circular(4),
+                  color: Colors.white12,
+                ),
+                child: const Text('KARTU\nPELAJAR',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.white, fontSize: 7, fontWeight: FontWeight.w800,
+                    letterSpacing: 0.8, height: 1.25)),
+              ),
+            ]),
+          ),
+
+          // ── Strip emas ────────────────────────────────────────────
+          Container(
+            height: 3,
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(colors: [Color(0xFFB45309), Color(0xFFF59E0B), Color(0xFFFBBF24), Color(0xFFF59E0B), Color(0xFFB45309)]),
+            ),
+          ),
+
+          // ── Body ──────────────────────────────────────────────────
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(10, 8, 10, 6),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Foto
+                  Container(
+                    width: 60, height: 80,
+                    decoration: BoxDecoration(
+                      border: Border.all(color: const Color(0xFF1565C0), width: 2),
+                      boxShadow: const [BoxShadow(
+                        color: Color(0x331565C0), blurRadius: 8, offset: Offset(0, 3))],
+                    ),
+                    clipBehavior: Clip.antiAlias,
+                    child: user?.photoUrl != null
+                        ? Image.network(user!.photoUrl!, fit: BoxFit.cover, alignment: Alignment.topCenter,
+                            errorBuilder: (_, __, ___) => _photoPlaceholder())
+                        : _photoPlaceholder(),
+                  ),
+                  const SizedBox(width: 9),
+                  // Data
+                  Expanded(child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('SMA NEGERI 1 GIANYAR',
-                        style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold, letterSpacing: 0.3)),
-                      Text('Jl. Ngurah Rai No.1, Gianyar, Bali',
-                        style: TextStyle(color: Color(0xFFBFDBFE), fontSize: 10, height: 1.5)),
+                      // Sub-judul
+                      const Center(
+                        child: Text('KARTU PELAJAR',
+                          style: TextStyle(
+                            fontSize: 8, fontWeight: FontWeight.w900, color: Color(0xFF0A3880),
+                            letterSpacing: 1.2, decoration: TextDecoration.underline,
+                            decorationColor: Color(0xFF0A3880))),
+                      ),
+                      const SizedBox(height: 6),
+                      // Baris data
+                      _KidRow(icon: Icons.person_rounded,           label: 'Nama',          value: user?.name ?? '—', bold: true),
+                      _KidRow(icon: Icons.badge_outlined,            label: 'NIS/NISN',      value: '${user?.nis ?? '—'} / ${user?.nisn ?? '—'}'),
+                      _KidRow(icon: Icons.calendar_today_rounded,    label: 'Tgl. Lahir',    value: _fmtDate(user?.birthDate)),
+                      _KidRow(icon: Icons.school_rounded,            label: 'Kelas',         value: user?.className ?? '—'),
+                      _KidRow(icon: Icons.wc_rounded,                label: 'Jenis Kelamin', value: user?.genderLabel ?? '—'),
+                      _KidRow(icon: Icons.location_on_rounded,       label: 'Alamat',        value: user?.address ?? '—'),
                     ],
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(4),
-                    border: Border.all(color: Colors.white30),
-                  ),
-                  child: const Text('KARTU PELAJAR',
-                    style: TextStyle(color: Colors.white, fontSize: 7.5, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
-                ),
+                  )),
+                ],
+              ),
+            ),
+          ),
+
+          // ── Footer: berlaku + tanda tangan ───────────────────────
+          Padding(
+            padding: const EdgeInsets.fromLTRB(10, 0, 10, 6),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                const Text('Berlaku selama\nmenjadi siswa SMAN 1 Gianyar',
+                  style: TextStyle(fontSize: 7, color: AppColors.gray400, fontStyle: FontStyle.italic, height: 1.5)),
+                Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
+                  const Text('Kepala Sekolah,',
+                    style: TextStyle(fontSize: 7.5, color: AppColors.gray600)),
+                  const SizedBox(height: 22),
+                  Container(width: 70, height: 1, color: AppColors.gray300),
+                  const SizedBox(height: 2),
+                  const Text('NIP. ——————————',
+                    style: TextStyle(fontSize: 6.5, color: AppColors.gray400)),
+                ]),
               ],
             ),
           ),
 
-          // Body: photo + data
-          Padding(
-            padding: const EdgeInsets.all(12),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Photo 3:4
-                Container(
-                  width: 72, height: 96,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(6),
-                    border: Border.all(color: AppColors.red500, width: 2),
-                  ),
-                  clipBehavior: Clip.antiAlias,
-                  child: user?.photoUrl != null
-                      ? Image.network(user!.photoUrl!, fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => _photoPlaceholder())
-                      : _photoPlaceholder(),
-                ),
-                const SizedBox(width: 12),
-                // Data rows
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _KidRow('NISN',         user?.nisn ?? '—'),
-                      _KidRow('Nama',         user?.name ?? '—'),
-                      _KidRow('NIS',          user?.nis  ?? '—'),
-                      _KidRow('Kelas',        user?.className ?? '—'),
-                      _KidRow('Tgl. Lahir',   _fmtDate(user?.birthDate)),
-                      _KidRow('Jenis Kelamin',user?.genderLabel ?? '—'),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // Signature footer
-          Padding(
-            padding: const EdgeInsets.fromLTRB(12, 0, 16, 12),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const Text('Kepala Sekolah,',
-                      style: TextStyle(fontSize: 8.5, color: AppColors.gray500)),
-                    const SizedBox(height: 30),
-                    Container(width: 80, height: 1, color: AppColors.gray300),
-                    const SizedBox(height: 2),
-                    const Text('NIP. ——————',
-                      style: TextStyle(fontSize: 7.5, color: AppColors.gray400)),
-                  ],
-                ),
-              ],
+          // ── Strip bawah biru ─────────────────────────────────────
+          Container(
+            height: 7,
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(colors: [Color(0xFF0A3880), Color(0xFF1565C0), Color(0xFF1976D2)]),
             ),
           ),
         ],
@@ -861,12 +910,12 @@ class _IdFront extends StatelessWidget {
   }
 
   Widget _photoPlaceholder() => Container(
-    color: AppColors.gray100,
-    child: const Column(
+    color: const Color(0xFFDCE8F8),
+    child: Column(
       mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        Icon(Icons.person, size: 44, color: AppColors.gray300),
-        SizedBox(height: 4),
+      children: const [
+        Icon(Icons.person, size: 36, color: Color(0xFF6FA3D8)),
+        SizedBox(height: 2),
       ],
     ),
   );
@@ -878,61 +927,118 @@ class _IdBack extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final qrData = 'NIS:${user?.nis ?? ''}|NISN:${user?.nisn ?? ''}|Nama:${user?.name ?? ''}';
+
     return Container(
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end:   Alignment.bottomRight,
-          colors: [Color(0xFF0F2460), Color(0xFF1E3FAD)],
-        ),
+        color: Colors.white,
         borderRadius: AppRadius.card,
         boxShadow: AppShadow.sm,
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const SizedBox(height: 20),
-          // QR placeholder
+          // ── Strip atas biru ───────────────────────────────────────
           Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
+            height: 28,
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(colors: [Color(0xFF0A3880), Color(0xFF1565C0), Color(0xFF1976D2)]),
             ),
-            child: const Icon(Icons.qr_code_2_rounded, size: 110, color: Color(0xFF0F2460)),
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: Row(children: [
+              Container(
+                width: 18, height: 18,
+                decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+                child: Padding(
+                  padding: const EdgeInsets.all(1.5),
+                  child: Image.asset('assets/images/logo_sekolah.png',
+                    fit: BoxFit.contain,
+                    errorBuilder: (_, __, ___) => const Icon(Icons.school, color: Color(0xFF0A3880), size: 12)),
+                ),
+              ),
+              const SizedBox(width: 6),
+              const Text('SMA NEGERI 1 GIANYAR',
+                style: TextStyle(
+                  color: Colors.white, fontSize: 9.5, fontWeight: FontWeight.w700, letterSpacing: 0.4)),
+              const Spacer(),
+              const Text('NPSN 50102079',
+                style: TextStyle(color: Colors.white60, fontSize: 7.5)),
+            ]),
           ),
-          const SizedBox(height: 8),
-          const Text('Scan untuk verifikasi identitas',
-            style: TextStyle(color: Colors.white54, fontSize: 9.5)),
-          const SizedBox(height: 16),
-          // SISWA badge
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 4),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.15),
-              borderRadius: BorderRadius.circular(4),
-              border: Border.all(color: Colors.white30),
-            ),
-            child: const Text('SISWA',
-              style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 2.5)),
-          ),
-          const SizedBox(height: 14),
-          // Name + NIS
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+
+          // ── Body tengah ───────────────────────────────────────────
+          Expanded(
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                // QR Code
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    border: Border.all(color: AppColors.gray200),
+                    borderRadius: BorderRadius.circular(10),
+                    boxShadow: const [BoxShadow(
+                      color: Color(0x1A000000), blurRadius: 8, offset: Offset(0, 2))],
+                  ),
+                  child: QrImageView(
+                    data: qrData,
+                    version: QrVersions.auto,
+                    size: 100,
+                    eyeStyle: const QrEyeStyle(
+                      eyeShape: QrEyeShape.square,
+                      color: Color(0xFF0A3880),
+                    ),
+                    dataModuleStyle: const QrDataModuleStyle(
+                      dataModuleShape: QrDataModuleShape.square,
+                      color: Color(0xFF0A3880),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                const Text('Scan untuk verifikasi identitas siswa',
+                  style: TextStyle(fontSize: 8.5, color: AppColors.gray400, letterSpacing: 0.2)),
+
+                // Divider
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 8),
+                  child: Container(height: 1, color: AppColors.gray100),
+                ),
+
+                // Nama + NIS
                 Text(user?.name ?? '—',
-                  style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    fontSize: 11.5, fontWeight: FontWeight.w700, color: AppColors.gray800),
+                  textAlign: TextAlign.center,
+                  maxLines: 1, overflow: TextOverflow.ellipsis),
+                const SizedBox(height: 3),
+                Text(
+                  'NIS: ${user?.nis ?? '—'}  ·  NISN: ${user?.nisn ?? '—'}',
+                  style: const TextStyle(fontSize: 8.5, color: AppColors.gray500),
                   textAlign: TextAlign.center),
-                const SizedBox(height: 4),
-                Text('NIS: ${user?.nis ?? '—'}   NISN: ${user?.nisn ?? '—'}',
-                  style: const TextStyle(color: Colors.white70, fontSize: 9.5),
+                const SizedBox(height: 2),
+                Text(
+                  '${user?.className ?? ''}${(user?.className?.isNotEmpty == true && user?.genderLabel?.isNotEmpty == true) ? '  ·  ' : ''}${user?.genderLabel ?? ''}',
+                  style: const TextStyle(fontSize: 8, color: AppColors.gray400),
                   textAlign: TextAlign.center),
               ],
             ),
           ),
-          const SizedBox(height: 20),
+
+          // ── Strip bawah emas ──────────────────────────────────────
+          Container(
+            height: 18,
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(colors: [Color(0xFFB45309), Color(0xFFF59E0B), Color(0xFFFBBF24), Color(0xFFF59E0B), Color(0xFFB45309)]),
+            ),
+            child: const Center(
+              child: Text('SISWA',
+                style: TextStyle(
+                  color: Colors.white, fontSize: 8, fontWeight: FontWeight.w700,
+                  letterSpacing: 3, shadows: [Shadow(color: Color(0x55000000), blurRadius: 4)])),
+            ),
+          ),
         ],
       ),
     );
@@ -940,9 +1046,11 @@ class _IdBack extends StatelessWidget {
 }
 
 class _KidRow extends StatelessWidget {
-  final String label;
-  final String value;
-  const _KidRow(this.label, this.value);
+  final IconData icon;
+  final String   label;
+  final String   value;
+  final bool     bold;
+  const _KidRow({required this.icon, required this.label, required this.value, this.bold = false});
 
   @override
   Widget build(BuildContext context) {
@@ -951,18 +1059,19 @@ class _KidRow extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Icon(icon, size: 8, color: const Color(0xFF1565C0)),
+          const SizedBox(width: 3),
           SizedBox(
-            width: 70,
+            width: 56,
             child: Text(label,
-              style: const TextStyle(fontSize: 9, color: AppColors.gray500, fontWeight: FontWeight.w500)),
-          ),
+              style: const TextStyle(fontSize: 8, color: AppColors.gray500, fontWeight: FontWeight.w500))),
           const Text(': ',
-            style: TextStyle(fontSize: 9, color: AppColors.gray400)),
-          Expanded(
-            child: Text(value,
-              style: const TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: AppColors.gray800),
-              overflow: TextOverflow.ellipsis, maxLines: 2),
-          ),
+            style: TextStyle(fontSize: 8, color: AppColors.gray400)),
+          Expanded(child: Text(value,
+            style: TextStyle(
+              fontSize: 8, fontWeight: bold ? FontWeight.w700 : FontWeight.w600,
+              color: bold ? AppColors.gray800 : AppColors.gray700),
+            overflow: TextOverflow.ellipsis, maxLines: 1)),
         ],
       ),
     );
