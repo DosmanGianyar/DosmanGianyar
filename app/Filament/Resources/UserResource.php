@@ -223,6 +223,7 @@ class UserResource extends Resource
 
             Section::make('Perangkat Mobile (Anti-Titip Absen)')
                 ->icon('heroicon-o-device-phone-mobile')
+                ->description('Maks. ' . \App\Models\User::MAX_DEVICES . ' perangkat per akun')
                 ->schema([
                     IconEntry::make('device_bound')
                         ->label('Status Perangkat')
@@ -233,19 +234,26 @@ class UserResource extends Resource
                         ->trueColor('success')
                         ->falseColor('warning'),
 
-                    TextEntry::make('device_id')
-                        ->label('Device ID')
-                        ->getStateUsing(fn (User $record): string => $record->device_id
-                            ? '••••••••' . substr($record->device_id, -8)
-                            : '—'
+                    TextEntry::make('device_count')
+                        ->label('Jumlah Perangkat')
+                        ->getStateUsing(fn (User $record): string =>
+                            $record->deviceCount() . ' / ' . \App\Models\User::MAX_DEVICES
+                        )
+                        ->badge()
+                        ->color(fn (User $record): string =>
+                            $record->deviceCount() >= \App\Models\User::MAX_DEVICES ? 'danger' : 'success'
+                        ),
+
+                    TextEntry::make('devices_list')
+                        ->label('Device ID Terdaftar')
+                        ->getStateUsing(fn (User $record): string =>
+                            $record->devices()->orderByDesc('last_login_at')->get()
+                                ->map(fn ($d) => '••••' . substr($d->device_id, -8)
+                                    . '  (' . ($d->last_login_at?->diffForHumans() ?? '—') . ')')
+                                ->join("\n") ?: '—'
                         )
                         ->fontFamily('mono')
-                        ->placeholder('Belum terdaftar'),
-
-                    TextEntry::make('device_locked_at')
-                        ->label('Terdaftar Pada')
-                        ->dateTime('d M Y, H:i')
-                        ->placeholder('—'),
+                        ->placeholder('Belum ada perangkat terdaftar'),
                 ])
                 ->columns(3),
         ]);
@@ -350,8 +358,8 @@ class UserResource extends Resource
                     ->trueLabel('Terdaftar')
                     ->falseLabel('Belum Terdaftar')
                     ->queries(
-                        true:  fn (Builder $q) => $q->whereNotNull('device_id'),
-                        false: fn (Builder $q) => $q->whereNull('device_id'),
+                        true:  fn (Builder $q) => $q->whereHas('devices'),
+                        false: fn (Builder $q) => $q->whereDoesntHave('devices'),
                         blank: fn (Builder $q) => $q,
                     ),
             ])
@@ -368,18 +376,21 @@ class UserResource extends Resource
                     ->icon('heroicon-o-device-phone-mobile')
                     ->color('warning')
                     ->iconButton()
-                    ->tooltip('Reset perangkat terdaftar')
-                    ->requiresConfirmation()
-                    ->modalHeading('Reset Perangkat?')
-                    ->modalDescription(fn (User $record): string =>
-                        "Perangkat terdaftar milik {$record->name} akan dihapus. "
-                        . 'Pengguna bisa login dari HP baru setelah ini.'
+                    ->tooltip(fn (User $record): string =>
+                        'Reset perangkat (' . $record->deviceCount() . '/' . \App\Models\User::MAX_DEVICES . ')'
                     )
-                    ->modalSubmitActionLabel('Ya, Reset')
+                    ->requiresConfirmation()
+                    ->modalHeading('Reset Semua Perangkat?')
+                    ->modalDescription(fn (User $record): string => sprintf(
+                        '%s terdaftar di %d perangkat. Semua akan dihapus dan token dicabut.',
+                        $record->name, $record->deviceCount(),
+                    ))
+                    ->modalSubmitActionLabel('Ya, Reset Semua')
                     ->action(function (User $record): void {
-                        $record->resetDevice();
+                        $count = $record->deviceCount();
+                        $record->resetDevices();
                         Notification::make()
-                            ->title("Perangkat {$record->name} berhasil direset.")
+                            ->title("{$record->name}: {$count} perangkat direset.")
                             ->success()
                             ->send();
                     })

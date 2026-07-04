@@ -60,34 +60,74 @@ class User extends Authenticatable implements FilamentUser
         };
     }
 
-    // ─── Device Lock ─────────────────────────────────────────────────────────
+    // ─── Device Lock (multi-device, maks 5) ──────────────────────────────────
+
+    const MAX_DEVICES = 5;
+
+    public function devices(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(UserDevice::class);
+    }
+
+    public function isDeviceRegistered(string $deviceId): bool
+    {
+        return $this->devices()->where('device_id', $deviceId)->exists();
+    }
+
+    public function deviceCount(): int
+    {
+        return $this->devices()->count();
+    }
+
+    /**
+     * Daftarkan device baru jika belum ada dan belum melebihi batas.
+     * Return true jika berhasil, false jika sudah penuh (>= MAX_DEVICES).
+     */
+    public function registerDevice(string $deviceId): bool
+    {
+        // Sudah terdaftar → perbarui last_login_at saja
+        $existing = $this->devices()->where('device_id', $deviceId)->first();
+        if ($existing) {
+            $existing->update(['last_login_at' => now()]);
+            return true;
+        }
+
+        // Belum terdaftar → cek kuota
+        if ($this->deviceCount() >= self::MAX_DEVICES) {
+            return false;
+        }
+
+        $this->devices()->create([
+            'device_id'     => $deviceId,
+            'last_login_at' => now(),
+        ]);
+
+        return true;
+    }
+
+    public function resetDevices(): void
+    {
+        $this->devices()->delete();
+        $this->tokens()->delete();
+    }
 
     public function hasDeviceLocked(): bool
     {
-        return $this->device_id !== null;
+        return $this->devices()->exists();
     }
 
-    public function isDeviceAllowed(string $deviceId): bool
-    {
-        return $this->device_id === $deviceId;
-    }
+    // ─── Backward-compat (kolom lama di tabel users, tidak dipakai lagi) ─────
 
+    /** @deprecated Gunakan registerDevice() */
     public function lockToDevice(string $deviceId): void
     {
-        $this->update([
-            'device_id'        => $deviceId,
-            'device_locked_at' => now(),
-        ]);
+        $this->registerDevice($deviceId);
     }
 
+    /** @deprecated Gunakan resetDevices() */
     public function resetDevice(): void
     {
-        $this->update([
-            'device_id'        => null,
-            'device_locked_at' => null,
-        ]);
-        // Hapus semua token Flutter agar user wajib login ulang dari HP baru
-        $this->tokens()->delete();
+        $this->resetDevices();
     }
 
     // ─── Photo ───────────────────────────────────────────────────────────────

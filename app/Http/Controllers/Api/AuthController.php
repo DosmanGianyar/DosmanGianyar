@@ -48,10 +48,18 @@ class AuthController extends Controller
 
         $deviceId = $request->input('device_id');
 
-        // Selalu perbarui device binding saat login berhasil.
-        // Token lama di-revoke di bawah, sehingga hanya satu sesi aktif per akun.
-        // Tidak memblokir login dari device berbeda agar siswa bisa ganti HP/reinstall.
-        $user->lockToDevice($deviceId);
+        // Daftarkan device. Jika sudah terdaftar → update last_login.
+        // Jika baru dan kuota penuh (>= 5) → tolak dengan pesan jelas.
+        if (! $user->registerDevice($deviceId)) {
+            $max = \App\Models\User::MAX_DEVICES;
+            return response()->json([
+                'message' => "Perangkat ini belum terdaftar dan akun Anda sudah mencapai batas {$max} perangkat. "
+                           . 'Hubungi admin untuk menghapus salah satu perangkat lama.',
+                'code'    => 'DEVICE_LIMIT_REACHED',
+                'limit'   => $max,
+                'current' => $user->deviceCount(),
+            ], 403);
+        }
 
         // Satu akun = satu sesi aktif (revoke token lama)
         $user->tokens()->delete();

@@ -23,18 +23,20 @@ class ViewUser extends ViewRecord
                 ->icon('heroicon-o-device-phone-mobile')
                 ->color('warning')
                 ->requiresConfirmation()
-                ->modalHeading('Reset Perangkat?')
-                ->modalDescription(fn (): string =>
-                    'Perangkat terdaftar pengguna ini akan dihapus. '
-                    . 'Pengguna bisa login dari HP baru setelah ini.'
-                )
-                ->modalSubmitActionLabel('Ya, Reset')
+                ->modalHeading('Reset Semua Perangkat?')
+                ->modalDescription(fn (): string => sprintf(
+                    'Pengguna ini terdaftar di %d perangkat. Semua perangkat akan dihapus '
+                    . 'dan token login akan dicabut. Pengguna dapat login kembali dari perangkat baru.',
+                    $this->getRecord()->deviceCount(),
+                ))
+                ->modalSubmitActionLabel('Ya, Reset Semua')
                 ->action(function (): void {
                     /** @var User $record */
                     $record = $this->getRecord();
-                    $record->resetDevice();
+                    $count  = $record->deviceCount();
+                    $record->resetDevices();
                     Notification::make()
-                        ->title("Perangkat {$record->name} berhasil direset.")
+                        ->title("{$record->name}: {$count} perangkat berhasil direset.")
                         ->success()
                         ->send();
                 })
