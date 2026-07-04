@@ -76,7 +76,7 @@
                         Nama Siswa
                     </th>
                     @foreach($allDays as $day)
-                    @php $isWeekend = $day->isSaturday() || $day->isSunday(); @endphp
+                    @php $isWeekend = $day->isSunday(); @endphp
                     <th class="px-1 py-2.5 font-semibold text-center min-w-[28px]
                         {{ $isWeekend ? 'bg-gray-100 text-gray-300' : ($day->isToday() ? 'bg-blue-50 text-blue-600' : 'text-gray-500') }}">
                         {{ $day->format('d') }}
@@ -101,7 +101,7 @@
                     </td>
                     @foreach($allDays as $day)
                     @php
-                        $isWeekend = $day->isSaturday() || $day->isSunday();
+                        $isWeekend = $day->isSunday();
                         $isFuture  = $day->gt($today);
                         $status    = $row['effective_statuses'][$day->format('Y-m-d')] ?? null;
                         $cell = match(true) {

@@ -84,12 +84,12 @@ class AttendanceController extends Controller
 
         // All calendar days for the grid display
         $allDays    = collect();
-        // Weekdays only for counting hari sekolah
+        // School days = Mon–Sat (exclude Sunday only)
         $schoolDays = collect();
         $cursor = $start->copy();
         while ($cursor->lte($end)) {
             $allDays->push($cursor->copy());
-            if ($cursor->isWeekday()) {
+            if (! $cursor->isSunday()) {
                 $schoolDays->push($cursor->copy());
             }
             $cursor->addDay();
