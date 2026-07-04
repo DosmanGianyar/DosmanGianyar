@@ -125,7 +125,9 @@ abstract final class AppColors {
 
   // ─── Emerald extras ──────────────────────────────────────────────────────
   static const emerald50  = Color(0xFFECFDF5);
+  static const teal50     = Color(0xFFF0FDFA);
   static const teal600    = Color(0xFF0D9488);
+  static const teal700    = Color(0xFF0F766E);
 
   // ─── Yellow extras ───────────────────────────────────────────────────────
   static const yellow50   = Color(0xFFFFFBEB);
