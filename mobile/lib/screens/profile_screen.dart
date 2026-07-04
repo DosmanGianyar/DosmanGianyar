@@ -768,17 +768,17 @@ class _IdFront extends StatelessWidget {
             child: Row(
               children: [
                 Image.asset('assets/images/logo_sekolah.png',
-                  width: 38, height: 38,
-                  errorBuilder: (_, __, ___) => const SizedBox(width: 38)),
-                const SizedBox(width: 8),
+                  width: 46, height: 46,
+                  errorBuilder: (_, __, ___) => const SizedBox(width: 46)),
+                const SizedBox(width: 10),
                 const Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('SMA NEGERI 1 GIANYAR',
-                        style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 0.3)),
+                        style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold, letterSpacing: 0.3)),
                       Text('Jl. Ngurah Rai No.1, Gianyar, Bali',
-                        style: TextStyle(color: Color(0xFFBFDBFE), fontSize: 7.5, height: 1.5)),
+                        style: TextStyle(color: Color(0xFFBFDBFE), fontSize: 10, height: 1.5)),
                     ],
                   ),
                 ),

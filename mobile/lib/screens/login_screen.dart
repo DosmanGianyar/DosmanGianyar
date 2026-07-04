@@ -119,35 +119,35 @@ class _BluePanelTop extends StatelessWidget {
             children: [
               // Logo dalam lingkaran
               Container(
-                width: 80, height: 80,
+                width: 108, height: 108,
                 decoration: BoxDecoration(
                   shape:  BoxShape.circle,
                   color:  Colors.white.withOpacity(0.20),
                   border: Border.all(color: Colors.white.withOpacity(0.30), width: 3),
                 ),
-                padding: const EdgeInsets.all(10),
+                padding: const EdgeInsets.all(8),
                 child: Image.asset('assets/images/logo_sekolah.png', fit: BoxFit.contain),
               ),
-              const SizedBox(height: 14),
+              const SizedBox(height: 16),
               const Text(
                 'VISI SMAN 1 GIANYAR',
                 style: TextStyle(
                   color:         Colors.white,
-                  fontSize:      11,
+                  fontSize:      13,
                   fontWeight:    FontWeight.w800,
                   letterSpacing: 1.5,
                 ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
-              Container(width: 32, height: 1, color: Colors.white.withOpacity(0.40)),
+              Container(width: 36, height: 1, color: Colors.white.withOpacity(0.40)),
               const SizedBox(height: 10),
               const Text(
                 'Insan Cerdas, Sarat Prestasi,\nBerkarakter, Berbudaya,\nPeduli Lingkungan,\ndan Berwawasan Global',
                 style: TextStyle(
                   color:    AppColors.blue200,
-                  fontSize: 11,
-                  height:   1.5,
+                  fontSize: 12,
+                  height:   1.6,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -156,7 +156,7 @@ class _BluePanelTop extends StatelessWidget {
                 '"Learn, Inovate, and Build The Future"',
                 style: TextStyle(
                   color:      Colors.white70,
-                  fontSize:   10,
+                  fontSize:   11,
                   fontStyle:  FontStyle.italic,
                 ),
                 textAlign: TextAlign.center,
@@ -218,21 +218,21 @@ class _WhitePanelBottom extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Image.asset('assets/images/logo_sekolah.png', width: 32, height: 32, fit: BoxFit.contain),
-              const SizedBox(width: 8),
+              Image.asset('assets/images/logo_sekolah.png', width: 40, height: 40, fit: BoxFit.contain),
+              const SizedBox(width: 10),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: const [
                   Text('SMAN 1 GIANYAR',
                     style: TextStyle(
-                      fontSize:    10,
+                      fontSize:    13,
                       fontWeight:  FontWeight.w800,
                       letterSpacing: 1,
                       color:       AppColors.gray700,
                     ),
                   ),
                   Text('SMA Negeri 1 Gianyar',
-                    style: TextStyle(fontSize: 9, color: AppColors.gray400),
+                    style: TextStyle(fontSize: 11, color: AppColors.gray400),
                   ),
                 ],
               ),

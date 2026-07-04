@@ -225,7 +225,7 @@ class _TopHeader extends StatelessWidget {
             child: Row(
             children: [
               Container(
-                width: 32, height: 32,
+                width: 38, height: 38,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(8),
                   color:  Colors.white.withOpacity(0.15),
@@ -240,12 +240,12 @@ class _TopHeader extends StatelessWidget {
                     errorBuilder: (_, __, ___) => const Icon(
                       Icons.school_rounded,
                       color: Colors.white,
-                      size: 18,
+                      size: 20,
                     ),
                   ),
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 10),
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -253,7 +253,7 @@ class _TopHeader extends StatelessWidget {
                   Text('SMA N 1 Gianyar',
                     style: TextStyle(
                       color:       Colors.white,
-                      fontSize:    11,
+                      fontSize:    13,
                       fontWeight:  FontWeight.w800,
                       height:      1.2,
                       letterSpacing: 0.5,
@@ -262,7 +262,7 @@ class _TopHeader extends StatelessWidget {
                   Text('SIMS',
                     style: TextStyle(
                       color:         AppColors.blue200,
-                      fontSize:      10,
+                      fontSize:      11,
                       height:        1.2,
                       letterSpacing: 1.5,
                     ),
