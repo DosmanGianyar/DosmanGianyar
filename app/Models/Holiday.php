@@ -42,7 +42,7 @@ class Holiday extends Model
                 ->where('applies_to', 'semua')
                 ->orWhere(fn ($q2) => $q2
                     ->where('applies_to', 'kelas_tertentu')
-                    ->whereHas('schoolClasses', fn ($q3) => $q3->where('classes.id', $classId))
+                    ->whereHas('schoolClasses', fn ($q3) => $q3->where('school_classes.id', $classId))
                 )
             )
             ->exists();
@@ -56,7 +56,7 @@ class Holiday extends Model
                 ->where('applies_to', 'semua')
                 ->orWhere(fn ($q2) => $q2
                     ->where('applies_to', 'kelas_tertentu')
-                    ->whereHas('schoolClasses', fn ($q3) => $q3->where('classes.id', $classId))
+                    ->whereHas('schoolClasses', fn ($q3) => $q3->where('school_classes.id', $classId))
                 )
             )
             ->exists();
@@ -71,7 +71,7 @@ class Holiday extends Model
                 ->where('applies_to', 'semua')
                 ->orWhere(fn ($q2) => $q2
                     ->where('applies_to', 'kelas_tertentu')
-                    ->whereHas('schoolClasses', fn ($q3) => $q3->where('classes.id', $classId))
+                    ->whereHas('schoolClasses', fn ($q3) => $q3->where('school_classes.id', $classId))
                 )
             )
             ->pluck('date')
@@ -88,7 +88,7 @@ class Holiday extends Model
                 ->where('applies_to', 'semua')
                 ->orWhere(fn ($q2) => $q2
                     ->where('applies_to', 'kelas_tertentu')
-                    ->whereHas('schoolClasses', fn ($q3) => $q3->where('classes.id', $classId))
+                    ->whereHas('schoolClasses', fn ($q3) => $q3->where('school_classes.id', $classId))
                 )
             )
             ->pluck('date')

@@ -37,11 +37,11 @@ class KesiswaanController extends Controller
             'alpa'       => (int) ($absensi['alpa']       ?? 0),
         ];
 
-        // ── Poin & Perilaku ──────────────────────────────────────────────────
+        // ── Perilaku (poin dihapus, gunakan count per tipe kategori) ──────────
         $conductSummary = [
-            'total'       => (int) $siswa->conductLogs()->sum('point'),
-            'prestasi'    => (int) $siswa->conductLogs()->where('point', '>', 0)->sum('point'),
-            'pelanggaran' => (int) abs($siswa->conductLogs()->where('point', '<', 0)->sum('point')),
+            'total'       => (int) $siswa->conductLogs()->count(),
+            'prestasi'    => (int) $siswa->conductLogs()->whereHas('category', fn ($q) => $q->where('type', 'prestasi'))->count(),
+            'pelanggaran' => (int) $siswa->conductLogs()->whereHas('category', fn ($q) => $q->where('type', 'pelanggaran'))->count(),
         ];
 
         // ── Tab Lists ────────────────────────────────────────────────────────
@@ -52,7 +52,7 @@ class KesiswaanController extends Controller
 
         $tabPelanggaran = $siswa->conductLogs()
             ->with('category')
-            ->where('point', '<', 0)
+            ->whereHas('category', fn ($q) => $q->where('type', 'pelanggaran'))
             ->latest()
             ->limit(15)
             ->get();
