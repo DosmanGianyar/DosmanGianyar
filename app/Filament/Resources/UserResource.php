@@ -78,10 +78,11 @@ class UserResource extends Resource
                     ->label('Password')
                     ->password()
                     ->revealable()
+                    ->default('Dosman123')
                     ->dehydrateStateUsing(fn ($state) => Hash::make($state))
                     ->dehydrated(fn ($state) => filled($state))
                     ->required(fn (string $operation) => $operation === 'create')
-                    ->helperText('Kosongkan jika tidak ingin mengubah password'),
+                    ->helperText('Default: Dosman123 — kosongkan jika tidak ingin mengubah password'),
             ])->columns(2),
 
             Section::make('Data Siswa')

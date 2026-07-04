@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Hash;
 
 class RoleSeeder extends Seeder
 {
+    private const DEFAULT_PASSWORD = 'Dosman123';
+
     public function run(): void
     {
         // ─── Kelas dummy ──────────────────────────────────────────────────────
@@ -17,70 +19,104 @@ class RoleSeeder extends Seeder
             ['grade' => 'X', 'major' => 'MIPA']
         );
 
-        // ─── Admin ────────────────────────────────────────────────────────────
-        User::firstOrCreate(
-            ['email' => 'admin@sims.sch.id'],
+        $accounts = [
             [
-                'name'     => 'Administrator',
-                'password' => Hash::make('password'),
-                'role'     => 'admin',
-            ]
-        );
-
-        // ─── Guru ─────────────────────────────────────────────────────────────
-        $guru = User::firstOrCreate(
-            ['email' => 'guru@sims.sch.id'],
+                'role'  => 'admin',
+                'email' => 'admin@sims.sch.id',
+                'name'  => 'Administrator',
+                'extra' => [],
+            ],
             [
-                'name'     => 'Budi Setiawan, S.Pd',
-                'password' => Hash::make('password'),
-                'role'     => 'guru',
-                'nip'      => '198501012010011001',
-                'subject'  => 'Matematika',
-                'phone'    => '08123456789',
-            ]
-        );
-
-        $kelas->update(['homeroom_teacher_id' => $guru->id]);
-
-        // ─── Siswa ────────────────────────────────────────────────────────────
-        User::firstOrCreate(
-            ['email' => 'siswa@sims.sch.id'],
+                'role'  => 'admin_kesiswaan',
+                'email' => 'kesiswaan@sims.sch.id',
+                'name'  => 'Admin Kesiswaan',
+                'extra' => [],
+            ],
             [
-                'name'         => 'Ahmad Fauzi',
-                'password'     => Hash::make('password'),
-                'role'         => 'siswa',
-                'nis'          => '2025001',
-                'class_id'     => $kelas->id,
-                'parent_name'  => 'Hasan Fauzi',
-                'parent_phone' => '08198765432',
-                'birth_date'   => '2008-05-10',
-            ]
-        );
-
-        // ─── Siswa Pengelola ──────────────────────────────────────────────────
-        User::firstOrCreate(
-            ['email' => 'pengelola@sims.sch.id'],
+                'role'  => 'admin_kurikulum',
+                'email' => 'kurikulum@sims.sch.id',
+                'name'  => 'Admin Kurikulum',
+                'extra' => [],
+            ],
             [
-                'name'         => 'Citra Dewi',
-                'password'     => Hash::make('password'),
-                'role'         => 'siswa_pengelola',
-                'nis'          => '2025002',
-                'class_id'     => $kelas->id,
-                'parent_name'  => 'Dewi Rahayu',
-                'parent_phone' => '08177654321',
-                'birth_date'   => '2008-07-22',
-            ]
-        );
+                'role'  => 'admin_sarpras',
+                'email' => 'sarpras@sims.sch.id',
+                'name'  => 'Admin Sarpras',
+                'extra' => [],
+            ],
+            [
+                'role'  => 'admin_humas',
+                'email' => 'humas@sims.sch.id',
+                'name'  => 'Admin Humas',
+                'extra' => [],
+            ],
+            [
+                'role'  => 'guru',
+                'email' => 'guru@sims.sch.id',
+                'name'  => 'Budi Setiawan, S.Pd',
+                'extra' => [
+                    'nip'     => '198501012010011001',
+                    'subject' => 'Matematika',
+                    'phone'   => '08123456789',
+                ],
+            ],
+            [
+                'role'  => 'siswa',
+                'email' => 'siswa@sims.sch.id',
+                'name'  => 'Ahmad Fauzi',
+                'extra' => [
+                    'nis'          => '2025001',
+                    'class_id'     => $kelas->id,
+                    'parent_name'  => 'Hasan Fauzi',
+                    'parent_phone' => '08198765432',
+                    'birth_date'   => '2008-05-10',
+                ],
+            ],
+            [
+                'role'  => 'siswa_pengelola',
+                'email' => 'pengelola@sims.sch.id',
+                'name'  => 'Citra Dewi',
+                'extra' => [
+                    'nis'          => '2025002',
+                    'class_id'     => $kelas->id,
+                    'parent_name'  => 'Dewi Rahayu',
+                    'parent_phone' => '08177654321',
+                    'birth_date'   => '2008-07-22',
+                ],
+            ],
+        ];
 
-        $this->command->info('Seeder selesai. Akun yang dibuat:');
+        $rows = [];
+        foreach ($accounts as $acc) {
+            $exists = User::where('email', $acc['email'])->exists();
+
+            if (! $exists) {
+                User::create(array_merge(
+                    ['email' => $acc['email'], 'name' => $acc['name'], 'role' => $acc['role']],
+                    ['password' => Hash::make(self::DEFAULT_PASSWORD)],
+                    $acc['extra'],
+                ));
+            }
+
+            $rows[] = [
+                $acc['role'],
+                $acc['email'],
+                $exists ? '(sudah ada, tidak diubah)' : self::DEFAULT_PASSWORD,
+                $exists ? 'SKIP' : 'DIBUAT',
+            ];
+        }
+
+        // Set homeroom teacher jika belum
+        $guru = User::where('email', 'guru@sims.sch.id')->first();
+        if ($guru && ! $kelas->homeroom_teacher_id) {
+            $kelas->update(['homeroom_teacher_id' => $guru->id]);
+        }
+
+        $this->command->info('');
+        $this->command->info('=== Status Akun Per Role ===');
         $this->command->table(
-            ['Role', 'Email', 'Password'],
-            [
-                ['Admin',           'admin@sims.sch.id',     'password'],
-                ['Guru',            'guru@sims.sch.id',      'password'],
-                ['Siswa',           'siswa@sims.sch.id',     'password'],
-                ['Siswa Pengelola', 'pengelola@sims.sch.id', 'password'],
-            ]
+            ['Role', 'Email', 'Password', 'Status'],
+            $rows
         );
     }
 }
