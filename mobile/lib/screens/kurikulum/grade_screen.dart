@@ -66,7 +66,7 @@ class _GradeScreenState extends State<GradeScreen> {
       backgroundColor: AppColors.slate100,
       appBar: AppBar(
         title: const Text('Nilai Rapor',
-          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 16)),
         backgroundColor: const Color(0xFF0F2460),
         foregroundColor: Colors.white,
         elevation: 0,

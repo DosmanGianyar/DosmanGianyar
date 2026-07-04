@@ -665,7 +665,7 @@ class _AttendanceScreenState extends State<AttendanceScreen>
         backgroundColor: Colors.black,
         foregroundColor: Colors.white,
         title: Text(_label,
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+          style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600)),
         elevation:   0,
         centerTitle: true,
       ),

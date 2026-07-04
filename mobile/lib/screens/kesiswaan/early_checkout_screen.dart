@@ -89,7 +89,7 @@ class _EarlyCheckoutScreenState extends State<EarlyCheckoutScreen> {
       backgroundColor: AppColors.slate100,
       appBar: AppBar(
         title: const Text('Izin Pulang Lebih Awal',
-          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 16)),
         backgroundColor: const Color(0xFF0F2460),
         foregroundColor: Colors.white,
         elevation: 0,

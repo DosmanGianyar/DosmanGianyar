@@ -88,7 +88,7 @@ class _AnnouncementListScreenState extends State<AnnouncementListScreen> {
       backgroundColor: AppColors.slate100,
       appBar: AppBar(
         title: const Text('Semua Pengumuman',
-          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 16)),
         backgroundColor: const Color(0xFF0F2460),
         foregroundColor: Colors.white,
         elevation: 0,
@@ -213,7 +213,7 @@ class _AnnouncementDetailScreen extends StatelessWidget {
       backgroundColor: AppColors.slate100,
       appBar: AppBar(
         title: const Text('Pengumuman',
-          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 16)),
         backgroundColor: const Color(0xFF0F2460),
         foregroundColor: Colors.white,
         elevation: 0,
