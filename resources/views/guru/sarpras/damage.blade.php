@@ -89,7 +89,7 @@
                     </select>
                     <textarea name="resolution_note" rows="2" placeholder="Catatan penanganan..."
                         class="w-full text-xs border border-gray-200 rounded-lg px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-green-300"></textarea>
-                    @if(in_array($report->reporter?->role ?? '', ['siswa','siswa_pengelola']))
+                    @if(in_array($report->reporter?->role ?? '', ['siswa','pengelola']))
                     <details class="border border-orange-200 rounded-lg p-2">
                         <summary class="text-xs font-medium text-orange-600 cursor-pointer">Catat Poin Siswa (opsional)</summary>
                         <div class="mt-2 space-y-1.5">
@@ -196,7 +196,7 @@
                                 </select>
                                 <input type="text" name="resolution_note" placeholder="Catatan..."
                                     class="w-full text-xs border border-gray-200 rounded px-2 py-1.5">
-                                @if(in_array($report->reporter?->role ?? '', ['siswa','siswa_pengelola']))
+                                @if(in_array($report->reporter?->role ?? '', ['siswa','pengelola']))
                                 <details class="border border-orange-200 rounded p-1.5">
                                     <summary class="text-xs font-medium text-orange-600 cursor-pointer">Catat Poin Siswa (opsional)</summary>
                                     <div class="mt-1.5 space-y-1">

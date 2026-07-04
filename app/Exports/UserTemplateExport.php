@@ -25,7 +25,7 @@ class UserTemplateExport implements FromArray, WithHeadings, WithStyles, WithCol
         return [
             'nama',         // Wajib
             'email',        // Wajib, harus unik
-            'role',         // siswa | guru | admin | siswa_pengelola
+            'role',         // siswa | guru | admin | pengelola
             'nis',          // NIS siswa (dipakai sebagai password default)
             'nip',          // NIP guru (dipakai sebagai password default)
             'kelas',        // Nama kelas, harus sudah ada di database (contoh: X IPA 1)

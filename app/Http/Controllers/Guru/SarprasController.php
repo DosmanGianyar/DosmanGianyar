@@ -90,7 +90,7 @@ class SarprasController extends Controller
         // Bridge: optionally log conduct for the reporting siswa
         if ($request->filled('conduct_category_id')) {
             $reporter = $report->reporter;
-            if ($reporter && in_array($reporter->role, ['siswa', 'siswa_pengelola'])) {
+            if ($reporter && in_array($reporter->role, ['siswa', 'pengelola'])) {
                 $category = ConductCategory::find($request->conduct_category_id);
                 if ($category) {
                     ConductLog::create([

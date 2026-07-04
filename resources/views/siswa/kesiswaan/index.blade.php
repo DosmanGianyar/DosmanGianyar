@@ -470,7 +470,7 @@ function switchTab(name) {
 </div>
 
 {{-- ─── Verifikasi Prestasi (pengelola) ─────────────────────────────── --}}
-@if(auth()->user()->role === 'siswa_pengelola')
+@if(auth()->user()->role === 'pengelola')
 <a href="{{ route('siswa.achievements.verify') }}"
     class="block bg-blue-50 border border-blue-200 rounded-2xl p-4 mb-3">
     <div class="flex items-center gap-3">

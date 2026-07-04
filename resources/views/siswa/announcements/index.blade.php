@@ -5,7 +5,7 @@
 
 @section('content')
 
-@if(auth()->user()->role === 'siswa_pengelola')
+@if(auth()->user()->role === 'pengelola')
 <div class="flex justify-end mb-3 gap-2">
     <a href="{{ route('siswa.announcements.manage') }}"
         class="flex items-center gap-1.5 bg-gray-100 text-gray-700 text-xs font-medium px-3 py-2 rounded-lg">

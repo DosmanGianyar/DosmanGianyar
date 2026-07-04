@@ -73,7 +73,7 @@ class RoleSeeder extends Seeder
                 ],
             ],
             [
-                'role'  => 'siswa_pengelola',
+                'role'  => 'pengelola',
                 'email' => 'pengelola@sims.sch.id',
                 'name'  => 'Citra Dewi',
                 'extra' => [

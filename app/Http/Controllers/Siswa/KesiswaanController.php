@@ -125,7 +125,7 @@ class KesiswaanController extends Controller
         )->count();
 
         // ── Verifikasi Prestasi (pengelola) ───────────────────────────────────
-        $pendingVerify = $siswa->role === 'siswa_pengelola'
+        $pendingVerify = $siswa->role === 'pengelola'
             ? StudentAchievement::where('status', 'pending')->count()
             : 0;
 

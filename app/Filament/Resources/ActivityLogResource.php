@@ -52,7 +52,7 @@ class ActivityLogResource extends Resource
                     ->color(fn (string $state): string => match ($state) {
                         'admin'          => 'danger',
                         'guru'           => 'warning',
-                        'siswa_pengelola'=> 'info',
+                        'pengelola'=> 'info',
                         default          => 'gray',
                     }),
 

@@ -110,7 +110,7 @@ class AnnouncementController extends Controller
 
     private function checkPengelola(): void
     {
-        if (Auth::user()->role !== 'siswa_pengelola') {
+        if (Auth::user()->role !== 'pengelola') {
             abort(403, 'Hanya Siswa Pengelola yang dapat mengelola pengumuman.');
         }
     }

@@ -37,9 +37,9 @@ class AnnouncementObserver
     private function notify(Announcement $announcement): void
     {
         $roles = match ($announcement->target) {
-            'siswa' => ['siswa', 'siswa_pengelola'],
+            'siswa' => ['siswa', 'pengelola'],
             'guru'  => ['guru'],
-            default => ['siswa', 'siswa_pengelola', 'guru'],
+            default => ['siswa', 'pengelola', 'guru'],
         };
 
         $now  = now()->toDateTimeString();

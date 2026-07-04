@@ -181,7 +181,7 @@ class VotingManageController extends Controller
 
     private function checkRole(): void
     {
-        if (Auth::user()->role !== 'siswa_pengelola') {
+        if (Auth::user()->role !== 'pengelola') {
             abort(403, 'Hanya Siswa Pengelola yang dapat mengakses halaman ini.');
         }
     }

@@ -63,7 +63,7 @@ class UserResource extends Resource
                     ->label('Role')
                     ->options([
                         'siswa'           => 'Siswa',
-                        'siswa_pengelola' => 'Siswa Pengelola',
+                        'pengelola' => 'Siswa Pengelola',
                     ])
                     ->default('siswa')
                     ->required()
@@ -162,12 +162,12 @@ class UserResource extends Resource
                         ->badge()
                         ->color(fn (string $state) => match ($state) {
                             'siswa'           => 'success',
-                            'siswa_pengelola' => 'primary',
+                            'pengelola' => 'primary',
                             default           => 'gray',
                         })
                         ->formatStateUsing(fn ($state) => match ($state) {
                             'siswa'           => 'Siswa',
-                            'siswa_pengelola' => 'Siswa Pengelola',
+                            'pengelola' => 'Siswa Pengelola',
                             default           => $state,
                         }),
 
@@ -265,7 +265,7 @@ class UserResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->whereIn('role', ['siswa', 'siswa_pengelola']);
+            ->whereIn('role', ['siswa', 'pengelola']);
     }
 
     public static function table(Table $table): Table
@@ -289,14 +289,14 @@ class UserResource extends Resource
                         'admin'           => 'danger',
                         'guru'            => 'warning',
                         'siswa'           => 'success',
-                        'siswa_pengelola' => 'primary',
+                        'pengelola' => 'primary',
                         default           => 'gray',
                     })
                     ->formatStateUsing(fn ($state) => match ($state) {
                         'admin'           => 'Admin',
                         'guru'            => 'Guru',
                         'siswa'           => 'Siswa',
-                        'siswa_pengelola' => 'Siswa Pengelola',
+                        'pengelola' => 'Siswa Pengelola',
                         default           => $state,
                     }),
 
@@ -308,7 +308,7 @@ class UserResource extends Resource
                     ->label('NISN / NIP')
                     ->getStateUsing(fn (User $record): ?string => match ($record->role) {
                         'guru'                       => $record->nip,
-                        'siswa', 'siswa_pengelola'   => $record->nisn ?? $record->nis,
+                        'siswa', 'pengelola'   => $record->nisn ?? $record->nis,
                         default                      => null,
                     })
                     ->placeholder('—')
@@ -320,7 +320,7 @@ class UserResource extends Resource
                     ->fontFamily('mono')
                     ->description(fn (User $record): ?string => match ($record->role) {
                         'guru'                     => 'NIP',
-                        'siswa', 'siswa_pengelola' => $record->nisn ? 'NISN' : 'NIS',
+                        'siswa', 'pengelola' => $record->nisn ? 'NISN' : 'NIS',
                         default                    => null,
                     }),
 
@@ -348,7 +348,7 @@ class UserResource extends Resource
                     ->label('Tipe Siswa')
                     ->options([
                         'siswa'           => 'Siswa',
-                        'siswa_pengelola' => 'Siswa Pengelola',
+                        'pengelola' => 'Siswa Pengelola',
                     ]),
 
                 SelectFilter::make('class_id')
@@ -366,13 +366,13 @@ class UserResource extends Resource
                         blank: fn (Builder $q) => $q,
                     ),
             ])
-            ->recordUrl(fn (User $record): ?string => in_array($record->role, ['siswa', 'siswa_pengelola'])
+            ->recordUrl(fn (User $record): ?string => in_array($record->role, ['siswa', 'pengelola'])
                 ? static::getUrl('view', ['record' => $record])
                 : null
             )
             ->recordActions([
                 ViewAction::make()->iconButton()
-                    ->visible(fn (User $record): bool => in_array($record->role, ['siswa', 'siswa_pengelola'])),
+                    ->visible(fn (User $record): bool => in_array($record->role, ['siswa', 'pengelola'])),
                 EditAction::make()->iconButton(),
                 Action::make('resetDevice')
                     ->label('Reset Perangkat')

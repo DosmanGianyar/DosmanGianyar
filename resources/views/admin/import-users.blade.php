@@ -80,7 +80,7 @@
                     @foreach([
                         ['nama',      'Nama lengkap',                         true],
                         ['email',     'Email unik (dipakai login)',            true],
-                        ['role',      'siswa / guru / admin / siswa_pengelola', true],
+                        ['role',      'siswa / guru / admin / pengelola', true],
                         ['nis',       'NIS siswa (jadi password default)',     false],
                         ['nip',       'NIP guru (jadi password default)',      false],
                         ['kelas',     'Nama kelas persis di DB (cth: X IPA 1)', false],

@@ -6,7 +6,7 @@
 @section('content')
 
 {{-- Pengelola shortcut --}}
-@if(auth()->user()->role === 'siswa_pengelola')
+@if(auth()->user()->role === 'pengelola')
 <div class="mb-4">
     <a href="{{ route('siswa.voting.manage.index') }}"
         class="flex items-center gap-2 bg-indigo-50 border border-indigo-200 rounded-xl px-4 py-3 text-indigo-700">

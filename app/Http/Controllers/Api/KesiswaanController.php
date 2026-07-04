@@ -46,7 +46,7 @@ class KesiswaanController extends Controller
             ->groupBy('status')
             ->pluck('total', 'status');
 
-        $pendingVerify = $siswa->role === 'siswa_pengelola'
+        $pendingVerify = $siswa->role === 'pengelola'
             ? StudentAchievement::where('status', 'pending')->count()
             : 0;
 

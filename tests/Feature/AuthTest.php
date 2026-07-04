@@ -128,9 +128,9 @@ class AuthTest extends TestCase
             ->assertForbidden();
     }
 
-    public function test_siswa_pengelola_accesses_siswa_dashboard(): void
+    public function test_pengelola_accesses_siswa_dashboard(): void
     {
-        $pengelola = User::factory()->create(['role' => 'siswa_pengelola']);
+        $pengelola = User::factory()->create(['role' => 'pengelola']);
 
         $this->actingAs($pengelola)
             ->get(route('siswa.dashboard'))

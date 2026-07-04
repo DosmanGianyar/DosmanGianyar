@@ -82,7 +82,7 @@ class AchievementController extends Controller
         $siswa = Auth::user();
 
         // Siswa hanya bisa lihat miliknya sendiri, kecuali pengelola
-        if ($achievement->student_id !== $siswa->id && $siswa->role !== 'siswa_pengelola') {
+        if ($achievement->student_id !== $siswa->id && $siswa->role !== 'pengelola') {
             abort(403);
         }
 

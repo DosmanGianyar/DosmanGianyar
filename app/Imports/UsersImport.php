@@ -44,7 +44,7 @@ class UsersImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                 continue;
             }
 
-            if (! in_array($role, ['admin', 'guru', 'siswa', 'siswa_pengelola'])) {
+            if (! in_array($role, ['admin', 'guru', 'siswa', 'pengelola'])) {
                 $this->errors[] = "Baris {$rowNum}: role '{$role}' tidak dikenal, gunakan: siswa/guru/admin.";
                 $this->skipped++;
                 continue;

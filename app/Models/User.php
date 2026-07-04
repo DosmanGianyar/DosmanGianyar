@@ -47,8 +47,8 @@ class User extends Authenticatable implements FilamentUser
     // ─── Role Helpers ────────────────────────────────────────────────────────
     public function isAdmin(): bool           { return $this->role === 'admin'; }
     public function isGuru(): bool            { return $this->role === 'guru'; }
-    public function isSiswa(): bool           { return in_array($this->role, ['siswa', 'siswa_pengelola']); }
-    public function isSiswaPengelola(): bool  { return $this->role === 'siswa_pengelola'; }
+    public function isSiswa(): bool           { return in_array($this->role, ['siswa', 'pengelola']); }
+    public function isPengelola(): bool       { return $this->role === 'pengelola'; }
     public function isBk(): bool              { return $this->role === 'guru' && str_contains(strtolower($this->subject ?? ''), 'bk'); }
 
     public function dashboardRoute(): string
@@ -57,7 +57,7 @@ class User extends Authenticatable implements FilamentUser
             'admin'            => '/admin',
             'guru'             => route('guru.dashboard'),
             'siswa'            => route('siswa.dashboard'),
-            'siswa_pengelola'  => route('siswa.dashboard'),
+            'pengelola'  => route('siswa.dashboard'),
             default            => '/',
         };
     }
