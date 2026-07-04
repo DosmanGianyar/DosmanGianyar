@@ -167,10 +167,19 @@ class AttendanceController extends Controller
 
     public function permits(Request $request): View
     {
+        $guru   = Auth::user();
         $status = $request->input('status', 'pending');
 
         $permits = Permit::with('student.schoolClass')
             ->when($status !== 'all', fn($q) => $q->where('status', $status))
+            ->when(
+                ! $guru->isBk() && $guru->role !== 'admin' && $guru->homeroomClass,
+                fn($q) => $q->whereHas('student', fn($s) => $s->where('class_id', $guru->homeroomClass->id))
+            )
+            ->when(
+                ! $guru->isBk() && $guru->role !== 'admin' && ! $guru->homeroomClass,
+                fn($q) => $q->whereRaw('0=1') // guru bukan wali & bukan BK: tidak tampilkan
+            )
             ->latest()
             ->paginate(15);
 
@@ -179,6 +188,8 @@ class AttendanceController extends Controller
 
     public function approvePermit(Permit $permit): RedirectResponse
     {
+        $this->authorizePermitAction($permit);
+
         $permit->update([
             'status'      => 'approved',
             'approved_by' => Auth::id(),
@@ -199,6 +210,8 @@ class AttendanceController extends Controller
 
     public function rejectPermit(Request $request, Permit $permit): RedirectResponse
     {
+        $this->authorizePermitAction($permit);
+
         $request->validate([
             'rejection_note' => 'required|string|max:255',
         ]);
@@ -218,6 +231,17 @@ class AttendanceController extends Controller
         );
 
         return back()->with('success', $permit->typeLabel() . ' ditolak.');
+    }
+
+    private function authorizePermitAction(Permit $permit): void
+    {
+        $guru = Auth::user();
+        if ($guru->role === 'admin' || $guru->isBk()) return;
+
+        $homeroomClass = $guru->homeroomClass;
+        if (! $homeroomClass) abort(403, 'Anda tidak berwenang menyetujui izin ini.');
+        if ($permit->student->class_id !== $homeroomClass->id) abort(403, 'Siswa bukan anggota kelas wali Anda.');
+        if (! $permit->isPending()) abort(403, 'Pengajuan ini sudah diproses.');
     }
 
     private function syncPermitAttendance(Permit $permit, string $action): void

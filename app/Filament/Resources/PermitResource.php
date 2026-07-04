@@ -92,6 +92,11 @@ class PermitResource extends Resource
                         default    => ucfirst($state),
                     }),
 
+                TextColumn::make('approvedBy.name')
+                    ->label('Diproses Oleh')
+                    ->placeholder('—')
+                    ->toggleable(),
+
                 TextColumn::make('created_at')
                     ->label('Diajukan')
                     ->since()

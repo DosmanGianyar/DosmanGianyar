@@ -74,6 +74,11 @@ class ForgotAttendanceResource extends Resource
                     })
                     ->formatStateUsing(fn (ForgotAttendanceRequest $record) => $record->statusLabel()),
 
+                TextColumn::make('reviewer.name')
+                    ->label('Diproses Oleh')
+                    ->placeholder('—')
+                    ->toggleable(),
+
                 TextColumn::make('created_at')
                     ->label('Diajukan')
                     ->since()

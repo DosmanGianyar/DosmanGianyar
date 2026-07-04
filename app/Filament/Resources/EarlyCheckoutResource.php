@@ -77,6 +77,11 @@ class EarlyCheckoutResource extends Resource
                     })
                     ->formatStateUsing(fn (EarlyCheckoutRequest $record) => $record->statusLabel()),
 
+                TextColumn::make('reviewer.name')
+                    ->label('Diproses Oleh')
+                    ->placeholder('—')
+                    ->toggleable(),
+
                 TextColumn::make('created_at')
                     ->label('Diajukan')
                     ->since()

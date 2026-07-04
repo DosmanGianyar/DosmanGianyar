@@ -14,16 +14,23 @@ class EarlyCheckoutRequestController extends Controller
 {
     public function index(Request $request): View
     {
+        $guru   = Auth::user();
         $status = $request->input('status', 'pending');
-        $query  = EarlyCheckoutRequest::with(['student.schoolClass'])
+
+        $query = EarlyCheckoutRequest::with(['student.schoolClass'])
             ->orderByDesc('date')
-            ->orderBy('requested_time');
+            ->orderBy('requested_time')
+            ->when($status !== 'all', fn($q) => $q->where('status', $status))
+            ->when(
+                ! $guru->isBk() && $guru->role !== 'admin' && $guru->homeroomClass,
+                fn($q) => $q->whereHas('student', fn($s) => $s->where('class_id', $guru->homeroomClass->id))
+            )
+            ->when(
+                ! $guru->isBk() && $guru->role !== 'admin' && ! $guru->homeroomClass,
+                fn($q) => $q->whereRaw('0=1')
+            );
 
-        if ($status !== 'all') {
-            $query->where('status', $status);
-        }
-
-        $requests    = $query->paginate(15)->withQueryString();
+        $requests     = $query->paginate(15)->withQueryString();
         $pendingCount = EarlyCheckoutRequest::where('status', 'pending')->count();
 
         return view('guru.early-checkout.index', compact('requests', 'status', 'pendingCount'));
@@ -83,8 +90,12 @@ class EarlyCheckoutRequestController extends Controller
 
     private function authorizePending(EarlyCheckoutRequest $earlyCheckout): void
     {
-        if (! $earlyCheckout->isPending()) {
-            abort(403, 'Pengajuan ini sudah diproses.');
+        $guru = Auth::user();
+        if (! $guru->isBk() && $guru->role !== 'admin') {
+            $homeroomClass = $guru->homeroomClass;
+            if (! $homeroomClass) abort(403, 'Anda tidak berwenang menyetujui pengajuan ini.');
+            if ($earlyCheckout->student->class_id !== $homeroomClass->id) abort(403, 'Siswa bukan anggota kelas wali Anda.');
         }
+        if (! $earlyCheckout->isPending()) abort(403, 'Pengajuan ini sudah diproses.');
     }
 }

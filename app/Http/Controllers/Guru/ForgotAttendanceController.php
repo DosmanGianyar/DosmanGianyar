@@ -88,18 +88,12 @@ class ForgotAttendanceController extends Controller
 
     private function authorizeReview(ForgotAttendanceRequest $forgotAttendance): void
     {
-        $homeroomClass = Auth::user()->homeroomClass;
-
-        if (! $homeroomClass) {
-            abort(403, 'Anda bukan wali kelas.');
+        $guru = Auth::user();
+        if (! $guru->isBk() && $guru->role !== 'admin') {
+            $homeroomClass = $guru->homeroomClass;
+            if (! $homeroomClass) abort(403, 'Anda bukan wali kelas dan tidak berwenang.');
+            if ($forgotAttendance->student->class_id !== $homeroomClass->id) abort(403, 'Siswa bukan anggota kelas wali Anda.');
         }
-
-        if ($forgotAttendance->student->class_id !== $homeroomClass->id) {
-            abort(403, 'Siswa bukan anggota kelas Anda.');
-        }
-
-        if (! $forgotAttendance->isPending()) {
-            abort(403, 'Pengajuan ini sudah diproses.');
-        }
+        if (! $forgotAttendance->isPending()) abort(403, 'Pengajuan ini sudah diproses.');
     }
 }
