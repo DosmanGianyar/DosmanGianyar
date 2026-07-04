@@ -7,6 +7,7 @@ use App\Models\Holiday;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Collection;
 
 class AutoAlpa extends Command
 {
@@ -19,29 +20,35 @@ class AutoAlpa extends Command
             ? Carbon::parse($this->option('date'))
             : today();
 
-        // Skip weekends
-        if ($date->isWeekend()) {
-            $this->info("Skipped: {$date->toDateString()} is a weekend.");
-            return self::SUCCESS;
-        }
+        // For weekend: only mark alpa for classes that have a sekolah_khusus entry.
+        // For weekdays: skip classes that have a libur entry.
+        // Pre-fetch all holiday/special entries for this date once.
+        $globalHoliday  = Holiday::holidayExistsFor($date, null);        // applies_to=semua libur
+        $globalSpecial  = Holiday::specialSchoolDayExistsFor($date, null); // applies_to=semua sekolah_khusus
 
-        // Skip holidays
-        if (Holiday::whereDate('date', $date)->exists()) {
-            $this->info("Skipped: {$date->toDateString()} is a holiday.");
-            return self::SUCCESS;
-        }
+        // Cache per-class results to avoid N+1 queries
+        $classOffCache = [];
+        $classOffFor = function (int $classId) use ($date, $globalHoliday, $globalSpecial, &$classOffCache): bool {
+            if (! isset($classOffCache[$classId])) {
+                $classOffCache[$classId] = Holiday::isOffDayFor($date, $classId);
+            }
+            return $classOffCache[$classId];
+        };
 
-        $students = User::where('role', 'siswa')->pluck('id');
+        $students  = User::where('role', 'siswa')->with('schoolClass')->get(['id', 'class_id']);
         $alpaCount = 0;
 
-        foreach ($students as $studentId) {
-            $exists = Attendance::where('user_id', $studentId)
+        foreach ($students as $student) {
+            // Skip if this day is an off-day for this student's class
+            if ($classOffFor((int) $student->class_id)) continue;
+
+            $exists = Attendance::where('user_id', $student->id)
                 ->whereDate('date', $date)
                 ->exists();
 
-            if (!$exists) {
+            if (! $exists) {
                 Attendance::create([
-                    'user_id'       => $studentId,
+                    'user_id'       => $student->id,
                     'date'          => $date->toDateString(),
                     'check_in_time' => null,
                     'status'        => 'alpa',

@@ -67,8 +67,7 @@ class AttendanceController extends Controller
         }
 
         // Hari libur?
-        $isHoliday = Holiday::whereDate('date', today())->exists();
-        if ($isHoliday || today()->isWeekend()) {
+        if (Holiday::isOffDayFor(today(), $siswa->class_id)) {
             return redirect()->route('siswa.dashboard')
                 ->with('success', 'Hari ini hari libur. Presensi tidak diperlukan.');
         }
@@ -120,8 +119,7 @@ class AttendanceController extends Controller
         }
 
         // Hari libur?
-        $isHoliday = Holiday::whereDate('date', today())->exists();
-        if ($isHoliday || today()->isWeekend()) {
+        if (Holiday::isOffDayFor(today(), $siswa->class_id)) {
             return redirect()->route('siswa.dashboard')
                 ->with('success', 'Hari ini hari libur. Presensi tidak diperlukan.');
         }

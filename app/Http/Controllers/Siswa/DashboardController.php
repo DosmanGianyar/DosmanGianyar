@@ -95,10 +95,8 @@ class DashboardController extends Controller
             ->mapWithKeys(fn($d) => [$d->format('Y-m-d') => true])
             ->all();
 
-        $monthlyHolidays = Holiday::whereBetween('date', [$monthStart, $monthEnd])
-            ->pluck('date')
-            ->mapWithKeys(fn($d) => [$d->format('Y-m-d') => true])
-            ->all();
+        $monthlyHolidays = Holiday::getHolidayDates($monthStart, $monthEnd, $siswa->class_id);
+        $monthlySpecial  = Holiday::getSpecialSchoolDates($monthStart, $monthEnd, $siswa->class_id);
 
         // Build per-day map with effective status applied
         $monthlyByDate = [];
@@ -113,7 +111,8 @@ class DashboardController extends Controller
         $today = today();
         for ($day = $monthStart->copy(); $day->lt($today); $day->addDay()) {
             $ds = $day->format('Y-m-d');
-            if ($day->isWeekend() || isset($monthlyHolidays[$ds]) || isset($recordedDates[$ds])) continue;
+            if (! Holiday::isSchoolDay($day, $monthlyHolidays, $monthlySpecial)) continue;
+            if (isset($recordedDates[$ds])) continue;
             $monthlyByDate[$ds] = 'alpa';
         }
 
@@ -125,7 +124,7 @@ class DashboardController extends Controller
         return view('siswa.dashboard', compact(
             'siswa', 'todayStatus', 'pointSummary',
             'recentPoints', 'announcements', 'unreadNotifications',
-            'monthlySummary', 'monthlyByDate'
+            'monthlySummary', 'monthlyByDate', 'monthlyHolidays', 'monthlySpecial'
         ));
     }
 }

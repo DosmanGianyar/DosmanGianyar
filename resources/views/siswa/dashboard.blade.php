@@ -191,16 +191,20 @@
         @endfor
         @for($day = 1; $day <= $calDays; $day++)
             @php
-                $ds  = $calFirst->copy()->addDays($day - 1)->toDateString();
-                $dow = (int) \Carbon\Carbon::parse($ds)->dayOfWeek;   // 0=Sun,6=Sat
-                $isWeekend = in_array($dow, [0, 6]);
-                $isFuture  = $ds > $todayDate;
-                $isToday   = $ds === $todayDate;
-                $st        = $monthlyByDate[$ds] ?? null;
+                $ds         = $calFirst->copy()->addDays($day - 1)->toDateString();
+                $dow        = (int) \Carbon\Carbon::parse($ds)->dayOfWeek;   // 0=Sun,6=Sat
+                $isWeekend  = in_array($dow, [0, 6]);
+                $isHoliday  = isset($monthlyHolidays[$ds]);
+                $isSpecial  = isset($monthlySpecial[$ds]);
+                // Gray if: future day, normal weekend (not special school day), or holiday
+                $isGrayDay  = $isFuture = ($ds > $todayDate);
+                $isGrayDay  = $isGrayDay || ($isWeekend && ! $isSpecial) || $isHoliday;
+                $isToday    = $ds === $todayDate;
+                $st         = $monthlyByDate[$ds] ?? null;
 
                 if ($isToday) {
                     $cls = 'bg-blue-500 text-white font-bold';
-                } elseif ($isFuture || $isWeekend) {
+                } elseif ($isGrayDay) {
                     $cls = 'text-gray-300';
                 } elseif ($st && in_array($st, $hadir_set)) {
                     $cls = 'bg-green-500 text-white';

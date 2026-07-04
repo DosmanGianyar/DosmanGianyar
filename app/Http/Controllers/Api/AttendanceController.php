@@ -29,11 +29,11 @@ class AttendanceController extends Controller
         $now      = now();
 
         $today     = $user->todayAttendance()->first();
-        $isHoliday = Holiday::whereDate('date', today())->exists();
+        $isHoliday = Holiday::isOffDayFor(today(), $user->class_id);
 
         return response()->json([
             'server_time' => $now->toIso8601String(),
-            'is_holiday'  => $isHoliday || today()->isWeekend(),
+            'is_holiday'  => $isHoliday,
             'shift'       => [
                 'check_in_open'  => substr($times['check_in_open'], 0, 5),
                 'check_in_late'  => substr($times['check_in_late'], 0, 5),
@@ -72,8 +72,8 @@ class AttendanceController extends Controller
         $times    = $this->effectiveTimes($location, AttendanceSetting::current());
         $now      = now();
 
-        // Hari libur
-        if (Holiday::whereDate('date', today())->exists() || today()->isWeekend()) {
+        // Hari libur / hari non-sekolah untuk kelas ini
+        if (Holiday::isOffDayFor(today(), $user->class_id)) {
             return response()->json(['message' => 'Hari ini hari libur.', 'code' => 'HOLIDAY'], 422);
         }
 
@@ -262,14 +262,15 @@ class AttendanceController extends Controller
 
         // Synthetic alpa for past school days with no attendance record
         $recordedDates = $rows->pluck('date')->mapWithKeys(fn($d) => [$d->format('Y-m-d') => true])->all();
-        $holidays      = Holiday::whereBetween('date', [$start, $end])
-            ->pluck('date')->mapWithKeys(fn($d) => [$d->format('Y-m-d') => true])->all();
+        $holidays      = Holiday::getHolidayDates($start, $end, $user->class_id);
+        $specialDays   = Holiday::getSpecialSchoolDates($start, $end, $user->class_id);
         $today         = today();
 
         $synthetic = collect();
         for ($day = $start->copy(); $day->lt($today) && $day->lte($end); $day->addDay()) {
             $ds = $day->format('Y-m-d');
-            if ($day->isWeekend() || isset($holidays[$ds]) || isset($recordedDates[$ds])) continue;
+            if (! Holiday::isSchoolDay($day, $holidays, $specialDays)) continue;
+            if (isset($recordedDates[$ds])) continue;
             $synthetic->push([
                 'date'                => $ds,
                 'check_in_time'       => null,
