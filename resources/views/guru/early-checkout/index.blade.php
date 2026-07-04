@@ -95,7 +95,12 @@
         @endif
 
         {{-- Actions --}}
-        @if($req->isPending())
+        @php
+            $canReview = auth()->user()->role === 'admin'
+                || auth()->user()->isBk()
+                || (auth()->user()->homeroomClass?->id && auth()->user()->homeroomClass->id === $req->student->class_id);
+        @endphp
+        @if($req->isPending() && $canReview)
         <div class="space-y-2 mt-1" x-data="{ showReject: false }">
 
             {{-- Approve --}}
