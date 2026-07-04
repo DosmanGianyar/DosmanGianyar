@@ -30,6 +30,10 @@
             padding: 20px 20px 60px;
             position: relative;
             overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
         }
         .banner::before {
             content: '';
@@ -43,7 +47,6 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            position: relative;
         }
         .banner-logo {
             width: 44px; height: 44px;
@@ -58,8 +61,6 @@
         .banner-name h1 { font-size: 13px; font-weight: 800; letter-spacing: .03em; }
         .banner-name p { font-size: 11px; color: rgba(186,230,253,.85); margin-top: 2px; }
         .banner-badge {
-            position: absolute;
-            top: 20px; right: 20px;
             background: rgba(253,224,71,.15);
             border: 1px solid rgba(253,224,71,.4);
             color: rgba(253,224,71,1);
@@ -69,6 +70,9 @@
             text-transform: uppercase;
             padding: 4px 10px;
             border-radius: 20px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            align-self: flex-start;
         }
         /* ── Avatar (overlaps banner) ── */
         .avatar-wrap {
