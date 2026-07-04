@@ -97,7 +97,6 @@ class SarprasController extends Controller
                         'student_id'  => $reporter->id,
                         'teacher_id'  => Auth::id(),
                         'category_id' => $category->id,
-                        'point'       => $category->point_value,
                         'note'        => $request->conduct_note
                             ?: "Terkait laporan kerusakan: {$report->asset->name}",
                     ]);

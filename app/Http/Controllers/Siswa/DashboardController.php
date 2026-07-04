@@ -46,22 +46,22 @@ class DashboardController extends Controller
             'check_out_photo' => $todayAtt?->check_out_photo,
         ];
 
-        // ─── Point Summary ────────────────────────────────────────────
+        // ─── Conduct Summary ──────────────────────────────────────────
         $logs          = $siswa->conductLogs()->with('category')->latest()->get();
-        $prestasi      = $logs->where('point', '>', 0)->sum('point');
-        $pelanggaran   = abs($logs->where('point', '<', 0)->sum('point'));
+        $prestasiCount = $logs->filter(fn($l) => $l->category?->type === 'prestasi')->count();
+        $pelanggaranCount = $logs->filter(fn($l) => $l->category?->type === 'pelanggaran')->count();
         $pointSummary  = [
-            'total'       => (int) $logs->sum('point'),
-            'prestasi'    => (int) $prestasi,
-            'pelanggaran' => (int) $pelanggaran,
+            'total'       => $logs->count(),
+            'prestasi'    => $prestasiCount,
+            'pelanggaran' => $pelanggaranCount,
         ];
 
         // ─── Recent 3 Conduct Logs ────────────────────────────────────
         $recentPoints = $logs->take(3)->map(fn($log) => [
             'date'  => $log->created_at->toDateString(),
-            'type'  => $log->point >= 0 ? 'prestasi' : 'pelanggaran',
+            'type'  => $log->category?->type ?? 'pelanggaran',
             'desc'  => $log->category?->name ?? $log->note ?? '—',
-            'point' => ($log->point >= 0 ? '+' : '') . $log->point,
+            'point' => $log->category?->type === 'prestasi' ? 'Prestasi' : 'Pelanggaran',
         ]);
 
         // ─── Recent Announcements ─────────────────────────────────────

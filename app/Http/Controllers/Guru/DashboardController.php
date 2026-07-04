@@ -20,19 +20,18 @@ class DashboardController extends Controller
             ? User::where('role', 'siswa')->where('class_id', $classId)->count()
             : 0;
 
-        // Critical BK alerts: students with total point ≤ -75
-        // Use whereRaw subquery for cross-DB compatibility (SQLite does not allow HAVING on subquery alias)
+        // Siswa dengan pelanggaran terbanyak di kelas wali
         $recentAlerts = User::where('role', 'siswa')
             ->when($classId, fn($q) => $q->where('class_id', $classId))
-            ->whereRaw('(SELECT COALESCE(SUM(point), 0) FROM conduct_logs WHERE student_id = users.id) <= ?', [-75])
-            ->withSum('conductLogs', 'point')
-            ->orderByRaw('(SELECT COALESCE(SUM(point), 0) FROM conduct_logs WHERE student_id = users.id) ASC')
+            ->withCount(['conductLogs as pelanggaran_count' => fn($q) => $q->whereHas('category', fn($c) => $c->where('type', 'pelanggaran'))])
+            ->having('pelanggaran_count', '>', 0)
+            ->orderByDesc('pelanggaran_count')
             ->limit(5)
             ->get()
             ->map(fn($s) => [
                 'name'  => $s->name,
                 'class' => $s->schoolClass?->name ?? '—',
-                'point' => (int) ($s->conduct_logs_sum_point ?? 0),
+                'point' => $s->pelanggaran_count,
             ]);
 
         $stats = [

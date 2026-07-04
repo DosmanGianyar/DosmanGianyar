@@ -191,8 +191,8 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(BkLog::class, 'student_id');
     }
 
-    public function getTotalPointAttribute(): int
+    public function getPelanggaranCountAttribute(): int
     {
-        return (int) $this->conductLogs()->sum('point');
+        return $this->conductLogs()->whereHas('category', fn($q) => $q->where('type', 'pelanggaran'))->count();
     }
 }

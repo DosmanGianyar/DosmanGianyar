@@ -21,7 +21,6 @@ class BkController extends Controller
         // Students in selected class who have at least one BK log
         $students = User::where('role', 'siswa')
             ->where('class_id', $selectedClassId)
-            ->withSum('conductLogs', 'point')
             ->withCount('bkLogs')
             ->having('bk_logs_count', '>', 0)
             ->orderBy('name')
@@ -70,7 +69,7 @@ class BkController extends Controller
             'student_id'    => $request->student_id,
             'counselor_id'  => Auth::id(),
             'coaching_note' => $request->coaching_note,
-            'point_at_time' => User::find($request->student_id)->conductLogs()->sum('point'),
+            'point_at_time' => null,
             'is_auto'       => false,
             'date'          => $request->date,
         ]);

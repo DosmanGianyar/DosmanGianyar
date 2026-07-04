@@ -41,7 +41,7 @@ class ConductLogExport implements FromCollection, WithHeadings, WithMapping, Wit
             $row->student?->schoolClass?->name,
             $row->category?->name,
             ucfirst($row->category?->type),
-            $row->point > 0 ? '+' . $row->point : $row->point,
+            ucfirst($row->category?->type ?? '—'),
             $row->teacher?->name,
             $row->note,
             $row->created_at->isoFormat('D MMMM Y'),
@@ -50,7 +50,7 @@ class ConductLogExport implements FromCollection, WithHeadings, WithMapping, Wit
 
     public function headings(): array
     {
-        return ['Nama Siswa', 'NIS', 'Kelas', 'Kategori', 'Tipe', 'Poin', 'Dicatat Oleh', 'Catatan', 'Tanggal'];
+        return ['Nama Siswa', 'NIS', 'Kelas', 'Kategori', 'Tipe', 'Jenis', 'Dicatat Oleh', 'Catatan', 'Tanggal'];
     }
 
     public function styles(Worksheet $sheet): array
