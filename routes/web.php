@@ -15,6 +15,7 @@ use App\Http\Controllers\Siswa\PermitController;
 use App\Http\Controllers\Siswa\ProfileController as SiswaProfile;
 use App\Http\Controllers\Siswa\SarprasController as SiswaSarpras;
 use App\Http\Controllers\Admin\AttendanceReportController as AdminAttendanceReport;
+use App\Http\Controllers\Admin\ScanEventController;
 use App\Http\Controllers\Admin\StudentCardController;
 use App\Http\Controllers\Admin\UserImportController;
 use App\Http\Controllers\Guru\ExportController as GuruExport;
@@ -62,6 +63,12 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 
     // Download Kartu Pelajar
     Route::get('/student-card/{user}/download', [StudentCardController::class, 'download'])->name('student-card.download');
+
+    // Absensi QR Kegiatan
+    Route::get('/scan-events/{scanEvent}/scanner', [ScanEventController::class, 'scanner'])->name('scan-events.scanner');
+    Route::post('/scan-events/{scanEvent}/scan', [ScanEventController::class, 'scan'])->name('scan-events.scan');
+    Route::get('/scan-events/{scanEvent}/list', [ScanEventController::class, 'list'])->name('scan-events.list');
+    Route::delete('/scan-events/{scanEvent}/attendances/{attendance}', [ScanEventController::class, 'destroy'])->name('scan-events.attendances.destroy');
 
     // Rekap Ekstrakurikuler
     Route::get('/extracurricular/session/{session}/pdf', [\App\Http\Controllers\Admin\ExtracurricularExportController::class, 'pdf'])
