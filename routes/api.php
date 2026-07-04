@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\PermitController;
 use App\Http\Controllers\Api\SchoolRegulationController;
 use App\Http\Controllers\Api\ShiftController;
+use App\Http\Controllers\Api\GuruController;
 use App\Http\Controllers\Api\TeacherAttendanceController;
 use Illuminate\Support\Facades\Route;
 
@@ -102,6 +103,22 @@ Route::prefix('v1')->group(function () {
 
             // Absensi Guru Mengajar (untuk siswa)
             Route::get('/teacher-attendance', [TeacherAttendanceController::class, 'index']);
+
+            // Guru
+            Route::get('/guru/dashboard',                                 [GuruController::class, 'dashboard']);
+            Route::get('/guru/classes',                                   [GuruController::class, 'classes']);
+            Route::get('/guru/attendance/daily',                          [GuruController::class, 'attendanceDaily']);
+            Route::get('/guru/attendance/rekap',                          [GuruController::class, 'attendanceRekap']);
+            Route::get('/guru/permits',                                   [GuruController::class, 'permits']);
+            Route::post('/guru/permits/{permit}/approve',                 [GuruController::class, 'approvePermit']);
+            Route::post('/guru/permits/{permit}/reject',                  [GuruController::class, 'rejectPermit']);
+            Route::get('/guru/forgot-attendance',                         [GuruController::class, 'forgotAttendance']);
+            Route::post('/guru/forgot-attendance/{forgotAttendance}/approve', [GuruController::class, 'approveForgotAttendance']);
+            Route::post('/guru/forgot-attendance/{forgotAttendance}/reject',  [GuruController::class, 'rejectForgotAttendance']);
+            Route::get('/guru/early-checkouts',                           [GuruController::class, 'earlyCheckouts']);
+            Route::post('/guru/early-checkouts/{earlyCheckout}/approve',  [GuruController::class, 'approveEarlyCheckout']);
+            Route::post('/guru/early-checkouts/{earlyCheckout}/reject',   [GuruController::class, 'rejectEarlyCheckout']);
+            Route::get('/guru/conduct',                                   [GuruController::class, 'conduct']);
 
             // Kesiswaan Summary
             Route::get('/kesiswaan/summary', [KesiswaanController::class, 'summary']);

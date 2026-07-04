@@ -10,6 +10,7 @@ import 'providers/extracurricular_provider.dart';
 import 'providers/regulation_provider.dart';
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
+import 'screens/guru/guru_shell.dart';
 import 'theme/app_colors.dart';
 
 void main() async {
@@ -123,13 +124,15 @@ class _AppGateState extends State<_AppGate> {
 
   @override
   Widget build(BuildContext context) {
-    final authState = context.watch<AuthProvider>().state;
+    final auth = context.watch<AuthProvider>();
 
-    return switch (authState) {
+    return switch (auth.state) {
       AuthState.unknown         => const Scaffold(
           body: Center(child: CircularProgressIndicator()),
         ),
-      AuthState.authenticated   => const HomeScreen(),
+      AuthState.authenticated   => auth.user?.role == 'guru'
+          ? const GuruShell()
+          : const HomeScreen(),
       AuthState.unauthenticated => const LoginScreen(),
     };
   }

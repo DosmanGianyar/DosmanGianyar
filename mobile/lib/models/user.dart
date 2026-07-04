@@ -6,7 +6,10 @@ class User {
   final String? nis;
   final String? nisn;
   final String? nip;
+  final String? subject;
   final String? photoUrl;
+  final int?    homeroomClassId;
+  final String? homeroomClassName;
   final int? classId;
   final String? className;
   final bool deviceBound;
@@ -25,9 +28,12 @@ class User {
     this.nis,
     this.nisn,
     this.nip,
+    this.subject,
     this.photoUrl,
     this.classId,
     this.className,
+    this.homeroomClassId,
+    this.homeroomClassName,
     required this.deviceBound,
     this.phone,
     this.address,
@@ -39,44 +45,50 @@ class User {
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
-      id:          json['id'] as int,
-      name:        json['name'] as String,
-      email:       json['email'] as String,
-      role:        json['role'] as String,
-      nis:         json['nis'] as String?,
-      nisn:        json['nisn'] as String?,
-      nip:         json['nip'] as String?,
-      photoUrl:    json['photo_url'] as String?,
-      classId:     json['class_id'] as int?,
-      className:   json['class_name'] as String?,
-      deviceBound: json['device_bound'] as bool? ?? false,
-      phone:       json['phone'] as String?,
-      address:     json['address'] as String?,
-      birthDate:   json['birth_date'] as String?,
-      gender:      json['gender'] as String?,
-      parentName:  json['parent_name'] as String?,
-      parentPhone: json['parent_phone'] as String?,
+      id:                json['id'] as int,
+      name:              json['name'] as String,
+      email:             json['email'] as String,
+      role:              json['role'] as String,
+      nis:               json['nis'] as String?,
+      nisn:              json['nisn'] as String?,
+      nip:               json['nip'] as String?,
+      subject:           json['subject'] as String?,
+      photoUrl:          json['photo_url'] as String?,
+      classId:           json['class_id'] as int?,
+      className:         json['class_name'] as String?,
+      homeroomClassId:   json['homeroom_class_id'] as int?,
+      homeroomClassName: json['homeroom_class_name'] as String?,
+      deviceBound:       json['device_bound'] as bool? ?? false,
+      phone:             json['phone'] as String?,
+      address:           json['address'] as String?,
+      birthDate:         json['birth_date'] as String?,
+      gender:            json['gender'] as String?,
+      parentName:        json['parent_name'] as String?,
+      parentPhone:       json['parent_phone'] as String?,
     );
   }
 
   Map<String, dynamic> toJson() => {
-    'id':           id,
-    'name':         name,
-    'email':        email,
-    'role':         role,
-    'nis':          nis,
-    'nisn':         nisn,
-    'nip':          nip,
-    'photo_url':    photoUrl,
-    'class_id':     classId,
-    'class_name':   className,
-    'device_bound': deviceBound,
-    'phone':        phone,
-    'address':      address,
-    'birth_date':   birthDate,
-    'gender':       gender,
-    'parent_name':  parentName,
-    'parent_phone': parentPhone,
+    'id':                 id,
+    'name':               name,
+    'email':              email,
+    'role':               role,
+    'nis':                nis,
+    'nisn':               nisn,
+    'nip':                nip,
+    'subject':            subject,
+    'photo_url':          photoUrl,
+    'class_id':           classId,
+    'class_name':         className,
+    'homeroom_class_id':  homeroomClassId,
+    'homeroom_class_name': homeroomClassName,
+    'device_bound':       deviceBound,
+    'phone':              phone,
+    'address':            address,
+    'birth_date':         birthDate,
+    'gender':             gender,
+    'parent_name':        parentName,
+    'parent_phone':       parentPhone,
   };
 
   String get displayId => nis ?? nisn ?? nip ?? email;

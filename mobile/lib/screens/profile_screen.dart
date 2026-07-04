@@ -219,12 +219,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
               onChangePhoto: _changePhoto,
             ),
             const SizedBox(height: 12),
-            _StudentIdCard(user: user),
-            const SizedBox(height: 12),
-            if (user?.parentName != null || user?.parentPhone != null)
-              _ParentCard(user: user!),
-            if (user?.parentName != null || user?.parentPhone != null)
+            if (user?.role != 'guru') ...[
+              _StudentIdCard(user: user),
               const SizedBox(height: 12),
+            ],
+            if (user?.parentName != null || user?.parentPhone != null) ...[
+              _ParentCard(user: user!),
+              const SizedBox(height: 12),
+            ],
             _EditDataCard(
               phoneCtrl:   _phoneCtrl,
               addressCtrl: _addressCtrl,
@@ -354,32 +356,54 @@ class _IdentityCard extends StatelessWidget {
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 2),
-                Text(user?.className ?? '—',
-                  style: const TextStyle(fontSize: 12, color: AppColors.gray500)),
+                Text(
+                  user?.role == 'guru'
+                      ? (user?.subject ?? user?.roleLabel ?? 'Guru')
+                      : (user?.className ?? '—'),
+                  style: const TextStyle(fontSize: 12, color: AppColors.gray500),
+                ),
               ],
             ),
           ),
 
-          // Grid info (NIS, Kelas, Tgl Lahir, No HP)
+          // Grid info — role-aware
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
             child: Column(
               children: [
-                Row(
-                  children: [
-                    Expanded(child: _InfoBox(label: 'NIS',   value: user?.nis   ?? '—')),
-                    const SizedBox(width: 8),
-                    Expanded(child: _InfoBox(label: 'Kelas', value: user?.className ?? '—')),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Expanded(child: _InfoBox(label: 'Tanggal Lahir', value: _formatDate(user?.birthDate))),
-                    const SizedBox(width: 8),
-                    Expanded(child: _InfoBox(label: 'No. HP', value: user?.phone ?? '—')),
-                  ],
-                ),
+                if (user?.role == 'guru') ...[
+                  Row(
+                    children: [
+                      Expanded(child: _InfoBox(label: 'NIP', value: user?.nip ?? '—')),
+                      const SizedBox(width: 8),
+                      Expanded(child: _InfoBox(label: 'Mata Pelajaran', value: user?.subject ?? '—')),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(child: _InfoBox(label: 'Wali Kelas', value: user?.homeroomClassName ?? '—')),
+                      const SizedBox(width: 8),
+                      Expanded(child: _InfoBox(label: 'No. HP', value: user?.phone ?? '—')),
+                    ],
+                  ),
+                ] else ...[
+                  Row(
+                    children: [
+                      Expanded(child: _InfoBox(label: 'NIS',   value: user?.nis   ?? '—')),
+                      const SizedBox(width: 8),
+                      Expanded(child: _InfoBox(label: 'Kelas', value: user?.className ?? '—')),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(child: _InfoBox(label: 'Tanggal Lahir', value: _formatDate(user?.birthDate))),
+                      const SizedBox(width: 8),
+                      Expanded(child: _InfoBox(label: 'No. HP', value: user?.phone ?? '—')),
+                    ],
+                  ),
+                ],
               ],
             ),
           ),
@@ -1022,7 +1046,7 @@ class _IdBack extends StatelessWidget {
                   textAlign: TextAlign.center),
                 const SizedBox(height: 2),
                 Text(
-                  '${user?.className ?? ''}${(user?.className?.isNotEmpty == true && user?.genderLabel?.isNotEmpty == true) ? '  ·  ' : ''}${user?.genderLabel ?? ''}',
+                  '${user?.className ?? ''}${(user?.className?.isNotEmpty == true && (user?.genderLabel.isNotEmpty ?? false)) ? '  ·  ' : ''}${user?.genderLabel ?? ''}',
                   style: const TextStyle(fontSize: 8, color: AppColors.gray400),
                   textAlign: TextAlign.center),
               ],
