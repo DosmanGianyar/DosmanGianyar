@@ -35,7 +35,7 @@ class DeviceLock
             ], 403);
         }
 
-        if (! $user->isDeviceAllowed($deviceId)) {
+        if (! $user->isDeviceRegistered($deviceId)) {
             return response()->json([
                 'message' => 'Perangkat tidak diizinkan. Hubungi Admin untuk reset perangkat.',
                 'code'    => 'DEVICE_MISMATCH',
