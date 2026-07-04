@@ -18,12 +18,17 @@ class ForgotAttendanceController extends Controller
         $guru = Auth::user();
         $homeroomClass = $guru->homeroomClass;
 
-        $requests = $homeroomClass
-            ? ForgotAttendanceRequest::with(['student.schoolClass'])
-                ->whereHas('student', fn($q) => $q->where('class_id', $homeroomClass->id))
-                ->latest()
-                ->paginate(15)
-            : collect()->paginate(15);
+        $requests = ForgotAttendanceRequest::with(['student.schoolClass'])
+            ->when(
+                ! $guru->isBk() && $guru->role !== 'admin' && $homeroomClass,
+                fn($q) => $q->whereHas('student', fn($s) => $s->where('class_id', $homeroomClass->id))
+            )
+            ->when(
+                ! $guru->isBk() && $guru->role !== 'admin' && ! $homeroomClass,
+                fn($q) => $q->whereRaw('0=1')
+            )
+            ->latest()
+            ->paginate(15);
 
         return view('guru.forgot-attendance.index', compact('requests', 'homeroomClass'));
     }

@@ -11,18 +11,20 @@
     </div>
     @endif
 
-    @if(! $homeroomClass)
-    {{-- Bukan wali kelas --}}
+    @php $canReview = auth()->user()->role === 'admin' || auth()->user()->isBk() || $homeroomClass; @endphp
+    @if(! $canReview)
+    {{-- Bukan wali kelas, bukan BK, bukan admin --}}
     <div class="bg-amber-50 border border-amber-200 rounded-2xl p-6 text-center">
         <svg class="w-12 h-12 text-amber-400 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                 d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
         </svg>
-        <p class="font-semibold text-amber-800 mb-1">Anda Bukan Wali Kelas</p>
-        <p class="text-sm text-amber-600">Fitur ini hanya dapat diakses oleh wali kelas yang ditugaskan pada suatu kelas.</p>
+        <p class="font-semibold text-amber-800 mb-1">Anda Tidak Berwenang</p>
+        <p class="text-sm text-amber-600">Fitur ini hanya dapat diakses oleh wali kelas, guru BK, atau admin.</p>
     </div>
     @else
-    {{-- Info kelas --}}
+    {{-- Info banner --}}
+    @if($homeroomClass)
     <div class="bg-blue-50 border border-blue-100 rounded-2xl p-3 flex items-center gap-3">
         <div class="w-9 h-9 bg-blue-100 rounded-xl flex items-center justify-center shrink-0">
             <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -35,6 +37,7 @@
             <p class="text-xs text-blue-600">Pengajuan lupa absen dari siswa kelas Anda</p>
         </div>
     </div>
+    @endif
 
     @forelse($requests as $req)
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
@@ -147,7 +150,7 @@
                 d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
         </svg>
         <p class="text-sm font-medium text-gray-400">Tidak ada pengajuan lupa absen</p>
-        <p class="text-xs text-gray-300 mt-1">dari siswa kelas {{ $homeroomClass->name }}</p>
+        <p class="text-xs text-gray-300 mt-1">dari siswa{{ $homeroomClass ? ' kelas ' . $homeroomClass->name : '' }}</p>
     </div>
     @endforelse
 

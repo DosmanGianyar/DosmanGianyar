@@ -235,13 +235,14 @@ class AttendanceController extends Controller
 
     private function authorizePermitAction(Permit $permit): void
     {
+        if (! $permit->isPending()) abort(403, 'Pengajuan ini sudah diproses.');
+
         $guru = Auth::user();
         if ($guru->role === 'admin' || $guru->isBk()) return;
 
         $homeroomClass = $guru->homeroomClass;
         if (! $homeroomClass) abort(403, 'Anda tidak berwenang menyetujui izin ini.');
         if ($permit->student->class_id !== $homeroomClass->id) abort(403, 'Siswa bukan anggota kelas wali Anda.');
-        if (! $permit->isPending()) abort(403, 'Pengajuan ini sudah diproses.');
     }
 
     private function syncPermitAttendance(Permit $permit, string $action): void
