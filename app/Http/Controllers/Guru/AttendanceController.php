@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Guru;
 use App\Http\Controllers\Controller;
 use App\Models\Attendance;
 use App\Models\EarlyCheckoutRequest;
+use App\Models\Holiday;
 use App\Models\Permit;
 use App\Models\SchoolClass;
 use App\Models\User;
@@ -82,15 +83,21 @@ class AttendanceController extends Controller
         $end   = $start->copy()->endOfMonth();
         $today = today();
 
-        // All calendar days for the grid display
+        // Load manual holidays and special school days for this class
+        $holidays    = Holiday::getHolidayDates($start, $end, $selectedClassId);
+        $specialDays = Holiday::getSpecialSchoolDates($start, $end, $selectedClassId);
+
+        // Build day lists
         $allDays    = collect();
-        // School days = Mon–Sat (exclude Sunday only)
         $schoolDays = collect();
+        $offDays    = [];   // date-string => true, for both Sundays and manual holidays
         $cursor = $start->copy();
         while ($cursor->lte($end)) {
             $allDays->push($cursor->copy());
-            if (! $cursor->isSunday()) {
+            if (Holiday::isSchoolDay($cursor, $holidays, $specialDays)) {
                 $schoolDays->push($cursor->copy());
+            } else {
+                $offDays[$cursor->format('Y-m-d')] = true;
             }
             $cursor->addDay();
         }
@@ -116,9 +123,9 @@ class AttendanceController extends Controller
 
         // Per-student summary — only count school days up to today
         $studentData = $students->map(function ($student) use ($attendances, $schoolDays, $approvedEarlyCheckouts, $today) {
-            $recs             = $attendances->get($student->id, collect())->keyBy(fn($a) => $a->date->format('Y-m-d'));
-            $studentApprovals = $approvedEarlyCheckouts->get($student->id, []);
-            $counts           = ['hadir' => 0, 'terlambat' => 0, 'izin' => 0, 'sakit' => 0, 'alpa' => 0, 'dispensasi' => 0];
+            $recs              = $attendances->get($student->id, collect())->keyBy(fn($a) => $a->date->format('Y-m-d'));
+            $studentApprovals  = $approvedEarlyCheckouts->get($student->id, []);
+            $counts            = ['hadir' => 0, 'terlambat' => 0, 'izin' => 0, 'sakit' => 0, 'alpa' => 0, 'dispensasi' => 0];
             $effectiveStatuses = [];
             foreach ($schoolDays as $day) {
                 $dateStr = $day->format('Y-m-d');
@@ -145,7 +152,7 @@ class AttendanceController extends Controller
         $canNext   = $nextMonth->lte(now()->endOfMonth());
 
         return view('guru.attendance.rekap', compact(
-            'classes', 'selectedClassId', 'allDays', 'schoolDays',
+            'classes', 'selectedClassId', 'allDays', 'schoolDays', 'offDays',
             'studentData', 'month', 'year', 'start', 'today',
             'prevMonth', 'nextMonth', 'canNext'
         ));
