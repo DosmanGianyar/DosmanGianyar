@@ -34,6 +34,8 @@ class AttendanceLocationResource extends Resource
     protected static ?string                 $modelLabel           = 'Lokasi Presensi';
     protected static ?string                 $pluralModelLabel     = 'Lokasi Presensi';
 
+    public static function canAccess(): bool { return AdminAccess::can('Kesiswaan'); }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->components([

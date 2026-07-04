@@ -20,6 +20,8 @@ class ActivityLogResource extends Resource
     protected static ?string                 $modelLabel       = 'Log Aktivitas';
     protected static ?string                 $pluralModelLabel = 'Audit Log';
 
+    public static function canAccess(): bool { return auth()->user()?->role === 'admin'; }
+
     public static function canCreate(): bool
     {
         return false;

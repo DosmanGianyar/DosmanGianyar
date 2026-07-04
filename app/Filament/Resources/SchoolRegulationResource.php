@@ -34,6 +34,8 @@ class SchoolRegulationResource extends Resource
     protected static ?string $pluralModelLabel  = 'Tata Tertib Sekolah';
     protected static ?int    $navigationSort    = 20;
 
+    public static function canAccess(): bool { return AdminAccess::can('Kesiswaan'); }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->components([

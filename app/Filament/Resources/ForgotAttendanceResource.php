@@ -29,6 +29,8 @@ class ForgotAttendanceResource extends Resource
     protected static ?string                 $pluralModelLabel = 'Lupa Absen Siswa';
     protected static ?int                    $navigationSort  = 32;
 
+    public static function canAccess(): bool { return AdminAccess::can('Kesiswaan'); }
+
     public static function canCreate(): bool { return false; }
 
     public static function form(Schema $schema): Schema

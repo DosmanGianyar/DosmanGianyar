@@ -28,6 +28,8 @@ class EarlyCheckoutResource extends Resource
     protected static ?string                 $pluralModelLabel = 'Izin Pulang Lebih Awal';
     protected static ?int                    $navigationSort  = 31;
 
+    public static function canAccess(): bool { return AdminAccess::can('Kesiswaan'); }
+
     public static function canCreate(): bool { return false; }
 
     public static function form(Schema $schema): Schema

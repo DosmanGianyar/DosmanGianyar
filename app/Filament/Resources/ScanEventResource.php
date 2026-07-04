@@ -30,6 +30,8 @@ class ScanEventResource extends Resource
     protected static ?string                 $pluralModelLabel = 'Absen QR Kegiatan';
     protected static ?int                    $navigationSort  = 25;
 
+    public static function canAccess(): bool { return AdminAccess::can('Kesiswaan'); }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->components([

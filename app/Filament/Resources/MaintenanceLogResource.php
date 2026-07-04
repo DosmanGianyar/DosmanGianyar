@@ -28,6 +28,8 @@ class MaintenanceLogResource extends Resource
     protected static ?string                 $modelLabel       = 'Log Perawatan';
     protected static ?string                 $pluralModelLabel = 'Log Perawatan';
 
+    public static function canAccess(): bool { return AdminAccess::can('Sarpras'); }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->components([

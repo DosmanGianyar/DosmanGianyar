@@ -32,6 +32,8 @@ class GuruResource extends Resource
 
     // ── Scope: hanya guru dan admin ───────────────────────────────────────────
 
+    public static function canAccess(): bool { return auth()->user()?->role === 'admin'; }
+
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()

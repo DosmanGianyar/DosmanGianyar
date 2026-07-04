@@ -25,6 +25,8 @@ class AssetLoanResource extends Resource
     protected static ?string                 $modelLabel       = 'Peminjaman';
     protected static ?string                 $pluralModelLabel = 'Peminjaman Aset';
 
+    public static function canAccess(): bool { return AdminAccess::can('Sarpras'); }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->components([

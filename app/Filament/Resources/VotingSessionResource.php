@@ -27,6 +27,8 @@ class VotingSessionResource extends Resource
     protected static ?string                 $modelLabel       = 'Sesi Voting';
     protected static ?string                 $pluralModelLabel = 'Sesi E-Voting';
 
+    public static function canAccess(): bool { return auth()->user()?->role === 'admin'; }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->components([

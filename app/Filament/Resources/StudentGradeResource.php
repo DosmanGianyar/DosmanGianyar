@@ -30,6 +30,8 @@ class StudentGradeResource extends Resource
     protected static ?string                 $modelLabel       = 'Nilai';
     protected static ?string                 $pluralModelLabel = 'Nilai Siswa';
 
+    public static function canAccess(): bool { return AdminAccess::can('Kurikulum'); }
+
     public static function form(Schema $schema): Schema
     {
         $year = StudentGrade::currentAcademicYear();

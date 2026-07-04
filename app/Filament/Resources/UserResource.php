@@ -42,6 +42,8 @@ class UserResource extends Resource
     protected static ?string $pluralModelLabel = 'Data Siswa';
     protected static ?int $navigationSort = 1;
 
+    public static function canAccess(): bool { return auth()->user()?->role === 'admin'; }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->components([

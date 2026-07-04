@@ -34,6 +34,8 @@ class SchoolEventResource extends Resource
     protected static ?string                 $modelLabel       = 'Agenda';
     protected static ?string                 $pluralModelLabel = 'Agenda Sekolah';
 
+    public static function canAccess(): bool { return AdminAccess::can('Humas'); }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->components([

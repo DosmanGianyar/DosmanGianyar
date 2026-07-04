@@ -29,6 +29,8 @@ class ConductCategoryResource extends Resource
     protected static ?string                 $modelLabel           = 'Kategori Catatan';
     protected static ?string                 $pluralModelLabel     = 'Kategori Catatan';
 
+    public static function canAccess(): bool { return AdminAccess::can('Kesiswaan'); }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->components([

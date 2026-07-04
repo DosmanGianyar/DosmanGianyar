@@ -34,6 +34,8 @@ class GalleryResource extends Resource
     protected static ?string                 $modelLabel       = 'Album Galeri';
     protected static ?string                 $pluralModelLabel = 'Galeri Foto';
 
+    public static function canAccess(): bool { return AdminAccess::can('Humas'); }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->components([

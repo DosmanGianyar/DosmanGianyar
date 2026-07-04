@@ -34,6 +34,8 @@ class HolidayResource extends Resource
     protected static ?string                 $pluralModelLabel    = 'Hari Libur & Sekolah Khusus';
     protected static ?int                    $navigationSort      = 5;
 
+    public static function canAccess(): bool { return AdminAccess::can('Kesiswaan'); }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->components([

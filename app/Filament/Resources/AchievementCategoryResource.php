@@ -26,6 +26,8 @@ class AchievementCategoryResource extends Resource
     protected static ?string $pluralModelLabel  = 'Kategori Prestasi';
     protected static ?string $navigationLabel      = 'Kategori Prestasi';
 
+    public static function canAccess(): bool { return AdminAccess::can('Kesiswaan'); }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->components([

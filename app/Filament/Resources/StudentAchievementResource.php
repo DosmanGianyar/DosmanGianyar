@@ -27,6 +27,8 @@ class StudentAchievementResource extends Resource
     protected static ?string                 $modelLabel           = 'Prestasi Siswa';
     protected static ?string                 $pluralModelLabel     = 'Laporan Prestasi';
 
+    public static function canAccess(): bool { return AdminAccess::can('Kesiswaan'); }
+
     public static function canCreate(): bool
     {
         return false;

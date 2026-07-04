@@ -26,6 +26,8 @@ class DamageReportResource extends Resource
     protected static ?string                 $modelLabel       = 'Laporan Kerusakan';
     protected static ?string                 $pluralModelLabel = 'Laporan Kerusakan';
 
+    public static function canAccess(): bool { return AdminAccess::can('Sarpras'); }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->components([

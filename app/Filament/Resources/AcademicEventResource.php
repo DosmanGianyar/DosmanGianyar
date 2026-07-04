@@ -29,6 +29,8 @@ class AcademicEventResource extends Resource
     protected static ?string                 $modelLabel       = 'Event Akademik';
     protected static ?string                 $pluralModelLabel = 'Kalender Akademik';
 
+    public static function canAccess(): bool { return AdminAccess::can('Kurikulum'); }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->components([

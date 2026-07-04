@@ -32,6 +32,8 @@ class AssetResource extends Resource
     protected static ?string                 $modelLabel      = 'Aset';
     protected static ?string                 $pluralModelLabel = 'Data Aset';
 
+    public static function canAccess(): bool { return AdminAccess::can('Sarpras'); }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->components([

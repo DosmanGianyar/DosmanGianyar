@@ -30,6 +30,8 @@ class ScheduleResource extends Resource
     protected static ?string                 $modelLabel       = 'Jadwal';
     protected static ?string                 $pluralModelLabel = 'Jadwal Pelajaran';
 
+    public static function canAccess(): bool { return AdminAccess::can('Kurikulum'); }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->components([

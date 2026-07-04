@@ -34,6 +34,8 @@ class ExtracurricularResource extends Resource
     protected static ?string                 $pluralModelLabel = 'Ekstrakurikuler';
     protected static ?int                    $navigationSort  = 10;
 
+    public static function canAccess(): bool { return AdminAccess::can('Kesiswaan'); }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->components([

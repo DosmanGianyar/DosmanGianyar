@@ -25,6 +25,8 @@ class RoomResource extends Resource
     protected static ?string                 $modelLabel      = 'Ruangan';
     protected static ?string                 $pluralModelLabel = 'Data Ruangan';
 
+    public static function canAccess(): bool { return AdminAccess::can('Sarpras'); }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->components([

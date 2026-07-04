@@ -25,6 +25,8 @@ class SubjectResource extends Resource
     protected static ?string                 $modelLabel       = 'Mata Pelajaran';
     protected static ?string                 $pluralModelLabel = 'Mata Pelajaran';
 
+    public static function canAccess(): bool { return AdminAccess::can('Kurikulum'); }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
