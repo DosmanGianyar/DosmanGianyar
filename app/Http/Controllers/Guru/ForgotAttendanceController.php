@@ -25,7 +25,7 @@ class ForgotAttendanceController extends Controller
             )
             ->when(
                 ! $guru->isBk() && $guru->role !== 'admin' && ! $homeroomClass,
-                fn($q) => $q->whereRaw('0=1')
+                fn($q) => $q->whereIn('status', ['approved', 'rejected'])
             )
             ->latest()
             ->paginate(15);

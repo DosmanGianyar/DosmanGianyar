@@ -178,7 +178,7 @@ class AttendanceController extends Controller
             )
             ->when(
                 ! $guru->isBk() && $guru->role !== 'admin' && ! $guru->homeroomClass,
-                fn($q) => $q->whereRaw('0=1') // guru bukan wali & bukan BK: tidak tampilkan
+                fn($q) => $q->whereIn('status', ['approved', 'rejected'])
             )
             ->latest()
             ->paginate(15);
