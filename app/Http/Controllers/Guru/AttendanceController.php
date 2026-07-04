@@ -145,6 +145,11 @@ class AttendanceController extends Controller
 
     public function manual(Request $request): RedirectResponse
     {
+        $guru = Auth::user();
+        if (! $guru->homeroomClass && ! $guru->isBk() && $guru->role !== 'admin') {
+            abort(403, 'Anda tidak berwenang mengubah absensi.');
+        }
+
         $request->validate([
             'student_id' => 'required|exists:users,id',
             'date'       => 'required|date|before_or_equal:today',

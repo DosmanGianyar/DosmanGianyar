@@ -26,6 +26,8 @@
                     class="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
         </div>
+        @php $canEdit = auth()->user()->homeroomClass || auth()->user()->isBk() || auth()->user()->role === 'admin'; @endphp
+        @if($canEdit)
         <div class="flex gap-2 sm:w-auto">
             <button type="button" onclick="openManualModal(null, '{{ $date }}')"
                 class="flex items-center justify-center gap-1.5 px-4 py-2.5 bg-emerald-600 text-white text-sm font-medium rounded-xl hover:bg-emerald-700 transition-colors">
@@ -42,6 +44,7 @@
                 Dispensasi
             </a>
         </div>
+        @endif
     </form>
 
     {{-- Summary chips --}}
@@ -97,6 +100,7 @@
                     </svg>
                 </a>
                 @endif
+                @if($canEdit)
                 <button type="button"
                     onclick="openManualModal({{ $student->id }}, '{{ $date }}')"
                     class="w-9 h-9 flex items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors">
@@ -105,6 +109,7 @@
                             d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                     </svg>
                 </button>
+                @endif
             </div>
         </div>
         @empty
@@ -163,6 +168,7 @@
                                 </svg>
                             </a>
                             @endif
+                            @if($canEdit)
                             <button type="button"
                                 onclick="openManualModal({{ $student->id }}, '{{ $date }}')"
                                 class="flex items-center gap-1 text-xs font-medium text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg hover:bg-emerald-100 transition-colors">
@@ -172,6 +178,7 @@
                                 </svg>
                                 Ubah
                             </button>
+                            @endif
                         </div>
                     </td>
                 </tr>
