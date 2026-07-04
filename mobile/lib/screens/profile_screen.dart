@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import '../config/app_config.dart';
 import '../models/user.dart';
 import '../providers/auth_provider.dart';
 import '../services/api_client.dart';
@@ -927,7 +928,9 @@ class _IdBack extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final qrData = 'NIS:${user?.nis ?? ''}|NISN:${user?.nisn ?? ''}|Nama:${user?.name ?? ''}';
+    // URL publik /biodata/{nis} — bisa dibuka tanpa login
+    final baseWeb = AppConfig.baseUrl.replaceAll('/api/v1', '');
+    final qrData  = '$baseWeb/biodata/${user?.nis ?? user?.id ?? ''}';
 
     return Container(
       decoration: BoxDecoration(
