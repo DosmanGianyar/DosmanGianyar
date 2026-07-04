@@ -48,18 +48,10 @@ class AuthController extends Controller
 
         $deviceId = $request->input('device_id');
 
-        if ($user->hasDeviceLocked()) {
-            // Akun sudah terikat ke device lain
-            if (! $user->isDeviceAllowed($deviceId)) {
-                return response()->json([
-                    'message' => 'Akun ini sudah terdaftar di perangkat lain. Hubungi Admin untuk reset perangkat.',
-                    'code'    => 'DEVICE_LOCKED',
-                ], 403);
-            }
-        } else {
-            // Pertama kali login dari Flutter → ikat device
-            $user->lockToDevice($deviceId);
-        }
+        // Selalu perbarui device binding saat login berhasil.
+        // Token lama di-revoke di bawah, sehingga hanya satu sesi aktif per akun.
+        // Tidak memblokir login dari device berbeda agar siswa bisa ganti HP/reinstall.
+        $user->lockToDevice($deviceId);
 
         // Satu akun = satu sesi aktif (revoke token lama)
         $user->tokens()->delete();

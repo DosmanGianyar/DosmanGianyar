@@ -6,10 +6,14 @@ class AuthService {
   AuthService._();
 
   /// Login dari Flutter.
-  /// Secara otomatis ambil device_id dan kirim ke server.
-  /// Return [User] jika berhasil, lempar Exception jika gagal.
+  /// Device ID dibaca dari storage jika sudah ada (stabil lintas build/reinstall).
+  /// Jika belum ada, baca dari sistem dan simpan untuk seterusnya.
   static Future<User> login(String loginInput, String password) async {
-    final deviceId = await DeviceService.getDeviceId();
+    // Gunakan device_id yang tersimpan agar tetap sama meski APK di-reinstall
+    String deviceId = await ApiClient.getDeviceId() ?? '';
+    if (deviceId.isEmpty) {
+      deviceId = await DeviceService.getDeviceId();
+    }
 
     final body = await ApiClient.post('/auth/login', data: {
       'login':     loginInput.trim(),
