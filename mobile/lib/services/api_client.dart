@@ -147,9 +147,11 @@ class ApiClient {
     return 'Error: ${error.toString()}';
   }
 
-  static Future<void> saveToken(String token)    => _storage.write(key: 'auth_token', value: token);
-  static Future<void> saveDeviceId(String id)    => _storage.write(key: 'device_id',  value: id);
-  static Future<String?> getToken()              => _storage.read(key: 'auth_token');
-  static Future<String?> getDeviceId()           => _storage.read(key: 'device_id');
-  static Future<void> clearAuth()                => _storage.deleteAll();
+  static Future<void> saveToken(String token)        => _storage.write(key: 'auth_token',   value: token);
+  static Future<void> saveDeviceId(String id)        => _storage.write(key: 'device_id',    value: id);
+  static Future<void> saveUserCache(String userJson) => _storage.write(key: 'cached_user',  value: userJson);
+  static Future<String?> getToken()                  => _storage.read(key: 'auth_token');
+  static Future<String?> getDeviceId()               => _storage.read(key: 'device_id');
+  static Future<String?> getUserCache()              => _storage.read(key: 'cached_user');
+  static Future<void> clearAuth()                    => _storage.deleteAll();
 }

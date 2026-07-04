@@ -1,3 +1,4 @@
+import 'dart:convert';
 import '../models/user.dart';
 import 'api_client.dart';
 import 'device_service.dart';
@@ -24,7 +25,9 @@ class AuthService {
     await ApiClient.saveToken(body['token'] as String);
     await ApiClient.saveDeviceId(deviceId);
 
-    return User.fromJson(body['user'] as Map<String, dynamic>);
+    final user = User.fromJson(body['user'] as Map<String, dynamic>);
+    await ApiClient.saveUserCache(json.encode(user.toJson()));
+    return user;
   }
 
   /// Logout — hapus token dari server dan local storage.
@@ -44,9 +47,22 @@ class AuthService {
     return token != null && token.isNotEmpty;
   }
 
-  /// Ambil data user saat ini dari server.
+  /// Ambil data user saat ini dari server, simpan ke cache.
   static Future<User> fetchMe() async {
     final body = await ApiClient.get('/auth/me');
-    return User.fromJson(body['user'] as Map<String, dynamic>);
+    final user = User.fromJson(body['user'] as Map<String, dynamic>);
+    await ApiClient.saveUserCache(json.encode(user.toJson()));
+    return user;
+  }
+
+  /// Muat data user dari cache lokal (untuk offline/network error).
+  static Future<User?> loadCachedUser() async {
+    final data = await ApiClient.getUserCache();
+    if (data == null) return null;
+    try {
+      return User.fromJson(json.decode(data) as Map<String, dynamic>);
+    } catch (_) {
+      return null;
+    }
   }
 }

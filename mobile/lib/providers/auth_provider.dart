@@ -35,12 +35,19 @@ class AuthProvider extends ChangeNotifier {
     } catch (e) {
       final is401 = e is DioException && e.response?.statusCode == 401;
       if (is401) {
-        // Token benar-benar expired/invalid → hapus dan minta login ulang
+        // Token expired/invalid → hapus semua dan paksa login ulang
         await ApiClient.clearAuth();
+        _state = AuthState.unauthenticated;
+      } else {
+        // Network error / server unreachable → pakai data user dari cache lokal
+        final cached = await AuthService.loadCachedUser();
+        if (cached != null) {
+          _user  = cached;
+          _state = AuthState.authenticated;
+        } else {
+          _state = AuthState.unauthenticated;
+        }
       }
-      // Network error: jangan hapus token, tapi tetap tampilkan layar login
-      // agar user bisa retry. Token masih valid di server.
-      _state = AuthState.unauthenticated;
     }
     notifyListeners();
   }

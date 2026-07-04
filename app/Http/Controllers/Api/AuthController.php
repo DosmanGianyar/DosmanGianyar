@@ -67,13 +67,13 @@ class AuthController extends Controller
         $token = $user->createToken(
             name:       'flutter-app',
             abilities:  ['*'],
-            expiresAt:  now()->addDays(30),
+            expiresAt:  now()->addMonths(6),
         )->plainTextToken;
 
         return response()->json([
             'token'       => $token,
             'token_type'  => 'Bearer',
-            'expires_in'  => 30 * 24 * 60 * 60, // detik
+            'expires_in'  => 6 * 30 * 24 * 60 * 60, // detik (~6 bulan)
             'user'        => $this->userPayload($user),
             'server_time' => now()->toIso8601String(),
         ]);

@@ -59,6 +59,26 @@ class User {
     );
   }
 
+  Map<String, dynamic> toJson() => {
+    'id':           id,
+    'name':         name,
+    'email':        email,
+    'role':         role,
+    'nis':          nis,
+    'nisn':         nisn,
+    'nip':          nip,
+    'photo_url':    photoUrl,
+    'class_id':     classId,
+    'class_name':   className,
+    'device_bound': deviceBound,
+    'phone':        phone,
+    'address':      address,
+    'birth_date':   birthDate,
+    'gender':       gender,
+    'parent_name':  parentName,
+    'parent_phone': parentPhone,
+  };
+
   String get displayId => nis ?? nisn ?? nip ?? email;
 
   String get roleLabel => switch (role) {

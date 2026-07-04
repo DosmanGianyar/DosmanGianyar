@@ -50,7 +50,7 @@ return [
     |
     */
 
-    'expiration' => env('SANCTUM_TOKEN_EXPIRATION', 4320), // 3 days
+    'expiration' => env('SANCTUM_TOKEN_EXPIRATION', null), // null = pakai expiresAt per-token
 
     /*
     |--------------------------------------------------------------------------
