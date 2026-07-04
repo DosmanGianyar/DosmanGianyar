@@ -204,7 +204,7 @@
                     $cls = 'text-gray-300';
                 } elseif ($st && in_array($st, $hadir_set)) {
                     $cls = 'bg-green-500 text-white';
-                } elseif ($st === 'alpa' || (!$st && !$isWeekend && !$isFuture)) {
+                } elseif ($st === 'alpa') {
                     $cls = 'bg-red-500 text-white';
                 } else {
                     $cls = 'text-gray-300';
