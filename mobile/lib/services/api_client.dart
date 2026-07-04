@@ -135,12 +135,13 @@ class ApiClient {
 
       // Fallback berdasarkan tipe koneksi
       return switch (error.type) {
-        DioExceptionType.connectionTimeout => 'Koneksi timeout. Periksa internet.',
-        DioExceptionType.receiveTimeout    => 'Server tidak merespons.',
-        DioExceptionType.connectionError   => 'Tidak dapat terhubung ke server.\nPastikan internet aktif.',
+        DioExceptionType.connectionTimeout => 'Koneksi timeout. Pastikan internet aktif lalu coba lagi.',
+        DioExceptionType.receiveTimeout    => 'Server tidak merespons. Coba lagi sebentar.',
+        DioExceptionType.connectionError   => 'Tidak dapat terhubung ke server.\nPastikan internet aktif lalu coba lagi.',
+        DioExceptionType.sendTimeout       => 'Koneksi timeout saat mengirim data. Coba lagi.',
         DioExceptionType.badCertificate    => 'Sertifikat SSL tidak valid. Hubungi admin.',
         DioExceptionType.cancel            => 'Permintaan dibatalkan.',
-        _                                  => 'Terjadi kesalahan. Coba lagi.',
+        _                                  => 'Koneksi bermasalah. Pastikan internet aktif lalu coba lagi.',
       };
     }
     return 'Error: ${error.toString()}';

@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import '../models/user.dart';
 import '../services/auth_service.dart';
@@ -31,9 +32,14 @@ class AuthProvider extends ChangeNotifier {
     try {
       _user  = await AuthService.fetchMe();
       _state = AuthState.authenticated;
-    } catch (_) {
-      // Token mungkin expired — paksa login ulang
-      await ApiClient.clearAuth();
+    } catch (e) {
+      final is401 = e is DioException && e.response?.statusCode == 401;
+      if (is401) {
+        // Token benar-benar expired/invalid → hapus dan minta login ulang
+        await ApiClient.clearAuth();
+      }
+      // Network error: jangan hapus token, tapi tetap tampilkan layar login
+      // agar user bisa retry. Token masih valid di server.
       _state = AuthState.unauthenticated;
     }
     notifyListeners();
