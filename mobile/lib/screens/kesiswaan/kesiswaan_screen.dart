@@ -646,7 +646,7 @@ class _PelanggaranTab extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
             child: Row(children: [
               Container(width: 8, height: 8,
-                decoration: const BoxDecoration(color: AppColors.red400, shape: BoxShape.circle)),
+                decoration: const BoxDecoration(color: AppColors.red500, shape: BoxShape.circle)),
               const SizedBox(width: 10),
               Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Text(v['category_name'] ?? '',

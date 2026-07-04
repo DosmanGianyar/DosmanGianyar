@@ -77,6 +77,8 @@
             align-items: center;
             margin-top: -52px;
             padding: 0 20px 16px;
+            position: relative;
+            z-index: 1;
         }
         .avatar {
             width: 88px; height: 88px;
