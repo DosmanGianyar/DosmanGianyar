@@ -16,6 +16,8 @@ class ImportDapodikPage extends Page
     protected static ?string                $navigationLabel = 'Import Dapodik';
     protected static ?int                   $navigationSort  = 5;
 
+    public static function canAccess(): bool { return auth()->user()?->role === 'admin'; }
+
     protected string $view = 'filament.pages.import-dapodik';
 
     // ── Form & result state ───────────────────────────────────────────────────

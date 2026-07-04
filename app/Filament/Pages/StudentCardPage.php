@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Filament\Support\AdminAccess;
 use App\Models\SchoolClass;
 use App\Models\User;
 use Filament\Pages\Page;
@@ -13,6 +14,8 @@ class StudentCardPage extends Page
     protected static ?string                 $navigationLabel = 'Download Kartu Siswa';
     protected static ?string                 $title           = 'Download Kartu Pelajar';
     protected static ?int                    $navigationSort  = 20;
+
+    public static function canAccess(): bool { return AdminAccess::can('Kesiswaan'); }
 
     protected string $view = 'filament.pages.student-card';
 

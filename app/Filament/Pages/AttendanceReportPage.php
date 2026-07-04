@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Filament\Support\AdminAccess;
 use App\Models\Attendance;
 use App\Models\SchoolClass;
 use App\Models\User;
@@ -16,6 +17,8 @@ class AttendanceReportPage extends Page
     protected static ?string                 $navigationLabel      = 'Laporan Presensi';
     protected static ?string                 $title                = 'Laporan Presensi Bulanan';
     protected static ?int                    $navigationSort       = 15;
+
+    public static function canAccess(): bool { return AdminAccess::can('Kesiswaan'); }
 
     protected string $view = 'filament.pages.attendance-report';
 

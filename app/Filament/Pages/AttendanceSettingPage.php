@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Filament\Support\AdminAccess;
 use App\Models\AttendanceSetting;
 use Filament\Forms\Components\TimePicker;
 use Filament\Notifications\Notification;
@@ -15,6 +16,8 @@ class AttendanceSettingPage extends Page
     protected static ?string               $navigationParentItem  = 'Presensi';
     protected static ?string                $navigationLabel      = 'Pengaturan Waktu Presensi';
     protected static ?int                   $navigationSort  = 10;
+
+    public static function canAccess(): bool { return AdminAccess::can('Kesiswaan'); }
 
     protected string $view = 'filament.pages.attendance-setting';
 
