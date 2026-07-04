@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\ExtracurricularController;
 use App\Http\Controllers\Api\ForgotAttendanceController;
 use App\Http\Controllers\Api\GradeController;
 use App\Http\Controllers\Api\HomeroomConsultationController;
+use App\Http\Controllers\Api\KesiswaanController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\PermitController;
 use App\Http\Controllers\Api\SchoolRegulationController;
@@ -101,6 +102,9 @@ Route::prefix('v1')->group(function () {
 
             // Absensi Guru Mengajar (untuk siswa)
             Route::get('/teacher-attendance', [TeacherAttendanceController::class, 'index']);
+
+            // Kesiswaan Summary
+            Route::get('/kesiswaan/summary', [KesiswaanController::class, 'summary']);
 
             // Bimbingan Wali Kelas
             Route::get('/homeroom-consultations',             [HomeroomConsultationController::class, 'index']);
