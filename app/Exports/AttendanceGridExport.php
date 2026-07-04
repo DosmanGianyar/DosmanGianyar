@@ -60,7 +60,7 @@ class AttendanceGridExport implements FromArray, WithTitle, WithColumnWidths, Wi
         $header = ['No', 'Kelas', 'Nama Siswa', 'NISN / NIS'];
         for ($d = 1; $d <= $this->daysInMonth; $d++) {
             $date = $start->copy()->setDay($d);
-            $header[] = $d . ($date->isWeekend() ? '*' : '');
+            $header[] = $d . ($date->isSunday() ? '*' : '');
         }
         $header[] = 'Hdr';
         $header[] = 'Alp';
@@ -83,7 +83,7 @@ class AttendanceGridExport implements FromArray, WithTitle, WithColumnWidths, Wi
                 $date   = $start->copy()->setDay($d);
                 $status = $dayRecords->get($d)?->status ?? null;
 
-                if ($date->isWeekend()) {
+                if ($date->isSunday()) {
                     $row[] = '·';
                 } else {
                     $letter = match($status) {

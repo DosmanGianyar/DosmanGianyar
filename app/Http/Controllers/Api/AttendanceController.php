@@ -316,7 +316,7 @@ class AttendanceController extends Controller
 
     private function canCheckIn(?Attendance $today, array $times, Carbon $now, bool $isHoliday): bool
     {
-        if ($isHoliday || today()->isWeekend()) return false;
+        if ($isHoliday || today()->isSunday()) return false;
         if ($today && in_array($today->status, ['hadir', 'terlambat'])) return false;
         if ($now->lt(Carbon::today()->setTimeFromTimeString($times['check_in_open']))) return false;
         if ($now->gte(Carbon::today()->setTimeFromTimeString($times['check_in_close']))) return false;
