@@ -99,72 +99,121 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 }
 
-// ─── Panel Atas: Biru gradient (logo + visi) ─────────────────────────────────
+// ─── Panel Atas: Biru gradient (logo + motto) ────────────────────────────────
 class _BluePanelTop extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 36, horizontal: 24),
+      padding: const EdgeInsets.fromLTRB(24, 40, 24, 36),
       decoration: const BoxDecoration(gradient: AppColors.loginGradient),
       child: Stack(
         alignment: Alignment.topCenter,
         children: [
-          // Dekorasi lingkaran blur (sesuai web)
-          Positioned(
-            top: -20, left: -20,
-            child: _BlurCircle(size: 120, opacity: 0.10),
-          ),
-          Positioned(
-            bottom: -16, right: -16,
-            child: _BlurCircle(size: 96, opacity: 0.12),
-          ),
-          // Konten
+          // Dekorasi lingkaran blur background
+          Positioned(top: -30, left: -30,  child: _BlurCircle(size: 140, opacity: 0.08)),
+          Positioned(top:  20, right: -20, child: _BlurCircle(size:  80, opacity: 0.06)),
+          Positioned(bottom: -20, left: 40, child: _BlurCircle(size: 100, opacity: 0.07)),
+          Positioned(bottom: -10, right: -10, child: _BlurCircle(size: 70, opacity: 0.09)),
+
+          // Konten utama
           Column(
             children: [
-              // Logo dalam lingkaran
+              // ── Logo dengan cincin glow ──────────────────────────────
               Container(
-                width: 108, height: 108,
+                width: 110, height: 110,
                 decoration: BoxDecoration(
-                  shape:  BoxShape.circle,
-                  color:  Colors.white.withOpacity(0.20),
-                  border: Border.all(color: Colors.white.withOpacity(0.30), width: 3),
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color:       Colors.white.withValues(alpha: 0.18),
+                      blurRadius:  24,
+                      spreadRadius: 4,
+                    ),
+                  ],
                 ),
-                padding: const EdgeInsets.all(8),
-                child: Image.asset('assets/images/logo_sekolah.png', fit: BoxFit.contain),
+                child: Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withValues(alpha: 0.18),
+                    border: Border.all(color: Colors.white.withValues(alpha: 0.35), width: 2.5),
+                  ),
+                  padding: const EdgeInsets.all(10),
+                  child: Image.asset('assets/images/logo_sekolah.png', fit: BoxFit.contain),
+                ),
+              ),
+              const SizedBox(height: 22),
+
+              // ── Separator dekoratif ──────────────────────────────────
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(width: 40, height: 0.8, color: Colors.white.withValues(alpha: 0.25)),
+                  const SizedBox(width: 10),
+                  Transform.rotate(
+                    angle: 0.785, // 45°
+                    child: Container(
+                      width: 6, height: 6,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.60),
+                        borderRadius: BorderRadius.circular(1),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Container(width: 40, height: 0.8, color: Colors.white.withValues(alpha: 0.25)),
+                ],
               ),
               const SizedBox(height: 16),
+
+              // ── Motto utama ──────────────────────────────────────────
               const Text(
-                'VISI SMAN 1 GIANYAR',
+                'Widya Wahana Bhakti',
                 style: TextStyle(
                   color:         Colors.white,
-                  fontSize:      13,
+                  fontSize:      22,
                   fontWeight:    FontWeight.w800,
-                  letterSpacing: 1.5,
+                  letterSpacing: 0.8,
+                  height:        1.2,
+                  shadows: [
+                    Shadow(
+                      color:  Colors.black26,
+                      offset: Offset(0, 2),
+                      blurRadius: 8,
+                    ),
+                  ],
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 8),
-              Container(width: 36, height: 1, color: Colors.white.withOpacity(0.40)),
-              const SizedBox(height: 10),
-              const Text(
-                'Insan Cerdas, Sarat Prestasi,\nBerkarakter, Berbudaya,\nPeduli Lingkungan,\ndan Berwawasan Global',
-                style: TextStyle(
-                  color:    AppColors.blue200,
-                  fontSize: 12,
-                  height:   1.6,
+              const SizedBox(height: 14),
+
+              // ── Tagline dalam pill ───────────────────────────────────
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+                decoration: BoxDecoration(
+                  color:        Colors.white.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(24),
+                  border:       Border.all(color: Colors.white.withValues(alpha: 0.22), width: 1),
                 ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 10),
-              const Text(
-                '"Learn, Inovate, and Build The Future"',
-                style: TextStyle(
-                  color:      Colors.white70,
-                  fontSize:   11,
-                  fontStyle:  FontStyle.italic,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.auto_awesome_rounded, size: 12, color: Colors.white.withValues(alpha: 0.70)),
+                    const SizedBox(width: 7),
+                    const Text(
+                      'Learn, Innovate and Build The Future',
+                      style: TextStyle(
+                        color:      Colors.white,
+                        fontSize:   11,
+                        fontStyle:  FontStyle.italic,
+                        fontWeight: FontWeight.w500,
+                        letterSpacing: 0.2,
+                      ),
+                    ),
+                    const SizedBox(width: 7),
+                    Icon(Icons.auto_awesome_rounded, size: 12, color: Colors.white.withValues(alpha: 0.70)),
+                  ],
                 ),
-                textAlign: TextAlign.center,
               ),
             ],
           ),
