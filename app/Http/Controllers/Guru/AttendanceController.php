@@ -80,11 +80,15 @@ class AttendanceController extends Controller
 
         $start = Carbon::createFromDate($year, $month, 1)->startOfMonth();
         $end   = $start->copy()->endOfMonth();
+        $today = today();
 
-        // Weekdays only (Mon–Fri)
+        // All calendar days for the grid display
+        $allDays    = collect();
+        // Weekdays only for counting hari sekolah
         $schoolDays = collect();
         $cursor = $start->copy();
         while ($cursor->lte($end)) {
+            $allDays->push($cursor->copy());
             if ($cursor->isWeekday()) {
                 $schoolDays->push($cursor->copy());
             }
@@ -110,14 +114,18 @@ class AttendanceController extends Controller
             ->groupBy('student_id')
             ->map(fn($g) => $g->mapWithKeys(fn($r) => [$r->date->format('Y-m-d') => true])->all());
 
-        // Per-student summary
-        $studentData = $students->map(function ($student) use ($attendances, $schoolDays, $approvedEarlyCheckouts) {
+        // Per-student summary — only count school days up to today
+        $studentData = $students->map(function ($student) use ($attendances, $schoolDays, $approvedEarlyCheckouts, $today) {
             $recs             = $attendances->get($student->id, collect())->keyBy(fn($a) => $a->date->format('Y-m-d'));
             $studentApprovals = $approvedEarlyCheckouts->get($student->id, []);
             $counts           = ['hadir' => 0, 'terlambat' => 0, 'izin' => 0, 'sakit' => 0, 'alpa' => 0, 'dispensasi' => 0];
             $effectiveStatuses = [];
             foreach ($schoolDays as $day) {
-                $dateStr          = $day->format('Y-m-d');
+                $dateStr = $day->format('Y-m-d');
+                if ($day->gt($today)) {
+                    $effectiveStatuses[$dateStr] = 'future';
+                    continue;
+                }
                 $att              = $recs->get($dateStr);
                 $hasEarlyApproval = isset($studentApprovals[$dateStr]);
                 $status           = $att ? $att->effectiveStatus($hasEarlyApproval) : 'alpa';
@@ -137,8 +145,8 @@ class AttendanceController extends Controller
         $canNext   = $nextMonth->lte(now()->endOfMonth());
 
         return view('guru.attendance.rekap', compact(
-            'classes', 'selectedClassId', 'schoolDays',
-            'studentData', 'month', 'year', 'start',
+            'classes', 'selectedClassId', 'allDays', 'schoolDays',
+            'studentData', 'month', 'year', 'start', 'today',
             'prevMonth', 'nextMonth', 'canNext'
         ));
     }

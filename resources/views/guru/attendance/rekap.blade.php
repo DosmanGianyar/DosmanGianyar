@@ -75,11 +75,14 @@
                     <th class="text-left px-3 py-2.5 font-semibold text-gray-600 sticky left-0 bg-gray-50 min-w-[140px]">
                         Nama Siswa
                     </th>
-                    @foreach($schoolDays as $day)
-                    <th class="px-1 py-2.5 font-semibold text-gray-500 text-center min-w-[28px]
-                        {{ $day->isToday() ? 'bg-blue-50 text-blue-600' : '' }}">
+                    @foreach($allDays as $day)
+                    @php $isWeekend = $day->isSaturday() || $day->isSunday(); @endphp
+                    <th class="px-1 py-2.5 font-semibold text-center min-w-[28px]
+                        {{ $isWeekend ? 'bg-gray-100 text-gray-300' : ($day->isToday() ? 'bg-blue-50 text-blue-600' : 'text-gray-500') }}">
                         {{ $day->format('d') }}
-                        <div class="text-[9px] font-normal text-gray-400">{{ $day->isoFormat('ddd') }}</div>
+                        <div class="text-[9px] font-normal {{ $isWeekend ? 'text-gray-300' : 'text-gray-400' }}">
+                            {{ $day->isoFormat('ddd') }}
+                        </div>
                     </th>
                     @endforeach
                     <th class="px-2 py-2.5 font-semibold text-green-600 text-center min-w-[28px]">H</th>
@@ -96,20 +99,24 @@
                     <td class="px-3 py-2 sticky left-0 bg-white font-medium text-gray-800 truncate max-w-[140px]">
                         {{ $row['student']->name }}
                     </td>
-                    @foreach($schoolDays as $day)
+                    @foreach($allDays as $day)
                     @php
-                        $status = $row['effective_statuses'][$day->format('Y-m-d')] ?? 'alpa';
-                        $cell   = match($status) {
-                            'hadir'       => ['bg-green-500','H'],
-                            'terlambat'   => ['bg-yellow-400','T'],
-                            'izin'        => ['bg-blue-400','I'],
-                            'sakit'       => ['bg-purple-400','S'],
-                            'dispensasi'  => ['bg-teal-400','D'],
-                            default       => ['bg-red-400','A'],
+                        $isWeekend = $day->isSaturday() || $day->isSunday();
+                        $isFuture  = $day->gt($today);
+                        $status    = $row['effective_statuses'][$day->format('Y-m-d')] ?? null;
+                        $cell = match(true) {
+                            $isWeekend                        => ['bg-gray-100 border border-gray-200', 'L', 'text-gray-300'],
+                            $isFuture || $status === 'future' => ['bg-gray-50',  '·',  'text-gray-200'],
+                            $status === 'hadir'               => ['bg-green-500','H',  'text-white'],
+                            $status === 'terlambat'           => ['bg-yellow-400','T', 'text-white'],
+                            $status === 'izin'                => ['bg-blue-400', 'I',  'text-white'],
+                            $status === 'sakit'               => ['bg-purple-400','S', 'text-white'],
+                            $status === 'dispensasi'          => ['bg-teal-400', 'D',  'text-white'],
+                            default                           => ['bg-red-400',  'A',  'text-white'],
                         };
                     @endphp
-                    <td class="text-center py-2 px-0.5">
-                        <span class="inline-flex items-center justify-center w-5 h-5 rounded text-[9px] font-bold text-white {{ $cell[0] }}">
+                    <td class="text-center py-2 px-0.5 {{ $isWeekend ? 'bg-gray-50' : '' }}">
+                        <span class="inline-flex items-center justify-center w-5 h-5 rounded text-[9px] font-bold {{ $cell[0] }} {{ $cell[2] }}">
                             {{ $cell[1] }}
                         </span>
                     </td>
