@@ -510,15 +510,15 @@ class _GreetingCard extends StatelessWidget {
         gradient:     AppColors.primaryGradient,
         borderRadius: AppRadius.card,
       ),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       child: Row(
         children: [
           // Foto / avatar
           Container(
-            width: 56, height: 56,
+            width: 76, height: 76,
             decoration: BoxDecoration(
               borderRadius: AppRadius.avatar,
-              border:       Border.all(color: Colors.white.withOpacity(0.40), width: 2),
+              border:       Border.all(color: Colors.black, width: 2.5),
             ),
             clipBehavior: Clip.antiAlias,
             child: user?.photoUrl != null
@@ -559,6 +559,14 @@ class _GreetingCard extends StatelessWidget {
                   style: const TextStyle(color: AppColors.blue200, fontSize: 11),
                   overflow: TextOverflow.ellipsis,
                 ),
+                if (user?.nisn != null) ...[
+                  const SizedBox(height: 1),
+                  Text(
+                    'NISN ${user!.nisn}',
+                    style: const TextStyle(color: AppColors.blue200, fontSize: 11),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
                 // Dot ringkasan kehadiran bulan ini (sama seperti web)
                 if (records.isNotEmpty) ...[
                   const SizedBox(height: 6),

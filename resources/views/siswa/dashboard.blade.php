@@ -6,15 +6,15 @@
 @section('content')
 
 {{-- ─── Sapaan ──────────────────────────────────────────────────────── --}}
-<div class="bg-linear-to-br from-blue-600 to-indigo-700 rounded-2xl p-4 mb-3 text-white">
+<div class="bg-linear-to-br from-blue-600 to-indigo-700 rounded-2xl px-3.5 py-2.5 mb-3 text-white">
     <div class="flex items-center gap-3">
         <a href="{{ route('siswa.profile') }}" class="shrink-0">
             @if($siswa->photo)
                 <img src="{{ $siswa->photo_url }}"
-                    class="w-14 h-14 rounded-2xl object-cover border-2 border-white/40 shadow">
+                    class="w-20 h-20 rounded-2xl object-cover border-[2.5px] border-black shadow">
             @else
-                <div class="w-14 h-14 rounded-2xl border-2 border-white/40 shadow overflow-hidden bg-white/20 flex items-end justify-center">
-                    <svg viewBox="0 0 56 64" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-12">
+                <div class="w-20 h-20 rounded-2xl border-[2.5px] border-black shadow overflow-hidden bg-white/20 flex items-end justify-center">
+                    <svg viewBox="0 0 56 64" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-16">
                         <ellipse cx="28" cy="22" rx="11" ry="12" fill="white" fill-opacity="0.9"/>
                         <path d="M4 64c0-13.255 10.745-24 24-24s24 10.745 24 24" fill="white" fill-opacity="0.9"/>
                     </svg>
@@ -33,6 +33,9 @@
             <p class="text-blue-100 text-xs mt-0.5 truncate">
                 {{ $siswa->schoolClass?->name ?? 'SMA Negeri 1 Gianyar' }} · NIS {{ $siswa->nis ?? '—' }}
             </p>
+            @if($siswa->nisn)
+            <p class="text-blue-200 text-xs mt-0.5 truncate">NISN {{ $siswa->nisn }}</p>
+            @endif
             {{-- Ringkasan kehadiran bulan ini --}}
             <div class="flex items-center gap-2.5 mt-1.5">
                 <span class="inline-flex items-center gap-1 text-[11px] font-bold text-yellow-200 leading-none"><span class="w-2 h-2 rounded-full bg-yellow-400 shrink-0"></span>{{ $monthlySummary['terlambat'] }}</span>
