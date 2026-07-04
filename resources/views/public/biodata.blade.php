@@ -30,10 +30,6 @@
             padding: 20px 20px 60px;
             position: relative;
             overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 10px;
         }
         .banner::before {
             content: '';
@@ -47,6 +43,7 @@
             display: flex;
             align-items: center;
             gap: 12px;
+            position: relative;
         }
         .banner-logo {
             width: 44px; height: 44px;
@@ -61,6 +58,7 @@
         .banner-name h1 { font-size: 13px; font-weight: 800; letter-spacing: .03em; }
         .banner-name p { font-size: 11px; color: rgba(186,230,253,.85); margin-top: 2px; }
         .banner-badge {
+            display: inline-block;
             background: rgba(253,224,71,.15);
             border: 1px solid rgba(253,224,71,.4);
             color: rgba(253,224,71,1);
@@ -68,11 +66,9 @@
             font-weight: 700;
             letter-spacing: .12em;
             text-transform: uppercase;
-            padding: 4px 10px;
+            padding: 3px 10px;
             border-radius: 20px;
-            white-space: nowrap;
-            flex-shrink: 0;
-            align-self: flex-start;
+            margin-top: 5px;
         }
         /* ── Avatar (overlaps banner) ── */
         .avatar-wrap {
@@ -172,9 +168,9 @@
             <div class="banner-name">
                 <h1>SMA NEGERI 1 GIANYAR</h1>
                 <p>Jl. Ratna No.1, Gianyar · NPSN 50102079</p>
+                <div class="banner-badge">KARTU PELAJAR</div>
             </div>
         </div>
-        <div class="banner-badge">KARTU PELAJAR</div>
     </div>
 
     {{-- Avatar + nama --}}
