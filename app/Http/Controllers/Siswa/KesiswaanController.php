@@ -7,6 +7,7 @@ use App\Models\Attendance;
 use App\Models\EarlyCheckoutRequest;
 use App\Models\ExitPass;
 use App\Models\ForgotAttendanceRequest;
+use App\Models\Holiday;
 use App\Models\Permit;
 use App\Models\StudentAchievement;
 use App\Models\VotingSession;
@@ -21,12 +22,28 @@ class KesiswaanController extends Controller
         $siswa = Auth::user();
 
         // ── Rekap Absensi Bulan Ini ──────────────────────────────────────────
-        $absensi = Attendance::where('user_id', $siswa->id)
-            ->whereMonth('date', now()->month)
-            ->whereYear('date', now()->year)
-            ->selectRaw('status, COUNT(*) as total')
-            ->groupBy('status')
-            ->pluck('total', 'status');
+        $monthStart = now()->startOfMonth();
+        $monthEnd   = now()->endOfMonth();
+
+        $monthlyRecs = Attendance::where('user_id', $siswa->id)
+            ->whereBetween('date', [$monthStart, $monthEnd])
+            ->get(['date', 'status']);
+
+        $absensi = $monthlyRecs->groupBy('status')->map->count();
+
+        // Hari sekolah yang lalu tanpa record → dihitung alpa (sama seperti dashboard)
+        $monthlyHolidays = Holiday::getHolidayDates($monthStart, $monthEnd, $siswa->class_id);
+        $monthlySpecial  = Holiday::getSpecialSchoolDates($monthStart, $monthEnd, $siswa->class_id);
+        $recordedDates   = $monthlyRecs->pluck('date')->map->format('Y-m-d')->flip()->all();
+
+        $virtualAlpa = 0;
+        $today = today();
+        for ($day = $monthStart->copy(); $day->lt($today); $day->addDay()) {
+            $ds = $day->format('Y-m-d');
+            if (! Holiday::isSchoolDay($day, $monthlyHolidays, $monthlySpecial)) continue;
+            if (isset($recordedDates[$ds])) continue;
+            $virtualAlpa++;
+        }
 
         $absensiSummary = [
             'hadir'      => (int) ($absensi['hadir']      ?? 0),
@@ -34,7 +51,7 @@ class KesiswaanController extends Controller
             'izin'       => (int) ($absensi['izin']       ?? 0),
             'sakit'      => (int) ($absensi['sakit']      ?? 0),
             'dispensasi' => (int) ($absensi['dispensasi'] ?? 0),
-            'alpa'       => (int) ($absensi['alpa']       ?? 0),
+            'alpa'       => (int) ($absensi['alpa']       ?? 0) + $virtualAlpa,
         ];
 
         // ── Perilaku (poin dihapus, gunakan count per tipe kategori) ──────────
