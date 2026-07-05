@@ -85,6 +85,7 @@ class GuruConductApiController extends Controller
         $data = [
             'student_id' => $request->student_id,
             'teacher_id' => Auth::id(),
+            'type'       => $request->type,
             'note'       => $request->note,
         ];
 

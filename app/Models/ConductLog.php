@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class ConductLog extends Model
 {
     protected $fillable = [
-        'student_id', 'teacher_id', 'category_id', 'photo', 'note',
+        'student_id', 'teacher_id', 'type', 'category_id', 'photo', 'note',
         'description', 'severity',
         'prestasi_type', 'lomba_name', 'lomba_level', 'lomba_rank',
     ];
