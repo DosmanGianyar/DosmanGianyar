@@ -99,22 +99,22 @@ class GuruConductApiController extends Controller
             };
 
             $log = ConductLog::create($data);
-            NotificationService::send($request->student_id, "Pelanggaran ({$severityLabel})", $request->description, 'warning');
-            return response()->json(['message' => 'Pelanggaran berhasil dicatat.', 'id' => $log->id], 201);
+            NotificationService::send($request->student_id, "Catatan Negatif ({$severityLabel})", $request->description, 'warning');
+            return response()->json(['message' => 'Catatan negatif berhasil dicatat.', 'id' => $log->id], 201);
         }
 
-        // Prestasi Perilaku
+        // Catatan Positif — Perilaku
         if ($request->prestasi_type === 'perilaku') {
             $category = ConductCategory::findOrFail($request->category_id);
             $data['category_id']   = $category->id;
             $data['prestasi_type'] = 'perilaku';
 
             $log = ConductLog::create($data);
-            NotificationService::send($request->student_id, "Prestasi Perilaku: {$category->name}", "Dicatat oleh guru.", 'success');
-            return response()->json(['message' => 'Prestasi perilaku berhasil dicatat.', 'id' => $log->id], 201);
+            NotificationService::send($request->student_id, "Catatan Positif: {$category->name}", "Dicatat oleh guru.", 'success');
+            return response()->json(['message' => 'Catatan positif berhasil dicatat.', 'id' => $log->id], 201);
         }
 
-        // Prestasi Lomba
+        // Catatan Positif — Prestasi Lomba (backward compat, input via StudentAchievement)
         $rankLabel = match ($request->lomba_rank) {
             'juara_1' => 'Juara 1', 'juara_2' => 'Juara 2', 'juara_3' => 'Juara 3',
             'harapan' => 'Juara Harapan', 'peserta' => 'Peserta', default => '',

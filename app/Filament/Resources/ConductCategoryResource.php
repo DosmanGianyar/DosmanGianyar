@@ -25,10 +25,9 @@ class ConductCategoryResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon       = 'heroicon-o-tag';
     protected static string|\UnitEnum|null   $navigationGroup      = 'Kesiswaan';
-    protected static ?string                 $navigationParentItem = 'Prestasi';
-    protected static ?string                 $navigationLabel      = 'Kategori Catatan';
-    protected static ?string                 $modelLabel           = 'Kategori Catatan';
-    protected static ?string                 $pluralModelLabel     = 'Kategori Catatan';
+    protected static ?string                 $navigationLabel      = 'Kategori Catatan Perilaku';
+    protected static ?string                 $modelLabel           = 'Kategori Catatan Perilaku';
+    protected static ?string                 $pluralModelLabel     = 'Kategori Catatan Perilaku';
 
     public static function canAccess(): bool { return AdminAccess::can('Kesiswaan'); }
 

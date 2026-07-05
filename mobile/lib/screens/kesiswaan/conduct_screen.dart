@@ -63,9 +63,9 @@ class _ConductScreenState extends State<ConductScreen> {
                         const SliverFillRemaining(
                           child: Center(
                             child: Column(mainAxisSize: MainAxisSize.min, children: [
-                              Icon(Icons.verified_user_outlined, size: 56, color: AppColors.gray300),
+                              Icon(Icons.task_alt_rounded, size: 56, color: AppColors.gray300),
                               SizedBox(height: 12),
-                              Text('Belum ada catatan',
+                              Text('Belum ada catatan perilaku',
                                 style: TextStyle(fontSize: 13, color: AppColors.gray400)),
                             ]),
                           ),
