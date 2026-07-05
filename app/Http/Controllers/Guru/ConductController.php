@@ -41,12 +41,30 @@ class ConductController extends Controller
                 return $student;
             });
 
-        return view('guru.conduct.index', compact('classes', 'selectedClassId', 'students'));
+        $totalPelanggaran = $students->sum('pelanggaran_count');
+        $totalPrestasi    = $students->sum('prestasi_count');
+
+        return view('guru.conduct.index', compact('classes', 'selectedClassId', 'students', 'totalPelanggaran', 'totalPrestasi'));
     }
 
     public function choose(): View
     {
-        return view('guru.conduct.choose');
+        $prestasiCategories = ConductCategory::active()
+            ->whereIn('context', ['akademik', 'lomba'])
+            ->where('name', 'not like', '__sistem__%')
+            ->orderBy('context')
+            ->orderBy('name')
+            ->get();
+
+        $classes = SchoolClass::with(['students' => fn ($q) => $q->orderBy('name')])->orderBy('name')->get();
+
+        $recentLogs = ConductLog::where('teacher_id', Auth::id())
+            ->with(['student.schoolClass', 'category'])
+            ->latest()
+            ->limit(20)
+            ->get();
+
+        return view('guru.conduct.choose', compact('prestasiCategories', 'classes', 'recentLogs'));
     }
 
     public function create(Request $request): View
