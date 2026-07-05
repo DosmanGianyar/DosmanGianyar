@@ -17,6 +17,7 @@ import 'guru_early_checkout_screen.dart';
 import 'guru_forgot_attendance_screen.dart';
 import 'guru_home_screen.dart';
 import 'guru_input_nilai_screen.dart';
+import 'guru_homeroom_consultation_screen.dart';
 import 'guru_journal_screen.dart';
 import 'guru_permit_screen.dart';
 import 'guru_tp_screen.dart';
@@ -410,6 +411,12 @@ class _GuruDrawer extends StatelessWidget {
                 label: 'Jurnal Mengajar',
                 onTap: () => onNavigate(const GuruJournalScreen()),
               ),
+              if (homeroomClassId != null)
+                _NavTile(
+                  icon:  Icons.chat_bubble_outline_rounded,
+                  label: 'Jurnal Bimbingan Guru Wali',
+                  onTap: () => onNavigate(const GuruHomeroomConsultationScreen()),
+                ),
             ],
           ),
           const SizedBox(height: 6),

@@ -1,6 +1,6 @@
 @extends('layouts.guru')
-@section('title', 'Jurnal Bimbingan Wali Kelas')
-@section('page-title', 'Jurnal Bimbingan Wali Kelas')
+@section('title', 'Jurnal Bimbingan Guru Wali')
+@section('page-title', 'Jurnal Bimbingan Guru Wali')
 
 @section('content')
 <div class="max-w-3xl space-y-4">

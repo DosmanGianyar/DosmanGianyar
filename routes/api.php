@@ -22,6 +22,7 @@ use App\Http\Controllers\Api\GuruGradeApiController;
 use App\Http\Controllers\Api\GuruJournalController;
 use App\Http\Controllers\Api\GuruTpController;
 use App\Http\Controllers\Api\GuruSarprasApiController;
+use App\Http\Controllers\Api\GuruHomeroomConsultationApiController;
 use App\Http\Controllers\Api\GuruTeachingSessionController;
 use App\Http\Controllers\Api\TeacherAttendanceController;
 use Illuminate\Support\Facades\Route;
@@ -164,6 +165,12 @@ Route::prefix('v1')->group(function () {
             Route::get('/guru/grades',                            [GuruGradeApiController::class, 'index']);
             Route::post('/guru/grades',                           [GuruGradeApiController::class, 'store']);
             Route::delete('/guru/grades/{id}',                    [GuruGradeApiController::class, 'destroy']);
+
+            // Jurnal Bimbingan Guru Wali (Homeroom Consultation — sisi guru)
+            Route::get('/guru/homeroom-consultations',                        [GuruHomeroomConsultationApiController::class, 'index']);
+            Route::patch('/guru/homeroom-consultations/{id}/schedule',        [GuruHomeroomConsultationApiController::class, 'schedule']);
+            Route::patch('/guru/homeroom-consultations/{id}/complete',        [GuruHomeroomConsultationApiController::class, 'complete']);
+            Route::patch('/guru/homeroom-consultations/{id}/cancel',          [GuruHomeroomConsultationApiController::class, 'cancel']);
 
             // BK (Bimbingan Konseling) Guru
             Route::get('/guru/bk/classes',                        [GuruBkApiController::class, 'classes']);

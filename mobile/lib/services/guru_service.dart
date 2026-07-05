@@ -600,4 +600,49 @@ class GuruService {
     final body = await ApiClient.patch('/guru/sarpras/loans/$id/return', data: {});
     return body['message'] as String;
   }
+
+  // ─── Jurnal Bimbingan Guru Wali ──────────────────────────────────────────
+
+  static Future<Map<String, dynamic>> getHomeroomConsultations({String? status}) async {
+    final body = await ApiClient.get(
+      '/guru/homeroom-consultations',
+      params: status != null && status.isNotEmpty ? {'status': status} : null,
+    );
+    return {
+      'class':         body['class'] as Map<String, dynamic>,
+      'consultations': (body['consultations'] as List<dynamic>)
+          .map((e) => GuruHomeroomConsultation.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      'counts': GuruHomeroomCounts.fromJson(body['counts'] as Map<String, dynamic>),
+    };
+  }
+
+  static Future<GuruHomeroomConsultation> scheduleConsultation(int id, String scheduledDate) async {
+    final body = await ApiClient.patch(
+      '/guru/homeroom-consultations/$id/schedule',
+      data: {'scheduled_date': scheduledDate},
+    );
+    return GuruHomeroomConsultation.fromJson(body['consultation'] as Map<String, dynamic>);
+  }
+
+  static Future<GuruHomeroomConsultation> completeConsultation({
+    required int    id,
+    required String conductedDate,
+    required String teacherNote,
+    String?         followUp,
+  }) async {
+    final body = await ApiClient.patch(
+      '/guru/homeroom-consultations/$id/complete',
+      data: {'conducted_date': conductedDate, 'teacher_note': teacherNote, 'follow_up': followUp},
+    );
+    return GuruHomeroomConsultation.fromJson(body['consultation'] as Map<String, dynamic>);
+  }
+
+  static Future<GuruHomeroomConsultation> cancelConsultation(int id, {String? reason}) async {
+    final body = await ApiClient.patch(
+      '/guru/homeroom-consultations/$id/cancel',
+      data: {'cancelled_reason': reason},
+    );
+    return GuruHomeroomConsultation.fromJson(body['consultation'] as Map<String, dynamic>);
+  }
 }

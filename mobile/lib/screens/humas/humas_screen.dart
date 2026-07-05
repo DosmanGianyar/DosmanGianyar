@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/notification_provider.dart';
 import '../../theme/app_colors.dart';
+import '../announcement_list_screen.dart';
 
 class HumasScreen extends StatelessWidget {
   const HumasScreen({super.key});
@@ -65,10 +66,7 @@ class HumasScreen extends StatelessWidget {
               iconBg: AppColors.orange100,
               iconColor: AppColors.orange500,
               label: 'Pengumuman',
-              onTap: () {
-                // Buka sheet pengumuman (gunakan NotificationProvider)
-                _openAnnouncements(context);
-              },
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AnnouncementListScreen())),
             )),
             const SizedBox(width: 10),
             Expanded(child: _QuickBox(
@@ -96,7 +94,7 @@ class HumasScreen extends StatelessWidget {
                 style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.gray700)),
             ),
             GestureDetector(
-              onTap: () => _openAnnouncements(context),
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AnnouncementListScreen())),
               child: const Text('Lihat Semua',
                 style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.orange500)),
             ),
@@ -124,7 +122,9 @@ class HumasScreen extends StatelessWidget {
                   (i) {
                     final a = announcements[i];
                     return Column(children: [
-                      Padding(
+                      GestureDetector(
+                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AnnouncementListScreen())),
+                      child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                         child: Row(children: [
                           Container(
@@ -145,7 +145,7 @@ class HumasScreen extends StatelessWidget {
                               style: const TextStyle(fontSize: 11, color: AppColors.gray400)),
                           ])),
                         ]),
-                      ),
+                      )),
                       if (i < (announcements.length > 5 ? 4 : announcements.length - 1))
                         const Divider(height: 1, color: AppColors.gray100),
                     ]);
@@ -195,19 +195,6 @@ class HumasScreen extends StatelessWidget {
     return '${dt.day} ${months[dt.month]} ${dt.year}';
   }
 
-  void _openAnnouncements(BuildContext context) {
-    final prov = context.read<NotificationProvider>();
-    prov.fetchAnnouncements();
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => ChangeNotifierProvider.value(
-        value: prov,
-        child: const _AnnouncementSheet(),
-      ),
-    );
-  }
 }
 
 // ─── Quick Box ────────────────────────────────────────────────────────────────
@@ -280,69 +267,3 @@ class _EmptyBox extends StatelessWidget {
 
 // ─── Announcement Sheet ───────────────────────────────────────────────────────
 
-class _AnnouncementSheet extends StatelessWidget {
-  const _AnnouncementSheet();
-
-  @override
-  Widget build(BuildContext context) {
-    final list = context.watch<NotificationProvider>().announcements;
-
-    return DraggableScrollableSheet(
-      initialChildSize: 0.75,
-      maxChildSize: 0.95,
-      minChildSize: 0.4,
-      builder: (_, ctrl) => Container(
-        decoration: const BoxDecoration(
-          color: AppColors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        child: Column(children: [
-          const SizedBox(height: 12),
-          Container(width: 40, height: 4, decoration: BoxDecoration(color: AppColors.gray200, borderRadius: BorderRadius.circular(2))),
-          const SizedBox(height: 16),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Text('Pengumuman', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.gray800)),
-            ),
-          ),
-          const SizedBox(height: 12),
-          const Divider(height: 1, color: AppColors.gray100),
-          Expanded(
-            child: list.isEmpty
-                ? const Center(child: Text('Belum ada pengumuman.', style: TextStyle(color: AppColors.gray400)))
-                : ListView.separated(
-                    controller: ctrl,
-                    itemCount: list.length,
-                    separatorBuilder: (_, __) => const Divider(height: 1, color: AppColors.gray100),
-                    itemBuilder: (_, i) {
-                      final a = list[i];
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                          Text(a.title,
-                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.gray800)),
-                          const SizedBox(height: 4),
-                          if (a.body.isNotEmpty)
-                            Text(a.body,
-                              style: const TextStyle(fontSize: 12, color: AppColors.gray600, height: 1.5)),
-                          const SizedBox(height: 4),
-                          Text(_formatDate(a.publishedAt),
-                            style: const TextStyle(fontSize: 11, color: AppColors.gray400)),
-                        ]),
-                      );
-                    },
-                  ),
-          ),
-        ]),
-      ),
-    );
-  }
-
-  String _formatDate(DateTime? dt) {
-    if (dt == null) return '';
-    const months = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
-    return '${dt.day} ${months[dt.month]} ${dt.year}';
-  }
-}

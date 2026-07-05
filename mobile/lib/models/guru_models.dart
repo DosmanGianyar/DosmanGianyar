@@ -713,6 +713,82 @@ class BkLogItem {
   );
 }
 
+// ─── Homeroom Consultation (Guru Wali) ───────────────────────────────────────
+
+class GuruHomeroomConsultation {
+  final int     id;
+  final int     studentId;
+  final String  studentName;
+  final String? studentNis;
+  final String? topic;
+  final String? studentNote;
+  final String  status;
+  final String  statusLabel;
+  final String? scheduledDate;
+  final String? conductedDate;
+  final String? teacherNote;
+  final String? followUp;
+  final String? cancelledReason;
+  final String  createdAt;
+
+  const GuruHomeroomConsultation({
+    required this.id,
+    required this.studentId,
+    required this.studentName,
+    this.studentNis,
+    this.topic,
+    this.studentNote,
+    required this.status,
+    required this.statusLabel,
+    this.scheduledDate,
+    this.conductedDate,
+    this.teacherNote,
+    this.followUp,
+    this.cancelledReason,
+    required this.createdAt,
+  });
+
+  factory GuruHomeroomConsultation.fromJson(Map<String, dynamic> j) =>
+    GuruHomeroomConsultation(
+      id:               j['id'] as int,
+      studentId:        j['student_id'] as int,
+      studentName:      j['student_name'] as String,
+      studentNis:       j['student_nis'] as String?,
+      topic:            j['topic'] as String?,
+      studentNote:      j['student_note'] as String?,
+      status:           j['status'] as String,
+      statusLabel:      j['status_label'] as String,
+      scheduledDate:    j['scheduled_date'] as String?,
+      conductedDate:    j['conducted_date'] as String?,
+      teacherNote:      j['teacher_note'] as String?,
+      followUp:         j['follow_up'] as String?,
+      cancelledReason:  j['cancelled_reason'] as String?,
+      createdAt:        j['created_at'] as String,
+    );
+}
+
+class GuruHomeroomCounts {
+  final int pending;
+  final int scheduled;
+  final int completed;
+  final int cancelled;
+
+  const GuruHomeroomCounts({
+    required this.pending,
+    required this.scheduled,
+    required this.completed,
+    required this.cancelled,
+  });
+
+  factory GuruHomeroomCounts.fromJson(Map<String, dynamic> j) =>
+    GuruHomeroomCounts(
+      pending:   j['pending']   as int? ?? 0,
+      scheduled: j['scheduled'] as int? ?? 0,
+      completed: j['completed'] as int? ?? 0,
+      cancelled: j['cancelled'] as int? ?? 0,
+    );
+}
+
 // ─── Sarpras ──────────────────────────────────────────────────────────────────
 
 class SarprasStats {
