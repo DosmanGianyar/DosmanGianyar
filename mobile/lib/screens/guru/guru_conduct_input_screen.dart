@@ -14,16 +14,16 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
     with SingleTickerProviderStateMixin {
   late final TabController _tabCtrl;
 
-  List<ConductCategory> _prestasiCats = [];
-  List<SimpleStudent>   _students     = [];
-  List<Map<String, dynamic>> _classes = [];
+  List<ConductCategory>      _prestasiCats = [];
+  List<SimpleStudent>        _students     = [];
+  List<Map<String, dynamic>> _classes      = [];
 
   bool _loadingCats     = true;
   bool _loadingStudents = false;
   bool _submitting      = false;
 
-  int? _selectedClassId;
-  SimpleStudent?  _selectedStudent;
+  int?           _selectedClassId;
+  SimpleStudent? _selectedStudent;
 
   // Pelanggaran
   final _descriptionCtrl = TextEditingController();
@@ -36,13 +36,34 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
   final _noteCtrl   = TextEditingController();
   final _searchCtrl = TextEditingController();
 
+  // Riwayat
+  List<ConductHistoryItem> _history     = [];
+  bool   _historyLoading  = false;
+  bool   _historyLoadMore = false;
+  int    _historyPage     = 1;
+  int    _historyLastPage = 1;
+  String? _historyFilter; // null=semua, 'pelanggaran', 'prestasi'
+  late final ScrollController _historyScrollCtrl;
+
   @override
   void initState() {
     super.initState();
-    _tabCtrl = TabController(length: 2, vsync: this);
+    _tabCtrl = TabController(length: 3, vsync: this);
     _tabCtrl.addListener(() {
-      if (!_tabCtrl.indexIsChanging) _resetForm();
+      if (_tabCtrl.indexIsChanging) return;
+      if (_tabCtrl.index == 2 && _history.isEmpty && !_historyLoading) {
+        _loadHistory(reset: true);
+      } else if (_tabCtrl.index != 2) {
+        _resetForm();
+      }
     });
+    _historyScrollCtrl = ScrollController()
+      ..addListener(() {
+        if (_historyScrollCtrl.position.pixels >=
+            _historyScrollCtrl.position.maxScrollExtent - 100) {
+          _loadMoreHistory();
+        }
+      });
     _loadInitial();
   }
 
@@ -52,14 +73,15 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
     _noteCtrl.dispose();
     _searchCtrl.dispose();
     _descriptionCtrl.dispose();
+    _historyScrollCtrl.dispose();
     super.dispose();
   }
 
   void _resetForm() {
     setState(() {
-      _selectedStudent   = null;
-      _selectedCategory  = null;
-      _selectedSeverity  = null;
+      _selectedStudent  = null;
+      _selectedCategory = null;
+      _selectedSeverity = null;
       _descriptionCtrl.clear();
       _noteCtrl.clear();
       _students = [];
@@ -99,6 +121,43 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
     }
   }
 
+  Future<void> _loadHistory({bool reset = false}) async {
+    if (reset) {
+      setState(() { _historyLoading = true; _history = []; _historyPage = 1; });
+    }
+    try {
+      final body = await GuruService.getConductHistory(
+        type: _historyFilter,
+        page: reset ? 1 : _historyPage,
+      );
+      final items = (body['data'] as List)
+          .map((e) => ConductHistoryItem.fromJson(e as Map<String, dynamic>))
+          .toList();
+      final meta = body['meta'] as Map<String, dynamic>;
+      if (mounted) {
+        setState(() {
+          if (reset) {
+            _history = items;
+          } else {
+            _history.addAll(items);
+          }
+          _historyLastPage = meta['last_page'] as int;
+          _historyLoading  = false;
+          _historyLoadMore = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() { _historyLoading = false; _historyLoadMore = false; });
+    }
+  }
+
+  void _loadMoreHistory() {
+    if (_historyLoadMore || _historyLoading) return;
+    if (_historyPage >= _historyLastPage) return;
+    setState(() { _historyLoadMore = true; _historyPage++; });
+    _loadHistory();
+  }
+
   Future<void> _submit() async {
     final isPrestasi = _tabCtrl.index == 1;
 
@@ -106,7 +165,6 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
       _showSnack('Pilih siswa terlebih dahulu', AppColors.orange500);
       return;
     }
-
     if (isPrestasi) {
       if (_selectedCategory == null) {
         _showSnack('Pilih kategori prestasi', AppColors.orange500);
@@ -136,6 +194,8 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
       if (mounted) {
         _showSnack(msg, AppColors.emerald600);
         _resetForm();
+        // Refresh history jika sudah dimuat
+        if (_history.isNotEmpty) _loadHistory(reset: true);
       }
     } catch (e) {
       if (mounted) _showSnack(e.toString(), AppColors.red500);
@@ -152,6 +212,8 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
     ));
   }
 
+  // ── Build ─────────────────────────────────────────────────────────────────
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -163,6 +225,7 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
           tabs: const [
             Tab(text: 'Pelanggaran'),
             Tab(text: 'Prestasi'),
+            Tab(text: 'Riwayat'),
           ],
           labelColor: AppColors.blue600,
           indicatorColor: AppColors.blue600,
@@ -176,6 +239,7 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
               children: [
                 _buildPelanggaranForm(),
                 _buildPrestasiForm(),
+                _buildHistoryTab(),
               ],
             ),
     );
@@ -281,7 +345,8 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
       'sedang' => AppColors.orange500,
       _        => AppColors.red500,
     };
-    final severityLabel = _selectedSeverity![0].toUpperCase() + _selectedSeverity!.substring(1);
+    final severityLabel =
+        _selectedSeverity![0].toUpperCase() + _selectedSeverity!.substring(1);
     return Container(
       padding: const EdgeInsets.all(14),
       margin: const EdgeInsets.only(bottom: 16),
@@ -300,7 +365,8 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
             ),
             child: Text(
               severityLabel,
-              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white),
+              style: const TextStyle(
+                  fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white),
             ),
           ),
           const SizedBox(width: 10),
@@ -310,7 +376,10 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
               children: [
                 Text(
                   _selectedStudent!.name,
-                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.gray800),
+                  style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.gray800),
                 ),
                 if (_descriptionCtrl.text.isNotEmpty)
                   Text(
@@ -426,7 +495,10 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
               children: [
                 Text(
                   _selectedStudent!.name,
-                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.emerald600),
+                  style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.emerald600),
                 ),
                 Text(
                   _selectedCategory!.name,
@@ -434,6 +506,109 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
                 ),
               ],
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── Riwayat Tab ───────────────────────────────────────────────────────────
+
+  Widget _buildHistoryTab() {
+    return Column(
+      children: [
+        // Filter chips
+        Container(
+          color: AppColors.white,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          child: Row(
+            children: [
+              _filterChip('Semua',       null),
+              const SizedBox(width: 8),
+              _filterChip('Pelanggaran', 'pelanggaran'),
+              const SizedBox(width: 8),
+              _filterChip('Prestasi',    'prestasi'),
+            ],
+          ),
+        ),
+        const Divider(height: 1),
+        Expanded(
+          child: _historyLoading
+              ? const Center(child: CircularProgressIndicator())
+              : _history.isEmpty
+                  ? _emptyHistory()
+                  : RefreshIndicator(
+                      onRefresh: () => _loadHistory(reset: true),
+                      child: ListView.builder(
+                        controller: _historyScrollCtrl,
+                        padding: const EdgeInsets.all(16),
+                        itemCount: _history.length + (_historyLoadMore ? 1 : 0),
+                        itemBuilder: (_, i) {
+                          if (i == _history.length) {
+                            return const Center(
+                              child: Padding(
+                                padding: EdgeInsets.all(16),
+                                child: CircularProgressIndicator(strokeWidth: 2),
+                              ),
+                            );
+                          }
+                          return _HistoryCard(item: _history[i]);
+                        },
+                      ),
+                    ),
+        ),
+      ],
+    );
+  }
+
+  Widget _filterChip(String label, String? value) {
+    final isActive = _historyFilter == value;
+    final color = value == null
+        ? AppColors.blue600
+        : value == 'pelanggaran'
+            ? AppColors.red500
+            : AppColors.emerald600;
+    return GestureDetector(
+      onTap: () {
+        if (_historyFilter == value) return;
+        setState(() => _historyFilter = value);
+        _loadHistory(reset: true);
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+        decoration: BoxDecoration(
+          color: isActive ? color : AppColors.gray100,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: isActive ? Colors.white : AppColors.gray600,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _emptyHistory() {
+    return const Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.history_rounded, size: 48, color: AppColors.gray300),
+          SizedBox(height: 12),
+          Text(
+            'Belum ada catatan',
+            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppColors.gray500),
+          ),
+          SizedBox(height: 4),
+          Text(
+            'Catatan yang Anda buat\nakan muncul di sini',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 13, color: AppColors.gray400),
           ),
         ],
       ),
@@ -450,10 +625,12 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
             controller: _searchCtrl,
             decoration: InputDecoration(
               hintText: 'Cari nama / NIS...',
-              prefixIcon: const Icon(Icons.search, size: 18, color: AppColors.gray400),
+              prefixIcon:
+                  const Icon(Icons.search, size: 18, color: AppColors.gray400),
               filled: true,
               fillColor: AppColors.white,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
                 borderSide: const BorderSide(color: AppColors.gray200),
@@ -464,7 +641,8 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
-                borderSide: const BorderSide(color: AppColors.blue600, width: 1.5),
+                borderSide:
+                    const BorderSide(color: AppColors.blue600, width: 1.5),
               ),
             ),
             onSubmitted: (_) => _loadStudents(),
@@ -476,8 +654,10 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.blue600,
             foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10)),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           ),
           child: const Icon(Icons.search, size: 18),
         ),
@@ -488,7 +668,8 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
   Widget _studentPickerArea() {
     if (_selectedStudent != null) {
       return _SelectedChip(
-        label: '${_selectedStudent!.name} (${_selectedStudent!.nis ?? '—'})',
+        label:
+            '${_selectedStudent!.name} (${_selectedStudent!.nis ?? '—'})',
         onRemove: () => setState(() => _selectedStudent = null),
       );
     }
@@ -517,12 +698,15 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
             return ListTile(
               dense: true,
               title: Text(s.name,
-                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                  style: const TextStyle(
+                      fontSize: 13, fontWeight: FontWeight.w600)),
               subtitle: Text(
                 '${s.nis ?? '—'} · ${s.className ?? ''}',
-                style: const TextStyle(fontSize: 11, color: AppColors.gray500),
+                style: const TextStyle(
+                    fontSize: 11, color: AppColors.gray500),
               ),
-              onTap: () => setState(() { _selectedStudent = s; _students = []; }),
+              onTap: () => setState(
+                  () { _selectedStudent = s; _students = []; }),
             );
           },
         ),
@@ -568,9 +752,13 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
         onPressed: _submitting ? null : _submit,
         icon: _submitting
             ? const SizedBox(
-                width: 16, height: 16,
-                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-            : Icon(isPrestasi ? Icons.star_rounded : Icons.warning_rounded, size: 18),
+                width: 16,
+                height: 16,
+                child: CircularProgressIndicator(
+                    strokeWidth: 2, color: Colors.white))
+            : Icon(
+                isPrestasi ? Icons.star_rounded : Icons.warning_rounded,
+                size: 18),
         label: Text(_submitting
             ? 'Menyimpan...'
             : 'Simpan ${isPrestasi ? "Prestasi" : "Pelanggaran"}'),
@@ -584,10 +772,180 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
   }
 
   Widget _sectionLabel(String text) => Text(
-    text,
-    style: const TextStyle(
-        fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.gray700),
-  );
+        text,
+        style: const TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
+            color: AppColors.gray700),
+      );
+}
+
+// ── History Card ──────────────────────────────────────────────────────────────
+
+class _HistoryCard extends StatelessWidget {
+  final ConductHistoryItem item;
+  const _HistoryCard({required this.item});
+
+  @override
+  Widget build(BuildContext context) {
+    final isPelanggaran = item.type == 'pelanggaran';
+
+    final severityColor = switch (item.severity) {
+      'ringan' => AppColors.amber500,
+      'sedang' => AppColors.orange500,
+      'berat'  => AppColors.red500,
+      _        => AppColors.gray400,
+    };
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.gray100),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header: nama siswa + tanggal
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    item.studentName,
+                    style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.gray800),
+                  ),
+                ),
+                Text(
+                  item.dateLabel,
+                  style: const TextStyle(fontSize: 11, color: AppColors.gray400),
+                ),
+              ],
+            ),
+            const SizedBox(height: 2),
+            // NIS + kelas
+            Text(
+              '${item.studentNis ?? '—'} · ${item.className}',
+              style: const TextStyle(fontSize: 12, color: AppColors.gray500),
+            ),
+            const SizedBox(height: 10),
+            // Badge tipe + detail
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Tipe badge
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: isPelanggaran
+                        ? AppColors.red50
+                        : AppColors.emerald50,
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(
+                      color: isPelanggaran
+                          ? AppColors.red500.withValues(alpha: 0.3)
+                          : AppColors.emerald600.withValues(alpha: 0.3),
+                    ),
+                  ),
+                  child: Text(
+                    isPelanggaran ? 'Pelanggaran' : 'Prestasi',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: isPelanggaran
+                          ? AppColors.red500
+                          : AppColors.emerald600,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                // Severity badge (pelanggaran) ATAU category (prestasi)
+                if (isPelanggaran && item.severity != null)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: severityColor.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      item.severity![0].toUpperCase() +
+                          item.severity!.substring(1),
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: severityColor,
+                      ),
+                    ),
+                  )
+                else if (!isPelanggaran && item.categoryName != null)
+                  Flexible(
+                    child: Container(
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: AppColors.blue50,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        item.categoryName!,
+                        style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.blue600),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            // Deskripsi pelanggaran
+            if (item.description != null && item.description!.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Text(
+                item.description!,
+                style: const TextStyle(fontSize: 13, color: AppColors.gray700),
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+            // Catatan tambahan
+            if (item.note != null && item.note!.isNotEmpty) ...[
+              const SizedBox(height: 6),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(Icons.notes_rounded,
+                      size: 13, color: AppColors.gray400),
+                  const SizedBox(width: 4),
+                  Expanded(
+                    child: Text(
+                      item.note!,
+                      style: const TextStyle(
+                          fontSize: 12, color: AppColors.gray500),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 // ── Helper Widgets ────────────────────────────────────────────────────────────
@@ -665,7 +1023,8 @@ class _SelectedChip extends StatelessWidget {
           ),
           GestureDetector(
             onTap: onRemove,
-            child: const Icon(Icons.close_rounded, size: 16, color: AppColors.blue600),
+            child: const Icon(Icons.close_rounded,
+                size: 16, color: AppColors.blue600),
           ),
         ],
       ),

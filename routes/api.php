@@ -131,6 +131,7 @@ Route::prefix('v1')->group(function () {
             Route::get('/guru/conduct-classes',                           [GuruConductApiController::class, 'classes']);
             Route::get('/guru/conduct-students',                          [GuruConductApiController::class, 'students']);
             Route::post('/guru/conduct-logs',                             [GuruConductApiController::class, 'store']);
+            Route::get('/guru/conduct-history',                           [GuruConductApiController::class, 'history']);
 
             // Guru Teaching Session (absensi mengajar per sesi)
             Route::get('/guru/teaching-classes',                          [GuruTeachingSessionController::class, 'classes']);

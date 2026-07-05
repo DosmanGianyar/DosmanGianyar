@@ -196,6 +196,16 @@ class GuruService {
     return body['message'] as String;
   }
 
+  static Future<Map<String, dynamic>> getConductHistory({
+    String? type,
+    int page = 1,
+  }) async {
+    return ApiClient.get('/guru/conduct-history', params: {
+      if (type != null) 'type': type,
+      'page': page,
+    });
+  }
+
   // ── Teaching Sessions ──────────────────────────────────────────────────────
 
   static Future<Map<String, dynamic>> getTeachingClasses() async {

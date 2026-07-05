@@ -327,6 +327,51 @@ class SimpleStudent {
   );
 }
 
+class ConductHistoryItem {
+  final int     id;
+  final String  type;         // 'pelanggaran' | 'prestasi'
+  final int     studentId;
+  final String  studentName;
+  final String? studentNis;
+  final String  className;
+  final String? description;  // pelanggaran bebas
+  final String? severity;     // ringan | sedang | berat
+  final String? categoryName; // prestasi
+  final String? note;
+  final String  date;
+  final String  dateLabel;
+
+  const ConductHistoryItem({
+    required this.id,
+    required this.type,
+    required this.studentId,
+    required this.studentName,
+    this.studentNis,
+    required this.className,
+    this.description,
+    this.severity,
+    this.categoryName,
+    this.note,
+    required this.date,
+    required this.dateLabel,
+  });
+
+  factory ConductHistoryItem.fromJson(Map<String, dynamic> json) => ConductHistoryItem(
+    id:           json['id']            as int,
+    type:         json['type']          as String,
+    studentId:    json['student_id']    as int,
+    studentName:  json['student_name']  as String,
+    studentNis:   json['student_nis']   as String?,
+    className:    json['class_name']    as String,
+    description:  json['description']   as String?,
+    severity:     json['severity']      as String?,
+    categoryName: json['category_name'] as String?,
+    note:         json['note']          as String?,
+    date:         json['date']          as String,
+    dateLabel:    json['date_label']    as String,
+  );
+}
+
 // ─── Teaching Session ─────────────────────────────────────────────────────────
 
 class TeachingSession {

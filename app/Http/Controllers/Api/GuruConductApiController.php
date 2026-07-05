@@ -120,4 +120,64 @@ class GuruConductApiController extends Controller
 
         return response()->json(['message' => 'Prestasi berhasil dicatat.', 'id' => $log->id], 201);
     }
+
+    // GET /api/v1/guru/conduct-history?type=&page=
+    public function history(Request $request): JsonResponse
+    {
+        $query = ConductLog::with([
+                'student:id,name,nis,class_id',
+                'student.schoolClass:id,name',
+                'category:id,name,type',
+            ])
+            ->where('teacher_id', Auth::id())
+            ->latest();
+
+        if ($request->filled('type')) {
+            if ($request->type === 'pelanggaran') {
+                $query->where(function ($q) {
+                    $q->whereNotNull('severity')
+                      ->orWhereHas('category', fn ($c) => $c->where('type', 'pelanggaran'));
+                });
+            } elseif ($request->type === 'prestasi') {
+                $query->whereHas('category', fn ($c) => $c->where('type', 'prestasi'));
+            }
+        }
+
+        $logs = $query->paginate(20);
+
+        $data = $logs->getCollection()->map(function ($log) {
+            // Tentukan tipe: cek category dulu, lalu cek severity
+            if ($log->category) {
+                $type = $log->category->type;
+            } elseif ($log->severity) {
+                $type = 'pelanggaran';
+            } else {
+                $type = 'pelanggaran';
+            }
+
+            return [
+                'id'            => $log->id,
+                'type'          => $type,
+                'student_id'    => $log->student_id,
+                'student_name'  => $log->student?->name    ?? '—',
+                'student_nis'   => $log->student?->nis,
+                'class_name'    => $log->student?->schoolClass?->name ?? '—',
+                'description'   => $log->description,
+                'severity'      => $log->severity,
+                'category_name' => $log->category?->name,
+                'note'          => $log->note,
+                'date'          => $log->created_at->format('Y-m-d'),
+                'date_label'    => $log->created_at->format('d M Y'),
+            ];
+        })->values();
+
+        return response()->json([
+            'data' => $data,
+            'meta' => [
+                'current_page' => $logs->currentPage(),
+                'last_page'    => $logs->lastPage(),
+                'total'        => $logs->total(),
+            ],
+        ]);
+    }
 }
