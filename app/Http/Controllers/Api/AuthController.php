@@ -48,21 +48,24 @@ class AuthController extends Controller
 
         $deviceId = $request->input('device_id');
 
-        // Daftarkan device. Jika sudah terdaftar → update last_login.
-        // Jika baru dan kuota penuh (>= 5) → tolak dengan pesan jelas.
-        if (! $user->registerDevice($deviceId)) {
-            $max = \App\Models\User::MAX_DEVICES;
-            return response()->json([
-                'message' => "Perangkat ini belum terdaftar dan akun Anda sudah mencapai batas {$max} perangkat. "
-                           . 'Hubungi admin untuk menghapus salah satu perangkat lama.',
-                'code'    => 'DEVICE_LIMIT_REACHED',
-                'limit'   => $max,
-                'current' => $user->deviceCount(),
-            ], 403);
+        // Daftarkan device. Jika user_devices belum ada (migration pending), lewati.
+        try {
+            if (! $user->registerDevice($deviceId)) {
+                $max = \App\Models\User::MAX_DEVICES;
+                return response()->json([
+                    'message' => "Perangkat ini belum terdaftar dan akun Anda sudah mencapai batas {$max} perangkat. "
+                               . 'Hubungi admin untuk menghapus salah satu perangkat lama.',
+                    'code'    => 'DEVICE_LIMIT_REACHED',
+                    'limit'   => $max,
+                    'current' => $user->deviceCount(),
+                ], 403);
+            }
+        } catch (\Throwable $e) {
+            // user_devices table may not exist yet — skip device check
         }
 
         // Satu akun = satu sesi aktif (revoke token lama)
-        $user->tokens()->delete();
+        try { $user->tokens()->delete(); } catch (\Throwable $e) { /* skip */ }
 
         $token = $user->createToken(
             name:       'flutter-app',
