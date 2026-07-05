@@ -5,6 +5,26 @@
 @section('content')
 <div class="space-y-4">
 
+{{-- ─── Link Bimbingan Siswa (Guru BK Only) ───────────────────────────────── --}}
+@if($isBk)
+<a href="{{ route('guru.bk.consultations') }}"
+    class="flex items-center gap-3 bg-gradient-to-br from-purple-600 to-violet-700 rounded-2xl p-4 mb-4 text-white">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center shrink-0">
+        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+        </svg>
+    </div>
+    <div class="flex-1">
+        <p class="text-sm font-bold">Pengajuan Bimbingan Siswa</p>
+        <p class="text-xs text-purple-200 mt-0.5">Kelola pengajuan bimbingan dari siswa</p>
+    </div>
+    <svg class="w-4 h-4 text-white/70 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+    </svg>
+</a>
+@endif
+
 {{-- ─── Header + Filter ────────────────────────────────────────────────── --}}
 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
     <div class="flex flex-col sm:flex-row sm:items-end gap-3">

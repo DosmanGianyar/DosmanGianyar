@@ -37,6 +37,8 @@ use App\Http\Controllers\Siswa\PrasaranaController as SiswaPrasarana;
 use App\Http\Controllers\Siswa\NotificationController as SiswaNotification;
 use App\Http\Controllers\Siswa\HomeroomConsultationController as SiswaHomeroomConsultation;
 use App\Http\Controllers\Guru\HomeroomConsultationController as GuruHomeroomConsultation;
+use App\Http\Controllers\Siswa\BkConsultationController as SiswaBkConsultation;
+use App\Http\Controllers\Guru\BkConsultationController as GuruBkConsultation;
 use App\Http\Controllers\Siswa\ForgotAttendanceController as SiswaForgotAttendance;
 use App\Http\Controllers\Guru\ForgotAttendanceController as GuruForgotAttendance;
 use App\Http\Controllers\Siswa\EarlyCheckoutRequestController as SiswaEarlyCheckout;
@@ -145,6 +147,10 @@ Route::middleware(['auth', 'role:guru,admin'])->prefix('guru')->name('guru.')->g
     Route::prefix('bk')->name('bk.')->group(function () {
         Route::get('/', [GuruBk::class, 'index'])->name('index');
         Route::post('/log', [GuruBk::class, 'storeLog'])->name('log.store');
+        Route::get('/consultations', [GuruBkConsultation::class, 'index'])->name('consultations');
+        Route::patch('/consultation/{consultation}/schedule', [GuruBkConsultation::class, 'schedule'])->name('consultation.schedule');
+        Route::patch('/consultation/{consultation}/complete', [GuruBkConsultation::class, 'complete'])->name('consultation.complete');
+        Route::patch('/consultation/{consultation}/cancel',   [GuruBkConsultation::class, 'cancel'])->name('consultation.cancel');
     });
 
     // Sarpras
@@ -237,6 +243,14 @@ Route::middleware(['auth', 'role:siswa,pengelola'])->prefix('siswa')->name('sisw
         Route::get('/', [SiswaHomeroomConsultation::class, 'index'])->name('index');
         Route::post('/', [SiswaHomeroomConsultation::class, 'store'])->name('store');
         Route::patch('/{consultation}/cancel', [SiswaHomeroomConsultation::class, 'cancel'])->name('cancel');
+    });
+
+    // Bimbingan BK
+    Route::prefix('bimbingan-bk')->name('bk-consultation.')->group(function () {
+        Route::get('/', [SiswaBkConsultation::class, 'index'])->name('index');
+        Route::post('/', [SiswaBkConsultation::class, 'store'])->name('store');
+        Route::patch('/{consultation}/cancel', [SiswaBkConsultation::class, 'cancel'])->name('cancel');
+        Route::patch('/{consultation}/change-teacher', [SiswaBkConsultation::class, 'changeTeacher'])->name('change-teacher');
     });
     Route::get('/humas', [SiswaHumas::class, 'index'])->name('humas');
     Route::get('/humas/events/{event}', [SiswaHumas::class, 'eventShow'])->name('humas.event.show');

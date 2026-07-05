@@ -11,6 +11,7 @@ import 'achievement_screen.dart';
 import 'conduct_screen.dart';
 import 'early_checkout_screen.dart';
 import 'forgot_attendance_screen.dart';
+import 'bk_consultation_screen.dart';
 import 'homeroom_consultation_screen.dart';
 import 'permit_screen.dart';
 import 'school_regulation_screen.dart';
@@ -336,10 +337,22 @@ class _KesiswaanScreenState extends State<KesiswaanScreen>
               icon: Icons.support_agent_rounded,
               iconBg: AppColors.blue50,
               iconColor: AppColors.blue600,
-              title: 'Bimbingan Wali Kelas',
-              subtitle: 'Ajukan konsultasi dengan wali kelas',
+              title: 'Bimbingan Guru Wali',
+              subtitle: 'Ajukan konsultasi dengan Guru Wali',
               onTap: () => Navigator.push(context,
                 MaterialPageRoute(builder: (_) => const HomeroomConsultationScreen())),
+            ),
+            const SizedBox(height: 8),
+
+            // ─── Bimbingan BK ──────────────────────────────────────────
+            _LinkRow(
+              icon: Icons.chat_bubble_outline_rounded,
+              iconBg: AppColors.violet100,
+              iconColor: AppColors.violet600,
+              title: 'Bimbingan BK',
+              subtitle: 'Ajukan bimbingan ke Guru BK',
+              onTap: () => Navigator.push(context,
+                MaterialPageRoute(builder: (_) => const BkConsultationScreen())),
             ),
             const SizedBox(height: 8),
 

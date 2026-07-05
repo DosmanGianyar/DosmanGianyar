@@ -23,6 +23,8 @@ use App\Http\Controllers\Api\GuruJournalController;
 use App\Http\Controllers\Api\GuruTpController;
 use App\Http\Controllers\Api\GuruSarprasApiController;
 use App\Http\Controllers\Api\GuruHomeroomConsultationApiController;
+use App\Http\Controllers\Api\BkConsultationController;
+use App\Http\Controllers\Api\GuruBkConsultationApiController;
 use App\Http\Controllers\Api\GuruTeachingSessionController;
 use App\Http\Controllers\Api\TeacherAttendanceController;
 use Illuminate\Support\Facades\Route;
@@ -196,6 +198,18 @@ Route::prefix('v1')->group(function () {
             Route::post('/homeroom-consultations',              [HomeroomConsultationController::class, 'store']);
             Route::patch('/homeroom-consultations/{id}/cancel', [HomeroomConsultationController::class, 'cancel']);
             Route::get('/siswa/guru-wali',                      [HomeroomConsultationController::class, 'guruWali']);
+
+            // Bimbingan BK (siswa)
+            Route::get('/bk-consultations',                          [BkConsultationController::class, 'index']);
+            Route::post('/bk-consultations',                         [BkConsultationController::class, 'store']);
+            Route::patch('/bk-consultations/{id}/cancel',            [BkConsultationController::class, 'cancel']);
+            Route::patch('/bk-consultations/{id}/change-teacher',    [BkConsultationController::class, 'changeTeacher']);
+
+            // Bimbingan BK (guru BK)
+            Route::get('/guru/bk-consultations',                          [GuruBkConsultationApiController::class, 'index']);
+            Route::patch('/guru/bk-consultations/{id}/schedule',          [GuruBkConsultationApiController::class, 'schedule']);
+            Route::patch('/guru/bk-consultations/{id}/complete',          [GuruBkConsultationApiController::class, 'complete']);
+            Route::patch('/guru/bk-consultations/{id}/cancel',            [GuruBkConsultationApiController::class, 'cancel']);
 
             // Sesi Ekstrakurikuler
             Route::get('/extracurricular-sessions',                          [ExtracurricularController::class, 'sessions']);
