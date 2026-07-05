@@ -265,16 +265,20 @@
 @endif
 
 <script>
+var _bkBaseSchedule = '{{ route('guru.bk.consultation.schedule', '__ID__') }}';
+var _bkBaseComplete = '{{ route('guru.bk.consultation.complete', '__ID__') }}';
+var _bkBaseCancel   = '{{ route('guru.bk.consultation.cancel',   '__ID__') }}';
+
 function openScheduleModal(id) {
-    document.getElementById('form-schedule').action = '/guru/bk/consultation/' + id + '/schedule';
+    document.getElementById('form-schedule').action = _bkBaseSchedule.replace('__ID__', id);
     document.getElementById('modal-schedule').classList.remove('hidden');
 }
 function openCompleteModal(id) {
-    document.getElementById('form-complete').action = '/guru/bk/consultation/' + id + '/complete';
+    document.getElementById('form-complete').action = _bkBaseComplete.replace('__ID__', id);
     document.getElementById('modal-complete').classList.remove('hidden');
 }
 function openCancelModal(id) {
-    document.getElementById('form-cancel').action = '/guru/bk/consultation/' + id + '/cancel';
+    document.getElementById('form-cancel').action = _bkBaseCancel.replace('__ID__', id);
     document.getElementById('modal-cancel').classList.remove('hidden');
 }
 </script>

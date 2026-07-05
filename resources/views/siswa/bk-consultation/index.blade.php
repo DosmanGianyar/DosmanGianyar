@@ -98,15 +98,19 @@
     <div>
         <p class="text-sm font-semibold text-gray-700 mb-3">Riwayat Bimbingan BK</p>
 
-        @forelse($consultations->whereNotIn('status', $active ? [$active->status] : []) ?? $consultations as $c)
         @php
-            $colors = [
+            $historyColors = [
                 'pending'   => ['bg-amber-100 text-amber-700',  'border-amber-100'],
                 'scheduled' => ['bg-blue-100 text-blue-700',    'border-blue-100'],
                 'completed' => ['bg-green-100 text-green-700',  'border-green-100'],
                 'cancelled' => ['bg-gray-100 text-gray-500',    'border-gray-100'],
             ];
-            [$badge, $border] = $colors[$c->status] ?? ['bg-gray-100 text-gray-500', 'border-gray-100'];
+            $history = $consultations->filter(fn($c) => !$active || $c->id !== $active->id)->values();
+        @endphp
+
+        @forelse($history as $c)
+        @php
+            [$badge, $border] = $historyColors[$c->status] ?? ['bg-gray-100 text-gray-500', 'border-gray-100'];
         @endphp
         <div class="bg-white rounded-2xl border {{ $border }} shadow-sm p-4 mb-3">
             <div class="flex items-start justify-between gap-2 mb-1">
@@ -155,28 +159,6 @@
             <p class="text-gray-400 text-sm">Belum ada riwayat bimbingan BK.</p>
         </div>
         @endforelse
-
-        {{-- show all if active is hiding some --}}
-        @if($active && $consultations->count() > 1)
-            @foreach($consultations->whereNotIn('id', [$active->id]) as $c)
-            @php [$badge, $border] = $colors[$c->status] ?? ['bg-gray-100 text-gray-500', 'border-gray-100']; @endphp
-            <div class="bg-white rounded-2xl border {{ $border }} shadow-sm p-4 mb-3">
-                <div class="flex items-start justify-between gap-2 mb-1">
-                    <p class="text-sm font-semibold text-gray-800">{{ $c->topic }}</p>
-                    <span class="text-xs font-semibold px-2 py-0.5 rounded-full shrink-0 {{ $badge }}">{{ $c->statusLabel() }}</span>
-                </div>
-                <p class="text-xs text-gray-400 mb-2">{{ $c->teacher?->name }} · {{ $c->created_at->isoFormat('D MMMM Y') }}</p>
-                @if($c->isCompleted())
-                <div class="bg-green-50 rounded-xl px-3 py-2 space-y-1 text-xs">
-                    @if($c->teacher_note)<p class="text-gray-600">{{ $c->teacher_note }}</p>@endif
-                </div>
-                @endif
-                @if($c->isCancelled() && $c->cancelled_reason)
-                    <p class="text-xs text-gray-400 italic">{{ $c->cancelled_reason }}</p>
-                @endif
-            </div>
-            @endforeach
-        @endif
     </div>
 
 </div>
