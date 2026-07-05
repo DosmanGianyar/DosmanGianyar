@@ -478,6 +478,8 @@ class TujuanPembelajaran {
   final String? subjectName;
   final String? code;
   final String  description;
+  final bool    isMine;
+  final String? teacherName;
 
   const TujuanPembelajaran({
     required this.id,
@@ -485,6 +487,8 @@ class TujuanPembelajaran {
     this.subjectName,
     this.code,
     required this.description,
+    this.isMine = true,
+    this.teacherName,
   });
 
   factory TujuanPembelajaran.fromJson(Map<String, dynamic> json) => TujuanPembelajaran(
@@ -493,6 +497,8 @@ class TujuanPembelajaran {
     subjectName: json['subject_name'] as String?,
     code:        json['code'] as String?,
     description: json['description'] as String,
+    isMine:      json['is_mine'] as bool? ?? true,
+    teacherName: json['teacher_name'] as String?,
   );
 
   String get displayLabel => code != null && code!.isNotEmpty

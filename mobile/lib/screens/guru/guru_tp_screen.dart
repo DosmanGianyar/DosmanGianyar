@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../models/guru_models.dart';
+import '../../models/user.dart';
+import '../../providers/auth_provider.dart';
 import '../../services/guru_service.dart';
 import '../../theme/app_colors.dart';
 import 'widgets/guru_widgets.dart';
@@ -32,12 +35,15 @@ class _GuruTpScreenState extends State<GuruTpScreen> {
     }
   }
 
+  List<SubjectRef> get _mySubjects =>
+      context.read<AuthProvider>().user?.subjects ?? [];
+
   Future<void> _showForm({TujuanPembelajaran? existing}) async {
     final result = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => _TpFormSheet(existing: existing),
+      builder: (_) => _TpFormSheet(existing: existing, subjects: _mySubjects),
     );
     if (result == true) _load();
   }
@@ -128,6 +134,9 @@ class _TpCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final accentColor = tp.isMine ? AppColors.blue600 : AppColors.emerald600;
+    final bgColor     = tp.isMine ? AppColors.blue50  : const Color(0xFFECFDF5);
+
     return Container(
       decoration: BoxDecoration(
         color: AppColors.white,
@@ -135,61 +144,95 @@ class _TpCard extends StatelessWidget {
         border: Border.all(color: AppColors.gray100),
         boxShadow: AppShadow.sm,
       ),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(14, 12, 8, 12),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: 36, height: 36,
-              decoration: BoxDecoration(
-                color: AppColors.blue50,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Icon(Icons.checklist_rounded, size: 18, color: AppColors.blue600),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (tp.code != null && tp.code!.isNotEmpty)
-                    Container(
-                      margin: const EdgeInsets.only(bottom: 4),
-                      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: AppColors.blue100,
-                        borderRadius: BorderRadius.circular(5),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(AppRadius.xl),
+        child: IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Garis kiri warna
+              Container(width: 4, color: accentColor),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 12, 8, 12),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: 34, height: 34,
+                        decoration: BoxDecoration(color: bgColor, borderRadius: BorderRadius.circular(8)),
+                        child: Icon(Icons.checklist_rounded, size: 17, color: accentColor),
                       ),
-                      child: Text(tp.code!, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: AppColors.blue700)),
-                    ),
-                  Text(tp.description, style: const TextStyle(fontSize: 13, color: AppColors.gray700)),
-                  if (tp.subjectName != null && tp.subjectName!.isNotEmpty) ...[
-                    const SizedBox(height: 4),
-                    Text(tp.subjectName!, style: const TextStyle(fontSize: 11, color: AppColors.gray400)),
-                  ],
-                ],
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Baris: kode + badge ownership
+                            Row(
+                              children: [
+                                if (tp.code != null && tp.code!.isNotEmpty)
+                                  Container(
+                                    margin: const EdgeInsets.only(right: 6),
+                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: tp.isMine ? AppColors.blue100 : const Color(0xFFD1FAE5),
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: Text(tp.code!, style: TextStyle(
+                                      fontSize: 10, fontWeight: FontWeight.w800, color: accentColor)),
+                                  ),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: tp.isMine ? AppColors.blue50 : const Color(0xFFECFDF5),
+                                    borderRadius: BorderRadius.circular(4),
+                                    border: Border.all(color: accentColor.withValues(alpha: .3)),
+                                  ),
+                                  child: Text(
+                                    tp.isMine ? 'Milik Saya' : 'Dibagikan',
+                                    style: TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: accentColor),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 4),
+                            Text(tp.description, style: const TextStyle(fontSize: 13, color: AppColors.gray700)),
+                            const SizedBox(height: 4),
+                            Row(
+                              children: [
+                                if (tp.subjectName != null && tp.subjectName!.isNotEmpty)
+                                  Text(tp.subjectName!, style: const TextStyle(fontSize: 11, color: AppColors.gray400)),
+                                if (!tp.isMine && tp.teacherName != null) ...[
+                                  const Text(' · ', style: TextStyle(color: AppColors.gray300, fontSize: 11)),
+                                  Text(tp.teacherName!, style: const TextStyle(fontSize: 11, color: AppColors.gray400)),
+                                ],
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      if (tp.isMine)
+                        Column(
+                          children: [
+                            GestureDetector(
+                              onTap: onEdit,
+                              child: const Padding(padding: EdgeInsets.all(6),
+                                child: Icon(Icons.edit_outlined, size: 17, color: AppColors.gray400)),
+                            ),
+                            GestureDetector(
+                              onTap: onDelete,
+                              child: const Padding(padding: EdgeInsets.all(6),
+                                child: Icon(Icons.delete_outline_rounded, size: 17, color: AppColors.red500)),
+                            ),
+                          ],
+                        ),
+                    ],
+                  ),
+                ),
               ),
-            ),
-            Column(
-              children: [
-                GestureDetector(
-                  onTap: onEdit,
-                  child: const Padding(
-                    padding: EdgeInsets.all(6),
-                    child: Icon(Icons.edit_outlined, size: 18, color: AppColors.gray400),
-                  ),
-                ),
-                GestureDetector(
-                  onTap: onDelete,
-                  child: const Padding(
-                    padding: EdgeInsets.all(6),
-                    child: Icon(Icons.delete_outline_rounded, size: 18, color: AppColors.red500),
-                  ),
-                ),
-              ],
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -200,7 +243,8 @@ class _TpCard extends StatelessWidget {
 
 class _TpFormSheet extends StatefulWidget {
   final TujuanPembelajaran? existing;
-  const _TpFormSheet({this.existing});
+  final List<SubjectRef> subjects;
+  const _TpFormSheet({this.existing, required this.subjects});
 
   @override
   State<_TpFormSheet> createState() => _TpFormSheetState();
@@ -209,6 +253,7 @@ class _TpFormSheet extends StatefulWidget {
 class _TpFormSheetState extends State<_TpFormSheet> {
   late final TextEditingController _codeCtrl;
   late final TextEditingController _descCtrl;
+  int? _selectedSubjectId;
   bool _submitting = false;
 
   @override
@@ -216,6 +261,8 @@ class _TpFormSheetState extends State<_TpFormSheet> {
     super.initState();
     _codeCtrl = TextEditingController(text: widget.existing?.code ?? '');
     _descCtrl = TextEditingController(text: widget.existing?.description ?? '');
+    _selectedSubjectId = widget.existing?.subjectId ??
+        (widget.subjects.isNotEmpty ? widget.subjects.first.id : null);
   }
 
   @override
@@ -225,38 +272,33 @@ class _TpFormSheetState extends State<_TpFormSheet> {
     super.dispose();
   }
 
+  void _snack(String msg, Color color) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(msg), backgroundColor: color, behavior: SnackBarBehavior.floating));
+  }
+
   Future<void> _submit() async {
-    if (_descCtrl.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('Deskripsi TP wajib diisi'),
-        backgroundColor: AppColors.orange500,
-        behavior: SnackBarBehavior.floating,
-      ));
-      return;
-    }
+    if (_selectedSubjectId == null) { _snack('Pilih mata pelajaran', AppColors.orange500); return; }
+    if (_descCtrl.text.trim().isEmpty) { _snack('Deskripsi TP wajib diisi', AppColors.orange500); return; }
     setState(() => _submitting = true);
     try {
       if (widget.existing != null) {
         await GuruService.updateTp(
           id:          widget.existing!.id,
+          subjectId:   _selectedSubjectId!,
           code:        _codeCtrl.text.trim().isEmpty ? null : _codeCtrl.text.trim(),
           description: _descCtrl.text.trim(),
         );
       } else {
         await GuruService.createTp(
+          subjectId:   _selectedSubjectId!,
           code:        _codeCtrl.text.trim().isEmpty ? null : _codeCtrl.text.trim(),
           description: _descCtrl.text.trim(),
         );
       }
       if (mounted) Navigator.pop(context, true);
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(e.toString()),
-          backgroundColor: AppColors.red500,
-          behavior: SnackBarBehavior.floating,
-        ));
-      }
+      if (mounted) _snack(e.toString(), AppColors.red500);
     } finally {
       if (mounted) setState(() => _submitting = false);
     }
@@ -276,33 +318,62 @@ class _TpFormSheetState extends State<_TpFormSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Center(
-              child: Container(width: 36, height: 4,
-                decoration: BoxDecoration(color: AppColors.gray300, borderRadius: BorderRadius.circular(2))),
-            ),
+            Center(child: Container(width: 36, height: 4,
+              decoration: BoxDecoration(color: AppColors.gray300, borderRadius: BorderRadius.circular(2)))),
             const SizedBox(height: 16),
             Text(
               widget.existing != null ? 'Edit TP' : 'Tambah TP Baru',
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.gray800),
             ),
             const SizedBox(height: 16),
+
+            // Mata Pelajaran
+            const Text('Mata Pelajaran *', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.gray600)),
+            const SizedBox(height: 6),
+            if (widget.subjects.isEmpty)
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(color: AppColors.orange50, borderRadius: BorderRadius.circular(8), border: Border.all(color: AppColors.orange100)),
+                child: const Text('Belum ada mata pelajaran. Hubungi admin untuk menambahkan mata pelajaran Anda.',
+                  style: TextStyle(fontSize: 12, color: AppColors.orange600)),
+              )
+            else
+              Wrap(
+                spacing: 6, runSpacing: 6,
+                children: widget.subjects.map((s) {
+                  final sel = _selectedSubjectId == s.id;
+                  return GestureDetector(
+                    onTap: () => setState(() => _selectedSubjectId = s.id),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                      decoration: BoxDecoration(
+                        color: sel ? AppColors.blue600 : AppColors.gray50,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: sel ? AppColors.blue600 : AppColors.gray200),
+                      ),
+                      child: Text(s.name, style: TextStyle(
+                        fontSize: 12, fontWeight: FontWeight.w600,
+                        color: sel ? Colors.white : AppColors.gray700)),
+                    ),
+                  );
+                }).toList(),
+              ),
+            const SizedBox(height: 12),
+
+            // Kode TP
             const Text('Kode TP (opsional)', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.gray600)),
             const SizedBox(height: 6),
-            TextField(
-              controller: _codeCtrl,
-              decoration: _inputDeco('Contoh: TP 1.1'),
-              style: const TextStyle(fontSize: 13),
-            ),
+            TextField(controller: _codeCtrl, decoration: _inputDeco('Contoh: TP 1.1'),
+              style: const TextStyle(fontSize: 13)),
             const SizedBox(height: 12),
+
+            // Deskripsi
             const Text('Deskripsi Tujuan Pembelajaran *', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.gray600)),
             const SizedBox(height: 6),
-            TextField(
-              controller: _descCtrl,
-              maxLines: 4,
-              decoration: _inputDeco('Peserta didik mampu...'),
-              style: const TextStyle(fontSize: 13),
-            ),
+            TextField(controller: _descCtrl, maxLines: 4, decoration: _inputDeco('Peserta didik mampu...'),
+              style: const TextStyle(fontSize: 13)),
             const SizedBox(height: 20),
+
             SizedBox(
               width: double.infinity,
               child: FilledButton(
@@ -326,8 +397,7 @@ class _TpFormSheetState extends State<_TpFormSheet> {
   InputDecoration _inputDeco(String hint) => InputDecoration(
     hintText: hint,
     hintStyle: const TextStyle(color: AppColors.gray400, fontSize: 13),
-    filled: true,
-    fillColor: AppColors.gray50,
+    filled: true, fillColor: AppColors.gray50,
     contentPadding: const EdgeInsets.all(12),
     border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: AppColors.gray200)),
     enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: AppColors.gray200)),
@@ -366,11 +436,12 @@ class _TpPickerSheetState extends State<TpPickerSheet> {
   }
 
   Future<void> _addNew() async {
+    final subjects = context.read<AuthProvider>().user?.subjects ?? <SubjectRef>[];
     final result = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => const _TpFormSheet(),
+      builder: (_) => _TpFormSheet(subjects: subjects),
     );
     if (result == true) _load();
   }

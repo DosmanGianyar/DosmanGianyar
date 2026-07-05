@@ -49,7 +49,12 @@ class User extends Authenticatable implements FilamentUser
     public function isGuru(): bool            { return $this->role === 'guru'; }
     public function isSiswa(): bool           { return in_array($this->role, ['siswa', 'pengelola']); }
     public function isPengelola(): bool       { return $this->role === 'pengelola'; }
-    public function isBk(): bool              { return $this->role === 'guru' && str_contains(strtolower($this->subject ?? ''), 'bk'); }
+    public function isBk(): bool
+    {
+        if ($this->role !== 'guru') return false;
+        if (str_contains(strtolower($this->subject ?? ''), 'bk')) return true;
+        return $this->subjects()->whereRaw('LOWER(name) LIKE ?', ['%bk%'])->exists();
+    }
 
     public function dashboardRoute(): string
     {
@@ -159,6 +164,12 @@ class User extends Authenticatable implements FilamentUser
     public function homeroomClass(): HasOne
     {
         return $this->hasOne(SchoolClass::class, 'homeroom_teacher_id');
+    }
+
+    public function subjects(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Subject::class, 'teacher_subjects')
+                    ->withTimestamps();
     }
 
     public function attendances(): \Illuminate\Database\Eloquent\Relations\HasMany

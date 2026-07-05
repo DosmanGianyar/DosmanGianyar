@@ -117,6 +117,13 @@ class AuthController extends Controller
 
     private function userPayload(User $user): array
     {
+        if (in_array($user->role, ['guru', 'admin'])) {
+            $user->loadMissing('subjects');
+        }
+        $teacherSubjects = ($user->role === 'guru' || $user->role === 'admin')
+            ? $user->subjects->map(fn($s) => ['id' => $s->id, 'name' => $s->name])->values()->all()
+            : [];
+
         return [
             'id'           => $user->id,
             'name'         => $user->name,
@@ -126,6 +133,7 @@ class AuthController extends Controller
             'nisn'         => $user->nisn,
             'nip'               => $user->nip,
             'subject'           => $user->subject,
+            'subjects'          => $teacherSubjects,
             'photo_url'         => $user->photo_url,
             'class_id'          => $user->class_id,
             'class_name'        => $user->schoolClass?->name,

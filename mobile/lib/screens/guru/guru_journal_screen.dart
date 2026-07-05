@@ -112,14 +112,6 @@ class _GuruJournalScreenState extends State<GuruJournalScreen> {
         title: const Text('Jurnal Mengajar'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.checklist_rounded),
-            tooltip: 'Kelola TP',
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const GuruTpScreen()),
-            ),
-          ),
-          IconButton(
             icon: const Icon(Icons.add_rounded),
             tooltip: 'Buat Jurnal',
             onPressed: () => Navigator.push(
@@ -692,19 +684,7 @@ class _JournalFormScreenState extends State<_JournalFormScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          children: [
-                            _lbl('Tujuan Pembelajaran (TP) *'),
-                            const Spacer(),
-                            GestureDetector(
-                              onTap: () => Navigator.push(context,
-                                MaterialPageRoute(builder: (_) => const GuruTpScreen()),
-                              ),
-                              child: const Text('Kelola TP',
-                                style: TextStyle(fontSize: 11, color: AppColors.blue600, fontWeight: FontWeight.w600)),
-                            ),
-                          ],
-                        ),
+                        _lbl('Tujuan Pembelajaran (TP) *'),
                         const SizedBox(height: 8),
                         GestureDetector(
                           onTap: _pickTp,

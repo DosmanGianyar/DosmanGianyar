@@ -44,9 +44,9 @@ class SchoolClassResource extends Resource
                 Select::make('grade')
                     ->label('Tingkat')
                     ->options([
-                        'X'   => 'Kelas X',
-                        'XI'  => 'Kelas XI',
-                        'XII' => 'Kelas XII',
+                        '10' => 'Tingkat 10',
+                        '11' => 'Tingkat 11',
+                        '12' => 'Tingkat 12',
                     ])
                     ->required(),
 
@@ -101,9 +101,9 @@ class SchoolClassResource extends Resource
                 SelectFilter::make('grade')
                     ->label('Tingkat')
                     ->options([
-                        'X'   => 'Kelas X',
-                        'XI'  => 'Kelas XI',
-                        'XII' => 'Kelas XII',
+                        '10' => 'Tingkat 10',
+                        '11' => 'Tingkat 11',
+                        '12' => 'Tingkat 12',
                     ]),
             ])
             ->actions([

@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\GuruResource\Pages;
+use App\Models\Subject;
 use App\Models\User;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
@@ -88,10 +89,13 @@ class GuruResource extends Resource
                     ->unique(ignoreRecord: true)
                     ->placeholder('198001012006041001'),
 
-                TextInput::make('subject')
-                    ->label('Mata Pelajaran')
-                    ->maxLength(100)
-                    ->placeholder('Matematika'),
+                Select::make('subjects')
+                    ->label('Mata Pelajaran (bisa lebih dari satu)')
+                    ->relationship('subjects', 'name')
+                    ->multiple()
+                    ->preload()
+                    ->searchable()
+                    ->columnSpanFull(),
             ])->columns(2),
         ]);
     }
@@ -128,10 +132,11 @@ class GuruResource extends Resource
                     ->copyable()
                     ->searchable(),
 
-                TextColumn::make('subject')
+                TextColumn::make('subjects.name')
                     ->label('Mata Pelajaran')
-                    ->placeholder('—')
-                    ->searchable(),
+                    ->badge()
+                    ->separator(', ')
+                    ->placeholder('—'),
 
                 TextColumn::make('phone')
                     ->label('No. HP')

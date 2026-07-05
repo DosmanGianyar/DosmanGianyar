@@ -297,12 +297,12 @@ class GuruService {
   }
 
   static Future<TujuanPembelajaran> createTp({
-    int? subjectId,
+    required int subjectId,
     String? code,
     required String description,
   }) async {
     final body = await ApiClient.post('/guru/tp', data: {
-      if (subjectId != null) 'subject_id': subjectId,
+      'subject_id':  subjectId,
       if (code != null && code.isNotEmpty) 'code': code,
       'description': description,
     });
@@ -311,7 +311,7 @@ class GuruService {
 
   static Future<TujuanPembelajaran> updateTp({
     required int id,
-    int? subjectId,
+    required int subjectId,
     String? code,
     required String description,
   }) async {

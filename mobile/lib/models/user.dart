@@ -1,3 +1,13 @@
+class SubjectRef {
+  final int    id;
+  final String name;
+  const SubjectRef({required this.id, required this.name});
+  factory SubjectRef.fromJson(Map<String, dynamic> json) => SubjectRef(
+    id:   json['id'] as int,
+    name: json['name'] as String,
+  );
+}
+
 class User {
   final int id;
   final String name;
@@ -7,6 +17,7 @@ class User {
   final String? nisn;
   final String? nip;
   final String? subject;
+  final List<SubjectRef> subjects;
   final String? photoUrl;
   final int?    homeroomClassId;
   final String? homeroomClassName;
@@ -29,6 +40,7 @@ class User {
     this.nisn,
     this.nip,
     this.subject,
+    this.subjects = const [],
     this.photoUrl,
     this.classId,
     this.className,
@@ -43,6 +55,11 @@ class User {
     this.parentPhone,
   });
 
+  String get subjectDisplay {
+    if (subjects.isNotEmpty) return subjects.map((s) => s.name).join(', ');
+    return subject ?? '';
+  }
+
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
       id:                json['id'] as int,
@@ -53,6 +70,9 @@ class User {
       nisn:              json['nisn'] as String?,
       nip:               json['nip'] as String?,
       subject:           json['subject'] as String?,
+      subjects:          (json['subjects'] as List<dynamic>? ?? [])
+                             .map((e) => SubjectRef.fromJson(e as Map<String, dynamic>))
+                             .toList(),
       photoUrl:          json['photo_url'] as String?,
       classId:           json['class_id'] as int?,
       className:         json['class_name'] as String?,

@@ -19,6 +19,7 @@ import 'guru_home_screen.dart';
 import 'guru_input_nilai_screen.dart';
 import 'guru_journal_screen.dart';
 import 'guru_permit_screen.dart';
+import 'guru_tp_screen.dart';
 import 'guru_rekap_screen.dart';
 import 'guru_sarpras_screen.dart';
 import 'guru_teaching_session_screen.dart';
@@ -312,7 +313,7 @@ class _GuruDrawer extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                   Text(
-                    user?.subject ?? 'Guru',
+                    user?.subjectDisplay.isNotEmpty == true ? user!.subjectDisplay : 'Guru',
                     style: const TextStyle(fontSize: 11, color: AppColors.gray400),
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -390,6 +391,11 @@ class _GuruDrawer extends StatelessWidget {
             icon:  Icons.menu_book_rounded,
             label: 'Kurikulum',
             children: [
+              _NavTile(
+                icon:  Icons.checklist_rounded,
+                label: 'Tujuan Pembelajaran (TP)',
+                onTap: () => onNavigate(const GuruTpScreen()),
+              ),
               _NavTile(
                 icon:  Icons.assignment_rounded,
                 label: 'Input Nilai',
