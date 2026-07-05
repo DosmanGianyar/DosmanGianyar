@@ -478,6 +478,7 @@ class TujuanPembelajaran {
   final String? subjectName;
   final String? code;
   final String  description;
+  final bool    isActive;
   final bool    isMine;
   final String? teacherName;
 
@@ -487,6 +488,7 @@ class TujuanPembelajaran {
     this.subjectName,
     this.code,
     required this.description,
+    this.isActive = true,
     this.isMine = true,
     this.teacherName,
   });
@@ -497,6 +499,7 @@ class TujuanPembelajaran {
     subjectName: json['subject_name'] as String?,
     code:        json['code'] as String?,
     description: json['description'] as String,
+    isActive:    json['is_active'] as bool? ?? true,
     isMine:      json['is_mine'] as bool? ?? true,
     teacherName: json['teacher_name'] as String?,
   );

@@ -323,6 +323,11 @@ class GuruService {
     return TujuanPembelajaran.fromJson(body['tp'] as Map<String, dynamic>);
   }
 
+  static Future<TujuanPembelajaran> toggleTp(int id) async {
+    final body = await ApiClient.patch('/guru/tp/$id/toggle');
+    return TujuanPembelajaran.fromJson(body['tp'] as Map<String, dynamic>);
+  }
+
   static Future<void> deleteTp(int id) async {
     await ApiClient.delete('/guru/tp/$id');
   }

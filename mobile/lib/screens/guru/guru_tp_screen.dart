@@ -48,6 +48,27 @@ class _GuruTpScreenState extends State<GuruTpScreen> {
     if (result == true) _load();
   }
 
+  Future<void> _toggleActive(TujuanPembelajaran tp) async {
+    try {
+      final updated = await GuruService.toggleTp(tp.id);
+      if (mounted) {
+        final idx = _tpList.indexWhere((t) => t.id == tp.id);
+        if (idx >= 0) setState(() => _tpList[idx] = updated);
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(updated.isActive ? 'TP diaktifkan' : 'TP dinonaktifkan'),
+          backgroundColor: updated.isActive ? AppColors.emerald600 : AppColors.gray500,
+          behavior: SnackBarBehavior.floating,
+        ));
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(e.toString()), backgroundColor: AppColors.red500,
+          behavior: SnackBarBehavior.floating));
+      }
+    }
+  }
+
   Future<void> _confirmDelete(TujuanPembelajaran tp) async {
     final ok = await showDialog<bool>(
       context: context,
@@ -71,10 +92,8 @@ class _GuruTpScreenState extends State<GuruTpScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(e.toString()),
-          backgroundColor: AppColors.red500,
-          behavior: SnackBarBehavior.floating,
-        ));
+          content: Text(e.toString()), backgroundColor: AppColors.red500,
+          behavior: SnackBarBehavior.floating));
       }
     }
   }
@@ -115,7 +134,8 @@ class _GuruTpScreenState extends State<GuruTpScreen> {
                         separatorBuilder: (_, __) => const SizedBox(height: 8),
                         itemBuilder: (_, i) => _TpCard(
                           tp: _tpList[i],
-                          onEdit: () => _showForm(existing: _tpList[i]),
+                          onToggle: () => _toggleActive(_tpList[i]),
+                          onEdit:   () => _showForm(existing: _tpList[i]),
                           onDelete: () => _confirmDelete(_tpList[i]),
                         ),
                       ),
@@ -128,115 +148,138 @@ class _GuruTpScreenState extends State<GuruTpScreen> {
 
 class _TpCard extends StatelessWidget {
   final TujuanPembelajaran tp;
+  final VoidCallback onToggle;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
-  const _TpCard({required this.tp, required this.onEdit, required this.onDelete});
+  const _TpCard({required this.tp, required this.onToggle, required this.onEdit, required this.onDelete});
 
   @override
   Widget build(BuildContext context) {
-    final accentColor = tp.isMine ? AppColors.blue600 : AppColors.emerald600;
-    final bgColor     = tp.isMine ? AppColors.blue50  : const Color(0xFFECFDF5);
+    final active      = tp.isActive;
+    final accentColor = !active
+        ? AppColors.gray400
+        : (tp.isMine ? AppColors.blue600 : AppColors.emerald600);
+    final bgColor     = !active
+        ? AppColors.gray100
+        : (tp.isMine ? AppColors.blue50  : const Color(0xFFECFDF5));
 
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(AppRadius.xl),
-        border: Border.all(color: AppColors.gray100),
-        boxShadow: AppShadow.sm,
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(AppRadius.xl),
-        child: IntrinsicHeight(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Garis kiri warna
-              Container(width: 4, color: accentColor),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(12, 12, 8, 12),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        width: 34, height: 34,
-                        decoration: BoxDecoration(color: bgColor, borderRadius: BorderRadius.circular(8)),
-                        child: Icon(Icons.checklist_rounded, size: 17, color: accentColor),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Baris: kode + badge ownership
-                            Row(
-                              children: [
-                                if (tp.code != null && tp.code!.isNotEmpty)
-                                  Container(
-                                    margin: const EdgeInsets.only(right: 6),
-                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                    decoration: BoxDecoration(
-                                      color: tp.isMine ? AppColors.blue100 : const Color(0xFFD1FAE5),
-                                      borderRadius: BorderRadius.circular(4),
-                                    ),
-                                    child: Text(tp.code!, style: TextStyle(
-                                      fontSize: 10, fontWeight: FontWeight.w800, color: accentColor)),
-                                  ),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                  decoration: BoxDecoration(
-                                    color: tp.isMine ? AppColors.blue50 : const Color(0xFFECFDF5),
-                                    borderRadius: BorderRadius.circular(4),
-                                    border: Border.all(color: accentColor.withValues(alpha: .3)),
-                                  ),
-                                  child: Text(
+    return Opacity(
+      opacity: active ? 1.0 : 0.65,
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppColors.white,
+          borderRadius: BorderRadius.circular(AppRadius.xl),
+          border: Border.all(color: active ? AppColors.gray100 : AppColors.gray200),
+          boxShadow: active ? AppShadow.sm : [],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(AppRadius.xl),
+          child: IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Container(width: 4, color: accentColor),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 12, 8, 12),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          width: 34, height: 34,
+                          decoration: BoxDecoration(color: bgColor, borderRadius: BorderRadius.circular(8)),
+                          child: Icon(Icons.checklist_rounded, size: 17, color: accentColor),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Badge row
+                              Wrap(
+                                spacing: 5, runSpacing: 4,
+                                children: [
+                                  if (tp.code != null && tp.code!.isNotEmpty)
+                                    _badge(tp.code!, tp.isMine ? AppColors.blue100 : const Color(0xFFD1FAE5), accentColor),
+                                  _badge(
                                     tp.isMine ? 'Milik Saya' : 'Dibagikan',
-                                    style: TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: accentColor),
+                                    active
+                                        ? (tp.isMine ? AppColors.blue50 : const Color(0xFFECFDF5))
+                                        : AppColors.gray100,
+                                    accentColor,
+                                  ),
+                                  _badge(
+                                    active ? 'Aktif' : 'Nonaktif',
+                                    active ? const Color(0xFFD1FAE5) : AppColors.gray100,
+                                    active ? AppColors.emerald600 : AppColors.gray500,
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 5),
+                              Text(tp.description, style: TextStyle(
+                                fontSize: 13,
+                                color: active ? AppColors.gray700 : AppColors.gray400,
+                                decoration: active ? null : TextDecoration.lineThrough,
+                              )),
+                              const SizedBox(height: 4),
+                              Row(
+                                children: [
+                                  if (tp.subjectName != null && tp.subjectName!.isNotEmpty)
+                                    Text(tp.subjectName!, style: const TextStyle(fontSize: 11, color: AppColors.gray400)),
+                                  if (!tp.isMine && tp.teacherName != null) ...[
+                                    const Text(' · ', style: TextStyle(color: AppColors.gray300, fontSize: 11)),
+                                    Text(tp.teacherName!, style: const TextStyle(fontSize: 11, color: AppColors.gray400)),
+                                  ],
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        if (tp.isMine)
+                          Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              // Tombol aktif/nonaktif
+                              GestureDetector(
+                                onTap: onToggle,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(6),
+                                  child: Icon(
+                                    active ? Icons.toggle_on_rounded : Icons.toggle_off_rounded,
+                                    size: 22,
+                                    color: active ? AppColors.emerald600 : AppColors.gray400,
                                   ),
                                 ),
-                              ],
-                            ),
-                            const SizedBox(height: 4),
-                            Text(tp.description, style: const TextStyle(fontSize: 13, color: AppColors.gray700)),
-                            const SizedBox(height: 4),
-                            Row(
-                              children: [
-                                if (tp.subjectName != null && tp.subjectName!.isNotEmpty)
-                                  Text(tp.subjectName!, style: const TextStyle(fontSize: 11, color: AppColors.gray400)),
-                                if (!tp.isMine && tp.teacherName != null) ...[
-                                  const Text(' · ', style: TextStyle(color: AppColors.gray300, fontSize: 11)),
-                                  Text(tp.teacherName!, style: const TextStyle(fontSize: 11, color: AppColors.gray400)),
-                                ],
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                      if (tp.isMine)
-                        Column(
-                          children: [
-                            GestureDetector(
-                              onTap: onEdit,
-                              child: const Padding(padding: EdgeInsets.all(6),
-                                child: Icon(Icons.edit_outlined, size: 17, color: AppColors.gray400)),
-                            ),
-                            GestureDetector(
-                              onTap: onDelete,
-                              child: const Padding(padding: EdgeInsets.all(6),
-                                child: Icon(Icons.delete_outline_rounded, size: 17, color: AppColors.red500)),
-                            ),
-                          ],
-                        ),
-                    ],
+                              ),
+                              GestureDetector(
+                                onTap: onEdit,
+                                child: const Padding(padding: EdgeInsets.all(6),
+                                  child: Icon(Icons.edit_outlined, size: 17, color: AppColors.gray400)),
+                              ),
+                              GestureDetector(
+                                onTap: onDelete,
+                                child: const Padding(padding: EdgeInsets.all(6),
+                                  child: Icon(Icons.delete_outline_rounded, size: 17, color: AppColors.red500)),
+                              ),
+                            ],
+                          ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
     );
   }
+
+  Widget _badge(String text, Color bg, Color fg) => Container(
+    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+    decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(4)),
+    child: Text(text, style: TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: fg)),
+  );
 }
 
 // ─── TP Form Sheet ────────────────────────────────────────────────────────────
@@ -429,7 +472,8 @@ class _TpPickerSheetState extends State<TpPickerSheet> {
   Future<void> _load() async {
     try {
       final list = await GuruService.getTpList(subjectId: widget.subjectId);
-      if (mounted) setState(() { _list = list; _loading = false; });
+      // Picker hanya menampilkan TP yang aktif
+      if (mounted) setState(() { _list = list.where((t) => t.isActive).toList(); _loading = false; });
     } catch (_) {
       if (mounted) setState(() => _loading = false);
     }

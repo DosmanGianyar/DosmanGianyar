@@ -146,6 +146,7 @@ Route::prefix('v1')->group(function () {
             Route::get('/guru/tp',                                        [GuruTpController::class, 'index']);
             Route::post('/guru/tp',                                       [GuruTpController::class, 'store']);
             Route::put('/guru/tp/{id}',                                   [GuruTpController::class, 'update']);
+            Route::patch('/guru/tp/{id}/toggle',                          [GuruTpController::class, 'toggle']);
             Route::delete('/guru/tp/{id}',                                [GuruTpController::class, 'destroy']);
 
             // Jurnal Guru

@@ -85,6 +85,21 @@ class GuruTpController extends Controller
         ]);
     }
 
+    // PATCH /api/v1/guru/tp/{id}/toggle
+    public function toggle(int $id): JsonResponse
+    {
+        $teacher = Auth::user();
+        $tp = TujuanPembelajaran::where('teacher_id', $teacher->id)->findOrFail($id);
+        $tp->update(['is_active' => !$tp->is_active]);
+        $tp->load(['subject:id,name', 'teacher:id,name']);
+
+        return response()->json([
+            'message'   => $tp->is_active ? 'TP diaktifkan.' : 'TP dinonaktifkan.',
+            'is_active' => $tp->is_active,
+            'tp'        => $this->format($tp, $teacher->id),
+        ]);
+    }
+
     // DELETE /api/v1/guru/tp/{id}
     public function destroy(int $id): JsonResponse
     {
@@ -100,6 +115,7 @@ class GuruTpController extends Controller
             'subject_name' => $tp->subject?->name,
             'code'         => $tp->code,
             'description'  => $tp->description,
+            'is_active'    => (bool) $tp->is_active,
             'is_mine'      => $myTeacherId !== null ? ($tp->teacher_id === $myTeacherId) : true,
             'teacher_name' => $tp->teacher?->name,
         ];
