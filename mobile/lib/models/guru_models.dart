@@ -476,6 +476,280 @@ class JournalAbsentStudent {
   );
 }
 
+// ─── Input Nilai ─────────────────────────────────────────────────────────────
+
+class SubjectItem {
+  final int    id;
+  final String name;
+
+  const SubjectItem({required this.id, required this.name});
+
+  factory SubjectItem.fromJson(Map<String, dynamic> json) => SubjectItem(
+    id:   json['id'] as int,
+    name: json['name'] as String,
+  );
+}
+
+class StudentGradeRow {
+  final int     studentId;
+  final String  studentName;
+  final String? nis;
+  final List<GradeCell> grades;
+
+  const StudentGradeRow({
+    required this.studentId,
+    required this.studentName,
+    this.nis,
+    required this.grades,
+  });
+
+  factory StudentGradeRow.fromJson(Map<String, dynamic> json) => StudentGradeRow(
+    studentId:   json['id'] as int,
+    studentName: json['name'] as String,
+    nis:         json['nis'] as String?,
+    grades:      (json['grades'] as List<dynamic>? ?? [])
+        .map((e) => GradeCell.fromJson(e as Map<String, dynamic>))
+        .toList(),
+  );
+
+  GradeCell? gradeFor(int subjectId, String type) => grades.cast<GradeCell?>().firstWhere(
+    (g) => g?.subjectId == subjectId && g?.type == type,
+    orElse: () => null,
+  );
+}
+
+class GradeCell {
+  final int?    gradeId;
+  final int     subjectId;
+  final String  subjectName;
+  final String  type;
+  final double? score;
+  final String? notes;
+
+  const GradeCell({
+    this.gradeId,
+    required this.subjectId,
+    required this.subjectName,
+    required this.type,
+    this.score,
+    this.notes,
+  });
+
+  factory GradeCell.fromJson(Map<String, dynamic> json) => GradeCell(
+    gradeId:     json['grade_id'] as int?,
+    subjectId:   json['subject_id'] as int,
+    subjectName: json['subject_name'] as String,
+    type:        json['type'] as String,
+    score:       (json['score'] as num?)?.toDouble(),
+    notes:       json['notes'] as String?,
+  );
+}
+
+// ─── BK (Bimbingan Konseling) ─────────────────────────────────────────────────
+
+class BkLogItem {
+  final int    id;
+  final int    studentId;
+  final String studentName;
+  final String? studentNis;
+  final String? className;
+  final String coachingNote;
+  final String date;
+  final String? counselorName;
+  final bool   isAuto;
+
+  const BkLogItem({
+    required this.id,
+    required this.studentId,
+    required this.studentName,
+    this.studentNis,
+    this.className,
+    required this.coachingNote,
+    required this.date,
+    this.counselorName,
+    required this.isAuto,
+  });
+
+  factory BkLogItem.fromJson(Map<String, dynamic> json) => BkLogItem(
+    id:            json['id'] as int,
+    studentId:     json['student_id'] as int,
+    studentName:   json['student_name'] as String,
+    studentNis:    json['student_nis'] as String?,
+    className:     json['class_name'] as String?,
+    coachingNote:  json['coaching_note'] as String,
+    date:          json['date'] as String,
+    counselorName: json['counselor_name'] as String?,
+    isAuto:        json['is_auto'] as bool? ?? false,
+  );
+}
+
+// ─── Sarpras ──────────────────────────────────────────────────────────────────
+
+class SarprasStats {
+  final int totalAssets;
+  final int baik;
+  final int rusakRingan;
+  final int rusakBerat;
+  final int pendingDamage;
+  final int pendingLoans;
+  final int activeLoans;
+  final int myLoans;
+
+  const SarprasStats({
+    required this.totalAssets,
+    required this.baik,
+    required this.rusakRingan,
+    required this.rusakBerat,
+    required this.pendingDamage,
+    required this.pendingLoans,
+    required this.activeLoans,
+    required this.myLoans,
+  });
+
+  factory SarprasStats.fromJson(Map<String, dynamic> json) => SarprasStats(
+    totalAssets:  json['total_assets'] as int? ?? 0,
+    baik:         json['baik'] as int? ?? 0,
+    rusakRingan:  json['rusak_ringan'] as int? ?? 0,
+    rusakBerat:   json['rusak_berat'] as int? ?? 0,
+    pendingDamage:json['pending_damage'] as int? ?? 0,
+    pendingLoans: json['pending_loans'] as int? ?? 0,
+    activeLoans:  json['active_loans'] as int? ?? 0,
+    myLoans:      json['my_loans'] as int? ?? 0,
+  );
+}
+
+class AssetItem {
+  final int    id;
+  final String name;
+  final String category;
+  final String categoryLabel;
+  final String condition;
+  final String conditionLabel;
+  final String? roomName;
+  final int    quantity;
+  final int?   purchaseYear;
+  final String? description;
+
+  const AssetItem({
+    required this.id,
+    required this.name,
+    required this.category,
+    required this.categoryLabel,
+    required this.condition,
+    required this.conditionLabel,
+    this.roomName,
+    required this.quantity,
+    this.purchaseYear,
+    this.description,
+  });
+
+  factory AssetItem.fromJson(Map<String, dynamic> json) => AssetItem(
+    id:             json['id'] as int,
+    name:           json['name'] as String,
+    category:       json['category'] as String,
+    categoryLabel:  json['category_label'] as String? ?? json['category'] as String,
+    condition:      json['condition'] as String,
+    conditionLabel: json['condition_label'] as String? ?? json['condition'] as String,
+    roomName:       json['room_name'] as String?,
+    quantity:       json['quantity'] as int? ?? 1,
+    purchaseYear:   json['purchase_year'] as int?,
+    description:    json['description'] as String?,
+  );
+}
+
+class DamageReportItem {
+  final int    id;
+  final int    assetId;
+  final String assetName;
+  final String? assetCategory;
+  final String? reporterName;
+  final String? handlerName;
+  final String description;
+  final String status;
+  final String statusLabel;
+  final String? resolutionNote;
+  final int    daysOpen;
+  final String createdAt;
+
+  const DamageReportItem({
+    required this.id,
+    required this.assetId,
+    required this.assetName,
+    this.assetCategory,
+    this.reporterName,
+    this.handlerName,
+    required this.description,
+    required this.status,
+    required this.statusLabel,
+    this.resolutionNote,
+    required this.daysOpen,
+    required this.createdAt,
+  });
+
+  factory DamageReportItem.fromJson(Map<String, dynamic> json) => DamageReportItem(
+    id:              json['id'] as int,
+    assetId:         json['asset_id'] as int,
+    assetName:       json['asset_name'] as String? ?? '—',
+    assetCategory:   json['asset_category'] as String?,
+    reporterName:    json['reporter_name'] as String?,
+    handlerName:     json['handler_name'] as String?,
+    description:     json['description'] as String,
+    status:          json['status'] as String,
+    statusLabel:     json['status_label'] as String? ?? json['status'] as String,
+    resolutionNote:  json['resolution_note'] as String?,
+    daysOpen:        json['days_open'] as int? ?? 0,
+    createdAt:       json['created_at'] as String? ?? '',
+  );
+}
+
+class LoanItem {
+  final int    id;
+  final int    assetId;
+  final String assetName;
+  final String? assetCategory;
+  final String? borrowerName;
+  final String? approverName;
+  final String purpose;
+  final String startDate;
+  final String endDate;
+  final String status;
+  final String statusLabel;
+  final String? rejectionNote;
+  final String createdAt;
+
+  const LoanItem({
+    required this.id,
+    required this.assetId,
+    required this.assetName,
+    this.assetCategory,
+    this.borrowerName,
+    this.approverName,
+    required this.purpose,
+    required this.startDate,
+    required this.endDate,
+    required this.status,
+    required this.statusLabel,
+    this.rejectionNote,
+    required this.createdAt,
+  });
+
+  factory LoanItem.fromJson(Map<String, dynamic> json) => LoanItem(
+    id:            json['id'] as int,
+    assetId:       json['asset_id'] as int,
+    assetName:     json['asset_name'] as String? ?? '—',
+    assetCategory: json['asset_category'] as String?,
+    borrowerName:  json['borrower_name'] as String?,
+    approverName:  json['approver_name'] as String?,
+    purpose:       json['purpose'] as String,
+    startDate:     json['start_date'] as String? ?? '',
+    endDate:       json['end_date'] as String? ?? '',
+    status:        json['status'] as String,
+    statusLabel:   json['status_label'] as String? ?? json['status'] as String,
+    rejectionNote: json['rejection_note'] as String?,
+    createdAt:     json['created_at'] as String? ?? '',
+  );
+}
+
 // ─── Paginated wrapper ────────────────────────────────────────────────────────
 
 class PaginatedMeta {

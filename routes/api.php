@@ -16,9 +16,12 @@ use App\Http\Controllers\Api\PermitController;
 use App\Http\Controllers\Api\SchoolRegulationController;
 use App\Http\Controllers\Api\ShiftController;
 use App\Http\Controllers\Api\GuruController;
+use App\Http\Controllers\Api\GuruBkApiController;
 use App\Http\Controllers\Api\GuruConductApiController;
-use App\Http\Controllers\Api\GuruTeachingSessionController;
+use App\Http\Controllers\Api\GuruGradeApiController;
 use App\Http\Controllers\Api\GuruJournalController;
+use App\Http\Controllers\Api\GuruSarprasApiController;
+use App\Http\Controllers\Api\GuruTeachingSessionController;
 use App\Http\Controllers\Api\TeacherAttendanceController;
 use Illuminate\Support\Facades\Route;
 
@@ -144,6 +147,30 @@ Route::prefix('v1')->group(function () {
             Route::get('/guru/journals/{id}',                             [GuruJournalController::class, 'show']);
             Route::put('/guru/journals/{id}',                             [GuruJournalController::class, 'update']);
             Route::delete('/guru/journals/{id}',                          [GuruJournalController::class, 'destroy']);
+
+            // Input Nilai Guru
+            Route::get('/guru/grades/classes',                    [GuruGradeApiController::class, 'classes']);
+            Route::get('/guru/grades/subjects',                   [GuruGradeApiController::class, 'subjects']);
+            Route::get('/guru/grades/export',                     [GuruGradeApiController::class, 'export']);
+            Route::get('/guru/grades',                            [GuruGradeApiController::class, 'index']);
+            Route::post('/guru/grades',                           [GuruGradeApiController::class, 'store']);
+            Route::delete('/guru/grades/{id}',                    [GuruGradeApiController::class, 'destroy']);
+
+            // BK (Bimbingan Konseling) Guru
+            Route::get('/guru/bk/classes',                        [GuruBkApiController::class, 'classes']);
+            Route::get('/guru/bk/students',                       [GuruBkApiController::class, 'students']);
+            Route::get('/guru/bk',                                [GuruBkApiController::class, 'index']);
+            Route::post('/guru/bk',                               [GuruBkApiController::class, 'store']);
+
+            // Sarpras Guru
+            Route::get('/guru/sarpras/stats',                     [GuruSarprasApiController::class, 'stats']);
+            Route::get('/guru/sarpras/categories',                [GuruSarprasApiController::class, 'categories']);
+            Route::get('/guru/sarpras/assets',                    [GuruSarprasApiController::class, 'assets']);
+            Route::get('/guru/sarpras/damage',                    [GuruSarprasApiController::class, 'damage']);
+            Route::post('/guru/sarpras/damage',                   [GuruSarprasApiController::class, 'storeDamage']);
+            Route::get('/guru/sarpras/loans',                     [GuruSarprasApiController::class, 'loans']);
+            Route::post('/guru/sarpras/loans',                    [GuruSarprasApiController::class, 'storeLoan']);
+            Route::patch('/guru/sarpras/loans/{id}/return',       [GuruSarprasApiController::class, 'returnLoan']);
 
             // Kesiswaan Summary
             Route::get('/kesiswaan/summary', [KesiswaanController::class, 'summary']);

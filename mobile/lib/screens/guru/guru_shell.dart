@@ -10,14 +10,17 @@ import '../login_screen.dart';
 import '../notifications_screen.dart';
 import '../profile_screen.dart';
 import 'guru_absensi_harian_screen.dart';
+import 'guru_bk_screen.dart';
 import 'guru_conduct_input_screen.dart';
 import 'guru_conduct_screen.dart';
 import 'guru_early_checkout_screen.dart';
 import 'guru_forgot_attendance_screen.dart';
 import 'guru_home_screen.dart';
+import 'guru_input_nilai_screen.dart';
 import 'guru_journal_screen.dart';
 import 'guru_permit_screen.dart';
 import 'guru_rekap_screen.dart';
+import 'guru_sarpras_screen.dart';
 import 'guru_teaching_session_screen.dart';
 
 class GuruShell extends StatefulWidget {
@@ -387,7 +390,11 @@ class _GuruDrawer extends StatelessWidget {
             icon:  Icons.menu_book_rounded,
             label: 'Kurikulum',
             children: [
-              _NavTile(icon: Icons.assignment_rounded,  label: 'Input Nilai',      onTap: null, comingSoon: true),
+              _NavTile(
+                icon:  Icons.assignment_rounded,
+                label: 'Input Nilai',
+                onTap: () => onNavigate(const GuruInputNilaiScreen()),
+              ),
               _NavTile(
                 icon:  Icons.how_to_reg_rounded,
                 label: 'Absensi Mengajar',
@@ -397,6 +404,34 @@ class _GuruDrawer extends StatelessWidget {
                 icon:  Icons.menu_book_outlined,
                 label: 'Jurnal Mengajar',
                 onTap: () => onNavigate(const GuruJournalScreen()),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+
+          // BK
+          _NavSection(
+            icon:  Icons.psychology_rounded,
+            label: 'Bimbingan Konseling',
+            children: [
+              _NavTile(
+                icon:  Icons.psychology_outlined,
+                label: 'Catatan BK',
+                onTap: () => onNavigate(const GuruBkScreen()),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+
+          // Sarpras
+          _NavSection(
+            icon:  Icons.business_rounded,
+            label: 'Sarana & Prasarana',
+            children: [
+              _NavTile(
+                icon:  Icons.inventory_2_rounded,
+                label: 'Inventaris & Peminjaman',
+                onTap: () => onNavigate(const GuruSarprasScreen()),
               ),
             ],
           ),
@@ -415,7 +450,6 @@ class _GuruDrawer extends StatelessWidget {
                   initialClassId: homeroomClassId,
                 )),
               ),
-              _NavTile(icon: Icons.download_rounded, label: 'Export Absensi', onTap: null, comingSoon: true),
             ],
           ),
           const SizedBox(height: 6),
@@ -466,45 +500,31 @@ class _NavTile extends StatelessWidget {
   final IconData icon;
   final String label;
   final VoidCallback? onTap;
-  final bool comingSoon;
 
   const _NavTile({
     required this.icon,
     required this.label,
     required this.onTap,
-    this.comingSoon = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Opacity(
-      opacity: comingSoon ? 0.5 : 1.0,
-      child: InkWell(
-        onTap: comingSoon ? null : onTap,
-        borderRadius: BorderRadius.circular(8),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-          child: Row(
-            children: [
-              Icon(icon, size: 16, color: AppColors.gray400),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  label,
-                  style: const TextStyle(fontSize: 13, color: AppColors.gray600, fontWeight: FontWeight.w500),
-                ),
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        child: Row(
+          children: [
+            Icon(icon, size: 16, color: AppColors.gray400),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                label,
+                style: const TextStyle(fontSize: 13, color: AppColors.gray600, fontWeight: FontWeight.w500),
               ),
-              if (comingSoon)
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: AppColors.gray100,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: const Text('Segera', style: TextStyle(fontSize: 9, fontWeight: FontWeight.w600, color: AppColors.gray400)),
-                ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

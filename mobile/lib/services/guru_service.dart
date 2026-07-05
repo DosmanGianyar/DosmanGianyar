@@ -318,4 +318,206 @@ class GuruService {
     final body = await ApiClient.delete('/guru/journals/$id');
     return body['message'] as String;
   }
+
+  // ── Input Nilai ────────────────────────────────────────────────────────────
+
+  static Future<Map<String, dynamic>> getGradeClasses() async {
+    return ApiClient.get('/guru/grades/classes');
+  }
+
+  static Future<List<SubjectItem>> getGradeSubjects() async {
+    final body = await ApiClient.get('/guru/grades/subjects');
+    return (body as List<dynamic>).map((e) => SubjectItem.fromJson(e as Map<String, dynamic>)).toList();
+  }
+
+  static Future<({List<StudentGradeRow> students, List<SubjectItem> subjects})> getGrades({
+    required int classId,
+    required int semester,
+    required String academicYear,
+  }) async {
+    final body = await ApiClient.get(
+      '/guru/grades',
+      params: {'class_id': classId, 'semester': semester, 'academic_year': academicYear},
+    );
+    return (
+      students: (body['students'] as List<dynamic>).map((e) => StudentGradeRow.fromJson(e as Map<String, dynamic>)).toList(),
+      subjects: (body['subjects'] as List<dynamic>).map((e) => SubjectItem.fromJson(e as Map<String, dynamic>)).toList(),
+    );
+  }
+
+  static Future<String> storeGrade({
+    required int studentId,
+    required int subjectId,
+    required String type,
+    required double score,
+    required int semester,
+    required String academicYear,
+    String? notes,
+  }) async {
+    final body = await ApiClient.post(
+      '/guru/grades',
+      data: {
+        'student_id':    studentId,
+        'subject_id':    subjectId,
+        'type':          type,
+        'score':         score,
+        'semester':      semester,
+        'academic_year': academicYear,
+        if (notes != null) 'notes': notes,
+      },
+    );
+    return body['message'] as String;
+  }
+
+  static Future<Map<String, dynamic>> exportGrades({
+    required int classId, required int semester, required String academicYear,
+  }) async {
+    return ApiClient.get(
+      '/guru/grades/export',
+      params: {'class_id': classId, 'semester': semester, 'academic_year': academicYear},
+    );
+  }
+
+  // ── BK ─────────────────────────────────────────────────────────────────────
+
+  static Future<List<Map<String, dynamic>>> getBkClasses() async {
+    final body = await ApiClient.get('/guru/bk/classes');
+    return (body as List<dynamic>).map((e) => e as Map<String, dynamic>).toList();
+  }
+
+  static Future<List<SimpleStudent>> getBkStudents({int? classId, String? q}) async {
+    final body = await ApiClient.get(
+      '/guru/bk/students',
+      params: {
+        if (classId != null) 'class_id': classId,
+        if (q != null && q.isNotEmpty) 'q': q,
+      },
+    );
+    return (body as List<dynamic>).map((e) => SimpleStudent.fromJson(e as Map<String, dynamic>)).toList();
+  }
+
+  static Future<({List<BkLogItem> data, int currentPage, int lastPage, int total})> getBkLogs({
+    int? classId, int? studentId, int page = 1,
+  }) async {
+    final body = await ApiClient.get(
+      '/guru/bk',
+      params: {
+        if (classId != null)   'class_id': classId,
+        if (studentId != null) 'student_id': studentId,
+        'page': page,
+      },
+    );
+    return (
+      data:        (body['data'] as List<dynamic>).map((e) => BkLogItem.fromJson(e as Map<String, dynamic>)).toList(),
+      currentPage: body['current_page'] as int? ?? 1,
+      lastPage:    body['last_page'] as int? ?? 1,
+      total:       body['total'] as int? ?? 0,
+    );
+  }
+
+  static Future<String> storeBkLog({
+    required int studentId,
+    required String coachingNote,
+    required String date,
+  }) async {
+    final body = await ApiClient.post(
+      '/guru/bk',
+      data: {'student_id': studentId, 'coaching_note': coachingNote, 'date': date},
+    );
+    return body['message'] as String;
+  }
+
+  // ── Sarpras ────────────────────────────────────────────────────────────────
+
+  static Future<SarprasStats> getSarprasStats() async {
+    final body = await ApiClient.get('/guru/sarpras/stats');
+    return SarprasStats.fromJson(body);
+  }
+
+  static Future<Map<String, dynamic>> getSarprasCategories() async {
+    return ApiClient.get('/guru/sarpras/categories');
+  }
+
+  static Future<({List<AssetItem> data, int currentPage, int lastPage, int total})> getAssets({
+    String? category, String? condition, String? q, int page = 1,
+  }) async {
+    final body = await ApiClient.get(
+      '/guru/sarpras/assets',
+      params: {
+        if (category  != null) 'category': category,
+        if (condition != null) 'condition': condition,
+        if (q != null && q.isNotEmpty) 'q': q,
+        'page': page,
+      },
+    );
+    return (
+      data:        (body['data'] as List<dynamic>).map((e) => AssetItem.fromJson(e as Map<String, dynamic>)).toList(),
+      currentPage: body['current_page'] as int? ?? 1,
+      lastPage:    body['last_page'] as int? ?? 1,
+      total:       body['total'] as int? ?? 0,
+    );
+  }
+
+  static Future<({List<DamageReportItem> data, int currentPage, int lastPage})> getDamageReports({
+    String? status, int page = 1,
+  }) async {
+    final body = await ApiClient.get(
+      '/guru/sarpras/damage',
+      params: {
+        if (status != null) 'status': status,
+        'page': page,
+      },
+    );
+    return (
+      data:        (body['data'] as List<dynamic>).map((e) => DamageReportItem.fromJson(e as Map<String, dynamic>)).toList(),
+      currentPage: body['current_page'] as int? ?? 1,
+      lastPage:    body['last_page'] as int? ?? 1,
+    );
+  }
+
+  static Future<String> storeDamageReport({
+    required int assetId,
+    required String description,
+  }) async {
+    final body = await ApiClient.post(
+      '/guru/sarpras/damage',
+      data: {'asset_id': assetId, 'description': description},
+    );
+    return body['message'] as String;
+  }
+
+  static Future<({List<LoanItem> data, int currentPage, int lastPage})> getLoans({
+    String? status, int page = 1,
+  }) async {
+    final body = await ApiClient.get(
+      '/guru/sarpras/loans',
+      params: {
+        if (status != null) 'status': status,
+        'page': page,
+      },
+    );
+    return (
+      data:        (body['data'] as List<dynamic>).map((e) => LoanItem.fromJson(e as Map<String, dynamic>)).toList(),
+      currentPage: body['current_page'] as int? ?? 1,
+      lastPage:    body['last_page'] as int? ?? 1,
+    );
+  }
+
+  static Future<String> storeLoan({
+    required int assetId,
+    required String startDate,
+    required String endDate,
+    required String purpose,
+  }) async {
+    final body = await ApiClient.post(
+      '/guru/sarpras/loans',
+      data: {'asset_id': assetId, 'start_date': startDate, 'end_date': endDate, 'purpose': purpose},
+    );
+    return body['message'] as String;
+  }
+
+  static Future<String> returnLoan(int id) async {
+    final body = await ApiClient.patch('/guru/sarpras/loans/$id/return', data: {});
+    return body['message'] as String;
+  }
 }
