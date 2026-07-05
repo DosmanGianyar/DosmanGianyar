@@ -116,7 +116,7 @@
 
     {{-- Tab Header --}}
     <div class="flex">
-        @foreach([['presensi','Presensi'],['pelanggaran','Pelanggaran'],['prestasi','Prestasi']] as [$id,$label])
+        @foreach([['presensi','Presensi'],['pelanggaran','Catatan Negatif'],['prestasi','Prestasi']] as [$id,$label])
         <button onclick="switchTab('{{ $id }}')" id="tab-btn-{{ $id }}"
             class="flex-1 py-3 text-xs font-semibold border-b-2 transition-colors
                 {{ $id === 'presensi' ? 'text-blue-600 border-blue-600' : 'text-gray-400 border-gray-100' }}">

@@ -364,7 +364,7 @@ class _GuruDrawer extends StatelessWidget {
               ),
               _NavTile(
                 icon:  Icons.add_circle_outline_rounded,
-                label: 'Catat Pelanggaran/Prestasi',
+                label: 'Catat Perilaku Siswa',
                 onTap: () => onNavigate(const GuruConductInputScreen()),
               ),
               _NavTile(

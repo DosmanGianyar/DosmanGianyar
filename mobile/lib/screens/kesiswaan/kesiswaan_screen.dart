@@ -204,7 +204,7 @@ class _KesiswaanScreenState extends State<KesiswaanScreen>
                     tabs: [
                       const Tab(text: 'Presensi'),
                       Tab(child: _TabWithBadge(
-                        label: 'Pelanggaran',
+                        label: 'Catatan Negatif',
                         count: _pelanggaranCount,
                         badgeColor: AppColors.red500,
                       )),
@@ -624,7 +624,7 @@ class _PelanggaranTab extends StatelessWidget {
       return Column(mainAxisAlignment: MainAxisAlignment.center, children: [
         const Icon(Icons.shield_outlined, size: 36, color: AppColors.gray200),
         const SizedBox(height: 8),
-        const Text('Tidak ada catatan pelanggaran',
+        const Text('Tidak ada catatan negatif',
           style: TextStyle(fontSize: 13, color: AppColors.gray400)),
         const SizedBox(height: 10),
         TextButton.icon(

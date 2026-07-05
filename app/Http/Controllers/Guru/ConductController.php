@@ -19,10 +19,10 @@ class ConductController extends Controller
     public const CONTEXT_META = [
         'akademik'            => ['label' => 'Prestasi Akademik',    'color' => 'green',  'type' => 'prestasi',    'desc' => 'Pencapaian selama kegiatan belajar mengajar'],
         'lomba'               => ['label' => 'Prestasi Lomba',        'color' => 'blue',   'type' => 'prestasi',    'desc' => 'Prestasi siswa dalam perlombaan atau kejuaraan'],
-        'kelas'               => ['label' => 'Pelanggaran Kelas',     'color' => 'yellow', 'type' => 'pelanggaran', 'desc' => 'Pelanggaran yang terjadi saat kegiatan di kelas'],
-        'sidak'               => ['label' => 'Pelanggaran Sidak',     'color' => 'red',    'type' => 'pelanggaran', 'desc' => 'Pelanggaran yang ditemukan saat inspeksi mendadak'],
+        'kelas'               => ['label' => 'Catatan Negatif Kelas',  'color' => 'yellow', 'type' => 'pelanggaran', 'desc' => 'Catatan negatif yang terjadi saat kegiatan di kelas'],
+        'sidak'               => ['label' => 'Catatan Negatif Sidak', 'color' => 'red',    'type' => 'pelanggaran', 'desc' => 'Catatan negatif yang ditemukan saat inspeksi mendadak'],
         'lainnya_prestasi'    => ['label' => 'Prestasi Lainnya',      'color' => 'green',  'type' => 'prestasi',    'desc' => 'Catat prestasi dengan deskripsi bebas'],
-        'lainnya_pelanggaran' => ['label' => 'Pelanggaran Lainnya',   'color' => 'orange', 'type' => 'pelanggaran', 'desc' => 'Catat pelanggaran dengan deskripsi bebas'],
+        'lainnya_pelanggaran' => ['label' => 'Catatan Negatif Lainnya', 'color' => 'orange', 'type' => 'pelanggaran', 'desc' => 'Catat catatan negatif dengan deskripsi bebas'],
     ];
 
     public function index(Request $request): View

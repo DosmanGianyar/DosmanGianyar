@@ -25,7 +25,7 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
   int?           _selectedClassId;
   SimpleStudent? _selectedStudent;
 
-  // Pelanggaran
+  // Catatan Negatif
   final _descriptionCtrl = TextEditingController();
   String? _selectedSeverity;
 
@@ -241,7 +241,7 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
           : TabBarView(
               controller: _tabCtrl,
               children: [
-                _buildPelanggaranForm(),
+                _buildCatatanNegatifForm(),
                 _buildPrestasiForm(),
                 _buildHistoryTab(),
               ],
@@ -251,7 +251,7 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
 
   // ── Pelanggaran Tab ───────────────────────────────────────────────────────
 
-  Widget _buildPelanggaranForm() {
+  Widget _buildCatatanNegatifForm() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(

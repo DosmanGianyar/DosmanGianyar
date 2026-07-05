@@ -40,8 +40,8 @@
 
 <div class="summary">
     Total: <strong>{{ $records->count() }}</strong> catatan ·
-    Prestasi: <strong>{{ $records->where('category.type','prestasi')->count() }}</strong> ·
-    Pelanggaran: <strong>{{ $records->where('category.type','pelanggaran')->count() }}</strong>
+    Catatan Positif: <strong>{{ $records->where('category.type','prestasi')->count() }}</strong> ·
+    Catatan Negatif: <strong>{{ $records->where('category.type','pelanggaran')->count() }}</strong>
 </div>
 
 <table>
@@ -66,7 +66,7 @@
             <td>{{ $r->student?->nis }}</td>
             <td>{{ $r->student?->schoolClass?->name }}</td>
             <td>{{ $r->category?->name }}</td>
-            <td class="{{ $isPrestasi ? 'prestasi' : 'pelanggaran' }}">{{ $isPrestasi ? 'Prestasi' : 'Pelanggaran' }}</td>
+            <td class="{{ $isPrestasi ? 'prestasi' : 'pelanggaran' }}">{{ $isPrestasi ? 'Catatan Positif' : 'Catatan Negatif' }}</td>
             <td>{{ $r->teacher?->name }}</td>
             <td>{{ $r->created_at->isoFormat('D MMM Y') }}</td>
         </tr>

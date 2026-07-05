@@ -1,6 +1,6 @@
 @extends('layouts.guru')
-@section('title', 'Catat Prestasi / Pelanggaran')
-@section('page-title', 'Catat Prestasi / Pelanggaran')
+@section('title', 'Catat Catatan Perilaku')
+@section('page-title', 'Catat Catatan Perilaku')
 
 @section('content')
 <div class="max-w-lg mx-auto space-y-6">
@@ -81,7 +81,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
                     </svg>
-                    Pelanggaran
+                    Catatan Negatif
                 </div>
                 <svg id="chevron-pelanggaran" class="w-4 h-4 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
@@ -97,8 +97,8 @@
                             d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
                     </svg>
                     <div>
-                        <p class="font-medium">Pelanggaran Kelas</p>
-                        <p class="text-xs text-gray-400">Pelanggaran saat kegiatan belajar mengajar</p>
+                        <p class="font-medium">Catatan Negatif Kelas</p>
+                        <p class="text-xs text-gray-400">Catatan negatif saat kegiatan belajar mengajar</p>
                     </div>
                 </a>
                 <div class="h-px bg-gray-50 mx-3"></div>
@@ -109,8 +109,8 @@
                             d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
                     </svg>
                     <div>
-                        <p class="font-medium">Pelanggaran Sidak</p>
-                        <p class="text-xs text-gray-400">Pelanggaran yang ditemukan saat inspeksi mendadak</p>
+                        <p class="font-medium">Catatan Negatif Sidak</p>
+                        <p class="text-xs text-gray-400">Catatan negatif yang ditemukan saat inspeksi mendadak</p>
                     </div>
                 </a>
                 <div class="h-px bg-gray-100 mx-3"></div>
@@ -121,7 +121,7 @@
                     </svg>
                     <div>
                         <p class="font-medium text-gray-600">Lainnya...</p>
-                        <p class="text-xs text-gray-400">Catat pelanggaran dengan deskripsi bebas</p>
+                        <p class="text-xs text-gray-400">Catat catatan negatif dengan deskripsi bebas</p>
                     </div>
                 </a>
             </div>

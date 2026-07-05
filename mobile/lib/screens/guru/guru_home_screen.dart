@@ -111,9 +111,9 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
         const SizedBox(width: 12),
         Expanded(
           child: _StatCard(
-            label:     'Siswa Pelanggaran',
+            label:     'Catatan Negatif',
             value:     alertCount.toString(),
-            subtitle:  'catat pelanggaran',
+            subtitle:  'catat perilaku',
             icon:      Icons.warning_amber_rounded,
             iconColor: AppColors.orange600,
             iconBg:    AppColors.orange100,
@@ -175,7 +175,7 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  'Siswa Pelanggaran Terbanyak',
+                  'Siswa Catatan Negatif Terbanyak',
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
@@ -243,7 +243,7 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
                         ),
                         const SizedBox(width: 4),
                         const Text(
-                          'pelanggaran',
+                          'catatan negatif',
                           style: TextStyle(fontSize: 11, color: AppColors.gray400),
                         ),
                       ],

@@ -141,14 +141,7 @@ class GuruConductApiController extends Controller
             ->latest();
 
         if ($request->filled('type')) {
-            if ($request->type === 'pelanggaran') {
-                $query->where(function ($q) {
-                    $q->whereNotNull('severity')
-                      ->orWhereHas('category', fn ($c) => $c->where('type', 'pelanggaran'));
-                });
-            } elseif ($request->type === 'prestasi') {
-                $query->whereHas('category', fn ($c) => $c->where('type', 'prestasi'));
-            }
+            $query->where('type', $request->type);
         }
 
         $logs = $query->paginate(20);

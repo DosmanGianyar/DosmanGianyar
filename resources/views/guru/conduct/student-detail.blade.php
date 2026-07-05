@@ -1,6 +1,6 @@
 @extends('layouts.guru')
 @section('title', 'Detail Siswa')
-@section('page-title', 'Detail Prestasi & Pelanggaran')
+@section('page-title', 'Detail Catatan Perilaku')
 
 @section('content')
 <div class="max-w-2xl mx-auto space-y-4">
@@ -25,11 +25,11 @@
         <div class="grid grid-cols-2 gap-3 text-center">
             <div class="bg-green-50 rounded-xl py-3">
                 <p class="text-lg font-bold text-green-600">{{ $prestasiCount }}</p>
-                <p class="text-xs text-gray-500">Prestasi</p>
+                <p class="text-xs text-gray-500">Catatan Positif</p>
             </div>
             <div class="bg-red-50 rounded-xl py-3">
                 <p class="text-lg font-bold text-red-600">{{ $pelanggaranCount }}</p>
-                <p class="text-xs text-gray-500">Pelanggaran</p>
+                <p class="text-xs text-gray-500">Catatan Negatif</p>
             </div>
         </div>
     </div>
@@ -68,7 +68,7 @@
                 <div class="flex items-center gap-2 shrink-0">
                     <span class="text-xs font-semibold px-2 py-0.5 rounded-lg
                         {{ $log->isPrestasi() ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700' }}">
-                        {{ $log->isPrestasi() ? 'Prestasi' : 'Pelanggaran' }}
+                        {{ $log->isPrestasi() ? 'Catatan Positif' : 'Catatan Negatif' }}
                     </span>
                     @if($log->photo)
                     <a href="{{ Storage::url($log->photo) }}" target="_blank"

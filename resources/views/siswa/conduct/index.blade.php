@@ -1,6 +1,6 @@
 @extends('layouts.siswa')
-@section('title', 'Pelanggaran & Prestasi')
-@section('page-title', 'Pelanggaran & Prestasi')
+@section('title', 'Catatan Perilaku')
+@section('page-title', 'Catatan Perilaku')
 
 @section('content')
 <div class="space-y-4">
@@ -13,7 +13,7 @@
         </div>
         <div class="bg-red-50 rounded-2xl p-4 text-center">
             <p class="text-2xl font-bold text-red-700">{{ $pelanggaranCount }}</p>
-            <p class="text-xs text-gray-500 mt-0.5">Total Pelanggaran</p>
+            <p class="text-xs text-gray-500 mt-0.5">Total Catatan Negatif</p>
         </div>
     </div>
 
@@ -43,7 +43,7 @@
                         <p class="text-sm font-medium text-gray-800">{{ $log->category->name }}</p>
                         <span class="text-xs font-semibold shrink-0
                             {{ $log->isPrestasi() ? 'text-green-700' : 'text-red-700' }}">
-                            {{ $log->isPrestasi() ? 'Prestasi' : 'Pelanggaran' }}
+                            {{ $log->isPrestasi() ? 'Catatan Positif' : 'Catatan Negatif' }}
                         </span>
                     </div>
                     @if($log->note)

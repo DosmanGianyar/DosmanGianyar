@@ -33,8 +33,8 @@ class GuruKesiswaanScreen extends StatelessWidget {
           _buildMenuCard(
             context,
             icon: Icons.gavel_rounded,
-            label: 'Pelanggaran & Prestasi',
-            subtitle: 'Catatan pelanggaran dan prestasi siswa',
+            label: 'Catatan Perilaku Siswa',
+            subtitle: 'Catatan positif dan negatif siswa',
             color: AppColors.orange600,
             bg: AppColors.orange50,
             onTap: classes.isNotEmpty

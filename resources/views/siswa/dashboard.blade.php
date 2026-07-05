@@ -160,7 +160,7 @@
         </div>
         <div class="bg-red-50 rounded-xl py-3">
             <p class="text-xl font-bold text-red-700">-{{ $pointSummary['pelanggaran'] }}</p>
-            <p class="text-xs text-gray-500 mt-0.5">Pelanggaran</p>
+            <p class="text-xs text-gray-500 mt-0.5">Catatan Negatif</p>
         </div>
     </div>
 </div>

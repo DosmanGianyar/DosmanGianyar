@@ -146,7 +146,7 @@ class _GuruConductScreenState extends State<GuruConductScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Pelanggaran', style: TextStyle(fontSize: 11, color: AppColors.gray500)),
+                const Text('Catatan Negatif', style: TextStyle(fontSize: 11, color: AppColors.gray500)),
                 const SizedBox(height: 4),
                 Text(
                   '$totalPelanggaran',
@@ -170,7 +170,7 @@ class _GuruConductScreenState extends State<GuruConductScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Prestasi', style: TextStyle(fontSize: 11, color: AppColors.gray500)),
+                const Text('Catatan Positif', style: TextStyle(fontSize: 11, color: AppColors.gray500)),
                 const SizedBox(height: 4),
                 Text(
                   '$totalPrestasi',

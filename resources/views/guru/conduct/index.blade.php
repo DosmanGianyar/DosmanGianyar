@@ -1,6 +1,6 @@
 @extends('layouts.guru')
-@section('title', 'Rekap Prestasi & Pelanggaran')
-@section('page-title', 'Rekap Prestasi & Pelanggaran')
+@section('title', 'Rekap Catatan Perilaku')
+@section('page-title', 'Rekap Catatan Perilaku')
 
 @section('content')
 <div class="space-y-4">

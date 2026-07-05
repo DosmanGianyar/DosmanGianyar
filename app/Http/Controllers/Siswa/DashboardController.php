@@ -61,7 +61,7 @@ class DashboardController extends Controller
             'date'  => $log->created_at->toDateString(),
             'type'  => $log->category?->type ?? 'pelanggaran',
             'desc'  => $log->category?->name ?? $log->note ?? '—',
-            'point' => $log->category?->type === 'prestasi' ? 'Prestasi' : 'Pelanggaran',
+            'point' => $log->category?->type === 'prestasi' ? 'Catatan Positif' : 'Catatan Negatif',
         ]);
 
         // ─── Recent Announcements ─────────────────────────────────────
