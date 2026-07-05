@@ -53,7 +53,11 @@ class User extends Authenticatable implements FilamentUser
     {
         if ($this->role !== 'guru') return false;
         if (str_contains(strtolower($this->subject ?? ''), 'bk')) return true;
-        return $this->subjects()->whereRaw('LOWER(name) LIKE ?', ['%bk%'])->exists();
+        try {
+            return $this->subjects()->whereRaw('LOWER(name) LIKE ?', ['%bk%'])->exists();
+        } catch (\Throwable $e) {
+            return false;
+        }
     }
 
     public function dashboardRoute(): string
