@@ -84,7 +84,7 @@ class GuruTeachingSessionController extends Controller
     public function store(Request $request): JsonResponse
     {
         $request->validate([
-            'class_id'   => 'required|exists:school_classes,id',
+            'class_id'   => 'required|exists:classes,id',
             'subject_id' => 'nullable|exists:subjects,id',
             'date'       => 'required|date',
             'period'     => 'required|integer|min:1|max:12',
@@ -177,7 +177,7 @@ class GuruTeachingSessionController extends Controller
     public function export(Request $request): JsonResponse
     {
         $request->validate([
-            'class_id' => 'required|exists:school_classes,id',
+            'class_id' => 'required|exists:classes,id',
             'month'    => 'required|integer|min:1|max:12',
             'year'     => 'required|integer',
         ]);

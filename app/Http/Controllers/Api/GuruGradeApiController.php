@@ -56,7 +56,7 @@ class GuruGradeApiController extends Controller
     public function index(Request $request): JsonResponse
     {
         $request->validate([
-            'class_id'      => 'required|exists:school_classes,id',
+            'class_id'      => 'required|exists:classes,id',
             'semester'      => 'required|in:1,2',
             'academic_year' => 'required|string',
         ]);
@@ -137,7 +137,7 @@ class GuruGradeApiController extends Controller
     public function export(Request $request): JsonResponse
     {
         $request->validate([
-            'class_id'      => 'required|exists:school_classes,id',
+            'class_id'      => 'required|exists:classes,id',
             'semester'      => 'required|in:1,2',
             'academic_year' => 'required|string',
         ]);

@@ -48,7 +48,7 @@ class GuruJournalController extends Controller
     public function store(Request $request): JsonResponse
     {
         $request->validate([
-            'class_id'             => 'required|exists:school_classes,id',
+            'class_id'             => 'required|exists:classes,id',
             'subject_id'           => 'nullable|exists:subjects,id',
             'date'                 => 'required|date',
             'period'               => 'nullable|integer|min:1|max:12',

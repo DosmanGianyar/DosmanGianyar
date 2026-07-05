@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('teacher_journals', function (Blueprint $table) {
             $table->id();
             $table->foreignId('teacher_id')->constrained('users')->cascadeOnDelete();
-            $table->foreignId('class_id')->constrained('school_classes')->cascadeOnDelete();
+            $table->foreignId('class_id')->constrained('classes')->cascadeOnDelete();
             $table->foreignId('subject_id')->nullable()->constrained('subjects')->nullOnDelete();
             $table->date('date');
             $table->tinyInteger('period')->nullable()->comment('Jam ke-berapa');
