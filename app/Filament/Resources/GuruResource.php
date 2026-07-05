@@ -111,6 +111,12 @@ class GuruResource extends Resource
                     ->searchable()
                     ->sortable(),
 
+                TextColumn::make('email')
+                    ->label('Email')
+                    ->searchable()
+                    ->copyable()
+                    ->placeholder('—'),
+
                 TextColumn::make('role')
                     ->label('Role')
                     ->badge()
