@@ -117,12 +117,17 @@ class AuthController extends Controller
 
     private function userPayload(User $user): array
     {
+        $teacherSubjects = [];
         if (in_array($user->role, ['guru', 'admin'])) {
-            $user->loadMissing('subjects');
+            try {
+                $user->loadMissing('subjects');
+                $teacherSubjects = $user->subjects
+                    ->map(fn($s) => ['id' => $s->id, 'name' => $s->name])
+                    ->values()->all();
+            } catch (\Throwable $e) {
+                // teacher_subjects table may not exist yet — return empty array
+            }
         }
-        $teacherSubjects = ($user->role === 'guru' || $user->role === 'admin')
-            ? $user->subjects->map(fn($s) => ['id' => $s->id, 'name' => $s->name])->values()->all()
-            : [];
 
         return [
             'id'           => $user->id,
