@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Siswa;
 
 use App\Http\Controllers\Controller;
 use App\Models\HomeroomConsultation;
-use App\Models\SchoolClass;
+use App\Models\StudentHomeroomTeacher;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -21,7 +21,10 @@ class HomeroomConsultationController extends Controller
             ->latest()
             ->get();
 
-        $homeroomTeacher = $siswa->schoolClass?->homeroomTeacher;
+        $record          = StudentHomeroomTeacher::where('student_id', $siswa->id)
+            ->with('teacher')
+            ->first();
+        $homeroomTeacher = $record?->teacher;
 
         return view('siswa.homeroom-consultation.index', compact('consultations', 'homeroomTeacher'));
     }
@@ -31,12 +34,11 @@ class HomeroomConsultationController extends Controller
         /** @var \App\Models\User $siswa */
         $siswa = auth()->user();
 
-        $class = SchoolClass::find($siswa->class_id);
-        if (! $class?->homeroom_teacher_id) {
-            return back()->with('error', 'Kelas Anda belum memiliki wali kelas.');
+        $record = StudentHomeroomTeacher::where('student_id', $siswa->id)->first();
+        if (! $record) {
+            return back()->with('error', 'Anda belum memiliki Guru Wali. Hubungi admin untuk penugasan.');
         }
 
-        // Cegah pengajuan ganda saat masih pending/scheduled
         $hasActive = HomeroomConsultation::where('student_id', $siswa->id)
             ->whereIn('status', ['pending', 'scheduled'])
             ->exists();
@@ -52,7 +54,7 @@ class HomeroomConsultationController extends Controller
 
         HomeroomConsultation::create([
             'student_id'   => $siswa->id,
-            'teacher_id'   => $class->homeroom_teacher_id,
+            'teacher_id'   => $record->teacher_id,
             'class_id'     => $siswa->class_id,
             'topic'        => $request->topic,
             'student_note' => $request->student_note,

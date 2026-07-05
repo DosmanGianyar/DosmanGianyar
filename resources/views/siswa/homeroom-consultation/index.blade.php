@@ -1,14 +1,14 @@
 @extends('layouts.siswa')
-@section('title', 'Bimbingan Wali Kelas')
-@section('page-title', 'Bimbingan Wali Kelas')
+@section('title', 'Bimbingan Guru Wali')
+@section('page-title', 'Bimbingan Guru Wali')
 
 @section('content')
 <div class="space-y-4">
 
-    {{-- Info Wali Kelas --}}
+    {{-- Info Guru Wali --}}
     @if($homeroomTeacher)
     <div class="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl p-4 text-white">
-        <p class="text-xs text-blue-200 mb-1">Wali Kelas Anda</p>
+        <p class="text-xs text-blue-200 mb-1">Guru Wali Anda</p>
         <div class="flex items-center gap-3">
             <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center shrink-0">
                 <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -26,7 +26,7 @@
     </div>
     @else
     <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-amber-700 text-sm">
-        Kelas Anda belum memiliki wali kelas. Hubungi admin.
+        Anda belum memiliki Guru Wali. Hubungi admin untuk penugasan.
     </div>
     @endif
 

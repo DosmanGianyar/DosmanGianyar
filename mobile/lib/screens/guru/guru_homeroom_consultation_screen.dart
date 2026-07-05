@@ -13,9 +13,9 @@ class GuruHomeroomConsultationScreen extends StatefulWidget {
 
 class _GuruHomeroomConsultationScreenState
     extends State<GuruHomeroomConsultationScreen> {
-  List<GuruHomeroomConsultation> _items   = [];
+  List<GuruHomeroomConsultation> _items        = [];
   GuruHomeroomCounts?            _counts;
-  Map<String, dynamic>?          _class;
+  int                            _studentCount = 0;
   String  _statusFilter = '';
   bool    _loading      = true;
   String? _error;
@@ -42,10 +42,10 @@ class _GuruHomeroomConsultationScreenState
       );
       if (mounted) {
         setState(() {
-          _class   = result['class'] as Map<String, dynamic>;
-          _items   = result['consultations'] as List<GuruHomeroomConsultation>;
-          _counts  = result['counts'] as GuruHomeroomCounts;
-          _loading = false;
+          _studentCount = result['student_count'] as int? ?? 0;
+          _items        = result['consultations'] as List<GuruHomeroomConsultation>;
+          _counts       = result['counts'] as GuruHomeroomCounts;
+          _loading      = false;
         });
       }
     } catch (e) {
@@ -91,8 +91,8 @@ class _GuruHomeroomConsultationScreenState
         padding: const EdgeInsets.all(14),
         child: Column(
           children: [
-            // ─── Header kelas
-            if (_class != null) _ClassHeader(className: _class!['name'] as String, counts: _counts),
+            // ─── Header guru wali
+            _ClassHeader(studentCount: _studentCount, counts: _counts),
             const SizedBox(height: 10),
 
             // ─── Stats
@@ -145,9 +145,9 @@ class _GuruHomeroomConsultationScreenState
 // ─── Header ───────────────────────────────────────────────────────────────────
 
 class _ClassHeader extends StatelessWidget {
-  final String className;
+  final int studentCount;
   final GuruHomeroomCounts? counts;
-  const _ClassHeader({required this.className, this.counts});
+  const _ClassHeader({required this.studentCount, this.counts});
 
   @override
   Widget build(BuildContext context) {
@@ -166,8 +166,9 @@ class _ClassHeader extends StatelessWidget {
       child: Row(
         children: [
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            const Text('Wali Kelas', style: TextStyle(fontSize: 11, color: Color(0xFFC7D2FE))),
-            Text(className, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+            const Text('Guru Wali', style: TextStyle(fontSize: 11, color: Color(0xFFC7D2FE))),
+            Text('$studentCount Siswa Terdaftar',
+                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white)),
           ])),
           Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
             Text('$total', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white)),

@@ -5,12 +5,12 @@
 @section('content')
 <div class="max-w-3xl space-y-4">
 
-    {{-- Header Info Kelas --}}
+    {{-- Header Info Guru Wali --}}
     <div class="bg-gradient-to-br from-indigo-600 to-blue-700 rounded-2xl p-4 text-white flex items-center justify-between gap-4">
         <div>
-            <p class="text-xs text-indigo-200">Wali Kelas</p>
-            <p class="font-bold text-base">{{ $class->name }}</p>
-            <p class="text-xs text-indigo-200 mt-0.5">{{ auth()->user()->name }}</p>
+            <p class="text-xs text-indigo-200">Guru Wali</p>
+            <p class="font-bold text-base">{{ auth()->user()->name }}</p>
+            <p class="text-xs text-indigo-200 mt-0.5">{{ $studentCount }} Siswa Terdaftar</p>
         </div>
         <div class="text-right">
             <p class="text-2xl font-bold">{{ $counts->sum() }}</p>

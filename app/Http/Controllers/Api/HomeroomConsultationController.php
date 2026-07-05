@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\HomeroomConsultation;
-use App\Models\SchoolClass;
+use App\Models\StudentHomeroomTeacher;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -21,13 +21,16 @@ class HomeroomConsultationController extends Controller
             ->latest()
             ->get();
 
-        $teacher = $siswa->schoolClass?->homeroomTeacher;
+        $record  = StudentHomeroomTeacher::with('teacher:id,name')
+            ->where('student_id', $siswa->id)
+            ->first();
+        $teacher = $record?->teacher;
 
         return response()->json([
             'homeroom_teacher' => $teacher
                 ? ['id' => $teacher->id, 'name' => $teacher->name]
                 : null,
-            'consultations' => $consultations->map(fn ($c) => $this->format($c))->values(),
+            'consultations' => $consultations->map(fn($c) => $this->format($c))->values(),
         ]);
     }
 
@@ -36,9 +39,9 @@ class HomeroomConsultationController extends Controller
         /** @var \App\Models\User $siswa */
         $siswa = Auth::user();
 
-        $class = SchoolClass::find($siswa->class_id);
-        if (! $class?->homeroom_teacher_id) {
-            return response()->json(['message' => 'Kelas Anda belum memiliki wali kelas.'], 422);
+        $record = StudentHomeroomTeacher::where('student_id', $siswa->id)->first();
+        if (! $record) {
+            return response()->json(['message' => 'Anda belum memiliki Guru Wali.'], 422);
         }
 
         $hasActive = HomeroomConsultation::where('student_id', $siswa->id)
@@ -59,7 +62,7 @@ class HomeroomConsultationController extends Controller
 
         $consultation = HomeroomConsultation::create([
             'student_id'   => $siswa->id,
-            'teacher_id'   => $class->homeroom_teacher_id,
+            'teacher_id'   => $record->teacher_id,
             'class_id'     => $siswa->class_id,
             'topic'        => $data['topic'],
             'student_note' => $data['student_note'] ?? null,
@@ -75,7 +78,7 @@ class HomeroomConsultationController extends Controller
     public function cancel(int $id): JsonResponse
     {
         /** @var \App\Models\User $siswa */
-        $siswa = Auth::user();
+        $siswa        = Auth::user();
         $consultation = HomeroomConsultation::findOrFail($id);
 
         if ($consultation->student_id !== $siswa->id || ! $consultation->isPending()) {
@@ -83,11 +86,26 @@ class HomeroomConsultationController extends Controller
         }
 
         $consultation->update([
-            'status'            => 'cancelled',
-            'cancelled_reason'  => 'Dibatalkan oleh siswa',
+            'status'           => 'cancelled',
+            'cancelled_reason' => 'Dibatalkan oleh siswa',
         ]);
 
         return response()->json(['message' => 'Pengajuan bimbingan dibatalkan.']);
+    }
+
+    public function guruWali(): JsonResponse
+    {
+        /** @var \App\Models\User $siswa */
+        $siswa  = Auth::user();
+        $record = StudentHomeroomTeacher::with('teacher:id,name')
+            ->where('student_id', $siswa->id)
+            ->first();
+
+        return response()->json([
+            'guru_wali' => $record?->teacher
+                ? ['id' => $record->teacher->id, 'name' => $record->teacher->name]
+                : null,
+        ]);
     }
 
     private function format(HomeroomConsultation $c): array

@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Guru;
 use App\Exports\HomeroomConsultationExport;
 use App\Http\Controllers\Controller;
 use App\Models\HomeroomConsultation;
-use App\Models\SchoolClass;
+use App\Models\StudentHomeroomTeacher;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -16,20 +16,14 @@ use Symfony\Component\HttpFoundation\Response;
 
 class HomeroomConsultationController extends Controller
 {
-    private function homeroomClass(): ?SchoolClass
-    {
-        return SchoolClass::where('homeroom_teacher_id', auth()->id())->first();
-    }
-
     public function index(Request $request): View
     {
         /** @var \App\Models\User $guru */
-        $guru  = auth()->user();
-        $class = $this->homeroomClass();
+        $guru = auth()->user();
 
-        abort_unless($class, 403, 'Anda tidak terdaftar sebagai wali kelas.');
+        $studentCount = StudentHomeroomTeacher::where('teacher_id', $guru->id)->count();
 
-        $status = $request->get('status', '');
+        $status = $request->query('status', '');
 
         $consultations = HomeroomConsultation::where('teacher_id', $guru->id)
             ->when($status, fn($q) => $q->where('status', $status))
@@ -42,7 +36,7 @@ class HomeroomConsultationController extends Controller
             ->groupBy('status')
             ->pluck('total', 'status');
 
-        return view('guru.homeroom-consultation.index', compact('consultations', 'class', 'counts', 'status'));
+        return view('guru.homeroom-consultation.index', compact('consultations', 'studentCount', 'counts', 'status'));
     }
 
     public function schedule(Request $request, HomeroomConsultation $consultation): RedirectResponse
@@ -86,13 +80,13 @@ class HomeroomConsultationController extends Controller
     public function cancel(Request $request, HomeroomConsultation $consultation): RedirectResponse
     {
         $this->authorizeTeacher($consultation);
-        abort_unless(in_array($consultation->status, ['pending','scheduled']), 422);
+        abort_unless(in_array($consultation->status, ['pending', 'scheduled']), 422);
 
         $request->validate(['cancelled_reason' => 'nullable|string|max:300']);
 
         $consultation->update([
             'status'           => 'cancelled',
-            'cancelled_reason' => $request->cancelled_reason ?: 'Dibatalkan oleh wali kelas',
+            'cancelled_reason' => $request->cancelled_reason ?: 'Dibatalkan oleh Guru Wali',
         ]);
 
         return back()->with('success', 'Pengajuan bimbingan dibatalkan.');
@@ -102,21 +96,19 @@ class HomeroomConsultationController extends Controller
 
     public function exportExcel(Request $request): BinaryFileResponse
     {
-        $guru  = auth()->user();
-        $class = $this->homeroomClass();
-        abort_unless($class, 403);
+        $guru = auth()->user();
 
         $request->validate(['month' => 'required|date_format:Y-m']);
 
-        $filename = 'jurnal_bimbingan_' . $class->name . '_' . $request->month . '.xlsx';
+        $safeName = str_replace(' ', '_', $guru->name);
+        $filename = 'jurnal_bimbingan_' . $safeName . '_' . $request->month . '.xlsx';
+
         return Excel::download(new HomeroomConsultationExport($guru->id, $request->month), $filename);
     }
 
     public function exportPdf(Request $request): Response
     {
-        $guru  = auth()->user();
-        $class = $this->homeroomClass();
-        abort_unless($class, 403);
+        $guru = auth()->user();
 
         $request->validate(['month' => 'required|date_format:Y-m']);
 
@@ -133,11 +125,11 @@ class HomeroomConsultationController extends Controller
         $html = view('exports.homeroom-consultation-pdf', [
             'consultations' => $consultations,
             'teacher'       => $guru,
-            'class'         => $class,
             'month'         => $request->month,
         ])->render();
 
-        $filename = 'jurnal_bimbingan_' . $class->name . '_' . $request->month . '.pdf';
+        $safeName = str_replace(' ', '_', $guru->name);
+        $filename = 'jurnal_bimbingan_' . $safeName . '_' . $request->month . '.pdf';
 
         $pdf = Browsershot::html($html)
             ->format('A4')

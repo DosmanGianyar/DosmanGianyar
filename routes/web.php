@@ -41,6 +41,7 @@ use App\Http\Controllers\Siswa\ForgotAttendanceController as SiswaForgotAttendan
 use App\Http\Controllers\Guru\ForgotAttendanceController as GuruForgotAttendance;
 use App\Http\Controllers\Siswa\EarlyCheckoutRequestController as SiswaEarlyCheckout;
 use App\Http\Controllers\Guru\EarlyCheckoutRequestController as GuruEarlyCheckout;
+use App\Http\Controllers\Admin\GuruWaliController as AdminGuruWali;
 use App\Http\Controllers\PublicBiodataController;
 use Illuminate\Support\Facades\Route;
 
@@ -69,6 +70,12 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     // Rekap Ekstrakurikuler
     Route::get('/extracurricular/session/{session}/pdf', [\App\Http\Controllers\Admin\ExtracurricularExportController::class, 'pdf'])
         ->name('extracurricular.session.pdf');
+
+    // Penugasan Guru Wali
+    Route::get('/guru-wali',                                   [AdminGuruWali::class, 'index'])->name('guru-wali.index');
+    Route::get('/guru-wali/{teacher}',                         [AdminGuruWali::class, 'show'])->name('guru-wali.show');
+    Route::post('/guru-wali/{teacher}/assign',                 [AdminGuruWali::class, 'assign'])->name('guru-wali.assign');
+    Route::delete('/guru-wali/{teacher}/remove/{student}',     [AdminGuruWali::class, 'remove'])->name('guru-wali.remove');
 });
 
 // ─── Absensi QR Kegiatan (admin + admin_kesiswaan) ────────────────────────────

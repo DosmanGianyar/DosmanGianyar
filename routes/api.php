@@ -191,10 +191,11 @@ Route::prefix('v1')->group(function () {
             // Kesiswaan Summary
             Route::get('/kesiswaan/summary', [KesiswaanController::class, 'summary']);
 
-            // Bimbingan Wali Kelas
-            Route::get('/homeroom-consultations',             [HomeroomConsultationController::class, 'index']);
-            Route::post('/homeroom-consultations',            [HomeroomConsultationController::class, 'store']);
+            // Bimbingan Guru Wali (siswa)
+            Route::get('/homeroom-consultations',               [HomeroomConsultationController::class, 'index']);
+            Route::post('/homeroom-consultations',              [HomeroomConsultationController::class, 'store']);
             Route::patch('/homeroom-consultations/{id}/cancel', [HomeroomConsultationController::class, 'cancel']);
+            Route::get('/siswa/guru-wali',                      [HomeroomConsultationController::class, 'guruWali']);
 
             // Sesi Ekstrakurikuler
             Route::get('/extracurricular-sessions',                          [ExtracurricularController::class, 'sessions']);

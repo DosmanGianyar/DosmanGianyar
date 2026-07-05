@@ -4,24 +4,18 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\HomeroomConsultation;
-use App\Models\SchoolClass;
+use App\Models\StudentHomeroomTeacher;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class GuruHomeroomConsultationApiController extends Controller
 {
-    private function homeroomClass(): ?SchoolClass
-    {
-        return SchoolClass::where('homeroom_teacher_id', Auth::id())->first();
-    }
-
     public function index(Request $request): JsonResponse
     {
         $teacher = Auth::user();
-        $class   = $this->homeroomClass();
 
-        abort_unless($class, 403, 'Anda tidak terdaftar sebagai wali kelas.');
+        $studentCount = StudentHomeroomTeacher::where('teacher_id', $teacher->id)->count();
 
         $status = $request->input('status', '');
 
@@ -38,7 +32,7 @@ class GuruHomeroomConsultationApiController extends Controller
             ->pluck('total', 'status');
 
         return response()->json([
-            'class'         => ['id' => $class->id, 'name' => $class->name],
+            'student_count' => $studentCount,
             'consultations' => $consultations,
             'counts'        => [
                 'pending'   => $counts['pending']   ?? 0,
@@ -58,7 +52,10 @@ class GuruHomeroomConsultationApiController extends Controller
 
         $c->update(['status' => 'scheduled', 'scheduled_date' => $request->scheduled_date]);
 
-        return response()->json(['message' => 'Bimbingan berhasil dijadwalkan.', 'consultation' => $this->formatConsultation($c->fresh('student'))]);
+        return response()->json([
+            'message'      => 'Bimbingan berhasil dijadwalkan.',
+            'consultation' => $this->formatConsultation($c->fresh('student')),
+        ]);
     }
 
     public function complete(Request $request, int $id): JsonResponse
@@ -79,7 +76,10 @@ class GuruHomeroomConsultationApiController extends Controller
             'follow_up'      => $request->follow_up,
         ]);
 
-        return response()->json(['message' => 'Jurnal bimbingan berhasil disimpan.', 'consultation' => $this->formatConsultation($c->fresh('student'))]);
+        return response()->json([
+            'message'      => 'Jurnal bimbingan berhasil disimpan.',
+            'consultation' => $this->formatConsultation($c->fresh('student')),
+        ]);
     }
 
     public function cancel(Request $request, int $id): JsonResponse
@@ -91,10 +91,13 @@ class GuruHomeroomConsultationApiController extends Controller
 
         $c->update([
             'status'           => 'cancelled',
-            'cancelled_reason' => $request->cancelled_reason ?: 'Dibatalkan oleh wali kelas',
+            'cancelled_reason' => $request->cancelled_reason ?: 'Dibatalkan oleh Guru Wali',
         ]);
 
-        return response()->json(['message' => 'Pengajuan bimbingan dibatalkan.', 'consultation' => $this->formatConsultation($c->fresh('student'))]);
+        return response()->json([
+            'message'      => 'Pengajuan bimbingan dibatalkan.',
+            'consultation' => $this->formatConsultation($c->fresh('student')),
+        ]);
     }
 
     private function formatConsultation(HomeroomConsultation $c): array

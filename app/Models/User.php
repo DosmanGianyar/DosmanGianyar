@@ -7,6 +7,7 @@ use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -204,6 +205,18 @@ class User extends Authenticatable implements FilamentUser
     public function bkLogs(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(BkLog::class, 'student_id');
+    }
+
+    // Guru Wali: record penugasan (untuk siswa — mendapatkan guru wali)
+    public function homeroomTeacherRecord(): HasOne
+    {
+        return $this->hasOne(StudentHomeroomTeacher::class, 'student_id');
+    }
+
+    // Guru Wali: daftar siswa yang diampu (untuk guru)
+    public function waliStudents(): HasMany
+    {
+        return $this->hasMany(StudentHomeroomTeacher::class, 'teacher_id');
     }
 
     public function getPelanggaranCountAttribute(): int

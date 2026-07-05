@@ -609,7 +609,7 @@ class GuruService {
       params: status != null && status.isNotEmpty ? {'status': status} : null,
     );
     return {
-      'class':         body['class'] as Map<String, dynamic>,
+      'student_count': body['student_count'] as int? ?? 0,
       'consultations': (body['consultations'] as List<dynamic>)
           .map((e) => GuruHomeroomConsultation.fromJson(e as Map<String, dynamic>))
           .toList(),

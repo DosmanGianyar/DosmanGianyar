@@ -411,12 +411,11 @@ class _GuruDrawer extends StatelessWidget {
                 label: 'Jurnal Mengajar',
                 onTap: () => onNavigate(const GuruJournalScreen()),
               ),
-              if (homeroomClassId != null)
-                _NavTile(
-                  icon:  Icons.chat_bubble_outline_rounded,
-                  label: 'Jurnal Bimbingan Guru Wali',
-                  onTap: () => onNavigate(const GuruHomeroomConsultationScreen()),
-                ),
+              _NavTile(
+                icon:  Icons.chat_bubble_outline_rounded,
+                label: 'Jurnal Bimbingan Guru Wali',
+                onTap: () => onNavigate(const GuruHomeroomConsultationScreen()),
+              ),
             ],
           ),
           const SizedBox(height: 6),

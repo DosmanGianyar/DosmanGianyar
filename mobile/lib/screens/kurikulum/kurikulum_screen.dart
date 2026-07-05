@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../services/api_client.dart';
 import '../../theme/app_colors.dart';
 import 'grade_screen.dart';
 import 'teacher_attendance_screen.dart';
@@ -16,10 +17,29 @@ class _KurikulumScreenState extends State<KurikulumScreen>
   late TabController _tabCtrl;
   final _tabs = const ['Jadwal', 'Mingguan', 'Kalender', 'Nilai'];
 
+  String? _guruWaliName;
+  bool    _loadingWali = true;
+
   @override
   void initState() {
     super.initState();
     _tabCtrl = TabController(length: _tabs.length, vsync: this);
+    _fetchGuruWali();
+  }
+
+  Future<void> _fetchGuruWali() async {
+    try {
+      final body = await ApiClient.get('/siswa/guru-wali');
+      final gw = body['guru_wali'] as Map<String, dynamic>?;
+      if (mounted) {
+        setState(() {
+          _guruWaliName = gw?['name'] as String?;
+          _loadingWali  = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _loadingWali = false);
+    }
   }
 
   @override
@@ -67,6 +87,10 @@ class _KurikulumScreenState extends State<KurikulumScreen>
           ),
           const SizedBox(height: 12),
 
+          // ─── Guru Wali Card ───────────────────────────────────────────
+          _GuruWaliCard(name: _guruWaliName, loading: _loadingWali),
+          const SizedBox(height: 8),
+
           // ─── Quick Links ─────────────────────────────────────────────
           _QuickLink(
             icon: Icons.assignment_turned_in_outlined,
@@ -81,7 +105,7 @@ class _KurikulumScreenState extends State<KurikulumScreen>
             icon: Icons.chat_bubble_outline_rounded,
             iconBg: AppColors.violet50,
             iconColor: AppColors.violet600,
-            title: 'Bimbingan Wali Kelas',
+            title: 'Bimbingan Guru Wali',
             subtitle: 'Ajukan dan lihat riwayat bimbingan',
             onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const HomeroomConsultationScreen())),
           ),
@@ -155,6 +179,107 @@ class _KurikulumScreenState extends State<KurikulumScreen>
       2 => 'Belum ada jadwal akademik',
       _ => 'Belum ada nilai untuk semester ini',
     };
+  }
+}
+
+// ─── Guru Wali Card ───────────────────────────────────────────────────────────
+
+class _GuruWaliCard extends StatelessWidget {
+  final String? name;
+  final bool    loading;
+
+  const _GuruWaliCard({this.name, required this.loading});
+
+  @override
+  Widget build(BuildContext context) {
+    if (loading) {
+      return Container(
+        decoration: BoxDecoration(
+          color: AppColors.white,
+          borderRadius: AppRadius.card,
+          border: Border.all(color: AppColors.gray100),
+          boxShadow: AppShadow.sm,
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        child: Row(children: [
+          Container(
+            width: 40, height: 40,
+            decoration: BoxDecoration(
+              color: AppColors.gray100,
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Container(height: 14, width: 120, color: AppColors.gray100),
+        ]),
+      );
+    }
+
+    if (name != null) {
+      return Container(
+        decoration: BoxDecoration(
+          color: const Color(0xFFEEF2FF),
+          borderRadius: AppRadius.card,
+          border: Border.all(color: const Color(0xFFC7D2FE)),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        child: Row(children: [
+          Container(
+            width: 40, height: 40,
+            decoration: BoxDecoration(
+              color: const Color(0xFFC7D2FE),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(Icons.person_rounded, color: Color(0xFF4338CA), size: 20),
+          ),
+          const SizedBox(width: 12),
+          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            const Text('Guru Wali Kamu',
+              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF6366F1))),
+            Text(name!,
+              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF3730A3))),
+          ])),
+          GestureDetector(
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const HomeroomConsultationScreen())),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: const Color(0xFF4F46E5),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Text('Bimbingan',
+                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Colors.white)),
+            ),
+          ),
+        ]),
+      );
+    }
+
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.gray50,
+        borderRadius: AppRadius.card,
+        border: Border.all(color: AppColors.gray100),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      child: Row(children: [
+        Container(
+          width: 40, height: 40,
+          decoration: BoxDecoration(
+            color: AppColors.gray100,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: const Icon(Icons.person_outline_rounded, color: AppColors.gray400, size: 20),
+        ),
+        const SizedBox(width: 12),
+        Column(crossAxisAlignment: CrossAxisAlignment.start, children: const [
+          Text('Guru Wali',
+            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.gray400)),
+          Text('Belum memiliki Guru Wali',
+            style: TextStyle(fontSize: 13, color: AppColors.gray400)),
+        ]),
+      ]),
+    );
   }
 }
 

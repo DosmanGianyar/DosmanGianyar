@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AcademicEvent;
 use App\Models\Schedule;
 use App\Models\StudentGrade;
+use App\Models\StudentHomeroomTeacher;
 use App\Models\Subject;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Response;
@@ -59,10 +60,15 @@ class KurikulumController extends Controller
             ->get()
             ->groupBy('subject_id');
 
+        $guruWali = StudentHomeroomTeacher::where('student_id', $siswa->id)
+            ->with('teacher:id,name,subject')
+            ->first()
+            ?->teacher;
+
         return view('siswa.kurikulum.index', compact(
             'siswa', 'todaySchedule', 'weekSchedule',
             'upcomingEvents', 'dayNames', 'todayIso', 'isWeekday',
-            'grades', 'academicYear', 'semester'
+            'grades', 'academicYear', 'semester', 'guruWali'
         ));
     }
 
