@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\ConductCategory;
 use App\Models\ConductLog;
-use App\Models\Schedule;
 use App\Models\SchoolClass;
 use App\Models\User;
 use App\Services\NotificationService;
@@ -32,21 +31,7 @@ class GuruConductApiController extends Controller
     // GET /api/v1/guru/conduct-students?class_id=&q=
     public function students(Request $request): JsonResponse
     {
-        $teacher = Auth::user();
-
-        // Kelas yang boleh diakses: homeroom + semua kelas dari schedule
-        $accessibleClassIds = collect([$teacher->homeroomClass?->id])
-            ->merge(
-                Schedule::where('teacher_id', $teacher->id)
-                    ->pluck('class_id')
-            )
-            ->filter()
-            ->unique()
-            ->values();
-
-        $query = User::where('role', 'siswa')
-            ->whereIn('class_id', $accessibleClassIds)
-            ->with('schoolClass:id,name');
+        $query = User::where('role', 'siswa')->with('schoolClass:id,name');
 
         if ($request->filled('class_id')) {
             $query->where('class_id', $request->class_id);
@@ -73,28 +58,8 @@ class GuruConductApiController extends Controller
     // GET /api/v1/guru/conduct-classes
     public function classes(): JsonResponse
     {
-        $teacher = Auth::user();
-
-        $homeroomClass = $teacher->homeroomClass ? [
-            'id'   => $teacher->homeroomClass->id,
-            'name' => $teacher->homeroomClass->name,
-        ] : null;
-
-        $teachingClasses = Schedule::where('teacher_id', $teacher->id)
-            ->with('schoolClass:id,name')
-            ->get()
-            ->pluck('schoolClass')
-            ->filter()
-            ->unique('id')
-            ->map(fn ($c) => ['id' => $c->id, 'name' => $c->name])
-            ->values();
-
-        $all = collect($homeroomClass ? [$homeroomClass] : [])
-            ->merge($teachingClasses)
-            ->unique('id')
-            ->values();
-
-        return response()->json($all);
+        $classes = SchoolClass::orderBy('name')->get(['id', 'name']);
+        return response()->json($classes);
     }
 
     // POST /api/v1/guru/conduct-logs
