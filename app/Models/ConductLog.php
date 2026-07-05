@@ -10,6 +10,7 @@ class ConductLog extends Model
     protected $fillable = [
         'student_id', 'teacher_id', 'category_id', 'photo', 'note',
         'description', 'severity',
+        'prestasi_type', 'lomba_name', 'lomba_level', 'lomba_rank',
     ];
 
     public function student(): BelongsTo

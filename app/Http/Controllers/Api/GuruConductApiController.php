@@ -66,14 +66,20 @@ class GuruConductApiController extends Controller
     public function store(Request $request): JsonResponse
     {
         $request->validate([
-            'student_id'  => 'required|exists:users,id',
-            'type'        => 'required|in:pelanggaran,prestasi',
-            // pelanggaran: wajib description + severity
-            'description' => 'required_if:type,pelanggaran|nullable|string|max:1000',
-            'severity'    => 'required_if:type,pelanggaran|nullable|in:ringan,sedang,berat',
-            // prestasi: wajib category_id
-            'category_id' => 'required_if:type,prestasi|nullable|exists:conduct_categories,id',
-            'note'        => 'nullable|string|max:500',
+            'student_id'   => 'required|exists:users,id',
+            'type'         => 'required|in:pelanggaran,prestasi',
+            // pelanggaran
+            'description'  => 'required_if:type,pelanggaran|nullable|string|max:1000',
+            'severity'     => 'required_if:type,pelanggaran|nullable|in:ringan,sedang,berat',
+            // prestasi — sub-tipe
+            'prestasi_type' => 'required_if:type,prestasi|nullable|in:perilaku,lomba',
+            // prestasi perilaku
+            'category_id'  => 'required_if:prestasi_type,perilaku|nullable|exists:conduct_categories,id',
+            // prestasi lomba
+            'lomba_name'   => 'required_if:prestasi_type,lomba|nullable|string|max:200',
+            'lomba_level'  => 'required_if:prestasi_type,lomba|nullable|in:sekolah,kabupaten,provinsi,nasional,internasional',
+            'lomba_rank'   => 'required_if:prestasi_type,lomba|nullable|in:juara_1,juara_2,juara_3,harapan,peserta',
+            'note'         => 'nullable|string|max:500',
         ]);
 
         $data = [
@@ -82,43 +88,44 @@ class GuruConductApiController extends Controller
             'note'       => $request->note,
         ];
 
+        // Pelanggaran
         if ($request->type === 'pelanggaran') {
             $data['description'] = $request->description;
             $data['severity']    = $request->severity;
 
             $severityLabel = match ($request->severity) {
-                'ringan' => 'Ringan',
-                'sedang' => 'Sedang',
-                'berat'  => 'Berat',
-                default  => '',
+                'ringan' => 'Ringan', 'sedang' => 'Sedang', 'berat' => 'Berat', default => '',
             };
 
             $log = ConductLog::create($data);
-
-            NotificationService::send(
-                $request->student_id,
-                "Pelanggaran ({$severityLabel})",
-                $request->description,
-                'warning',
-            );
-
+            NotificationService::send($request->student_id, "Pelanggaran ({$severityLabel})", $request->description, 'warning');
             return response()->json(['message' => 'Pelanggaran berhasil dicatat.', 'id' => $log->id], 201);
         }
 
-        // Prestasi — pakai category_id
-        $category = ConductCategory::findOrFail($request->category_id);
-        $data['category_id'] = $category->id;
+        // Prestasi Perilaku
+        if ($request->prestasi_type === 'perilaku') {
+            $category = ConductCategory::findOrFail($request->category_id);
+            $data['category_id']   = $category->id;
+            $data['prestasi_type'] = 'perilaku';
+
+            $log = ConductLog::create($data);
+            NotificationService::send($request->student_id, "Prestasi Perilaku: {$category->name}", "Dicatat oleh guru.", 'success');
+            return response()->json(['message' => 'Prestasi perilaku berhasil dicatat.', 'id' => $log->id], 201);
+        }
+
+        // Prestasi Lomba
+        $rankLabel = match ($request->lomba_rank) {
+            'juara_1' => 'Juara 1', 'juara_2' => 'Juara 2', 'juara_3' => 'Juara 3',
+            'harapan' => 'Juara Harapan', 'peserta' => 'Peserta', default => '',
+        };
+        $data['prestasi_type'] = 'lomba';
+        $data['lomba_name']    = $request->lomba_name;
+        $data['lomba_level']   = $request->lomba_level;
+        $data['lomba_rank']    = $request->lomba_rank;
 
         $log = ConductLog::create($data);
-
-        NotificationService::send(
-            $request->student_id,
-            "Prestasi: {$category->name}",
-            "Telah dicatat oleh guru.",
-            'success',
-        );
-
-        return response()->json(['message' => 'Prestasi berhasil dicatat.', 'id' => $log->id], 201);
+        NotificationService::send($request->student_id, "Prestasi Lomba: {$rankLabel}", $request->lomba_name, 'success');
+        return response()->json(['message' => 'Prestasi lomba berhasil dicatat.', 'id' => $log->id], 201);
     }
 
     // GET /api/v1/guru/conduct-history?type=&page=
@@ -155,19 +162,42 @@ class GuruConductApiController extends Controller
                 $type = 'pelanggaran';
             }
 
+            $lombaLevelLabel = match ($log->lomba_level) {
+                'sekolah'       => 'Tingkat Sekolah',
+                'kabupaten'     => 'Tingkat Kabupaten/Kota',
+                'provinsi'      => 'Tingkat Provinsi',
+                'nasional'      => 'Tingkat Nasional',
+                'internasional' => 'Tingkat Internasional',
+                default         => null,
+            };
+            $lombaRankLabel = match ($log->lomba_rank) {
+                'juara_1' => 'Juara 1',
+                'juara_2' => 'Juara 2',
+                'juara_3' => 'Juara 3',
+                'harapan' => 'Juara Harapan',
+                'peserta' => 'Peserta',
+                default   => null,
+            };
+
             return [
-                'id'            => $log->id,
-                'type'          => $type,
-                'student_id'    => $log->student_id,
-                'student_name'  => $log->student?->name    ?? '—',
-                'student_nis'   => $log->student?->nis,
-                'class_name'    => $log->student?->schoolClass?->name ?? '—',
-                'description'   => $log->description,
-                'severity'      => $log->severity,
-                'category_name' => $log->category?->name,
-                'note'          => $log->note,
-                'date'          => $log->created_at->format('Y-m-d'),
-                'date_label'    => $log->created_at->format('d M Y'),
+                'id'               => $log->id,
+                'type'             => $type,
+                'student_id'       => $log->student_id,
+                'student_name'     => $log->student?->name    ?? '—',
+                'student_nis'      => $log->student?->nis,
+                'class_name'       => $log->student?->schoolClass?->name ?? '—',
+                'description'      => $log->description,
+                'severity'         => $log->severity,
+                'category_name'    => $log->category?->name,
+                'prestasi_type'    => $log->prestasi_type,
+                'lomba_name'       => $log->lomba_name,
+                'lomba_level'      => $log->lomba_level,
+                'lomba_level_label' => $lombaLevelLabel,
+                'lomba_rank'       => $log->lomba_rank,
+                'lomba_rank_label' => $lombaRankLabel,
+                'note'             => $log->note,
+                'date'             => $log->created_at->format('Y-m-d'),
+                'date_label'       => $log->created_at->format('d M Y'),
             ];
         })->values();
 

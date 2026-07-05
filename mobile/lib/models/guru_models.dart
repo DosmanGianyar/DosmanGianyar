@@ -329,14 +329,24 @@ class SimpleStudent {
 
 class ConductHistoryItem {
   final int     id;
-  final String  type;         // 'pelanggaran' | 'prestasi'
+  final String  type;            // 'pelanggaran' | 'prestasi'
   final int     studentId;
   final String  studentName;
   final String? studentNis;
   final String  className;
-  final String? description;  // pelanggaran bebas
-  final String? severity;     // ringan | sedang | berat
-  final String? categoryName; // prestasi
+  // Pelanggaran
+  final String? description;
+  final String? severity;
+  // Prestasi perilaku
+  final String? categoryName;
+  // Prestasi lomba
+  final String? prestasiType;    // 'perilaku' | 'lomba'
+  final String? lombaName;
+  final String? lombaLevel;
+  final String? lombaLevelLabel;
+  final String? lombaRank;
+  final String? lombaRankLabel;
+  // Shared
   final String? note;
   final String  date;
   final String  dateLabel;
@@ -351,24 +361,36 @@ class ConductHistoryItem {
     this.description,
     this.severity,
     this.categoryName,
+    this.prestasiType,
+    this.lombaName,
+    this.lombaLevel,
+    this.lombaLevelLabel,
+    this.lombaRank,
+    this.lombaRankLabel,
     this.note,
     required this.date,
     required this.dateLabel,
   });
 
   factory ConductHistoryItem.fromJson(Map<String, dynamic> json) => ConductHistoryItem(
-    id:           json['id']            as int,
-    type:         json['type']          as String,
-    studentId:    json['student_id']    as int,
-    studentName:  json['student_name']  as String,
-    studentNis:   json['student_nis']   as String?,
-    className:    json['class_name']    as String,
-    description:  json['description']   as String?,
-    severity:     json['severity']      as String?,
-    categoryName: json['category_name'] as String?,
-    note:         json['note']          as String?,
-    date:         json['date']          as String,
-    dateLabel:    json['date_label']    as String,
+    id:              json['id']                as int,
+    type:            json['type']              as String,
+    studentId:       json['student_id']        as int,
+    studentName:     json['student_name']      as String,
+    studentNis:      json['student_nis']       as String?,
+    className:       json['class_name']        as String,
+    description:     json['description']       as String?,
+    severity:        json['severity']          as String?,
+    categoryName:    json['category_name']     as String?,
+    prestasiType:    json['prestasi_type']     as String?,
+    lombaName:       json['lomba_name']        as String?,
+    lombaLevel:      json['lomba_level']       as String?,
+    lombaLevelLabel: json['lomba_level_label'] as String?,
+    lombaRank:       json['lomba_rank']        as String?,
+    lombaRankLabel:  json['lomba_rank_label']  as String?,
+    note:            json['note']              as String?,
+    date:            json['date']              as String,
+    dateLabel:       json['date_label']        as String,
   );
 }
 

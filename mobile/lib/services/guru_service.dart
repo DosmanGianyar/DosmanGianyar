@@ -177,20 +177,29 @@ class GuruService {
     // pelanggaran
     String? description,
     String? severity,
-    // prestasi
+    // prestasi perilaku
     int? categoryId,
+    // prestasi lomba
+    String? prestasiType,
+    String? lombaName,
+    String? lombaLevel,
+    String? lombaRank,
     // both
     String? note,
   }) async {
     final body = await ApiClient.post(
       '/guru/conduct-logs',
       data: {
-        'student_id':                studentId,
-        'type':                      type,
-        if (description != null) 'description': description,
-        if (severity    != null) 'severity':    severity,
-        if (categoryId  != null) 'category_id': categoryId,
-        if (note        != null) 'note':        note,
+        'student_id':                      studentId,
+        'type':                            type,
+        if (description  != null) 'description':   description,
+        if (severity     != null) 'severity':       severity,
+        if (prestasiType != null) 'prestasi_type':  prestasiType,
+        if (categoryId   != null) 'category_id':    categoryId,
+        if (lombaName    != null) 'lomba_name':      lombaName,
+        if (lombaLevel   != null) 'lomba_level':     lombaLevel,
+        if (lombaRank    != null) 'lomba_rank':      lombaRank,
+        if (note         != null) 'note':            note,
       },
     );
     return body['message'] as String;
