@@ -816,10 +816,39 @@ class _HistoryCard extends StatelessWidget {
   final ConductHistoryItem item;
   const _HistoryCard({required this.item});
 
+  static const _lombaColor    = Color(0xFFB8860B);
+  static const _lombaBg       = Color(0xFFFFF8E1);
+  static const _perilakuColor = AppColors.emerald600;
+  static const _perilakuBg   = AppColors.emerald50;
+  static const _pelangColor   = AppColors.red500;
+  static const _pelangBg     = AppColors.red50;
+
   @override
   Widget build(BuildContext context) {
     final isPelanggaran = item.type == 'pelanggaran';
     final isLomba       = item.prestasiType == 'lomba';
+
+    final Color accentColor;
+    final Color accentBg;
+    final IconData accentIcon;
+    final String typeLabel;
+
+    if (isPelanggaran) {
+      accentColor = _pelangColor;
+      accentBg    = _pelangBg;
+      accentIcon  = Icons.warning_rounded;
+      typeLabel   = 'Pelanggaran';
+    } else if (isLomba) {
+      accentColor = _lombaColor;
+      accentBg    = _lombaBg;
+      accentIcon  = Icons.emoji_events_rounded;
+      typeLabel   = 'Prestasi Lomba';
+    } else {
+      accentColor = _perilakuColor;
+      accentBg    = _perilakuBg;
+      accentIcon  = Icons.thumb_up_rounded;
+      typeLabel   = 'Prestasi Perilaku';
+    }
 
     final severityColor = switch (item.severity) {
       'ringan' => AppColors.amber500,
@@ -842,81 +871,105 @@ class _HistoryCard extends StatelessWidget {
         border: Border.all(color: AppColors.gray100),
         boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 4, offset: const Offset(0, 2))],
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          // Header: nama + tanggal
-          Row(children: [
-            Expanded(child: Text(item.studentName,
-                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.gray800))),
-            Text(item.dateLabel, style: const TextStyle(fontSize: 11, color: AppColors.gray400)),
-          ]),
-          const SizedBox(height: 2),
-          Text('${item.studentNis ?? '—'} · ${item.className}',
-              style: const TextStyle(fontSize: 12, color: AppColors.gray500)),
-          const SizedBox(height: 10),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: IntrinsicHeight(
+          child: Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            // Garis kiri berwarna sesuai tipe
+            Container(width: 5, color: accentColor),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(12, 12, 14, 12),
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  // Header: nama + tanggal
+                  Row(children: [
+                    Expanded(child: Text(item.studentName,
+                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.gray800))),
+                    Text(item.dateLabel, style: const TextStyle(fontSize: 11, color: AppColors.gray400)),
+                  ]),
+                  const SizedBox(height: 2),
+                  Text('${item.studentNis ?? '—'} · ${item.className}',
+                      style: const TextStyle(fontSize: 12, color: AppColors.gray500)),
+                  const SizedBox(height: 10),
 
-          // Badge row
-          Wrap(spacing: 6, runSpacing: 6, children: [
-            // Tipe utama
-            _badge(
-              isPelanggaran ? 'Pelanggaran' : isLomba ? 'Prestasi Lomba' : 'Prestasi Perilaku',
-              isPelanggaran ? AppColors.red500 : AppColors.emerald600,
-              isPelanggaran ? AppColors.red50 : AppColors.emerald50,
+                  // Badge tipe utama dengan icon
+                  Wrap(spacing: 6, runSpacing: 6, children: [
+                    _iconBadge(accentIcon, typeLabel, accentColor, accentBg),
+                    if (isPelanggaran && item.severity != null)
+                      _solidBadge(
+                        item.severity![0].toUpperCase() + item.severity!.substring(1),
+                        severityColor,
+                      ),
+                    if (isLomba && item.lombaRankLabel != null)
+                      _solidBadge(item.lombaRankLabel!, rankColor),
+                    if (isLomba && item.lombaLevelLabel != null)
+                      _outlineBadge(item.lombaLevelLabel!, _lombaColor),
+                    if (!isPelanggaran && !isLomba && item.categoryName != null)
+                      _outlineBadge(item.categoryName!, _perilakuColor),
+                  ]),
+
+                  // Konten utama
+                  if (isPelanggaran && item.description != null && item.description!.isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    Text(item.description!,
+                        style: const TextStyle(fontSize: 13, color: AppColors.gray700),
+                        maxLines: 3, overflow: TextOverflow.ellipsis),
+                  ],
+                  if (isLomba && item.lombaName != null) ...[
+                    const SizedBox(height: 8),
+                    Text(item.lombaName!,
+                        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.gray800),
+                        maxLines: 2, overflow: TextOverflow.ellipsis),
+                  ],
+
+                  // Catatan
+                  if (item.note != null && item.note!.isNotEmpty) ...[
+                    const SizedBox(height: 6),
+                    Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      const Icon(Icons.notes_rounded, size: 13, color: AppColors.gray400),
+                      const SizedBox(width: 4),
+                      Expanded(child: Text(item.note!,
+                          style: const TextStyle(fontSize: 12, color: AppColors.gray500),
+                          maxLines: 2, overflow: TextOverflow.ellipsis)),
+                    ]),
+                  ],
+                ]),
+              ),
             ),
-            // Sub badge
-            if (isPelanggaran && item.severity != null)
-              _solidBadge(item.severity![0].toUpperCase() + item.severity!.substring(1), severityColor),
-            if (isLomba && item.lombaRankLabel != null)
-              _solidBadge(item.lombaRankLabel!, rankColor),
-            if (isLomba && item.lombaLevelLabel != null)
-              _badge(item.lombaLevelLabel!, AppColors.blue600, AppColors.blue50),
-            if (!isPelanggaran && !isLomba && item.categoryName != null)
-              _badge(item.categoryName!, AppColors.blue600, AppColors.blue50),
           ]),
-
-          // Konten utama
-          if (isPelanggaran && item.description != null && item.description!.isNotEmpty) ...[
-            const SizedBox(height: 8),
-            Text(item.description!, style: const TextStyle(fontSize: 13, color: AppColors.gray700),
-                maxLines: 3, overflow: TextOverflow.ellipsis),
-          ],
-          if (isLomba && item.lombaName != null) ...[
-            const SizedBox(height: 8),
-            Text(item.lombaName!, style: const TextStyle(fontSize: 13, color: AppColors.gray700),
-                maxLines: 2, overflow: TextOverflow.ellipsis),
-          ],
-
-          // Catatan
-          if (item.note != null && item.note!.isNotEmpty) ...[
-            const SizedBox(height: 6),
-            Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              const Icon(Icons.notes_rounded, size: 13, color: AppColors.gray400),
-              const SizedBox(width: 4),
-              Expanded(child: Text(item.note!,
-                  style: const TextStyle(fontSize: 12, color: AppColors.gray500),
-                  maxLines: 2, overflow: TextOverflow.ellipsis)),
-            ]),
-          ],
-        ]),
+        ),
       ),
     );
   }
 
-  Widget _badge(String label, Color textColor, Color bgColor) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+  Widget _iconBadge(IconData icon, String label, Color color, Color bg) => Container(
+    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
     decoration: BoxDecoration(
-      color: bgColor,
+      color: bg,
       borderRadius: BorderRadius.circular(6),
-      border: Border.all(color: textColor.withValues(alpha: 0.3)),
+      border: Border.all(color: color.withValues(alpha: 0.35)),
     ),
-    child: Text(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: textColor)),
+    child: Row(mainAxisSize: MainAxisSize.min, children: [
+      Icon(icon, size: 12, color: color),
+      const SizedBox(width: 4),
+      Text(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: color)),
+    ]),
   );
 
   Widget _solidBadge(String label, Color color) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
     decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(6)),
     child: Text(label, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Colors.white)),
+  );
+
+  Widget _outlineBadge(String label, Color color) => Container(
+    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+    decoration: BoxDecoration(
+      color: color.withValues(alpha: 0.08),
+      borderRadius: BorderRadius.circular(6),
+      border: Border.all(color: color.withValues(alpha: 0.3)),
+    ),
+    child: Text(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: color)),
   );
 }
 
