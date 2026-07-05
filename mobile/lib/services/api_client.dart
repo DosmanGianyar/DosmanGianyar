@@ -63,6 +63,14 @@ class ApiClient {
     return resp.data as Map<String, dynamic>;
   }
 
+  static Future<List<dynamic>> getList(
+    String path, {
+    Map<String, dynamic>? params,
+  }) async {
+    final resp = await _dio.get(path, queryParameters: params);
+    return resp.data as List<dynamic>;
+  }
+
   static Future<Map<String, dynamic>> post(
     String path, {
     Map<String, dynamic>? data,

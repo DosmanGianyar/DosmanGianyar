@@ -159,16 +159,16 @@ class GuruService {
   }
 
   static Future<List<SimpleStudent>> getConductStudents({int? classId, String? q}) async {
-    final body = await ApiClient.get(
+    final body = await ApiClient.getList(
       '/guru/conduct-students',
       params: {if (classId != null) 'class_id': classId, if (q != null) 'q': q},
     );
-    return (body as List<dynamic>).map((e) => SimpleStudent.fromJson(e)).toList();
+    return body.map((e) => SimpleStudent.fromJson(e as Map<String, dynamic>)).toList();
   }
 
   static Future<List<Map<String, dynamic>>> getConductClasses() async {
-    final body = await ApiClient.get('/guru/conduct-classes');
-    return (body as List<dynamic>).cast<Map<String, dynamic>>();
+    final body = await ApiClient.getList('/guru/conduct-classes');
+    return body.cast<Map<String, dynamic>>();
   }
 
   static Future<String> createConductLog({
@@ -217,8 +217,8 @@ class GuruService {
   }
 
   static Future<List<SimpleStudent>> getSessionClassStudents(int classId) async {
-    final body = await ApiClient.get('/guru/teaching-sessions/class-students/$classId');
-    return (body as List<dynamic>).map((e) => SimpleStudent.fromJson(e)).toList();
+    final body = await ApiClient.getList('/guru/teaching-sessions/class-students/$classId');
+    return body.map((e) => SimpleStudent.fromJson(e as Map<String, dynamic>)).toList();
   }
 
   static Future<String> createTeachingSession({
@@ -282,8 +282,8 @@ class GuruService {
   }
 
   static Future<List<SimpleStudent>> getJournalClassStudents(int classId) async {
-    final body = await ApiClient.get('/guru/journals/class-students/$classId');
-    return (body as List<dynamic>).map((e) => SimpleStudent.fromJson(e)).toList();
+    final body = await ApiClient.getList('/guru/journals/class-students/$classId');
+    return body.map((e) => SimpleStudent.fromJson(e as Map<String, dynamic>)).toList();
   }
 
   static Future<String> createJournal({
@@ -326,8 +326,8 @@ class GuruService {
   }
 
   static Future<List<SubjectItem>> getGradeSubjects() async {
-    final body = await ApiClient.get('/guru/grades/subjects');
-    return (body as List<dynamic>).map((e) => SubjectItem.fromJson(e as Map<String, dynamic>)).toList();
+    final body = await ApiClient.getList('/guru/grades/subjects');
+    return body.map((e) => SubjectItem.fromJson(e as Map<String, dynamic>)).toList();
   }
 
   static Future<({List<StudentGradeRow> students, List<SubjectItem> subjects})> getGrades({
@@ -381,19 +381,19 @@ class GuruService {
   // ── BK ─────────────────────────────────────────────────────────────────────
 
   static Future<List<Map<String, dynamic>>> getBkClasses() async {
-    final body = await ApiClient.get('/guru/bk/classes');
-    return (body as List<dynamic>).map((e) => e as Map<String, dynamic>).toList();
+    final body = await ApiClient.getList('/guru/bk/classes');
+    return body.cast<Map<String, dynamic>>();
   }
 
   static Future<List<SimpleStudent>> getBkStudents({int? classId, String? q}) async {
-    final body = await ApiClient.get(
+    final body = await ApiClient.getList(
       '/guru/bk/students',
       params: {
         if (classId != null) 'class_id': classId,
         if (q != null && q.isNotEmpty) 'q': q,
       },
     );
-    return (body as List<dynamic>).map((e) => SimpleStudent.fromJson(e as Map<String, dynamic>)).toList();
+    return body.map((e) => SimpleStudent.fromJson(e as Map<String, dynamic>)).toList();
   }
 
   static Future<({List<BkLogItem> data, int currentPage, int lastPage, int total})> getBkLogs({
