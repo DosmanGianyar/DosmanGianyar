@@ -344,7 +344,6 @@ class _GuruDrawer extends StatelessWidget {
           _NavSection(
             icon:  Icons.groups_rounded,
             label: 'Kesiswaan',
-            initiallyExpanded: true,
             children: [
               _NavTile(
                 icon:  Icons.calendar_today_rounded,

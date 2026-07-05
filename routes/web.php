@@ -181,6 +181,7 @@ Route::middleware(['auth', 'role:guru,admin'])->prefix('guru')->name('guru.')->g
         Route::get('/', [GuruJournal::class, 'index'])->name('index');
         Route::get('/create', [GuruJournal::class, 'create'])->name('create');
         Route::post('/', [GuruJournal::class, 'store'])->name('store');
+        Route::get('/print', [GuruJournal::class, 'print'])->name('print');
         Route::delete('/{journal}', [GuruJournal::class, 'destroy'])->name('destroy');
         Route::get('/api/students', [GuruJournal::class, 'studentsByClass'])->name('api.students');
     });

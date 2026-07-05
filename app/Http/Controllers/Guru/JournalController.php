@@ -121,6 +121,34 @@ class JournalController extends Controller
         }
     }
 
+    public function print(Request $request): View
+    {
+        $teacher = Auth::user();
+        $month   = $request->integer('month', now()->month);
+        $year    = $request->integer('year', now()->year);
+        $classId = $request->input('class_id');
+
+        $query = TeacherJournal::where('teacher_id', $teacher->id)
+            ->with(['schoolClass:id,name', 'subject:id,name', 'tp:id,code,description', 'absences.student:id,name,nis'])
+            ->whereMonth('date', $month)
+            ->whereYear('date', $year)
+            ->orderBy('date')
+            ->orderBy('period');
+
+        if ($classId) {
+            $query->where('class_id', $classId);
+        }
+
+        $journals  = $query->get();
+        $classes   = SchoolClass::orderBy('name')->get();
+        $className = $classId ? SchoolClass::find($classId)?->name : null;
+
+        return view('guru.journal.print', compact(
+            'teacher', 'journals', 'classes',
+            'month', 'year', 'classId', 'className'
+        ));
+    }
+
     public function destroy(TeacherJournal $journal): RedirectResponse
     {
         abort_unless($journal->teacher_id === Auth::id(), 403, 'Akses ditolak.');
