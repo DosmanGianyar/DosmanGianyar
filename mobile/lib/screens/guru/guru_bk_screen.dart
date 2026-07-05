@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../models/guru_models.dart';
+import '../../providers/auth_provider.dart';
 import '../../services/guru_service.dart';
 import '../../theme/app_colors.dart';
 
@@ -12,12 +14,18 @@ class GuruBkScreen extends StatefulWidget {
 
 class _GuruBkScreenState extends State<GuruBkScreen>
     with SingleTickerProviderStateMixin {
-  late final TabController _tabCtrl;
+  late TabController _tabCtrl;
+  bool _isBk = false;
+  bool _tabInited = false;
 
   @override
-  void initState() {
-    super.initState();
-    _tabCtrl = TabController(length: 2, vsync: this);
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_tabInited) {
+      _isBk    = context.read<AuthProvider>().user?.isBk ?? false;
+      _tabCtrl = TabController(length: _isBk ? 2 : 1, vsync: this);
+      _tabInited = true;
+    }
   }
 
   @override
@@ -28,16 +36,17 @@ class _GuruBkScreenState extends State<GuruBkScreen>
 
   @override
   Widget build(BuildContext context) {
+    final tabs = <Tab>[
+      const Tab(text: 'Catatan BK'),
+      if (_isBk) const Tab(text: 'Tambah Catatan'),
+    ];
     return Scaffold(
       backgroundColor: AppColors.slate100,
       appBar: AppBar(
         title: const Text('Bimbingan Konseling (BK)'),
         bottom: TabBar(
           controller: _tabCtrl,
-          tabs: const [
-            Tab(text: 'Catatan BK'),
-            Tab(text: 'Tambah Catatan'),
-          ],
+          tabs: tabs,
           labelColor: AppColors.blue600,
           indicatorColor: AppColors.blue600,
           unselectedLabelColor: AppColors.gray400,
@@ -45,9 +54,9 @@ class _GuruBkScreenState extends State<GuruBkScreen>
       ),
       body: TabBarView(
         controller: _tabCtrl,
-        children: const [
-          _BkLogTab(),
-          _BkAddTab(),
+        children: [
+          const _BkLogTab(),
+          if (_isBk) const _BkAddTab(),
         ],
       ),
     );

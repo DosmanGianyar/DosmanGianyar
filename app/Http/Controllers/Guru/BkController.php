@@ -51,14 +51,18 @@ class BkController extends Controller
                                     ->count(),
         ];
 
+        $isBk = Auth::user()->isBk();
+
         return view('guru.bk.index', compact(
             'classes', 'selectedClassId', 'students',
-            'allStudents', 'recentLogs', 'stats'
+            'allStudents', 'recentLogs', 'stats', 'isBk'
         ));
     }
 
     public function storeLog(Request $request): RedirectResponse
     {
+        abort_unless(Auth::user()->isBk(), 403, 'Hanya guru BK yang dapat menambah catatan BK.');
+
         $request->validate([
             'student_id'    => 'required|exists:users,id',
             'coaching_note' => 'required|string|max:1000',

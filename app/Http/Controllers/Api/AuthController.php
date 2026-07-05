@@ -148,6 +148,7 @@ class AuthController extends Controller
             'homeroom_class_id'   => $user->homeroomClass?->id,
             'homeroom_class_name' => $user->homeroomClass?->name,
             'device_bound' => $user->hasDeviceLocked(),
+            'is_bk'        => $user->role === 'guru' ? $user->isBk() : false,
             'phone'        => $user->phone,
             'address'      => $user->address,
             'birth_date'   => $user->birth_date?->toDateString(),

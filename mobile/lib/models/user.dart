@@ -24,6 +24,7 @@ class User {
   final int? classId;
   final String? className;
   final bool deviceBound;
+  final bool isBk;
   final String? phone;
   final String? address;
   final String? birthDate;
@@ -47,6 +48,7 @@ class User {
     this.homeroomClassId,
     this.homeroomClassName,
     required this.deviceBound,
+    this.isBk = false,
     this.phone,
     this.address,
     this.birthDate,
@@ -79,6 +81,7 @@ class User {
       homeroomClassId:   json['homeroom_class_id'] as int?,
       homeroomClassName: json['homeroom_class_name'] as String?,
       deviceBound:       json['device_bound'] as bool? ?? false,
+      isBk:              json['is_bk'] as bool? ?? false,
       phone:             json['phone'] as String?,
       address:           json['address'] as String?,
       birthDate:         json['birth_date'] as String?,

@@ -21,6 +21,7 @@
                 </select>
             </form>
         </div>
+        @if($isBk)
         <button onclick="document.getElementById('modal-bk').classList.remove('hidden')"
             class="flex items-center gap-1.5 px-4 py-2.5 bg-purple-600 text-white text-sm font-semibold rounded-xl hover:bg-purple-700 transition-colors sm:w-auto shrink-0">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -28,6 +29,7 @@
             </svg>
             Tambah Catatan BK
         </button>
+        @endif
     </div>
 </div>
 
@@ -147,7 +149,8 @@
 
 </div>
 
-{{-- ─── Modal: Tambah Catatan BK ───────────────────────────────────────── --}}
+{{-- ─── Modal: Tambah Catatan BK (guru BK only) ────────────────────────── --}}
+@if($isBk)
 <div id="modal-bk" class="hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 px-4 pb-4 sm:pb-0">
     <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-5">
         <div class="flex items-center justify-between mb-4">
@@ -197,6 +200,7 @@
         </form>
     </div>
 </div>
+@endif
 
 @if(session('success'))
 <div id="toast-success"
