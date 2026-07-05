@@ -173,15 +173,24 @@ class GuruService {
 
   static Future<String> createConductLog({
     required int studentId,
-    required int categoryId,
+    required String type,
+    // pelanggaran
+    String? description,
+    String? severity,
+    // prestasi
+    int? categoryId,
+    // both
     String? note,
   }) async {
     final body = await ApiClient.post(
       '/guru/conduct-logs',
       data: {
-        'student_id':  studentId,
-        'category_id': categoryId,
-        if (note != null) 'note': note,
+        'student_id':                studentId,
+        'type':                      type,
+        if (description != null) 'description': description,
+        if (severity    != null) 'severity':    severity,
+        if (categoryId  != null) 'category_id': categoryId,
+        if (note        != null) 'note':        note,
       },
     );
     return body['message'] as String;

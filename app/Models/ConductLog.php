@@ -9,6 +9,7 @@ class ConductLog extends Model
 {
     protected $fillable = [
         'student_id', 'teacher_id', 'category_id', 'photo', 'note',
+        'description', 'severity',
     ];
 
     public function student(): BelongsTo

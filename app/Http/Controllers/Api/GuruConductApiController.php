@@ -67,31 +67,57 @@ class GuruConductApiController extends Controller
     {
         $request->validate([
             'student_id'  => 'required|exists:users,id',
-            'category_id' => 'required|exists:conduct_categories,id',
+            'type'        => 'required|in:pelanggaran,prestasi',
+            // pelanggaran: wajib description + severity
+            'description' => 'required_if:type,pelanggaran|nullable|string|max:1000',
+            'severity'    => 'required_if:type,pelanggaran|nullable|in:ringan,sedang,berat',
+            // prestasi: wajib category_id
+            'category_id' => 'required_if:type,prestasi|nullable|exists:conduct_categories,id',
             'note'        => 'nullable|string|max:500',
         ]);
 
+        $data = [
+            'student_id' => $request->student_id,
+            'teacher_id' => Auth::id(),
+            'note'       => $request->note,
+        ];
+
+        if ($request->type === 'pelanggaran') {
+            $data['description'] = $request->description;
+            $data['severity']    = $request->severity;
+
+            $severityLabel = match ($request->severity) {
+                'ringan' => 'Ringan',
+                'sedang' => 'Sedang',
+                'berat'  => 'Berat',
+                default  => '',
+            };
+
+            $log = ConductLog::create($data);
+
+            NotificationService::send(
+                $request->student_id,
+                "Pelanggaran ({$severityLabel})",
+                $request->description,
+                'warning',
+            );
+
+            return response()->json(['message' => 'Pelanggaran berhasil dicatat.', 'id' => $log->id], 201);
+        }
+
+        // Prestasi — pakai category_id
         $category = ConductCategory::findOrFail($request->category_id);
+        $data['category_id'] = $category->id;
 
-        $log = ConductLog::create([
-            'student_id'  => $request->student_id,
-            'teacher_id'  => Auth::id(),
-            'category_id' => $category->id,
-            'note'        => $request->note,
-        ]);
-
-        $typeLabel = $category->type === 'prestasi' ? 'Prestasi' : 'Pelanggaran';
+        $log = ConductLog::create($data);
 
         NotificationService::send(
             $request->student_id,
-            "{$typeLabel}: {$category->name}",
+            "Prestasi: {$category->name}",
             "Telah dicatat oleh guru.",
-            $category->type === 'prestasi' ? 'success' : 'warning',
+            'success',
         );
 
-        return response()->json([
-            'message' => "{$typeLabel} berhasil dicatat.",
-            'id'      => $log->id,
-        ], 201);
+        return response()->json(['message' => 'Prestasi berhasil dicatat.', 'id' => $log->id], 201);
     }
 }
