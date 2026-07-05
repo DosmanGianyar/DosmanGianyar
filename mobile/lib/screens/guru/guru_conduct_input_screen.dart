@@ -29,12 +29,8 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
   final _descriptionCtrl = TextEditingController();
   String? _selectedSeverity;
 
-  // Prestasi
-  String           _prestasiType     = 'perilaku'; // 'perilaku' | 'lomba'
-  ConductCategory? _selectedCategory; // untuk perilaku
-  final _lombaNameCtrl  = TextEditingController();
-  String? _selectedLombaLevel;
-  String? _selectedLombaRank;
+  // Catatan Positif
+  ConductCategory? _selectedCategory;
 
   // Shared
   final _noteCtrl   = TextEditingController();
@@ -49,21 +45,6 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
   String? _historyFilter;
   late final ScrollController _historyScrollCtrl;
 
-  // Data statis
-  static const _lombaLevels = [
-    ('sekolah',       'Tingkat Sekolah'),
-    ('kabupaten',     'Kabupaten/Kota'),
-    ('provinsi',      'Provinsi'),
-    ('nasional',      'Nasional'),
-    ('internasional', 'Internasional'),
-  ];
-  static const _lombaRanks = [
-    ('juara_1', 'Juara 1'),
-    ('juara_2', 'Juara 2'),
-    ('juara_3', 'Juara 3'),
-    ('harapan', 'Juara Harapan'),
-    ('peserta', 'Peserta'),
-  ];
 
   @override
   void initState() {
@@ -93,7 +74,6 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
     _noteCtrl.dispose();
     _searchCtrl.dispose();
     _descriptionCtrl.dispose();
-    _lombaNameCtrl.dispose();
     _historyScrollCtrl.dispose();
     super.dispose();
   }
@@ -103,10 +83,7 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
       _selectedStudent    = null;
       _selectedCategory   = null;
       _selectedSeverity   = null;
-      _selectedLombaLevel = null;
-      _selectedLombaRank  = null;
       _descriptionCtrl.clear();
-      _lombaNameCtrl.clear();
       _noteCtrl.clear();
       _students = [];
     });
@@ -191,32 +168,19 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
     }
 
     if (!isPrestasi) {
-      // Pelanggaran
+      // Catatan Negatif
       if (_descriptionCtrl.text.trim().isEmpty) {
-        _showSnack('Isi deskripsi pelanggaran', AppColors.orange500);
+        _showSnack('Isi deskripsi catatan negatif', AppColors.orange500);
         return;
       }
       if (_selectedSeverity == null) {
-        _showSnack('Pilih tingkat pelanggaran', AppColors.orange500);
-        return;
-      }
-    } else if (_prestasiType == 'perilaku') {
-      if (_selectedCategory == null) {
-        _showSnack('Pilih kategori prestasi perilaku', AppColors.orange500);
+        _showSnack('Pilih tingkat catatan negatif', AppColors.orange500);
         return;
       }
     } else {
-      // Lomba
-      if (_lombaNameCtrl.text.trim().isEmpty) {
-        _showSnack('Isi nama lomba', AppColors.orange500);
-        return;
-      }
-      if (_selectedLombaLevel == null) {
-        _showSnack('Pilih tingkat lomba', AppColors.orange500);
-        return;
-      }
-      if (_selectedLombaRank == null) {
-        _showSnack('Pilih peringkat lomba', AppColors.orange500);
+      // Catatan Positif
+      if (_selectedCategory == null) {
+        _showSnack('Pilih kategori catatan positif', AppColors.orange500);
         return;
       }
     }
@@ -228,11 +192,8 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
         type:         isPrestasi ? 'prestasi' : 'pelanggaran',
         description:  isPrestasi ? null : _descriptionCtrl.text.trim(),
         severity:     isPrestasi ? null : _selectedSeverity,
-        prestasiType: isPrestasi ? _prestasiType : null,
-        categoryId:   (isPrestasi && _prestasiType == 'perilaku') ? _selectedCategory!.id : null,
-        lombaName:    (isPrestasi && _prestasiType == 'lomba') ? _lombaNameCtrl.text.trim() : null,
-        lombaLevel:   (isPrestasi && _prestasiType == 'lomba') ? _selectedLombaLevel : null,
-        lombaRank:    (isPrestasi && _prestasiType == 'lomba') ? _selectedLombaRank : null,
+        prestasiType: isPrestasi ? 'perilaku' : null,
+        categoryId:   isPrestasi ? _selectedCategory!.id : null,
         note:         _noteCtrl.text.trim().isEmpty ? null : _noteCtrl.text.trim(),
       );
       if (mounted) {
@@ -262,12 +223,12 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
     return Scaffold(
       backgroundColor: AppColors.slate100,
       appBar: AppBar(
-        title: const Text('Catat Pelanggaran / Prestasi'),
+        title: const Text('Catat Perilaku Siswa'),
         bottom: TabBar(
           controller: _tabCtrl,
           tabs: const [
-            Tab(text: 'Pelanggaran'),
-            Tab(text: 'Prestasi'),
+            Tab(text: 'Catatan Negatif'),
+            Tab(text: 'Catatan Positif'),
             Tab(text: 'Riwayat'),
           ],
           labelColor: AppColors.blue600,
@@ -311,12 +272,12 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
           _studentPickerArea(),
           const SizedBox(height: 16),
 
-          _sectionLabel('3. Deskripsi Pelanggaran'),
+          _sectionLabel('3. Deskripsi Catatan Negatif'),
           const SizedBox(height: 8),
-          _textField(controller: _descriptionCtrl, hint: 'Ceritakan pelanggaran yang dilakukan...', maxLines: 4),
+          _textField(controller: _descriptionCtrl, hint: 'Ceritakan catatan negatif yang dilakukan...', maxLines: 4),
           const SizedBox(height: 16),
 
-          _sectionLabel('4. Tingkat Pelanggaran'),
+          _sectionLabel('4. Tingkat'),
           const SizedBox(height: 8),
           Row(
             children: ['ringan', 'sedang', 'berat'].map((s) {
@@ -420,27 +381,8 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
           _studentPickerArea(),
           const SizedBox(height: 16),
 
-          // ── Toggle Jenis Prestasi ─────────────────────────────────────
-          _sectionLabel('3. Jenis Prestasi'),
-          const SizedBox(height: 8),
-          Container(
-            decoration: BoxDecoration(
-              color: AppColors.gray100,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            padding: const EdgeInsets.all(4),
-            child: Row(
-              children: [
-                _prestasiToggle('perilaku', 'Perilaku / Harian', Icons.thumb_up_rounded),
-                _prestasiToggle('lomba',    'Prestasi Lomba',    Icons.emoji_events_rounded),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-
-          // ── Konten berdasarkan jenis ──────────────────────────────────
-          if (_prestasiType == 'perilaku') ...[
-            _sectionLabel('4. Pilih Kategori Perilaku'),
+          // ── Catatan Positif ───────────────────────────────────────────
+          _sectionLabel('3. Pilih Kategori Catatan Positif'),
             const SizedBox(height: 8),
             if (_prestasiCats.isEmpty)
               const Text('Tidak ada kategori prestasi.',
@@ -470,77 +412,9 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
                   );
                 }).toList(),
               ),
-          ] else ...[
-            // ── Form Lomba ─────────────────────────────────────────────
-            _sectionLabel('4. Nama Lomba'),
-            const SizedBox(height: 8),
-            _textField(controller: _lombaNameCtrl, hint: 'Contoh: Olimpiade Matematika Nasional...', maxLines: 1),
-            const SizedBox(height: 16),
-
-            _sectionLabel('5. Tingkat Lomba'),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8, runSpacing: 8,
-              children: _lombaLevels.map(((String val, String label) pair) {
-                final isSelected = _selectedLombaLevel == pair.$1;
-                return GestureDetector(
-                  onTap: () => setState(() => _selectedLombaLevel = pair.$1),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 150),
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: isSelected ? AppColors.blue600 : AppColors.white,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: isSelected ? AppColors.blue600 : AppColors.gray200,
-                        width: isSelected ? 2 : 1,
-                      ),
-                    ),
-                    child: Text(pair.$2,
-                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500,
-                            color: isSelected ? Colors.white : AppColors.gray700)),
-                  ),
-                );
-              }).toList(),
-            ),
-            const SizedBox(height: 16),
-
-            _sectionLabel('6. Peringkat'),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8, runSpacing: 8,
-              children: _lombaRanks.map(((String val, String label) pair) {
-                final isSelected = _selectedLombaRank == pair.$1;
-                final color = switch (pair.$1) {
-                  'juara_1' => const Color(0xFFD4AF37), // gold
-                  'juara_2' => const Color(0xFF9EA5A8), // silver
-                  'juara_3' => const Color(0xFFCD7F32), // bronze
-                  _         => AppColors.blue600,
-                };
-                return GestureDetector(
-                  onTap: () => setState(() => _selectedLombaRank = pair.$1),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 150),
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-                    decoration: BoxDecoration(
-                      color: isSelected ? color : AppColors.white,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: isSelected ? color : AppColors.gray200,
-                        width: isSelected ? 2 : 1,
-                      ),
-                    ),
-                    child: Text(pair.$2,
-                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600,
-                            color: isSelected ? Colors.white : AppColors.gray700)),
-                  ),
-                );
-              }).toList(),
-            ),
-          ],
           const SizedBox(height: 16),
 
-          _sectionLabel(_prestasiType == 'perilaku' ? '5. Catatan (opsional)' : '7. Catatan (opsional)'),
+          _sectionLabel('4. Catatan (opsional)'),
           const SizedBox(height: 8),
           _textField(controller: _noteCtrl, hint: 'Catatan tambahan...', maxLines: 3),
           const SizedBox(height: 24),
@@ -553,49 +427,8 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
     );
   }
 
-  Widget _prestasiToggle(String value, String label, IconData icon) {
-    final isSelected = _prestasiType == value;
-    return Expanded(
-      child: GestureDetector(
-        onTap: () {
-          if (_prestasiType != value) {
-            setState(() {
-              _prestasiType     = value;
-              _selectedCategory = null;
-              _selectedLombaLevel = null;
-              _selectedLombaRank  = null;
-              _lombaNameCtrl.clear();
-            });
-          }
-        },
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
-          padding: const EdgeInsets.symmetric(vertical: 10),
-          decoration: BoxDecoration(
-            color: isSelected ? Colors.white : Colors.transparent,
-            borderRadius: BorderRadius.circular(8),
-            boxShadow: isSelected ? [BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 4, offset: const Offset(0, 2))] : null,
-          ),
-          child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-            Icon(icon, size: 16, color: isSelected ? AppColors.emerald600 : AppColors.gray500),
-            const SizedBox(width: 6),
-            Text(label, style: TextStyle(
-              fontSize: 13, fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-              color: isSelected ? AppColors.emerald600 : AppColors.gray500,
-            )),
-          ]),
-        ),
-      ),
-    );
-  }
-
   Widget _prestasiPreview() {
-    if (_prestasiType == 'perilaku' && _selectedCategory == null) return const SizedBox.shrink();
-    if (_prestasiType == 'lomba' && (_lombaNameCtrl.text.isEmpty || _selectedLombaRank == null)) return const SizedBox.shrink();
-
-    final rankLabel = _lombaRanks.where((r) => r.$1 == _selectedLombaRank).firstOrNull?.$2;
-    final levelLabel = _lombaLevels.where((l) => l.$1 == _selectedLombaLevel).firstOrNull?.$2;
-
+    if (_selectedCategory == null) return const SizedBox.shrink();
     return Container(
       padding: const EdgeInsets.all(14),
       margin: const EdgeInsets.only(bottom: 16),
@@ -605,23 +438,12 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
         border: Border.all(color: AppColors.emerald600.withValues(alpha: 0.3)),
       ),
       child: Row(children: [
-        Icon(
-          _prestasiType == 'lomba' ? Icons.emoji_events_rounded : Icons.star_rounded,
-          color: AppColors.emerald600, size: 20,
-        ),
+        const Icon(Icons.thumb_up_rounded, color: AppColors.emerald600, size: 20),
         const SizedBox(width: 10),
         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(_selectedStudent!.name,
               style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.emerald600)),
-          if (_prestasiType == 'perilaku')
-            Text(_selectedCategory!.name, style: const TextStyle(fontSize: 12, color: AppColors.gray700))
-          else ...[
-            Text(_lombaNameCtrl.text, style: const TextStyle(fontSize: 12, color: AppColors.gray700),
-                maxLines: 1, overflow: TextOverflow.ellipsis),
-            if (rankLabel != null || levelLabel != null)
-              Text('${rankLabel ?? ''} ${levelLabel != null ? '· $levelLabel' : ''}'.trim(),
-                  style: const TextStyle(fontSize: 11, color: AppColors.gray500)),
-          ],
+          Text(_selectedCategory!.name, style: const TextStyle(fontSize: 12, color: AppColors.gray700)),
         ])),
       ]),
     );
@@ -637,9 +459,9 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
         child: Row(children: [
           _filterChip('Semua',       null),
           const SizedBox(width: 8),
-          _filterChip('Pelanggaran', 'pelanggaran'),
+          _filterChip('Catatan Negatif', 'pelanggaran'),
           const SizedBox(width: 8),
-          _filterChip('Prestasi',    'prestasi'),
+          _filterChip('Catatan Positif', 'prestasi'),
         ]),
       ),
       const Divider(height: 1),
@@ -796,7 +618,7 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
         icon: _submitting
             ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
             : Icon(isPrestasi ? Icons.star_rounded : Icons.warning_rounded, size: 18),
-        label: Text(_submitting ? 'Menyimpan...' : 'Simpan ${isPrestasi ? "Prestasi" : "Pelanggaran"}'),
+        label: Text(_submitting ? 'Menyimpan...' : 'Simpan ${isPrestasi ? "Catatan Positif" : "Catatan Negatif"}'),
         style: FilledButton.styleFrom(
           backgroundColor: color,
           padding: const EdgeInsets.symmetric(vertical: 14),
@@ -837,7 +659,7 @@ class _HistoryCard extends StatelessWidget {
       accentColor = _pelangColor;
       accentBg    = _pelangBg;
       accentIcon  = Icons.warning_rounded;
-      typeLabel   = 'Pelanggaran';
+      typeLabel   = 'Catatan Negatif';
     } else if (isLomba) {
       accentColor = _lombaColor;
       accentBg    = _lombaBg;
@@ -847,7 +669,7 @@ class _HistoryCard extends StatelessWidget {
       accentColor = _perilakuColor;
       accentBg    = _perilakuBg;
       accentIcon  = Icons.thumb_up_rounded;
-      typeLabel   = 'Prestasi Perilaku';
+      typeLabel   = 'Catatan Positif';
     }
 
     final severityColor = switch (item.severity) {

@@ -54,7 +54,7 @@ class _GuruConductScreenState extends State<GuruConductScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.slate100,
-      appBar: AppBar(title: const Text('Pelanggaran & Prestasi')),
+      appBar: AppBar(title: const Text('Catatan Perilaku Siswa')),
       body: Column(
         children: [
           _buildFilters(),

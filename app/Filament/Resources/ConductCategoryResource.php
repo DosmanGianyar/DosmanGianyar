@@ -43,17 +43,17 @@ class ConductCategoryResource extends Resource
 
             Select::make('type')
                 ->label('Tipe')
-                ->options(['prestasi' => 'Prestasi', 'pelanggaran' => 'Pelanggaran'])
+                ->options(['prestasi' => 'Catatan Positif', 'pelanggaran' => 'Catatan Negatif'])
                 ->required()
                 ->live(),
 
             Select::make('context')
                 ->label('Konteks')
                 ->options([
-                    'akademik' => 'Prestasi Akademik',
-                    'lomba'    => 'Prestasi Lomba',
-                    'kelas'    => 'Pelanggaran Kelas',
-                    'sidak'    => 'Pelanggaran Sidak',
+                    'akademik' => 'Catatan Positif Akademik',
+                    'lomba'    => 'Catatan Positif Lomba',
+                    'kelas'    => 'Catatan Negatif Kelas',
+                    'sidak'    => 'Catatan Negatif Sidak',
                 ])
                 ->required(),
 
@@ -81,7 +81,11 @@ class ConductCategoryResource extends Resource
                         'pelanggaran' => 'danger',
                         default       => 'gray',
                     })
-                    ->formatStateUsing(fn ($state) => ucfirst($state)),
+                    ->formatStateUsing(fn ($state) => match ($state) {
+                        'prestasi'    => 'Catatan Positif',
+                        'pelanggaran' => 'Catatan Negatif',
+                        default       => $state,
+                    }),
 
                 TextColumn::make('context')
                     ->label('Konteks')
@@ -94,10 +98,10 @@ class ConductCategoryResource extends Resource
                         default    => 'gray',
                     })
                     ->formatStateUsing(fn (?string $state) => match ($state) {
-                        'akademik' => 'Akademik',
-                        'lomba'    => 'Lomba',
-                        'kelas'    => 'Kelas',
-                        'sidak'    => 'Sidak',
+                        'akademik' => '(+) Akademik',
+                        'lomba'    => '(+) Lomba',
+                        'kelas'    => '(-) Kelas',
+                        'sidak'    => '(-) Sidak',
                         default    => '—',
                     }),
 
@@ -113,7 +117,7 @@ class ConductCategoryResource extends Resource
             ->filters([
                 SelectFilter::make('type')
                     ->label('Tipe')
-                    ->options(['prestasi' => 'Prestasi', 'pelanggaran' => 'Pelanggaran']),
+                    ->options(['prestasi' => 'Catatan Positif', 'pelanggaran' => 'Catatan Negatif']),
             ])
             ->recordActions([EditAction::make(), DeleteAction::make()])
             ->toolbarActions([BulkActionGroup::make([DeleteBulkAction::make()])]);

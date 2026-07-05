@@ -28,9 +28,9 @@ class ConductLogResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon       = 'heroicon-o-clipboard-document-list';
     protected static string|\UnitEnum|null   $navigationGroup      = 'Kesiswaan';
-    protected static ?string                 $navigationLabel      = 'Catatan Siswa';
-    protected static ?string                 $modelLabel           = 'Catatan Siswa';
-    protected static ?string                 $pluralModelLabel     = 'Catatan Siswa';
+    protected static ?string                 $navigationLabel      = 'Catatan Perilaku Siswa';
+    protected static ?string                 $modelLabel           = 'Catatan Perilaku';
+    protected static ?string                 $pluralModelLabel     = 'Catatan Perilaku Siswa';
     protected static ?int                    $navigationSort       = 1;
 
     public static function canAccess(): bool { return AdminAccess::can('Kesiswaan'); }
@@ -67,17 +67,17 @@ class ConductLogResource extends Resource
                 Select::make('type')
                     ->label('Jenis')
                     ->options([
-                        'pelanggaran' => 'Pelanggaran',
-                        'prestasi'    => 'Prestasi',
+                        'pelanggaran' => 'Catatan Negatif',
+                        'prestasi'    => 'Catatan Positif',
                     ])
                     ->required()
                     ->live()
-                    ->afterStateUpdated(fn ($set) => $set('prestasi_type', null)),
+                    ->afterStateUpdated(fn ($set) => $set('category_id', null)),
 
-                // ── Pelanggaran ─────────────────────────────────────────
+                // ── Catatan Negatif ─────────────────────────────────────
 
                 Select::make('severity')
-                    ->label('Tingkat Pelanggaran')
+                    ->label('Tingkat')
                     ->options([
                         'ringan' => 'Ringan',
                         'sedang' => 'Sedang',
@@ -87,33 +87,16 @@ class ConductLogResource extends Resource
                     ->required(fn ($get) => $get('type') === 'pelanggaran'),
 
                 Textarea::make('description')
-                    ->label('Deskripsi Pelanggaran')
+                    ->label('Deskripsi')
                     ->rows(3)
                     ->visible(fn ($get) => $get('type') === 'pelanggaran')
                     ->required(fn ($get) => $get('type') === 'pelanggaran')
                     ->columnSpan(fn ($get) => $get('type') === 'pelanggaran' ? 2 : 1),
 
-                // ── Prestasi ────────────────────────────────────────────
+                // ── Catatan Positif ────────────────────────────────────
 
-                Select::make('prestasi_type')
-                    ->label('Jenis Prestasi')
-                    ->options([
-                        'perilaku' => 'Prestasi Perilaku / Harian',
-                        'lomba'    => 'Prestasi Lomba',
-                    ])
-                    ->visible(fn ($get) => $get('type') === 'prestasi')
-                    ->required(fn ($get) => $get('type') === 'prestasi')
-                    ->live()
-                    ->afterStateUpdated(fn ($set) => [
-                        $set('category_id', null),
-                        $set('lomba_name', null),
-                        $set('lomba_level', null),
-                        $set('lomba_rank', null),
-                    ]),
-
-                // Perilaku: pilih kategori
                 Select::make('category_id')
-                    ->label('Kategori Perilaku')
+                    ->label('Kategori Perilaku Positif')
                     ->options(
                         ConductCategory::where('type', 'prestasi')
                             ->where('is_active', true)
@@ -121,41 +104,9 @@ class ConductLogResource extends Resource
                             ->pluck('name', 'id')
                     )
                     ->searchable()
-                    ->visible(fn ($get) => $get('type') === 'prestasi' && $get('prestasi_type') === 'perilaku')
-                    ->required(fn ($get) => $get('type') === 'prestasi' && $get('prestasi_type') === 'perilaku'),
-
-                // Lomba: nama lomba
-                TextInput::make('lomba_name')
-                    ->label('Nama Lomba')
-                    ->maxLength(200)
-                    ->visible(fn ($get) => $get('type') === 'prestasi' && $get('prestasi_type') === 'lomba')
-                    ->required(fn ($get) => $get('type') === 'prestasi' && $get('prestasi_type') === 'lomba'),
-
-                // Lomba: tingkat
-                Select::make('lomba_level')
-                    ->label('Tingkat Lomba')
-                    ->options([
-                        'sekolah'       => 'Tingkat Sekolah',
-                        'kabupaten'     => 'Kabupaten/Kota',
-                        'provinsi'      => 'Provinsi',
-                        'nasional'      => 'Nasional',
-                        'internasional' => 'Internasional',
-                    ])
-                    ->visible(fn ($get) => $get('type') === 'prestasi' && $get('prestasi_type') === 'lomba')
-                    ->required(fn ($get) => $get('type') === 'prestasi' && $get('prestasi_type') === 'lomba'),
-
-                // Lomba: peringkat
-                Select::make('lomba_rank')
-                    ->label('Peringkat')
-                    ->options([
-                        'juara_1' => 'Juara 1',
-                        'juara_2' => 'Juara 2',
-                        'juara_3' => 'Juara 3',
-                        'harapan' => 'Juara Harapan',
-                        'peserta' => 'Peserta',
-                    ])
-                    ->visible(fn ($get) => $get('type') === 'prestasi' && $get('prestasi_type') === 'lomba')
-                    ->required(fn ($get) => $get('type') === 'prestasi' && $get('prestasi_type') === 'lomba'),
+                    ->visible(fn ($get) => $get('type') === 'prestasi')
+                    ->required(fn ($get) => $get('type') === 'prestasi')
+                    ->columnSpanFull(),
 
             ])->columns(2),
 
@@ -192,28 +143,26 @@ class ConductLogResource extends Resource
                         default       => 'gray',
                     })
                     ->formatStateUsing(fn (?string $state) => match ($state) {
-                        'pelanggaran' => 'Pelanggaran',
-                        'prestasi'    => 'Prestasi',
+                        'pelanggaran' => 'Catatan Negatif',
+                        'prestasi'    => 'Catatan Positif',
                         default       => '—',
                     }),
 
                 TextColumn::make('sub_type')
-                    ->label('Sub-Jenis')
+                    ->label('Tingkat / Sub')
                     ->badge()
                     ->color(fn ($record) => match (true) {
-                        $record->severity !== null        => match ($record->severity) {
-                            'ringan' => 'warning',
-                            'sedang' => 'warning',
+                        $record->severity !== null            => match ($record->severity) {
                             'berat'  => 'danger',
-                            default  => 'gray',
+                            default  => 'warning',
                         },
                         $record->prestasi_type === 'lomba'    => 'info',
                         $record->prestasi_type === 'perilaku' => 'success',
                         default => 'gray',
                     })
                     ->getStateUsing(fn ($record) => match (true) {
-                        $record->severity !== null        => ucfirst($record->severity),
-                        $record->prestasi_type === 'lomba'    => 'Lomba',
+                        $record->severity !== null            => ucfirst($record->severity),
+                        $record->prestasi_type === 'lomba'    => 'Prestasi Lomba',
                         $record->prestasi_type === 'perilaku' => 'Perilaku',
                         default => '—',
                     }),
@@ -223,7 +172,6 @@ class ConductLogResource extends Resource
                     ->getStateUsing(fn ($record) => match (true) {
                         $record->type === 'pelanggaran'        => $record->description,
                         $record->prestasi_type === 'lomba'     => $record->lomba_name,
-                        $record->prestasi_type === 'perilaku'  => $record->category?->name,
                         default => $record->category?->name ?? $record->description,
                     })
                     ->limit(50)
@@ -243,19 +191,12 @@ class ConductLogResource extends Resource
                 SelectFilter::make('type')
                     ->label('Jenis')
                     ->options([
-                        'pelanggaran' => 'Pelanggaran',
-                        'prestasi'    => 'Prestasi',
-                    ]),
-
-                SelectFilter::make('prestasi_type')
-                    ->label('Sub-Jenis Prestasi')
-                    ->options([
-                        'perilaku' => 'Prestasi Perilaku',
-                        'lomba'    => 'Prestasi Lomba',
+                        'pelanggaran' => 'Catatan Negatif',
+                        'prestasi'    => 'Catatan Positif',
                     ]),
 
                 SelectFilter::make('severity')
-                    ->label('Tingkat Pelanggaran')
+                    ->label('Tingkat Catatan Negatif')
                     ->options([
                         'ringan' => 'Ringan',
                         'sedang' => 'Sedang',

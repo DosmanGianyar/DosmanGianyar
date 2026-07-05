@@ -45,10 +45,14 @@ class ConductLog {
     teacherName:  j['teacher_name']  as String?,
   );
 
-  bool get isPrestasi    => type == 'prestasi';
-  bool get isPelanggaran => type == 'pelanggaran';
+  bool get isCatatanPositif  => type == 'prestasi';
+  bool get isCatatanNegatif  => type == 'pelanggaran';
+  // backward compat
+  bool get isPrestasi    => isCatatanPositif;
+  bool get isPelanggaran => isCatatanNegatif;
 
-  Color get typeColor => isPrestasi ? AppColors.green500 : AppColors.red500;
-  Color get typeBg    => isPrestasi ? AppColors.green100  : AppColors.red100;
-  String get typeLabel => isPrestasi ? 'Prestasi' : 'Pelanggaran';
+  Color get typeColor => isCatatanPositif ? AppColors.emerald600 : AppColors.red500;
+  Color get typeBg    => isCatatanPositif ? AppColors.emerald50  : AppColors.red50;
+  Color get typeIconColor => isCatatanPositif ? AppColors.emerald600 : AppColors.red500;
+  String get typeLabel => isCatatanPositif ? 'Catatan Positif' : 'Catatan Negatif';
 }
