@@ -227,12 +227,17 @@
                 <img src="/img/logo_sekolah.png" alt="Logo SMAN 1 Gianyar">
             </div>
             <span class="lc-badge">Panel Admin</span>
-            <h2 class="lc-title">SIMS Admin</h2>
+            <h2 class="lc-title" style="font-size:1.7rem;font-weight:900;letter-spacing:.18em;">DOSMAN</h2>
             <p class="lc-desc">
-                Sistem Informasi Manajemen Sekolah<br>SMA Negeri 1 Gianyar
+                Sistem Informasi Manajemen Siswa<br>SMA Negeri 1 Gianyar
             </p>
             <div class="lc-divider"></div>
-            <p class="lc-quote">"Learn, Inovate, and Build The Future"</p>
+            <p style="font-size:0.68rem;font-weight:700;letter-spacing:.06em;color:rgba(255,255,255,.7);position:relative;">
+                SMA NEGERI 1 GIANYAR
+            </p>
+            <p style="font-size:0.6rem;color:rgba(147,197,253,.65);margin-top:0.25rem;position:relative;">
+                Widya Wahana Bhakti
+            </p>
         </div>
 
         {{-- ─── Panel Kanan (Form) ──────────────────────────────────── --}}
@@ -241,12 +246,12 @@
                 <img src="/img/logo_sekolah.png" alt="Logo">
                 <div>
                     <p class="lc-school-name">SMAN 1 GIANYAR</p>
-                    <p class="lc-school-sub">SMA Negeri 1 Gianyar</p>
+                    <p class="lc-school-sub">Widya Wahana Bhakti</p>
                 </div>
             </div>
 
-            <h1 class="lc-heading">Login Admin</h1>
-            <p class="lc-subheading">Masuk ke panel administrasi SIMS</p>
+            <h1 class="lc-heading">Masuk Panel Admin</h1>
+            <p class="lc-subheading">Akses panel administrasi DOSMAN</p>
 
             {{-- Plain HTML form → LoginController (tidak pakai Livewire) --}}
             <form class="lc-form" method="POST" action="{{ route('login') }}">
@@ -279,7 +284,7 @@
                 <button type="submit" class="lc-btn">Masuk</button>
             </form>
 
-            <p class="lc-footer">&copy; {{ date('Y') }} SMA Negeri 1 Gianyar &middot; SIMS</p>
+            <p class="lc-footer">&copy; {{ date('Y') }} SMA Negeri 1 Gianyar &middot; DOSMAN</p>
         </div>
 
     </div>
