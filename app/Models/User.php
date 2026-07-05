@@ -172,7 +172,7 @@ class User extends Authenticatable implements FilamentUser
 
     public function subjects(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
-        return $this->belongsToMany(Subject::class, 'teacher_subjects')
+        return $this->belongsToMany(Subject::class, 'teacher_subjects', 'teacher_id', 'subject_id')
                     ->withTimestamps();
     }
 
