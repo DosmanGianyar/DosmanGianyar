@@ -20,6 +20,7 @@ use App\Http\Controllers\Api\GuruBkApiController;
 use App\Http\Controllers\Api\GuruConductApiController;
 use App\Http\Controllers\Api\GuruGradeApiController;
 use App\Http\Controllers\Api\GuruJournalController;
+use App\Http\Controllers\Api\GuruTpController;
 use App\Http\Controllers\Api\GuruSarprasApiController;
 use App\Http\Controllers\Api\GuruTeachingSessionController;
 use App\Http\Controllers\Api\TeacherAttendanceController;
@@ -140,6 +141,12 @@ Route::prefix('v1')->group(function () {
             Route::get('/guru/teaching-sessions/export',                  [GuruTeachingSessionController::class, 'export']);
             Route::get('/guru/teaching-sessions/class-students/{classId}',[GuruTeachingSessionController::class, 'classStudents']);
             Route::get('/guru/teaching-sessions/{id}',                    [GuruTeachingSessionController::class, 'show']);
+
+            // Tujuan Pembelajaran (TP) — master data per guru
+            Route::get('/guru/tp',                                        [GuruTpController::class, 'index']);
+            Route::post('/guru/tp',                                       [GuruTpController::class, 'store']);
+            Route::put('/guru/tp/{id}',                                   [GuruTpController::class, 'update']);
+            Route::delete('/guru/tp/{id}',                                [GuruTpController::class, 'destroy']);
 
             // Jurnal Guru
             Route::get('/guru/journals',                                  [GuruJournalController::class, 'index']);

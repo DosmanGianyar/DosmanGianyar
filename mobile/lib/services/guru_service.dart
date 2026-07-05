@@ -284,6 +284,49 @@ class GuruService {
     );
   }
 
+  // ── Tujuan Pembelajaran (TP) ───────────────────────────────────────────────
+
+  static Future<List<TujuanPembelajaran>> getTpList({int? subjectId}) async {
+    final body = await ApiClient.getList(
+      '/guru/tp',
+      params: {if (subjectId != null) 'subject_id': subjectId},
+    );
+    return body
+        .map((e) => TujuanPembelajaran.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  static Future<TujuanPembelajaran> createTp({
+    int? subjectId,
+    String? code,
+    required String description,
+  }) async {
+    final body = await ApiClient.post('/guru/tp', data: {
+      if (subjectId != null) 'subject_id': subjectId,
+      if (code != null && code.isNotEmpty) 'code': code,
+      'description': description,
+    });
+    return TujuanPembelajaran.fromJson(body['tp'] as Map<String, dynamic>);
+  }
+
+  static Future<TujuanPembelajaran> updateTp({
+    required int id,
+    int? subjectId,
+    String? code,
+    required String description,
+  }) async {
+    final body = await ApiClient.put('/guru/tp/$id', data: {
+      'subject_id':  subjectId,
+      if (code != null && code.isNotEmpty) 'code': code,
+      'description': description,
+    });
+    return TujuanPembelajaran.fromJson(body['tp'] as Map<String, dynamic>);
+  }
+
+  static Future<void> deleteTp(int id) async {
+    await ApiClient.delete('/guru/tp/$id');
+  }
+
   // ── Jurnal Guru ────────────────────────────────────────────────────────────
 
   static Future<({List<TeacherJournal> data, PaginatedMeta meta})> getJournals({
@@ -319,7 +362,9 @@ class GuruService {
     int? subjectId,
     required String date,
     int? period,
-    required String learningObjectives,
+    int? periodEnd,
+    int? tpId,
+    String? learningObjectives,
     required String material,
     required String activity,
     String? notes,
@@ -328,11 +373,13 @@ class GuruService {
     final body = await ApiClient.post(
       '/guru/journals',
       data: {
-        'class_id':            classId,
-        if (subjectId != null) 'subject_id': subjectId,
-        'date':                date,
-        if (period != null)    'period': period,
-        'learning_objectives': learningObjectives,
+        'class_id':                        classId,
+        if (subjectId != null)  'subject_id':  subjectId,
+        'date':                            date,
+        if (period != null)     'period':      period,
+        if (periodEnd != null)  'period_end':  periodEnd,
+        if (tpId != null)       'tp_id':       tpId,
+        if (learningObjectives != null) 'learning_objectives': learningObjectives,
         'material':            material,
         'activity':            activity,
         if (notes != null)     'notes': notes,

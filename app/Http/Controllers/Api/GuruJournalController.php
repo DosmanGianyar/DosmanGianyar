@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\TeacherJournal;
 use App\Models\TeacherJournalAbsence;
+use App\Models\TujuanPembelajaran;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -19,7 +20,7 @@ class GuruJournalController extends Controller
         $teacher = Auth::user();
 
         $query = TeacherJournal::where('teacher_id', $teacher->id)
-            ->with(['schoolClass:id,name', 'subject:id,name'])
+            ->with(['schoolClass:id,name', 'subject:id,name', 'tp:id,code,description'])
             ->withCount('absences')
             ->orderByDesc('date');
 
@@ -52,7 +53,9 @@ class GuruJournalController extends Controller
             'subject_id'           => 'nullable|exists:subjects,id',
             'date'                 => 'required|date',
             'period'               => 'nullable|integer|min:1|max:12',
-            'learning_objectives'  => 'required|string|max:1000',
+            'period_end'           => 'nullable|integer|min:1|max:12|gte:period',
+            'tp_id'                => 'nullable|exists:tujuan_pembelajaran,id',
+            'learning_objectives'  => 'nullable|string|max:1000',
             'material'             => 'required|string|max:1000',
             'activity'             => 'required|string|max:1000',
             'notes'                => 'nullable|string|max:500',
@@ -63,15 +66,27 @@ class GuruJournalController extends Controller
 
         $teacher = Auth::user();
 
+        // Resolve learning_objectives dari TP jika tp_id disediakan
+        $lo = $request->learning_objectives;
+        if ($request->filled('tp_id')) {
+            $tp = TujuanPembelajaran::where('teacher_id', $teacher->id)
+                ->find($request->tp_id);
+            if ($tp) {
+                $lo = ($tp->code ? "[{$tp->code}] " : '') . $tp->description;
+            }
+        }
+
         DB::beginTransaction();
         try {
             $journal = TeacherJournal::create([
                 'teacher_id'          => $teacher->id,
                 'class_id'            => $request->class_id,
                 'subject_id'          => $request->subject_id,
+                'tp_id'               => $request->tp_id,
                 'date'                => $request->date,
                 'period'              => $request->period,
-                'learning_objectives' => $request->learning_objectives,
+                'period_end'          => $request->period_end,
+                'learning_objectives' => $lo,
                 'material'            => $request->material,
                 'activity'            => $request->activity,
                 'notes'               => $request->notes,
@@ -105,6 +120,7 @@ class GuruJournalController extends Controller
             ->with([
                 'schoolClass:id,name',
                 'subject:id,name',
+                'tp:id,code,description',
                 'absences.student:id,name,nis',
             ])
             ->findOrFail($id);
@@ -182,6 +198,10 @@ class GuruJournalController extends Controller
             'subject_name'         => $j->subject?->name ?? '—',
             'date'                 => $j->date?->format('Y-m-d'),
             'period'               => $j->period,
+            'period_end'           => $j->period_end,
+            'tp_id'                => $j->tp_id,
+            'tp_code'              => $j->tp?->code,
+            'tp_description'       => $j->tp?->description,
             'learning_objectives'  => $j->learning_objectives,
             'material'             => $j->material,
             'activity'             => $j->activity,

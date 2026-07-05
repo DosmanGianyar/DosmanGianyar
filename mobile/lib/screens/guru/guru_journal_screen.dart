@@ -4,6 +4,7 @@ import '../../models/guru_models.dart';
 import '../../services/guru_service.dart';
 import '../../theme/app_colors.dart';
 import 'widgets/guru_widgets.dart';
+import 'guru_tp_screen.dart';
 
 class GuruJournalScreen extends StatefulWidget {
   const GuruJournalScreen({super.key});
@@ -110,6 +111,14 @@ class _GuruJournalScreenState extends State<GuruJournalScreen> {
       appBar: AppBar(
         title: const Text('Jurnal Mengajar'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.checklist_rounded),
+            tooltip: 'Kelola TP',
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const GuruTpScreen()),
+            ),
+          ),
           IconButton(
             icon: const Icon(Icons.add_rounded),
             tooltip: 'Buat Jurnal',
@@ -300,9 +309,9 @@ class _JournalCard extends StatelessWidget {
                       Row(
                         children: [
                           Text(date, style: const TextStyle(fontSize: 11, color: AppColors.gray500)),
-                          if (journal.period != null) ...[
+                          if (journal.periodLabel.isNotEmpty) ...[
                             const Text(' · ', style: TextStyle(color: AppColors.gray400)),
-                            Text('Jam ${journal.period}', style: const TextStyle(fontSize: 11, color: AppColors.blue600)),
+                            Text(journal.periodLabel, style: const TextStyle(fontSize: 11, color: AppColors.blue600)),
                           ],
                           if (journal.subjectName.isNotEmpty) ...[
                             const Text(' · ', style: TextStyle(color: AppColors.gray400)),
@@ -344,7 +353,7 @@ class _JournalCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _JournalField(label: 'Tujuan Pembelajaran', value: journal.learningObjectives),
+                _JournalField(label: 'Tujuan Pembelajaran', value: journal.tpDisplay),
                 const SizedBox(height: 8),
                 _JournalField(label: 'Materi',              value: journal.material),
                 const SizedBox(height: 8),
@@ -391,7 +400,6 @@ class _JournalFormScreen extends StatefulWidget {
 }
 
 class _JournalFormScreenState extends State<_JournalFormScreen> {
-  final _tpCtrl       = TextEditingController();
   final _materiCtrl   = TextEditingController();
   final _aktivCtrl    = TextEditingController();
   final _notesCtrl    = TextEditingController();
@@ -402,6 +410,9 @@ class _JournalFormScreenState extends State<_JournalFormScreen> {
   int?    _selectedClassId;
   int?    _selectedSubjectId;
   int?    _selectedPeriod;
+  int     _periodCount = 1;   // 1, 2, atau 3 jam
+
+  TujuanPembelajaran? _selectedTp;
 
   List<SimpleStudent>    _classStudents   = [];
   List<JournalAbsentStudent> _absentList  = [];
@@ -418,7 +429,6 @@ class _JournalFormScreenState extends State<_JournalFormScreen> {
 
   @override
   void dispose() {
-    _tpCtrl.dispose();
     _materiCtrl.dispose();
     _aktivCtrl.dispose();
     _notesCtrl.dispose();
@@ -448,10 +458,23 @@ class _JournalFormScreenState extends State<_JournalFormScreen> {
     final picked = await showDatePicker(
       context: context,
       initialDate: _date,
-      firstDate: DateTime.now().subtract(const Duration(days: 90)),
-      lastDate: DateTime.now(),
+      firstDate: DateTime(2020),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
     );
     if (picked != null && mounted) setState(() => _date = picked);
+  }
+
+  Future<void> _pickTp() async {
+    final result = await showModalBottomSheet<TujuanPembelajaran>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => TpPickerSheet(
+        currentTpId: _selectedTp?.id,
+        subjectId: _selectedSubjectId,
+      ),
+    );
+    if (result != null && mounted) setState(() => _selectedTp = result);
   }
 
   void _toggleAbsent(SimpleStudent student, String status) {
@@ -486,8 +509,8 @@ class _JournalFormScreenState extends State<_JournalFormScreen> {
     if (_selectedClassId == null) {
       _snack('Pilih kelas', AppColors.orange500); return;
     }
-    if (_tpCtrl.text.trim().isEmpty) {
-      _snack('Isi Tujuan Pembelajaran', AppColors.orange500); return;
+    if (_selectedTp == null) {
+      _snack('Pilih Tujuan Pembelajaran (TP)', AppColors.orange500); return;
     }
     if (_materiCtrl.text.trim().isEmpty) {
       _snack('Isi Materi', AppColors.orange500); return;
@@ -496,18 +519,23 @@ class _JournalFormScreenState extends State<_JournalFormScreen> {
       _snack('Isi Aktivitas Pembelajaran', AppColors.orange500); return;
     }
 
+    final int? periodEnd = (_selectedPeriod != null && _periodCount > 1)
+        ? _selectedPeriod! + _periodCount - 1
+        : null;
+
     setState(() => _submitting = true);
     try {
       final msg = await GuruService.createJournal(
-        classId:              _selectedClassId!,
-        subjectId:            _selectedSubjectId,
-        date:                 DateFormat('yyyy-MM-dd').format(_date),
-        period:               _selectedPeriod,
-        learningObjectives:   _tpCtrl.text.trim(),
-        material:             _materiCtrl.text.trim(),
-        activity:             _aktivCtrl.text.trim(),
-        notes:                _notesCtrl.text.trim().isEmpty ? null : _notesCtrl.text.trim(),
-        absentStudents:       _absentList.map((a) => {
+        classId:     _selectedClassId!,
+        subjectId:   _selectedSubjectId,
+        date:        DateFormat('yyyy-MM-dd').format(_date),
+        period:      _selectedPeriod,
+        periodEnd:   periodEnd,
+        tpId:        _selectedTp!.id,
+        material:    _materiCtrl.text.trim(),
+        activity:    _aktivCtrl.text.trim(),
+        notes:       _notesCtrl.text.trim().isEmpty ? null : _notesCtrl.text.trim(),
+        absentStudents: _absentList.map((a) => {
           'student_id': a.studentId,
           'status':     a.status,
         }).toList(),
@@ -576,7 +604,7 @@ class _JournalFormScreenState extends State<_JournalFormScreen> {
                   ),
                   const SizedBox(height: 12),
 
-                  // ── Kelas & Jam ──────────────────────────────────────
+                  // ── Kelas ────────────────────────────────────────────
                   _FormCard(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -584,12 +612,21 @@ class _JournalFormScreenState extends State<_JournalFormScreen> {
                         _lbl('Kelas'),
                         const SizedBox(height: 8),
                         _buildClassChips(),
-                        const SizedBox(height: 14),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+
+                  // ── Jam Pelajaran ─────────────────────────────────────
+                  _FormCard(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
                         _lbl('Jam Ke- (opsional)'),
                         const SizedBox(height: 8),
                         Wrap(
                           spacing: 6, runSpacing: 6,
-                          children: List.generate(10, (i) {
+                          children: List.generate(12, (i) {
                             final p = i + 1;
                             final sel = _selectedPeriod == p;
                             return GestureDetector(
@@ -611,6 +648,106 @@ class _JournalFormScreenState extends State<_JournalFormScreen> {
                             );
                           }),
                         ),
+                        if (_selectedPeriod != null) ...[
+                          const SizedBox(height: 14),
+                          _lbl('Jumlah Jam Pelajaran'),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [1, 2, 3].map((count) {
+                              final sel = _periodCount == count;
+                              final endPeriod = _selectedPeriod! + count - 1;
+                              return Padding(
+                                padding: const EdgeInsets.only(right: 8),
+                                child: GestureDetector(
+                                  onTap: () => setState(() => _periodCount = count),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                                    decoration: BoxDecoration(
+                                      color: sel ? AppColors.blue600 : AppColors.gray50,
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(color: sel ? AppColors.blue600 : AppColors.gray200),
+                                    ),
+                                    child: Text(
+                                      count == 1
+                                          ? 'Jam $_selectedPeriod'
+                                          : 'Jam $_selectedPeriod–$endPeriod',
+                                      style: TextStyle(
+                                        fontSize: 12, fontWeight: FontWeight.w600,
+                                        color: sel ? Colors.white : AppColors.gray700,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+
+                  // ── Tujuan Pembelajaran (TP) ──────────────────────────
+                  _FormCard(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            _lbl('Tujuan Pembelajaran (TP) *'),
+                            const Spacer(),
+                            GestureDetector(
+                              onTap: () => Navigator.push(context,
+                                MaterialPageRoute(builder: (_) => const GuruTpScreen()),
+                              ),
+                              child: const Text('Kelola TP',
+                                style: TextStyle(fontSize: 11, color: AppColors.blue600, fontWeight: FontWeight.w600)),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        GestureDetector(
+                          onTap: _pickTp,
+                          child: Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: _selectedTp != null ? AppColors.blue50 : AppColors.gray50,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: _selectedTp != null ? AppColors.blue400 : AppColors.gray200,
+                                width: _selectedTp != null ? 1.5 : 1,
+                              ),
+                            ),
+                            child: _selectedTp != null
+                                ? Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      if (_selectedTp!.code != null && _selectedTp!.code!.isNotEmpty)
+                                        Container(
+                                          margin: const EdgeInsets.only(bottom: 4),
+                                          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                                          decoration: BoxDecoration(
+                                            color: AppColors.blue200,
+                                            borderRadius: BorderRadius.circular(4),
+                                          ),
+                                          child: Text(_selectedTp!.code!, style: const TextStyle(
+                                            fontSize: 10, fontWeight: FontWeight.w800, color: AppColors.blue700)),
+                                        ),
+                                      Text(_selectedTp!.description, style: const TextStyle(fontSize: 13, color: AppColors.blue700)),
+                                      const SizedBox(height: 4),
+                                      const Text('Ketuk untuk ganti', style: TextStyle(fontSize: 10, color: AppColors.blue400)),
+                                    ],
+                                  )
+                                : const Row(
+                                    children: [
+                                      Icon(Icons.checklist_rounded, size: 16, color: AppColors.gray400),
+                                      SizedBox(width: 8),
+                                      Text('Ketuk untuk memilih TP', style: TextStyle(fontSize: 13, color: AppColors.gray400)),
+                                    ],
+                                  ),
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -621,10 +758,6 @@ class _JournalFormScreenState extends State<_JournalFormScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _lbl('Tujuan Pembelajaran (TP) *'),
-                        const SizedBox(height: 8),
-                        _textField(_tpCtrl, 'Peserta didik mampu...', maxLines: 3),
-                        const SizedBox(height: 14),
                         _lbl('Materi *'),
                         const SizedBox(height: 8),
                         _textField(_materiCtrl, 'Topik / bab yang diajarkan...'),

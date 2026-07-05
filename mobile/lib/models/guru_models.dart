@@ -470,6 +470,36 @@ class SessionStudentRow {
   );
 }
 
+// ─── Tujuan Pembelajaran (TP) ─────────────────────────────────────────────────
+
+class TujuanPembelajaran {
+  final int     id;
+  final int?    subjectId;
+  final String? subjectName;
+  final String? code;
+  final String  description;
+
+  const TujuanPembelajaran({
+    required this.id,
+    this.subjectId,
+    this.subjectName,
+    this.code,
+    required this.description,
+  });
+
+  factory TujuanPembelajaran.fromJson(Map<String, dynamic> json) => TujuanPembelajaran(
+    id:          json['id'] as int,
+    subjectId:   json['subject_id'] as int?,
+    subjectName: json['subject_name'] as String?,
+    code:        json['code'] as String?,
+    description: json['description'] as String,
+  );
+
+  String get displayLabel => code != null && code!.isNotEmpty
+      ? '[$code] $description'
+      : description;
+}
+
 // ─── Teacher Journal ──────────────────────────────────────────────────────────
 
 class TeacherJournal {
@@ -480,7 +510,11 @@ class TeacherJournal {
   final String subjectName;
   final String date;
   final int?   period;
-  final String learningObjectives;
+  final int?   periodEnd;
+  final int?   tpId;
+  final String? tpCode;
+  final String? tpDescription;
+  final String? learningObjectives;
   final String material;
   final String activity;
   final String? notes;
@@ -495,13 +529,29 @@ class TeacherJournal {
     required this.subjectName,
     required this.date,
     this.period,
-    required this.learningObjectives,
+    this.periodEnd,
+    this.tpId,
+    this.tpCode,
+    this.tpDescription,
+    this.learningObjectives,
     required this.material,
     required this.activity,
     this.notes,
     required this.absencesCount,
     this.absentStudents = const [],
   });
+
+  String get tpDisplay {
+    if (tpCode != null && tpCode!.isNotEmpty) return '[$tpCode] ${tpDescription ?? ''}';
+    if (tpDescription != null) return tpDescription!;
+    return learningObjectives ?? '—';
+  }
+
+  String get periodLabel {
+    if (period == null) return '';
+    if (periodEnd != null && periodEnd! > period!) return 'Jam $period–$periodEnd';
+    return 'Jam $period';
+  }
 
   factory TeacherJournal.fromJson(Map<String, dynamic> json) => TeacherJournal(
     id:                  json['id'] as int,
@@ -511,7 +561,11 @@ class TeacherJournal {
     subjectName:         json['subject_name'] as String? ?? '—',
     date:                json['date'] as String,
     period:              json['period'] as int?,
-    learningObjectives:  json['learning_objectives'] as String,
+    periodEnd:           json['period_end'] as int?,
+    tpId:                json['tp_id'] as int?,
+    tpCode:              json['tp_code'] as String?,
+    tpDescription:       json['tp_description'] as String?,
+    learningObjectives:  json['learning_objectives'] as String?,
     material:            json['material'] as String,
     activity:            json['activity'] as String,
     notes:               json['notes'] as String?,

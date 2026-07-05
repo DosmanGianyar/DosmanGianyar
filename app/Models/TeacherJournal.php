@@ -7,8 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class TeacherJournal extends Model
 {
     protected $fillable = [
-        'teacher_id', 'class_id', 'subject_id',
-        'date', 'period', 'learning_objectives',
+        'teacher_id', 'class_id', 'subject_id', 'tp_id',
+        'date', 'period', 'period_end', 'learning_objectives',
         'material', 'activity', 'notes',
     ];
 
@@ -27,6 +27,11 @@ class TeacherJournal extends Model
     public function subject(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Subject::class);
+    }
+
+    public function tp(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(TujuanPembelajaran::class, 'tp_id');
     }
 
     public function absences(): \Illuminate\Database\Eloquent\Relations\HasMany
