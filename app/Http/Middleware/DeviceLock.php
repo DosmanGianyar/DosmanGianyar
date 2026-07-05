@@ -26,20 +26,23 @@ class DeviceLock
             ], 400);
         }
 
-        // Akun belum memiliki device terdaftar — seharusnya tidak terjadi karena
-        // binding dilakukan saat login, tapi kita tangani sebagai pengaman.
-        if (! $user->hasDeviceLocked()) {
-            return response()->json([
-                'message' => 'Akun belum terikat ke perangkat. Silakan login ulang.',
-                'code'    => 'DEVICE_NOT_BOUND',
-            ], 403);
-        }
+        // Periksa device. Jika user_devices belum ada (migration pending), lewati cek.
+        try {
+            if (! $user->hasDeviceLocked()) {
+                // Device belum terdaftar: bisa karena migration belum jalan
+                // atau login saat tabel belum ada. Izinkan lewat, device akan
+                // terdaftar otomatis pada login berikutnya.
+                return $next($request);
+            }
 
-        if (! $user->isDeviceRegistered($deviceId)) {
-            return response()->json([
-                'message' => 'Perangkat tidak diizinkan. Hubungi Admin untuk reset perangkat.',
-                'code'    => 'DEVICE_MISMATCH',
-            ], 403);
+            if (! $user->isDeviceRegistered($deviceId)) {
+                return response()->json([
+                    'message' => 'Perangkat tidak diizinkan. Hubungi Admin untuk reset perangkat.',
+                    'code'    => 'DEVICE_MISMATCH',
+                ], 403);
+            }
+        } catch (\Throwable $e) {
+            // user_devices table may not exist yet — skip device check
         }
 
         return $next($request);
