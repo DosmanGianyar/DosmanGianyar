@@ -23,6 +23,8 @@ use App\Http\Controllers\Guru\TeacherAttendanceController as GuruTeacherAttendan
 use App\Http\Controllers\Siswa\TeacherAttendanceController as SiswaTeacherAttendance;
 use App\Http\Controllers\Guru\BkController as GuruBk;
 use App\Http\Controllers\Guru\GradeController as GuruGrade;
+use App\Http\Controllers\Guru\TpController as GuruTp;
+use App\Http\Controllers\Guru\JournalController as GuruJournal;
 use App\Http\Controllers\Siswa\AnnouncementController as SiswaAnnouncement;
 use App\Http\Controllers\Siswa\VotingController as SiswaVoting;
 use App\Http\Controllers\Siswa\VotingManageController as SiswaVotingManage;
@@ -163,6 +165,24 @@ Route::middleware(['auth', 'role:guru,admin'])->prefix('guru')->name('guru.')->g
         Route::get('/', [GuruForgotAttendance::class, 'index'])->name('index');
         Route::patch('/{forgotAttendance}/approve', [GuruForgotAttendance::class, 'approve'])->name('approve');
         Route::patch('/{forgotAttendance}/reject', [GuruForgotAttendance::class, 'reject'])->name('reject');
+    });
+
+    // Tujuan Pembelajaran (TP)
+    Route::prefix('tp')->name('tp.')->group(function () {
+        Route::get('/', [GuruTp::class, 'index'])->name('index');
+        Route::post('/', [GuruTp::class, 'store'])->name('store');
+        Route::put('/{tp}', [GuruTp::class, 'update'])->name('update');
+        Route::patch('/{tp}/toggle', [GuruTp::class, 'toggle'])->name('toggle');
+        Route::delete('/{tp}', [GuruTp::class, 'destroy'])->name('destroy');
+    });
+
+    // Jurnal Mengajar
+    Route::prefix('journal')->name('journal.')->group(function () {
+        Route::get('/', [GuruJournal::class, 'index'])->name('index');
+        Route::get('/create', [GuruJournal::class, 'create'])->name('create');
+        Route::post('/', [GuruJournal::class, 'store'])->name('store');
+        Route::delete('/{journal}', [GuruJournal::class, 'destroy'])->name('destroy');
+        Route::get('/api/students', [GuruJournal::class, 'studentsByClass'])->name('api.students');
     });
 
     // Jurnal Bimbingan Wali Kelas
