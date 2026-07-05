@@ -36,6 +36,11 @@ class TeacherAttendance extends Model
         return $this->belongsTo(Subject::class);
     }
 
+    public function sessionAttendances(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(SessionAttendance::class);
+    }
+
     public function statusLabel(): string
     {
         return match($this->status) {

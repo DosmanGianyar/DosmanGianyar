@@ -288,6 +288,194 @@ class GuruConductStudent {
   );
 }
 
+// ─── Conduct API ─────────────────────────────────────────────────────────────
+
+class ConductCategory {
+  final int    id;
+  final String name;
+  final String type;
+  final String context;
+
+  const ConductCategory({
+    required this.id,
+    required this.name,
+    required this.type,
+    required this.context,
+  });
+
+  factory ConductCategory.fromJson(Map<String, dynamic> json) => ConductCategory(
+    id:      json['id'] as int,
+    name:    json['name'] as String,
+    type:    json['type'] as String,
+    context: json['context'] as String? ?? '',
+  );
+}
+
+class SimpleStudent {
+  final int    id;
+  final String name;
+  final String? nis;
+  final String? className;
+
+  const SimpleStudent({required this.id, required this.name, this.nis, this.className});
+
+  factory SimpleStudent.fromJson(Map<String, dynamic> json) => SimpleStudent(
+    id:        json['id'] as int,
+    name:      json['name'] as String,
+    nis:       json['nis'] as String?,
+    className: json['class_name'] as String?,
+  );
+}
+
+// ─── Teaching Session ─────────────────────────────────────────────────────────
+
+class TeachingSession {
+  final int     id;
+  final int     classId;
+  final String  className;
+  final int?    subjectId;
+  final String  subjectName;
+  final String  date;
+  final int?    period;
+  final String? startTime;
+  final String? endTime;
+  final int     total;
+  final int     hadir;
+  final int     alpha;
+  final List<SessionStudentRow> students;
+
+  const TeachingSession({
+    required this.id,
+    required this.classId,
+    required this.className,
+    this.subjectId,
+    required this.subjectName,
+    required this.date,
+    this.period,
+    this.startTime,
+    this.endTime,
+    required this.total,
+    required this.hadir,
+    required this.alpha,
+    this.students = const [],
+  });
+
+  factory TeachingSession.fromJson(Map<String, dynamic> json) => TeachingSession(
+    id:          json['id'] as int,
+    classId:     json['class_id'] as int,
+    className:   json['class_name'] as String? ?? '—',
+    subjectId:   json['subject_id'] as int?,
+    subjectName: json['subject_name'] as String? ?? '—',
+    date:        json['date'] as String,
+    period:      json['period'] as int?,
+    startTime:   json['start_time'] as String?,
+    endTime:     json['end_time'] as String?,
+    total:       json['total'] as int? ?? 0,
+    hadir:       json['hadir'] as int? ?? 0,
+    alpha:       json['alpha'] as int? ?? 0,
+    students:    (json['students'] as List<dynamic>? ?? [])
+        .map((e) => SessionStudentRow.fromJson(e as Map<String, dynamic>))
+        .toList(),
+  );
+}
+
+class SessionStudentRow {
+  final int    studentId;
+  final String name;
+  final String? nis;
+  String status;
+  String? note;
+
+  SessionStudentRow({
+    required this.studentId,
+    required this.name,
+    this.nis,
+    required this.status,
+    this.note,
+  });
+
+  factory SessionStudentRow.fromJson(Map<String, dynamic> json) => SessionStudentRow(
+    studentId: json['student_id'] as int,
+    name:      json['name'] as String,
+    nis:       json['nis'] as String?,
+    status:    json['status'] as String? ?? 'hadir',
+    note:      json['note'] as String?,
+  );
+}
+
+// ─── Teacher Journal ──────────────────────────────────────────────────────────
+
+class TeacherJournal {
+  final int    id;
+  final int    classId;
+  final String className;
+  final int?   subjectId;
+  final String subjectName;
+  final String date;
+  final int?   period;
+  final String learningObjectives;
+  final String material;
+  final String activity;
+  final String? notes;
+  final int    absencesCount;
+  final List<JournalAbsentStudent> absentStudents;
+
+  const TeacherJournal({
+    required this.id,
+    required this.classId,
+    required this.className,
+    this.subjectId,
+    required this.subjectName,
+    required this.date,
+    this.period,
+    required this.learningObjectives,
+    required this.material,
+    required this.activity,
+    this.notes,
+    required this.absencesCount,
+    this.absentStudents = const [],
+  });
+
+  factory TeacherJournal.fromJson(Map<String, dynamic> json) => TeacherJournal(
+    id:                  json['id'] as int,
+    classId:             json['class_id'] as int,
+    className:           json['class_name'] as String? ?? '—',
+    subjectId:           json['subject_id'] as int?,
+    subjectName:         json['subject_name'] as String? ?? '—',
+    date:                json['date'] as String,
+    period:              json['period'] as int?,
+    learningObjectives:  json['learning_objectives'] as String,
+    material:            json['material'] as String,
+    activity:            json['activity'] as String,
+    notes:               json['notes'] as String?,
+    absencesCount:       json['absences_count'] as int? ?? 0,
+    absentStudents:      (json['absent_students'] as List<dynamic>? ?? [])
+        .map((e) => JournalAbsentStudent.fromJson(e as Map<String, dynamic>))
+        .toList(),
+  );
+}
+
+class JournalAbsentStudent {
+  final int    studentId;
+  final String name;
+  final String? nis;
+  String status;
+
+  JournalAbsentStudent({
+    required this.studentId,
+    required this.name,
+    this.nis,
+    required this.status,
+  });
+
+  factory JournalAbsentStudent.fromJson(Map<String, dynamic> json) => JournalAbsentStudent(
+    studentId: json['student_id'] as int,
+    name:      json['name'] as String,
+    nis:       json['nis'] as String?,
+    status:    json['status'] as String? ?? 'tidak_hadir',
+  );
+}
+
 // ─── Paginated wrapper ────────────────────────────────────────────────────────
 
 class PaginatedMeta {

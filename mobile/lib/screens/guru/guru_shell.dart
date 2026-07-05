@@ -10,12 +10,15 @@ import '../login_screen.dart';
 import '../notifications_screen.dart';
 import '../profile_screen.dart';
 import 'guru_absensi_harian_screen.dart';
+import 'guru_conduct_input_screen.dart';
 import 'guru_conduct_screen.dart';
 import 'guru_early_checkout_screen.dart';
 import 'guru_forgot_attendance_screen.dart';
 import 'guru_home_screen.dart';
+import 'guru_journal_screen.dart';
 import 'guru_permit_screen.dart';
 import 'guru_rekap_screen.dart';
+import 'guru_teaching_session_screen.dart';
 
 class GuruShell extends StatefulWidget {
   const GuruShell({super.key});
@@ -357,9 +360,8 @@ class _GuruDrawer extends StatelessWidget {
               ),
               _NavTile(
                 icon:  Icons.add_circle_outline_rounded,
-                label: 'Catat Prestasi/Peln.',
-                onTap: null,
-                comingSoon: true,
+                label: 'Catat Pelanggaran/Prestasi',
+                onTap: () => onNavigate(const GuruConductInputScreen()),
               ),
               _NavTile(
                 icon:  Icons.check_circle_outline_rounded,
@@ -380,14 +382,22 @@ class _GuruDrawer extends StatelessWidget {
           ),
           const SizedBox(height: 6),
 
-          // Kurikulum (all coming soon)
+          // Kurikulum
           _NavSection(
             icon:  Icons.menu_book_rounded,
             label: 'Kurikulum',
             children: [
               _NavTile(icon: Icons.assignment_rounded,  label: 'Input Nilai',      onTap: null, comingSoon: true),
-              _NavTile(icon: Icons.how_to_reg_rounded,  label: 'Absensi Mengajar', onTap: null, comingSoon: true),
-              _NavTile(icon: Icons.chat_bubble_outline, label: 'Jurnal Bimbingan', onTap: null, comingSoon: true),
+              _NavTile(
+                icon:  Icons.how_to_reg_rounded,
+                label: 'Absensi Mengajar',
+                onTap: () => onNavigate(const GuruTeachingSessionScreen()),
+              ),
+              _NavTile(
+                icon:  Icons.menu_book_outlined,
+                label: 'Jurnal Mengajar',
+                onTap: () => onNavigate(const GuruJournalScreen()),
+              ),
             ],
           ),
           const SizedBox(height: 6),

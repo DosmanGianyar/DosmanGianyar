@@ -16,6 +16,9 @@ use App\Http\Controllers\Api\PermitController;
 use App\Http\Controllers\Api\SchoolRegulationController;
 use App\Http\Controllers\Api\ShiftController;
 use App\Http\Controllers\Api\GuruController;
+use App\Http\Controllers\Api\GuruConductApiController;
+use App\Http\Controllers\Api\GuruTeachingSessionController;
+use App\Http\Controllers\Api\GuruJournalController;
 use App\Http\Controllers\Api\TeacherAttendanceController;
 use Illuminate\Support\Facades\Route;
 
@@ -119,6 +122,28 @@ Route::prefix('v1')->group(function () {
             Route::post('/guru/early-checkouts/{earlyCheckout}/approve',  [GuruController::class, 'approveEarlyCheckout']);
             Route::post('/guru/early-checkouts/{earlyCheckout}/reject',   [GuruController::class, 'rejectEarlyCheckout']);
             Route::get('/guru/conduct',                                   [GuruController::class, 'conduct']);
+
+            // Guru Conduct API (catat pelanggaran & prestasi)
+            Route::get('/guru/conduct-categories',                        [GuruConductApiController::class, 'categories']);
+            Route::get('/guru/conduct-classes',                           [GuruConductApiController::class, 'classes']);
+            Route::get('/guru/conduct-students',                          [GuruConductApiController::class, 'students']);
+            Route::post('/guru/conduct-logs',                             [GuruConductApiController::class, 'store']);
+
+            // Guru Teaching Session (absensi mengajar per sesi)
+            Route::get('/guru/teaching-classes',                          [GuruTeachingSessionController::class, 'classes']);
+            Route::get('/guru/teaching-sessions',                         [GuruTeachingSessionController::class, 'index']);
+            Route::post('/guru/teaching-sessions',                        [GuruTeachingSessionController::class, 'store']);
+            Route::get('/guru/teaching-sessions/export',                  [GuruTeachingSessionController::class, 'export']);
+            Route::get('/guru/teaching-sessions/class-students/{classId}',[GuruTeachingSessionController::class, 'classStudents']);
+            Route::get('/guru/teaching-sessions/{id}',                    [GuruTeachingSessionController::class, 'show']);
+
+            // Jurnal Guru
+            Route::get('/guru/journals',                                  [GuruJournalController::class, 'index']);
+            Route::post('/guru/journals',                                 [GuruJournalController::class, 'store']);
+            Route::get('/guru/journals/class-students/{classId}',         [GuruJournalController::class, 'classStudents']);
+            Route::get('/guru/journals/{id}',                             [GuruJournalController::class, 'show']);
+            Route::put('/guru/journals/{id}',                             [GuruJournalController::class, 'update']);
+            Route::delete('/guru/journals/{id}',                          [GuruJournalController::class, 'destroy']);
 
             // Kesiswaan Summary
             Route::get('/kesiswaan/summary', [KesiswaanController::class, 'summary']);

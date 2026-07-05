@@ -116,11 +116,13 @@ class ClassFilterBar extends StatelessWidget {
 class EmptyState extends StatelessWidget {
   final String message;
   final IconData icon;
+  final Widget? action;
 
   const EmptyState({
     super.key,
     required this.message,
     this.icon = Icons.inbox_outlined,
+    this.action,
   });
 
   @override
@@ -136,6 +138,10 @@ class EmptyState extends StatelessWidget {
             style: const TextStyle(fontSize: 14, color: AppColors.gray400),
             textAlign: TextAlign.center,
           ),
+          if (action != null) ...[
+            const SizedBox(height: 12),
+            action!,
+          ],
         ],
       ),
     );

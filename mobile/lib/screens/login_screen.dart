@@ -119,31 +119,6 @@ class _BluePanelTop extends StatelessWidget {
           // Konten utama
           Column(
             children: [
-              // ── Logo dengan cincin glow ──────────────────────────────
-              Container(
-                width: 110, height: 110,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color:       Colors.white.withValues(alpha: 0.18),
-                      blurRadius:  24,
-                      spreadRadius: 4,
-                    ),
-                  ],
-                ),
-                child: Container(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.white.withValues(alpha: 0.18),
-                    border: Border.all(color: Colors.white.withValues(alpha: 0.35), width: 2.5),
-                  ),
-                  padding: const EdgeInsets.all(10),
-                  child: Image.asset('assets/images/logo_sekolah.png', fit: BoxFit.contain),
-                ),
-              ),
-              const SizedBox(height: 22),
-
               // ── Separator dekoratif ──────────────────────────────────
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
