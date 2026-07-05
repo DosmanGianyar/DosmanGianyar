@@ -49,10 +49,10 @@ dev_dependencies:
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "assets/images/logo_sekolah.png"
+  image_path: "assets/images/dosman_white_icon.png"
   min_sdk_android: 21
   adaptive_icon_background: "#FFFFFF"
-  adaptive_icon_foreground: "assets/images/logo_sekolah.png"
+  adaptive_icon_foreground: "assets/images/dosman_white_icon.png"
   remove_alpha_ios: true
   web:
     generate: false
