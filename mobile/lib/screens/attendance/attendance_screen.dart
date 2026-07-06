@@ -2,8 +2,10 @@ import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image/image.dart' as img;
+import 'package:latlong2/latlong.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import '../../models/attendance.dart';
@@ -468,6 +470,15 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                     ),
                     const SizedBox(height: 24),
 
+                    // Peta lokasi (radius + titik GPS)
+                    if (_activeShift != null && _position != null) ...[
+                      _LocationMap(
+                        location: _activeShift!.location,
+                        position: _position!,
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+
                     // Location info card (if we have it)
                     if (_activeShift != null)
                       _LocationInfoCard(
@@ -586,6 +597,10 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                       style: TextStyle(fontSize: 13, color: AppColors.gray400),
                     ),
                     const SizedBox(height: 24),
+
+                    // Peta lokasi (radius + titik GPS)
+                    _LocationMap(location: location, position: _position!),
+                    const SizedBox(height: 16),
 
                     // Location detail card
                     _LocationInfoCard(
@@ -912,6 +927,88 @@ class _LocationInfoCard extends StatelessWidget {
             color:      valueColor,
           )),
       ],
+    );
+  }
+}
+
+// ─── Peta lokasi (radius + titik GPS) — setara peta Leaflet di web ────────────
+
+class _LocationMap extends StatelessWidget {
+  final AttendanceLocation location;
+  final Position           position;
+
+  const _LocationMap({required this.location, required this.position});
+
+  @override
+  Widget build(BuildContext context) {
+    final school = LatLng(location.lat, location.lng);
+    final user    = LatLng(position.latitude, position.longitude);
+    final bounds  = LatLngBounds.fromPoints([school, user]);
+
+    return ClipRRect(
+      borderRadius: AppRadius.card,
+      child: SizedBox(
+        height: 220,
+        child: FlutterMap(
+          options: MapOptions(
+            initialCenter: school,
+            initialZoom:   17,
+            initialCameraFit: CameraFit.bounds(
+              bounds:  bounds,
+              padding: const EdgeInsets.all(48),
+              maxZoom: 18,
+            ),
+            interactionOptions: const InteractionOptions(
+              flags: InteractiveFlag.pinchZoom | InteractiveFlag.drag,
+            ),
+          ),
+          children: [
+            TileLayer(
+              urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+              userAgentPackageName: 'com.sman1gianyar.sims_mobile',
+            ),
+            CircleLayer(circles: [
+              CircleMarker(
+                point:             school,
+                radius:            location.radiusMeters.toDouble(),
+                useRadiusInMeter:  true,
+                color:             AppColors.red500.withOpacity(0.15),
+                borderColor:       AppColors.red500,
+                borderStrokeWidth: 2,
+              ),
+            ]),
+            MarkerLayer(markers: [
+              Marker(
+                point:  school,
+                width:  32,
+                height: 32,
+                child: Container(
+                  decoration: BoxDecoration(
+                    shape:     BoxShape.circle,
+                    color:     AppColors.blue600,
+                    border:    Border.all(color: Colors.white, width: 3),
+                    boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.35), blurRadius: 6)],
+                  ),
+                  child: const Icon(Icons.school_rounded, color: Colors.white, size: 16),
+                ),
+              ),
+              Marker(
+                point:  user,
+                width:  20,
+                height: 20,
+                child: Container(
+                  decoration: BoxDecoration(
+                    shape:     BoxShape.circle,
+                    color:     AppColors.red500,
+                    border:    Border.all(color: Colors.white, width: 3),
+                    boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.35), blurRadius: 6)],
+                  ),
+                ),
+              ),
+            ]),
+          ],
+        ),
+      ),
     );
   }
 }

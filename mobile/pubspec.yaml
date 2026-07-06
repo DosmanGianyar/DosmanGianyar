@@ -22,6 +22,10 @@ dependencies:
   # GPS + isMocked detection
   geolocator: ^11.0.0
 
+  # Peta lokasi absen (radius + titik GPS) — setara Leaflet di web
+  flutter_map: ^7.0.2
+  latlong2: ^0.9.1
+
   # Kamera selfie
   camera: ^0.10.5+9
 
