@@ -72,8 +72,10 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     // Rekap Ekstrakurikuler
     Route::get('/extracurricular/session/{session}/pdf', [\App\Http\Controllers\Admin\ExtracurricularExportController::class, 'pdf'])
         ->name('extracurricular.session.pdf');
+});
 
-    // Penugasan Guru Wali
+// Penugasan Guru Wali (admin + admin_kurikulum)
+Route::middleware(['auth', 'role:admin,admin_kurikulum'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/guru-wali',                                   [AdminGuruWali::class, 'index'])->name('guru-wali.index');
     Route::get('/guru-wali/{teacher}',                         [AdminGuruWali::class, 'show'])->name('guru-wali.show');
     Route::post('/guru-wali/{teacher}/assign',                 [AdminGuruWali::class, 'assign'])->name('guru-wali.assign');

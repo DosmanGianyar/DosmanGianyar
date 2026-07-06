@@ -48,6 +48,11 @@ class AdminPanelProvider extends PanelProvider
                     ->group('Kesiswaan')
                     ->icon('heroicon-o-trophy')
                     ->sort(10),
+                NavigationItem::make('Guru Wali')
+                    ->group('Kurikulum')
+                    ->icon('heroicon-o-user-group')
+                    ->url(fn () => route('admin.guru-wali.index'))
+                    ->sort(20),
             ])
             ->navigationGroups([
                 NavigationGroup::make('Kurikulum'),
