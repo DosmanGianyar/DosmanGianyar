@@ -38,12 +38,13 @@ class _KesiswaanScreenState extends State<KesiswaanScreen>
   List<Map<String, dynamic>> _recentViolations   = [];
   List<Map<String, dynamic>> _recentPositif      = [];
   List<Map<String, dynamic>> _catatanItems       = [];
+  List<Map<String, dynamic>> _recentAchievements = [];
   bool _summaryLoaded    = false;
 
   @override
   void initState() {
     super.initState();
-    _tabCtrl = TabController(length: 2, vsync: this);
+    _tabCtrl = TabController(length: 3, vsync: this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final prov = context.read<AttendanceProvider>();
       if (prov.currentMonthRecords.isEmpty) prov.fetchCurrentMonthDots();
@@ -75,6 +76,7 @@ class _KesiswaanScreenState extends State<KesiswaanScreen>
         _activePermit       = data['active_permit'] as Map<String, dynamic>?;
         _recentViolations   = List<Map<String, dynamic>>.from(conduct['recent_violations'] ?? []);
         _recentPositif      = List<Map<String, dynamic>>.from(conduct['recent_positif']    ?? []);
+        _recentAchievements = List<Map<String, dynamic>>.from(data['recent_achievements']   ?? []);
 
         // Gabungan Catatan Negatif (pelanggaran) + Positif (keseharian) — BUKAN
         // Prestasi Lomba (StudentAchievement, tetap terpisah) — diurutkan
@@ -228,6 +230,7 @@ class _KesiswaanScreenState extends State<KesiswaanScreen>
                     tabs: const [
                       Tab(text: 'Presensi'),
                       Tab(text: 'Catatan'),
+                      Tab(text: 'Prestasi Lomba'),
                     ],
                   ),
                   SizedBox(
@@ -241,6 +244,13 @@ class _KesiswaanScreenState extends State<KesiswaanScreen>
                           loaded: _summaryLoaded,
                           onViewAll: () => Navigator.push(context,
                             MaterialPageRoute(builder: (_) => const ConductScreen())),
+                        ),
+                        _PrestasiLombaTab(
+                          achievements: _recentAchievements,
+                          pendingCount: _achievementStats['pending'] ?? 0,
+                          loaded: _summaryLoaded,
+                          onViewAll: () => Navigator.push(context,
+                            MaterialPageRoute(builder: (_) => const AchievementScreen())),
                         ),
                       ],
                     ),
@@ -663,7 +673,7 @@ class _CatatanTabState extends State<_CatatanTab> {
                     child: Row(children: [
                       Container(width: 8, height: 8,
                         decoration: BoxDecoration(
-                          color: isNegatif ? AppColors.red500 : AppColors.yellow500,
+                          color: isNegatif ? AppColors.red500 : AppColors.emerald500,
                           shape: BoxShape.circle)),
                       const SizedBox(width: 10),
                       Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -734,6 +744,111 @@ class _FilterChip extends StatelessWidget {
             color: selected ? Colors.white : AppColors.gray500)),
       ),
     );
+  }
+}
+
+// ─── Prestasi Lomba Tab ───────────────────────────────────────────────────────
+
+class _PrestasiLombaTab extends StatelessWidget {
+  final List<Map<String, dynamic>> achievements;
+  final int          pendingCount;
+  final bool         loaded;
+  final VoidCallback onViewAll;
+  const _PrestasiLombaTab({
+    required this.achievements,
+    required this.pendingCount,
+    required this.loaded,
+    required this.onViewAll,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (!loaded) {
+      return const Center(child: SizedBox(width: 24, height: 24,
+        child: CircularProgressIndicator(strokeWidth: 2)));
+    }
+    if (achievements.isEmpty) {
+      return Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+        const Icon(Icons.workspace_premium_rounded, size: 36, color: AppColors.gray200),
+        const SizedBox(height: 8),
+        const Text('Belum ada prestasi lomba disetujui',
+          style: TextStyle(fontSize: 13, color: AppColors.gray400)),
+        if (pendingCount > 0) ...[
+          const SizedBox(height: 4),
+          Text('$pendingCount prestasi menunggu verifikasi',
+            style: const TextStyle(fontSize: 11, color: AppColors.yellow600)),
+        ],
+        const SizedBox(height: 10),
+        OutlinedButton(
+          onPressed: onViewAll,
+          style: OutlinedButton.styleFrom(
+            foregroundColor: AppColors.yellow600,
+            side: const BorderSide(color: AppColors.yellow600),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+            shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
+          ),
+          child: const Text('Laporkan Prestasi',
+            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+        ),
+      ]);
+    }
+    return Column(children: [
+      Expanded(child: ListView.separated(
+        padding: EdgeInsets.zero,
+        itemCount: achievements.length,
+        separatorBuilder: (_, __) => const Divider(height: 1, color: AppColors.gray100),
+        itemBuilder: (_, i) {
+          final a = achievements[i];
+          final catName = a['category_name'] as String? ?? '';
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
+            child: Row(children: [
+              Container(width: 8, height: 8,
+                decoration: const BoxDecoration(color: AppColors.yellow500, shape: BoxShape.circle)),
+              const SizedBox(width: 10),
+              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text(a['title'] ?? '',
+                  maxLines: 1, overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 12, fontWeight: FontWeight.w500, color: AppColors.gray800)),
+                Text(
+                  '${a['level_label'] ?? a['level'] ?? ''}'
+                  '${catName.isNotEmpty ? ' · $catName' : ''}',
+                  maxLines: 1, overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontSize: 11, color: AppColors.gray400)),
+              ])),
+              const SizedBox(width: 8),
+              Text(_shortDate(a['achievement_date'] ?? ''),
+                style: const TextStyle(fontSize: 10, color: AppColors.gray400)),
+            ]),
+          );
+        },
+      )),
+      InkWell(
+        onTap: onViewAll,
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          decoration: const BoxDecoration(
+            border: Border(top: BorderSide(color: AppColors.gray100)),
+          ),
+          child: const Text('Laporkan / Lihat Semua →',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 11, color: AppColors.yellow600, fontWeight: FontWeight.w600)),
+        ),
+      ),
+    ]);
+  }
+
+  String _shortDate(String iso) {
+    try {
+      final d = DateTime.parse(iso);
+      const months = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+      return '${d.day} ${months[d.month]}';
+    } catch (_) {
+      return iso;
+    }
   }
 }
 

@@ -100,6 +100,13 @@ class KesiswaanController extends Controller
             ->sortByDesc('date')
             ->values();
 
+        $tabPrestasi = StudentAchievement::where('student_id', $siswa->id)
+            ->with('category')
+            ->where('status', 'approved')
+            ->latest('achievement_date')
+            ->limit(15)
+            ->get();
+
         $recentConduct = $siswa->conductLogs()->with('category')->latest()->limit(3)->get();
 
         // ── Prestasi ─────────────────────────────────────────────────────────
@@ -172,6 +179,7 @@ class KesiswaanController extends Controller
             'pendingVerify',
             'tabPresensi',
             'tabCatatan',
+            'tabPrestasi',
             'siswa',
             'forgotAttendancePending',
             'earlyCheckoutPending',

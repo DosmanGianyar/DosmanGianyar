@@ -134,7 +134,7 @@
 
     {{-- Tab Header --}}
     <div class="flex">
-        @foreach([['presensi','Presensi'],['catatan','Catatan']] as [$id,$label])
+        @foreach([['presensi','Presensi'],['catatan','Catatan'],['prestasi','Prestasi Lomba']] as [$id,$label])
         <button onclick="switchTab('{{ $id }}')" id="tab-btn-{{ $id }}"
             class="flex-1 py-3 text-xs font-semibold border-b-2 transition-colors
                 {{ $id === 'presensi' ? 'text-blue-600 border-blue-600' : 'text-gray-400 border-gray-100' }}">
@@ -211,15 +211,16 @@
         @forelse($tabCatatan as $item)
         @php $isNegatif = $item['type'] === 'negatif'; @endphp
         <div data-type="{{ $item['type'] }}" class="flex items-start gap-3 px-4 py-3 border-b border-gray-50 last:border-0">
-            <div class="w-9 h-9 {{ $isNegatif ? 'bg-red-50' : 'bg-yellow-50' }} rounded-xl shrink-0 flex items-center justify-center mt-0.5">
+            <div class="w-9 h-9 {{ $isNegatif ? 'bg-red-50' : 'bg-emerald-50' }} rounded-xl shrink-0 flex items-center justify-center mt-0.5">
                 @if($isNegatif)
                 <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
                 </svg>
                 @else
-                <svg class="w-4 h-4 text-yellow-500" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
+                <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2v10z"/>
                 </svg>
                 @endif
             </div>
@@ -240,11 +241,39 @@
         @endforelse
     </div>
 
+    {{-- Tab: Prestasi Lomba --}}
+    <div id="tab-prestasi" class="hidden">
+        @forelse($tabPrestasi as $ach)
+        <div class="flex items-start gap-3 px-4 py-3 border-b border-gray-50 last:border-0">
+            <div class="w-9 h-9 bg-yellow-50 rounded-xl shrink-0 flex items-center justify-center mt-0.5">
+                <svg class="w-4 h-4 text-yellow-500" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
+                </svg>
+            </div>
+            <div class="flex-1">
+                <p class="text-sm font-medium text-gray-800 leading-snug">{{ $ach->title }}</p>
+                <div class="flex items-center justify-between mt-1">
+                    <p class="text-xs text-gray-400">
+                        {{ $ach->category?->name }} · {{ $ach->achievement_date->isoFormat('D MMM Y') }}
+                    </p>
+                    <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full {{ $ach->levelBadgeClass() }} shrink-0 ml-2">
+                        {{ $ach->levelLabel() }}
+                    </span>
+                </div>
+            </div>
+        </div>
+        @empty
+        <div class="py-10 text-center">
+            <p class="text-sm text-gray-400">Belum ada prestasi lomba tercatat</p>
+        </div>
+        @endforelse
+    </div>
+
 </div>
 
 <script>
 function switchTab(name) {
-    ['presensi','catatan'].forEach(function(t) {
+    ['presensi','catatan','prestasi'].forEach(function(t) {
         document.getElementById('tab-' + t).classList.add('hidden');
         var btn = document.getElementById('tab-btn-' + t);
         btn.className = btn.className
