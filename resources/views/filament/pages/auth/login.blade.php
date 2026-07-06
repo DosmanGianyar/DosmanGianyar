@@ -111,11 +111,14 @@
     padding: 2.5rem 2rem;
     border-left: 1px solid rgba(255,255,255,.06);
 }
-.lc-school-header {
+.lc-school-header-wrap {
     display: none;
+    margin-bottom: 1.75rem;
+}
+.lc-school-header {
+    display: flex;
     align-items: center;
     gap: 0.625rem;
-    margin-bottom: 1.75rem;
 }
 .lc-school-header img {
     width: 2.25rem;
@@ -214,7 +217,7 @@
 @media (min-width: 640px) {
     .lc-card { flex-direction: row; }
     .lc-left { width: 42%; flex-shrink: 0; min-height: unset; }
-    .lc-school-header { display: flex; }
+    .lc-school-header-wrap { display: block; }
 }
 @font-face {
     font-family: 'Noto Sans Balinese';
@@ -255,12 +258,14 @@
 
         {{-- ─── Panel Kanan (Form) ──────────────────────────────────── --}}
         <div class="lc-right">
-            <div class="lc-school-header">
-                <img src="/img/logo_sekolah.png" alt="Logo">
-                <div>
-                    <p class="lc-balinese" style="font-size:0.7rem;color:#6b7280;padding:0 0.4rem;">᭞ᬏᬲ᭄ᬏᬫ᭄ᬅ᭞ᬦᭂᬕᭂᬭᬶ᭞᭑᭞ᬕ᭄ᬬᬜᬃ᭞</p>
-                    <p class="lc-school-name">SMAN 1 GIANYAR</p>
-                    <p class="lc-school-sub">Widya Wahana Bhakti</p>
+            <div class="lc-school-header-wrap">
+                <p class="lc-balinese" style="font-size:0.7rem;color:#9ca3af;text-align:center;margin-bottom:0.3rem;">᭞ᬏᬲ᭄ᬏᬫ᭄ᬅ᭞ᬦᭂᬕᭂᬭᬶ᭞᭑᭞ᬕ᭄ᬬᬜᬃ᭞</p>
+                <div class="lc-school-header">
+                    <img src="/img/logo_sekolah.png" alt="Logo">
+                    <div>
+                        <p class="lc-school-name">SMAN 1 GIANYAR</p>
+                        <p class="lc-school-sub">Widya Wahana Bhakti</p>
+                    </div>
                 </div>
             </div>
 

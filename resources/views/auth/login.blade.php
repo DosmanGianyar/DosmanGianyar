@@ -53,12 +53,14 @@
             <div class="flex-1 bg-white flex flex-col items-center justify-center px-8 py-10">
 
                 {{-- Header kecil --}}
-                <div class="hidden sm:flex items-center gap-2.5 mb-7">
-                    <img src="/img/logo_sekolah.png" alt="Logo" class="w-9 h-9 object-contain">
-                    <div class="text-left leading-tight">
-                        <p class="font-balinese text-xs text-gray-500 px-2">᭞ᬏᬲ᭄ᬏᬫ᭄ᬅ᭞ᬦᭂᬕᭂᬭᬶ᭞᭑᭞ᬕ᭄ᬬᬜᬃ᭞</p>
-                        <p class="text-xs font-extrabold text-gray-700 tracking-widest">SMAN 1 GIANYAR</p>
-                        <p class="text-[10px] text-gray-400">Widya Wahana Bhakti</p>
+                <div class="hidden sm:block mb-7">
+                    <p class="font-balinese text-xs text-gray-400 text-center mb-1 px-2">᭞ᬏᬲ᭄ᬏᬫ᭄ᬅ᭞ᬦᭂᬕᭂᬭᬶ᭞᭑᭞ᬕ᭄ᬬᬜᬃ᭞</p>
+                    <div class="flex items-center justify-center gap-2.5">
+                        <img src="/img/logo_sekolah.png" alt="Logo" class="w-9 h-9 object-contain">
+                        <div class="text-left leading-tight">
+                            <p class="text-xs font-extrabold text-gray-700 tracking-widest">SMAN 1 GIANYAR</p>
+                            <p class="text-[10px] text-gray-400">Widya Wahana Bhakti</p>
+                        </div>
                     </div>
                 </div>
 
