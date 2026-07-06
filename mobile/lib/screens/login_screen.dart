@@ -281,12 +281,15 @@ class _DosmanBrand extends StatelessWidget {
         const SizedBox(height: 6),
 
         // Aksara Bali
-        const Text(
-          '᭞ᬲ᭄ᬫᬦ᭄᭑ᬕᬶᬬᬜᬄ᭞',
-          style: TextStyle(
-            fontFamily:    'NotoSansBalinese',
-            fontSize:      13,
-            color:         AppColors.gray500,
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 8),
+          child: Text(
+            '᭞ᬏᬲ᭄ᬏᬫ᭄ᬅ᭞ᬦᭂᬕᭂᬭᬶ᭞᭑᭞ᬕ᭄ᬬᬜᬃ᭞',
+            style: TextStyle(
+              fontFamily:    'NotoSansBalinese',
+              fontSize:      13,
+              color:         AppColors.gray500,
+            ),
           ),
         ),
         const SizedBox(height: 2),

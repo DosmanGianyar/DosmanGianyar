@@ -242,8 +242,8 @@
                 Sistem Informasi Manajemen Siswa<br>SMA Negeri 1 Gianyar
             </p>
             <div class="lc-divider"></div>
-            <p class="lc-balinese" style="font-size:0.85rem;color:rgba(255,255,255,.7);position:relative;">
-                ᭞ᬲ᭄ᬫᬦ᭄᭑ᬕᬶᬬᬜᬄ᭞
+            <p class="lc-balinese" style="font-size:0.85rem;color:rgba(255,255,255,.7);position:relative;padding:0 0.5rem;">
+                ᭞ᬏᬲ᭄ᬏᬫ᭄ᬅ᭞ᬦᭂᬕᭂᬭᬶ᭞᭑᭞ᬕ᭄ᬬᬜᬃ᭞
             </p>
             <p style="font-size:0.68rem;font-weight:700;letter-spacing:.06em;color:rgba(255,255,255,.7);position:relative;margin-top:0.15rem;">
                 SMA NEGERI 1 GIANYAR
@@ -258,7 +258,7 @@
             <div class="lc-school-header">
                 <img src="/img/logo_sekolah.png" alt="Logo">
                 <div>
-                    <p class="lc-balinese" style="font-size:0.7rem;color:#6b7280;">᭞ᬲ᭄ᬫᬦ᭄᭑ᬕᬶᬬᬜᬄ᭞</p>
+                    <p class="lc-balinese" style="font-size:0.7rem;color:#6b7280;padding:0 0.4rem;">᭞ᬏᬲ᭄ᬏᬫ᭄ᬅ᭞ᬦᭂᬕᭂᬭᬶ᭞᭑᭞ᬕ᭄ᬬᬜᬃ᭞</p>
                     <p class="lc-school-name">SMAN 1 GIANYAR</p>
                     <p class="lc-school-sub">Widya Wahana Bhakti</p>
                 </div>
