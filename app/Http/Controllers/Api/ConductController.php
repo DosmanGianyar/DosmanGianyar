@@ -34,7 +34,7 @@ class ConductController extends Controller
                 'type'          => $log->category->type,
                 'context'       => $log->category->context,
                 'note'          => $log->note,
-                'photo_url'     => $log->photo ? Storage::url($log->photo) : null,
+                'photo_url'     => $log->photo ? Storage::disk('public')->url($log->photo) : null,
                 'teacher_name'  => $log->teacher?->name,
                 'date'          => $log->created_at->toDateString(),
                 'created_at'    => $log->created_at->toIso8601String(),
