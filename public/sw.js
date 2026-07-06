@@ -11,6 +11,7 @@ self.addEventListener('install', (e) => {
             '/img/icon-maskable-192.png',
             '/img/icon-maskable-512.png',
             '/fonts/NotoSansBalinese-Regular.ttf',
+            '/fonts/NotoSansBalinese-Bold.ttf',
         ]))
     );
     self.skipWaiting();
