@@ -3,7 +3,7 @@
 @section('page-title', 'Absensi Harian')
 
 @section('content')
-<div class="space-y-4">
+<div class="space-y-4" x-data="{ tab: 'masuk', photoUrl: null, photoName: '' }">
 
     {{-- Filter --}}
     <form method="GET" action="{{ route('guru.attendance.index') }}"
@@ -66,14 +66,31 @@
         @endforeach
     </div>
 
+    {{-- Tab: Absen Datang / Absen Pulang --}}
+    <div class="inline-flex bg-gray-100 rounded-xl p-1 gap-1">
+        <button type="button" @click="tab = 'masuk'"
+            :class="tab === 'masuk' ? 'bg-white shadow-sm text-blue-600' : 'text-gray-500'"
+            class="px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+            Absen Datang
+        </button>
+        <button type="button" @click="tab = 'pulang'"
+            :class="tab === 'pulang' ? 'bg-white shadow-sm text-blue-600' : 'text-gray-500'"
+            class="px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+            Absen Pulang
+        </button>
+    </div>
+
     {{-- ── Mobile: card list (tersembunyi di md ke atas) ── --}}
     <div class="md:hidden bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden divide-y divide-gray-50">
         @forelse($students as $student)
         @php
-            $att         = $student->attendances->first();
-            $status      = $effectiveStatuses[$student->id] ?? 'alpa';
-            $statusChip  = $chips[$status] ?? ['bg' => 'bg-gray-100', 'text' => 'text-gray-600', 'label' => $status];
-            $checkInTime = $att?->check_in_time ? \Carbon\Carbon::parse($att->check_in_time)->format('H:i') : null;
+            $att              = $student->attendances->first();
+            $status           = $effectiveStatuses[$student->id] ?? 'alpa';
+            $statusChip       = $chips[$status] ?? ['bg' => 'bg-gray-100', 'text' => 'text-gray-600', 'label' => $status];
+            $checkInTime      = $att?->check_in_time ? \Carbon\Carbon::parse($att->check_in_time)->format('H:i') : null;
+            $checkOutTime     = $att?->check_out_time ? \Carbon\Carbon::parse($att->check_out_time)->format('H:i') : null;
+            $checkInPhotoUrl  = $att?->photo ? Storage::disk('public')->url($att->photo) : null;
+            $checkOutPhotoUrl = $att?->check_out_photo ? Storage::disk('public')->url($att->check_out_photo) : null;
         @endphp
         <div class="flex items-center gap-3 px-4 py-3">
             <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center shrink-0">
@@ -85,21 +102,35 @@
                     <span class="px-2 py-0.5 rounded-full text-xs font-semibold {{ $statusChip['bg'] }} {{ $statusChip['text'] }}">
                         {{ ucfirst($statusChip['label']) }}
                     </span>
-                    @if($checkInTime)
-                        <span class="text-xs text-gray-400">{{ $checkInTime }}</span>
-                    @endif
+                    <span x-show="tab === 'masuk'" class="text-xs text-gray-400">{{ $checkInTime ?? '—' }}</span>
+                    <span x-show="tab === 'pulang'" class="text-xs text-gray-400" style="display:none">{{ $checkOutTime ?? '—' }}</span>
                 </div>
             </div>
             <div class="flex items-center gap-1.5 shrink-0">
-                @if($att?->photo)
-                <a href="{{ Storage::url($att->photo) }}" target="_blank"
-                    class="w-9 h-9 flex items-center justify-center rounded-xl bg-blue-50 text-blue-500">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                    </svg>
-                </a>
-                @endif
+                {{-- Foto — tab Absen Datang --}}
+                <template x-if="tab === 'masuk'">
+                    @if($checkInPhotoUrl)
+                    <button type="button"
+                        @click="photoUrl = '{{ $checkInPhotoUrl }}'; photoName = '{{ addslashes($student->name) }} — Absen Datang'"
+                        class="w-9 h-9 rounded-xl overflow-hidden border border-gray-200 shrink-0">
+                        <img src="{{ $checkInPhotoUrl }}" class="w-full h-full object-cover">
+                    </button>
+                    @else
+                    <div class="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center text-gray-300 shrink-0 text-[10px]">—</div>
+                    @endif
+                </template>
+                {{-- Foto — tab Absen Pulang --}}
+                <template x-if="tab === 'pulang'">
+                    @if($checkOutPhotoUrl)
+                    <button type="button"
+                        @click="photoUrl = '{{ $checkOutPhotoUrl }}'; photoName = '{{ addslashes($student->name) }} — Absen Pulang'"
+                        class="w-9 h-9 rounded-xl overflow-hidden border border-gray-200 shrink-0">
+                        <img src="{{ $checkOutPhotoUrl }}" class="w-full h-full object-cover">
+                    </button>
+                    @else
+                    <div class="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center text-gray-300 shrink-0 text-[10px]">—</div>
+                    @endif
+                </template>
                 @if($canEdit)
                 <button type="button"
                     onclick="openManualModal({{ $student->id }}, '{{ $date }}')"
@@ -140,7 +171,10 @@
             <thead>
                 <tr class="bg-gray-50 border-b border-gray-100">
                     <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Siswa</th>
-                    <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Jam Masuk</th>
+                    <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                        <span x-text="tab === 'masuk' ? 'Jam Masuk' : 'Jam Pulang'"></span>
+                    </th>
+                    <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Foto</th>
                     <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Status</th>
                     <th class="px-4 py-3"></th>
                 </tr>
@@ -148,9 +182,13 @@
             <tbody class="divide-y divide-gray-50">
                 @forelse($students as $student)
                 @php
-                    $att        = $student->attendances->first();
-                    $status     = $effectiveStatuses[$student->id] ?? 'alpa';
-                    $statusChip = $chips[$status] ?? ['bg' => 'bg-gray-100', 'text' => 'text-gray-600', 'label' => $status];
+                    $att              = $student->attendances->first();
+                    $status           = $effectiveStatuses[$student->id] ?? 'alpa';
+                    $statusChip       = $chips[$status] ?? ['bg' => 'bg-gray-100', 'text' => 'text-gray-600', 'label' => $status];
+                    $checkInTime      = $att?->check_in_time ? \Carbon\Carbon::parse($att->check_in_time)->format('H:i') : null;
+                    $checkOutTime     = $att?->check_out_time ? \Carbon\Carbon::parse($att->check_out_time)->format('H:i') : null;
+                    $checkInPhotoUrl  = $att?->photo ? Storage::disk('public')->url($att->photo) : null;
+                    $checkOutPhotoUrl = $att?->check_out_photo ? Storage::disk('public')->url($att->check_out_photo) : null;
                 @endphp
                 <tr class="hover:bg-gray-50 transition-colors">
                     <td class="px-4 py-3">
@@ -165,7 +203,32 @@
                         </div>
                     </td>
                     <td class="px-4 py-3 text-gray-600">
-                        {{ $att?->check_in_time ? \Carbon\Carbon::parse($att->check_in_time)->format('H:i') : '—' }}
+                        <span x-show="tab === 'masuk'">{{ $checkInTime ?? '—' }}</span>
+                        <span x-show="tab === 'pulang'" style="display:none">{{ $checkOutTime ?? '—' }}</span>
+                    </td>
+                    <td class="px-4 py-3">
+                        <template x-if="tab === 'masuk'">
+                            @if($checkInPhotoUrl)
+                            <button type="button"
+                                @click="photoUrl = '{{ $checkInPhotoUrl }}'; photoName = '{{ addslashes($student->name) }} — Absen Datang'"
+                                class="w-10 h-10 rounded-xl overflow-hidden border border-gray-200">
+                                <img src="{{ $checkInPhotoUrl }}" class="w-full h-full object-cover">
+                            </button>
+                            @else
+                            <span class="text-gray-300 text-xs">—</span>
+                            @endif
+                        </template>
+                        <template x-if="tab === 'pulang'">
+                            @if($checkOutPhotoUrl)
+                            <button type="button"
+                                @click="photoUrl = '{{ $checkOutPhotoUrl }}'; photoName = '{{ addslashes($student->name) }} — Absen Pulang'"
+                                class="w-10 h-10 rounded-xl overflow-hidden border border-gray-200">
+                                <img src="{{ $checkOutPhotoUrl }}" class="w-full h-full object-cover">
+                            </button>
+                            @else
+                            <span class="text-gray-300 text-xs">—</span>
+                            @endif
+                        </template>
                     </td>
                     <td class="px-4 py-3">
                         <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold {{ $statusChip['bg'] }} {{ $statusChip['text'] }}">
@@ -174,15 +237,6 @@
                     </td>
                     <td class="px-4 py-3 text-right">
                         <div class="flex items-center justify-end gap-2">
-                            @if($att?->photo)
-                            <a href="{{ Storage::url($att->photo) }}" target="_blank"
-                                class="text-blue-500 hover:text-blue-700">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                                </svg>
-                            </a>
-                            @endif
                             @if($canEdit)
                             <button type="button"
                                 onclick="openManualModal({{ $student->id }}, '{{ $date }}')"
@@ -215,13 +269,31 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="4" class="px-4 py-10 text-center text-gray-400 text-sm">
+                    <td colspan="5" class="px-4 py-10 text-center text-gray-400 text-sm">
                         Tidak ada data siswa di kelas ini.
                     </td>
                 </tr>
                 @endforelse
             </tbody>
         </table>
+    </div>
+
+    {{-- Photo popup modal --}}
+    <div x-show="photoUrl" x-cloak
+        @click.self="photoUrl = null"
+        @keydown.escape.window="photoUrl = null"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+        <div class="max-w-sm w-full" @click.stop>
+            <div class="flex items-center justify-between mb-2">
+                <p class="text-white font-medium text-sm" x-text="photoName"></p>
+                <button type="button" @click="photoUrl = null" class="text-white/80 hover:text-white">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <img :src="photoUrl" class="w-full rounded-2xl object-contain max-h-[70vh] bg-black">
+        </div>
     </div>
 
 </div>

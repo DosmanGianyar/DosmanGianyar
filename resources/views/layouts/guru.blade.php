@@ -6,6 +6,7 @@
     <title>@yield('title', 'Dashboard') — SIMS | SMA Negeri 1 Gianyar</title>
     <link rel="icon" type="image/png" href="/img/logo_sekolah.png">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <style>[x-cloak] { display: none !important; }</style>
 </head>
 <body class="bg-gray-100 font-sans">
 
