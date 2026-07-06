@@ -38,7 +38,10 @@
                 <div class="w-8 h-px my-4" style="background:rgba(255,255,255,.25);"></div>
 
                 {{-- Nama Sekolah --}}
-                <p class="text-xs font-bold tracking-wide" style="color:rgba(255,255,255,.9); letter-spacing:.05em;">
+                <p class="font-balinese text-sm" style="color:rgba(255,255,255,.9);">
+                    ᭞ᬲ᭄ᬫᬦ᭄᭑ᬕᬶᬬᬜᬄ᭞
+                </p>
+                <p class="text-xs font-bold tracking-wide mt-0.5" style="color:rgba(255,255,255,.9); letter-spacing:.05em;">
                     SMA NEGERI 1 GIANYAR
                 </p>
                 <p class="text-xs mt-1" style="color:rgba(147,197,253,.8);">
@@ -53,6 +56,7 @@
                 <div class="hidden sm:flex items-center gap-2.5 mb-7">
                     <img src="/img/logo_sekolah.png" alt="Logo" class="w-9 h-9 object-contain">
                     <div class="text-left leading-tight">
+                        <p class="font-balinese text-xs text-gray-500">᭞ᬲ᭄ᬫᬦ᭄᭑ᬕᬶᬬᬜᬄ᭞</p>
                         <p class="text-xs font-extrabold text-gray-700 tracking-widest">SMAN 1 GIANYAR</p>
                         <p class="text-[10px] text-gray-400">Widya Wahana Bhakti</p>
                     </div>

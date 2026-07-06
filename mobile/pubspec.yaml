@@ -68,3 +68,8 @@ flutter:
   uses-material-design: true
   assets:
     - assets/images/
+
+  fonts:
+    - family: NotoSansBalinese
+      fonts:
+        - asset: assets/fonts/NotoSansBalinese-Regular.ttf

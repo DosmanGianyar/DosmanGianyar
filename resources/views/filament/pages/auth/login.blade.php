@@ -216,6 +216,16 @@
     .lc-left { width: 42%; flex-shrink: 0; min-height: unset; }
     .lc-school-header { display: flex; }
 }
+@font-face {
+    font-family: 'Noto Sans Balinese';
+    src: url('/fonts/NotoSansBalinese-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+.lc-balinese {
+    font-family: 'Noto Sans Balinese', serif;
+}
 </style>
 
 <div style="width:100%">
@@ -232,7 +242,10 @@
                 Sistem Informasi Manajemen Siswa<br>SMA Negeri 1 Gianyar
             </p>
             <div class="lc-divider"></div>
-            <p style="font-size:0.68rem;font-weight:700;letter-spacing:.06em;color:rgba(255,255,255,.7);position:relative;">
+            <p class="lc-balinese" style="font-size:0.85rem;color:rgba(255,255,255,.7);position:relative;">
+                ᭞ᬲ᭄ᬫᬦ᭄᭑ᬕᬶᬬᬜᬄ᭞
+            </p>
+            <p style="font-size:0.68rem;font-weight:700;letter-spacing:.06em;color:rgba(255,255,255,.7);position:relative;margin-top:0.15rem;">
                 SMA NEGERI 1 GIANYAR
             </p>
             <p style="font-size:0.6rem;color:rgba(147,197,253,.65);margin-top:0.25rem;position:relative;">
@@ -245,6 +258,7 @@
             <div class="lc-school-header">
                 <img src="/img/logo_sekolah.png" alt="Logo">
                 <div>
+                    <p class="lc-balinese" style="font-size:0.7rem;color:#6b7280;">᭞ᬲ᭄ᬫᬦ᭄᭑ᬕᬶᬬᬜᬄ᭞</p>
                     <p class="lc-school-name">SMAN 1 GIANYAR</p>
                     <p class="lc-school-sub">Widya Wahana Bhakti</p>
                 </div>
