@@ -58,6 +58,7 @@ Route::get('/offline', fn() => response(view('offline'))->header('Cache-Control'
 
 // ─── Kebijakan Privasi (wajib untuk listing Play Store) ──────────────────────
 Route::get('/privacy-policy', fn() => view('legal.privacy-policy'))->name('privacy-policy');
+Route::get('/delete-account', fn() => view('legal.delete-account'))->name('delete-account');
 
 // ─── Admin (non-Filament) ─────────────────────────────────────────────────────
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
