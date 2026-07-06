@@ -71,6 +71,16 @@
     color: rgba(255,255,255,0.5); align-items: center;
 }
 .ad-legend span { display: flex; align-items: center; gap: 0.35rem; }
+.ad-tabs { display: flex; gap: 0.35rem; background: #0d1628; border: 1px solid rgba(255,255,255,0.07); border-radius: 0.75rem; padding: 0.3rem; margin-bottom: 1rem; width: fit-content; }
+.ad-tab { padding: 0.5rem 1rem; border-radius: 0.5rem; font-size: 0.8125rem; font-weight: 600; color: rgba(255,255,255,0.45); cursor: pointer; border: none; background: transparent; }
+.ad-tab.active { background: rgba(245,158,11,0.15); color: rgb(251,191,36); }
+.ad-photo-btn { width: 2.25rem; height: 2.25rem; border-radius: 0.6rem; overflow: hidden; border: 1px solid rgba(255,255,255,0.12); padding: 0; cursor: pointer; background: rgba(255,255,255,0.03); }
+.ad-photo-btn img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.ad-photo-empty { width: 2.25rem; height: 2.25rem; border-radius: 0.6rem; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.2); font-size: 0.7rem; background: rgba(255,255,255,0.03); }
+.ad-del-btn { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.35rem 0.65rem; border-radius: 0.5rem; font-size: 0.72rem; font-weight: 600; color: rgb(248,113,113); background: rgba(239,68,68,0.12); border: none; cursor: pointer; }
+.ad-del-btn:hover { background: rgba(239,68,68,0.22); }
+.ad-photo-modal { position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.75); padding: 1rem; }
+.ad-photo-modal img { width: 100%; max-height: 70vh; object-fit: contain; border-radius: 1rem; background: #000; }
 </style>
 
 @php
@@ -158,8 +168,15 @@
     </div>
 </div>
 
-{{-- Table --}}
-<div class="ad-table-wrap">
+{{-- Tab Absen Datang / Absen Pulang --}}
+<div x-data="{ tab: 'masuk' }">
+    <div class="ad-tabs">
+        <button type="button" class="ad-tab" :class="tab === 'masuk' ? 'active' : ''" @click="tab = 'masuk'">Absen Datang</button>
+        <button type="button" class="ad-tab" :class="tab === 'pulang' ? 'active' : ''" @click="tab = 'pulang'">Absen Pulang</button>
+    </div>
+
+    {{-- Table --}}
+    <div class="ad-table-wrap" x-data="{ photoUrl: null, photoName: '' }">
     @if (empty($rows))
     <div class="ad-empty">
         <svg style="width:3rem;height:3rem;margin:0 auto 1rem" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -176,7 +193,9 @@
                 <th>Nama Siswa</th>
                 <th>NIS</th>
                 <th>Status</th>
-                <th>Jam Masuk</th>
+                <th><span x-text="tab === 'masuk' ? 'Jam Masuk' : 'Jam Pulang'"></span></th>
+                <th>Foto</th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
@@ -186,12 +205,70 @@
                 <td class="name">{{ $row['name'] }}</td>
                 <td class="nis">{{ $row['nis'] }}</td>
                 <td><span class="ad-badge {{ $row['status'] }}">{{ $statusLabel[$row['status']] ?? ucfirst($row['status']) }}</span></td>
-                <td class="time">{{ $row['check_in'] ?? '—' }}</td>
+                <td class="time">
+                    <span x-show="tab === 'masuk'">{{ $row['check_in'] ?? '—' }}</span>
+                    <span x-show="tab === 'pulang'" style="display:none">{{ $row['check_out'] ?? '—' }}</span>
+                </td>
+                <td>
+                    <template x-if="tab === 'masuk'">
+                        @if($row['photo_in_url'])
+                        <button type="button" class="ad-photo-btn"
+                            @click="photoUrl = '{{ $row['photo_in_url'] }}'; photoName = '{{ addslashes($row['name']) }} — Absen Datang'">
+                            <img src="{{ $row['photo_in_url'] }}">
+                        </button>
+                        @else
+                        <div class="ad-photo-empty">—</div>
+                        @endif
+                    </template>
+                    <template x-if="tab === 'pulang'">
+                        @if($row['photo_out_url'])
+                        <button type="button" class="ad-photo-btn"
+                            @click="photoUrl = '{{ $row['photo_out_url'] }}'; photoName = '{{ addslashes($row['name']) }} — Absen Pulang'">
+                            <img src="{{ $row['photo_out_url'] }}">
+                        </button>
+                        @else
+                        <div class="ad-photo-empty">—</div>
+                        @endif
+                    </template>
+                </td>
+                <td>
+                    {{-- TESTING ONLY — hapus tombol ini setelah tahap uji coba selesai --}}
+                    @if($row['attendance_id'])
+                    <button type="button" class="ad-del-btn"
+                        wire:click="deleteAttendance({{ $row['attendance_id'] }})"
+                        wire:confirm="Hapus data absensi {{ addslashes($row['name']) }} tanggal {{ $this->date }}? (mode testing)">
+                        <svg style="width:0.85rem;height:0.85rem" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                        Hapus
+                    </button>
+                    @endif
+                </td>
             </tr>
             @endforeach
         </tbody>
     </table>
     @endif
+
+    {{-- Photo popup modal --}}
+    <div x-show="photoUrl" x-cloak
+        @click.self="photoUrl = null"
+        @keydown.escape.window="photoUrl = null"
+        class="ad-photo-modal">
+        <div style="max-width:24rem;width:100%" @click.stop>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem">
+                <p style="color:#fff;font-size:0.85rem;font-weight:600" x-text="photoName"></p>
+                <button type="button" @click="photoUrl = null" style="color:rgba(255,255,255,0.7);background:none;border:none;cursor:pointer">
+                    <svg style="width:1.5rem;height:1.5rem" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <img :src="photoUrl">
+        </div>
+    </div>
+    </div>
 </div>
 
 {{-- Legend --}}

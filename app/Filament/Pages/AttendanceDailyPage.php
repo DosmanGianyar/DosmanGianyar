@@ -8,7 +8,9 @@ use App\Models\EarlyCheckoutRequest;
 use App\Models\Permit;
 use App\Models\SchoolClass;
 use App\Models\User;
+use Filament\Notifications\Notification;
 use Filament\Pages\Page;
+use Illuminate\Support\Facades\Storage;
 
 class AttendanceDailyPage extends Page
 {
@@ -85,23 +87,43 @@ class AttendanceDailyPage extends Page
             if ($att) {
                 $status   = $att->effectiveStatus($hasEarlyCheckout);
                 $checkIn  = $att->check_in_time ? substr($att->check_in_time, 0, 5) : null;
+                $checkOut = $att->check_out_time ? substr($att->check_out_time, 0, 5) : null;
             } elseif ($permit) {
                 $status   = $permit->type;
                 $checkIn  = null;
+                $checkOut = null;
             } else {
                 $status   = 'alpa';
                 $checkIn  = null;
+                $checkOut = null;
             }
 
             $rows[] = [
-                'name'      => $student->name,
-                'nis'       => $student->nis ?? '—',
-                'status'    => $status,
-                'check_in'  => $checkIn,
+                'attendance_id' => $att?->id,
+                'name'          => $student->name,
+                'nis'           => $student->nis ?? '—',
+                'status'        => $status,
+                'check_in'      => $checkIn,
+                'check_out'     => $checkOut,
+                'photo_in_url'  => $att?->photo           ? Storage::disk('public')->url($att->photo)           : null,
+                'photo_out_url' => $att?->check_out_photo ? Storage::disk('public')->url($att->check_out_photo) : null,
             ];
         }
 
         return $rows;
+    }
+
+    /**
+     * TESTING ONLY — hapus method ini (+ tombol di view) setelah tahap uji coba selesai.
+     */
+    public function deleteAttendance(int $attendanceId): void
+    {
+        Attendance::whereKey($attendanceId)->delete();
+
+        Notification::make()
+            ->title('Absensi berhasil dihapus (mode testing)')
+            ->success()
+            ->send();
     }
 
     public function getSummary(array $rows): array
