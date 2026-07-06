@@ -185,6 +185,20 @@ class AttendanceController extends Controller
         return back()->with('success', 'Absensi berhasil diperbarui.');
     }
 
+    /**
+     * TESTING ONLY — hapus method ini (+ route + tombol di view) setelah tahap uji coba selesai.
+     */
+    public function destroy(Attendance $attendance): RedirectResponse
+    {
+        if (Auth::user()->role !== 'admin') {
+            abort(403, 'Hanya admin yang bisa menghapus data absensi.');
+        }
+
+        $attendance->delete();
+
+        return back()->with('success', 'Absensi berhasil dihapus (mode testing).');
+    }
+
     public function permits(Request $request): View
     {
         $guru   = Auth::user();

@@ -1,7 +1,10 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:camera/camera.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:image/image.dart' as img;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import '../../models/attendance.dart';
@@ -13,6 +16,16 @@ import '../../theme/app_colors.dart';
 // ─── Phase enum ───────────────────────────────────────────────────────────────
 
 enum _Phase { loading, locationError, locationOk, camera }
+
+// Kamera depan menyimpan file JPEG dalam kondisi mirror (terbalik secara
+// horizontal) meski preview yang dilihat user tampak normal. Dibalik ulang
+// di isolate terpisah supaya tidak nge-block UI thread.
+Uint8List _unmirrorJpeg(Uint8List bytes) {
+  final decoded = img.decodeJpg(bytes);
+  if (decoded == null) return bytes;
+  final flipped = img.flipHorizontal(decoded);
+  return Uint8List.fromList(img.encodeJpg(flipped, quality: 92));
+}
 
 // ─── Screen ───────────────────────────────────────────────────────────────────
 
@@ -39,6 +52,7 @@ class _AttendanceScreenState extends State<AttendanceScreen>
   // ── Camera phase state ──────────────────────────────────────────────────
   CameraController? _camera;
   bool              _initializingCamera = false;
+  bool              _isCapturing        = false;
   File?             _capturedPhoto;
 
   // ── Getters ─────────────────────────────────────────────────────────────
@@ -242,12 +256,19 @@ class _AttendanceScreenState extends State<AttendanceScreen>
   }
 
   Future<void> _capture() async {
+    if (_isCapturing) return;
     if (_camera == null || !_camera!.value.isInitialized) return;
+    setState(() => _isCapturing = true);
     try {
-      final xFile = await _camera!.takePicture();
-      setState(() => _capturedPhoto = File(xFile.path));
+      final xFile      = await _camera!.takePicture();
+      final rawBytes    = await xFile.readAsBytes();
+      final fixedBytes  = await compute(_unmirrorJpeg, rawBytes);
+      final fixedFile   = await File(xFile.path).writeAsBytes(fixedBytes);
+      setState(() => _capturedPhoto = fixedFile);
     } catch (e) {
       _showSnack('Gagal mengambil foto: $e');
+    } finally {
+      if (mounted) setState(() => _isCapturing = false);
     }
   }
 
@@ -705,6 +726,7 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                     : _CaptureButton(
                         accent:  _accent,
                         onTap:   _capture,
+                        loading: _isCapturing,
                         label:   _isCheckOut
                             ? 'Ambil Foto & Absen Pulang'
                             : 'Ambil Foto & Presensi',
@@ -987,21 +1009,23 @@ class _CaptureButton extends StatelessWidget {
   final Color         accent;
   final String        label;
   final VoidCallback  onTap;
+  final bool          loading;
 
   const _CaptureButton({
     required this.accent,
     required this.label,
     required this.onTap,
+    this.loading = false,
   });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: loading ? null : onTap,
       child: Container(
         height: 54,
         decoration: BoxDecoration(
-          color:        accent,
+          color:        loading ? accent.withOpacity(0.6) : accent,
           borderRadius: AppRadius.button,
           boxShadow: [
             BoxShadow(
@@ -1012,14 +1036,20 @@ class _CaptureButton extends StatelessWidget {
           ],
         ),
         alignment: Alignment.center,
-        child: Text(
-          label,
-          style: const TextStyle(
-            color:      Colors.white,
-            fontSize:   15,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
+        child: loading
+            ? const SizedBox(
+                width: 22, height: 22,
+                child: CircularProgressIndicator(
+                  color: Colors.white, strokeWidth: 2.4),
+              )
+            : Text(
+                label,
+                style: const TextStyle(
+                  color:      Colors.white,
+                  fontSize:   15,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
       ),
     );
   }

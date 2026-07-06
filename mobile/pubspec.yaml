@@ -25,6 +25,9 @@ dependencies:
   # Kamera selfie
   camera: ^0.10.5+9
 
+  # Un-mirror foto selfie kamera depan
+  image: ^4.2.0
+
   # Manajemen permission runtime
   permission_handler: ^11.3.1
 

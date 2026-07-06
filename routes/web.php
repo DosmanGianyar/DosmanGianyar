@@ -116,6 +116,8 @@ Route::middleware(['auth', 'role:guru,admin'])->prefix('guru')->name('guru.')->g
         Route::patch('/permits/{permit}/reject', [GuruAttendance::class, 'rejectPermit'])->name('permits.reject');
         Route::get('/dispensation/create', [GuruDispensation::class, 'create'])->name('dispensation.create');
         Route::post('/dispensation', [GuruDispensation::class, 'store'])->name('dispensation.store');
+        // TESTING ONLY — hapus route ini setelah tahap uji coba selesai.
+        Route::delete('/{attendance}', [GuruAttendance::class, 'destroy'])->name('destroy');
     });
 
     // Kesiswaan
