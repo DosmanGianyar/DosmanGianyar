@@ -307,6 +307,14 @@ class _AttendanceScreenState extends State<AttendanceScreen>
   }
 
   void _showResult(String message, {required bool isSuccess}) {
+    var handled = false;
+    void finish() {
+      if (handled || !mounted) return;
+      handled = true;
+      Navigator.of(context).pop(); // tutup dialog
+      if (isSuccess) Navigator.of(context).pop(); // kembali ke dashboard
+    }
+
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -347,10 +355,7 @@ class _AttendanceScreenState extends State<AttendanceScreen>
         actionsAlignment: MainAxisAlignment.center,
         actions: [
           FilledButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              if (isSuccess) Navigator.of(context).pop();
-            },
+            onPressed: finish,
             style: FilledButton.styleFrom(
               backgroundColor: isSuccess ? AppColors.blue600 : AppColors.gray500,
               shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
@@ -361,6 +366,12 @@ class _AttendanceScreenState extends State<AttendanceScreen>
         ],
       ),
     );
+
+    // Absen berhasil — otomatis kembali ke dashboard tanpa perlu tap OK,
+    // konsisten dengan alur di web.
+    if (isSuccess) {
+      Future.delayed(const Duration(milliseconds: 1500), finish);
+    }
   }
 
   // ─── Build ────────────────────────────────────────────────────────────────
