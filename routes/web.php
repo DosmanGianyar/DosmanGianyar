@@ -56,6 +56,9 @@ Route::get('/biodata/{identifier}', [PublicBiodataController::class, 'show'])->n
 // ─── PWA Offline Fallback ─────────────────────────────────────────────────────
 Route::get('/offline', fn() => response(view('offline'))->header('Cache-Control', 'public, max-age=86400'))->name('offline');
 
+// ─── Kebijakan Privasi (wajib untuk listing Play Store) ──────────────────────
+Route::get('/privacy-policy', fn() => view('legal.privacy-policy'))->name('privacy-policy');
+
 // ─── Admin (non-Filament) ─────────────────────────────────────────────────────
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/import-users', [UserImportController::class, 'showForm'])->name('users.import.form');
