@@ -43,25 +43,40 @@
             @if($availableStudents->isEmpty())
             <p class="text-sm text-gray-400 py-4 text-center">Semua siswa sudah memiliki Guru Wali.</p>
             @else
-            <form method="POST" action="{{ route('admin.guru-wali.assign', $teacher) }}">
+            <div class="mb-3">
+                <label class="block text-xs font-medium text-gray-600 mb-1">Pilih Kelas</label>
+                <select id="class-select" onchange="filterStudentsByClass()"
+                    class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <option value="">-- Pilih kelas --</option>
+                    @foreach($classes as $class)
+                    <option value="{{ $class->id }}">{{ $class->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <form method="POST" action="{{ route('admin.guru-wali.assign', $teacher) }}" id="assign-form">
                 @csrf
-                <div class="mb-3">
-                    <label class="block text-xs font-medium text-gray-600 mb-1">Pilih Siswa</label>
-                    <select name="student_id" required
-                        class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                        <option value="">-- Pilih siswa --</option>
+                <div class="mb-3 max-h-64 overflow-y-auto border border-gray-100 rounded-xl">
+                    <p id="student-checklist-empty" class="text-sm text-gray-400 py-6 text-center">
+                        Pilih kelas terlebih dahulu.
+                    </p>
+                    <div class="divide-y divide-gray-50">
                         @foreach($availableStudents as $s)
-                        <option value="{{ $s->id }}">
-                            {{ $s->name }}
-                            @if($s->schoolClass) ({{ $s->schoolClass->name }}) @endif
-                            @if($s->nis) — {{ $s->nis }} @endif
-                        </option>
+                        <label class="student-row hidden items-center gap-3 px-3 py-2 hover:bg-gray-50 cursor-pointer"
+                            data-class-id="{{ $s->class_id }}">
+                            <input type="checkbox" name="student_ids[]" value="{{ $s->id }}"
+                                class="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 shrink-0">
+                            <span class="text-sm text-gray-700 truncate">
+                                {{ $s->name }}
+                                @if($s->nis) <span class="text-gray-400 text-xs">· {{ $s->nis }}</span> @endif
+                            </span>
+                        </label>
                         @endforeach
-                    </select>
+                    </div>
                 </div>
                 <button type="submit"
                     class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold py-2 rounded-xl transition-colors">
-                    + Tugaskan
+                    + Tugaskan Siswa Terpilih
                 </button>
             </form>
             @endif
@@ -165,5 +180,47 @@
     </div>
 
 </div>
+
+<script>
+function filterStudentsByClass() {
+    const classId  = document.getElementById('class-select').value;
+    const rows     = document.querySelectorAll('.student-row');
+    const emptyMsg = document.getElementById('student-checklist-empty');
+    let visibleCount = 0;
+
+    rows.forEach(function (row) {
+        if (classId && row.dataset.classId === classId) {
+            row.classList.remove('hidden');
+            row.classList.add('flex');
+            visibleCount++;
+        } else {
+            row.classList.add('hidden');
+            row.classList.remove('flex');
+            row.querySelector('input[type=checkbox]').checked = false;
+        }
+    });
+
+    if (!classId) {
+        emptyMsg.textContent = 'Pilih kelas terlebih dahulu.';
+        emptyMsg.classList.remove('hidden');
+    } else if (visibleCount === 0) {
+        emptyMsg.textContent = 'Tidak ada siswa tersedia di kelas ini.';
+        emptyMsg.classList.remove('hidden');
+    } else {
+        emptyMsg.classList.add('hidden');
+    }
+}
+
+const assignForm = document.getElementById('assign-form');
+if (assignForm) {
+    assignForm.addEventListener('submit', function (e) {
+        const checked = assignForm.querySelectorAll('input[name="student_ids[]"]:checked');
+        if (checked.length === 0) {
+            e.preventDefault();
+            alert('Pilih minimal satu siswa terlebih dahulu.');
+        }
+    });
+}
+</script>
 </body>
 </html>

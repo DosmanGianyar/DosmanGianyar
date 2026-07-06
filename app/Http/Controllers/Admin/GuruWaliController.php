@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\HomeroomConsultation;
+use App\Models\SchoolClass;
 use App\Models\StudentHomeroomTeacher;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
@@ -46,8 +47,10 @@ class GuruWaliController extends Controller
 
         $counts = $consultations->groupBy('status')->map->count();
 
+        $classes = SchoolClass::orderBy('name')->get();
+
         return view('admin.guru-wali.show', compact(
-            'teacher', 'assignedRecords', 'availableStudents', 'consultations', 'counts'
+            'teacher', 'assignedRecords', 'availableStudents', 'consultations', 'counts', 'classes'
         ));
     }
 
@@ -55,22 +58,39 @@ class GuruWaliController extends Controller
     {
         abort_unless($teacher->role === 'guru', 404);
 
-        $request->validate(['student_id' => 'required|exists:users,id']);
+        $request->validate(['student_ids' => 'required|array|min:1',
+            'student_ids.*' => 'exists:users,id']);
 
-        $student = User::findOrFail($request->student_id);
-        abort_unless($student->isSiswa(), 422, 'User bukan siswa.');
+        $assignedNames = [];
+        $skippedNames  = [];
 
-        if (StudentHomeroomTeacher::where('student_id', $student->id)->exists()) {
-            return back()->with('error', "{$student->name} sudah memiliki Guru Wali.");
+        foreach ($request->student_ids as $studentId) {
+            $student = User::find($studentId);
+            if (! $student || ! $student->isSiswa()) continue;
+
+            if (StudentHomeroomTeacher::where('student_id', $studentId)->exists()) {
+                $skippedNames[] = $student->name;
+                continue;
+            }
+
+            StudentHomeroomTeacher::create([
+                'student_id'  => $studentId,
+                'teacher_id'  => $teacher->id,
+                'assigned_at' => now(),
+            ]);
+            $assignedNames[] = $student->name;
         }
 
-        StudentHomeroomTeacher::create([
-            'student_id'  => $student->id,
-            'teacher_id'  => $teacher->id,
-            'assigned_at' => now(),
-        ]);
+        if (empty($assignedNames)) {
+            return back()->with('error', 'Tidak ada siswa yang ditugaskan (semua sudah memiliki Guru Wali).');
+        }
 
-        return back()->with('success', "{$student->name} berhasil ditugaskan ke {$teacher->name}.");
+        $message = count($assignedNames) . ' siswa berhasil ditugaskan ke ' . $teacher->name . '.';
+        if (! empty($skippedNames)) {
+            $message .= ' Dilewati (sudah punya Guru Wali): ' . implode(', ', $skippedNames) . '.';
+        }
+
+        return back()->with('success', $message);
     }
 
     public function remove(User $teacher, User $student): RedirectResponse
