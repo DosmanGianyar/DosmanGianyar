@@ -118,10 +118,19 @@ class AttendanceDailyPage extends Page
      */
     public function deleteAttendance(int $attendanceId): void
     {
-        Attendance::whereKey($attendanceId)->delete();
+        $attendance = Attendance::find($attendanceId);
+        if (! $attendance) return;
+
+        foreach ([$attendance->photo, $attendance->check_out_photo] as $photo) {
+            if ($photo) {
+                Storage::disk('public')->delete($photo);
+            }
+        }
+
+        $attendance->delete();
 
         Notification::make()
-            ->title('Absensi berhasil dihapus (mode testing)')
+            ->title('Absensi & foto berhasil dihapus (mode testing)')
             ->success()
             ->send();
     }

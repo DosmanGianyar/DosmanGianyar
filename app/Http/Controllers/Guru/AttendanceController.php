@@ -14,6 +14,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 use Illuminate\Validation\Rule;
 
@@ -194,9 +195,15 @@ class AttendanceController extends Controller
             abort(403, 'Hanya admin yang bisa menghapus data absensi.');
         }
 
+        foreach ([$attendance->photo, $attendance->check_out_photo] as $photo) {
+            if ($photo) {
+                Storage::disk('public')->delete($photo);
+            }
+        }
+
         $attendance->delete();
 
-        return back()->with('success', 'Absensi berhasil dihapus (mode testing).');
+        return back()->with('success', 'Absensi & foto berhasil dihapus (mode testing).');
     }
 
     public function permits(Request $request): View
