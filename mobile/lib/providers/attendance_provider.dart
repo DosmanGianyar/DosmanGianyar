@@ -72,6 +72,7 @@ class AttendanceProvider extends ChangeNotifier {
     try {
       _successMessage = await AttendanceService.checkIn(photo, position);
       await fetchStatus();
+      await fetchCurrentMonthDots();
       return true;
     } catch (e) {
       _error = ApiClient.extractError(e);
@@ -93,6 +94,7 @@ class AttendanceProvider extends ChangeNotifier {
     try {
       _successMessage = await AttendanceService.checkOut(photo, position);
       await fetchStatus();
+      await fetchCurrentMonthDots();
       return true;
     } catch (e) {
       _error = ApiClient.extractError(e);

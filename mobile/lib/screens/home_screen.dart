@@ -70,7 +70,11 @@ class _HomeScreenState extends State<HomeScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => AttendanceScreen(isCheckOut: isCheckOut)),
-    ).then((_) => context.read<AttendanceProvider>().fetchStatus());
+    ).then((_) {
+      final attProv = context.read<AttendanceProvider>();
+      attProv.fetchStatus();
+      attProv.fetchCurrentMonthDots();
+    });
   }
 
   Future<void> _logout() async {

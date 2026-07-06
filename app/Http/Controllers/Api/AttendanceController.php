@@ -125,7 +125,13 @@ class AttendanceController extends Controller
         // Simpan foto selfie (compressed 800px, quality 75)
         $filename   = 'selfies/' . $user->id . '_' . today()->format('Ymd') . '.jpg';
         $compressed = Image::read($request->file('photo'))->scaleDown(width: 800)->toJpeg(75);
-        Storage::disk('public')->put($filename, $compressed);
+
+        if (! Storage::disk('public')->put($filename, $compressed)) {
+            return response()->json([
+                'message' => 'Gagal menyimpan foto presensi. Silakan coba lagi.',
+                'code'    => 'PHOTO_UPLOAD_FAILED',
+            ], 500);
+        }
 
         $status = $now->lt(Carbon::today()->setTimeFromTimeString($times['check_in_late']))
             ? 'hadir'
@@ -207,7 +213,13 @@ class AttendanceController extends Controller
 
         $filename   = 'selfies/' . $user->id . '_' . today()->format('Ymd') . '_out.jpg';
         $compressed = Image::read($request->file('photo'))->scaleDown(width: 800)->toJpeg(75);
-        Storage::disk('public')->put($filename, $compressed);
+
+        if (! Storage::disk('public')->put($filename, $compressed)) {
+            return response()->json([
+                'message' => 'Gagal menyimpan foto presensi. Silakan coba lagi.',
+                'code'    => 'PHOTO_UPLOAD_FAILED',
+            ], 500);
+        }
 
         $today->update([
             'check_out_time'  => $now->format('H:i:s'),
