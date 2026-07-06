@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -255,6 +254,8 @@ class _AttendanceScreenState extends State<AttendanceScreen>
     }
   }
 
+  // Ambil foto lalu langsung kirim absen — tidak ada opsi ulang/konfirmasi,
+  // cukup 1x pengambilan foto (konsisten dengan alur di web).
   Future<void> _capture() async {
     if (_isCapturing) return;
     if (_camera == null || !_camera!.value.isInitialized) return;
@@ -265,14 +266,13 @@ class _AttendanceScreenState extends State<AttendanceScreen>
       final fixedBytes  = await compute(_unmirrorJpeg, rawBytes);
       final fixedFile   = await File(xFile.path).writeAsBytes(fixedBytes);
       setState(() => _capturedPhoto = fixedFile);
+      await _submit();
     } catch (e) {
       _showSnack('Gagal mengambil foto: $e');
     } finally {
       if (mounted) setState(() => _isCapturing = false);
     }
   }
-
-  void _retake() => setState(() => _capturedPhoto = null);
 
   Future<void> _submit() async {
     if (_capturedPhoto == null || _position == null) return;
@@ -714,23 +714,16 @@ class _AttendanceScreenState extends State<AttendanceScreen>
           // Bottom action
           Positioned(
             bottom: 40, left: 24, right: 24,
-            child: isSubmitting
+            child: (isSubmitting || _isCapturing)
                 ? const Center(
                     child: CircularProgressIndicator(color: Colors.white))
-                : _capturedPhoto != null
-                    ? _ConfirmRow(
-                        accent:   _accent,
-                        onRetake: _retake,
-                        onSubmit: _submit,
-                      )
-                    : _CaptureButton(
-                        accent:  _accent,
-                        onTap:   _capture,
-                        loading: _isCapturing,
-                        label:   _isCheckOut
-                            ? 'Ambil Foto & Absen Pulang'
-                            : 'Ambil Foto & Presensi',
-                      ),
+                : _CaptureButton(
+                    accent:  _accent,
+                    onTap:   _capture,
+                    label:   _isCheckOut
+                        ? 'Ambil Foto & Absen Pulang'
+                        : 'Ambil Foto & Presensi',
+                  ),
           ),
         ],
       ),
@@ -1009,23 +1002,21 @@ class _CaptureButton extends StatelessWidget {
   final Color         accent;
   final String        label;
   final VoidCallback  onTap;
-  final bool          loading;
 
   const _CaptureButton({
     required this.accent,
     required this.label,
     required this.onTap,
-    this.loading = false,
   });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: loading ? null : onTap,
+      onTap: onTap,
       child: Container(
         height: 54,
         decoration: BoxDecoration(
-          color:        loading ? accent.withOpacity(0.6) : accent,
+          color:        accent,
           borderRadius: AppRadius.button,
           boxShadow: [
             BoxShadow(
@@ -1036,67 +1027,15 @@ class _CaptureButton extends StatelessWidget {
           ],
         ),
         alignment: Alignment.center,
-        child: loading
-            ? const SizedBox(
-                width: 22, height: 22,
-                child: CircularProgressIndicator(
-                  color: Colors.white, strokeWidth: 2.4),
-              )
-            : Text(
-                label,
-                style: const TextStyle(
-                  color:      Colors.white,
-                  fontSize:   15,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
+        child: Text(
+          label,
+          style: const TextStyle(
+            color:      Colors.white,
+            fontSize:   15,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
       ),
-    );
-  }
-}
-
-class _ConfirmRow extends StatelessWidget {
-  final Color        accent;
-  final VoidCallback onRetake;
-  final VoidCallback onSubmit;
-
-  const _ConfirmRow({
-    required this.accent,
-    required this.onRetake,
-    required this.onSubmit,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: OutlinedButton.icon(
-            onPressed: onRetake,
-            icon:  const Icon(Icons.refresh_rounded, color: Colors.white),
-            label: const Text('Ulang', style: TextStyle(color: Colors.white)),
-            style: OutlinedButton.styleFrom(
-              side:    const BorderSide(color: Colors.white54),
-              padding: const EdgeInsets.symmetric(vertical: 14),
-              shape:   RoundedRectangleBorder(borderRadius: AppRadius.button),
-            ),
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          flex: 2,
-          child: FilledButton.icon(
-            onPressed: onSubmit,
-            icon:  const Icon(Icons.check_rounded),
-            label: const Text('Kirim Absensi'),
-            style: FilledButton.styleFrom(
-              backgroundColor: accent,
-              padding: const EdgeInsets.symmetric(vertical: 14),
-              shape:   RoundedRectangleBorder(borderRadius: AppRadius.button),
-            ),
-          ),
-        ),
-      ],
     );
   }
 }
