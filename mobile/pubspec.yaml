@@ -73,3 +73,5 @@ flutter:
     - family: NotoSansBalinese
       fonts:
         - asset: assets/fonts/NotoSansBalinese-Regular.ttf
+        - asset: assets/fonts/NotoSansBalinese-Bold.ttf
+          weight: 700

@@ -226,8 +226,16 @@
     font-style: normal;
     font-display: swap;
 }
+@font-face {
+    font-family: 'Noto Sans Balinese';
+    src: url('/fonts/NotoSansBalinese-Bold.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
 .lc-balinese {
     font-family: 'Noto Sans Balinese', serif;
+    font-weight: 700;
 }
 </style>
 

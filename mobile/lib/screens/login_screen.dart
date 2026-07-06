@@ -288,6 +288,7 @@ class _DosmanBrand extends StatelessWidget {
             style: TextStyle(
               fontFamily:    'NotoSansBalinese',
               fontSize:      13,
+              fontWeight:    FontWeight.w700,
               color:         AppColors.gray500,
             ),
           ),
