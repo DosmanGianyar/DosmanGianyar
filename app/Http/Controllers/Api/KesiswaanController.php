@@ -90,6 +90,22 @@ class KesiswaanController extends Controller
             ->whereHas('category', fn ($q) => $q->where('type', 'pelanggaran'))
             ->count();
 
+        // Catatan positif keseharian (BUKAN Prestasi Lomba — StudentAchievement
+        // punya alur verifikasi & sertifikat sendiri, tetap terpisah).
+        $recentPositif = ConductLog::with('category')
+            ->where('student_id', $siswa->id)
+            ->whereHas('category', fn ($q) => $q->where('type', 'prestasi'))
+            ->latest()
+            ->limit(10)
+            ->get()
+            ->map(fn ($log) => [
+                'id'            => $log->id,
+                'category_name' => $log->category->name,
+                'context'       => $log->category->context ?? null,
+                'note'          => $log->note,
+                'date'          => $log->created_at->toDateString(),
+            ])->values();
+
         return response()->json([
             'permit_pending'            => $permitPending,
             'early_checkout_pending'    => $earlyCheckoutPending,
@@ -109,6 +125,7 @@ class KesiswaanController extends Controller
             'conduct' => [
                 'pelanggaran_count' => $pelanggaranCount,
                 'recent_violations' => $recentViolations,
+                'recent_positif'    => $recentPositif,
             ],
             'recent_achievements' => $recentAchievements,
         ]);

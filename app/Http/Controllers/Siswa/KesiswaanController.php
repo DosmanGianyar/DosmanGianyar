@@ -74,30 +74,28 @@ class KesiswaanController extends Controller
             ->limit(15)
             ->get();
 
-        $tabPrestasi = StudentAchievement::where('student_id', $siswa->id)
+        // Catatan positif keseharian (BUKAN Prestasi Lomba — itu StudentAchievement
+        // yang punya alur verifikasi & sertifikat sendiri, tetap terpisah).
+        $tabCatatanPositif = $siswa->conductLogs()
             ->with('category')
-            ->where('status', 'approved')
-            ->latest('achievement_date')
+            ->whereHas('category', fn ($q) => $q->where('type', 'prestasi'))
+            ->latest()
             ->limit(15)
             ->get();
 
-        // Gabungan Catatan Negatif (pelanggaran) + Catatan Positif (prestasi),
+        // Gabungan Catatan Negatif (pelanggaran) + Catatan Positif (keseharian),
         // diurutkan kronologis, untuk tab "Catatan" dengan filter negatif/positif.
         $tabCatatan = $tabPelanggaran->map(fn ($log) => [
-                'type'       => 'negatif',
-                'date'       => $log->created_at,
-                'title'      => $log->category?->name ?? $log->note ?? '—',
-                'note'       => $log->note,
-                'level'      => null,
-                'levelClass' => null,
+                'type'  => 'negatif',
+                'date'  => $log->created_at,
+                'title' => $log->category?->name ?? $log->note ?? '—',
+                'note'  => $log->note,
             ])
-            ->concat($tabPrestasi->map(fn ($ach) => [
-                'type'       => 'positif',
-                'date'       => $ach->achievement_date,
-                'title'      => $ach->title,
-                'note'       => $ach->category?->name,
-                'level'      => $ach->levelLabel(),
-                'levelClass' => $ach->levelBadgeClass(),
+            ->concat($tabCatatanPositif->map(fn ($log) => [
+                'type'  => 'positif',
+                'date'  => $log->created_at,
+                'title' => $log->category?->name ?? $log->note ?? '—',
+                'note'  => $log->note,
             ]))
             ->sortByDesc('date')
             ->values();

@@ -225,16 +225,9 @@
             </div>
             <div class="flex-1">
                 <p class="text-sm font-medium text-gray-800 leading-snug">{{ $item['title'] }}</p>
-                <div class="flex items-center justify-between mt-1">
-                    <p class="text-xs text-gray-400">
-                        @if(!$isNegatif && $item['note']){{ $item['note'] }} · @endif{{ $item['date']->isoFormat('D MMM Y') }}
-                    </p>
-                    @if(!$isNegatif && $item['level'])
-                    <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full {{ $item['levelClass'] }} shrink-0 ml-2">
-                        {{ $item['level'] }}
-                    </span>
-                    @endif
-                </div>
+                <p class="text-xs text-gray-400 mt-1">
+                    @if($item['note']){{ $item['note'] }} · @endif{{ $item['date']->isoFormat('D MMM Y') }}
+                </p>
             </div>
         </div>
         @empty

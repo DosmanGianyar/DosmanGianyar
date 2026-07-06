@@ -36,7 +36,7 @@ class _KesiswaanScreenState extends State<KesiswaanScreen>
   Map<String, int> _achievementStats = {'pending': 0, 'approved': 0, 'rejected': 0};
   Map<String, dynamic>? _activePermit;
   List<Map<String, dynamic>> _recentViolations   = [];
-  List<Map<String, dynamic>> _recentAchievements = [];
+  List<Map<String, dynamic>> _recentPositif      = [];
   List<Map<String, dynamic>> _catatanItems       = [];
   bool _summaryLoaded    = false;
 
@@ -73,25 +73,24 @@ class _KesiswaanScreenState extends State<KesiswaanScreen>
           'rejected': (stats['rejected'] ?? 0) as int,
         };
         _activePermit       = data['active_permit'] as Map<String, dynamic>?;
-        _recentViolations   = List<Map<String, dynamic>>.from(conduct['recent_violations']    ?? []);
-        _recentAchievements = List<Map<String, dynamic>>.from(data['recent_achievements'] ?? []);
+        _recentViolations   = List<Map<String, dynamic>>.from(conduct['recent_violations'] ?? []);
+        _recentPositif      = List<Map<String, dynamic>>.from(conduct['recent_positif']    ?? []);
 
-        // Gabungan Catatan Negatif (pelanggaran) + Positif (prestasi),
-        // diurutkan kronologis, untuk tab "Catatan" dengan filter.
+        // Gabungan Catatan Negatif (pelanggaran) + Positif (keseharian) — BUKAN
+        // Prestasi Lomba (StudentAchievement, tetap terpisah) — diurutkan
+        // kronologis, untuk tab "Catatan" dengan filter.
         final merged = <Map<String, dynamic>>[
           ..._recentViolations.map((v) => {
             'type':     'negatif',
             'title':    v['category_name'] ?? v['note'] ?? '—',
             'subtitle': v['note'],
             'date':     v['date'],
-            'level':    null,
           }),
-          ..._recentAchievements.map((a) => {
+          ..._recentPositif.map((v) => {
             'type':     'positif',
-            'title':    a['title'] ?? '',
-            'subtitle': a['category_name'],
-            'date':     a['achievement_date'],
-            'level':    a['level_label'] ?? a['level'],
+            'title':    v['category_name'] ?? v['note'] ?? '—',
+            'subtitle': v['note'],
+            'date':     v['date'],
           }),
         ];
         merged.sort((a, b) {
@@ -240,10 +239,8 @@ class _KesiswaanScreenState extends State<KesiswaanScreen>
                         _CatatanTab(
                           items:  _catatanItems,
                           loaded: _summaryLoaded,
-                          onViewViolations: () => Navigator.push(context,
+                          onViewAll: () => Navigator.push(context,
                             MaterialPageRoute(builder: (_) => const ConductScreen())),
-                          onViewAchievements: () => Navigator.push(context,
-                            MaterialPageRoute(builder: (_) => const AchievementScreen())),
                         ),
                       ],
                     ),
@@ -601,13 +598,11 @@ class _PresensiTab extends StatelessWidget {
 class _CatatanTab extends StatefulWidget {
   final List<Map<String, dynamic>> items;
   final bool         loaded;
-  final VoidCallback onViewViolations;
-  final VoidCallback onViewAchievements;
+  final VoidCallback onViewAll;
   const _CatatanTab({
     required this.items,
     required this.loaded,
-    required this.onViewViolations,
-    required this.onViewAchievements,
+    required this.onViewAll,
   });
 
   @override
@@ -662,10 +657,7 @@ class _CatatanTabState extends State<_CatatanTab> {
                 itemBuilder: (_, i) {
                   final item      = filtered[i];
                   final isNegatif = item['type'] == 'negatif';
-                  final subtitle  = [
-                    if (!isNegatif && item['level'] != null) item['level'].toString(),
-                    if ((item['subtitle']?.toString() ?? '').isNotEmpty) item['subtitle'].toString(),
-                  ].join(' · ');
+                  final subtitle  = item['subtitle']?.toString() ?? '';
                   return Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
                     child: Row(children: [
@@ -693,7 +685,7 @@ class _CatatanTabState extends State<_CatatanTab> {
               ),
       ),
       InkWell(
-        onTap: _filter == 'positif' ? widget.onViewAchievements : widget.onViewViolations,
+        onTap: widget.onViewAll,
         child: Container(
           width: double.infinity,
           padding: const EdgeInsets.symmetric(vertical: 10),
