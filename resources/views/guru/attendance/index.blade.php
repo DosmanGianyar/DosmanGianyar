@@ -89,8 +89,8 @@
             $statusChip       = $chips[$status] ?? ['bg' => 'bg-gray-100', 'text' => 'text-gray-600', 'label' => $status];
             $checkInTime      = $att?->check_in_time ? \Carbon\Carbon::parse($att->check_in_time)->format('H:i') : null;
             $checkOutTime     = $att?->check_out_time ? \Carbon\Carbon::parse($att->check_out_time)->format('H:i') : null;
-            $checkInPhotoUrl  = $att?->photo ? Storage::disk('public')->url($att->photo) : null;
-            $checkOutPhotoUrl = $att?->check_out_photo ? Storage::disk('public')->url($att->check_out_photo) : null;
+            $checkInPhotoUrl  = $att?->photo_url;
+            $checkOutPhotoUrl = $att?->check_out_photo_url;
         @endphp
         <div class="flex items-center gap-3 px-4 py-3">
             <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center shrink-0">
@@ -187,8 +187,8 @@
                     $statusChip       = $chips[$status] ?? ['bg' => 'bg-gray-100', 'text' => 'text-gray-600', 'label' => $status];
                     $checkInTime      = $att?->check_in_time ? \Carbon\Carbon::parse($att->check_in_time)->format('H:i') : null;
                     $checkOutTime     = $att?->check_out_time ? \Carbon\Carbon::parse($att->check_out_time)->format('H:i') : null;
-                    $checkInPhotoUrl  = $att?->photo ? Storage::disk('public')->url($att->photo) : null;
-                    $checkOutPhotoUrl = $att?->check_out_photo ? Storage::disk('public')->url($att->check_out_photo) : null;
+                    $checkInPhotoUrl  = $att?->photo_url;
+                    $checkOutPhotoUrl = $att?->check_out_photo_url;
                 @endphp
                 <tr class="hover:bg-gray-50 transition-colors">
                     <td class="px-4 py-3">

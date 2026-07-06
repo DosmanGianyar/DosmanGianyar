@@ -105,8 +105,8 @@ class AttendanceDailyPage extends Page
                 'status'        => $status,
                 'check_in'      => $checkIn,
                 'check_out'     => $checkOut,
-                'photo_in_url'  => $att?->photo           ? Storage::disk('public')->url($att->photo)           : null,
-                'photo_out_url' => $att?->check_out_photo ? Storage::disk('public')->url($att->check_out_photo) : null,
+                'photo_in_url'  => $att?->photo_url,
+                'photo_out_url' => $att?->check_out_photo_url,
             ];
         }
 

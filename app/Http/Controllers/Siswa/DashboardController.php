@@ -38,12 +38,12 @@ class DashboardController extends Controller
                 'alpa'       => 'red',
                 default      => 'gray',
             },
-            'photo'       => $todayAtt?->photo,
+            'photo'       => $todayAtt?->photo_url,
             'checked_in'  => $todayAtt && in_array($todayAtt->status, ['hadir', 'terlambat']),
             'check_out_time'  => $todayAtt?->check_out_time
                 ? Carbon::parse($todayAtt->check_out_time)->format('H:i')
                 : null,
-            'check_out_photo' => $todayAtt?->check_out_photo,
+            'check_out_photo' => $todayAtt?->check_out_photo_url,
         ];
 
         // ─── Conduct Summary ──────────────────────────────────────────

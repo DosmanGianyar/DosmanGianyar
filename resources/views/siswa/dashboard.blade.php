@@ -83,7 +83,7 @@
             Presensi
         </a>
     @elseif($todayStatus['photo'])
-        <img src="{{ \Illuminate\Support\Facades\Storage::url($todayStatus['photo']) }}"
+        <img src="{{ $todayStatus['photo'] }}"
             alt="Selfie"
             class="shrink-0 w-14 h-14 rounded-xl object-cover border border-green-100 shadow-sm">
     @else
@@ -123,7 +123,7 @@
         </p>
     </div>
     @if($checkoutDone && $todayStatus['check_out_photo'])
-        <img src="{{ \Illuminate\Support\Facades\Storage::url($todayStatus['check_out_photo']) }}"
+        <img src="{{ $todayStatus['check_out_photo'] }}"
             alt="Selfie Pulang"
             class="shrink-0 w-14 h-14 rounded-xl object-cover border border-emerald-100 shadow-sm">
     @elseif($checkoutDone)

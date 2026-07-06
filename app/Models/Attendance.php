@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Storage;
 
 class Attendance extends Model
 {
@@ -26,6 +27,24 @@ class Attendance extends Model
     public function student(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    /**
+     * URL foto check-in — dibubuhi query string ?v= (cache-busting) supaya
+     * browser/HP tidak menampilkan foto lama yang ter-cache saat file di
+     * path yang sama diganti/dihapus-lalu-diganti (nama file deterministik
+     * per user+tanggal).
+     */
+    public function getPhotoUrlAttribute(): ?string
+    {
+        if (! $this->photo) return null;
+        return Storage::disk('public')->url($this->photo) . '?v=' . $this->updated_at?->timestamp;
+    }
+
+    public function getCheckOutPhotoUrlAttribute(): ?string
+    {
+        if (! $this->check_out_photo) return null;
+        return Storage::disk('public')->url($this->check_out_photo) . '?v=' . $this->updated_at?->timestamp;
     }
 
     public function getStatusLabelAttribute(): string

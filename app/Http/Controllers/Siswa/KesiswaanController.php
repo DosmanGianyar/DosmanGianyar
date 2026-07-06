@@ -81,6 +81,27 @@ class KesiswaanController extends Controller
             ->limit(15)
             ->get();
 
+        // Gabungan Catatan Negatif (pelanggaran) + Catatan Positif (prestasi),
+        // diurutkan kronologis, untuk tab "Catatan" dengan filter negatif/positif.
+        $tabCatatan = $tabPelanggaran->map(fn ($log) => [
+                'type'       => 'negatif',
+                'date'       => $log->created_at,
+                'title'      => $log->category?->name ?? $log->note ?? '—',
+                'note'       => $log->note,
+                'level'      => null,
+                'levelClass' => null,
+            ])
+            ->concat($tabPrestasi->map(fn ($ach) => [
+                'type'       => 'positif',
+                'date'       => $ach->achievement_date,
+                'title'      => $ach->title,
+                'note'       => $ach->category?->name,
+                'level'      => $ach->levelLabel(),
+                'levelClass' => $ach->levelBadgeClass(),
+            ]))
+            ->sortByDesc('date')
+            ->values();
+
         $recentConduct = $siswa->conductLogs()->with('category')->latest()->limit(3)->get();
 
         // ── Prestasi ─────────────────────────────────────────────────────────
@@ -152,8 +173,7 @@ class KesiswaanController extends Controller
             'unvotedCount',
             'pendingVerify',
             'tabPresensi',
-            'tabPelanggaran',
-            'tabPrestasi',
+            'tabCatatan',
             'siswa',
             'forgotAttendancePending',
             'earlyCheckoutPending',

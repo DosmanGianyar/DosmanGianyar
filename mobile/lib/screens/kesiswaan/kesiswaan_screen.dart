@@ -37,13 +37,13 @@ class _KesiswaanScreenState extends State<KesiswaanScreen>
   Map<String, dynamic>? _activePermit;
   List<Map<String, dynamic>> _recentViolations   = [];
   List<Map<String, dynamic>> _recentAchievements = [];
-  int  _pelanggaranCount = 0;
+  List<Map<String, dynamic>> _catatanItems       = [];
   bool _summaryLoaded    = false;
 
   @override
   void initState() {
     super.initState();
-    _tabCtrl = TabController(length: 3, vsync: this);
+    _tabCtrl = TabController(length: 2, vsync: this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final prov = context.read<AttendanceProvider>();
       if (prov.currentMonthRecords.isEmpty) prov.fetchCurrentMonthDots();
@@ -73,10 +73,34 @@ class _KesiswaanScreenState extends State<KesiswaanScreen>
           'rejected': (stats['rejected'] ?? 0) as int,
         };
         _activePermit       = data['active_permit'] as Map<String, dynamic>?;
-        _pelanggaranCount   = (conduct['pelanggaran_count'] ?? 0) as int;
         _recentViolations   = List<Map<String, dynamic>>.from(conduct['recent_violations']    ?? []);
         _recentAchievements = List<Map<String, dynamic>>.from(data['recent_achievements'] ?? []);
-        _summaryLoaded      = true;
+
+        // Gabungan Catatan Negatif (pelanggaran) + Positif (prestasi),
+        // diurutkan kronologis, untuk tab "Catatan" dengan filter.
+        final merged = <Map<String, dynamic>>[
+          ..._recentViolations.map((v) => {
+            'type':     'negatif',
+            'title':    v['category_name'] ?? v['note'] ?? '—',
+            'subtitle': v['note'],
+            'date':     v['date'],
+            'level':    null,
+          }),
+          ..._recentAchievements.map((a) => {
+            'type':     'positif',
+            'title':    a['title'] ?? '',
+            'subtitle': a['category_name'],
+            'date':     a['achievement_date'],
+            'level':    a['level_label'] ?? a['level'],
+          }),
+        ];
+        merged.sort((a, b) {
+          final da = DateTime.tryParse(a['date']?.toString() ?? '') ?? DateTime(2000);
+          final db = DateTime.tryParse(b['date']?.toString() ?? '') ?? DateTime(2000);
+          return db.compareTo(da);
+        });
+        _catatanItems  = merged;
+        _summaryLoaded = true;
       });
     } catch (_) {
       // silent – summary is informational, not blocking
@@ -202,18 +226,9 @@ class _KesiswaanScreenState extends State<KesiswaanScreen>
                     indicatorColor: AppColors.blue600,
                     indicatorWeight: 2,
                     labelStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-                    tabs: [
-                      const Tab(text: 'Presensi'),
-                      Tab(child: _TabWithBadge(
-                        label: 'Catatan Negatif',
-                        count: _pelanggaranCount,
-                        badgeColor: AppColors.red500,
-                      )),
-                      Tab(child: _TabWithBadge(
-                        label: 'Prestasi',
-                        count: _achievementStats['pending'] ?? 0,
-                        badgeColor: AppColors.yellow600,
-                      )),
+                    tabs: const [
+                      Tab(text: 'Presensi'),
+                      Tab(text: 'Catatan'),
                     ],
                   ),
                   SizedBox(
@@ -222,19 +237,12 @@ class _KesiswaanScreenState extends State<KesiswaanScreen>
                       controller: _tabCtrl,
                       children: [
                         _PresensiTab(records: records),
-                        _PelanggaranTab(
-                          violations: _recentViolations,
-                          totalCount: _pelanggaranCount,
+                        _CatatanTab(
+                          items:  _catatanItems,
                           loaded: _summaryLoaded,
-                          onViewAll: () => Navigator.push(context,
+                          onViewViolations: () => Navigator.push(context,
                             MaterialPageRoute(builder: (_) => const ConductScreen())),
-                        ),
-                        _PrestasiTab(
-                          achievements: _recentAchievements,
-                          pendingCount: _achievementStats['pending'] ?? 0,
-                          pendingVerify: _pendingVerify,
-                          loaded: _summaryLoaded,
-                          onViewAll: () => Navigator.push(context,
+                          onViewAchievements: () => Navigator.push(context,
                             MaterialPageRoute(builder: (_) => const AchievementScreen())),
                         ),
                       ],
@@ -492,31 +500,6 @@ class _KesiswaanScreenState extends State<KesiswaanScreen>
   }
 }
 
-// ─── Tab With Badge ───────────────────────────────────────────────────────────
-
-class _TabWithBadge extends StatelessWidget {
-  final String label;
-  final int    count;
-  final Color  badgeColor;
-  const _TabWithBadge({required this.label, required this.count, required this.badgeColor});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(mainAxisSize: MainAxisSize.min, children: [
-      Text(label),
-      if (count > 0) ...[
-        const SizedBox(width: 4),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
-          decoration: BoxDecoration(color: badgeColor, borderRadius: BorderRadius.circular(10)),
-          child: Text('$count',
-            style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold)),
-        ),
-      ],
-    ]);
-  }
-}
-
 // ─── Rekap Cell ───────────────────────────────────────────────────────────────
 
 class _RekapCell extends StatelessWidget {
@@ -613,86 +596,116 @@ class _PresensiTab extends StatelessWidget {
   }
 }
 
-// ─── Pelanggaran Tab ──────────────────────────────────────────────────────────
+// ─── Catatan Tab (gabungan negatif + positif, bisa difilter) ──────────────────
 
-class _PelanggaranTab extends StatelessWidget {
-  final List<Map<String, dynamic>> violations;
-  final int          totalCount;
+class _CatatanTab extends StatefulWidget {
+  final List<Map<String, dynamic>> items;
   final bool         loaded;
-  final VoidCallback onViewAll;
-  const _PelanggaranTab({
-    required this.violations,
-    required this.totalCount,
+  final VoidCallback onViewViolations;
+  final VoidCallback onViewAchievements;
+  const _CatatanTab({
+    required this.items,
     required this.loaded,
-    required this.onViewAll,
+    required this.onViewViolations,
+    required this.onViewAchievements,
   });
 
   @override
+  State<_CatatanTab> createState() => _CatatanTabState();
+}
+
+class _CatatanTabState extends State<_CatatanTab> {
+  String _filter = 'semua';
+
+  @override
   Widget build(BuildContext context) {
-    if (!loaded) {
+    if (!widget.loaded) {
       return const Center(child: SizedBox(width: 24, height: 24,
         child: CircularProgressIndicator(strokeWidth: 2)));
     }
-    if (violations.isEmpty) {
-      return Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-        const Icon(Icons.shield_outlined, size: 36, color: AppColors.gray200),
-        const SizedBox(height: 8),
-        const Text('Tidak ada catatan negatif',
-          style: TextStyle(fontSize: 13, color: AppColors.gray400)),
-        const SizedBox(height: 10),
-        TextButton.icon(
-          onPressed: onViewAll,
-          icon: const Icon(Icons.open_in_new, size: 14),
-          label: const Text('Buka Detail', style: TextStyle(fontSize: 12)),
-          style: TextButton.styleFrom(foregroundColor: AppColors.blue600),
-        ),
-      ]);
-    }
+
+    final filtered = widget.items
+        .where((i) => _filter == 'semua' || i['type'] == _filter)
+        .toList();
+
     return Column(children: [
-      Expanded(child: ListView.separated(
-        padding: EdgeInsets.zero,
-        itemCount: violations.length,
-        separatorBuilder: (_, __) => const Divider(height: 1, color: AppColors.gray100),
-        itemBuilder: (_, i) {
-          final v = violations[i];
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
-            child: Row(children: [
-              Container(width: 8, height: 8,
-                decoration: const BoxDecoration(color: AppColors.red500, shape: BoxShape.circle)),
-              const SizedBox(width: 10),
-              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(v['category_name'] ?? '',
-                  maxLines: 1, overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 12, fontWeight: FontWeight.w500, color: AppColors.gray800)),
-                if ((v['note'] as String?)?.isNotEmpty == true)
-                  Text(v['note'],
-                    maxLines: 1, overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 11, color: AppColors.gray400)),
-              ])),
-              const SizedBox(width: 8),
-              Text(_shortDate(v['date'] ?? ''),
-                style: const TextStyle(fontSize: 10, color: AppColors.gray400)),
-            ]),
-          );
-        },
-      )),
-      if (totalCount > violations.length)
-        InkWell(
-          onTap: onViewAll,
-          child: Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 10),
-            decoration: const BoxDecoration(
-              border: Border(top: BorderSide(color: AppColors.gray100)),
-            ),
-            child: Text('Lihat semua $totalCount catatan →',
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 11, color: AppColors.blue600, fontWeight: FontWeight.w600)),
+      Padding(
+        padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
+        child: Row(children: [
+          _FilterChip(label: 'Semua', selected: _filter == 'semua',
+            onTap: () => setState(() => _filter = 'semua')),
+          const SizedBox(width: 6),
+          _FilterChip(label: 'Negatif', selected: _filter == 'negatif',
+            onTap: () => setState(() => _filter = 'negatif')),
+          const SizedBox(width: 6),
+          _FilterChip(label: 'Positif', selected: _filter == 'positif',
+            onTap: () => setState(() => _filter = 'positif')),
+        ]),
+      ),
+      Expanded(
+        child: filtered.isEmpty
+            ? Center(
+                child: Column(mainAxisSize: MainAxisSize.min, children: [
+                  const Icon(Icons.fact_check_outlined, size: 32, color: AppColors.gray200),
+                  const SizedBox(height: 8),
+                  Text(
+                    _filter == 'negatif' ? 'Tidak ada catatan negatif'
+                      : _filter == 'positif' ? 'Belum ada prestasi'
+                      : 'Belum ada catatan',
+                    style: const TextStyle(fontSize: 13, color: AppColors.gray400)),
+                ]),
+              )
+            : ListView.separated(
+                padding: EdgeInsets.zero,
+                itemCount: filtered.length,
+                separatorBuilder: (_, __) => const Divider(height: 1, color: AppColors.gray100),
+                itemBuilder: (_, i) {
+                  final item      = filtered[i];
+                  final isNegatif = item['type'] == 'negatif';
+                  final subtitle  = [
+                    if (!isNegatif && item['level'] != null) item['level'].toString(),
+                    if ((item['subtitle']?.toString() ?? '').isNotEmpty) item['subtitle'].toString(),
+                  ].join(' · ');
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
+                    child: Row(children: [
+                      Container(width: 8, height: 8,
+                        decoration: BoxDecoration(
+                          color: isNegatif ? AppColors.red500 : AppColors.yellow500,
+                          shape: BoxShape.circle)),
+                      const SizedBox(width: 10),
+                      Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                        Text(item['title']?.toString() ?? '',
+                          maxLines: 1, overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 12, fontWeight: FontWeight.w500, color: AppColors.gray800)),
+                        if (subtitle.isNotEmpty)
+                          Text(subtitle,
+                            maxLines: 1, overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(fontSize: 11, color: AppColors.gray400)),
+                      ])),
+                      const SizedBox(width: 8),
+                      Text(_shortDate(item['date']?.toString() ?? ''),
+                        style: const TextStyle(fontSize: 10, color: AppColors.gray400)),
+                    ]),
+                  );
+                },
+              ),
+      ),
+      InkWell(
+        onTap: _filter == 'positif' ? widget.onViewAchievements : widget.onViewViolations,
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          decoration: const BoxDecoration(
+            border: Border(top: BorderSide(color: AppColors.gray100)),
           ),
+          child: const Text('Lihat Selengkapnya →',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 11, color: AppColors.blue600, fontWeight: FontWeight.w600)),
         ),
+      ),
     ]);
   }
 
@@ -707,110 +720,28 @@ class _PelanggaranTab extends StatelessWidget {
   }
 }
 
-// ─── Prestasi Tab ─────────────────────────────────────────────────────────────
-
-class _PrestasiTab extends StatelessWidget {
-  final List<Map<String, dynamic>> achievements;
-  final int          pendingCount;
-  final int          pendingVerify;
-  final bool         loaded;
-  final VoidCallback onViewAll;
-  const _PrestasiTab({
-    required this.achievements,
-    required this.pendingCount,
-    required this.pendingVerify,
-    required this.loaded,
-    required this.onViewAll,
-  });
+class _FilterChip extends StatelessWidget {
+  final String       label;
+  final bool         selected;
+  final VoidCallback onTap;
+  const _FilterChip({required this.label, required this.selected, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    if (!loaded) {
-      return const Center(child: SizedBox(width: 24, height: 24,
-        child: CircularProgressIndicator(strokeWidth: 2)));
-    }
-    if (achievements.isEmpty) {
-      return Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-        const Icon(Icons.workspace_premium_rounded, size: 36, color: AppColors.gray200),
-        const SizedBox(height: 8),
-        const Text('Belum ada prestasi disetujui',
-          style: TextStyle(fontSize: 13, color: AppColors.gray400)),
-        if (pendingCount > 0) ...[
-          const SizedBox(height: 4),
-          Text('$pendingCount prestasi menunggu verifikasi',
-            style: const TextStyle(fontSize: 11, color: AppColors.yellow600)),
-        ],
-        const SizedBox(height: 10),
-        OutlinedButton(
-          onPressed: onViewAll,
-          style: OutlinedButton.styleFrom(
-            foregroundColor: AppColors.yellow600,
-            side: const BorderSide(color: AppColors.yellow600),
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-            shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
-          ),
-          child: const Text('Laporkan Prestasi',
-            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: selected ? AppColors.blue600 : AppColors.gray100,
+          borderRadius: BorderRadius.circular(20),
         ),
-      ]);
-    }
-    return Column(children: [
-      Expanded(child: ListView.separated(
-        padding: EdgeInsets.zero,
-        itemCount: achievements.length,
-        separatorBuilder: (_, __) => const Divider(height: 1, color: AppColors.gray100),
-        itemBuilder: (_, i) {
-          final a = achievements[i];
-          final catName = a['category_name'] as String? ?? '';
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
-            child: Row(children: [
-              Container(width: 8, height: 8,
-                decoration: const BoxDecoration(color: AppColors.yellow500, shape: BoxShape.circle)),
-              const SizedBox(width: 10),
-              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(a['title'] ?? '',
-                  maxLines: 1, overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 12, fontWeight: FontWeight.w500, color: AppColors.gray800)),
-                Text(
-                  '${a['level_label'] ?? a['level'] ?? ''}'
-                  '${catName.isNotEmpty ? ' · $catName' : ''}',
-                  maxLines: 1, overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontSize: 11, color: AppColors.gray400)),
-              ])),
-              const SizedBox(width: 8),
-              Text(_shortDate(a['achievement_date'] ?? ''),
-                style: const TextStyle(fontSize: 10, color: AppColors.gray400)),
-            ]),
-          );
-        },
-      )),
-      InkWell(
-        onTap: onViewAll,
-        child: Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(vertical: 10),
-          decoration: const BoxDecoration(
-            border: Border(top: BorderSide(color: AppColors.gray100)),
-          ),
-          child: const Text('Laporkan / Lihat Semua →',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 11, color: AppColors.yellow600, fontWeight: FontWeight.w600)),
-        ),
+        child: Text(label,
+          style: TextStyle(
+            fontSize: 11, fontWeight: FontWeight.w600,
+            color: selected ? Colors.white : AppColors.gray500)),
       ),
-    ]);
-  }
-
-  String _shortDate(String iso) {
-    try {
-      final d = DateTime.parse(iso);
-      const months = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
-      return '${d.day} ${months[d.month]}';
-    } catch (_) {
-      return iso;
-    }
+    );
   }
 }
 

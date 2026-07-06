@@ -165,6 +165,12 @@
         <span id="btn-text">Menunggu GPS...</span>
     </button>
 
+    {{-- Indikator proses (menggantikan tombol supaya tidak bisa di-spam) --}}
+    <div id="processing-box" class="hidden w-full py-4 rounded-2xl bg-blue-50 border border-blue-200 items-center justify-center gap-2">
+        <div class="w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
+        <span class="text-blue-700 text-sm font-medium">Memproses absensi...</span>
+    </div>
+
     {{-- Error box --}}
     <div id="error-box" class="hidden bg-red-50 border border-red-200 rounded-xl p-3">
         <p id="error-msg" class="text-red-700 text-sm text-center font-medium"></p>
@@ -260,6 +266,10 @@ startGPS();
 async function captureAndSend() {
     if (!gpsData) { showError('GPS belum siap.'); return; }
 
+    const btn = document.getElementById('btn-capture');
+    const processingBox = document.getElementById('processing-box');
+    if (btn.classList.contains('hidden')) return; // sudah diproses, cegah spam klik
+
     const video  = document.getElementById('camera');
     const canvas = document.getElementById('canvas');
     canvas.width  = video.videoWidth;
@@ -272,9 +282,10 @@ async function captureAndSend() {
 
     const photoBase64 = canvas.toDataURL('image/jpeg', 0.7);
 
-    const btn = document.getElementById('btn-capture');
-    btn.disabled = true;
-    document.getElementById('btn-text').textContent = 'Memproses...';
+    // Sembunyikan tombol & tampilkan indikator proses — mencegah spam tap
+    btn.classList.add('hidden');
+    processingBox.classList.remove('hidden');
+    processingBox.classList.add('flex');
 
     try {
         const resp = await fetch('{{ isset($isCheckOut) && $isCheckOut ? route("siswa.attendance.checkout") : route("siswa.attendance.store") }}', {
@@ -294,20 +305,26 @@ async function captureAndSend() {
 
         const data = await resp.json();
 
+        processingBox.classList.add('hidden');
+        processingBox.classList.remove('flex');
+
         if (data.success) {
             document.getElementById('success-box').classList.remove('hidden');
             document.getElementById('success-msg').textContent = data.message;
-            document.getElementById('btn-capture').classList.add('hidden');
             setTimeout(() => {
                 window.location.href = '{{ isset($isCheckOut) && $isCheckOut ? route("siswa.dashboard") : route("siswa.dashboard") }}';
             }, 1500);
         } else {
             showError(data.message);
+            btn.classList.remove('hidden');
             btn.disabled = false;
             document.getElementById('btn-text').textContent = 'Coba Lagi';
         }
     } catch (e) {
+        processingBox.classList.add('hidden');
+        processingBox.classList.remove('flex');
         showError('Terjadi kesalahan koneksi. Coba lagi.');
+        btn.classList.remove('hidden');
         btn.disabled = false;
         document.getElementById('btn-text').textContent = 'Coba Lagi';
     }

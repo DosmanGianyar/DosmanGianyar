@@ -45,8 +45,8 @@ class AttendanceController extends Controller
                 'check_in_time'        => $today->check_in_time,
                 'check_out_time'       => $today->check_out_time,
                 'is_fake_gps'          => $today->is_fake_gps,
-                'check_in_photo_url'   => $today->photo        ? Storage::disk('public')->url($today->photo)        : null,
-                'check_out_photo_url'  => $today->check_out_photo ? Storage::disk('public')->url($today->check_out_photo) : null,
+                'check_in_photo_url'   => $today->photo_url,
+                'check_out_photo_url'  => $today->check_out_photo_url,
             ] : null,
             'can_checkin'   => $this->canCheckIn($today, $times, $now, $isHoliday),
             'can_checkout'  => $this->canCheckOut($today, $user->id, $times, $now),
@@ -252,7 +252,7 @@ class AttendanceController extends Controller
         $rows = Attendance::where('user_id', $user->id)
             ->whereBetween('date', [$start, $end])
             ->orderBy('date', 'desc')
-            ->get(['date', 'check_in_time', 'check_out_time', 'status', 'is_fake_gps', 'photo', 'check_out_photo']);
+            ->get(['date', 'check_in_time', 'check_out_time', 'status', 'is_fake_gps', 'photo', 'check_out_photo', 'updated_at']);
 
         $approvedDates = EarlyCheckoutRequest::where('student_id', $user->id)
             ->whereBetween('date', [$start, $end])
@@ -268,8 +268,8 @@ class AttendanceController extends Controller
             'check_out_time'      => $r->check_out_time,
             'status'              => $r->effectiveStatus(isset($approvedDates[$r->date->format('Y-m-d')])),
             'is_fake_gps'         => (bool) $r->is_fake_gps,
-            'check_in_photo_url'  => $r->photo           ? Storage::disk('public')->url($r->photo)           : null,
-            'check_out_photo_url' => $r->check_out_photo ? Storage::disk('public')->url($r->check_out_photo) : null,
+            'check_in_photo_url'  => $r->photo_url,
+            'check_out_photo_url' => $r->check_out_photo_url,
         ]);
 
         // Synthetic alpa for past school days with no attendance record
