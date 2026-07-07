@@ -88,6 +88,44 @@ class AuthController extends Controller
         ]);
     }
 
+    /** Ajukan permintaan reset password (diproses manual oleh admin). */
+    public function forgotPassword(Request $request): JsonResponse
+    {
+        $request->validate(['identifier' => 'required|string']);
+
+        $identifier = trim($request->input('identifier'));
+
+        $user = User::where('nisn', $identifier)->orWhere('nip', $identifier)->first();
+
+        if (! $user) {
+            return response()->json([
+                'message' => 'NISN/NIP tidak ditemukan. Periksa kembali nomor yang Anda masukkan.',
+                'code'    => 'NOT_FOUND',
+            ], 404);
+        }
+
+        $existingPending = \App\Models\PasswordResetRequest::where('user_id', $user->id)
+            ->where('status', 'pending')
+            ->exists();
+
+        if ($existingPending) {
+            return response()->json([
+                'message' => 'Permintaan reset password Anda sebelumnya masih menunggu diproses admin.',
+            ]);
+        }
+
+        \App\Models\PasswordResetRequest::create([
+            'user_id'      => $user->id,
+            'identifier'   => $identifier,
+            'status'       => 'pending',
+            'requested_at' => now(),
+        ]);
+
+        return response()->json([
+            'message' => 'Permintaan reset password berhasil dikirim. Admin akan segera memprosesnya.',
+        ]);
+    }
+
     /** Logout — hapus token aktif saja, device binding tetap. */
     public function logout(Request $request): JsonResponse
     {

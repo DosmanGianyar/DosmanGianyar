@@ -110,6 +110,7 @@
                             <input type="checkbox" name="remember" class="w-3.5 h-3.5 rounded" style="accent-color:#0d2460;">
                             Ingat saya
                         </label>
+                        <a href="{{ route('forgot-password') }}" class="text-xs font-semibold" style="color:#0d2460;">Lupa Password?</a>
                     </div>
 
                     <button type="submit"

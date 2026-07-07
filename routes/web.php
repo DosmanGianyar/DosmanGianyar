@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Guru\AttendanceController as GuruAttendance;
 use App\Http\Controllers\Guru\ConductController as GuruConduct;
@@ -98,6 +99,9 @@ Route::middleware(['auth', 'role:admin,admin_kesiswaan'])->prefix('admin')->name
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'showForm'])->name('login');
     Route::post('/login', [LoginController::class, 'login'])->name('login.submit')->middleware('throttle:login');
+
+    Route::get('/forgot-password', [ForgotPasswordController::class, 'showForm'])->name('forgot-password');
+    Route::post('/forgot-password', [ForgotPasswordController::class, 'submit'])->name('forgot-password.submit')->middleware('throttle:6,1');
 });
 
 Route::post('/logout', [LoginController::class, 'logout'])

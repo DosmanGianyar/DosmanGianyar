@@ -4,6 +4,7 @@ import '../providers/auth_provider.dart';
 import '../theme/app_colors.dart';
 import 'home_screen.dart';
 import 'guru/guru_shell.dart';
+import 'forgot_password_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -389,7 +390,22 @@ class _WhitePanelBottom extends StatelessWidget {
                     onPressed: onToggleObscure,
                   ),
                 ),
-                const SizedBox(height: 20),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const ForgotPasswordScreen()),
+                    ),
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                    child: const Text('Lupa Password?',
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.blue600)),
+                  ),
+                ),
+                const SizedBox(height: 8),
                 _GradientButton(
                   label:     isLoading ? 'Memverifikasi...' : 'Masuk',
                   isLoading: isLoading,
