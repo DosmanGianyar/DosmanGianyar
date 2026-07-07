@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:dio/dio.dart';
 import '../../models/achievement.dart';
 import '../../services/api_client.dart';
@@ -310,15 +309,8 @@ class _CreateSheetState extends State<_CreateSheet> {
   }
 
   Future<void> _pickPhoto({bool isCertificate = false}) async {
-    // Cek permission galeri: READ_MEDIA_IMAGES (Android 13+) atau storage (≤12)
-    final photoStatus   = await Permission.photos.status;
-    final storageStatus = await Permission.storage.status;
-
-    if (photoStatus.isPermanentlyDenied || storageStatus.isPermanentlyDenied) {
-      if (mounted) _showSettingsDialog();
-      return;
-    }
-
+    // image_picker menggunakan Android Photo Picker bawaan sistem (Android 13+)
+    // atau document picker (≤12) — keduanya tidak memerlukan runtime permission.
     final picker = ImagePicker();
     final file   = await picker.pickImage(
       source:       ImageSource.gallery,
@@ -329,42 +321,7 @@ class _CreateSheetState extends State<_CreateSheet> {
       setState(() {
         if (isCertificate) _certificate = file; else _photo = file;
       });
-      return;
     }
-
-    // Jika null dan permission kini blocked → tampilkan dialog
-    if (mounted) {
-      final blocked = (await Permission.photos.status).isPermanentlyDenied ||
-                      (await Permission.storage.status).isPermanentlyDenied;
-      if (blocked) _showSettingsDialog();
-    }
-  }
-
-  void _showSettingsDialog() {
-    showDialog<void>(
-      context: context,
-      builder: (_) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: AppRadius.card),
-        title: const Text('Izin Galeri Diblokir',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-        content: const Text(
-          'Izin akses galeri diblokir secara permanen.\n\n'
-          'Buka Pengaturan → Aplikasi → SIMS_DOSMAN → Izin → '
-          'File dan media → Izinkan.',
-          style: TextStyle(fontSize: 13, color: AppColors.gray500, height: 1.5)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Batal', style: TextStyle(color: AppColors.gray500)),
-          ),
-          FilledButton(
-            onPressed: () { Navigator.pop(context); openAppSettings(); },
-            style: FilledButton.styleFrom(backgroundColor: AppColors.blue600),
-            child: const Text('Buka Pengaturan'),
-          ),
-        ],
-      ),
-    );
   }
 
   Future<void> _submit() async {

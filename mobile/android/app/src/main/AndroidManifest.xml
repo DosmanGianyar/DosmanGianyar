@@ -18,11 +18,8 @@
     <!-- Cegah sleep saat kamera aktif (opsional, untuk selfie screen) -->
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
 
-    <!-- Galeri foto untuk upload prestasi (Android ≤12) -->
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
-        android:maxSdkVersion="32"/>
-    <!-- Galeri foto untuk upload prestasi (Android 13+) -->
-    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
+    <!-- Galeri foto untuk upload prestasi: image_picker memakai Android Photo Picker
+         bawaan sistem / document picker, tidak memerlukan permission penyimpanan. -->
 
     <application
         android:label="DOSMAN"
