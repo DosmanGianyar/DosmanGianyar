@@ -9,6 +9,13 @@
             <li>Sistem otomatis <strong>menambah</strong> siswa baru atau <strong>memperbarui</strong> data yang sudah ada berdasarkan <strong>NISN</strong></li>
         </ol>
         <p class="text-blue-600 mt-2">⚠ Pastikan kelas-kelas sudah dibuat di <strong>Data Kelas</strong> sebelum import, agar siswa bisa langsung terhubung ke kelasnya.</p>
+        <p class="mt-3">
+            <a href="{{ asset('templates/contoh-import-dapodik.xlsx') }}" download
+               class="inline-flex items-center gap-1.5 text-blue-700 font-semibold underline hover:text-blue-900">
+                📄 Unduh contoh format Excel
+            </a>
+            <span class="text-blue-600"> — kalau belum punya file ekspor Dapodik, bisa isi manual mengikuti format ini.</span>
+        </p>
     </div>
 
     {{-- Upload Form (hidden while processing) --------------------------------}}
