@@ -366,7 +366,7 @@ class _WhitePanelBottom extends StatelessWidget {
               children: [
                 _SIMSInput(
                   controller:      loginCtrl,
-                  hint:            'Email / NIS / NIP',
+                  hint:            'NISN (Siswa) / NIP atau Email (Guru)',
                   prefixIcon:      Icons.person_outline_rounded,
                   keyboardType:    TextInputType.text,
                   textInputAction: TextInputAction.next,

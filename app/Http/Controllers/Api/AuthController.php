@@ -27,13 +27,19 @@ class AuthController extends Controller
 
         $loginInput = trim($request->input('login'));
 
+        // Siswa/pengelola: hanya boleh login pakai NISN. Guru: NIP atau email.
         $user = str_contains($loginInput, '@')
             ? User::where('email', $loginInput)->first()
             : $this->findByUsername($loginInput);
 
+        // Siswa/pengelola tidak boleh login pakai email — hanya NISN.
+        if ($user && $user->isSiswa() && str_contains($loginInput, '@')) {
+            $user = null;
+        }
+
         if (! $user || ! Hash::check($request->input('password'), $user->password)) {
             return response()->json([
-                'message' => 'Email/NIS/NIP atau password salah.',
+                'message' => 'NISN (siswa) / NIP atau Email (guru) / password salah.',
                 'code'    => 'INVALID_CREDENTIALS',
             ], 401);
         }
@@ -106,13 +112,12 @@ class AuthController extends Controller
 
     private function findByUsername(string $input): ?User
     {
-        $query = User::where('nis', $input)
-            ->orWhere('nisn', $input)
-            ->orWhere('nip', $input);
+        // Siswa login dengan NISN, guru login dengan NIP. NIS tidak lagi dipakai untuk login.
+        $query = User::where('nisn', $input)->orWhere('nip', $input);
 
         if (ctype_digit($input) && strlen($input) < 10) {
             $padded = str_pad($input, 10, '0', STR_PAD_LEFT);
-            $query->orWhere('nisn', $padded)->orWhere('nis', $padded);
+            $query->orWhere('nisn', $padded);
         }
 
         return $query->first();

@@ -32,18 +32,23 @@ class LoginController extends Controller
 
         $loginInput = trim($request->input('login'));
 
-        // Cari user berdasarkan email, NIS/NISN (siswa), atau NIP (guru)
-        // Untuk NIS/NISN numerik: abaikan leading zeros (0001233344 = 1233344)
+        // Siswa/pengelola: hanya boleh login pakai NISN. Guru: NIP atau email. Admin: email.
+        // Untuk NISN numerik: abaikan leading zeros (0001233344 = 1233344)
         $user = str_contains($loginInput, '@')
             ? User::where('email', $loginInput)->first()
             : $this->findByUsername($loginInput);
+
+        // Siswa/pengelola tidak boleh login pakai email — hanya NISN.
+        if ($user && $user->isSiswa() && str_contains($loginInput, '@')) {
+            $user = null;
+        }
 
         if (! $user || ! Auth::attempt(
             ['email' => $user->email, 'password' => $request->input('password')],
             $request->boolean('remember')
         )) {
             return back()
-                ->withErrors(['login' => 'Email/NIS/NIP atau password salah.'])
+                ->withErrors(['login' => 'NISN (siswa) / NIP atau Email (guru) / password salah.'])
                 ->onlyInput('login');
         }
 
@@ -58,14 +63,13 @@ class LoginController extends Controller
 
     private function findByUsername(string $input): ?User
     {
-        $query = User::where('nis', $input)
-            ->orWhere('nisn', $input)
-            ->orWhere('nip', $input);
+        // Siswa login dengan NISN, guru login dengan NIP. NIS tidak lagi dipakai untuk login.
+        $query = User::where('nisn', $input)->orWhere('nip', $input);
 
         // NISN selalu 10 digit — jika input numerik kurang dari 10 digit, coba zero-pad
         if (ctype_digit($input) && strlen($input) < 10) {
             $padded = str_pad($input, 10, '0', STR_PAD_LEFT);
-            $query->orWhere('nisn', $padded)->orWhere('nis', $padded);
+            $query->orWhere('nisn', $padded);
         }
 
         return $query->first();
