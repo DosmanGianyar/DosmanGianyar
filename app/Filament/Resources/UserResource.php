@@ -29,7 +29,9 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\HtmlString;
 
 class UserResource extends Resource
 {
@@ -286,18 +288,18 @@ class UserResource extends Resource
 
                 TextColumn::make('name')
                     ->label('Nama')
-                    ->searchable()
+                    ->searchable(['name', 'email'])
                     ->sortable()
                     ->wrap()
-                    ->width('280px'),
-
-                TextColumn::make('email')
-                    ->label('Email')
-                    ->searchable()
-                    ->copyable()
-                    ->toggleable()
-                    ->wrap()
-                    ->width('190px'),
+                    ->lineClamp(2)
+                    ->width('260px')
+                    ->description(fn (User $record): ?HtmlString => $record->email
+                        ? new HtmlString(Blade::render(
+                            '<x-filament::badge color="info" size="xs">{{ $email }}</x-filament::badge>',
+                            ['email' => $record->email],
+                        ))
+                        : null
+                    ),
 
                 TextColumn::make('phone')
                     ->label('No. HP Siswa')
