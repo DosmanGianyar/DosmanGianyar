@@ -6,6 +6,7 @@ use App\Filament\Resources\UserResource\Pages;
 use App\Models\SchoolClass;
 use App\Models\User;
 use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
@@ -22,7 +23,6 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
-use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -361,20 +361,6 @@ class UserResource extends Resource
                         default                    => null,
                     }),
 
-                IconColumn::make('device_bound')
-                    ->label('Perangkat')
-                    ->getStateUsing(fn (User $record): bool => $record->hasDeviceLocked())
-                    ->boolean()
-                    ->trueIcon('heroicon-o-lock-closed')
-                    ->falseIcon('heroicon-o-lock-open')
-                    ->trueColor('success')
-                    ->falseColor('gray')
-                    ->width('80px')
-                    ->tooltip(fn (User $record): string => $record->hasDeviceLocked()
-                        ? 'Terkunci ke perangkat sejak ' . $record->device_locked_at?->format('d M Y')
-                        : 'Belum terdaftar'
-                    ),
-
                 TextColumn::make('created_at')
                     ->label('Dibuat')
                     ->dateTime('d M Y')
@@ -410,34 +396,44 @@ class UserResource extends Resource
                 : null
             )
             ->recordActions([
-                ViewAction::make()->iconButton()
-                    ->visible(fn (User $record): bool => in_array($record->role, ['siswa', 'pengelola'])),
-                EditAction::make()->iconButton(),
-                Action::make('resetDevice')
-                    ->label('Reset Perangkat')
-                    ->icon('heroicon-o-device-phone-mobile')
-                    ->color('warning')
-                    ->iconButton()
-                    ->tooltip(fn (User $record): string =>
-                        'Reset perangkat (' . $record->deviceCount() . '/' . \App\Models\User::MAX_DEVICES . ')'
-                    )
-                    ->requiresConfirmation()
-                    ->modalHeading('Reset Semua Perangkat?')
-                    ->modalDescription(fn (User $record): string => sprintf(
-                        '%s terdaftar di %d perangkat. Semua akan dihapus dan token dicabut.',
-                        $record->name, $record->deviceCount(),
-                    ))
-                    ->modalSubmitActionLabel('Ya, Reset Semua')
-                    ->action(function (User $record): void {
-                        $count = $record->deviceCount();
-                        $record->resetDevices();
-                        Notification::make()
-                            ->title("{$record->name}: {$count} perangkat direset.")
-                            ->success()
-                            ->send();
-                    })
-                    ->visible(fn (User $record): bool => $record->hasDeviceLocked()),
-                DeleteAction::make()->iconButton(),
+                ActionGroup::make([
+                    ViewAction::make()->iconButton()
+                        ->visible(fn (User $record): bool => in_array($record->role, ['siswa', 'pengelola'])),
+                    EditAction::make()->iconButton(),
+                    Action::make('resetDevice')
+                        ->label('Reset Perangkat')
+                        ->icon(fn (User $record): string => $record->hasDeviceLocked()
+                            ? 'heroicon-o-lock-closed'
+                            : 'heroicon-o-lock-open'
+                        )
+                        ->color(fn (User $record): string => $record->hasDeviceLocked() ? 'success' : 'gray')
+                        ->iconButton()
+                        ->disabled(fn (User $record): bool => ! $record->hasDeviceLocked())
+                        ->tooltip(fn (User $record): string => $record->hasDeviceLocked()
+                            ? 'Reset perangkat (' . $record->deviceCount() . '/' . \App\Models\User::MAX_DEVICES . ')'
+                            : 'Belum ada perangkat terdaftar'
+                        )
+                        ->requiresConfirmation()
+                        ->modalHeading('Reset Semua Perangkat?')
+                        ->modalDescription(fn (User $record): string => sprintf(
+                            '%s terdaftar di %d perangkat. Semua akan dihapus dan token dicabut.',
+                            $record->name, $record->deviceCount(),
+                        ))
+                        ->modalSubmitActionLabel('Ya, Reset Semua')
+                        ->action(function (User $record): void {
+                            $count = $record->deviceCount();
+                            $record->resetDevices();
+                            Notification::make()
+                                ->title("{$record->name}: {$count} perangkat direset.")
+                                ->success()
+                                ->send();
+                        }),
+                    DeleteAction::make()->iconButton(),
+                ])
+                    ->dropdown(false)
+                    ->extraAttributes([
+                        'style' => 'display:grid;grid-template-columns:repeat(2,1fr);gap:2px;width:fit-content;',
+                    ]),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
