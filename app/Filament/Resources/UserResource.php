@@ -289,7 +289,7 @@ class UserResource extends Resource
                     ->searchable()
                     ->sortable()
                     ->wrap()
-                    ->width('200px'),
+                    ->width('280px'),
 
                 TextColumn::make('email')
                     ->label('Email')
@@ -297,7 +297,7 @@ class UserResource extends Resource
                     ->copyable()
                     ->toggleable()
                     ->wrap()
-                    ->width('200px'),
+                    ->width('190px'),
 
                 TextColumn::make('phone')
                     ->label('No. HP Siswa')
