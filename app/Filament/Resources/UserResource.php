@@ -282,6 +282,24 @@ class UserResource extends Resource
                     ->searchable()
                     ->sortable(),
 
+                TextColumn::make('email')
+                    ->label('Email')
+                    ->searchable()
+                    ->copyable()
+                    ->toggleable(),
+
+                TextColumn::make('phone')
+                    ->label('No. HP Siswa')
+                    ->placeholder('—')
+                    ->searchable()
+                    ->toggleable(),
+
+                TextColumn::make('parent_phone')
+                    ->label('No. HP Ortu')
+                    ->placeholder('—')
+                    ->searchable()
+                    ->toggleable(),
+
                 TextColumn::make('role')
                     ->label('Role')
                     ->badge()
