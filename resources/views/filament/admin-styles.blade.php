@@ -185,13 +185,30 @@
     width: 0 !important;
 }
 
-@if(request()->routeIs('filament.admin.resources.users.index'))
 /* ─── Data Siswa: tombol aksi grid 2x2 ───────────────────────── */
-.fi-ta-actions {
+/* Di-scope lewat class di <body> (lihat script di bawah), bukan lewat
+   request()->routeIs() -- ketahuan tidak konsisten di dalam render hook
+   Filament (kemungkinan konteks request internal Livewire berbeda). */
+body.sims-users-actions-grid .fi-ta-actions {
     display: grid !important;
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
     gap: 0.25rem !important;
     width: fit-content !important;
 }
-@endif
 </style>
+
+<script>
+(function () {
+    function applySimsUsersActionsGrid() {
+        if (!document.body) return;
+        if (window.location.pathname.indexOf('/admin/users') !== -1) {
+            document.body.classList.add('sims-users-actions-grid');
+        } else {
+            document.body.classList.remove('sims-users-actions-grid');
+        }
+    }
+    document.addEventListener('DOMContentLoaded', applySimsUsersActionsGrid);
+    document.addEventListener('livewire:navigated', applySimsUsersActionsGrid);
+    applySimsUsersActionsGrid();
+})();
+</script>
