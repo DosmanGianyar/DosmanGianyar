@@ -229,12 +229,9 @@ class GuruSarprasApiController extends Controller
                 ['value' => 'rusak_berat',   'label' => 'Rusak Berat'],
             ],
             'categories' => [
-                ['value' => 'furniture',    'label' => 'Furnitur'],
-                ['value' => 'elektronik',   'label' => 'Elektronik'],
-                ['value' => 'olahraga',     'label' => 'Olahraga'],
-                ['value' => 'lab',          'label' => 'Lab'],
-                ['value' => 'perpustakaan', 'label' => 'Perpustakaan'],
-                ['value' => 'lain',         'label' => 'Lain-lain'],
+                ['value' => 'perpus',    'label' => 'Perpustakaan'],
+                ['value' => 'sarana',    'label' => 'Sarana'],
+                ['value' => 'prasarana', 'label' => 'Prasarana'],
             ],
         ]);
     }

@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\AssetResource\Pages;
 use App\Models\Asset;
+use App\Models\Brand;
 use App\Models\Room;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -47,12 +48,9 @@ class AssetResource extends Resource
             Select::make('category')
                 ->label('Kategori')
                 ->options([
-                    'furniture'    => 'Furnitur',
-                    'elektronik'   => 'Elektronik',
-                    'olahraga'     => 'Olahraga',
-                    'lab'          => 'Lab',
-                    'perpustakaan' => 'Perpustakaan',
-                    'lain'         => 'Lain-lain',
+                    'perpus'    => 'Perpustakaan (buku)',
+                    'sarana'    => 'Sarana (alat, bahan, perlengkapan)',
+                    'prasarana' => 'Prasarana (lahan, gedung, ruang)',
                 ])
                 ->required(),
 
@@ -65,6 +63,13 @@ class AssetResource extends Resource
                 ])
                 ->required()
                 ->default('baik'),
+
+            Select::make('brand_id')
+                ->label('Merek')
+                ->options(Brand::orderBy('name')->pluck('name', 'id'))
+                ->searchable()
+                ->preload()
+                ->nullable(),
 
             Select::make('room_id')
                 ->label('Ruangan')
@@ -141,6 +146,10 @@ class AssetResource extends Resource
                     })
                     ->formatStateUsing(fn (Asset $record) => $record->conditionLabel()),
 
+                TextColumn::make('brand.name')
+                    ->label('Merek')
+                    ->placeholder('—'),
+
                 TextColumn::make('room.name')
                     ->label('Ruangan')
                     ->placeholder('—'),
@@ -159,12 +168,9 @@ class AssetResource extends Resource
                 SelectFilter::make('category')
                     ->label('Kategori')
                     ->options([
-                        'furniture'    => 'Furnitur',
-                        'elektronik'   => 'Elektronik',
-                        'olahraga'     => 'Olahraga',
-                        'lab'          => 'Lab',
-                        'perpustakaan' => 'Perpustakaan',
-                        'lain'         => 'Lain-lain',
+                        'perpus'    => 'Perpustakaan',
+                        'sarana'    => 'Sarana',
+                        'prasarana' => 'Prasarana',
                     ]),
                 SelectFilter::make('condition')
                     ->label('Kondisi')

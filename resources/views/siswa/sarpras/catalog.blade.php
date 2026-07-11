@@ -19,7 +19,7 @@
         <div class="grid grid-cols-3 gap-2">
             <select name="category" class="border border-gray-200 rounded-xl px-2 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-violet-300">
                 <option value="">Semua Kategori</option>
-                @foreach(['furniture'=>'Furnitur','elektronik'=>'Elektronik','olahraga'=>'Olahraga','lab'=>'Lab','perpustakaan'=>'Perpustakaan','lain'=>'Lain-lain'] as $val=>$label)
+                @foreach(['perpus'=>'Perpustakaan','sarana'=>'Sarana','prasarana'=>'Prasarana'] as $val=>$label)
                 <option value="{{ $val }}" {{ request('category') === $val ? 'selected' : '' }}>{{ $label }}</option>
                 @endforeach
             </select>

@@ -13,7 +13,7 @@ use Illuminate\Support\Str;
 class Asset extends Model
 {
     protected $fillable = [
-        'qr_code', 'name', 'category', 'room_id',
+        'qr_code', 'name', 'category', 'brand_id', 'room_id',
         'condition', 'photo', 'description', 'quantity', 'purchase_year',
     ];
 
@@ -35,9 +35,19 @@ class Asset extends Model
         return $this->belongsTo(Room::class);
     }
 
+    public function brand(): BelongsTo
+    {
+        return $this->belongsTo(Brand::class);
+    }
+
     public function loans(): HasMany
     {
         return $this->hasMany(AssetLoan::class);
+    }
+
+    public function issuances(): HasMany
+    {
+        return $this->hasMany(AssetIssuance::class);
     }
 
     public function damageReports(): HasMany
@@ -90,13 +100,10 @@ class Asset extends Model
     public function categoryLabel(): string
     {
         return match ($this->category) {
-            'furniture'   => 'Furnitur',
-            'elektronik'  => 'Elektronik',
-            'olahraga'    => 'Olahraga',
-            'lab'         => 'Lab',
-            'perpustakaan'=> 'Perpustakaan',
-            'lain'        => 'Lain-lain',
-            default       => $this->category,
+            'perpus'    => 'Perpustakaan',
+            'sarana'    => 'Sarana',
+            'prasarana' => 'Prasarana',
+            default     => $this->category,
         };
     }
 }
