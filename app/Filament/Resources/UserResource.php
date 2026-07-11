@@ -275,39 +275,50 @@ class UserResource extends Resource
                 TextColumn::make('no_urut')
                     ->label('No.')
                     ->rowIndex()
-                    ->alignCenter(),
+                    ->alignCenter()
+                    ->width('48px'),
 
                 ViewColumn::make('photo')
                     ->label('Foto')
                     ->view('filament.tables.columns.photo-lightbox')
-                    ->alignCenter(),
+                    ->alignCenter()
+                    ->width('64px'),
 
                 TextColumn::make('name')
                     ->label('Nama')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->wrap()
+                    ->width('200px'),
 
                 TextColumn::make('email')
                     ->label('Email')
                     ->searchable()
                     ->copyable()
-                    ->toggleable(),
+                    ->toggleable()
+                    ->wrap()
+                    ->width('200px'),
 
                 TextColumn::make('phone')
                     ->label('No. HP Siswa')
                     ->placeholder('—')
                     ->searchable()
-                    ->toggleable(),
+                    ->toggleable()
+                    ->wrap()
+                    ->width('130px'),
 
                 TextColumn::make('parent_phone')
                     ->label('No. HP Ortu')
                     ->placeholder('—')
                     ->searchable()
-                    ->toggleable(),
+                    ->toggleable()
+                    ->wrap()
+                    ->width('130px'),
 
                 TextColumn::make('role')
                     ->label('Role')
                     ->badge()
+                    ->width('110px')
                     ->color(fn (string $state) => match ($state) {
                         'admin'           => 'danger',
                         'guru'            => 'warning',
@@ -325,7 +336,9 @@ class UserResource extends Resource
 
                 TextColumn::make('schoolClass.name')
                     ->label('Kelas')
-                    ->placeholder('—'),
+                    ->placeholder('—')
+                    ->wrap()
+                    ->width('90px'),
 
                 TextColumn::make('nisn_nip')
                     ->label('NISN / NIP')
@@ -341,6 +354,7 @@ class UserResource extends Resource
                         ->orWhere('nip',  'like', "%{$search}%"))
                     ->copyable()
                     ->fontFamily('mono')
+                    ->width('130px')
                     ->description(fn (User $record): ?string => match ($record->role) {
                         'guru'                     => 'NIP',
                         'siswa', 'pengelola' => $record->nisn ? 'NISN' : 'NIS',
@@ -355,6 +369,7 @@ class UserResource extends Resource
                     ->falseIcon('heroicon-o-lock-open')
                     ->trueColor('success')
                     ->falseColor('gray')
+                    ->width('80px')
                     ->tooltip(fn (User $record): string => $record->hasDeviceLocked()
                         ? 'Terkunci ke perangkat sejak ' . $record->device_locked_at?->format('d M Y')
                         : 'Belum terdaftar'
@@ -364,6 +379,7 @@ class UserResource extends Resource
                     ->label('Dibuat')
                     ->dateTime('d M Y')
                     ->sortable()
+                    ->width('100px')
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
