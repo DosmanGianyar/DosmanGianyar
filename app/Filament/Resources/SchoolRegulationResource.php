@@ -4,7 +4,9 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\SchoolRegulationResource\Pages;
 use App\Models\SchoolRegulation;
+use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -13,11 +15,6 @@ use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
 use App\Filament\Support\AdminAccess;
 use Filament\Schemas\Schema;
-use Filament\Tables\Actions\Action as TableAction;
-use Filament\Tables\Actions\BulkActionGroup;
-use Filament\Tables\Actions\DeleteBulkAction;
-use Filament\Tables\Actions\EditAction as TableEditAction;
-use Filament\Tables\Actions\DeleteAction as TableDeleteAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -116,11 +113,11 @@ class SchoolRegulationResource extends Resource
                 TernaryFilter::make('is_active')
                     ->label('Status'),
             ])
-            ->actions([
-                TableEditAction::make(),
-                TableDeleteAction::make(),
+            ->recordActions([
+                EditAction::make(),
+                DeleteAction::make(),
             ])
-            ->bulkActions([
+            ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),

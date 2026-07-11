@@ -3,9 +3,9 @@
 namespace App\Filament\Resources\ExtracurricularResource\RelationManagers;
 
 use App\Models\ExtracurricularMember;
+use Filament\Actions\Action as TableAction;
 use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Tables\Actions\Action as TableAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -67,7 +67,7 @@ class MembersRelationManager extends RelationManager
                     ]),
             ])
             ->headerActions([])
-            ->actions([
+            ->recordActions([
                 // Approve pending_join
                 TableAction::make('approve_join')
                     ->label('Setujui Bergabung')
