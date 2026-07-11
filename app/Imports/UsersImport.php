@@ -4,6 +4,7 @@ namespace App\Imports;
 
 use App\Models\SchoolClass;
 use App\Models\User;
+use App\Services\OrangtuaSyncService;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -21,6 +22,16 @@ class UsersImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
     private array $classCache = [];
 
     public function collection(Collection $rows): void
+    {
+        // Matikan event model selama loop (mis. sinkronisasi akun orangtua per baris)
+        // supaya import massal tidak scan ulang tabel siswa di tiap User::create() —
+        // disinkronkan sekali saja lewat OrangtuaSyncService::syncAll() setelah loop selesai.
+        User::withoutEvents(fn () => $this->importRows($rows));
+
+        OrangtuaSyncService::syncAll();
+    }
+
+    private function importRows(Collection $rows): void
     {
         foreach ($rows as $index => $row) {
             $rowNum = $index + 2; // account for header row

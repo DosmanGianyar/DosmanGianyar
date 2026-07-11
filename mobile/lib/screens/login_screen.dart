@@ -4,6 +4,7 @@ import '../providers/auth_provider.dart';
 import '../theme/app_colors.dart';
 import 'home_screen.dart';
 import 'guru/guru_shell.dart';
+import 'orangtua/orangtua_shell.dart';
 import 'forgot_password_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -38,7 +39,11 @@ class _LoginScreenState extends State<LoginScreen> {
       final role = context.read<AuthProvider>().user?.role;
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(
-          builder: (_) => role == 'guru' ? const GuruShell() : const HomeScreen(),
+          builder: (_) => switch (role) {
+            'guru'     => const GuruShell(),
+            'orangtua' => const OrangtuaShell(),
+            _          => const HomeScreen(),
+          },
         ),
         (_) => false,
       );
@@ -367,7 +372,7 @@ class _WhitePanelBottom extends StatelessWidget {
               children: [
                 _SIMSInput(
                   controller:      loginCtrl,
-                  hint:            'NISN (Siswa) / NIP atau Email (Guru)',
+                  hint:            'NISN/NIP/No. HP Orangtua/Email',
                   prefixIcon:      Icons.person_outline_rounded,
                   keyboardType:    TextInputType.text,
                   textInputAction: TextInputAction.next,

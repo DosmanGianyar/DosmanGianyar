@@ -243,75 +243,7 @@ class AttendanceController extends Controller
         $month = $request->integer('month', now()->month);
         $year  = $request->integer('year', now()->year);
 
-        $month = max(1, min(12, $month));
-        $year  = max(2020, min(now()->year + 1, $year));
-
-        $start = Carbon::createFromDate($year, $month, 1)->startOfMonth();
-        $end   = $start->copy()->endOfMonth();
-
-        $rows = Attendance::where('user_id', $user->id)
-            ->whereBetween('date', [$start, $end])
-            ->orderBy('date', 'desc')
-            ->get(['date', 'check_in_time', 'check_out_time', 'status', 'is_fake_gps', 'photo', 'check_out_photo', 'updated_at']);
-
-        $approvedDates = EarlyCheckoutRequest::where('student_id', $user->id)
-            ->whereBetween('date', [$start, $end])
-            ->where('status', 'approved')
-            ->pluck('date')
-            ->mapWithKeys(fn($d) => [$d->format('Y-m-d') => true])
-            ->all();
-
-        // Existing DB records with effective status applied
-        $records = $rows->map(fn ($r) => [
-            'date'                => $r->date->format('Y-m-d'),
-            'check_in_time'       => $r->check_in_time,
-            'check_out_time'      => $r->check_out_time,
-            'status'              => $r->effectiveStatus(isset($approvedDates[$r->date->format('Y-m-d')])),
-            'is_fake_gps'         => (bool) $r->is_fake_gps,
-            'check_in_photo_url'  => $r->photo_url,
-            'check_out_photo_url' => $r->check_out_photo_url,
-        ]);
-
-        // Synthetic alpa for past school days with no attendance record
-        $recordedDates = $rows->pluck('date')->mapWithKeys(fn($d) => [$d->format('Y-m-d') => true])->all();
-        $holidays      = Holiday::getHolidayDates($start, $end, $user->class_id);
-        $specialDays   = Holiday::getSpecialSchoolDates($start, $end, $user->class_id);
-        $today         = today();
-
-        $synthetic = collect();
-        for ($day = $start->copy(); $day->lt($today) && $day->lte($end); $day->addDay()) {
-            $ds = $day->format('Y-m-d');
-            if (! Holiday::isSchoolDay($day, $holidays, $specialDays)) continue;
-            if (isset($recordedDates[$ds])) continue;
-            $synthetic->push([
-                'date'                => $ds,
-                'check_in_time'       => null,
-                'check_out_time'      => null,
-                'status'              => 'alpa',
-                'is_fake_gps'         => false,
-                'check_in_photo_url'  => null,
-                'check_out_photo_url' => null,
-            ]);
-        }
-
-        $all = $synthetic->concat($records)->sortByDesc('date')->values();
-
-        $summary = [
-            'hadir'      => $all->where('status', 'hadir')->count(),
-            'terlambat'  => $all->where('status', 'terlambat')->count(),
-            'izin'       => $all->where('status', 'izin')->count(),
-            'sakit'      => $all->where('status', 'sakit')->count(),
-            'alpa'       => $all->where('status', 'alpa')->count(),
-            'dispensasi' => $all->where('status', 'dispensasi')->count(),
-        ];
-
-        return response()->json([
-            'month'       => $month,
-            'year'        => $year,
-            'summary'     => $summary,
-            'records'     => $all,
-            'server_time' => now()->toIso8601String(),
-        ]);
+        return response()->json(\App\Services\StudentDataService::attendanceHistory($user, $month, $year));
     }
 
     // ─── Private helpers ─────────────────────────────────────────────────────

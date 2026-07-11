@@ -8,6 +8,34 @@ class SubjectRef {
   );
 }
 
+/// Ringkasan data anak, dikirim di payload login/me untuk akun orangtua.
+class ChildSummary {
+  final int     id;
+  final String  name;
+  final String? className;
+  final String? photoUrl;
+
+  const ChildSummary({
+    required this.id,
+    required this.name,
+    this.className,
+    this.photoUrl,
+  });
+
+  factory ChildSummary.fromJson(Map<String, dynamic> json) => ChildSummary(
+    id:        json['id'] as int,
+    name:      json['name'] as String,
+    className: json['class_name'] as String?,
+    photoUrl:  json['photo_url'] as String?,
+  );
+
+  String get initials {
+    final parts = name.trim().split(' ');
+    if (parts.length >= 2) return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
+    return name.isNotEmpty ? name[0].toUpperCase() : '?';
+  }
+}
+
 class User {
   final int id;
   final String name;
@@ -31,6 +59,7 @@ class User {
   final String? gender;
   final String? parentName;
   final String? parentPhone;
+  final List<ChildSummary> children;
 
   const User({
     required this.id,
@@ -55,6 +84,7 @@ class User {
     this.gender,
     this.parentName,
     this.parentPhone,
+    this.children = const [],
   });
 
   String get subjectDisplay {
@@ -88,6 +118,9 @@ class User {
       gender:            json['gender'] as String?,
       parentName:        json['parent_name'] as String?,
       parentPhone:       json['parent_phone'] as String?,
+      children:          (json['children'] as List<dynamic>? ?? [])
+                             .map((e) => ChildSummary.fromJson(e as Map<String, dynamic>))
+                             .toList(),
     );
   }
 
@@ -112,6 +145,9 @@ class User {
     'gender':             gender,
     'parent_name':        parentName,
     'parent_phone':       parentPhone,
+    'children':           children.map((c) => {
+      'id': c.id, 'name': c.name, 'class_name': c.className, 'photo_url': c.photoUrl,
+    }).toList(),
   };
 
   String get displayId => nis ?? nisn ?? nip ?? email;
@@ -120,6 +156,7 @@ class User {
     'siswa'           => 'Siswa',
     'siswa_pengelola' => 'Siswa Pengelola',
     'guru'            => 'Guru',
+    'orangtua'        => 'Orangtua',
     _                 => role,
   };
 

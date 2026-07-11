@@ -183,7 +183,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               onChangePhoto: _changePhoto,
             ),
             const SizedBox(height: 12),
-            if (user?.role != 'guru') ...[
+            if (user?.role != 'guru' && user?.role != 'orangtua') ...[
               _StudentIdCard(user: user),
               const SizedBox(height: 12),
             ],
@@ -321,9 +321,11 @@ class _IdentityCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  user?.role == 'guru'
-                      ? (user?.subject ?? user?.roleLabel ?? 'Guru')
-                      : (user?.className ?? '—'),
+                  switch (user?.role) {
+                    'guru'     => user?.subject ?? user?.roleLabel ?? 'Guru',
+                    'orangtua' => user?.roleLabel ?? 'Orangtua',
+                    _          => user?.className ?? '—',
+                  },
                   style: const TextStyle(fontSize: 12, color: AppColors.gray500),
                 ),
               ],
@@ -349,6 +351,14 @@ class _IdentityCard extends StatelessWidget {
                       Expanded(child: _InfoBox(label: 'Wali Kelas', value: user?.homeroomClassName ?? '—')),
                       const SizedBox(width: 8),
                       Expanded(child: _InfoBox(label: 'No. HP', value: user?.phone ?? '—')),
+                    ],
+                  ),
+                ] else if (user?.role == 'orangtua') ...[
+                  Row(
+                    children: [
+                      Expanded(child: _InfoBox(label: 'No. HP', value: user?.phone ?? '—')),
+                      const SizedBox(width: 8),
+                      Expanded(child: _InfoBox(label: 'Jumlah Anak', value: '${user?.children.length ?? 0}')),
                     ],
                   ),
                 ] else ...[

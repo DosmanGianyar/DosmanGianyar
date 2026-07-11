@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\GradeController;
 use App\Http\Controllers\Api\HomeroomConsultationController;
 use App\Http\Controllers\Api\KesiswaanController;
 use App\Http\Controllers\Api\NotificationController;
+use App\Http\Controllers\Api\OrangtuaController;
 use App\Http\Controllers\Api\PermitController;
 use App\Http\Controllers\Api\SchoolRegulationController;
 use App\Http\Controllers\Api\ShiftController;
@@ -211,6 +212,14 @@ Route::prefix('v1')->group(function () {
             Route::patch('/guru/bk-consultations/{id}/schedule',          [GuruBkConsultationApiController::class, 'schedule']);
             Route::patch('/guru/bk-consultations/{id}/complete',          [GuruBkConsultationApiController::class, 'complete']);
             Route::patch('/guru/bk-consultations/{id}/cancel',            [GuruBkConsultationApiController::class, 'cancel']);
+
+            // Orangtua (read-only: data anak sendiri)
+            Route::prefix('orangtua')->middleware('role:orangtua')->group(function () {
+                Route::get('/children',     [OrangtuaController::class, 'children']);
+                Route::get('/attendance',   [OrangtuaController::class, 'attendance']);
+                Route::get('/conduct',      [OrangtuaController::class, 'conduct']);
+                Route::get('/achievements', [OrangtuaController::class, 'achievements']);
+            });
 
             // Sesi Ekstrakurikuler
             Route::get('/extracurricular-sessions',                          [ExtracurricularController::class, 'sessions']);

@@ -8,9 +8,11 @@ import 'providers/attendance_provider.dart';
 import 'providers/notification_provider.dart';
 import 'providers/extracurricular_provider.dart';
 import 'providers/regulation_provider.dart';
+import 'providers/orangtua_provider.dart';
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/guru/guru_shell.dart';
+import 'screens/orangtua/orangtua_shell.dart';
 import 'theme/app_colors.dart';
 
 void main() async {
@@ -39,6 +41,7 @@ class SimsApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => NotificationProvider()),
         ChangeNotifierProvider(create: (_) => ExtracurricularProvider()),
         ChangeNotifierProvider(create: (_) => RegulationProvider()),
+        ChangeNotifierProvider(create: (_) => OrangtuaProvider()),
       ],
       child: MaterialApp(
         title:        AppConfig.appName,
@@ -130,9 +133,11 @@ class _AppGateState extends State<_AppGate> {
       AuthState.unknown         => const Scaffold(
           body: Center(child: CircularProgressIndicator()),
         ),
-      AuthState.authenticated   => auth.user?.role == 'guru'
-          ? const GuruShell()
-          : const HomeScreen(),
+      AuthState.authenticated   => switch (auth.user?.role) {
+          'guru'     => const GuruShell(),
+          'orangtua' => const OrangtuaShell(),
+          _          => const HomeScreen(),
+        },
       AuthState.unauthenticated => const LoginScreen(),
     };
   }

@@ -37,6 +37,15 @@ class User extends Authenticatable implements FilamentUser
         ];
     }
 
+    protected static function booted(): void
+    {
+        static::saved(function (User $user) {
+            if ($user->isSiswa() && ($user->wasRecentlyCreated || $user->wasChanged('parent_phone'))) {
+                \App\Services\OrangtuaSyncService::resyncStudent($user);
+            }
+        });
+    }
+
     // ─── Filament ────────────────────────────────────────────────────────────
     public function canAccessPanel(Panel $panel): bool
     {
@@ -50,6 +59,7 @@ class User extends Authenticatable implements FilamentUser
     public function isGuru(): bool            { return $this->role === 'guru'; }
     public function isSiswa(): bool           { return in_array($this->role, ['siswa', 'pengelola']); }
     public function isPengelola(): bool       { return $this->role === 'pengelola'; }
+    public function isOrangtua(): bool        { return $this->role === 'orangtua'; }
     public function isBk(): bool
     {
         if ($this->role !== 'guru') return false;
@@ -217,6 +227,20 @@ class User extends Authenticatable implements FilamentUser
     public function waliStudents(): HasMany
     {
         return $this->hasMany(StudentHomeroomTeacher::class, 'teacher_id');
+    }
+
+    // Orangtua: daftar anak (untuk akun orangtua)
+    public function children(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'parent_students', 'parent_id', 'student_id')
+                    ->withTimestamps();
+    }
+
+    // Siswa: daftar akun orangtua yang terhubung (untuk siswa)
+    public function parentAccounts(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'parent_students', 'student_id', 'parent_id')
+                    ->withTimestamps();
     }
 
     public function getPelanggaranCountAttribute(): int

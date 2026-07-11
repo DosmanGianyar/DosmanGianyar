@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AchievementCategory;
 use App\Models\StudentAchievement;
 use App\Services\ImageService;
+use App\Services\StudentDataService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -23,21 +24,7 @@ class AchievementController extends Controller
         /** @var \App\Models\User $siswa */
         $siswa = Auth::user();
 
-        $achievements = StudentAchievement::with('category')
-            ->where('student_id', $siswa->id)
-            ->latest()
-            ->get();
-
-        $stats = [
-            'pending'  => $achievements->where('status', 'pending')->count(),
-            'approved' => $achievements->where('status', 'approved')->count(),
-            'rejected' => $achievements->where('status', 'rejected')->count(),
-        ];
-
-        return response()->json([
-            'stats'        => $stats,
-            'achievements' => $achievements->map(fn ($a) => $this->format($a))->values(),
-        ]);
+        return response()->json(StudentDataService::achievements($siswa));
     }
 
     public function store(Request $request): JsonResponse
@@ -78,27 +65,7 @@ class AchievementController extends Controller
 
         return response()->json([
             'message'     => 'Prestasi berhasil dilaporkan dan sedang menunggu verifikasi.',
-            'achievement' => $this->format($achievement),
+            'achievement' => StudentDataService::formatAchievement($achievement),
         ], 201);
-    }
-
-    private function format(StudentAchievement $a): array
-    {
-        return [
-            'id'               => $a->id,
-            'title'            => $a->title,
-            'category_name'    => $a->category?->name,
-            'level'            => $a->level,
-            'level_label'      => $a->levelLabel(),
-            'rank'             => $a->rank,
-            'achievement_date' => $a->achievement_date->toDateString(),
-            'description'      => $a->description,
-            'status'           => $a->status,
-            'status_label'     => $a->statusLabel(),
-            'rejection_reason' => $a->rejection_reason,
-            'photo_url'        => $a->photoUrl(),
-            'certificate_url'  => $a->certificateUrl(),
-            'created_at'       => $a->created_at->toIso8601String(),
-        ];
     }
 }

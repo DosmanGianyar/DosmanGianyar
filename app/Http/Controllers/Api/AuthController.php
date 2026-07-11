@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Services\ImageService;
+use App\Services\OrangtuaSyncService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -39,7 +40,7 @@ class AuthController extends Controller
 
         if (! $user || ! Hash::check($request->input('password'), $user->password)) {
             return response()->json([
-                'message' => 'NISN (siswa) / NIP atau Email (guru) / password salah.',
+                'message' => 'NISN (siswa) / NIP atau Email (guru) / No. HP (orangtua) / password salah.',
                 'code'    => 'INVALID_CREDENTIALS',
             ], 401);
         }
@@ -94,12 +95,18 @@ class AuthController extends Controller
         $request->validate(['identifier' => 'required|string']);
 
         $identifier = trim($request->input('identifier'));
+        $normalizedPhone = OrangtuaSyncService::normalizePhone($identifier);
 
-        $user = User::where('nisn', $identifier)->orWhere('nip', $identifier)->first();
+        $user = User::where('nisn', $identifier)
+            ->orWhere('nip', $identifier)
+            ->when($normalizedPhone, fn ($q) => $q->orWhere(
+                fn ($q2) => $q2->where('role', 'orangtua')->where('phone', $normalizedPhone)
+            ))
+            ->first();
 
         if (! $user) {
             return response()->json([
-                'message' => 'NISN/NIP tidak ditemukan. Periksa kembali nomor yang Anda masukkan.',
+                'message' => 'NISN/NIP/No. HP tidak ditemukan. Periksa kembali nomor yang Anda masukkan.',
                 'code'    => 'NOT_FOUND',
             ], 404);
         }
@@ -150,12 +157,19 @@ class AuthController extends Controller
 
     private function findByUsername(string $input): ?User
     {
-        // Siswa login dengan NISN, guru login dengan NIP. NIS tidak lagi dipakai untuk login.
+        // Siswa login dengan NISN, guru login dengan NIP, orangtua login dengan No. HP.
         $query = User::where('nisn', $input)->orWhere('nip', $input);
 
         if (ctype_digit($input) && strlen($input) < 10) {
             $padded = str_pad($input, 10, '0', STR_PAD_LEFT);
             $query->orWhere('nisn', $padded);
+        }
+
+        $normalizedPhone = OrangtuaSyncService::normalizePhone($input);
+        if ($normalizedPhone) {
+            $query->orWhere(function ($q) use ($normalizedPhone) {
+                $q->where('role', 'orangtua')->where('phone', $normalizedPhone);
+            });
         }
 
         return $query->first();
@@ -173,6 +187,17 @@ class AuthController extends Controller
             } catch (\Throwable $e) {
                 // teacher_subjects table may not exist yet — return empty array
             }
+        }
+
+        $children = [];
+        if ($user->role === 'orangtua') {
+            $user->loadMissing('children.schoolClass');
+            $children = $user->children->map(fn (User $c) => [
+                'id'         => $c->id,
+                'name'       => $c->name,
+                'class_name' => $c->schoolClass?->name,
+                'photo_url'  => $c->photo_url,
+            ])->values()->all();
         }
 
         return [
@@ -198,6 +223,7 @@ class AuthController extends Controller
             'gender'       => $user->gender,
             'parent_name'  => $user->parent_name,
             'parent_phone' => $user->parent_phone,
+            'children'     => $children,
         ];
     }
 
