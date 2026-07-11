@@ -272,6 +272,11 @@ class UserResource extends Resource
     {
         return $table
             ->columns([
+                TextColumn::make('no_urut')
+                    ->label('No.')
+                    ->rowIndex()
+                    ->alignCenter(),
+
                 ViewColumn::make('photo')
                     ->label('Foto')
                     ->view('filament.tables.columns.photo-lightbox')
