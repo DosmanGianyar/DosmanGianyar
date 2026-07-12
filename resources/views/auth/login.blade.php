@@ -38,7 +38,7 @@
                 <div class="w-8 h-px my-4" style="background:rgba(255,255,255,.25);"></div>
 
                 {{-- Nama Sekolah --}}
-                <p class="font-balinese text-xs whitespace-nowrap" style="color:rgba(255,255,255,.9);">
+                <p class="font-balinese text-sm whitespace-nowrap -mx-4" style="color:rgba(255,255,255,.9);">
                     ᭞ᬏᬲ᭄ᬏᬫ᭄ᬅ᭞ᬦᭂᬕᭂᬭᬶ᭞᭑᭞ᬕ᭄ᬬᬜᬃ᭞
                 </p>
                 <p class="text-xs font-bold tracking-wide mt-0.5" style="color:rgba(255,255,255,.9); letter-spacing:.05em;">
