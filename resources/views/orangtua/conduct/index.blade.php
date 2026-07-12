@@ -1,0 +1,69 @@
+@extends('layouts.orangtua')
+@section('title', 'Catatan Perilaku')
+@section('page-title', 'Catatan Perilaku')
+
+@section('content')
+<div class="space-y-4">
+
+    <p class="text-sm text-gray-500 px-1">{{ $student->name }}</p>
+
+    {{-- Ringkasan --}}
+    <div class="grid grid-cols-2 gap-3">
+        <div class="bg-green-50 rounded-2xl p-4 text-center">
+            <p class="text-2xl font-bold text-green-700">{{ $prestasiCount }}</p>
+            <p class="text-xs text-gray-500 mt-0.5">Total Prestasi</p>
+        </div>
+        <div class="bg-red-50 rounded-2xl p-4 text-center">
+            <p class="text-2xl font-bold text-red-700">{{ $pelanggaranCount }}</p>
+            <p class="text-xs text-gray-500 mt-0.5">Total Catatan Negatif</p>
+        </div>
+    </div>
+
+    {{-- Riwayat --}}
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="px-4 py-3 border-b border-gray-100">
+            <h3 class="text-sm font-semibold text-gray-800">Riwayat Catatan</h3>
+        </div>
+        <div class="divide-y divide-gray-50">
+            @forelse($logs as $log)
+            @php $isPrestasi = $log['type'] === 'prestasi'; @endphp
+            <div class="flex items-start gap-3 px-4 py-3">
+                <div class="w-9 h-9 rounded-full shrink-0 flex items-center justify-center
+                    {{ $isPrestasi ? 'bg-green-100' : 'bg-red-100' }}">
+                    <svg class="w-4 h-4 {{ $isPrestasi ? 'text-green-600' : 'text-red-600' }}"
+                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        @if($isPrestasi)
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
+                        @else
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                        @endif
+                    </svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center justify-between gap-2">
+                        <p class="text-sm font-medium text-gray-800">{{ $log['category_name'] }}</p>
+                        <span class="text-xs font-semibold shrink-0
+                            {{ $isPrestasi ? 'text-green-700' : 'text-red-700' }}">
+                            {{ $isPrestasi ? 'Catatan Positif' : 'Catatan Negatif' }}
+                        </span>
+                    </div>
+                    @if($log['note'])
+                        <p class="text-xs text-gray-500 mt-0.5">{{ $log['note'] }}</p>
+                    @endif
+                    <p class="text-xs text-gray-400 mt-0.5">
+                        {{ \Illuminate\Support\Carbon::parse($log['created_at'])->isoFormat('D MMM Y, HH:mm') }}
+                    </p>
+                </div>
+            </div>
+            @empty
+            <div class="px-4 py-8 text-center">
+                <p class="text-gray-400 text-sm">Belum ada catatan</p>
+            </div>
+            @endforelse
+        </div>
+    </div>
+
+</div>
+@endsection

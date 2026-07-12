@@ -46,6 +46,10 @@ use App\Http\Controllers\Siswa\EarlyCheckoutRequestController as SiswaEarlyCheck
 use App\Http\Controllers\Guru\EarlyCheckoutRequestController as GuruEarlyCheckout;
 use App\Http\Controllers\Admin\GuruWaliController as AdminGuruWali;
 use App\Http\Controllers\PublicBiodataController;
+use App\Http\Controllers\Orangtua\DashboardController as OrangtuaDashboard;
+use App\Http\Controllers\Orangtua\AttendanceController as OrangtuaAttendance;
+use App\Http\Controllers\Orangtua\ConductController as OrangtuaConduct;
+use App\Http\Controllers\Orangtua\AchievementController as OrangtuaAchievement;
 use Illuminate\Support\Facades\Route;
 
 // ─── Halaman Utama ────────────────────────────────────────────────────────────
@@ -372,4 +376,12 @@ Route::middleware(['auth', 'role:siswa,pengelola'])->prefix('siswa')->name('sisw
         Route::delete('/{announcement}', [SiswaAnnouncement::class, 'destroy'])->name('destroy');
         Route::get('/{announcement}', [SiswaAnnouncement::class, 'show'])->name('show');
     });
+});
+
+// ─── Orangtua ─────────────────────────────────────────────────────────────────
+Route::middleware(['auth', 'role:orangtua'])->prefix('orangtua')->name('orangtua.')->group(function () {
+    Route::get('/dashboard', [OrangtuaDashboard::class, 'index'])->name('dashboard');
+    Route::get('/children/{studentId}/attendance', [OrangtuaAttendance::class, 'history'])->name('attendance.history');
+    Route::get('/children/{studentId}/conduct', [OrangtuaConduct::class, 'index'])->name('conduct.index');
+    Route::get('/children/{studentId}/achievements', [OrangtuaAchievement::class, 'index'])->name('achievements.index');
 });
