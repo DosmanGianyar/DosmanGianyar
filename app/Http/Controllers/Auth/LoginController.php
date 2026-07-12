@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
 use App\Models\User;
+use App\Services\OrangtuaSyncService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -48,7 +49,7 @@ class LoginController extends Controller
             $request->boolean('remember')
         )) {
             return back()
-                ->withErrors(['login' => 'NISN (siswa) / NIP atau Email (guru) / password salah.'])
+                ->withErrors(['login' => 'NISN (siswa) / NIP atau Email (guru) / No. HP (orangtua) / password salah.'])
                 ->onlyInput('login');
         }
 
@@ -63,13 +64,20 @@ class LoginController extends Controller
 
     private function findByUsername(string $input): ?User
     {
-        // Siswa login dengan NISN, guru login dengan NIP. NIS tidak lagi dipakai untuk login.
+        // Siswa login dengan NISN, guru login dengan NIP, orangtua login dengan No. HP. NIS tidak lagi dipakai untuk login.
         $query = User::where('nisn', $input)->orWhere('nip', $input);
 
         // NISN selalu 10 digit — jika input numerik kurang dari 10 digit, coba zero-pad
         if (ctype_digit($input) && strlen($input) < 10) {
             $padded = str_pad($input, 10, '0', STR_PAD_LEFT);
             $query->orWhere('nisn', $padded);
+        }
+
+        $normalizedPhone = OrangtuaSyncService::normalizePhone($input);
+        if ($normalizedPhone) {
+            $query->orWhere(function ($q) use ($normalizedPhone) {
+                $q->where('role', 'orangtua')->where('phone', $normalizedPhone);
+            });
         }
 
         return $query->first();

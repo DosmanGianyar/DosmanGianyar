@@ -30,13 +30,13 @@ class PasswordResetRequest extends Model
     }
 
     /**
-     * Reset password user ke default (NISN untuk siswa/pengelola, NIP untuk guru),
-     * lalu tandai permintaan ini sebagai disetujui.
+     * Reset password user ke default (NISN untuk siswa/pengelola, NIP untuk guru,
+     * No. HP untuk orangtua), lalu tandai permintaan ini sebagai disetujui.
      */
     public function approve(User $admin): void
     {
         $user     = $this->user;
-        $default  = $user->isSiswa() ? $user->nisn : $user->nip;
+        $default  = $user->isOrangtua() ? $user->phone : ($user->isSiswa() ? $user->nisn : $user->nip);
 
         $user->update(['password' => \Illuminate\Support\Facades\Hash::make($default)]);
         $user->resetDevices();

@@ -24,7 +24,7 @@
 
             <div class="px-8 py-8">
                 <p class="text-sm text-gray-500 mb-6 text-center">
-                    Masukkan <strong>NISN</strong> (siswa) atau <strong>NIP</strong> (guru) Anda.
+                    Masukkan <strong>NISN</strong> (siswa), <strong>NIP</strong> (guru), atau <strong>No. HP</strong> (orangtua) Anda.
                     Permintaan akan dikirim ke admin untuk diproses.
                 </p>
 
@@ -48,7 +48,7 @@
                         name="identifier"
                         value="{{ old('identifier') }}"
                         required autofocus
-                        placeholder="NISN atau NIP"
+                        placeholder="NISN / NIP / No. HP"
                         class="w-full px-4 py-2.5 rounded-xl border {{ $errors->has('identifier') ? 'border-red-400 bg-red-50' : 'border-gray-200 bg-gray-50' }} focus:bg-white focus:outline-none focus:ring-2 focus:border-transparent text-sm text-gray-700 placeholder-gray-400 transition"
                         style="--tw-ring-color:#0d2460;">
 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\PasswordResetRequest;
 use App\Models\User;
+use App\Services\OrangtuaSyncService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -23,14 +24,18 @@ class ForgotPasswordController extends Controller
         ]);
 
         $identifier = trim($request->input('identifier'));
+        $normalizedPhone = OrangtuaSyncService::normalizePhone($identifier);
 
         $user = User::where('nisn', $identifier)
             ->orWhere('nip', $identifier)
+            ->when($normalizedPhone, fn ($q) => $q->orWhere(
+                fn ($q2) => $q2->where('role', 'orangtua')->where('phone', $normalizedPhone)
+            ))
             ->first();
 
         if (! $user) {
             return back()
-                ->withErrors(['identifier' => 'NISN/NIP tidak ditemukan. Periksa kembali nomor yang Anda masukkan.'])
+                ->withErrors(['identifier' => 'NISN/NIP/No. HP tidak ditemukan. Periksa kembali nomor yang Anda masukkan.'])
                 ->onlyInput('identifier');
         }
 

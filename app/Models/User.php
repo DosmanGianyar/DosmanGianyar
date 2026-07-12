@@ -82,6 +82,7 @@ class User extends Authenticatable implements FilamentUser
             'guru'             => route('guru.dashboard'),
             'siswa'            => route('siswa.dashboard'),
             'pengelola'        => route('siswa.dashboard'),
+            'orangtua'         => route('orangtua.dashboard'),
             default            => '/',
         };
     }
