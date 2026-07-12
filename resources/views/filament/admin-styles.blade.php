@@ -191,9 +191,17 @@
    Filament (kemungkinan konteks request internal Livewire berbeda). */
 body.sims-users-actions-grid .fi-ta-actions {
     display: grid !important;
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    grid-template-columns: repeat(2, minmax(1.75rem, auto)) !important;
+    grid-auto-flow: row !important;
+    align-items: center !important;
+    justify-items: center !important;
     gap: 0.25rem !important;
     width: fit-content !important;
+}
+body.sims-users-actions-grid .fi-ta-actions > * {
+    grid-column: auto !important;
+    grid-row: auto !important;
+    position: relative !important;
 }
 </style>
 
