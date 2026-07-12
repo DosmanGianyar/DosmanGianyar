@@ -12,6 +12,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Mengizinkan semua proxy agar header HTTPS dari Nginx utama terbaca dengan benar
+        $middleware->trustProxies(at: '*');
+
         $middleware->alias([
             'role'                  => \App\Http\Middleware\RoleMiddleware::class,
             'guest'                 => \App\Http\Middleware\RedirectIfAuthenticated::class,
