@@ -76,10 +76,11 @@ class GuruResource extends Resource
                     ->label('Password')
                     ->password()
                     ->revealable()
+                    ->default('Guru123')
                     ->dehydrateStateUsing(fn ($state) => Hash::make($state))
                     ->dehydrated(fn ($state) => filled($state))
                     ->required(fn (string $operation) => $operation === 'create')
-                    ->helperText('Kosongkan jika tidak ingin mengubah password'),
+                    ->helperText('Default: Guru123 — kosongkan jika tidak ingin mengubah password'),
             ])->columns(2),
 
             Section::make('Data Kepegawaian')->schema([

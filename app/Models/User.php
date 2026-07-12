@@ -19,7 +19,7 @@ class User extends Authenticatable implements FilamentUser
     use HasApiTokens, HasFactory, Notifiable;
 
     protected $fillable = [
-        'name', 'email', 'password', 'role', 'photo', 'phone',
+        'name', 'email', 'password', 'must_change_password', 'role', 'photo', 'phone',
         'nis', 'nisn', 'gender', 'class_id', 'parent_name', 'parent_phone', 'birth_date', 'address',
         'nip', 'subject',
         'device_id', 'device_locked_at',
@@ -30,10 +30,11 @@ class User extends Authenticatable implements FilamentUser
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
-            'birth_date'        => 'date',
-            'device_locked_at'  => 'datetime',
-            'password'          => 'hashed',
+            'email_verified_at'     => 'datetime',
+            'birth_date'            => 'date',
+            'device_locked_at'      => 'datetime',
+            'password'              => 'hashed',
+            'must_change_password'  => 'boolean',
         ];
     }
 

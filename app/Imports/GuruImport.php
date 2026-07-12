@@ -126,7 +126,7 @@ class GuruImport implements ToCollection
         $user = User::create([
             'name'     => $data['nama'],
             'email'    => $email,
-            'password' => Hash::make($data['nip'], ['rounds' => 4]), // temp password = NIP; low rounds intentional for bulk import speed
+            'password' => Hash::make('Guru123', ['rounds' => 4]), // low rounds intentional for bulk import speed
             'role'     => 'guru',
             'nip'      => $data['nip'],
             'phone'    => $data['phone']  ?: null,

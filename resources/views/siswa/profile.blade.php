@@ -12,6 +12,16 @@
 @section('content')
 <div class="space-y-4">
 
+    @if(auth()->user()->must_change_password)
+    <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4">
+        <p class="text-sm font-semibold text-amber-800">Wajib Ganti Password</p>
+        <p class="text-xs text-amber-700 mt-1">
+            Demi keamanan akun, silakan ganti password default Anda sebelum melanjutkan.
+            <a href="#ganti-password" class="font-semibold underline">Ganti sekarang</a>.
+        </p>
+    </div>
+    @endif
+
     {{-- ─── Kartu Identitas Siswa ───────────────────────────────────── --}}
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
 
@@ -414,7 +424,7 @@
     </div>
 
     {{-- ─── Ganti Password ──────────────────────────────────────────── --}}
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
+    <div id="ganti-password" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
         <h3 class="text-sm font-semibold text-gray-700 mb-3">Ganti Password</h3>
         <form method="POST" action="{{ route('siswa.profile.password') }}" class="space-y-3">
             @csrf @method('PUT')

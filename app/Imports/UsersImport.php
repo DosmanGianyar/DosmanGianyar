@@ -87,18 +87,19 @@ class UsersImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                 }
             }
 
-            // Default password = NIS (siswa) or NIP (guru), else name slug
+            // Default password = Dosman123 (siswa/pengelola) atau Guru123 (guru/admin)
             $defaultPassword = match (true) {
-                $role === 'siswa' && $nis !== '' => $nis,
-                $role === 'guru'  && $nip !== '' => $nip,
-                default                          => Str::slug($name, ''),
+                in_array($role, ['siswa', 'pengelola']) => 'Dosman123',
+                $role === 'guru'                        => 'Guru123',
+                default                                 => Str::slug($name, ''),
             };
 
             User::create([
-                'name'         => $name,
-                'email'        => $email,
-                'password'     => Hash::make($defaultPassword),
-                'role'         => $role,
+                'name'                 => $name,
+                'email'                => $email,
+                'password'             => Hash::make($defaultPassword),
+                'must_change_password' => in_array($role, ['siswa', 'pengelola']),
+                'role'                 => $role,
                 'nis'          => $nis ?: null,
                 'nip'          => $nip ?: null,
                 'class_id'     => $classId,

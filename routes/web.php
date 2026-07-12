@@ -247,7 +247,7 @@ Route::middleware(['auth', 'role:guru,admin'])->prefix('guru')->name('guru.')->g
 });
 
 // ─── Siswa ────────────────────────────────────────────────────────────────────
-Route::middleware(['auth', 'role:siswa,pengelola'])->prefix('siswa')->name('siswa.')->group(function () {
+Route::middleware(['auth', 'role:siswa,pengelola', 'force.password.change'])->prefix('siswa')->name('siswa.')->group(function () {
     Route::get('/dashboard', [SiswaDashboard::class, 'index'])->name('dashboard');
     Route::get('/kesiswaan', [SiswaKesiswaan::class, 'index'])->name('kesiswaan');
     Route::get('/kurikulum', [SiswaKurikulum::class, 'index'])->name('kurikulum');

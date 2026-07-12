@@ -216,6 +216,7 @@ class AuthController extends Controller
             'homeroom_class_id'   => $user->homeroomClass?->id,
             'homeroom_class_name' => $user->homeroomClass?->name,
             'device_bound' => $user->hasDeviceLocked(),
+            'must_change_password' => (bool) $user->must_change_password,
             'is_bk'        => $user->role === 'guru' ? $user->isBk() : false,
             'phone'        => $user->phone,
             'address'      => $user->address,
@@ -289,7 +290,10 @@ class AuthController extends Controller
             return response()->json(['message' => 'Password saat ini salah.'], 422);
         }
 
-        $user->update(['password' => Hash::make($request->input('password'))]);
+        $user->update([
+            'password'              => Hash::make($request->input('password')),
+            'must_change_password'  => false,
+        ]);
 
         return response()->json(['message' => 'Password berhasil diperbarui.']);
     }
