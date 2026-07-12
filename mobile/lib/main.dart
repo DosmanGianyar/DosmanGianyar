@@ -11,6 +11,7 @@ import 'providers/regulation_provider.dart';
 import 'providers/orangtua_provider.dart';
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
+import 'screens/change_password_required_screen.dart';
 import 'screens/guru/guru_shell.dart';
 import 'screens/orangtua/orangtua_shell.dart';
 import 'theme/app_colors.dart';
@@ -128,6 +129,14 @@ class _AppGateState extends State<_AppGate> {
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
+
+    final user = auth.user;
+    if (auth.state == AuthState.authenticated &&
+        user != null &&
+        user.mustChangePassword &&
+        (user.role == 'siswa' || user.role == 'pengelola')) {
+      return const ChangePasswordRequiredScreen();
+    }
 
     return switch (auth.state) {
       AuthState.unknown         => const Scaffold(

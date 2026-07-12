@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../theme/app_colors.dart';
 import 'home_screen.dart';
+import 'change_password_required_screen.dart';
 import 'guru/guru_shell.dart';
 import 'orangtua/orangtua_shell.dart';
 import 'forgot_password_screen.dart';
@@ -36,14 +37,21 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (!mounted) return;
     if (success) {
-      final role = context.read<AuthProvider>().user?.role;
+      final user = context.read<AuthProvider>().user;
+      final role = user?.role;
+      final forcePasswordChange = user != null &&
+          user.mustChangePassword &&
+          (role == 'siswa' || role == 'pengelola');
+
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(
-          builder: (_) => switch (role) {
-            'guru'     => const GuruShell(),
-            'orangtua' => const OrangtuaShell(),
-            _          => const HomeScreen(),
-          },
+          builder: (_) => forcePasswordChange
+              ? const ChangePasswordRequiredScreen()
+              : switch (role) {
+                  'guru'     => const GuruShell(),
+                  'orangtua' => const OrangtuaShell(),
+                  _          => const HomeScreen(),
+                },
         ),
         (_) => false,
       );

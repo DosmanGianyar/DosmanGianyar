@@ -52,6 +52,7 @@ class User {
   final int? classId;
   final String? className;
   final bool deviceBound;
+  final bool mustChangePassword;
   final bool isBk;
   final String? phone;
   final String? address;
@@ -77,6 +78,7 @@ class User {
     this.homeroomClassId,
     this.homeroomClassName,
     required this.deviceBound,
+    this.mustChangePassword = false,
     this.isBk = false,
     this.phone,
     this.address,
@@ -111,6 +113,7 @@ class User {
       homeroomClassId:   json['homeroom_class_id'] as int?,
       homeroomClassName: json['homeroom_class_name'] as String?,
       deviceBound:       json['device_bound'] as bool? ?? false,
+      mustChangePassword: json['must_change_password'] as bool? ?? false,
       isBk:              json['is_bk'] as bool? ?? false,
       phone:             json['phone'] as String?,
       address:           json['address'] as String?,
@@ -139,6 +142,7 @@ class User {
     'homeroom_class_id':  homeroomClassId,
     'homeroom_class_name': homeroomClassName,
     'device_bound':       deviceBound,
+    'must_change_password': mustChangePassword,
     'phone':              phone,
     'address':            address,
     'birth_date':         birthDate,
