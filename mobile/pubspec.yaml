@@ -1,6 +1,6 @@
 name: sims_mobile
 description: SIMS Mobile - Smart Attendance App SMA Negeri 1 Gianyar
-version: 1.2.0+5
+version: 1.2.0+6
 
 environment:
   sdk: ">=3.2.0 <4.0.0"
