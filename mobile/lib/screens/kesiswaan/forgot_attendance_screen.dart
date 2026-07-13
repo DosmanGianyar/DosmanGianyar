@@ -144,9 +144,9 @@ class _CreateSheetState extends State<_CreateSheet> {
     final now = DateTime.now();
     final picked = await showDatePicker(
       context:      context,
-      initialDate:  now.subtract(const Duration(days: 1)),
+      initialDate:  now,
       firstDate:    now.subtract(const Duration(days: 30)),
-      lastDate:     now.subtract(const Duration(days: 1)),
+      lastDate:     now,
       helpText:     'Pilih tanggal lupa absen',
     );
     if (picked != null && mounted) setState(() => _date = picked);

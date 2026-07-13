@@ -36,7 +36,7 @@ class ForgotAttendanceController extends Controller
         $data = $request->validate([
             'date'   => [
                 'required', 'date',
-                'before:today',
+                'before_or_equal:today',
                 'after_or_equal:' . now()->subDays(30)->toDateString(),
             ],
             'reason' => 'required|string|max:500',
