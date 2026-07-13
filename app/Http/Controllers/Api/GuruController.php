@@ -15,6 +15,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class GuruController extends Controller
 {
@@ -516,6 +517,7 @@ class GuruController extends Controller
             'reason'         => $p->reason,
             'status'         => $p->status,
             'rejection_note' => $p->rejection_note,
+            'file_url'       => $p->file ? Storage::disk('public')->url($p->file) : null,
         ];
     }
 

@@ -40,10 +40,16 @@ class PermitController extends Controller
             'start_date' => 'required|date|after_or_equal:today',
             'end_date'   => 'required|date|after_or_equal:start_date',
             'reason'     => 'required|string|max:500',
+            'file'       => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
         ]);
 
         /** @var \App\Models\User $student */
         $student = Auth::user();
+
+        $filePath = null;
+        if ($request->hasFile('file')) {
+            $filePath = $request->file('file')->store('permits', 'public');
+        }
 
         $permit = Permit::create([
             'student_id' => $student->id,
@@ -51,6 +57,7 @@ class PermitController extends Controller
             'start_date' => $data['start_date'],
             'end_date'   => $data['end_date'],
             'reason'     => $data['reason'],
+            'file'       => $filePath,
             'status'     => 'pending',
         ]);
 
@@ -65,6 +72,7 @@ class PermitController extends Controller
                 'reason'       => $permit->reason,
                 'status'       => $permit->status,
                 'status_label' => $this->statusLabel($permit->status),
+                'file_url'     => $permit->file ? Storage::disk('public')->url($permit->file) : null,
                 'created_at'   => $permit->created_at->toIso8601String(),
             ],
         ], 201);
