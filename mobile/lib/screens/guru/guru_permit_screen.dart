@@ -215,6 +215,30 @@ class _GuruPermitScreenState extends State<GuruPermitScreen> {
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
+          if (permit.fileUrl != null) ...[
+            const SizedBox(height: 8),
+            Row(children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(6),
+                child: Image.network(
+                  permit.fileUrl!,
+                  width: 40, height: 40,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => Container(
+                    width: 40, height: 40,
+                    decoration: BoxDecoration(
+                      color: AppColors.gray100,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: const Icon(Icons.insert_drive_file_outlined, size: 18, color: AppColors.gray400),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              const Text('Lampiran terlampir',
+                style: TextStyle(fontSize: 11, color: AppColors.gray500)),
+            ]),
+          ],
           if (permit.rejectionNote != null) ...[
             const SizedBox(height: 6),
             Container(

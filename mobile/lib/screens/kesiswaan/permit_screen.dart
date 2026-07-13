@@ -1,4 +1,7 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:dio/dio.dart';
 import '../../models/permit.dart';
 import '../../services/api_client.dart';
 import '../../theme/app_colors.dart';
@@ -136,6 +139,7 @@ class _CreatePermitSheetState extends State<_CreatePermitSheet> {
   String        _type       = 'izin';
   DateTime?     _startDate;
   DateTime?     _endDate;
+  XFile?        _file;
   final _reasonCtrl = TextEditingController();
   bool _isSaving = false;
 
@@ -171,6 +175,17 @@ class _CreatePermitSheetState extends State<_CreatePermitSheet> {
     });
   }
 
+  Future<void> _pickFile() async {
+    // image_picker menggunakan Android Photo Picker bawaan sistem (Android 13+)
+    // atau document picker (≤12) — keduanya tidak memerlukan runtime permission.
+    final picker = ImagePicker();
+    final file   = await picker.pickImage(
+      source:       ImageSource.gallery,
+      imageQuality: 85,
+    );
+    if (file != null && mounted) setState(() => _file = file);
+  }
+
   Future<void> _submit() async {
     if (_startDate == null || _endDate == null) {
       _showSnack('Pilih tanggal mulai dan selesai.');
@@ -182,12 +197,15 @@ class _CreatePermitSheetState extends State<_CreatePermitSheet> {
     }
     setState(() => _isSaving = true);
     try {
-      await ApiClient.post('/permits', data: {
+      final formData = FormData.fromMap({
         'type':       _type,
         'start_date': _fmt(_startDate!),
         'end_date':   _fmt(_endDate!),
         'reason':     _reasonCtrl.text.trim(),
+        if (_file != null)
+          'file': await MultipartFile.fromFile(_file!.path, filename: 'lampiran.jpg'),
       });
+      await ApiClient.postForm('/permits', formData);
       widget.onCreated();
     } catch (e) {
       _showSnack(ApiClient.extractError(e));
@@ -317,6 +335,16 @@ class _CreatePermitSheetState extends State<_CreatePermitSheet> {
               ),
             ),
           ),
+          const SizedBox(height: 14),
+
+          // Lampiran
+          const Text('Lampiran (opsional)',
+            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppColors.gray600)),
+          const SizedBox(height: 2),
+          const Text('Surat dokter / SK kegiatan / dokumen pendukung lainnya',
+            style: TextStyle(fontSize: 10, color: AppColors.gray400)),
+          const SizedBox(height: 6),
+          _AttachmentPickerTile(file: _file, onTap: _pickFile),
           const SizedBox(height: 16),
 
           FilledButton(
@@ -406,6 +434,30 @@ class _PermitCard extends StatelessWidget {
           Text(permit.reason,
             style: const TextStyle(fontSize: 12, color: AppColors.gray500),
             maxLines: 2, overflow: TextOverflow.ellipsis),
+          if (permit.fileUrl != null) ...[
+            const SizedBox(height: 8),
+            Row(children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(6),
+                child: Image.network(
+                  permit.fileUrl!,
+                  width: 40, height: 40,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => Container(
+                    width: 40, height: 40,
+                    decoration: BoxDecoration(
+                      color: AppColors.gray100,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: const Icon(Icons.insert_drive_file_outlined, size: 18, color: AppColors.gray400),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              const Text('Lampiran terlampir',
+                style: TextStyle(fontSize: 11, color: AppColors.gray500)),
+            ]),
+          ],
           if (permit.rejectionNote != null && permit.rejectionNote!.isNotEmpty) ...[
             const SizedBox(height: 6),
             Container(
@@ -466,6 +518,46 @@ class _DateField extends StatelessWidget {
             ]),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _AttachmentPickerTile extends StatelessWidget {
+  final XFile?       file;
+  final VoidCallback onTap;
+  const _AttachmentPickerTile({required this.file, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: AppColors.gray50, borderRadius: AppRadius.input,
+          border: Border.all(
+            color: file != null ? AppColors.blue600 : AppColors.gray200,
+            width: file != null ? 1.5 : 1,
+          ),
+        ),
+        child: file != null
+            ? Row(children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(6),
+                  child: Image.file(File(file!.path), width: 40, height: 40, fit: BoxFit.cover),
+                ),
+                const SizedBox(width: 10),
+                Expanded(child: Text(file!.name,
+                  style: const TextStyle(fontSize: 12, color: AppColors.gray700),
+                  overflow: TextOverflow.ellipsis)),
+                const Icon(Icons.edit_rounded, size: 14, color: AppColors.gray400),
+              ])
+            : const Row(children: [
+                Icon(Icons.attach_file_rounded, size: 18, color: AppColors.gray400),
+                SizedBox(width: 8),
+                Text('Pilih foto lampiran', style: TextStyle(fontSize: 12, color: AppColors.gray400)),
+              ]),
       ),
     );
   }

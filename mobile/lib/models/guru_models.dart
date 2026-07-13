@@ -155,6 +155,7 @@ class GuruPermit {
   final String reason;
   final String status;
   final String? rejectionNote;
+  final String? fileUrl;
 
   const GuruPermit({
     required this.id,
@@ -167,6 +168,7 @@ class GuruPermit {
     required this.reason,
     required this.status,
     this.rejectionNote,
+    this.fileUrl,
   });
 
   bool get isPending  => status == 'pending';
@@ -184,6 +186,7 @@ class GuruPermit {
     reason:         json['reason'] as String? ?? '',
     status:         json['status'] as String,
     rejectionNote:  json['rejection_note'] as String?,
+    fileUrl:        json['file_url'] as String?,
   );
 }
 
