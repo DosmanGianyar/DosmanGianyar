@@ -62,6 +62,15 @@ class PasswordResetRequestResource extends Resource
                 TextColumn::make('identifier')
                     ->label('NISN / NIP')
                     ->fontFamily('mono')
+                    ->color(function (PasswordResetRequest $record): ?string {
+                        if ($record->user?->isSiswa()) {
+                            $val = trim((string) $record->identifier);
+                            if (strlen($val) > 0 && strlen($val) < 10) {
+                                return 'danger';
+                            }
+                        }
+                        return null;
+                    })
                     ->copyable()
                     ->searchable(),
 

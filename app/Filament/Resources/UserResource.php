@@ -181,6 +181,8 @@ class UserResource extends Resource
                     ->label('NISN')
                     ->placeholder('—')
                     ->fontFamily('mono')
+                    ->color(fn (?string $state) => (filled($state) && strlen(trim($state)) < 10) ? 'danger' : null)
+                    ->helperText(fn (?string $state) => (filled($state) && strlen(trim($state)) < 10) ? '⚠️ NISN kurang dari 10 digit (' . strlen(trim($state)) . ' digit)' : null)
                     ->copyable(),
 
                 TextEntry::make('nis')
@@ -353,11 +355,36 @@ class UserResource extends Resource
                         ->orWhere('nip',  'like', "%{$search}%"))
                     ->copyable()
                     ->fontFamily('mono')
+                    ->color(function (User $record): ?string {
+                        if (in_array($record->role, ['siswa', 'pengelola'], true)) {
+                            $val = trim((string) ($record->nisn ?? $record->nis));
+                            if (strlen($val) > 0 && strlen($val) < 10) {
+                                return 'danger';
+                            }
+                        }
+                        return null;
+                    })
+                    ->extraAttributes(function (User $record): array {
+                        if (in_array($record->role, ['siswa', 'pengelola'], true)) {
+                            $val = trim((string) ($record->nisn ?? $record->nis));
+                            if (strlen($val) > 0 && strlen($val) < 10) {
+                                return [
+                                    'class' => 'font-bold text-danger-600 dark:text-danger-400',
+                                    'title' => '⚠️ NISN kurang dari 10 digit (' . strlen($val) . ' digit)',
+                                ];
+                            }
+                        }
+                        return [];
+                    })
                     ->width('130px')
-                    ->description(fn (User $record): ?string => match ($record->role) {
-                        'guru'                     => 'NIP',
-                        'siswa', 'pengelola' => $record->nisn ? 'NISN' : 'NIS',
-                        default                    => null,
+                    ->description(function (User $record): ?string {
+                        if ($record->role === 'guru') return 'NIP';
+                        $val = trim((string) ($record->nisn ?? $record->nis));
+                        $type = $record->nisn ? 'NISN' : 'NIS';
+                        if (in_array($record->role, ['siswa', 'pengelola'], true) && strlen($val) > 0 && strlen($val) < 10) {
+                            return "{$type} (⚠️ " . strlen($val) . " digit)";
+                        }
+                        return $type;
                     }),
 
                 TextColumn::make('created_at')
