@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/notification_item.dart';
 import '../providers/notification_provider.dart';
+import '../widgets/image_viewer_dialog.dart';
 import '../theme/app_colors.dart';
 
 class NotificationsScreen extends StatefulWidget {
@@ -138,14 +139,21 @@ class _NotifTile extends StatelessWidget {
                     maxLines: 3, overflow: TextOverflow.ellipsis),
                   if (item.imageUrl != null && item.imageUrl!.isNotEmpty) ...[
                     const SizedBox(height: 8),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: Image.network(
-                        item.imageUrl!,
-                        height: 120,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                    GestureDetector(
+                      onTap: () => ImageViewerDialog.show(
+                        context,
+                        imageUrl: item.imageUrl!,
+                        title: item.title,
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Image.network(
+                          item.imageUrl!,
+                          height: 120,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                        ),
                       ),
                     ),
                   ],

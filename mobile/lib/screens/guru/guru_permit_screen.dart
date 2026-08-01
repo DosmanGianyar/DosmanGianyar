@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import '../../models/guru_models.dart';
 import '../../services/guru_service.dart';
 import '../../theme/app_colors.dart';
+import '../../widgets/image_viewer_dialog.dart';
 import 'widgets/guru_widgets.dart';
 
 class GuruPermitScreen extends StatefulWidget {
@@ -217,27 +218,41 @@ class _GuruPermitScreenState extends State<GuruPermitScreen> {
           ),
           if (permit.fileUrl != null) ...[
             const SizedBox(height: 8),
-            Row(children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(6),
-                child: Image.network(
-                  permit.fileUrl!,
-                  width: 40, height: 40,
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => Container(
-                    width: 40, height: 40,
-                    decoration: BoxDecoration(
-                      color: AppColors.gray100,
-                      borderRadius: BorderRadius.circular(6),
+            GestureDetector(
+              onTap: () => ImageViewerDialog.show(
+                context,
+                imageUrl: permit.fileUrl!,
+                title: 'Lampiran ${permit.studentName}',
+              ),
+              child: Row(children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(6),
+                  child: Image.network(
+                    permit.fileUrl!,
+                    width: 44, height: 44,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => Container(
+                      width: 44, height: 44,
+                      decoration: BoxDecoration(
+                        color: AppColors.gray100,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: const Icon(Icons.insert_drive_file_outlined, size: 20, color: AppColors.gray400),
                     ),
-                    child: const Icon(Icons.insert_drive_file_outlined, size: 18, color: AppColors.gray400),
                   ),
                 ),
-              ),
-              const SizedBox(width: 8),
-              const Text('Lampiran terlampir',
-                style: TextStyle(fontSize: 11, color: AppColors.gray500)),
-            ]),
+                const SizedBox(width: 8),
+                const Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Lampiran Terlampir',
+                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.blue600)),
+                    Text('Ketuk untuk melihat foto ukuran penuh',
+                      style: TextStyle(fontSize: 10, color: AppColors.gray400)),
+                  ],
+                ),
+              ]),
+            ),
           ],
           if (permit.rejectionNote != null) ...[
             const SizedBox(height: 6),

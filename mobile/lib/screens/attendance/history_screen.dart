@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../models/attendance.dart';
 import '../../providers/attendance_provider.dart';
+import '../../widgets/image_viewer_dialog.dart';
 import '../../theme/app_colors.dart';
 
 class HistoryScreen extends StatefulWidget {
@@ -447,29 +448,36 @@ class _Thumbnail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        ClipRRect(
-          borderRadius: BorderRadius.circular(8),
-          child: Image.network(
-            url,
-            width: 56, height: 56,
-            fit: BoxFit.cover,
-            errorBuilder: (_, __, ___) => Container(
+    return GestureDetector(
+      onTap: () => ImageViewerDialog.show(
+        context,
+        imageUrl: url,
+        title: 'Foto Presensi $label',
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Image.network(
+              url,
               width: 56, height: 56,
-              decoration: BoxDecoration(
-                color:        AppColors.gray100,
-                borderRadius: BorderRadius.circular(8),
+              fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) => Container(
+                width: 56, height: 56,
+                decoration: BoxDecoration(
+                  color:        AppColors.gray100,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(Icons.broken_image_outlined,
+                  size: 20, color: AppColors.gray400),
               ),
-              child: const Icon(Icons.broken_image_outlined,
-                size: 20, color: AppColors.gray400),
             ),
           ),
-        ),
-        const SizedBox(height: 2),
-        Text(label, style: const TextStyle(fontSize: 9, color: AppColors.gray400)),
-      ],
+          const SizedBox(height: 2),
+          Text(label, style: const TextStyle(fontSize: 9, color: AppColors.gray400)),
+        ],
+      ),
     );
   }
 }

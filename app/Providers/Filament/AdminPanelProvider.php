@@ -93,7 +93,7 @@ class AdminPanelProvider extends PanelProvider
             )
             ->renderHook(
                 PanelsRenderHook::BODY_END,
-                fn (): string => Blade::render("@include('filament.sweetalert')")
+                fn (): string => Blade::render("@include('filament.sweetalert') @include('components.image-lightbox')")
             );
     }
 }

@@ -224,7 +224,6 @@ if ('serviceWorker' in navigator) {
         sessionStorage.setItem('pwa-dismissed', '1');
     });
 })();
-</script>
-
+    @include('components.image-lightbox')
 </body>
 </html>

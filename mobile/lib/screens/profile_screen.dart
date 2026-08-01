@@ -8,6 +8,7 @@ import '../models/user.dart';
 import '../providers/auth_provider.dart';
 import '../services/api_client.dart';
 import '../theme/app_colors.dart';
+import '../widgets/image_viewer_dialog.dart';
 import 'login_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -285,8 +286,15 @@ class _IdentityCard extends StatelessWidget {
                                 child: SizedBox(width: 28, height: 28,
                                   child: CircularProgressIndicator(strokeWidth: 2.5))))
                           : user?.photoUrl != null
-                              ? Image.network(user!.photoUrl!, fit: BoxFit.cover,
-                                  errorBuilder: (_, __, ___) => _avatarPlaceholder())
+                              ? GestureDetector(
+                                  onTap: () => ImageViewerDialog.show(
+                                    context,
+                                    imageUrl: user!.photoUrl!,
+                                    title: 'Foto Profil ${user?.name ?? ""}',
+                                  ),
+                                  child: Image.network(user!.photoUrl!, fit: BoxFit.cover,
+                                      errorBuilder: (_, __, ___) => _avatarPlaceholder()),
+                                )
                               : _avatarPlaceholder(),
                     ),
                     // Tombol kamera
