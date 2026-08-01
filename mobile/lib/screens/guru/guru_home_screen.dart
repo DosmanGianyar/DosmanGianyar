@@ -86,10 +86,183 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
               _buildQuickActions(),
               const SizedBox(height: 16),
               _buildAlertList(_dashboard!),
+              const SizedBox(height: 20),
+              _buildWeeklyJournals(_dashboard!),
             ],
           ],
         ),
       ),
+    );
+  }
+
+  // ─── Histori Jurnal Mengajar (Per Minggu) ───────────────────────────────────
+  Widget _buildWeeklyJournals(GuruDashboard data) {
+    if (data.weeklyJournals.isEmpty) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: AppColors.white,
+          borderRadius: BorderRadius.circular(AppRadius.xl),
+          border: Border.all(color: AppColors.gray100),
+          boxShadow: AppShadow.sm,
+        ),
+        child: const Center(
+          child: Text(
+            'Belum ada histori jurnal mengajar yang dibuat.',
+            style: TextStyle(fontSize: 12, color: AppColors.gray400),
+          ),
+        ),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Row(
+          children: [
+            Icon(Icons.history_edu_rounded, size: 18, color: AppColors.blue600),
+            SizedBox(width: 8),
+            Text(
+              'Histori Jurnal Mengajar (Per Minggu)',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                color: AppColors.gray800,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        ListView.separated(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: data.weeklyJournals.length,
+          separatorBuilder: (_, __) => const SizedBox(height: 12),
+          itemBuilder: (_, i) {
+            final group = data.weeklyJournals[i];
+            return Container(
+              decoration: BoxDecoration(
+                color: AppColors.white,
+                borderRadius: BorderRadius.circular(AppRadius.xl),
+                border: Border.all(color: AppColors.gray100),
+                boxShadow: AppShadow.sm,
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: ExpansionTile(
+                initiallyExpanded: i == 0,
+                tilePadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+                childrenPadding: const EdgeInsets.all(12),
+                backgroundColor: AppColors.white,
+                collapsedBackgroundColor: AppColors.white,
+                shape: const Border(),
+                collapsedShape: const Border(),
+                title: Row(
+                  children: [
+                    Container(
+                      width: 8, height: 8,
+                      decoration: const BoxDecoration(
+                        color: AppColors.blue600,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Minggu (${group.weekRange})',
+                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.gray800),
+                    ),
+                  ],
+                ),
+                trailing: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: AppColors.blue50,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(
+                    '${group.count} jurnal',
+                    style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.blue600),
+                  ),
+                ),
+                children: group.journals.map((j) {
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 8),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppColors.gray50,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: AppColors.gray200),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Text(
+                              j.dateFormatted,
+                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.gray800),
+                            ),
+                            const Spacer(),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: AppColors.blue100,
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                '${j.className} • Jam ${j.period}',
+                                style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.blue800),
+                              ),
+                            ),
+                          ],
+                        ),
+                        if (j.tpCode != null || j.tpDescription != null) ...[
+                          const SizedBox(height: 6),
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: AppColors.indigo700.withOpacity(0.08),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              'TP: ${j.tpCode != null ? "[${j.tpCode}] " : ""}${j.tpDescription ?? ""}',
+                              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.indigo700),
+                            ),
+                          ),
+                        ],
+                        const SizedBox(height: 6),
+                        Text('Materi: ${j.material}', style: const TextStyle(fontSize: 11, color: AppColors.gray800)),
+                        Text('Aktivitas: ${j.activity}', style: const TextStyle(fontSize: 11, color: AppColors.gray600)),
+                        if (j.notes != null && j.notes!.isNotEmpty)
+                          Text('Catatan: ${j.notes}', style: const TextStyle(fontSize: 11, fontStyle: FontStyle.italic, color: AppColors.gray500)),
+                        if (j.absentStudents.isNotEmpty) ...[
+                          const SizedBox(height: 6),
+                          Wrap(
+                            spacing: 4,
+                            children: j.absentStudents.map((abs) => Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: AppColors.red50,
+                                borderRadius: BorderRadius.circular(4),
+                                border: Border.all(color: AppColors.red100),
+                              ),
+                              child: Text(
+                                '${abs['student_name']} (${abs['status']?.toUpperCase()})',
+                                style: const TextStyle(fontSize: 10, color: AppColors.red500, fontWeight: FontWeight.w600),
+                              ),
+                            )).toList(),
+                          ),
+                        ],
+                      ],
+                    ),
+                  );
+                }).toList(),
+              ),
+            );
+          },
+        ),
+      ],
     );
   }
 

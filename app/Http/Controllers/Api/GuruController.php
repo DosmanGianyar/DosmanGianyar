@@ -59,12 +59,49 @@ class GuruController extends Controller
                 'pelanggaran_count' => $s->pelanggaran_count,
             ]);
 
+        $weeklyJournals = \App\Models\TeacherJournal::where('teacher_id', $guru->id)
+            ->with(['schoolClass', 'subject', 'tp', 'absences.student'])
+            ->orderByDesc('date')
+            ->orderByDesc('period')
+            ->limit(50)
+            ->get()
+            ->groupBy(function ($j) {
+                $date = Carbon::parse($j->date);
+                $startOfWeek = $date->copy()->startOfWeek(Carbon::MONDAY)->translatedFormat('d M Y');
+                $endOfWeek   = $date->copy()->endOfWeek(Carbon::SUNDAY)->translatedFormat('d M Y');
+                return "$startOfWeek - $endOfWeek";
+            })
+            ->map(function ($journals, $weekRange) {
+                return [
+                    'week_range' => $weekRange,
+                    'count'      => $journals->count(),
+                    'journals'   => $journals->map(fn($j) => [
+                        'id'              => $j->id,
+                        'date_formatted'  => Carbon::parse($j->date)->translatedFormat('l, d M Y'),
+                        'class_name'      => $j->schoolClass?->name ?? '—',
+                        'subject_name'    => $j->subject?->name ?? '—',
+                        'period'          => $j->period_display,
+                        'material'        => $j->material,
+                        'activity'        => $j->activity,
+                        'notes'           => $j->notes,
+                        'tp_code'         => $j->tp?->code,
+                        'tp_description'  => $j->learning_objectives ?? $j->tp?->description,
+                        'absent_students' => $j->absences->map(fn($a) => [
+                            'student_name' => $a->student?->name ?? '—',
+                            'status'       => $a->status,
+                        ])->values(),
+                    ])->values(),
+                ];
+            })
+            ->values();
+
         return response()->json([
             'total_students'              => $totalStudents,
             'pending_permits'             => $pendingPermits,
             'pending_early_checkouts'     => $pendingEarlyCheckouts,
             'pending_forgot_attendances'  => $pendingForgotAttendances,
             'recent_alerts'               => $alerts,
+            'weekly_journals'             => $weeklyJournals,
         ]);
     }
 

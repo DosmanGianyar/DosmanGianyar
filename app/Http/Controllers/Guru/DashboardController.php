@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Guru;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\TeacherJournal;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
@@ -34,11 +36,26 @@ class DashboardController extends Controller
                 'point' => $s->pelanggaran_count,
             ]);
 
+        // Histori Jurnal Mengajar Guru per Minggu
+        $weeklyJournals = TeacherJournal::where('teacher_id', $guru->id)
+            ->with(['schoolClass', 'subject', 'tp', 'absences.student'])
+            ->orderByDesc('date')
+            ->orderByDesc('period')
+            ->limit(50)
+            ->get()
+            ->groupBy(function ($j) {
+                $date = Carbon::parse($j->date);
+                $startOfWeek = $date->copy()->startOfWeek(Carbon::MONDAY)->translatedFormat('d M Y');
+                $endOfWeek   = $date->copy()->endOfWeek(Carbon::SUNDAY)->translatedFormat('d M Y');
+                return "Minggu ($startOfWeek - $endOfWeek)";
+            });
+
         $stats = [
             'alert_kritis'   => $recentAlerts->count(),
             'total_students' => $totalStudents,
+            'total_journals' => TeacherJournal::where('teacher_id', $guru->id)->count(),
         ];
 
-        return view('guru.dashboard', compact('guru', 'stats', 'recentAlerts'));
+        return view('guru.dashboard', compact('guru', 'stats', 'recentAlerts', 'weeklyJournals'));
     }
 }

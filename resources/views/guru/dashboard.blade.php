@@ -68,7 +68,7 @@
 <div class="pb-2">
 
     {{-- ─── Alert Poin Kritis ───────────────────────────────────────── --}}
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6">
         <div class="px-4 py-3 border-b border-gray-100 bg-orange-50">
             <h3 class="text-sm font-semibold text-orange-800 flex items-center gap-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -92,6 +92,94 @@
             <div class="px-4 py-6 text-center text-sm text-gray-400">
                 Tidak ada alert poin kritis
             </div>
+            @endforelse
+        </div>
+    </div>
+
+    {{-- ─── Histori Jurnal Mengajar Saya (Per Minggu) ───────────────────────── --}}
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="px-4 py-3.5 border-b border-gray-100 bg-slate-50 flex items-center justify-between">
+            <h3 class="text-sm font-bold text-gray-800 flex items-center gap-2">
+                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                </svg>
+                Histori Jurnal Mengajar Saya (Per Minggu)
+            </h3>
+            <span class="text-xs font-semibold px-2.5 py-1 bg-blue-100 text-blue-700 rounded-full">
+                Total: {{ $stats['total_journals'] ?? 0 }} Jurnal
+            </span>
+        </div>
+
+        <div class="p-4 space-y-4">
+            @forelse($weeklyJournals as $weekRange => $journals)
+                <div class="border border-gray-200 rounded-xl overflow-hidden bg-white">
+                    {{-- Header Minggu --}}
+                    <div class="bg-blue-50/70 px-4 py-2.5 border-b border-blue-100 flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-blue-600"></span>
+                            <span class="text-xs font-bold text-blue-900">{{ $weekRange }}</span>
+                        </div>
+                        <span class="text-xs text-blue-700 font-medium bg-blue-100/80 px-2 py-0.5 rounded-md">
+                            {{ $journals->count() }} Pertemuan
+                        </span>
+                    </div>
+
+                    {{-- List Jurnal --}}
+                    <div class="divide-y divide-gray-100">
+                        @foreach($journals as $j)
+                            <div class="p-3.5 hover:bg-gray-50/80 transition-colors">
+                                <div class="flex flex-wrap items-center justify-between gap-2 mb-1.5">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xs font-bold text-gray-900">
+                                            {{ \Illuminate\Support\Carbon::parse($j->date)->translatedFormat('l, d M Y') }}
+                                        </span>
+                                        <span class="px-2 py-0.5 bg-gray-100 text-gray-700 text-[11px] font-semibold rounded-md">
+                                            Jam ke-{{ $j->period_display }}
+                                        </span>
+                                    </div>
+                                    <span class="text-xs font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md">
+                                        {{ $j->schoolClass?->name ?? '—' }} {{ $j->subject?->name ? '• '.$j->subject->name : '' }}
+                                    </span>
+                                </div>
+
+                                {{-- TP --}}
+                                @if($j->tp || $j->learning_objectives)
+                                    <div class="mb-1 text-xs text-indigo-700 font-medium bg-indigo-50/70 px-2.5 py-1 rounded-md">
+                                        <span class="font-bold">TP:</span>
+                                        @if($j->tp?->code)<span class="font-semibold">[{{ $j->tp->code }}]</span>@endif
+                                        {{ $j->learning_objectives ?? $j->tp?->description }}
+                                    </div>
+                                @endif
+
+                                {{-- Materi & Aktivitas --}}
+                                <div class="text-xs text-gray-700 space-y-0.5">
+                                    <p><span class="font-semibold text-gray-900">Materi:</span> {{ $j->material }}</p>
+                                    <p><span class="font-semibold text-gray-900">Aktivitas:</span> {{ $j->activity }}</p>
+                                    @if($j->notes)
+                                        <p class="text-gray-500 italic"><span class="font-semibold not-italic text-gray-700">Catatan:</span> {{ $j->notes }}</p>
+                                    @endif
+                                </div>
+
+                                {{-- Siswa Tidak Hadir --}}
+                                @if($j->absences->isNotEmpty())
+                                    <div class="mt-2 flex flex-wrap items-center gap-1.5 text-[11px]">
+                                        <span class="font-semibold text-red-600">Siswa Tidak Hadir:</span>
+                                        @foreach($j->absences as $abs)
+                                            <span class="px-2 py-0.5 bg-red-50 text-red-700 font-medium rounded border border-red-100">
+                                                {{ $abs->student?->name ?? '—' }} ({{ strtoupper($abs->status) }})
+                                            </span>
+                                        @endforeach
+                                    </div>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @empty
+                <div class="py-8 text-center text-sm text-gray-400">
+                    Belum ada histori jurnal mengajar yang dibuat.
+                </div>
             @endforelse
         </div>
     </div>

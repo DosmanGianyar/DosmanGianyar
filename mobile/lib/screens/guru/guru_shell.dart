@@ -256,10 +256,21 @@ class _GuruDrawer extends StatelessWidget {
           Container(
             width: 36, height: 36,
             decoration: BoxDecoration(
-              color: AppColors.blue100,
+              color: AppColors.white,
               borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: AppColors.gray200),
             ),
-            child: const Icon(Icons.school_rounded, color: AppColors.blue600, size: 20),
+            clipBehavior: Clip.antiAlias,
+            padding: const EdgeInsets.all(3),
+            child: Image.asset(
+              'assets/images/logo_sekolah.png',
+              fit: BoxFit.contain,
+              errorBuilder: (_, __, ___) => const Icon(
+                Icons.school_rounded,
+                color: AppColors.blue600,
+                size: 20,
+              ),
+            ),
           ),
           const SizedBox(width: 12),
           const Column(
