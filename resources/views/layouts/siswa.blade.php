@@ -24,25 +24,28 @@
         );
     @endphp
 
-    {{-- Kiri: logo di halaman utama, tombol back di sub-halaman --}}
-    @if($isRootPage)
-        <a href="{{ route('siswa.dashboard') }}" class="flex items-center gap-2">
-            <div class="w-8 h-8 rounded-lg overflow-hidden bg-white/15 flex items-center justify-center p-1 ring-1 ring-white/25">
+    {{-- Kiri: Logo SMAN 1 Gianyar selalu tampil untuk kembali ke Dashboard (tombol back opsional di sub-halaman) --}}
+    <div class="flex items-center gap-1.5 shrink-0">
+        @if(!$isRootPage)
+            <button onclick="history.back()"
+                class="w-8 h-8 flex items-center justify-center rounded-xl bg-white/10 hover:bg-white/20 transition-colors"
+                title="Kembali ke halaman sebelumnya">
+                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/>
+                </svg>
+            </button>
+        @endif
+
+        <a href="{{ route('siswa.dashboard') }}" class="flex items-center gap-2" title="Kembali ke Dashboard">
+            <div class="w-8 h-8 rounded-lg overflow-hidden bg-white/15 flex items-center justify-center p-1 ring-1 ring-white/25 shrink-0">
                 <img src="/img/logo_sekolah.png" alt="Logo" class="w-full h-full object-contain">
             </div>
-            <div class="leading-tight">
+            <div class="leading-tight hidden sm:block">
                 <p class="font-bold text-white text-xs leading-none tracking-wide">SMA N 1 Gianyar</p>
                 <p class="text-blue-200 text-[10px] tracking-widest uppercase">SIMS</p>
             </div>
         </a>
-    @else
-        <button onclick="history.back()"
-            class="w-9 h-9 flex items-center justify-center rounded-xl bg-white/10 hover:bg-white/20 transition-colors -ml-1">
-            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/>
-            </svg>
-        </button>
-    @endif
+    </div>
 
     <h2 class="text-sm font-semibold text-white tracking-wide">@yield('page-title', 'Beranda')</h2>
 

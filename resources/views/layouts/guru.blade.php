@@ -11,13 +11,18 @@
 <body class="bg-gray-100 font-sans">
 
 {{-- ─── Mobile Top Bar ──────────────────────────────────────────────── --}}
-<div class="lg:hidden fixed top-0 left-0 right-0 z-30 bg-white border-b border-gray-200 h-14 flex items-center px-4 justify-between gap-3">
-    <button onclick="toggleSidebar()"
-        class="w-10 h-10 flex items-center justify-center rounded-xl text-gray-500 hover:bg-gray-100 active:bg-gray-200 transition-colors shrink-0">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-        </svg>
-    </button>
+<div class="lg:hidden fixed top-0 left-0 right-0 z-30 bg-white border-b border-gray-200 h-14 flex items-center px-4 justify-between gap-2">
+    <div class="flex items-center gap-1.5 shrink-0">
+        <button onclick="toggleSidebar()"
+            class="w-9 h-9 flex items-center justify-center rounded-xl text-gray-500 hover:bg-gray-100 active:bg-gray-200 transition-colors shrink-0">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+            </svg>
+        </button>
+        <a href="{{ route('guru.dashboard') }}" class="flex items-center gap-1.5" title="Kembali ke Dashboard">
+            <img src="/img/logo_sekolah.png" alt="Logo" class="w-7 h-7 object-contain">
+        </a>
+    </div>
     <span class="text-sm font-semibold text-gray-800 truncate flex-1 text-center">
         @yield('page-title', 'Dashboard')
     </span>
