@@ -19,10 +19,21 @@ import 'theme/app_colors.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Paksa orientasi portrait (selfie harus berdiri)
+  // Paksa orientasi portrait & aktifkan Edge-to-Edge modern
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
   ]);
+
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.dark,
+      systemNavigationBarColor: Colors.transparent,
+      systemNavigationBarIconBrightness: Brightness.dark,
+    ),
+  );
 
   // Inisialisasi locale Indonesia untuk intl
   await initializeDateFormatting('id_ID', null);
