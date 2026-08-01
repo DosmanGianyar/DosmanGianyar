@@ -32,6 +32,13 @@ class GuruGradeApiController extends Controller
             ->map(fn ($c) => ['id' => $c->id, 'name' => $c->name])
             ->values();
 
+        if ($teachingClasses->isEmpty()) {
+            $teachingClasses = SchoolClass::orderBy('name')
+                ->get(['id', 'name'])
+                ->map(fn ($c) => ['id' => $c->id, 'name' => $c->name])
+                ->values();
+        }
+
         $all = collect($homeroomClass ? [$homeroomClass] : [])
             ->merge($teachingClasses)
             ->unique('id')

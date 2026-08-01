@@ -43,6 +43,26 @@ class GuruTeachingSessionController extends Controller
             ->filter(fn ($s) => $s['id'] !== null)
             ->values();
 
+        // Jika guru belum memiliki Jadwal Pelajaran spesifik di database,
+        // tampilkan seluruh kelas aktif di sekolah sebagai opsi mengajar
+        if ($teachingClasses->isEmpty()) {
+            $teachingClasses = SchoolClass::orderBy('name')
+                ->get(['id', 'name'])
+                ->map(fn ($c) => [
+                    'id'          => $c->id,
+                    'name'        => $c->name,
+                    'subject_id'  => null,
+                    'subject_name'=> '',
+                    'day'         => null,
+                    'day_name'    => '',
+                    'period'      => null,
+                    'start_time'  => null,
+                    'end_time'    => null,
+                    'is_homeroom' => false,
+                ])
+                ->values();
+        }
+
         return response()->json([
             'homeroom_class'  => $teacher->homeroomClass ? ['id' => $teacher->homeroomClass->id, 'name' => $teacher->homeroomClass->name] : null,
             'teaching_classes'=> $teachingClasses,
@@ -159,7 +179,8 @@ class GuruTeachingSessionController extends Controller
 
         // Validasi: guru boleh akses kelas ini?
         $hasAccess = $teacher->homeroomClass?->id === $classId
-            || Schedule::where('teacher_id', $teacher->id)->where('class_id', $classId)->exists();
+            || Schedule::where('teacher_id', $teacher->id)->where('class_id', $classId)->exists()
+            || ! Schedule::where('teacher_id', $teacher->id)->exists();
 
         if (! $hasAccess) {
             return response()->json(['message' => 'Akses ditolak.'], 403);
