@@ -21,7 +21,7 @@ class NotificationController extends Controller
             ->orderByRaw('read_at IS NULL DESC')
             ->orderBy('created_at', 'desc')
             ->limit(20)
-            ->get(['id', 'title', 'body', 'type', 'url', 'read_at', 'created_at']);
+            ->get(['id', 'title', 'body', 'type', 'url', 'image_url', 'read_at', 'created_at']);
 
         return response()->json([
             'notifications' => $notifications->map(fn ($n) => [
@@ -30,6 +30,7 @@ class NotificationController extends Controller
                 'body'       => $n->body,
                 'type'       => $n->type,
                 'url'        => $n->url,
+                'image_url'  => $n->image_url,
                 'is_read'    => $n->isRead(),
                 'created_at' => $n->created_at->toIso8601String(),
             ]),

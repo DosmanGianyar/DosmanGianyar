@@ -8,6 +8,7 @@ use App\Models\SchoolClass;
 use App\Models\SessionAttendance;
 use App\Models\TeacherAttendance;
 use App\Models\User;
+use App\Services\NotificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -217,6 +218,31 @@ class GuruTeachingSessionController extends Controller
             }
 
             DB::commit();
+
+            // Notifikasi ke Orangtua jika ada siswa Sakit, Izin, atau Alpa pada jam pelajaran ini
+            $subjectName = \App\Models\Subject::find($request->subject_id)?->name ?? 'Mata Pelajaran';
+            $periodStr   = implode(', ', $periods);
+            foreach ($request->attendances as $att) {
+                if (in_array($att['status'], ['sakit', 'izin', 'tidak_hadir'], true)) {
+                    $student = User::find($att['student_id']);
+                    if ($student) {
+                        $statusLabel = match ($att['status']) {
+                            'sakit'       => 'SAKIT',
+                            'izin'        => 'IZIN',
+                            'tidak_hadir' => 'ALPA',
+                            default       => strtoupper($att['status']),
+                        };
+                        NotificationService::notifyParentsOfStudent(
+                            $student,
+                            "Ketidakhadiran Jam Pelajaran — {$student->name}",
+                            "Bpk/Ibu, {$student->name} dicatat {$statusLabel} pada Mata Pelajaran {$subjectName} (Jam ke-{$periodStr}) oleh Guru {$teacher->name}.",
+                            'warning',
+                            route('orangtua.attendance.index')
+                        );
+                    }
+                }
+            }
+
             $count = count($periods);
             return response()->json([
                 'message' => "Absensi untuk {$count} jam pelajaran berhasil disimpan.",

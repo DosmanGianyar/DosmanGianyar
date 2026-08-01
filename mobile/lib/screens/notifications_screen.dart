@@ -135,7 +135,20 @@ class _NotifTile extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(item.body,
                     style: const TextStyle(fontSize: 12, color: AppColors.gray500, height: 1.4),
-                    maxLines: 2, overflow: TextOverflow.ellipsis),
+                    maxLines: 3, overflow: TextOverflow.ellipsis),
+                  if (item.imageUrl != null && item.imageUrl!.isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.network(
+                        item.imageUrl!,
+                        height: 120,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                      ),
+                    ),
+                  ],
                   const SizedBox(height: 4),
                   Text(_timeAgo(item.createdAt),
                     style: const TextStyle(fontSize: 10, color: AppColors.gray400)),

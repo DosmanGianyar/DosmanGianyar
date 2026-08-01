@@ -35,7 +35,7 @@ class AutoAlpa extends Command
             return $classOffCache[$classId];
         };
 
-        $students  = User::where('role', 'siswa')->with('schoolClass')->get(['id', 'class_id']);
+        $students  = User::where('role', 'siswa')->with(['schoolClass', 'parentAccounts'])->get();
         $alpaCount = 0;
 
         foreach ($students as $student) {
@@ -54,6 +54,15 @@ class AutoAlpa extends Command
                     'status'        => 'alpa',
                 ]);
                 $alpaCount++;
+
+                // Notifikasi Peringatan Alpa ke Orangtua
+                \App\Services\NotificationService::notifyParentsOfStudent(
+                    $student,
+                    "⚠️ Peringatan Presensi — {$student->name}",
+                    "PERHATIAN: {$student->name} belum melakukan presensi masuk sekolah hingga pukul 08:00 WITA. Status saat ini dicatat Alpa. Mohon konfirmasi ke pihak sekolah jika terdapat kendala.",
+                    'warning',
+                    route('orangtua.attendance.index')
+                );
             }
         }
 

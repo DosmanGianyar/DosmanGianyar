@@ -4,6 +4,7 @@ class NotificationItem {
   final String  body;
   final String  type;
   final String? url;
+  final String? imageUrl;
   final bool    isRead;
   final DateTime createdAt;
 
@@ -13,6 +14,7 @@ class NotificationItem {
     required this.body,
     required this.type,
     this.url,
+    this.imageUrl,
     required this.isRead,
     required this.createdAt,
   });
@@ -24,6 +26,7 @@ class NotificationItem {
       body:      json['body']       as String,
       type:      json['type']       as String? ?? 'info',
       url:       json['url']        as String?,
+      imageUrl:  json['image_url']  as String?,
       isRead:    json['is_read']    as bool? ?? false,
       createdAt: DateTime.parse(json['created_at'] as String),
     );

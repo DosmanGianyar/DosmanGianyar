@@ -10,7 +10,7 @@ class AppNotification extends Model
 {
     protected $table = 'app_notifications';
 
-    protected $fillable = ['user_id', 'title', 'body', 'type', 'url', 'read_at'];
+    protected $fillable = ['user_id', 'title', 'body', 'type', 'url', 'image_url', 'read_at'];
 
     protected $casts = [
         'read_at' => 'datetime',

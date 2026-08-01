@@ -8,6 +8,7 @@ use App\Models\AttendanceSetting;
 use App\Models\EarlyCheckoutRequest;
 use App\Models\Holiday;
 use App\Services\GeofenceService;
+use App\Services\NotificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -217,6 +218,18 @@ class AttendanceController extends Controller
         );
 
         $label = $status === 'hadir' ? 'Hadir' : 'Terlambat';
+
+        // Notifikasi ke Orangtua (dengan foto selfie check-in)
+        $photoUrl = asset('storage/' . $filename);
+        NotificationService::notifyParentsOfStudent(
+            $siswa,
+            "Presensi Masuk — {$siswa->name}",
+            "Om Swastyastu / Halo Bpk/Ibu, {$siswa->name} telah melakukan presensi masuk sekolah pada pukul " . $now->format('H:i') . " WITA (Status: {$label}). Berikut foto verifikasi kehadiran putra/putri Anda.",
+            'success',
+            route('orangtua.attendance.index'),
+            $photoUrl
+        );
+
         return response()->json([
             'success' => true,
             'status'  => $status,
@@ -337,6 +350,17 @@ class AttendanceController extends Controller
             'check_out_time'  => $now->format('H:i:s'),
             'check_out_photo' => $filename,
         ]);
+
+        // Notifikasi ke Orangtua (dengan foto selfie check-out)
+        $photoUrl = asset('storage/' . $filename);
+        NotificationService::notifyParentsOfStudent(
+            $siswa,
+            "Presensi Pulang — {$siswa->name}",
+            "Halo Bpk/Ibu, {$siswa->name} telah melakukan presensi pulang sekolah pada pukul " . $now->format('H:i') . " WITA. Terima kasih.",
+            'info',
+            route('orangtua.attendance.index'),
+            $photoUrl
+        );
 
         return response()->json([
             'success' => true,
