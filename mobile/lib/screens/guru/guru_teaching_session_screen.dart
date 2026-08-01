@@ -4,6 +4,7 @@ import '../../models/guru_models.dart';
 import '../../services/guru_service.dart';
 import '../../theme/app_colors.dart';
 import 'widgets/guru_widgets.dart';
+import 'guru_tp_screen.dart';
 
 class GuruTeachingSessionScreen extends StatefulWidget {
   const GuruTeachingSessionScreen({super.key});
@@ -33,11 +34,11 @@ class _GuruTeachingSessionScreenState extends State<GuruTeachingSessionScreen>
     return Scaffold(
       backgroundColor: AppColors.slate100,
       appBar: AppBar(
-        title: const Text('Absensi Mengajar'),
+        title: const Text('Jurnal & Absensi Mengajar'),
         bottom: TabBar(
           controller: _tabCtrl,
           tabs: const [
-            Tab(text: 'Buat Absensi'),
+            Tab(text: 'Buat Jurnal & Absensi'),
             Tab(text: 'Riwayat'),
           ],
           labelColor: AppColors.blue600,
@@ -56,7 +57,7 @@ class _GuruTeachingSessionScreenState extends State<GuruTeachingSessionScreen>
   }
 }
 
-// ─── Tab: Buat Absensi ────────────────────────────────────────────────────────
+// ─── Tab: Buat Jurnal & Absensi (Terpadu) ───────────────────────────────────
 
 class _CreateSessionTab extends StatefulWidget {
   const _CreateSessionTab();
@@ -76,6 +77,12 @@ class _CreateSessionTabState extends State<_CreateSessionTab> {
   List<Map<String, dynamic>> _occupiedPeriods = [];
   bool _loadingOccupied = false;
 
+  // Form Jurnal Mengajar
+  TujuanPembelajaran? _selectedTp;
+  final _materiCtrl = TextEditingController();
+  final _aktivCtrl  = TextEditingController();
+  final _notesCtrl  = TextEditingController();
+
   List<SessionStudentRow> _students = [];
   bool _loadingStudents = false;
 
@@ -94,6 +101,9 @@ class _CreateSessionTabState extends State<_CreateSessionTab> {
   @override
   void dispose() {
     _dateCtrl.dispose();
+    _materiCtrl.dispose();
+    _aktivCtrl.dispose();
+    _notesCtrl.dispose();
     super.dispose();
   }
 
@@ -168,34 +178,84 @@ class _CreateSessionTabState extends State<_CreateSessionTab> {
     }
   }
 
+  Future<void> _pickTp() async {
+    final result = await showModalBottomSheet<TujuanPembelajaran>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => TpPickerSheet(
+        currentTpId: _selectedTp?.id,
+        subjectId: _selectedSubjectId,
+      ),
+    );
+    if (result != null && mounted) setState(() => _selectedTp = result);
+  }
+
   Future<void> _submit() async {
     if (_selectedClassId == null) {
-      _showSnack('Pilih kelas', AppColors.orange500); return;
+      _showSnack('Pilih kelas terlebih dahulu', AppColors.orange500); return;
     }
     if (_selectedPeriods.isEmpty) {
       _showSnack('Pilih minimal satu jam ke-berapa', AppColors.orange500); return;
     }
+    if (_materiCtrl.text.trim().isEmpty) {
+      _showSnack('Isi materi pembelajaran', AppColors.orange500); return;
+    }
+    if (_aktivCtrl.text.trim().isEmpty) {
+      _showSnack('Isi aktivitas pembelajaran', AppColors.orange500); return;
+    }
     if (_students.isEmpty) {
-      _showSnack('Tidak ada siswa', AppColors.orange500); return;
+      _showSnack('Tidak ada siswa pada kelas ini', AppColors.orange500); return;
     }
 
     setState(() => _submitting = true);
     try {
       final sortedPeriods = _selectedPeriods.toList()..sort();
-      final msg = await GuruService.createTeachingSession(
+      final dateStr = DateFormat('yyyy-MM-dd').format(_selectedDate);
+
+      // 1. Simpan Absensi Sesi Mengajar
+      await GuruService.createTeachingSession(
         classId:     _selectedClassId!,
         subjectId:   _selectedSubjectId,
-        date:        _dateCtrl.text,
+        date:        dateStr,
         periods:     sortedPeriods,
         attendances: _students.map((s) => {
           'student_id': s.studentId,
           'status':     s.status,
         }).toList(),
       );
+
+      // 2. Simpan Jurnal Mengajar (dengan daftar siswa tidak hadir)
+      final absentList = _students
+          .where((s) => s.status != 'hadir')
+          .map((s) => {
+            'student_id': s.studentId,
+            'status':     s.status,
+          })
+          .toList();
+
+      await GuruService.createJournal(
+        classId:            _selectedClassId!,
+        subjectId:          _selectedSubjectId,
+        date:               dateStr,
+        period:             sortedPeriods.first,
+        periodEnd:          sortedPeriods.length > 1 ? sortedPeriods.last : null,
+        tpId:               _selectedTp?.id,
+        learningObjectives: _selectedTp != null ? '[${_selectedTp!.code ?? ''}] ${_selectedTp!.description}' : null,
+        material:           _materiCtrl.text.trim(),
+        activity:           _aktivCtrl.text.trim(),
+        notes:              _notesCtrl.text.trim().isNotEmpty ? _notesCtrl.text.trim() : null,
+        absentStudents:     absentList.isNotEmpty ? absentList : null,
+      );
+
       if (mounted) {
-        _showSnack(msg, AppColors.emerald600);
+        _showSnack('Jurnal & Absensi Mengajar berhasil disimpan!', AppColors.emerald600);
         setState(() {
           _selectedPeriods.clear();
+          _materiCtrl.clear();
+          _aktivCtrl.clear();
+          _notesCtrl.clear();
+          _selectedTp = null;
         });
         _loadOccupiedPeriods();
       }
@@ -281,6 +341,91 @@ class _CreateSessionTabState extends State<_CreateSessionTab> {
           ),
           const SizedBox(height: 8),
           _buildPeriodGrid(),
+          const SizedBox(height: 20),
+
+          // ── Jurnal Mengajar (Pembelajaran) ─────────────────────────
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: AppColors.white,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppColors.gray200),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Row(
+                  children: [
+                    Icon(Icons.edit_note_rounded, color: AppColors.blue600, size: 20),
+                    SizedBox(width: 8),
+                    Text(
+                      'Detail Jurnal Mengajar',
+                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.gray800),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+
+                // Tujuan Pembelajaran (TP)
+                _label('Tujuan Pembelajaran (TP / Capaian)'),
+                const SizedBox(height: 6),
+                GestureDetector(
+                  onTap: _pickTp,
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: _selectedTp != null ? AppColors.blue50 : AppColors.gray50,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: _selectedTp != null ? AppColors.blue300 : AppColors.gray200),
+                    ),
+                    child: _selectedTp != null
+                        ? Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              if (_selectedTp!.code != null && _selectedTp!.code!.isNotEmpty)
+                                Container(
+                                  margin: const EdgeInsets.only(bottom: 4),
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.blue200,
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Text(_selectedTp!.code!, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.blue700)),
+                                ),
+                              Text(_selectedTp!.description, style: const TextStyle(fontSize: 12, color: AppColors.blue700)),
+                            ],
+                          )
+                        : const Row(
+                            children: [
+                              Icon(Icons.checklist_rounded, size: 16, color: AppColors.gray400),
+                              SizedBox(width: 8),
+                              Text('Ketuk untuk memilih TP (opsional)', style: TextStyle(fontSize: 12, color: AppColors.gray400)),
+                            ],
+                          ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                // Materi Pembelajaran
+                _label('Materi Pembelajaran *'),
+                const SizedBox(height: 6),
+                _buildTextField(_materiCtrl, 'Topik / bab / pembahasan yang diajarkan...'),
+                const SizedBox(height: 12),
+
+                // Aktivitas Pembelajaran
+                _label('Aktivitas Pembelajaran *'),
+                const SizedBox(height: 6),
+                _buildTextField(_aktivCtrl, 'Metode, latihan soal, ceramah, praktikum...', maxLines: 2),
+                const SizedBox(height: 12),
+
+                // Catatan Tambahan
+                _label('Catatan Tambahan (opsional)'),
+                const SizedBox(height: 6),
+                _buildTextField(_notesCtrl, 'Observasi kelas, kendala, dll...'),
+              ],
+            ),
+          ),
           const SizedBox(height: 20),
 
           // ── Daftar Siswa ───────────────────────────────────────────
@@ -539,6 +684,33 @@ class _CreateSessionTabState extends State<_CreateSessionTab> {
 
   Widget _label(String t) => Text(t,
     style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.gray700));
+
+  Widget _buildTextField(TextEditingController ctrl, String hint, {int maxLines = 1}) {
+    return TextField(
+      controller: ctrl,
+      maxLines: maxLines,
+      style: const TextStyle(fontSize: 13, color: AppColors.gray800),
+      decoration: InputDecoration(
+        hintText: hint,
+        hintStyle: const TextStyle(color: AppColors.gray400, fontSize: 13),
+        filled: true,
+        fillColor: AppColors.gray50,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: AppColors.gray200),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: AppColors.gray200),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: AppColors.blue600, width: 1.5),
+        ),
+      ),
+    );
+  }
 }
 
 // ─── Tab: Riwayat ─────────────────────────────────────────────────────────────

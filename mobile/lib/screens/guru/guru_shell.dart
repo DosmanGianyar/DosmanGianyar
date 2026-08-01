@@ -402,14 +402,9 @@ class _GuruDrawer extends StatelessWidget {
                 onTap: () => onNavigate(const GuruInputNilaiScreen()),
               ),
               _NavTile(
-                icon:  Icons.how_to_reg_rounded,
-                label: 'Absensi Mengajar',
+                icon:  Icons.assignment_turned_in_rounded,
+                label: 'Jurnal & Absensi Mengajar',
                 onTap: () => onNavigate(const GuruTeachingSessionScreen()),
-              ),
-              _NavTile(
-                icon:  Icons.menu_book_outlined,
-                label: 'Jurnal Mengajar',
-                onTap: () => onNavigate(const GuruJournalScreen()),
               ),
               _NavTile(
                 icon:  Icons.chat_bubble_outline_rounded,

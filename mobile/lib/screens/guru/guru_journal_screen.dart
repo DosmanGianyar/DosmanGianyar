@@ -1,16 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import '../../models/guru_models.dart';
-import '../../services/guru_service.dart';
-import '../../theme/app_colors.dart';
-import 'widgets/guru_widgets.dart';
-import 'guru_tp_screen.dart';
+import 'guru_teaching_session_screen.dart';
 
-class GuruJournalScreen extends StatefulWidget {
+class GuruJournalScreen extends StatelessWidget {
   const GuruJournalScreen({super.key});
 
   @override
-  State<GuruJournalScreen> createState() => _GuruJournalScreenState();
+  Widget build(BuildContext context) {
+    return const GuruTeachingSessionScreen();
+  }
 }
 
 class _GuruJournalScreenState extends State<GuruJournalScreen> {
