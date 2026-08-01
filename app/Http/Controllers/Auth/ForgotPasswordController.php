@@ -39,6 +39,17 @@ class ForgotPasswordController extends Controller
                 ->onlyInput('identifier');
         }
 
+        // Auto-reset khusus akun demo Play Store
+        if ($user->email === 'playstore.demo@sims.sch.id' || $user->nisn === '0000000001') {
+            $user->update([
+                'password'             => \Illuminate\Support\Facades\Hash::make('PlayReview123'),
+                'must_change_password' => false,
+            ]);
+            $user->resetDevices();
+
+            return back()->with('status', '⚡ Password Akun Demo Play Store telah berhasil di-reset kembali ke: PlayReview123');
+        }
+
         $existingPending = PasswordResetRequest::where('user_id', $user->id)
             ->where('status', 'pending')
             ->exists();
