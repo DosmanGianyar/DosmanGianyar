@@ -23,16 +23,17 @@ class PlayStoreDemoSeeder extends Seeder
         $user = User::updateOrCreate(
             ['email' => self::EMAIL],
             [
-                'name'         => 'Siswa Demo (Play Store Review)',
-                'role'         => 'siswa',
-                'password'     => Hash::make(self::PASSWORD),
-                'nis'          => '0000000001',
-                'nisn'         => '0000000001',
-                'class_id'     => $kelas?->id,
-                'gender'       => 'L',
-                'birth_date'   => '2008-01-01',
-                'parent_name'  => 'Orang Tua Demo',
-                'parent_phone' => '081234567890',
+                'name'                 => 'Siswa Demo (Play Store Review)',
+                'role'                 => 'siswa',
+                'password'             => Hash::make(self::PASSWORD),
+                'must_change_password' => false,
+                'nis'                  => '0000000001',
+                'nisn'                 => '0000000001',
+                'class_id'             => $kelas?->id,
+                'gender'               => 'L',
+                'birth_date'           => '2008-01-01',
+                'parent_name'          => 'Orang Tua Demo',
+                'parent_phone'         => '081234567890',
             ]
         );
 

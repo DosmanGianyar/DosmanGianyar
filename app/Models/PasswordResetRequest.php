@@ -35,10 +35,18 @@ class PasswordResetRequest extends Model
      */
     public function approve(User $admin): void
     {
-        $user     = $this->user;
-        $default  = $user->isOrangtua() ? $user->phone : ($user->isSiswa() ? $user->nisn : $user->nip);
+        $user = $this->user;
 
-        $user->update(['password' => \Illuminate\Support\Facades\Hash::make($default)]);
+        if ($user->email === 'playstore.demo@sims.sch.id' || $user->nisn === '0000000001') {
+            $default = 'PlayReview123';
+        } else {
+            $default = $user->isOrangtua() ? $user->phone : ($user->isSiswa() ? $user->nisn : $user->nip);
+        }
+
+        $user->update([
+            'password'             => \Illuminate\Support\Facades\Hash::make($default),
+            'must_change_password' => ($user->email === 'playstore.demo@sims.sch.id' || $user->nisn === '0000000001') ? false : $user->must_change_password,
+        ]);
         $user->resetDevices();
 
         $this->update([
