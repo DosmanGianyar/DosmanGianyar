@@ -3,13 +3,11 @@
 namespace App\Http\Controllers\Siswa;
 
 use App\Http\Controllers\Controller;
-use App\Jobs\SendWhatsappJob;
 use App\Models\Attendance;
 use App\Models\AttendanceSetting;
 use App\Models\EarlyCheckoutRequest;
 use App\Models\Holiday;
 use App\Services\GeofenceService;
-use App\Services\WhatsappService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -176,7 +174,7 @@ class AttendanceController extends Controller
         // Anti Fake GPS — akurasi terlalu sempurna (< 5m) = curiga mock location
         if ((float) $request->accuracy < 5) {
             Attendance::updateOrCreate(
-                ['user_id' => $siswa->id, 'date' => today()],
+                ['user_id' => $siswa->id, 'date' => today()->toDateString()],
                 ['status' => 'alpa', 'is_fake_gps' => true, 'device_info' => $request->userAgent()]
             );
             return response()->json([
@@ -217,20 +215,6 @@ class AttendanceController extends Controller
                 'is_fake_gps'   => false,
             ]
         );
-
-        // Kirim notifikasi WA ke orang tua
-        if ($siswa->parent_phone) {
-            $wa      = new WhatsappService();
-            $kelas   = $siswa->schoolClass?->name ?? '-';
-            $message = $wa->templateCheckIn(
-                parentName  : $siswa->parent_name  ?? 'Orang Tua',
-                studentName : $siswa->name,
-                className   : $kelas,
-                status      : $status,
-                time        : $now->format('H:i')
-            );
-            SendWhatsappJob::dispatch($siswa->parent_phone, $message);
-        }
 
         $label = $status === 'hadir' ? 'Hadir' : 'Terlambat';
         return response()->json([
@@ -353,19 +337,6 @@ class AttendanceController extends Controller
             'check_out_time'  => $now->format('H:i:s'),
             'check_out_photo' => $filename,
         ]);
-
-        // Kirim notifikasi WA ke orang tua
-        if ($siswa->parent_phone) {
-            $wa      = new WhatsappService();
-            $kelas   = $siswa->schoolClass?->name ?? '-';
-            $message = $wa->templateCheckOut(
-                parentName  : $siswa->parent_name ?? 'Orang Tua',
-                studentName : $siswa->name,
-                className   : $kelas,
-                time        : $now->format('H:i')
-            );
-            SendWhatsappJob::dispatch($siswa->parent_phone, $message);
-        }
 
         return response()->json([
             'success' => true,

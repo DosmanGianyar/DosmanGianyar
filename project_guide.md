@@ -1114,7 +1114,6 @@ php artisan voting:close-expired         # tutup sesi voting yang sudah melewati
 | Siswa tidak presensi hingga 08:00 | Status berubah jadi **Alpa** | Presensi |
 | Izin/Dispensasi diapprove | Alpa pada hari itu **dibatalkan** | Presensi → Izin |
 | Poin pelanggaran ≤ -75 | Entry otomatis di **dashboard BK** | Poin → BK |
-| Poin dicatat oleh Guru | **Notifikasi WA** dikirim ke orang tua *(planned — Baileys)* | Poin → WA Gateway |
 | Damage report dikaitkan ke siswa | **Poin pelanggaran** otomatis dicatat | Sarpras → Poin |
 | Damage report pending ≥3 hari | **SLA badge warning** muncul di dashboard guru | Sarpras → SLA |
 | Gallery ditautkan ke SchoolEvent | **Foto galeri ditampilkan** di halaman event siswa | Humas → Galeri |

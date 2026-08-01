@@ -20,12 +20,19 @@ return new class extends Migration
         });
 
         // Migrasi data lama: pindahkan device_id dari users → user_devices
-        DB::statement("
-            INSERT IGNORE INTO user_devices (user_id, device_id, last_login_at, created_at, updated_at)
-            SELECT id, device_id, device_locked_at, NOW(), NOW()
-            FROM users
-            WHERE device_id IS NOT NULL
-        ");
+        $users = Illuminate\Support\Facades\DB::table('users')
+            ->whereNotNull('device_id')
+            ->get(['id', 'device_id', 'device_locked_at']);
+
+        foreach ($users as $user) {
+            Illuminate\Support\Facades\DB::table('user_devices')->insertOrIgnore([
+                'user_id'       => $user->id,
+                'device_id'     => $user->device_id,
+                'last_login_at' => $user->device_locked_at,
+                'created_at'    => now(),
+                'updated_at'    => now(),
+            ]);
+        }
     }
 
     public function down(): void

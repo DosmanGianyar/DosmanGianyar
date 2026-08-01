@@ -96,13 +96,14 @@ class DapodikImport implements ToCollection
         $tglLahir   = $this->parseDate($this->pick($row, $colMap, ['tanggallahir', 'tgllahir']));
         $phone      = $this->pick($row, $colMap, ['nohp', 'telepon', 'notelp', 'hp', 'nohptelepon']);
         $gender     = $this->normalizeGender($this->pick($row, $colMap, ['jeniskelamin', 'lp', 'gender', 'jk']));
-        $namaIbu    = $this->pick($row, $colMap, ['namaibuKandung', 'namaibu', 'ibu', 'dataibu']);
-        $namaAyah   = $this->pick($row, $colMap, ['namaayahkandung', 'namaayah', 'ayah', 'dataayah']);
-        $namaWali   = $this->pick($row, $colMap, ['namawali', 'wali', 'orangtua', 'datawali']);
-        $parentName = $namaIbu ?: ($namaWali ?: $namaAyah);
-        $kelasName  = $this->pick($row, $colMap, ['rombonganbelajar', 'rombel', 'kelas', 'namakelas', 'rombelsaatini']);
-        $alamat     = $this->pick($row, $colMap, ['alamat', 'alamatjalan', 'alamatlengkap']);
-        $email      = strtolower($this->pick($row, $colMap, ['email', 'surel', 'email']));
+        $namaIbu     = $this->pick($row, $colMap, ['namaibukandung', 'namaibu', 'ibu', 'dataibu']);
+        $namaAyah    = $this->pick($row, $colMap, ['namaayahkandung', 'namaayah', 'ayah', 'dataayah']);
+        $namaWali    = $this->pick($row, $colMap, ['namawali', 'wali', 'orangtua', 'datawali']);
+        $parentPhone = $this->pick($row, $colMap, ['nohportu', 'nohp_ortu', 'nohp orangtua', 'nohp orang tua', 'hp_ortu', 'hportu', 'nomorhportu', 'nomor hp orang tua', 'hp orang tua', 'hp orangtua']);
+        $parentName  = $namaIbu ?: ($namaWali ?: $namaAyah);
+        $kelasName   = $this->pick($row, $colMap, ['rombonganbelajar', 'rombel', 'kelas', 'namakelas', 'rombelsaatini']);
+        $alamat      = $this->pick($row, $colMap, ['alamat', 'alamatjalan', 'alamatlengkap']);
+        $email       = strtolower($this->pick($row, $colMap, ['email', 'surel', 'email']));
 
         $classId = $this->resolveClass($kelasName);
 
@@ -110,12 +111,12 @@ class DapodikImport implements ToCollection
 
         if ($existing) {
             $this->updateStudent($existing, compact(
-                'nama', 'nis', 'gender', 'phone', 'parentName',
+                'nama', 'nis', 'gender', 'phone', 'parentName', 'parentPhone',
                 'tglLahir', 'alamat', 'classId'
             ));
         } else {
             $this->createStudent(compact(
-                'nisn', 'nama', 'nis', 'gender', 'email', 'phone', 'parentName',
+                'nisn', 'nama', 'nis', 'gender', 'email', 'phone', 'parentName', 'parentPhone',
                 'tglLahir', 'alamat', 'classId'
             ));
         }
@@ -124,16 +125,17 @@ class DapodikImport implements ToCollection
     private function updateStudent(User $user, array $data): void
     {
         $update = [
-            'name'        => $data['nama'],
-            'gender'      => $data['gender']   ?: $user->gender,
-            'phone'       => $data['phone']    ?: $user->phone,
-            'parent_name' => $data['parentName'] ?: $user->parent_name,
-            'address'     => $data['alamat']   ?: $user->address,
+            'name'         => $data['nama'],
+            'gender'       => $data['gender']      ?: $user->gender,
+            'phone'        => $data['phone']       ?: $user->phone,
+            'parent_name'  => $data['parentName']  ?: $user->parent_name,
+            'parent_phone' => $data['parentPhone'] ?: $user->parent_phone,
+            'address'      => $data['alamat']      ?: $user->address,
         ];
 
-        if ($data['nis'])       $update['nis']        = $data['nis'];
-        if ($data['classId'])   $update['class_id']   = $data['classId'];
-        if ($data['tglLahir'])  $update['birth_date'] = $data['tglLahir'];
+        if ($data['nis'])       $update['nis']         = $data['nis'];
+        if ($data['classId'])   $update['class_id']    = $data['classId'];
+        if ($data['tglLahir'])  $update['birth_date']  = $data['tglLahir'];
 
         $user->update($update);
         $this->updated++;
@@ -158,7 +160,7 @@ class DapodikImport implements ToCollection
             'gender'      => $data['gender']      ?: null,
             'class_id'    => $data['classId'],
             'parent_name' => $data['parentName']  ?: null,
-            'parent_phone'=> null,
+            'parent_phone'=> $data['parentPhone'] ?: null,
             'phone'       => $data['phone']       ?: null,
             'birth_date'  => $data['tglLahir'],
             'address'     => $data['alamat']      ?: null,

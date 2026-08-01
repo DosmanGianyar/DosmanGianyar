@@ -31,24 +31,24 @@ class AuthTest extends TestCase
 
     // ─── Login ────────────────────────────────────────────────────────────────
 
-    public function test_siswa_can_login_with_email(): void
+    public function test_siswa_cannot_login_with_email(): void
     {
         $user = User::factory()->create(['role' => 'siswa', 'password' => 'password']);
 
         $this->post(route('login.submit'), [
             'login'    => $user->email,
             'password' => 'password',
-        ])->assertRedirect(route('siswa.dashboard'));
+        ])->assertSessionHasErrors('login');
 
-        $this->assertAuthenticatedAs($user);
+        $this->assertGuest();
     }
 
-    public function test_siswa_can_login_with_nis(): void
+    public function test_siswa_can_login_with_nisn(): void
     {
-        $user = User::factory()->create(['role' => 'siswa', 'nis' => '2024001', 'password' => 'password']);
+        $user = User::factory()->create(['role' => 'siswa', 'nisn' => '0012345678', 'password' => 'password']);
 
         $this->post(route('login.submit'), [
-            'login'    => '2024001',
+            'login'    => '0012345678',
             'password' => 'password',
         ])->assertRedirect(route('siswa.dashboard'));
 

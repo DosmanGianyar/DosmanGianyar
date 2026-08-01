@@ -122,7 +122,6 @@ class ConductTest extends TestCase
             'student_id'  => $this->siswa->id,
             'teacher_id'  => $this->guru->id,
             'category_id' => $this->categoryPelanggaran->id,
-            'point'       => -10,
         ]);
     }
 
@@ -138,8 +137,8 @@ class ConductTest extends TestCase
             ->assertRedirect();
 
         $this->assertDatabaseHas('conduct_logs', [
-            'student_id' => $this->siswa->id,
-            'point'      => 50,
+            'student_id'  => $this->siswa->id,
+            'category_id' => $this->categoryPrestasi->id,
         ]);
     }
 
@@ -150,58 +149,24 @@ class ConductTest extends TestCase
             ->assertSessionHasErrors(['student_id', 'category_id']);
     }
 
-    // ─── Total Points ─────────────────────────────────────────────────────────
+    // ─── Total Conduct Summary ────────────────────────────────────────────────
 
-    public function test_siswa_total_point_sums_correctly(): void
+    public function test_siswa_conduct_summary_counts_correctly(): void
     {
         ConductLog::create([
             'student_id'  => $this->siswa->id,
             'teacher_id'  => $this->guru->id,
             'category_id' => $this->categoryPelanggaran->id,
-            'point'       => -10,
         ]);
 
         ConductLog::create([
             'student_id'  => $this->siswa->id,
             'teacher_id'  => $this->guru->id,
             'category_id' => $this->categoryPrestasi->id,
-            'point'       => 50,
         ]);
 
-        $this->siswa->refresh();
-        $this->assertEquals(40, $this->siswa->total_point);
-    }
-
-    public function test_negative_total_point_is_negative(): void
-    {
-        ConductLog::create([
-            'student_id'  => $this->siswa->id,
-            'teacher_id'  => $this->guru->id,
-            'category_id' => $this->categoryPelanggaran->id,
-            'point'       => -10,
-        ]);
-
-        $this->siswa->refresh();
-        $this->assertEquals(-10, $this->siswa->total_point);
-    }
-
-    // ─── BK Log Auto-trigger ──────────────────────────────────────────────────
-
-    public function test_bk_log_created_when_points_drop_below_threshold(): void
-    {
-        // Create enough pelanggaran to drop below -75
-        for ($i = 0; $i < 8; $i++) {
-            ConductLog::create([
-                'student_id'  => $this->siswa->id,
-                'teacher_id'  => $this->guru->id,
-                'category_id' => $this->categoryPelanggaran->id,
-                'point'       => -10,
-            ]);
-        }
-
-        // Total = -80, below -75 threshold → BK Log should exist
-        $this->assertDatabaseHas('bk_logs', [
-            'student_id' => $this->siswa->id,
-        ]);
+        $summary = \App\Services\StudentDataService::conductLogs($this->siswa)['summary'];
+        $this->assertEquals(1, $summary['pelanggaran_count']);
+        $this->assertEquals(1, $summary['prestasi_count']);
     }
 }

@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(php artisan *)"
+      "Bash(php artisan *)",
+      "Bash(\"/c/Program Files/PuTTY/plink\" -ssh -pw 'Dosman123' dosman@100.73.61.126 \"cd /www/wwwroot/36.93.15.146 && echo '=== jumlah tiap jenis error ===' && grep -o 'local.ERROR: [^{]*' storage/logs/laravel.log | sed -E 's/[0-9]+//g' | sort | uniq -c | sort -rn | head -20\")"
     ]
   }
 }

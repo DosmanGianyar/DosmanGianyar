@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('student_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('approved_by')->nullable()->constrained('users')->nullOnDelete();
-            $table->enum('type', ['izin', 'sakit']);
+            $table->enum('type', ['izin', 'sakit', 'dispensasi']);
             $table->date('start_date');
             $table->date('end_date');
             $table->text('reason');

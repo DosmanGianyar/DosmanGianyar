@@ -23,8 +23,8 @@ class DashboardController extends Controller
         // Siswa dengan pelanggaran terbanyak di kelas wali
         $recentAlerts = User::where('role', 'siswa')
             ->when($classId, fn($q) => $q->where('class_id', $classId))
+            ->whereHas('conductLogs.category', fn($c) => $c->where('type', 'pelanggaran'))
             ->withCount(['conductLogs as pelanggaran_count' => fn($q) => $q->whereHas('category', fn($c) => $c->where('type', 'pelanggaran'))])
-            ->having('pelanggaran_count', '>', 0)
             ->orderByDesc('pelanggaran_count')
             ->limit(5)
             ->get()

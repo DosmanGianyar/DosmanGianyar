@@ -23,6 +23,8 @@ class AttendanceTest extends TestCase
     {
         parent::setUp();
 
+        \Illuminate\Support\Carbon::setTestNow(now()->startOfDay()->addHours(7));
+
         Storage::fake('public');
 
         $this->siswa = User::factory()->create(['role' => 'siswa']);
