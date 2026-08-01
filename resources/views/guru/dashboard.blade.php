@@ -8,7 +8,7 @@
 <div class="mb-6">
     <h2 class="text-xl font-bold text-gray-800">
         Selamat {{ now()->hour < 11 ? 'Pagi' : (now()->hour < 15 ? 'Siang' : 'Sore') }},
-        {{ explode(' ', $guru->name)[0] }} 👋
+        {{ $guru->name }} 👋
     </h2>
     <p class="text-sm text-gray-500 mt-0.5">{{ now()->isoFormat('dddd, D MMMM Y') }}</p>
 </div>

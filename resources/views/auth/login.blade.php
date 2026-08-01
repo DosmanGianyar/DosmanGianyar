@@ -80,7 +80,7 @@
                         type="text"
                         name="login"
                         value="{{ old('login') }}"
-                        required autofocus autocomplete="username"
+                        required autofocus autocomplete="username" inputmode="text" autocapitalize="none" spellcheck="false"
                         placeholder="NISN (Siswa) / NIP-Email (Guru) / No. HP (Orangtua)"
                         class="w-full px-4 py-2.5 rounded-xl border {{ $errors->has('login') ? 'border-red-400 bg-red-50' : 'border-gray-200 bg-gray-50' }} focus:bg-white focus:outline-none focus:ring-2 focus:border-transparent text-sm text-gray-700 placeholder-gray-400 transition"
                         style="--tw-ring-color:#0d2460;">
@@ -91,6 +91,7 @@
                             name="password"
                             id="password"
                             required
+                            inputmode="text" autocapitalize="none" spellcheck="false"
                             placeholder="Password"
                             class="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:border-transparent text-sm text-gray-700 placeholder-gray-400 transition"
                             style="--tw-ring-color:#0d2460;">

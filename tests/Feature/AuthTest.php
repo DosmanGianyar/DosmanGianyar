@@ -55,6 +55,23 @@ class AuthTest extends TestCase
         $this->assertAuthenticatedAs($user);
     }
 
+    public function test_siswa_nisn_and_password_preserve_leading_zeroes(): void
+    {
+        $nisn = '0012345678';
+        $user = User::factory()->create([
+            'role'     => 'siswa',
+            'nisn'     => $nisn,
+            'password' => $nisn,
+        ]);
+
+        $this->post(route('login.submit'), [
+            'login'    => $nisn,
+            'password' => $nisn,
+        ])->assertRedirect(route('siswa.dashboard'));
+
+        $this->assertAuthenticatedAs($user);
+    }
+
     public function test_guru_redirected_to_guru_dashboard(): void
     {
         $guru = User::factory()->create(['role' => 'guru', 'password' => 'password']);

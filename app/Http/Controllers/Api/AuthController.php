@@ -160,11 +160,6 @@ class AuthController extends Controller
         // Siswa login dengan NISN, guru login dengan NIP, orangtua login dengan No. HP.
         $query = User::where('nisn', $input)->orWhere('nip', $input);
 
-        if (ctype_digit($input) && strlen($input) < 10) {
-            $padded = str_pad($input, 10, '0', STR_PAD_LEFT);
-            $query->orWhere('nisn', $padded);
-        }
-
         $normalizedPhone = OrangtuaSyncService::normalizePhone($input);
         if ($normalizedPhone) {
             $query->orWhere(function ($q) use ($normalizedPhone) {

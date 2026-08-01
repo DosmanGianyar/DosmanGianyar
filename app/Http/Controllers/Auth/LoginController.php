@@ -28,13 +28,12 @@ class LoginController extends Controller
     {
         $request->validate([
             'login'    => 'required|string',
-            'password' => 'required',
+            'password' => 'required|string',
         ]);
 
         $loginInput = trim($request->input('login'));
 
         // Siswa/pengelola: hanya boleh login pakai NISN. Guru: NIP atau email. Admin: email.
-        // Untuk NISN numerik: abaikan leading zeros (0001233344 = 1233344)
         $user = str_contains($loginInput, '@')
             ? User::where('email', $loginInput)->first()
             : $this->findByUsername($loginInput);
@@ -66,12 +65,6 @@ class LoginController extends Controller
     {
         // Siswa login dengan NISN, guru login dengan NIP, orangtua login dengan No. HP. NIS tidak lagi dipakai untuk login.
         $query = User::where('nisn', $input)->orWhere('nip', $input);
-
-        // NISN selalu 10 digit — jika input numerik kurang dari 10 digit, coba zero-pad
-        if (ctype_digit($input) && strlen($input) < 10) {
-            $padded = str_pad($input, 10, '0', STR_PAD_LEFT);
-            $query->orWhere('nisn', $padded);
-        }
 
         $normalizedPhone = OrangtuaSyncService::normalizePhone($input);
         if ($normalizedPhone) {

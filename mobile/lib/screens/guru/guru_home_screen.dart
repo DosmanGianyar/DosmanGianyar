@@ -44,7 +44,7 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
   @override
   Widget build(BuildContext context) {
     final user      = context.watch<AuthProvider>().user;
-    final firstName = user?.name.split(' ').first ?? 'Guru';
+    final fullName  = user?.name ?? 'Guru';
 
     return RefreshIndicator(
       onRefresh: _load,
@@ -56,7 +56,7 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
           children: [
             // ─── Greeting ───────────────────────────────────────────────
             Text(
-              'Selamat $_greeting, $firstName 👋',
+              'Selamat $_greeting, $fullName 👋',
               style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
