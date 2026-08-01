@@ -228,7 +228,7 @@ class _CreateSessionTabState extends State<_CreateSessionTab> {
       // 2. Simpan Jurnal Mengajar (dengan daftar siswa tidak hadir)
       final absentList = _students
           .where((s) => s.status != 'hadir')
-          .map((s) => {
+          .map((s) => <String, dynamic>{
             'student_id': s.studentId,
             'status':     s.status,
           })
@@ -377,7 +377,7 @@ class _CreateSessionTabState extends State<_CreateSessionTab> {
                     decoration: BoxDecoration(
                       color: _selectedTp != null ? AppColors.blue50 : AppColors.gray50,
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: _selectedTp != null ? AppColors.blue300 : AppColors.gray200),
+                      border: Border.all(color: _selectedTp != null ? AppColors.blue200 : AppColors.gray200),
                     ),
                     child: _selectedTp != null
                         ? Column(
@@ -595,7 +595,7 @@ class _CreateSessionTabState extends State<_CreateSessionTab> {
             } else if (isOccupiedBySelf) {
               bgColor = AppColors.emerald500.withOpacity(0.15);
               borderColor = AppColors.emerald500;
-              textColor = AppColors.emerald700;
+              textColor = AppColors.emerald600;
             }
 
             return GestureDetector(
@@ -636,7 +636,7 @@ class _CreateSessionTabState extends State<_CreateSessionTab> {
                       if (isOccupiedBySelf)
                         const Text(
                           'Anda',
-                          style: TextStyle(fontSize: 8, fontWeight: FontWeight.bold, color: AppColors.emerald700),
+                          style: TextStyle(fontSize: 8, fontWeight: FontWeight.bold, color: AppColors.emerald600),
                         ),
                     ],
                   ),

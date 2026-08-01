@@ -388,7 +388,7 @@ class GuruService {
     required String material,
     required String activity,
     String? notes,
-    required List<Map<String, dynamic>> absentStudents,
+    List<Map<String, dynamic>>? absentStudents,
   }) async {
     final body = await ApiClient.post(
       '/guru/journals',
@@ -403,7 +403,7 @@ class GuruService {
         'material':            material,
         'activity':            activity,
         if (notes != null)     'notes': notes,
-        'absent_students':     absentStudents,
+        if (absentStudents != null) 'absent_students': absentStudents,
       },
     );
     return body['message'] as String;
