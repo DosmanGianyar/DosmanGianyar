@@ -69,9 +69,12 @@ class _CreateSessionTabState extends State<_CreateSessionTab> {
   Map<String, dynamic>? _classesData;
   bool _loadingClasses = true;
 
-  int?    _selectedClassId;
-  int?    _selectedSubjectId;
-  int?    _selectedPeriod;
+  int?      _selectedClassId;
+  int?      _selectedSubjectId;
+  final Set<int> _selectedPeriods = {};
+
+  List<Map<String, dynamic>> _occupiedPeriods = [];
+  bool _loadingOccupied = false;
 
   List<SessionStudentRow> _students = [];
   bool _loadingStudents = false;
@@ -100,6 +103,30 @@ class _CreateSessionTabState extends State<_CreateSessionTab> {
       if (mounted) setState(() { _classesData = data; _loadingClasses = false; });
     } catch (_) {
       if (mounted) setState(() => _loadingClasses = false);
+    }
+  }
+
+  Future<void> _loadOccupiedPeriods() async {
+    if (_selectedClassId == null) return;
+    setState(() => _loadingOccupied = true);
+    try {
+      final occupied = await GuruService.getOccupiedPeriods(
+        classId: _selectedClassId!,
+        date: DateFormat('yyyy-MM-dd').format(_selectedDate),
+      );
+      if (mounted) {
+        setState(() {
+          _occupiedPeriods = occupied;
+          _loadingOccupied = false;
+          // Hapus pilihan jam yang sudah diisi oleh guru lain
+          _selectedPeriods.removeWhere((p) {
+            final occ = _occupiedPeriods.firstWhere((o) => o['period'] == p, orElse: () => {});
+            return occ.isNotEmpty && occ['is_self'] == false;
+          });
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _loadingOccupied = false);
     }
   }
 
@@ -135,6 +162,9 @@ class _CreateSessionTabState extends State<_CreateSessionTab> {
         _selectedDate = picked;
         _dateCtrl.text = DateFormat('yyyy-MM-dd').format(picked);
       });
+      if (_selectedClassId != null) {
+        _loadOccupiedPeriods();
+      }
     }
   }
 
@@ -142,8 +172,8 @@ class _CreateSessionTabState extends State<_CreateSessionTab> {
     if (_selectedClassId == null) {
       _showSnack('Pilih kelas', AppColors.orange500); return;
     }
-    if (_selectedPeriod == null) {
-      _showSnack('Pilih jam ke-berapa', AppColors.orange500); return;
+    if (_selectedPeriods.isEmpty) {
+      _showSnack('Pilih minimal satu jam ke-berapa', AppColors.orange500); return;
     }
     if (_students.isEmpty) {
       _showSnack('Tidak ada siswa', AppColors.orange500); return;
@@ -151,11 +181,12 @@ class _CreateSessionTabState extends State<_CreateSessionTab> {
 
     setState(() => _submitting = true);
     try {
+      final sortedPeriods = _selectedPeriods.toList()..sort();
       final msg = await GuruService.createTeachingSession(
         classId:     _selectedClassId!,
         subjectId:   _selectedSubjectId,
         date:        _dateCtrl.text,
-        period:      _selectedPeriod!,
+        periods:     sortedPeriods,
         attendances: _students.map((s) => {
           'student_id': s.studentId,
           'status':     s.status,
@@ -164,11 +195,9 @@ class _CreateSessionTabState extends State<_CreateSessionTab> {
       if (mounted) {
         _showSnack(msg, AppColors.emerald600);
         setState(() {
-          _students          = [];
-          _selectedClassId   = null;
-          _selectedSubjectId = null;
-          _selectedPeriod    = null;
+          _selectedPeriods.clear();
         });
+        _loadOccupiedPeriods();
       }
     } catch (e) {
       if (mounted) _showSnack(e.toString(), AppColors.red500);
@@ -224,43 +253,34 @@ class _CreateSessionTabState extends State<_CreateSessionTab> {
           ),
           const SizedBox(height: 16),
 
-          // ── Pilih Kelas ────────────────────────────────────────────
+          // ── Pilih Kelas (Dropdown) ──────────────────────────────────
           _label('Kelas'),
           const SizedBox(height: 8),
-          _buildClassPicker(homeroom, teachingClasses),
+          _buildClassDropdown(homeroom, teachingClasses),
           const SizedBox(height: 16),
 
-          // ── Pilih Jam ──────────────────────────────────────────────
-          _label('Jam Ke-'),
-          const SizedBox(height: 8),
-          Wrap(
-            spacing: 8, runSpacing: 8,
-            children: List.generate(10, (i) {
-              final p = i + 1;
-              final selected = _selectedPeriod == p;
-              return GestureDetector(
-                onTap: () => setState(() => _selectedPeriod = p),
-                child: Container(
-                  width: 44, height: 44,
+          // ── Pilih Jam (Multi-select) ────────────────────────────────
+          Row(
+            children: [
+              _label('Jam Ke-'),
+              if (_selectedPeriods.isNotEmpty) ...[
+                const SizedBox(width: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                   decoration: BoxDecoration(
-                    color: selected ? AppColors.blue600 : AppColors.white,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: selected ? AppColors.blue600 : AppColors.gray200),
+                    color: AppColors.blue600,
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Center(
-                    child: Text(
-                      '$p',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                        color: selected ? Colors.white : AppColors.gray700,
-                      ),
-                    ),
+                  child: Text(
+                    '${_selectedPeriods.length} jam dipilih',
+                    style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.white),
                   ),
                 ),
-              );
-            }),
+              ],
+            ],
           ),
+          const SizedBox(height: 8),
+          _buildPeriodGrid(),
           const SizedBox(height: 20),
 
           // ── Daftar Siswa ───────────────────────────────────────────
@@ -325,57 +345,176 @@ class _CreateSessionTabState extends State<_CreateSessionTab> {
     );
   }
 
-  Widget _buildClassPicker(
+  Widget _buildClassDropdown(
     Map<String, dynamic>? homeroom,
     List<Map<String, dynamic>> teachingClasses,
   ) {
-    final allClasses = <Map<String, dynamic>>[
-      if (homeroom != null) {...homeroom, 'subject_name': 'Wali Kelas'},
-      ...teachingClasses,
-    ];
+    final allClasses = <Map<String, dynamic>>[];
+    final seenIds = <int>{};
+
+    if (homeroom != null && homeroom['id'] != null) {
+      final hId = homeroom['id'] as int;
+      seenIds.add(hId);
+      allClasses.add({
+        'id': hId,
+        'name': '${homeroom['name']} (Wali Kelas)',
+        'subject_id': null,
+      });
+    }
+
+    for (final c in teachingClasses) {
+      final id = c['id'] as int?;
+      if (id != null && !seenIds.contains(id)) {
+        seenIds.add(id);
+        final name = c['name'] as String? ?? '—';
+        final subj = c['subject_name'] as String? ?? '';
+        allClasses.add({
+          'id': id,
+          'name': subj.isNotEmpty ? '$name — $subj' : name,
+          'subject_id': c['subject_id'],
+        });
+      }
+    }
 
     if (allClasses.isEmpty) {
       return const Text('Tidak ada data kelas.', style: TextStyle(color: AppColors.gray400, fontSize: 13));
     }
 
-    return Wrap(
-      spacing: 8, runSpacing: 8,
-      children: allClasses.map((c) {
-        final id       = c['id'] as int?;
-        final name     = c['name'] as String? ?? '—';
-        final subject  = c['subject_name'] as String? ?? '';
-        final selected = _selectedClassId == id;
-        return GestureDetector(
-          onTap: () {
-            setState(() {
-              _selectedClassId    = id;
-              _selectedSubjectId  = c['subject_id'] as int?;
-            });
-            if (id != null) _loadStudents(id);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: AppColors.gray200),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<int>(
+          isExpanded: true,
+          value: _selectedClassId,
+          hint: const Text('Pilih Kelas...', style: TextStyle(fontSize: 13, color: AppColors.gray400)),
+          icon: const Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.gray500),
+          items: allClasses.map((c) {
+            return DropdownMenuItem<int>(
+              value: c['id'] as int,
+              child: Text(
+                c['name'] as String,
+                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.gray800),
+              ),
+            );
+          }).toList(),
+          onChanged: (id) {
+            if (id != null) {
+              final selectedObj = allClasses.firstWhere((element) => element['id'] == id, orElse: () => {});
+              setState(() {
+                _selectedClassId   = id;
+                _selectedSubjectId = selectedObj['subject_id'] as int?;
+                _selectedPeriods.clear();
+              });
+              _loadStudents(id);
+              _loadOccupiedPeriods();
+            }
           },
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(
-              color: selected ? AppColors.blue600 : AppColors.white,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: selected ? AppColors.blue600 : AppColors.gray200),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(name, style: TextStyle(
-                  fontSize: 13, fontWeight: FontWeight.w700,
-                  color: selected ? Colors.white : AppColors.gray800,
-                )),
-                if (subject.isNotEmpty)
-                  Text(subject, style: TextStyle(
-                    fontSize: 11, color: selected ? Colors.white70 : AppColors.gray400,
-                  )),
-              ],
-            ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPeriodGrid() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Wrap(
+          spacing: 8, runSpacing: 8,
+          children: List.generate(10, (i) {
+            final p = i + 1;
+            final occ = _occupiedPeriods.firstWhere(
+              (o) => o['period'] == p,
+              orElse: () => {},
+            );
+            final isOccupiedByOther = occ.isNotEmpty && occ['is_self'] == false;
+            final isOccupiedBySelf  = occ.isNotEmpty && occ['is_self'] == true;
+            final isSelected        = _selectedPeriods.contains(p);
+
+            Color bgColor = AppColors.white;
+            Color borderColor = AppColors.gray200;
+            Color textColor = AppColors.gray700;
+
+            if (isOccupiedByOther) {
+              bgColor = AppColors.gray100;
+              borderColor = AppColors.gray200;
+              textColor = AppColors.gray400;
+            } else if (isSelected) {
+              bgColor = AppColors.blue600;
+              borderColor = AppColors.blue600;
+              textColor = Colors.white;
+            } else if (isOccupiedBySelf) {
+              bgColor = AppColors.emerald500.withOpacity(0.15);
+              borderColor = AppColors.emerald500;
+              textColor = AppColors.emerald700;
+            }
+
+            return GestureDetector(
+              onTap: () {
+                if (isOccupiedByOther) {
+                  final teacherName = occ['teacher_name'] ?? 'Guru lain';
+                  _showSnack('Jam ke-$p sudah diisi oleh $teacherName', AppColors.orange500);
+                  return;
+                }
+                setState(() {
+                  if (_selectedPeriods.contains(p)) {
+                    _selectedPeriods.remove(p);
+                  } else {
+                    _selectedPeriods.add(p);
+                  }
+                });
+              },
+              child: Container(
+                width: 44, height: 44,
+                decoration: BoxDecoration(
+                  color: bgColor,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: borderColor, width: isSelected || isOccupiedBySelf ? 1.5 : 1),
+                ),
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        '$p',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: textColor,
+                          decoration: isOccupiedByOther ? TextDecoration.lineThrough : null,
+                        ),
+                      ),
+                      if (isOccupiedBySelf)
+                        const Text(
+                          'Anda',
+                          style: TextStyle(fontSize: 8, fontWeight: FontWeight.bold, color: AppColors.emerald700),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }),
+        ),
+        if (_occupiedPeriods.any((o) => o['is_self'] == false)) ...[
+          const SizedBox(height: 8),
+          const Text(
+            'Keterangan jam terisi guru lain:',
+            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.gray600),
           ),
-        );
-      }).toList(),
+          ..._occupiedPeriods.where((o) => o['is_self'] == false).map((o) => Padding(
+            padding: const EdgeInsets.only(left: 4, top: 2),
+            child: Text(
+              '• Jam ${o['period']}: Diisi oleh ${o['teacher_name']} (${o['subject_name'] ?? ''})',
+              style: const TextStyle(fontSize: 11, color: AppColors.orange600),
+            ),
+          )),
+        ],
+      ],
     );
   }
 

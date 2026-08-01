@@ -142,6 +142,7 @@ Route::prefix('v1')->group(function () {
             // Guru Teaching Session (absensi mengajar per sesi)
             Route::get('/guru/teaching-classes',                          [GuruTeachingSessionController::class, 'classes']);
             Route::get('/guru/teaching-sessions',                         [GuruTeachingSessionController::class, 'index']);
+            Route::get('/guru/teaching-sessions/occupied-periods',       [GuruTeachingSessionController::class, 'occupiedPeriods']);
             Route::post('/guru/teaching-sessions',                        [GuruTeachingSessionController::class, 'store']);
             Route::get('/guru/teaching-sessions/export',                  [GuruTeachingSessionController::class, 'export']);
             Route::get('/guru/teaching-sessions/class-students/{classId}',[GuruTeachingSessionController::class, 'classStudents']);

@@ -249,11 +249,26 @@ class GuruService {
     return body.map((e) => SimpleStudent.fromJson(e as Map<String, dynamic>)).toList();
   }
 
+  static Future<List<Map<String, dynamic>>> getOccupiedPeriods({
+    required int classId,
+    required String date,
+  }) async {
+    final body = await ApiClient.get(
+      '/guru/teaching-sessions/occupied-periods',
+      params: {
+        'class_id': classId,
+        'date': date,
+      },
+    );
+    return (body['occupied'] as List<dynamic>? ?? [])
+        .cast<Map<String, dynamic>>();
+  }
+
   static Future<String> createTeachingSession({
     required int classId,
     int? subjectId,
     required String date,
-    required int period,
+    required List<int> periods,
     String? startTime,
     String? endTime,
     String? note,
@@ -265,7 +280,7 @@ class GuruService {
         'class_id':    classId,
         if (subjectId != null) 'subject_id': subjectId,
         'date':        date,
-        'period':      period,
+        'periods':     periods,
         if (startTime != null) 'start_time': startTime,
         if (endTime   != null) 'end_time':   endTime,
         if (note      != null) 'note': note,

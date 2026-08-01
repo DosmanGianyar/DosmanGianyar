@@ -100,6 +100,36 @@ class GuruTeachingSessionController extends Controller
         ]);
     }
 
+    // GET /api/v1/guru/teaching-sessions/occupied-periods?class_id=&date=
+    public function occupiedPeriods(Request $request): JsonResponse
+    {
+        $request->validate([
+            'class_id' => 'required|exists:classes,id',
+            'date'     => 'required|date',
+        ]);
+
+        $teacher = Auth::user();
+
+        $sessions = TeacherAttendance::where('class_id', $request->class_id)
+            ->whereDate('date', $request->date)
+            ->with(['teacher:id,name', 'subject:id,name'])
+            ->get();
+
+        $occupied = $sessions->map(fn ($s) => [
+            'period'       => (int) $s->period,
+            'teacher_id'   => $s->teacher_id,
+            'teacher_name' => $s->teacher?->name ?? 'Guru lain',
+            'subject_name' => $s->subject?->name ?? '',
+            'is_self'      => $s->teacher_id === $teacher->id,
+        ])->values();
+
+        return response()->json([
+            'class_id' => (int) $request->class_id,
+            'date'     => $request->date,
+            'occupied' => $occupied,
+        ]);
+    }
+
     // POST /api/v1/guru/teaching-sessions
     public function store(Request $request): JsonResponse
     {
@@ -107,7 +137,9 @@ class GuruTeachingSessionController extends Controller
             'class_id'   => 'required|exists:classes,id',
             'subject_id' => 'nullable|exists:subjects,id',
             'date'       => 'required|date',
-            'period'     => 'required|integer|min:1|max:12',
+            'period'     => 'nullable|integer|min:1|max:12',
+            'periods'    => 'nullable|array|min:1',
+            'periods.*'  => 'integer|min:1|max:12',
             'start_time' => 'nullable|date_format:H:i',
             'end_time'   => 'nullable|date_format:H:i',
             'note'       => 'nullable|string|max:255',
@@ -118,43 +150,79 @@ class GuruTeachingSessionController extends Controller
 
         $teacher = Auth::user();
 
+        // Ambil daftar period yang dipilih (bisa array periods atau single period)
+        $periods = $request->input('periods');
+        if (empty($periods) && $request->filled('period')) {
+            $periods = [(int) $request->input('period')];
+        }
+
+        if (empty($periods)) {
+            return response()->json(['message' => 'Pilih minimal satu jam pelajaran.'], 422);
+        }
+
+        // Cek konflik: apakah jam yang dipilih sudah diisi oleh guru LAIN pada kelas dan tanggal yang sama?
+        $conflicts = TeacherAttendance::where('class_id', $request->class_id)
+            ->whereDate('date', $request->date)
+            ->whereIn('period', $periods)
+            ->where('teacher_id', '!=', $teacher->id)
+            ->with('teacher:id,name')
+            ->get();
+
+        if ($conflicts->isNotEmpty()) {
+            $details = $conflicts->map(fn ($c) => "Jam {$c->period} ({$c->teacher?->name})")->join(', ');
+            return response()->json([
+                'message' => "Gagal menyimpan: {$details} sudah diisi oleh guru lain di kelas ini.",
+            ], 422);
+        }
+
         DB::beginTransaction();
         try {
-            $session = TeacherAttendance::updateOrCreate(
-                [
-                    'teacher_id' => $teacher->id,
-                    'class_id'   => $request->class_id,
-                    'date'       => $request->date,
-                    'period'     => $request->period,
-                ],
-                [
-                    'subject_id' => $request->subject_id,
-                    'start_time' => $request->start_time,
-                    'end_time'   => $request->end_time,
-                    'status'     => 'hadir',
-                    'note'       => $request->note,
-                ]
-            );
+            $createdIds = [];
 
-            foreach ($request->attendances as $att) {
-                SessionAttendance::updateOrCreate(
+            foreach ($periods as $p) {
+                $session = TeacherAttendance::updateOrCreate(
                     [
-                        'student_id' => $att['student_id'],
+                        'teacher_id' => $teacher->id,
+                        'class_id'   => $request->class_id,
                         'date'       => $request->date,
-                        'period'     => $request->period,
+                        'period'     => $p,
                     ],
                     [
-                        'teacher_attendance_id' => $session->id,
-                        'class_id'              => $request->class_id,
-                        'subject_id'            => $request->subject_id,
-                        'status'                => $att['status'],
-                        'note'                  => $att['note'] ?? null,
+                        'subject_id' => $request->subject_id,
+                        'start_time' => $request->start_time,
+                        'end_time'   => $request->end_time,
+                        'status'     => 'hadir',
+                        'note'       => $request->note,
                     ]
                 );
+
+                foreach ($request->attendances as $att) {
+                    SessionAttendance::updateOrCreate(
+                        [
+                            'student_id' => $att['student_id'],
+                            'date'       => $request->date,
+                            'period'     => $p,
+                        ],
+                        [
+                            'teacher_attendance_id' => $session->id,
+                            'class_id'              => $request->class_id,
+                            'subject_id'            => $request->subject_id,
+                            'status'                => $att['status'],
+                            'note'                  => $att['note'] ?? null,
+                        ]
+                    );
+                }
+
+                $createdIds[] = $session->id;
             }
 
             DB::commit();
-            return response()->json(['message' => 'Absensi berhasil disimpan.', 'id' => $session->id], 201);
+            $count = count($periods);
+            return response()->json([
+                'message' => "Absensi untuk {$count} jam pelajaran berhasil disimpan.",
+                'ids'     => $createdIds,
+                'id'      => $createdIds[0] ?? null,
+            ], 201);
         } catch (\Throwable $e) {
             DB::rollBack();
             return response()->json(['message' => 'Gagal menyimpan: ' . $e->getMessage()], 500);
