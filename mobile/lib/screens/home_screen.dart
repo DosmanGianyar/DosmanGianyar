@@ -159,6 +159,16 @@ class _HomeScreenState extends State<HomeScreen> {
     };
   }
 
+  String get _currentTitle {
+    return switch (_selectedTab) {
+      0 => 'Kesiswaan',
+      1 => 'Kurikulum',
+      2 => 'Prasarana',
+      3 => 'Humas',
+      _ => 'Beranda',
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
     final user = context.watch<AuthProvider>().user;
@@ -171,6 +181,7 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             _TopHeader(
               user:          user,
+              title:         _currentTitle,
               onLogout:      _logout,
               onNotifTap:    _openNotifications,
               onProfileTap:  _openProfile,
@@ -193,6 +204,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
 class _TopHeader extends StatelessWidget {
   final User?        user;
+  final String       title;
   final VoidCallback onLogout;
   final VoidCallback onNotifTap;
   final VoidCallback onProfileTap;
@@ -200,6 +212,7 @@ class _TopHeader extends StatelessWidget {
 
   const _TopHeader({
     this.user,
+    required this.title,
     required this.onLogout,
     required this.onNotifTap,
     required this.onProfileTap,
@@ -278,10 +291,10 @@ class _TopHeader extends StatelessWidget {
           ), // end GestureDetector onHomeTap
 
           // ── Tengah: Judul halaman ────────────────────────────────
-          const Expanded(
+          Expanded(
             child: Text(
-              'Beranda',
-              style: TextStyle(
+              title,
+              style: const TextStyle(
                 fontSize:   14,
                 fontWeight: FontWeight.w600,
                 color:      Colors.white,
