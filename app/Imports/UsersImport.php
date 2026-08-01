@@ -87,10 +87,10 @@ class UsersImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                 }
             }
 
-            // Default password = Dosman123 (siswa/pengelola) atau Guru123 (guru/admin)
+            // Default password = username (NISN/NIS untuk siswa/pengelola, NIP untuk guru)
             $defaultPassword = match (true) {
-                in_array($role, ['siswa', 'pengelola']) => 'Dosman123',
-                $role === 'guru'                        => 'Guru123',
+                in_array($role, ['siswa', 'pengelola']) => $nis ?: $email,
+                $role === 'guru'                        => $nip ?: $email,
                 default                                 => Str::slug($name, ''),
             };
 

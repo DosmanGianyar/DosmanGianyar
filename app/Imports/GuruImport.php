@@ -123,10 +123,12 @@ class GuruImport implements ToCollection
             $email = $data['nip'] . '@guru.sims.sch.id';
         }
 
+        $defaultPassword = $data['nip'] ?: ($email ?: 'Guru123');
+
         $user = User::create([
             'name'     => $data['nama'],
             'email'    => $email,
-            'password' => Hash::make('Guru123', ['rounds' => 4]), // low rounds intentional for bulk import speed
+            'password' => Hash::make($defaultPassword, ['rounds' => 4]), // low rounds intentional for bulk import speed
             'role'     => 'guru',
             'nip'      => $data['nip'],
             'phone'    => $data['phone']  ?: null,

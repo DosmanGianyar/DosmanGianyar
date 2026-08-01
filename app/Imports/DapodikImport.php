@@ -149,10 +149,12 @@ class DapodikImport implements ToCollection
             $email = $data['nisn'] . '@siswa.sims.sch.id';
         }
 
+        $defaultPassword = $data['nisn'] ?: ($data['nis'] ?: 'Dosman123');
+
         User::create([
             'name'                 => $data['nama'],
             'email'                => $email,
-            'password'             => Hash::make('Dosman123', ['rounds' => 4]), // low rounds intentional for bulk import speed
+            'password'             => Hash::make($defaultPassword, ['rounds' => 4]), // low rounds intentional for bulk import speed
             'must_change_password' => true,
             'role'                 => 'siswa',
             'nisn'        => $data['nisn'],

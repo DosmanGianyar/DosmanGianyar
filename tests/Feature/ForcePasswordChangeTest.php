@@ -18,7 +18,7 @@ class ForcePasswordChangeTest extends TestCase
 
     // ─── Password defaults — Excel importers ────────────────────────────────
 
-    public function test_users_import_sets_dosman123_and_must_change_password_for_siswa(): void
+    public function test_users_import_sets_username_as_default_password_and_must_change_password_for_siswa(): void
     {
         (new UsersImport())->collection(new Collection([
             ['nama' => 'Siswa Baru', 'email' => 'siswabaru@example.com', 'role' => 'siswa', 'nis' => '12345'],
@@ -26,11 +26,11 @@ class ForcePasswordChangeTest extends TestCase
 
         $user = User::where('email', 'siswabaru@example.com')->firstOrFail();
 
-        $this->assertTrue(Hash::check('Dosman123', $user->password));
+        $this->assertTrue(Hash::check('12345', $user->password));
         $this->assertTrue($user->must_change_password);
     }
 
-    public function test_users_import_sets_guru123_and_not_forced_for_guru(): void
+    public function test_users_import_sets_username_as_default_password_for_guru(): void
     {
         (new UsersImport())->collection(new Collection([
             ['nama' => 'Guru Baru', 'email' => 'gurubaru@example.com', 'role' => 'guru', 'nip' => '198001012006041001'],
@@ -38,11 +38,11 @@ class ForcePasswordChangeTest extends TestCase
 
         $user = User::where('email', 'gurubaru@example.com')->firstOrFail();
 
-        $this->assertTrue(Hash::check('Guru123', $user->password));
+        $this->assertTrue(Hash::check('198001012006041001', $user->password));
         $this->assertFalse($user->must_change_password);
     }
 
-    public function test_dapodik_import_sets_dosman123_and_must_change_password(): void
+    public function test_dapodik_import_sets_nisn_as_default_password_and_must_change_password(): void
     {
         $import = new DapodikImport();
         $colMap = $import->buildColMap(['nisn', 'nama']);
@@ -51,11 +51,11 @@ class ForcePasswordChangeTest extends TestCase
 
         $user = User::where('nisn', '1234567890')->firstOrFail();
 
-        $this->assertTrue(Hash::check('Dosman123', $user->password));
+        $this->assertTrue(Hash::check('1234567890', $user->password));
         $this->assertTrue($user->must_change_password);
     }
 
-    public function test_guru_import_sets_guru123(): void
+    public function test_guru_import_sets_nip_as_default_password(): void
     {
         $import = new GuruImport();
         $colMap = $import->buildColMap(['nip', 'nama']);
@@ -64,7 +64,7 @@ class ForcePasswordChangeTest extends TestCase
 
         $user = User::where('nip', '198001012006041001')->firstOrFail();
 
-        $this->assertTrue(Hash::check('Guru123', $user->password));
+        $this->assertTrue(Hash::check('198001012006041001', $user->password));
         $this->assertFalse($user->must_change_password);
     }
 

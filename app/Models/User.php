@@ -40,6 +40,19 @@ class User extends Authenticatable implements FilamentUser
 
     protected static function booted(): void
     {
+        static::creating(function (User $user) {
+            if (empty($user->password)) {
+                $username = match (true) {
+                    $user->isGuru()                           => $user->nip ?: ($user->email ?: 'guru123'),
+                    $user->isSiswa() || $user->isPengelola()  => $user->nisn ?: ($user->nis ?: ($user->email ?: 'siswa123')),
+                    $user->isOrangtua()                       => $user->phone ?: 'orangtua123',
+                    default                                   => $user->email ?: 'user123',
+                };
+                $user->password = $username;
+                $user->must_change_password = true;
+            }
+        });
+
         static::saved(function (User $user) {
             if ($user->isSiswa() && ($user->wasRecentlyCreated || $user->wasChanged('parent_phone'))) {
                 \App\Services\OrangtuaSyncService::resyncStudent($user);
