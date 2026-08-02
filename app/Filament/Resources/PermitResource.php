@@ -89,6 +89,14 @@ class PermitResource extends Resource
                     ->limit(40)
                     ->tooltip(fn (Permit $record) => $record->reason),
 
+                TextColumn::make('file')
+                    ->label('Surat Bukti')
+                    ->formatStateUsing(fn ($state) => $state ? '📄 Lihat Surat' : '—')
+                    ->color(fn ($state) => $state ? 'info' : 'gray')
+                    ->url(fn (Permit $record) => $record->file ? asset('storage/' . $record->file) : null)
+                    ->openUrlInNewTab()
+                    ->badge(fn ($state) => (bool) $state),
+
                 TextColumn::make('status')
                     ->label('Status')
                     ->badge()
@@ -136,6 +144,14 @@ class PermitResource extends Resource
                     ]),
             ])
             ->recordActions([
+                Action::make('view_letter')
+                    ->label('Lihat Surat')
+                    ->icon('heroicon-o-document-text')
+                    ->color('info')
+                    ->visible(fn (Permit $record) => ! empty($record->file))
+                    ->url(fn (Permit $record) => asset('storage/' . $record->file))
+                    ->openUrlInNewTab(),
+
                 Action::make('approve')
                     ->label('Setujui')
                     ->icon('heroicon-o-check-circle')
