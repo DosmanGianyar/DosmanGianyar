@@ -122,9 +122,9 @@ class ScheduleImportService
     protected function parseWorksheet($sheet, string $targetGrade): array
     {
         $rawItems        = [];
-        $highestRow      = $sheet->getHighestRow();
+        $highestRow      = (int) $sheet->getHighestRow();
         $highestCol      = $sheet->getHighestColumn();
-        $highestColIndex = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString($highestCol);
+        $highestColIndex = (int) \PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString($highestCol);
 
         if ($highestRow < 2 || $highestColIndex < 2) {
             return [];
@@ -144,26 +144,27 @@ class ScheduleImportService
                 $valUpper  = strtoupper($val);
 
                 if (in_array($valUpper, ['HARI', 'DAY'])) {
-                    $dayCol = $c;
+                    $dayCol = (int) $c;
                 } elseif (in_array($valUpper, ['JAM', 'PERIOD', 'WAKTU', 'TIME', 'JAM KE'])) {
-                    if (!$periodCol) $periodCol = $c;
+                    if (!$periodCol) $periodCol = (int) $c;
                 } elseif (preg_match('/^(X|XI|XII)[-\s]?\d{1,2}$/i', $val) || preg_match('/^(XI|XII)[-\s]?[A-Z]\d?$/i', $val)) {
                     $colsWithClass[$c] = $this->normalizeClassName($val);
                 }
             }
 
             if (count($colsWithClass) >= 2) { // Ditemukan minimal 2 kolom kelas
-                $gridHeaderRow = $r;
+                $gridHeaderRow = (int) $r;
                 $classColumns  = $colsWithClass;
                 break;
             }
         }
 
         // Jika ini adalah Tipe Matrix Grid (Hari, Jam, Kolom Kelas)
-        if ($gridHeaderRow && !empty($classColumns)) {
+        if (!is_null($gridHeaderRow) && !empty($classColumns)) {
             $currentDay = 1;
 
-            for ($r = $gridHeaderRow + 1; $r <= $highestRow; $r++) {
+            $startRow = ((int) $gridHeaderRow) + 1;
+            for ($r = $startRow; $r <= $highestRow; $r++) {
                 // Deteksi Hari
                 if ($dayCol) {
                     $dayLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($dayCol);
