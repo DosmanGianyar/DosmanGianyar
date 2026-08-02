@@ -80,14 +80,30 @@
 </header>
 
 {{-- ─── Flash Messages via SweetAlert2 ─────────────────────────────── --}}
+<script>
+    function triggerSwalToast(icon, message) {
+        const run = () => {
+            if (typeof window.swalToast === 'function') {
+                window.swalToast(icon, message);
+            } else if (typeof Swal !== 'undefined') {
+                Swal.fire({ icon: icon, title: message, toast: true, position: 'top-end', showConfirmButton: false, timer: 3500 });
+            }
+        };
+        if (document.readyState === 'complete') {
+            run();
+        } else {
+            window.addEventListener('load', run);
+        }
+    }
+</script>
 @if(session('success'))
-<script>document.addEventListener('DOMContentLoaded',()=>swalToast('success',@json(session('success'))));</script>
+<script>triggerSwalToast('success', @json(session('success')));</script>
 @endif
 @if(session('error'))
-<script>document.addEventListener('DOMContentLoaded',()=>swalToast('error',@json(session('error'))));</script>
+<script>triggerSwalToast('error', @json(session('error')));</script>
 @endif
 @if(session('warning'))
-<script>document.addEventListener('DOMContentLoaded',()=>swalToast('warning',@json(session('warning'))));</script>
+<script>triggerSwalToast('warning', @json(session('warning')));</script>
 @endif
 
 {{-- ─── Main Content ────────────────────────────────────────────────── --}}
