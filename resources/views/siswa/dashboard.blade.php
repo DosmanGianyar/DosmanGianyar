@@ -31,7 +31,7 @@
                 {{ $siswa->name }}
             </h2>
             <p class="text-blue-100 text-xs mt-0.5 truncate">
-                {{ $siswa->schoolClass?->name ?? 'SMA Negeri 1 Gianyar' }} · NIS {{ $siswa->nis ?? '—' }}
+                {{ $siswa->schoolClass?->name ?? 'SMA Negeri 1 Gianyar' }} @if($siswa->angkatan)· <span class="font-bold text-amber-300">{{ $siswa->angkatan }}</span>@endif · NIS {{ $siswa->nis ?? '—' }}
             </p>
             @if($siswa->nisn)
             <p class="text-blue-200 text-xs mt-0.5 truncate">NISN {{ $siswa->nisn }}</p>
@@ -47,6 +47,9 @@
         </div>
     </div>
 </div>
+
+{{-- ─── Kartu Pelajar Digital ───────────────────────────────────────── --}}
+@include('siswa.partials.student-card-digital')
 
 {{-- ─── Card Absen Masuk ────────────────────────────────────────────── --}}
 @php

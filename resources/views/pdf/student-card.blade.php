@@ -430,6 +430,13 @@ html, body {
                     <td class="td-colon">:</td>
                     <td class="td-value">{{ $siswa->schoolClass?->name ?? '—' }}</td>
                 </tr>
+                @if($siswa->angkatan)
+                <tr>
+                    <td class="td-label">Angkatan</td>
+                    <td class="td-colon">:</td>
+                    <td class="td-value"><strong>{{ $siswa->angkatan }}</strong></td>
+                </tr>
+                @endif
                 @if($siswa->gender)
                 <tr>
                     <td class="td-label">Jenis Kelamin</td>

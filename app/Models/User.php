@@ -185,6 +185,31 @@ class User extends Authenticatable implements FilamentUser
         return strtoupper(implode('', array_map(fn($w) => $w[0], array_slice($words, 0, 2))));
     }
 
+    public function getAngkatanAttribute(): ?string
+    {
+        $class = $this->schoolClass;
+        if (! $class) {
+            return null;
+        }
+
+        $grade = (string) ($class->grade ?? '');
+        $name  = (string) ($class->name ?? '');
+
+        if ($grade === '10' || str_contains($name, 'X-') || str_starts_with($name, 'X ') || str_starts_with($name, '10') || preg_match('/^X\b/i', $name)) {
+            return 'Angkatan 62';
+        }
+
+        if ($grade === '11' || str_contains($name, 'XI-') || str_starts_with($name, 'XI ') || str_starts_with($name, '11') || preg_match('/^XI\b/i', $name)) {
+            return 'Angkatan 61';
+        }
+
+        if ($grade === '12' || str_contains($name, 'XII-') || str_starts_with($name, 'XII ') || str_starts_with($name, '12') || preg_match('/^XII\b/i', $name)) {
+            return 'Angkatan 60';
+        }
+
+        return null;
+    }
+
     // ─── Relations ───────────────────────────────────────────────────────────
     public function schoolClass(): BelongsTo
     {

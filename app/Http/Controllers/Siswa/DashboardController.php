@@ -121,10 +121,14 @@ class DashboardController extends Controller
             if (isset($monthlySummary[$effStatus])) $monthlySummary[$effStatus]++;
         }
 
+        $qrContent = url('/biodata/' . ($siswa->nis ?? $siswa->id));
+        $options   = new \chillerlan\QRCode\QROptions(['outputType' => 'svg']);
+        $qrSvg     = (new \chillerlan\QRCode\QRCode($options))->render($qrContent);
+
         return view('siswa.dashboard', compact(
             'siswa', 'todayStatus', 'pointSummary',
             'recentPoints', 'announcements', 'unreadNotifications',
-            'monthlySummary', 'monthlyByDate', 'monthlyHolidays', 'monthlySpecial'
+            'monthlySummary', 'monthlyByDate', 'monthlyHolidays', 'monthlySpecial', 'qrSvg'
         ));
     }
 }
