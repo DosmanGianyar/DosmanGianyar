@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\ScheduleResource\Pages;
 
+use App\Filament\Pages\ImportSchedulePage;
 use App\Filament\Resources\ScheduleResource;
 use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
@@ -18,7 +19,7 @@ class ListSchedules extends ListRecords
                 ->label('Import PDF / Excel')
                 ->icon('heroicon-o-arrow-up-tray')
                 ->color('success')
-                ->url(fn (): string => url('/admin/import-schedule')),
+                ->url(fn (): string => ImportSchedulePage::getUrl()),
             CreateAction::make(),
         ];
     }

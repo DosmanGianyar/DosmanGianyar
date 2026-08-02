@@ -19,6 +19,7 @@ class ImportSchedulePage extends Page
     protected static string|\BackedEnum|null $navigationIcon  = 'heroicon-o-calendar';
     protected static string|\UnitEnum|null   $navigationGroup = 'Kurikulum';
     protected static ?string                 $navigationLabel = 'Import Jadwal PDF/Excel';
+    protected static ?string                 $slug            = 'import-schedule';
     protected static ?int                    $navigationSort  = 5;
 
     public static function canAccess(): bool
