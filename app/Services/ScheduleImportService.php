@@ -73,11 +73,11 @@ class ScheduleImportService
     public function parseFile(string $filePath, string $mimeOrExt = '', string $grade = 'ALL'): array
     {
         $ext = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
-        if ($ext === 'pdf' || str_contains(strtolower($mimeOrExt), 'pdf')) {
-            $pdfItems = $this->parsePdf($filePath, $grade);
-            if (!empty($pdfItems)) {
-                return $pdfItems;
-            }
+        $hint = strtolower($mimeOrExt);
+        $isPdf = ($ext === 'pdf' || str_contains($hint, 'pdf') || str_contains($hint, '.pdf'));
+
+        if ($isPdf) {
+            return $this->parsePdf($filePath, $grade);
         }
 
         return $this->parseExcel($filePath, $grade);

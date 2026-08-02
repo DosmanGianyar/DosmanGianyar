@@ -94,15 +94,17 @@ class ImportSchedulePage extends Page
         $this->selectedGrade   = 'Semua Kelas (10, 11, 12)';
 
         try {
-            $filePath = $uploadedFile->getRealPath();
-            $mimeType = $uploadedFile->getMimeType();
+            $filePath     = $uploadedFile->getRealPath();
+            $mimeType     = $uploadedFile->getMimeType() ?? '';
+            $originalName = method_exists($uploadedFile, 'getClientOriginalName') ? $uploadedFile->getClientOriginalName() : '';
+            $hint         = $mimeType . ' ' . $originalName;
 
-            $items = $service->parseFile($filePath, $mimeType, 'ALL');
+            $items = $service->parseFile($filePath, $hint, 'ALL');
 
             if (empty($items)) {
                 Notification::make()
-                    ->title('Gagal membaca jadwal dari file Excel')
-                    ->body('Pastikan file Excel memiliki format tabel atau grid jadwal pelajaran yang valid.')
+                    ->title('Gagal membaca jadwal dari file PDF / Excel')
+                    ->body('Pastikan file PDF (cetakan aSc Timetables) atau Excel memiliki format tabel/grid jadwal pelajaran yang valid.')
                     ->warning()
                     ->send();
                 return;
