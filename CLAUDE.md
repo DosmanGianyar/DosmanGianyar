@@ -1,5 +1,8 @@
 # CLAUDE.md — Agent & Development Guide for SIMS
 
+# SIMS - School Management System SMAN 1 Gianyar
+- Deployment: Automated SSH git pull via webdosman user (`/www/wwwroot/36.93.15.146`)
+
 Dokumen ini berisi panduan, instruksi otomatisasi Git, serta prosedur deployment untuk AI Agent yang bekerja pada repositori **SIMS (School Integrated Management System)**.
 
 ---
