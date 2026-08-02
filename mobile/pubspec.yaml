@@ -47,6 +47,12 @@ dependencies:
   # QR code generator untuk kartu pelajar
   qr_flutter: ^4.1.0
 
+  # Informasi versi aplikasi
+  package_info_plus: ^8.0.0
+
+  # Buka link Play Store
+  url_launcher: ^6.3.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

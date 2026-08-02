@@ -321,4 +321,17 @@ class AuthController extends Controller
 
         return response()->json(['message' => 'Password berhasil diperbarui.']);
     }
+
+    /** Cek versi aplikasi mobile & status force update. */
+    public function appVersion(): JsonResponse
+    {
+        return response()->json([
+            'latest_version'       => config('sims.latest_mobile_version', '1.3.2'),
+            'min_required_version' => config('sims.min_mobile_version', '1.3.0'),
+            'force_update'         => (bool) config('sims.force_mobile_update', false),
+            'update_url'           => config('sims.play_store_url', 'https://play.google.com/store/apps/details?id=com.sman1gianyar.sims_mobile'),
+            'title'                => 'Pembaruan Aplikasi Diperlukan',
+            'message'              => 'Versi baru aplikasi SIMS SMAN 1 Gianyar telah tersedia. Silakan perbarui aplikasi Anda untuk melanjutkan.',
+        ]);
+    }
 }

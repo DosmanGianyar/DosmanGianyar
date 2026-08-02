@@ -14,6 +14,8 @@ import 'screens/home_screen.dart';
 import 'screens/change_password_required_screen.dart';
 import 'screens/guru/guru_shell.dart';
 import 'screens/orangtua/orangtua_shell.dart';
+import 'screens/force_update_screen.dart';
+import 'services/version_service.dart';
 import 'theme/app_colors.dart';
 
 void main() async {
@@ -129,16 +131,40 @@ class _AppGate extends StatefulWidget {
 }
 
 class _AppGateState extends State<_AppGate> {
+  VersionCheckResult? _forceUpdateResult;
+  bool _checkingVersion = true;
+
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<AuthProvider>().checkAuth();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final vResult = await VersionService.checkVersion();
+      if (mounted) {
+        if (vResult != null && vResult.needsForceUpdate) {
+          setState(() {
+            _forceUpdateResult = vResult;
+            _checkingVersion   = false;
+          });
+          return;
+        }
+        setState(() => _checkingVersion = false);
+        context.read<AuthProvider>().checkAuth();
+      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_forceUpdateResult != null && _forceUpdateResult!.needsForceUpdate) {
+      return ForceUpdateScreen(result: _forceUpdateResult!);
+    }
+
+    if (_checkingVersion) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     final auth = context.watch<AuthProvider>();
 
     final user = auth.user;
