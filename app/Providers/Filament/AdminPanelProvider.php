@@ -40,14 +40,6 @@ class AdminPanelProvider extends PanelProvider
             ->favicon('/img/logo_sekolah.png')
             ->font('Plus Jakarta Sans', provider: \Filament\FontProviders\GoogleFontProvider::class)
             ->navigationItems([
-                NavigationItem::make('Presensi')
-                    ->group('Kesiswaan')
-                    ->icon('heroicon-o-map-pin')
-                    ->sort(5),
-                NavigationItem::make('Prestasi')
-                    ->group('Kesiswaan')
-                    ->icon('heroicon-o-trophy')
-                    ->sort(10),
                 NavigationItem::make('Guru Wali')
                     ->group('Kurikulum')
                     ->icon('heroicon-o-user-group')
