@@ -48,13 +48,13 @@ Setelah perubahan berhasil dipush ke GitHub (`origin/main`), AI Agent dapat lang
 ### Informasi Server:
 - **Host / IP Tailscale:** `webdosman` (`100.73.61.126`)
 - **Direktori Proyek di Server:** `/www/wwwroot/36.93.15.146`
-- **SSH Username:** `dosman`
+- **SSH Username:** `webdosman`
 - **SSH Password & Sudo Password:** `Dosman123`
 - **Host Key Fingerprint (`plink`):** `SHA256:D9SSqp9hA50fNvSPW5yZZJQ6oGEjF3OEC/ScLc5HSlU`
 
 ### Perintah Pull & Deployment Otomatis (PowerShell):
 ```powershell
-plink.exe -batch -hostkey "SHA256:D9SSqp9hA50fNvSPW5yZZJQ6oGEjF3OEC/ScLc5HSlU" -pw "Dosman123" dosman@webdosman "cd /www/wwwroot/36.93.15.146 && echo Dosman123 | sudo -S git pull origin main && echo Dosman123 | sudo -S php artisan migrate --force && echo Dosman123 | sudo -S php artisan optimize:clear"
+ssh -o StrictHostKeyChecking=no webdosman@webdosman "cd /www/wwwroot/36.93.15.146 && git pull origin main && php artisan optimize:clear"
 ```
 
 ---
