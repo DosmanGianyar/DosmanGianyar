@@ -68,11 +68,122 @@ class ScheduleImportService
     ];
 
     /**
-     * Main entry point: Parsing file Excel untuk jadwal pelajaran
+     * Main entry point: Parsing file PDF / Excel untuk jadwal pelajaran
      */
     public function parseFile(string $filePath, string $mimeOrExt = '', string $grade = 'ALL'): array
     {
+        $ext = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+        if ($ext === 'pdf' || str_contains(strtolower($mimeOrExt), 'pdf')) {
+            $pdfItems = $this->parsePdf($filePath, $grade);
+            if (!empty($pdfItems)) {
+                return $pdfItems;
+            }
+        }
+
         return $this->parseExcel($filePath, $grade);
+    }
+
+    /**
+     * Parsing file PDF cetakan aSc Timetables (per guru / per kelas)
+     */
+    public function parsePdf(string $filePath, string $targetGrade = 'ALL'): array
+    {
+        $rawItems = [];
+
+        try {
+            $parser = new \Smalot\PdfParser\Parser();
+            $pdf    = $parser->parseFile($filePath);
+            $text   = $pdf->getText();
+
+            $lines = explode("\n", $text);
+            $currentTeacher = '';
+
+            foreach ($lines as $line) {
+                $line = trim($line);
+                if (empty($line)) continue;
+
+                if (preg_match('/^(Guru|Teacher|Pendidik):\s*(.+)$/i', $line, $m) || preg_match('/^([A-Z\s\.,]+,\s*S\.[A-Z]+)$/i', $line, $m)) {
+                    $currentTeacher = trim($m[2] ?? $m[1]);
+                    continue;
+                }
+
+                if (preg_match('/(Senin|Selasa|Rabu|Kamis|Jumat|Sabtu)\s+(?:Jam\s*)?(\d+)\s+([X|XI|XII][-\s]?\w+)\s+(.+)/i', $line, $matches)) {
+                    $dayStr    = strtoupper($matches[1]);
+                    $period    = (int) $matches[2];
+                    $className = $matches[3];
+                    $subjRaw   = trim($matches[4]);
+
+                    $rawItems[] = [
+                        'class_name'   => $className,
+                        'day'          => self::DAY_MAP[$dayStr] ?? 1,
+                        'period'       => $period,
+                        'subject_code' => $subjRaw,
+                        'teacher_raw'  => $currentTeacher,
+                        'room'         => null,
+                        'target_grade' => $targetGrade,
+                    ];
+                }
+            }
+
+            if (empty($rawItems)) {
+                $pages = $pdf->getPages();
+                foreach ($pages as $page) {
+                    $pageText    = $page->getText();
+                    $pageTeacher = $this->extractTeacherHeader($pageText);
+                    $extracted   = $this->extractCellsFromTeacherPdf($pageText, $pageTeacher, $targetGrade);
+                    if (!empty($extracted)) {
+                        $rawItems = array_merge($rawItems, $extracted);
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+            Log::error("ScheduleImportService parsePdf error: " . $e->getMessage());
+        }
+
+        if (empty($rawItems)) {
+            return $this->parseExcel($filePath, $targetGrade);
+        }
+
+        return $this->matchEntities($rawItems);
+    }
+
+    protected function extractTeacherHeader(string $text): string
+    {
+        $lines = explode("\n", $text);
+        foreach ($lines as $line) {
+            $line = trim($line);
+            if (preg_match('/^([A-Z\s\.,]+(?:S\.[A-Z]+|M\.[A-Z]+|Pd|Ag|Kom|SE|ST)?)$/i', $line, $m)) {
+                $upper = strtoupper($m[1]);
+                if (strlen($m[1]) > 3 && !in_array($upper, ['SENIN','SELASA','RABU','KAMIS','JUMAT','SABTU','JADWAL'])) {
+                    return trim($m[1]);
+                }
+            }
+        }
+        return '';
+    }
+
+    protected function extractCellsFromTeacherPdf(string $text, string $teacherName, string $targetGrade): array
+    {
+        $items = [];
+        $days  = ['SENIN', 'SELASA', 'RABU', 'KAMIS', 'JUMAT', 'SABTU'];
+        
+        foreach ($days as $dayName) {
+            if (preg_match_all('/' . $dayName . '\s+(\d+)\s+([X|XI|XII][-\s]?\w+)\s+([A-Z0-9\s]+)/i', $text, $matches, PREG_SET_ORDER)) {
+                foreach ($matches as $match) {
+                    $items[] = [
+                        'class_name'   => $match[2],
+                        'day'          => self::DAY_MAP[$dayName] ?? 1,
+                        'period'       => (int) $match[1],
+                        'subject_code' => trim($match[3]),
+                        'teacher_raw'  => $teacherName,
+                        'room'         => null,
+                        'target_grade' => $targetGrade,
+                    ];
+                }
+            }
+        }
+
+        return $items;
     }
 
     /**

@@ -18,7 +18,7 @@ class ImportSchedulePage extends Page
 {
     protected static string|\BackedEnum|null $navigationIcon  = 'heroicon-o-calendar';
     protected static string|\UnitEnum|null   $navigationGroup = 'Kurikulum';
-    protected static ?string                 $navigationLabel = 'Import Jadwal Excel';
+    protected static ?string                 $navigationLabel = 'Import Jadwal PDF/Excel';
     protected static ?string                 $slug            = 'import-schedule';
     protected static ?int                    $navigationSort  = 5;
 
@@ -58,12 +58,13 @@ class ImportSchedulePage extends Page
                 Toggle::make('replace_existing')
                     ->label('Otomatis Hapus & Gantikan Jadwal Lama')
                     ->default(true)
-                    ->helperText('Jadwal lama pada tahun ajaran ini akan otomatis dibersihkan dan digantikan dengan jadwal baru dari Excel.'),
+                    ->helperText('Jadwal lama pada tahun ajaran ini akan otomatis dibersihkan dan digantikan dengan jadwal baru.'),
 
                 FileUpload::make('file')
-                    ->label('File Master Excel Jadwal (.xlsx / .xls)')
-                    ->helperText('Unggah file Excel master jadwal pelajaran. Sistem otomatis mengekstrak hari, jam, kelas, mapel, dan guru.')
+                    ->label('File Master PDF / Excel Jadwal (.pdf, .xlsx, .xls)')
+                    ->helperText('Unggah file PDF cetakan aSc Timetables atau file Excel master jadwal. Sistem otomatis mengekstrak hari, jam, kelas, mapel, dan guru.')
                     ->acceptedFileTypes([
+                        'application/pdf',
                         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
                         'application/vnd.ms-excel',
                         'text/csv',
@@ -185,6 +186,25 @@ class ImportSchedulePage extends Page
                 $this->parsedItems[$idx]['allowed_subject_ids'] = $res['allowed_subject_ids'];
                 $this->parsedItems[$idx]['teacher_name']        = $teacher->name;
             }
+        }
+
+        if (str_contains($key, '.period') && is_numeric($value)) {
+            $parts  = explode('.', $key);
+            $idx    = (int) $parts[0];
+            $period = (int) $value;
+
+            $timeSlots = ScheduleImportService::TIME_SLOTS;
+            if (isset($timeSlots[$period])) {
+                $this->parsedItems[$idx]['period']     = $period;
+                $this->parsedItems[$idx]['start_time'] = $timeSlots[$period][0];
+                $this->parsedItems[$idx]['end_time']   = $timeSlots[$period][1];
+            }
+        }
+
+        if (str_contains($key, '.day') && is_numeric($value)) {
+            $parts = explode('.', $key);
+            $idx   = (int) $parts[0];
+            $this->parsedItems[$idx]['day'] = (int) $value;
         }
     }
 

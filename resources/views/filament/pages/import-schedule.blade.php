@@ -188,9 +188,9 @@
                 </svg>
             </div>
             <div>
-                <div class="imp-banner-title">Import & Parsing Excel Jadwal Pelajaran (aSc Timetables)</div>
+                <div class="imp-banner-title">Import & Parsing PDF / Excel Jadwal Pelajaran (aSc Timetables)</div>
                 <div class="imp-banner-desc">
-                    Unggah file Excel master jadwal pelajaran (.xlsx / .xls). Sistem akan mengekstrak jam, hari, kelas, mapel, serta melakukan pencocokan guru secara otomatis ke database.
+                    Unggah file PDF cetakan aSc Timetables atau file Excel master jadwal (.xlsx / .xls). Sistem akan mengekstrak jam, hari, kelas, mapel, serta melakukan pencocokan guru secara otomatis ke database.
                 </div>
             </div>
         </div>
@@ -199,7 +199,7 @@
             {{-- ── Form Langkah 1: Upload File & Parameter ──────────────────── --}}
             <div class="imp-card">
                 <div class="imp-card-title">
-                    <span>Langkah 1: Unggah File Excel Jadwal Pelajaran</span>
+                    <span>Langkah 1: Unggah File Master PDF / Excel Jadwal Pelajaran</span>
                 </div>
 
                 <form wire:submit.prevent="startParsing" class="space-y-6">
@@ -259,9 +259,9 @@
                             <thead>
                                 <tr>
                                     <th style="width: 130px;">Kelas</th>
-                                    <th style="width: 170px;">Hari & Jam</th>
+                                    <th style="width: 200px;">Hari & Jam</th>
                                     <th>Mata Pelajaran</th>
-                                    <th>Nama Guru di Excel</th>
+                                    <th>Nama Guru di PDF/Excel</th>
                                     <th>Hasil Match DB</th>
                                     <th style="width: 320px;">Aksi / Pilih Guru</th>
                                 </tr>
@@ -288,8 +288,30 @@
 
                                         {{-- Hari & Jam --}}
                                         <td>
-                                            <strong style="color: #ffffff;">{{ $daysName[$item['day']] ?? 'Hari ' . $item['day'] }}</strong>
-                                            <div style="font-size: 0.7rem; color: #94a3b8;">Jam {{ $item['period'] }} ({{ $item['start_time'] }} - {{ $item['end_time'] }})</div>
+                                            <div class="space-y-1">
+                                                <select wire:model.live="parsedItems.{{ $idx }}.day" class="imp-select font-bold text-emerald-400">
+                                                    <option value="1">Senin</option>
+                                                    <option value="2">Selasa</option>
+                                                    <option value="3">Rabu</option>
+                                                    <option value="4">Kamis</option>
+                                                    <option value="5">Jumat</option>
+                                                    <option value="6">Sabtu</option>
+                                                </select>
+
+                                                <select wire:model.live="parsedItems.{{ $idx }}.period" class="imp-select font-medium text-slate-300">
+                                                    <option value="0">Jam 0 (07:10 - 07:55)</option>
+                                                    <option value="1">Jam 1 (07:30 - 08:15)</option>
+                                                    <option value="2">Jam 2 (08:15 - 09:00)</option>
+                                                    <option value="3">Jam 3 (09:00 - 09:45)</option>
+                                                    <option value="4">Jam 4 (10:00 - 10:45)</option>
+                                                    <option value="5">Jam 5 (10:45 - 11:30)</option>
+                                                    <option value="6">Jam 6 (11:30 - 12:15)</option>
+                                                    <option value="7">Jam 7 (12:30 - 13:15)</option>
+                                                    <option value="8">Jam 8 (13:15 - 14:00)</option>
+                                                    <option value="9">Jam 9 (16:00 - 16:45)</option>
+                                                    <option value="10">Jam 10 (17:00 - 17:45)</option>
+                                                </select>
+                                            </div>
                                         </td>
 
                                         {{-- Mapel --}}
