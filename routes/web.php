@@ -55,8 +55,8 @@ use Illuminate\Support\Facades\Route;
 // ─── Halaman Utama ────────────────────────────────────────────────────────────
 Route::get('/', fn() => redirect()->route('login'));
 
-// ─── Biodata Publik (akses tanpa login, untuk scan QR) ───────────────────────
-Route::get('/biodata/{identifier}', [PublicBiodataController::class, 'show'])->name('public.biodata');
+// ─── Biodata Siswa (wajib login demi keamanan data) ───────────────────────────
+Route::get('/biodata/{identifier}', [PublicBiodataController::class, 'show'])->name('public.biodata')->middleware('auth');
 
 // ─── PWA Offline Fallback ─────────────────────────────────────────────────────
 Route::get('/offline', fn() => response(view('offline'))->header('Cache-Control', 'public, max-age=86400'))->name('offline');
