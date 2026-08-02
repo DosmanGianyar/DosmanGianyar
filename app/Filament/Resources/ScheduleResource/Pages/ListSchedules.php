@@ -15,8 +15,8 @@ class ListSchedules extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Action::make('importPdf')
-                ->label('Import PDF / Excel')
+            Action::make('importExcel')
+                ->label('Import Excel Jadwal')
                 ->icon('heroicon-o-arrow-up-tray')
                 ->color('success')
                 ->url(fn (): string => ImportSchedulePage::getUrl()),

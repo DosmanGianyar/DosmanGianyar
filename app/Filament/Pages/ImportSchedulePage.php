@@ -100,8 +100,8 @@ class ImportSchedulePage extends Page
 
             if (empty($items)) {
                 Notification::make()
-                    ->title('Gagal membaca jadwal dari file')
-                    ->body('Pastikan file PDF/Excel memiliki format tabel aSc Timetables yang valid.')
+                    ->title('Gagal membaca jadwal dari file Excel')
+                    ->body('Pastikan file Excel memiliki format tabel atau grid jadwal pelajaran yang valid.')
                     ->warning()
                     ->send();
                 return;
