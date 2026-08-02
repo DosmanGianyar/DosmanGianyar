@@ -30,10 +30,7 @@ class PermitController extends Controller
     {
         $data = $this->validatePermit($request);
 
-        $filePath = null;
-        if ($request->hasFile('file')) {
-            $filePath = $request->file('file')->store('permits', 'public');
-        }
+        $filePath = $request->file('file')->store('permits', 'public');
 
         Permit::create([
             'student_id' => Auth::id(),
@@ -59,7 +56,7 @@ class PermitController extends Controller
     public function update(Request $request, Permit $permit): RedirectResponse
     {
         $this->authorizePermit($permit);
-        $data = $this->validatePermit($request, isUpdate: true);
+        $data = $this->validatePermit($request, isUpdate: true, hasFile: ! empty($permit->file));
 
         if ($request->hasFile('file')) {
             if ($permit->file) {
@@ -94,15 +91,23 @@ class PermitController extends Controller
         }
     }
 
-    private function validatePermit(Request $request, bool $isUpdate = false): array
+    private function validatePermit(Request $request, bool $isUpdate = false, bool $hasFile = false): array
     {
         $dateRule = $isUpdate ? 'required|date' : 'required|date|after_or_equal:today';
+        $fileRule = ($isUpdate && $hasFile)
+            ? 'nullable|file|mimes:pdf,jpg,jpeg,png,webp|max:5120'
+            : 'required|file|mimes:pdf,jpg,jpeg,png,webp|max:5120';
+
         return $request->validate([
             'type'       => 'required|in:izin,sakit,dispensasi',
             'start_date' => $dateRule,
             'end_date'   => 'required|date|after_or_equal:start_date',
             'reason'     => 'required|string|max:500',
-            'file'       => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            'file'       => $fileRule,
+        ], [
+            'file.required' => 'Wajib melampirkan foto surat izin/sakit atau SK dispensasi (format Gambar/PDF).',
+            'file.mimes'    => 'Format surat lampiran harus berupa Gambar (JPG, JPEG, PNG, WEBP) atau file PDF.',
+            'file.max'      => 'Ukuran surat lampiran maksimal 5MB.',
         ]);
     }
 }

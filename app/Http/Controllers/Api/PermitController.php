@@ -40,16 +40,17 @@ class PermitController extends Controller
             'start_date' => 'required|date|after_or_equal:today',
             'end_date'   => 'required|date|after_or_equal:start_date',
             'reason'     => 'required|string|max:500',
-            'file'       => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            'file'       => 'required|file|mimes:pdf,jpg,jpeg,png,webp|max:5120',
+        ], [
+            'file.required' => 'Wajib melampirkan foto surat izin/sakit atau SK dispensasi (format Gambar/PDF).',
+            'file.mimes'    => 'Format surat lampiran harus berupa Gambar (JPG, JPEG, PNG, WEBP) atau file PDF.',
+            'file.max'      => 'Ukuran surat lampiran maksimal 5MB.',
         ]);
 
         /** @var \App\Models\User $student */
         $student = Auth::user();
 
-        $filePath = null;
-        if ($request->hasFile('file')) {
-            $filePath = $request->file('file')->store('permits', 'public');
-        }
+        $filePath = $request->file('file')->store('permits', 'public');
 
         $permit = Permit::create([
             'student_id' => $student->id,

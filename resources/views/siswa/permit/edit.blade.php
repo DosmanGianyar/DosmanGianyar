@@ -103,8 +103,8 @@
         {{-- Lampiran --}}
         <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">
-                {{ old('type', $permit->type) === 'dispensasi' ? 'SK Kegiatan' : 'Lampiran' }}
-                <span class="text-gray-400 font-normal">(opsional)</span>
+                {{ old('type', $permit->type) === 'dispensasi' ? 'SK Kegiatan (Wajib)' : 'Lampiran Surat (Wajib)' }}
+                <span class="text-red-500 font-bold">*</span>
             </label>
 
             @if($permit->file)
@@ -114,9 +114,9 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
                     </svg>
-                    Lampiran saat ini
+                    Lampiran tersimpan
                 </a>
-                <span class="text-gray-400">Unggah baru untuk mengganti</span>
+                <span class="text-gray-400">Unggah baru jika ingin mengganti</span>
             </div>
             @endif
 
@@ -127,11 +127,11 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
                     </svg>
-                    <span class="text-xs text-gray-500">Klik untuk upload</span>
-                    <span class="text-xs text-gray-400">PDF, JPG, PNG — maks 2MB</span>
+                    <span class="text-xs text-gray-500">Klik untuk unggah file baru</span>
+                    <span class="text-xs text-gray-400">PDF atau Gambar (JPG, PNG, WEBP) — maks 5MB</span>
                 </div>
                 <p id="file-name" class="hidden text-sm text-blue-600 font-medium"></p>
-                <input type="file" id="file" name="file" accept=".pdf,.jpg,.jpeg,.png"
+                <input type="file" id="file" name="file" accept=".pdf,.jpg,.jpeg,.png,.webp" {{ $permit->file ? '' : 'required' }}
                     class="sr-only" onchange="showFileName(this)">
             </label>
             @error('file')

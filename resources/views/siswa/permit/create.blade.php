@@ -117,8 +117,8 @@
         {{-- Upload Lampiran --}}
         <div>
             <label class="block text-sm font-medium text-gray-700 mb-1" id="file-label">
-                Lampiran
-                <span class="text-gray-400 font-normal">(opsional)</span>
+                Lampiran Surat / SK Dispensasi
+                <span class="text-red-500 font-bold">* (Wajib)</span>
             </label>
             <label for="file"
                 class="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-all">
@@ -127,11 +127,11 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
                     </svg>
-                    <span class="text-xs text-gray-500">Klik untuk upload</span>
-                    <span class="text-xs text-gray-400">PDF, JPG, PNG — maks 2MB</span>
+                    <span class="text-xs text-gray-500">Klik untuk unggah surat</span>
+                    <span class="text-xs text-gray-400">PDF atau Gambar (JPG, PNG, WEBP) — maks 5MB</span>
                 </div>
                 <p id="file-name" class="hidden text-sm text-blue-600 font-medium"></p>
-                <input type="file" id="file" name="file" accept=".pdf,.jpg,.jpeg,.png"
+                <input type="file" id="file" name="file" accept=".pdf,.jpg,.jpeg,.png,.webp" required
                     class="sr-only" onchange="showFileName(this)">
             </label>
             @error('file')

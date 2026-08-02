@@ -14,12 +14,13 @@ class PermitAttachmentApiTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_siswa_can_submit_permit_without_attachment(): void
+    public function test_siswa_permit_requires_file_attachment(): void
     {
         Storage::fake('public');
         $siswa = User::factory()->create(['role' => 'siswa']);
         Sanctum::actingAs($siswa);
 
+        // Tanpa file -> 422 Validation Error
         $response = $this->withHeaders(['X-Device-ID' => 'test-device'])->postJson('/api/v1/permits', [
             'type'       => 'izin',
             'start_date' => now()->toDateString(),
@@ -27,9 +28,8 @@ class PermitAttachmentApiTest extends TestCase
             'reason'     => 'Ada keperluan keluarga.',
         ]);
 
-        $response->assertCreated();
-        $response->assertJsonPath('permit.file_url', null);
-        $this->assertDatabaseHas('permits', ['student_id' => $siswa->id, 'file' => null]);
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['file']);
     }
 
     public function test_siswa_can_submit_permit_with_attachment(): void
