@@ -6,10 +6,15 @@ use App\Filament\Resources\PasswordResetRequestResource\Pages;
 use App\Models\PasswordResetRequest;
 use App\Services\NotificationService;
 use Filament\Actions\Action;
+use Filament\Actions\BulkAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 
 class PasswordResetRequestResource extends Resource
@@ -23,7 +28,10 @@ class PasswordResetRequestResource extends Resource
     protected static ?string $pluralModelLabel = 'Permintaan Reset Password';
     protected static ?int    $navigationSort   = 7;
 
-    public static function canAccess(): bool { return auth()->user()?->role === 'admin'; }
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->role === 'admin';
+    }
 
     public static function getNavigationBadge(): ?string
     {
@@ -110,7 +118,7 @@ class PasswordResetRequestResource extends Resource
                     ])
                     ->default('pending'),
             ])
-            ->recordActions([
+            ->actions([
                 Action::make('approve')
                     ->label('Reset Password')
                     ->icon('heroicon-o-check-circle')
@@ -130,7 +138,7 @@ class PasswordResetRequestResource extends Resource
                             'success',
                         );
 
-                        \Filament\Notifications\Notification::make()->title('Password berhasil direset')->success()->send();
+                        Notification::make()->title('Password berhasil direset')->success()->send();
                     }),
 
                 Action::make('reject')
@@ -143,10 +151,10 @@ class PasswordResetRequestResource extends Resource
                     ->modalDescription(fn (PasswordResetRequest $record) => "Tolak permintaan reset password dari {$record->user->name}?")
                     ->action(function (PasswordResetRequest $record): void {
                         $record->reject(Auth::user());
-                        \Filament\Notifications\Notification::make()->title('Permintaan ditolak')->success()->send();
+                        Notification::make()->title('Permintaan ditolak')->success()->send();
                     }),
             ])
-            ->toolbarActions([
+            ->bulkActions([
                 BulkActionGroup::make([
                     BulkAction::make('bulk_approve')
                         ->label('Disetujui & Reset Password Terpilih')
@@ -163,7 +171,7 @@ class PasswordResetRequestResource extends Resource
                                     $approvedCount++;
                                 }
                             }
-                            \Filament\Notifications\Notification::make()
+                            Notification::make()
                                 ->title("{$approvedCount} permintaan reset password berhasil disetujui.")
                                 ->success()
                                 ->send();
@@ -182,7 +190,7 @@ class PasswordResetRequestResource extends Resource
                                     $rejectedCount++;
                                 }
                             }
-                            \Filament\Notifications\Notification::make()
+                            Notification::make()
                                 ->title("{$rejectedCount} permintaan reset password ditolak.")
                                 ->success()
                                 ->send();
