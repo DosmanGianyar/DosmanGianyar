@@ -26,7 +26,7 @@
         {{-- Sapaan Nama --}}
         <div>
             <h2 class="text-xl sm:text-2xl font-black tracking-tight leading-tight text-white drop-shadow-xs">
-                Selamat {{ match(true) { now()->hour < 11 => 'Pagi', now()->hour < 15 => 'Siang', now()->hour < 18 => 'Sore', default => 'Malam' } }}, {{ explode(' ', trim($siswa->name))[0] }}! 👋
+                Selamat {{ match(true) { now()->hour < 11 => 'Pagi', now()->hour < 15 => 'Siang', now()->hour < 18 => 'Sore', default => 'Malam' } }}, {{ $siswa->name }}! 👋
             </h2>
             <p class="text-xs sm:text-sm font-semibold text-blue-100 mt-1 flex items-center gap-1.5 flex-wrap">
                 <span>{{ $siswa->schoolClass?->name ?? 'Siswa SMAN 1 Gianyar' }}</span>
