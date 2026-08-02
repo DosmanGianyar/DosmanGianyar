@@ -23,11 +23,14 @@ class AttendanceTest extends TestCase
     {
         parent::setUp();
 
-        \Illuminate\Support\Carbon::setTestNow(now()->startOfDay()->addHours(7));
+        \Illuminate\Support\Carbon::setTestNow(\Illuminate\Support\Carbon::parse('2026-08-03 07:00:00'));
 
         Storage::fake('public');
 
-        $this->siswa = User::factory()->create(['role' => 'siswa']);
+        $this->siswa = User::factory()->create([
+            'role'                 => 'siswa',
+            'must_change_password' => false,
+        ]);
 
         // Ensure a default attendance location exists
         AttendanceLocation::create([
