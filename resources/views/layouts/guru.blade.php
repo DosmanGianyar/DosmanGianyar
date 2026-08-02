@@ -75,6 +75,10 @@
     <nav class="px-2 py-3"
         style="flex:1 1 0%;min-height:0;overflow-y:scroll;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;">
         @php
+            $pendingPermits          = \App\Models\Permit::where('status', 'pending')->count();
+            $pendingForgotAttendance = \App\Models\ForgotAttendanceRequest::where('status', 'pending')->count();
+            $pendingEarlyCheckout   = \App\Models\EarlyCheckoutRequest::where('status', 'pending')->count();
+
             $navGroups = [
                 [
                     'label' => null,
@@ -89,9 +93,9 @@
                         ['route' => 'guru.attendance.index',        'label' => 'Absensi Harian',       'icon' => 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'],
                         ['route' => 'guru.conduct.index',           'label' => 'Rekap Siswa',          'icon' => 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z'],
                         ['route' => 'guru.conduct.choose',          'label' => 'Catat Prestasi/Peln.', 'icon' => 'M12 4v16m8-8H4'],
-                        ['route' => 'guru.attendance.permits',      'label' => 'Approval Izin/Sakit',  'icon' => 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'],
-                        ['route' => 'guru.forgot-attendance.index', 'label' => 'Lupa Absen Siswa',     'icon' => 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z'],
-                        ['route' => 'guru.early-checkout.index',    'label' => 'Izin Pulang Awal',     'icon' => 'M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1'],
+                        ['route' => 'guru.attendance.permits',      'label' => 'Approval Izin/Sakit',  'icon' => 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z', 'badge' => $pendingPermits],
+                        ['route' => 'guru.forgot-attendance.index', 'label' => 'Lupa Absen Siswa',     'icon' => 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z', 'badge' => $pendingForgotAttendance],
+                        ['route' => 'guru.early-checkout.index',    'label' => 'Izin Pulang Awal',     'icon' => 'M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1', 'badge' => $pendingEarlyCheckout],
                     ],
                 ],
                 [
@@ -149,7 +153,7 @@
                             fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="{{ $item['icon'] }}"/>
                         </svg>
-                        <span class="truncate">{{ $item['label'] }}</span>
+                        <span class="truncate flex-1">{{ $item['label'] }}</span>
                     </a>
                 @endforeach
             @endif
@@ -165,6 +169,7 @@
                         ($item['route'] === 'guru.journal.index'   && request()->routeIs('guru.journal.create')) ||
                         ($item['route'] === 'guru.tp.index'        && request()->routeIs('guru.tp.*'))
                     );
+                    $groupBadgeCount = collect($group['items'])->sum(fn($i) => $i['badge'] ?? 0);
                 @endphp
                 <div x-data="{ open: {{ $groupActive ? 'true' : 'false' }} }" class="mb-0.5">
                     {{-- Parent toggle button --}}
@@ -176,6 +181,11 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="{{ $group['icon'] }}"/>
                         </svg>
                         <span class="flex-1 text-left truncate">{{ $group['label'] }}</span>
+                        @if($groupBadgeCount > 0)
+                            <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-red-500 text-white shrink-0">
+                                {{ $groupBadgeCount }}
+                            </span>
+                        @endif
                         <svg class="w-3.5 h-3.5 shrink-0 transition-transform duration-200 {{ $groupActive ? 'text-blue-400' : 'text-gray-400' }}"
                             :class="open ? 'rotate-180' : ''"
                             fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -196,6 +206,7 @@
                             @php
                                 $active = request()->routeIs($item['route'])
                                     || ($item['route'] === 'guru.conduct.choose' && request()->routeIs('guru.conduct.create'));
+                                $itemBadge = $item['badge'] ?? 0;
                             @endphp
                             <a href="{{ route($item['route']) }}"
                                 class="group flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-sm font-medium transition-all duration-150
@@ -204,7 +215,12 @@
                                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="{{ $item['icon'] }}"/>
                                 </svg>
-                                <span class="truncate">{{ $item['label'] }}</span>
+                                <span class="truncate flex-1">{{ $item['label'] }}</span>
+                                @if($itemBadge > 0)
+                                    <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-full shrink-0 {{ $active ? 'bg-white text-blue-600' : 'bg-red-500 text-white' }}">
+                                        {{ $itemBadge }}
+                                    </span>
+                                @endif
                             </a>
                         @endforeach
                     </div>

@@ -106,16 +106,31 @@
         $isKurikulum = request()->routeIs('siswa.kurikulum', 'siswa.teacher-attendance.index', 'siswa.homeroom-consultation.*');
         $isPrasarana = request()->routeIs('siswa.prasarana', 'siswa.sarpras.*');
         $isHumas     = request()->routeIs('siswa.humas', 'siswa.announcements.*');
+
+        $studentPendingCount = 0;
+        if (auth()->check() && auth()->user()->isSiswa()) {
+            $uId = auth()->id();
+            $studentPendingCount += \App\Models\Permit::where('user_id', $uId)->where('status', 'pending')->count();
+            $studentPendingCount += \App\Models\EarlyCheckoutRequest::where('user_id', $uId)->where('status', 'pending')->count();
+            $studentPendingCount += \App\Models\ForgotAttendanceRequest::where('user_id', $uId)->where('status', 'pending')->count();
+        }
     @endphp
     <div class="flex items-center h-16">
 
         {{-- Kesiswaan --}}
         <a href="{{ route('siswa.kesiswaan') }}"
             class="flex-1 flex flex-col items-center gap-0.5 py-2 {{ $isKesiswaan ? 'text-blue-600' : 'text-gray-400' }}">
-            <svg class="w-5 h-5" fill="{{ $isKesiswaan ? 'currentColor' : 'none' }}" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-            </svg>
+            <div class="relative">
+                <svg class="w-5 h-5" fill="{{ $isKesiswaan ? 'currentColor' : 'none' }}" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                </svg>
+                @if($studentPendingCount > 0)
+                    <span class="absolute -top-1 -right-2 min-w-[16px] h-4 px-1 bg-red-500 text-white text-[9px] font-extrabold rounded-full flex items-center justify-center border border-white">
+                        {{ $studentPendingCount }}
+                    </span>
+                @endif
+            </div>
             <span class="text-xs font-medium">Kesiswaan</span>
         </a>
 
