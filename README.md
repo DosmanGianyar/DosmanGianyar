@@ -5,7 +5,7 @@ Sistem Informasi Manajemen Sekolah (SIMS) SMAN 1 Gianyar berbasis Laravel 11 (Ba
 ## 🚀 Fitur Utama
 
 - **Admin Dashboard (Filament v3):** Manajemen User, Presensi, Prestasi, Guru Wali, Jadwal Pelajaran, Kurikulum, E-Voting.
-- **Import Jadwal PDF & Excel (aSc Timetables):** Parsing otomatis jadwal master per guru/kelas, matching otomatis nama guru & mapel.
+- **Import Jadwal Master Excel (aSc Timetables):** Parsing otomatis jadwal master per guru/kelas dari file Excel (.xlsx / .xls), matching otomatis nama guru & mapel.
 - **Aplikasi Mobile (Flutter):** Autentikasi terenkripsi, Force Update System, Kartu Pelajar Digital, Presensi Geolocation.
 - **Security Protections:** HTTPS Enforcement, Rate Limiting (Brute Force Protection), Authenticated Biodata Routes.
 
