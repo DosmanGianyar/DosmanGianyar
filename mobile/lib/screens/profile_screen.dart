@@ -632,6 +632,28 @@ class _ChangePasswordCard extends StatelessWidget {
         children: [
           const Text('Ganti Password',
             style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.gray700)),
+          const SizedBox(height: 10),
+          // Alert Box Syarat Password
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFFFBEB),
+              border: Border.all(color: const Color(0xFFFCD34D)),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Row(
+              children: [
+                Icon(Icons.info_outline_rounded, color: Color(0xFFD97706), size: 18),
+                SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Syarat Password Baru: Wajib minimal 8 karakter dan sama persis dengan konfirmasi.',
+                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF92400E)),
+                  ),
+                ),
+              ],
+            ),
+          ),
           const SizedBox(height: 12),
           _ProfileInput(
             controller: curCtrl,
@@ -646,7 +668,7 @@ class _ChangePasswordCard extends StatelessWidget {
           const SizedBox(height: 10),
           _ProfileInput(
             controller: newCtrl,
-            label:      'Password Baru',
+            label:      'Password Baru (Min. 8 Karakter)',
             obscure:    obscureNew,
             suffix:     IconButton(
               icon: Icon(obscureNew ? Icons.visibility_off_outlined : Icons.visibility_outlined,
@@ -668,18 +690,31 @@ class _ChangePasswordCard extends StatelessWidget {
           const SizedBox(height: 14),
           SizedBox(
             width: double.infinity,
-            child: FilledButton(
-              onPressed: isSaving ? null : onSave,
-              style: FilledButton.styleFrom(
-                backgroundColor: AppColors.gray700,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF2563EB), Color(0xFF4338CA)],
+                ),
+                borderRadius: AppRadius.button,
+                boxShadow: const [
+                  BoxShadow(color: Color(0x332563EB), blurRadius: 8, offset: Offset(0, 3)),
+                ],
               ),
-              child: isSaving
-                  ? const SizedBox(width: 18, height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                  : const Text('Perbarui Password',
-                      style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+              child: ElevatedButton.icon(
+                onPressed: isSaving ? null : onSave,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.transparent,
+                  shadowColor: Colors.transparent,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
+                ),
+                icon: isSaving
+                    ? const SizedBox(width: 18, height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                    : const Icon(Icons.lock_reset_rounded, size: 18, color: Colors.white),
+                label: const Text('Simpan Password Baru',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.white)),
+              ),
             ),
           ),
         ],
@@ -690,14 +725,14 @@ class _ChangePasswordCard extends StatelessWidget {
 
 // ─── E-Kartu Pelajar ─────────────────────────────────────────────────────────
 
-class _StudentIdCard extends StatefulWidget {
+class StudentIdCard extends StatefulWidget {
   final User? user;
-  const _StudentIdCard({this.user});
+  const StudentIdCard({super.key, this.user});
   @override
-  State<_StudentIdCard> createState() => _StudentIdCardState();
+  State<StudentIdCard> createState() => _StudentIdCardState();
 }
 
-class _StudentIdCardState extends State<_StudentIdCard> {
+class _StudentIdCardState extends State<StudentIdCard> {
   bool _showFront = true;
 
   @override
@@ -707,8 +742,10 @@ class _StudentIdCardState extends State<_StudentIdCard> {
       children: [
         Row(
           children: [
-            const Text('E-Kartu Pelajar',
-              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.gray700)),
+            const Icon(Icons.badge_outlined, size: 16, color: AppColors.blue600),
+            const SizedBox(width: 6),
+            const Text('KARTU PELAJAR DIGITAL',
+              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: AppColors.gray800, letterSpacing: 0.3)),
             const Spacer(),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
@@ -716,8 +753,8 @@ class _StudentIdCardState extends State<_StudentIdCard> {
                 color: AppColors.blue100,
                 borderRadius: BorderRadius.circular(20),
               ),
-              child: const Text('Ketuk untuk membalik',
-                style: TextStyle(fontSize: 9, color: AppColors.blue600)),
+              child: const Text('Resmi & Read-Only',
+                style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: AppColors.blue600)),
             ),
           ],
         ),
@@ -736,6 +773,11 @@ class _StudentIdCardState extends State<_StudentIdCard> {
                 ? _IdFront(key: const ValueKey('f'), user: widget.user)
                 : _IdBack (key: const ValueKey('b'), user: widget.user),
           ),
+        ),
+        const SizedBox(height: 4),
+        const Center(
+          child: Text('Ketuk kartu untuk melihat QR Code  →',
+            style: TextStyle(fontSize: 10, color: AppColors.gray400, fontWeight: FontWeight.w500)),
         ),
       ],
     );
@@ -758,6 +800,9 @@ class _IdFront extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final baseWeb = AppConfig.baseUrl.replaceAll('/api/v1', '');
+    final verifyUrl = '$baseWeb/verifikasi/kartu-pelajar/${user?.nis ?? user?.id ?? ''}';
+
     return Container(
       decoration: BoxDecoration(
         color: const Color(0xFFF8F7F4),
@@ -796,7 +841,7 @@ class _IdFront extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               // Nama sekolah
-              const Expanded(child: Column(
+              Expanded(child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('SMA NEGERI 1 GIANYAR',
@@ -804,8 +849,8 @@ class _IdFront extends StatelessWidget {
                       color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.w800,
                       letterSpacing: 0.3, height: 1.1)),
                   SizedBox(height: 2),
-                  Text('Jl. Ratna No.1, Gianyar, Bali 80511',
-                    style: TextStyle(color: Color(0xFFBFDBFE), fontSize: 8, height: 1.3)),
+                  Text('Jl. Ratna No.1, Gianyar, Bali 80511 · Telp. (0361) 943443',
+                    style: TextStyle(color: Color(0xFFBFDBFE), fontSize: 7.5, height: 1.3)),
                 ],
               )),
               // Badge Kartu Pelajar
@@ -834,55 +879,52 @@ class _IdFront extends StatelessWidget {
           ),
 
           // ── Body ──────────────────────────────────────────────────
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(10, 8, 10, 6),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Foto
-                  Container(
-                    width: 60, height: 80,
-                    decoration: BoxDecoration(
-                      border: Border.all(color: const Color(0xFF1565C0), width: 2),
-                      boxShadow: const [BoxShadow(
-                        color: Color(0x331565C0), blurRadius: 8, offset: Offset(0, 3))],
-                    ),
-                    clipBehavior: Clip.antiAlias,
-                    child: user?.photoUrl != null
-                        ? Image.network(user!.photoUrl!, fit: BoxFit.cover, alignment: Alignment.topCenter,
-                            errorBuilder: (_, __, ___) => _photoPlaceholder())
-                        : _photoPlaceholder(),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(10, 8, 10, 6),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Foto
+                Container(
+                  width: 62, height: 82,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: const Color(0xFF1565C0), width: 2),
+                    boxShadow: const [BoxShadow(
+                      color: Color(0x331565C0), blurRadius: 8, offset: Offset(0, 3))],
                   ),
-                  const SizedBox(width: 9),
-                  // Data
-                  Expanded(child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Sub-judul
-                      const Center(
-                        child: Text('KARTU PELAJAR',
-                          style: TextStyle(
-                            fontSize: 8, fontWeight: FontWeight.w900, color: Color(0xFF0A3880),
-                            letterSpacing: 1.2, decoration: TextDecoration.underline,
-                            decorationColor: Color(0xFF0A3880))),
-                      ),
-                      const SizedBox(height: 6),
-                      // Baris data
-                      _KidRow(icon: Icons.person_rounded,           label: 'Nama',          value: user?.name ?? '—', bold: true),
-                      _KidRow(icon: Icons.badge_outlined,            label: 'NIS/NISN',      value: '${user?.nis ?? '—'} / ${user?.nisn ?? '—'}'),
-                      _KidRow(icon: Icons.calendar_today_rounded,    label: 'Tgl. Lahir',    value: _fmtDate(user?.birthDate)),
-                      _KidRow(icon: Icons.school_rounded,            label: 'Kelas',         value: user?.className ?? '—'),
-                      _KidRow(icon: Icons.wc_rounded,                label: 'Jenis Kelamin', value: user?.genderLabel ?? '—'),
-                      _KidRow(icon: Icons.location_on_rounded,       label: 'Alamat',        value: user?.address ?? '—'),
-                    ],
-                  )),
-                ],
-              ),
+                  clipBehavior: Clip.antiAlias,
+                  child: user?.photoUrl != null
+                      ? Image.network(user!.photoUrl!, fit: BoxFit.cover, alignment: Alignment.topCenter,
+                          errorBuilder: (_, __, ___) => _photoPlaceholder())
+                      : _photoPlaceholder(),
+                ),
+                const SizedBox(width: 9),
+                // Data
+                Expanded(child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Sub-judul
+                    const Center(
+                      child: Text('KARTU PELAJAR',
+                        style: TextStyle(
+                          fontSize: 8.5, fontWeight: FontWeight.w900, color: Color(0xFF0A3880),
+                          letterSpacing: 1.2, decoration: TextDecoration.underline,
+                          decorationColor: Color(0xFF0A3880))),
+                    ),
+                    const SizedBox(height: 5),
+                    // Baris data
+                    _KidRow(icon: Icons.person_rounded,           label: 'Nama',          value: user?.name.toUpperCase() ?? '—', bold: true),
+                    _KidRow(icon: Icons.badge_outlined,            label: 'NIS/NISN',      value: '${user?.nis ?? '—'} / ${user?.nisn ?? '—'}'),
+                    _KidRow(icon: Icons.school_rounded,            label: 'Kelas',         value: user?.className ?? '—'),
+                    _KidRow(icon: Icons.calendar_today_rounded,    label: 'Tgl. Lahir',    value: _fmtDate(user?.birthDate)),
+                    _KidRow(icon: Icons.wc_rounded,                label: 'Jenis Kelamin', value: user?.genderLabel ?? '—'),
+                  ],
+                )),
+              ],
             ),
           ),
 
-          // ── Footer: berlaku + tanda tangan ───────────────────────
+          // ── Footer: berlaku + ttd kepsek + QR Verifikasi ─────────
           Padding(
             padding: const EdgeInsets.fromLTRB(10, 0, 10, 6),
             child: Row(
@@ -890,20 +932,47 @@ class _IdFront extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 const Text('Berlaku selama\nmenjadi siswa SMAN 1 Gianyar',
-                  style: TextStyle(fontSize: 7, color: AppColors.gray400, fontStyle: FontStyle.italic, height: 1.5)),
-                Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
-                  const Text('Gianyar, 13 Juli 2026',
-                    style: TextStyle(fontSize: 7, color: AppColors.gray600, fontWeight: FontWeight.w500)),
-                  const SizedBox(height: 1),
-                  const Text('Kepala Sekolah,',
-                    style: TextStyle(fontSize: 7.5, color: AppColors.gray600, fontWeight: FontWeight.w500)),
-                  const SizedBox(height: 2),
-                  const Text('I Wayan Sudra Astra, S.Pd., M.Pd.',
-                    style: TextStyle(fontSize: 7.5, color: AppColors.gray900, fontWeight: FontWeight.bold, decoration: TextDecoration.underline)),
-                  const SizedBox(height: 1),
-                  const Text('NIP. 19710415 199703 1 007',
-                    style: TextStyle(fontSize: 6.5, color: AppColors.gray600, fontWeight: FontWeight.w600)),
-                ]),
+                  style: TextStyle(fontSize: 7, color: AppColors.gray400, fontStyle: FontStyle.italic, height: 1.4)),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    // QR Verifikasi Kepsek
+                    Container(
+                      width: 28, height: 28,
+                      margin: const EdgeInsets.only(right: 6, bottom: 2),
+                      padding: const EdgeInsets.all(1),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        border: Border.all(color: AppColors.gray300, width: 0.5),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: QrImageView(
+                        data: verifyUrl,
+                        version: QrVersions.auto,
+                        size: 26,
+                        padding: EdgeInsets.zero,
+                        eyeStyle: const QrEyeStyle(eyeShape: QrEyeShape.square, color: Color(0xFF0A3880)),
+                        dataModuleStyle: const QrDataModuleStyle(dataModuleShape: QrDataModuleShape.square, color: Color(0xFF0A3880)),
+                      ),
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: const [
+                        Text('Gianyar, 13 Juli 2026',
+                          style: TextStyle(fontSize: 7, color: AppColors.gray600, fontWeight: FontWeight.w500)),
+                        SizedBox(height: 1),
+                        Text('Kepala Sekolah,',
+                          style: TextStyle(fontSize: 7.5, color: AppColors.gray600, fontWeight: FontWeight.w500)),
+                        SizedBox(height: 2),
+                        Text('I Wayan Sudra Astra, S.Pd., M.Pd.',
+                          style: TextStyle(fontSize: 7.5, color: AppColors.gray900, fontWeight: FontWeight.bold, decoration: TextDecoration.underline)),
+                        SizedBox(height: 1),
+                        Text('NIP. 19710415 199703 1 007',
+                          style: TextStyle(fontSize: 6.5, color: AppColors.gray600, fontWeight: FontWeight.w600)),
+                      ],
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
@@ -938,9 +1007,9 @@ class _IdBack extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // URL publik /biodata/{nis} — bisa dibuka tanpa login
+    // URL publik /verifikasi/kartu-pelajar/{nis}
     final baseWeb = AppConfig.baseUrl.replaceAll('/api/v1', '');
-    final qrData  = '$baseWeb/biodata/${user?.nis ?? user?.id ?? ''}';
+    final qrData  = '$baseWeb/verifikasi/kartu-pelajar/${user?.nis ?? user?.id ?? ''}';
 
     return Container(
       decoration: BoxDecoration(

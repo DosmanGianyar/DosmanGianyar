@@ -453,7 +453,11 @@ class _DashboardBody extends StatelessWidget {
         children: [
           // ── Greeting card (sama persis dengan web) ──────────────
           _GreetingCard(user: user, records: records),
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
+
+          // ── Kartu Pelajar Digital (sama persis dengan web) ───────
+          StudentIdCard(user: user),
+          const SizedBox(height: 12),
 
           // ── Kalender kehadiran bulanan ───────────────────────────
           _MiniCalendar(records: records),
@@ -513,147 +517,205 @@ class _GreetingCard extends StatelessWidget {
     return m;
   }
 
+  String get _greetingTime {
+    final hour = DateTime.now().hour;
+    if (hour < 11) return 'Pagi';
+    if (hour < 15) return 'Siang';
+    if (hour < 18) return 'Sore';
+    return 'Malam';
+  }
+
   @override
   Widget build(BuildContext context) {
-    final now      = DateTime.now();
-    final dateStr  = DateFormat('EEEE, d MMMM y', 'id_ID').format(now);
-    final name     = user?.name.trim() ?? '';
-    final nl       = name.length;
-    final nameFontSize = nl <= 15 ? 18.0 : nl <= 22 ? 16.0 : nl <= 30 ? 14.0 : 12.0;
-    final summary  = _summary;
+    final now     = DateTime.now();
+    final dateStr = DateFormat('EEEE, d MMMM y', 'id_ID').format(now);
+    final name    = user?.name.trim() ?? 'Siswa';
+    final summary = _summary;
 
     return Container(
-      decoration: const BoxDecoration(
-        gradient:     AppColors.primaryGradient,
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF0A3880), Color(0xFF1565C0), Color(0xFF1D4ED8)],
+        ),
         borderRadius: AppRadius.card,
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-      child: Row(
-        children: [
-          // Foto / avatar
-          Container(
-            width: 76, height: 76,
-            decoration: BoxDecoration(
-              borderRadius: AppRadius.avatar,
-              border:       Border.all(color: Colors.black, width: 2.5),
-            ),
-            clipBehavior: Clip.antiAlias,
-            child: user?.photoUrl != null
-                ? Image.network(
-                    user!.photoUrl!,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => _avatarFallback(),
-                  )
-                : _avatarFallback(),
+        border: Border.all(color: Colors.white.withOpacity(0.25)),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x33000000),
+            blurRadius: 10,
+            offset: Offset(0, 4),
           ),
-          const SizedBox(width: 12),
-
-          // Info
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(dateStr,
-                  style: const TextStyle(color: AppColors.blue200, fontSize: 11)),
-                const SizedBox(height: 2),
-                Text(
-                  name.isEmpty ? 'SMA Negeri 1 Gianyar' : name,
-                  style: TextStyle(
-                    color:      Colors.white,
-                    fontSize:   nameFontSize,
+        ],
+      ),
+      padding: const EdgeInsets.all(14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // ── Baris Atas: Tanggal & Label Rekap ─────────────────────────
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.20),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: Colors.white.withOpacity(0.30)),
+                ),
+                child: Text(
+                  '📅  $dateStr',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 11,
                     fontWeight: FontWeight.bold,
-                    height:     1.2,
                   ),
-                  maxLines:  1,
-                  overflow:  TextOverflow.clip,
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  [
-                    if (user?.className != null) user!.className!,
-                    if (user?.nis        != null) 'NIS ${user!.nis}',
-                  ].join('  ·  ').ifEmpty('SMA Negeri 1 Gianyar'),
-                  style: const TextStyle(color: AppColors.blue200, fontSize: 11),
-                  overflow: TextOverflow.ellipsis,
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.25),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFFFBBF24).withOpacity(0.4)),
                 ),
-                if (user?.nisn != null) ...[
-                  const SizedBox(height: 1),
-                  Text(
-                    'NISN ${user!.nisn}',
-                    style: const TextStyle(color: AppColors.blue200, fontSize: 11),
-                    overflow: TextOverflow.ellipsis,
+                child: const Text(
+                  'REKAP BULAN INI',
+                  style: TextStyle(
+                    color: Color(0xFFFBBF24),
+                    fontSize: 9.5,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 0.5,
                   ),
-                ],
-                // Dot ringkasan kehadiran bulan ini (sama seperti web)
-                if (records.isNotEmpty) ...[
-                  const SizedBox(height: 6),
-                  Row(
-                    children: [
-                      _SummaryDot(color: const Color(0xFFFACC15), textColor: const Color(0xFFFEF08A), count: summary['terlambat']!),
-                      const SizedBox(width: 10),
-                      _SummaryDot(color: const Color(0xFFF87171), textColor: const Color(0xFFFCA5A5), count: summary['alpa']!),
-                      const SizedBox(width: 10),
-                      _SummaryDot(color: const Color(0xFF38BDF8), textColor: const Color(0xFF7DD3FC), count: summary['izin']!),
-                      const SizedBox(width: 10),
-                      _SummaryDot(color: const Color(0xFFC084FC), textColor: const Color(0xFFD8B4FE), count: summary['sakit']!),
-                      const SizedBox(width: 10),
-                      _SummaryDot(color: const Color(0xFFFB923C), textColor: const Color(0xFFFDBA74), count: summary['dispensasi']!),
-                    ],
-                  ),
-                ],
-              ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+
+          // ── Sapaan Nama Lengkap (Tanpa Duplikasi Foto Avatar) ────────
+          Text(
+            'Selamat $_greetingTime, $name! 👋',
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.w900,
+              height: 1.25,
             ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 4),
+
+          // ── Detail Kelas, Angkatan, NIS ────────────────────────────────
+          Wrap(
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 6,
+            children: [
+              Text(
+                user?.className ?? 'SMA Negeri 1 Gianyar',
+                style: const TextStyle(
+                  color: Color(0xFFDBEAFE),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              if (user?.angkatan != null)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF59E0B).withOpacity(0.30),
+                    borderRadius: BorderRadius.circular(4),
+                    border: Border.all(color: const Color(0xFFFBBF24).withOpacity(0.5)),
+                  ),
+                  child: Text(
+                    user!.angkatan!,
+                    style: const TextStyle(
+                      color: Color(0xFFFDE68A),
+                      fontSize: 10,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                ),
+              if (user?.nis != null)
+                Text(
+                  '·  NIS ${user!.nis}',
+                  style: const TextStyle(
+                    color: Color(0xFFDBEAFE),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 12),
+
+          // ── 5 Badge Grid Status Kehadiran (Sama Persis Seperti Web) ────
+          Row(
+            children: [
+              _StatBadgeItem(label: 'TERLAMBAT', count: summary['terlambat']!, color: const Color(0xFFFACC15), bg: const Color(0x33FACC15)),
+              const SizedBox(width: 4),
+              _StatBadgeItem(label: 'ALPA',      count: summary['alpa']!,      color: const Color(0xFFF87171), bg: const Color(0x33F87171)),
+              const SizedBox(width: 4),
+              _StatBadgeItem(label: 'IZIN',      count: summary['izin']!,      color: const Color(0xFF38BDF8), bg: const Color(0x3338BDF8)),
+              const SizedBox(width: 4),
+              _StatBadgeItem(label: 'SAKIT',     count: summary['sakit']!,     color: const Color(0xFFC084FC), bg: const Color(0x33C084FC)),
+              const SizedBox(width: 4),
+              _StatBadgeItem(label: 'DISP.',     count: summary['dispensasi']!, color: const Color(0xFFFB923C), bg: const Color(0x33FB923C)),
+            ],
           ),
         ],
       ),
     );
   }
-
-  Widget _avatarFallback() {
-    return Container(
-      color: Colors.white.withOpacity(0.20),
-      alignment: Alignment.bottomCenter,
-      child: Padding(
-        padding: const EdgeInsets.only(bottom: 2),
-        child: Icon(Icons.person_rounded,
-          color: Colors.white.withOpacity(0.90), size: 44),
-      ),
-    );
-  }
 }
 
-class _SummaryDot extends StatelessWidget {
-  final Color dotColor;
-  final Color textColor;
-  final int   count;
+class _StatBadgeItem extends StatelessWidget {
+  final String label;
+  final int count;
+  final Color color;
+  final Color bg;
 
-  const _SummaryDot({
-    required Color color,
-    required Color textColor,
+  const _StatBadgeItem({
+    required this.label,
     required this.count,
-  })  : dotColor  = color,
-        textColor = textColor;
+    required this.color,
+    required this.bg,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: 8, height: 8,
-          decoration: BoxDecoration(shape: BoxShape.circle, color: dotColor),
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 6),
+        decoration: BoxDecoration(
+          color: bg,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: color.withOpacity(0.4)),
         ),
-        const SizedBox(width: 3),
-        Text(
-          '$count',
-          style: TextStyle(
-            fontSize:   11,
-            fontWeight: FontWeight.bold,
-            color:      textColor,
-            height:     1,
-          ),
+        child: Column(
+          children: [
+            Text(
+              label,
+              style: TextStyle(
+                color: color,
+                fontSize: 8.5,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              '$count',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 13,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }
