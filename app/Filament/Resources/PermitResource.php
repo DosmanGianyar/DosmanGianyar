@@ -78,6 +78,14 @@ class PermitResource extends Resource
                     })
                     ->formatStateUsing(fn (Permit $record) => $record->typeLabel()),
 
+                TextColumn::make('file')
+                    ->label('Surat / Lampiran')
+                    ->formatStateUsing(fn ($state) => $state ? '📄 Lihat Surat' : '⚠️ Tidak Ada File')
+                    ->color(fn ($state) => $state ? 'info' : 'gray')
+                    ->url(fn (Permit $record) => $record->file ? asset('storage/' . $record->file) : null)
+                    ->openUrlInNewTab()
+                    ->badge(),
+
                 TextColumn::make('start_date')
                     ->label('Tanggal')
                     ->formatStateUsing(fn (Permit $record) => $record->start_date->isoFormat('D MMM Y') .
@@ -88,14 +96,6 @@ class PermitResource extends Resource
                     ->label('Alasan')
                     ->limit(40)
                     ->tooltip(fn (Permit $record) => $record->reason),
-
-                TextColumn::make('file')
-                    ->label('Surat Bukti')
-                    ->formatStateUsing(fn ($state) => $state ? '📄 Lihat Surat' : '—')
-                    ->color(fn ($state) => $state ? 'info' : 'gray')
-                    ->url(fn (Permit $record) => $record->file ? asset('storage/' . $record->file) : null)
-                    ->openUrlInNewTab()
-                    ->badge(fn ($state) => (bool) $state),
 
                 TextColumn::make('status')
                     ->label('Status')
