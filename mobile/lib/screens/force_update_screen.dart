@@ -70,7 +70,7 @@ class ForceUpdateScreen extends StatelessWidget {
                       style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.gray900,
+                        color: AppColors.gray800,
                         letterSpacing: -0.3,
                       ),
                     ),
