@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
+import '../services/api_client.dart';
 import '../theme/app_colors.dart';
 import 'home_screen.dart';
 import 'change_password_required_screen.dart';
@@ -20,6 +21,24 @@ class _LoginScreenState extends State<LoginScreen> {
   final _loginCtrl    = TextEditingController();
   final _passwordCtrl = TextEditingController();
   bool  _obscure      = true;
+  bool  _rememberMe   = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedCredentials();
+  }
+
+  Future<void> _loadSavedCredentials() async {
+    final creds = await ApiClient.getSavedCredentials();
+    if (creds != null && mounted) {
+      setState(() {
+        _loginCtrl.text    = creds['login'] ?? '';
+        _passwordCtrl.text = creds['password'] ?? '';
+        _rememberMe        = true;
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -37,6 +56,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (!mounted) return;
     if (success) {
+      if (_rememberMe) {
+        await ApiClient.saveSavedCredentials(_loginCtrl.text.trim(), _passwordCtrl.text);
+      } else {
+        await ApiClient.clearSavedCredentials();
+      }
+
       final user = context.read<AuthProvider>().user;
       final role = user?.role;
       final forcePasswordChange = user != null &&
@@ -95,13 +120,15 @@ class _LoginScreenState extends State<LoginScreen> {
                 children: [
                   _BluePanelTop(),
                   _WhitePanelBottom(
-                    formKey:      _formKey,
-                    loginCtrl:    _loginCtrl,
-                    passwordCtrl: _passwordCtrl,
-                    obscure:      _obscure,
-                    isLoading:    isLoading,
-                    onToggleObscure: () => setState(() => _obscure = !_obscure),
-                    onSubmit:     _submit,
+                    formKey:          _formKey,
+                    loginCtrl:        _loginCtrl,
+                    passwordCtrl:     _passwordCtrl,
+                    obscure:          _obscure,
+                    rememberMe:       _rememberMe,
+                    isLoading:        isLoading,
+                    onToggleObscure:    () => setState(() => _obscure = !_obscure),
+                    onToggleRememberMe: (val) => setState(() => _rememberMe = val),
+                    onSubmit:         _submit,
                   ),
                 ],
               ),
@@ -330,8 +357,10 @@ class _WhitePanelBottom extends StatelessWidget {
   final TextEditingController loginCtrl;
   final TextEditingController passwordCtrl;
   final bool              obscure;
+  final bool              rememberMe;
   final bool              isLoading;
   final VoidCallback      onToggleObscure;
+  final ValueChanged<bool> onToggleRememberMe;
   final VoidCallback      onSubmit;
 
   const _WhitePanelBottom({
@@ -339,8 +368,10 @@ class _WhitePanelBottom extends StatelessWidget {
     required this.loginCtrl,
     required this.passwordCtrl,
     required this.obscure,
+    required this.rememberMe,
     required this.isLoading,
     required this.onToggleObscure,
+    required this.onToggleRememberMe,
     required this.onSubmit,
   });
 
@@ -403,21 +434,45 @@ class _WhitePanelBottom extends StatelessWidget {
                     onPressed: onToggleObscure,
                   ),
                 ),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () => Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const ForgotPasswordScreen()),
+                const SizedBox(height: 4),
+                // ── Opsi Ingat Saya & Lupa Password ─────────────────────
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        SizedBox(
+                          width: 24, height: 24,
+                          child: Checkbox(
+                            value: rememberMe,
+                            onChanged: (v) => onToggleRememberMe(v ?? false),
+                            activeColor: AppColors.blue600,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        GestureDetector(
+                          onTap: () => onToggleRememberMe(!rememberMe),
+                          child: const Text('Ingat Saya',
+                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.gray600)),
+                        ),
+                      ],
                     ),
-                    style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-                      minimumSize: Size.zero,
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    TextButton(
+                      onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => const ForgotPasswordScreen()),
+                      ),
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                        minimumSize: Size.zero,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                      child: const Text('Lupa Password?',
+                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.blue600)),
                     ),
-                    child: const Text('Lupa Password?',
-                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.blue600)),
-                  ),
+                  ],
                 ),
+                const SizedBox(height: 8),
                 const SizedBox(height: 8),
                 _GradientButton(
                   label:     isLoading ? 'Memverifikasi...' : 'Masuk',

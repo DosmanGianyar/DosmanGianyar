@@ -161,5 +161,33 @@ class ApiClient {
   static Future<String?> getToken()                  => _storage.read(key: 'auth_token');
   static Future<String?> getDeviceId()               => _storage.read(key: 'device_id');
   static Future<String?> getUserCache()              => _storage.read(key: 'cached_user');
-  static Future<void> clearAuth()                    => _storage.deleteAll();
+
+  static Future<void> saveSavedCredentials(String login, String password) async {
+    await _storage.write(key: 'saved_login',    value: login);
+    await _storage.write(key: 'saved_password', value: password);
+  }
+
+  static Future<Map<String, String>?> getSavedCredentials() async {
+    final login = await _storage.read(key: 'saved_login');
+    final password = await _storage.read(key: 'saved_password');
+    if (login != null && login.isNotEmpty) {
+      return {'login': login, 'password': password ?? ''};
+    }
+    return null;
+  }
+
+  static Future<void> clearSavedCredentials() async {
+    await _storage.delete(key: 'saved_login');
+    await _storage.delete(key: 'saved_password');
+  }
+
+  static Future<void> clearAuth() async {
+    final savedLogin    = await _storage.read(key: 'saved_login');
+    final savedPassword = await _storage.read(key: 'saved_password');
+    final deviceId      = await _storage.read(key: 'device_id');
+    await _storage.deleteAll();
+    if (savedLogin != null)    await _storage.write(key: 'saved_login',    value: savedLogin);
+    if (savedPassword != null) await _storage.write(key: 'saved_password', value: savedPassword);
+    if (deviceId != null)      await _storage.write(key: 'device_id',      value: deviceId);
+  }
 }
