@@ -88,10 +88,14 @@ class ScheduleImportService
 
             // Periksa setiap sheet untuk menemukan data jadwal (Matrix Grid atau List)
             for ($i = 0; $i < $sheetCount; $i++) {
-                $sheet      = $spreadsheet->getSheet($i);
-                $sheetItems = $this->parseWorksheet($sheet, $targetGrade);
-                if (!empty($sheetItems)) {
-                    $rawItems = array_merge($rawItems, $sheetItems);
+                try {
+                    $sheet      = $spreadsheet->getSheet($i);
+                    $sheetItems = $this->parseWorksheet($sheet, $targetGrade);
+                    if (!empty($sheetItems)) {
+                        $rawItems = array_merge($rawItems, $sheetItems);
+                    }
+                } catch (\Throwable $e) {
+                    Log::error("ScheduleImportService error parsing sheet {$i}: " . $e->getMessage());
                 }
             }
         } catch (\Throwable $e) {
@@ -121,14 +125,25 @@ class ScheduleImportService
      */
     protected function parseWorksheet($sheet, string $targetGrade): array
     {
-        $rawItems        = [];
-        $highestRow      = (int) $sheet->getHighestRow();
-        $highestCol      = $sheet->getHighestColumn();
-        $highestColIndex = (int) \PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString($highestCol);
+        $rawItems = [];
 
-        if ($highestRow < 2 || $highestColIndex < 2) {
-            return [];
-        }
+        try {
+            $highestRowStr = (string) $sheet->getHighestRow();
+            $highestRow    = (int) (preg_replace('/[^0-9]/', '', $highestRowStr) ?: 0);
+            $highestCol    = preg_replace('/[^A-Z]/i', '', strtoupper((string) $sheet->getHighestColumn()));
+            if (empty($highestCol)) {
+                $highestCol = 'Z';
+            }
+
+            try {
+                $highestColIndex = (int) \PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString($highestCol);
+            } catch (\Throwable $e) {
+                $highestColIndex = 26;
+            }
+
+            if ($highestRow < 2 || $highestColIndex < 2) {
+                return [];
+            }
 
         // 1. Deteksi Tipe Grid Matrix (Cari baris header nama-nama kelas, e.g., Row 1..10)
         $gridHeaderRow = null;
@@ -264,6 +279,9 @@ class ScheduleImportService
                     ];
                 }
             }
+        }
+        } catch (\Throwable $e) {
+            Log::error("ScheduleImportService parseWorksheet error: " . $e->getMessage());
         }
 
         return $rawItems;
