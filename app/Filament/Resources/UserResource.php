@@ -523,7 +523,9 @@ class UserResource extends Resource
                     DeleteBulkAction::make(),
                 ]),
             ])
-            ->defaultSort('name');
+            ->defaultSort('name')
+            ->defaultPaginationPageOption(100)
+            ->paginationPageOptions([10, 25, 50, 100, 200]);
     }
 
     public static function getRelations(): array
