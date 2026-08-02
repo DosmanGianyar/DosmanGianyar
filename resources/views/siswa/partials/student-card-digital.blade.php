@@ -89,8 +89,11 @@
                             </p>
 
                             @php
+                            $verifyUrl = url('/verifikasi/kartu-pelajar/' . ($siswa->nis ?? $siswa->id));
+                            $qrKepsekSvg = (new \chillerlan\QRCode\QRCode(new \chillerlan\QRCode\QROptions(['outputType' => 'svg', 'scale' => 2])))->render($verifyUrl);
+
                             $rows = [
-                                ['label' => 'Nama',      'value' => $siswa->name, 'bold' => true],
+                                ['label' => 'Nama',      'value' => strtoupper($siswa->name), 'bold' => true, 'isName' => true],
                                 ['label' => 'NIS/NISN',  'value' => ($siswa->nis ?? '—') . ' / ' . ($siswa->nisn ?? '—')],
                                 ['label' => 'Kelas',     'value' => $siswa->schoolClass?->name ?? '—'],
                                 ['label' => 'Angkatan',  'value' => $siswa->angkatan ?? '—', 'highlight' => true],
@@ -104,7 +107,7 @@
                                 <div style="display: flex; align-items: center; font-size: clamp(6px, 1.85vw, 10px); line-height: 1.3;">
                                     <span style="width: 26%; color: #4b5563; flex-shrink: 0; font-weight: 600;">{{ $r['label'] }}</span>
                                     <span style="color: #6b7280; flex-shrink: 0; margin-right: 4px;">:</span>
-                                    <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; {{ !empty($r['highlight']) ? 'color: #92400e; font-weight: 800;' : (!empty($r['bold']) ? 'color: #111827; font-weight: 800;' : 'color: #1f2937; font-weight: 700;') }}">
+                                    <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; {{ !empty($r['isName']) ? 'color: #0a3880; font-weight: 900; font-size: clamp(6.5px, 2.05vw, 11px); letter-spacing: 0.02em;' : (!empty($r['highlight']) ? 'color: #92400e; font-weight: 800;' : (!empty($r['bold']) ? 'color: #111827; font-weight: 800;' : 'color: #1f2937; font-weight: 700;')) }}">
                                         {{ $r['value'] }}
                                     </span>
                                 </div>
@@ -119,11 +122,17 @@
                             </p>
                             <div style="text-align: center; flex-shrink: 0;">
                                 <p style="font-size: clamp(4.5px, 1.4vw, 7.5px); color: #374151; font-weight: 500; margin: 0;">
-                                    Gianyar, {{ now()->isoFormat('D MMMM Y') }}
+                                    Gianyar, 13 Juli 2026
                                 </p>
-                                <p style="font-size: clamp(4.5px, 1.4vw, 7.5px); color: #374151; font-weight: 600; margin: 0 0 6px 0;">
+                                <p style="font-size: clamp(4.5px, 1.4vw, 7.5px); color: #374151; font-weight: 600; margin: 0 0 1px 0;">
                                     Kepala Sekolah,
                                 </p>
+
+                                {{-- Barcode / QR Code Verifikasi Keabsahan Kepsek --}}
+                                <div style="width: 6.5vw; max-width: 28px; aspect-ratio: 1; margin: 1px auto 2px auto; padding: 1px; background: #ffffff; border: 0.8px solid #cbd5e1; border-radius: 3px; box-shadow: 0 1px 2px rgba(0,0,0,0.06);" title="Scan untuk verifikasi keabsahan kartu pelajar">
+                                    <img src="{{ $qrKepsekSvg }}" alt="QR Verifikasi Resmi" style="width: 100%; height: 100%; object-fit: contain; display: block;">
+                                </div>
+
                                 <p style="font-size: clamp(4.5px, 1.45vw, 8px); color: #111827; font-weight: 800; text-decoration: underline; margin: 0; white-space: nowrap;">
                                     I Wayan Sudra Astra, S.Pd., M.Pd.
                                 </p>

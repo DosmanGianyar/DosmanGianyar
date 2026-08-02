@@ -892,6 +892,9 @@ class _IdFront extends StatelessWidget {
                 const Text('Berlaku selama\nmenjadi siswa SMAN 1 Gianyar',
                   style: TextStyle(fontSize: 7, color: AppColors.gray400, fontStyle: FontStyle.italic, height: 1.5)),
                 Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
+                  const Text('Gianyar, 13 Juli 2026',
+                    style: TextStyle(fontSize: 7, color: AppColors.gray600, fontWeight: FontWeight.w500)),
+                  const SizedBox(height: 1),
                   const Text('Kepala Sekolah,',
                     style: TextStyle(fontSize: 7.5, color: AppColors.gray600, fontWeight: FontWeight.w500)),
                   const SizedBox(height: 2),

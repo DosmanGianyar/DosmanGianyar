@@ -413,7 +413,7 @@ html, body {
                 <tr>
                     <td class="td-label">Nama</td>
                     <td class="td-colon">:</td>
-                    <td class="td-value-name">{{ $siswa->name }}</td>
+                    <td class="td-value-name" style="font-size: 5pt; font-weight: 900; color: #0a3880; text-transform: uppercase;">{{ strtoupper($siswa->name) }}</td>
                 </tr>
                 <tr>
                     <td class="td-label">NIS / NISN</td>
@@ -453,10 +453,20 @@ html, body {
         <div class="footer-left">
             Berlaku selama menjadi<br>siswa SMA Negeri 1 Gianyar
         </div>
-        <div class="footer-right" style="width: 32mm;">
+        <div class="footer-right" style="width: 32mm; text-align: center;">
+            <div style="font-size: 3.2pt; color: #374151;">Gianyar, 13 Juli 2026</div>
             <div class="sig-role" style="font-size: 3.5pt; margin-bottom: 0.5mm;">Kepala Sekolah,</div>
-            <div style="font-size: 4pt; font-weight: bold; color: #111827; text-decoration: underline; white-space: nowrap;">I Wayan Sudra Astra, S.Pd., M.Pd.</div>
-            <div style="font-size: 3.2pt; font-weight: bold; color: #374151; white-space: nowrap; margin-top: 0.3mm;">NIP. 19710415 199703 1 007</div>
+            
+            @php
+            $verifyUrl = url('/verifikasi/kartu-pelajar/' . ($siswa->nis ?? $siswa->id));
+            $qrKepsekSvg = (new \chillerlan\QRCode\QRCode(new \chillerlan\QRCode\QROptions(['outputType' => 'svg', 'scale' => 2])))->render($verifyUrl);
+            @endphp
+            <div style="width: 6.5mm; height: 6.5mm; margin: 0.5mm auto; background: white; border: 0.5pt solid #cbd5e1; padding: 0.5pt;">
+                <img src="{{ $qrKepsekSvg }}" style="width: 100%; height: 100%; object-fit: contain;">
+            </div>
+
+            <div style="font-size: 3.8pt; font-weight: bold; color: #111827; text-decoration: underline; white-space: nowrap;">I Wayan Sudra Astra, S.Pd., M.Pd.</div>
+            <div style="font-size: 3pt; font-weight: bold; color: #374151; white-space: nowrap; margin-top: 0.2mm;">NIP. 19710415 199703 1 007</div>
         </div>
     </div>
 
