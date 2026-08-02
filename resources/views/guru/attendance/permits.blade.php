@@ -57,14 +57,22 @@
         <p class="text-sm text-gray-600 mb-3">{{ $permit->reason }}</p>
 
         @if($permit->file)
-        <a href="{{ Storage::url($permit->file) }}" target="_blank"
-            class="inline-flex items-center gap-1 text-xs text-blue-600 mb-3 hover:underline">
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
-            </svg>
-            Lihat lampiran
-        </a>
+        <div class="mb-3">
+            <a href="{{ asset('storage/' . $permit->file) }}" target="_blank"
+                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 transition-colors">
+                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
+                </svg>
+                <span>📄 Buka & Lihat Surat Bukti (Lampiran)</span>
+            </a>
+        </div>
+        @else
+        <div class="mb-3">
+            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-gray-100 text-gray-500 border border-gray-200">
+                <span>⚠️ Tidak Ada Lampiran Surat</span>
+            </span>
+        </div>
         @endif
 
         @if($permit->status === 'pending')
