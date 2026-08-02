@@ -188,9 +188,9 @@
                 </svg>
             </div>
             <div>
-                <div class="imp-banner-title">Import & Parsing PDF Jadwal Pelajaran (aSc Timetables)</div>
+                <div class="imp-banner-title">Import & Parsing Excel Jadwal Pelajaran (aSc Timetables)</div>
                 <div class="imp-banner-desc">
-                    Unggah file PDF jadwal cetakan **aSc Timetables** atau file Excel export per tingkat kelas (Kelas 10, 11, atau 12). Sistem akan mengekstrak jam, hari, mapel, serta melakukan pencocokan guru secara otomatis ke database.
+                    Unggah file Excel master jadwal pelajaran (.xlsx / .xls). Sistem akan mengekstrak jam, hari, kelas, mapel, serta melakukan pencocokan guru secara otomatis ke database.
                 </div>
             </div>
         </div>
@@ -199,7 +199,7 @@
             {{-- ── Form Langkah 1: Upload File & Parameter ──────────────────── --}}
             <div class="imp-card">
                 <div class="imp-card-title">
-                    <span>Langkah 1: Unggah File & Pilih Tingkat Kelas</span>
+                    <span>Langkah 1: Unggah File Excel Jadwal Pelajaran</span>
                 </div>
 
                 <form wire:submit.prevent="startParsing" class="space-y-6">
@@ -220,7 +220,7 @@
                 <div class="imp-grid-stats">
                     <div class="imp-stat-card">
                         <span class="imp-stat-label">Tingkat Kelas</span>
-                        <span class="imp-stat-value" style="color: #60a5fa;">Kelas {{ $selectedGrade }}</span>
+                        <span class="imp-stat-value" style="color: #60a5fa;">{{ $selectedGrade }}</span>
                     </div>
                     <div class="imp-stat-card">
                         <span class="imp-stat-label">Tahun Ajaran</span>
@@ -261,7 +261,7 @@
                                     <th style="width: 130px;">Kelas</th>
                                     <th style="width: 170px;">Hari & Jam</th>
                                     <th>Mata Pelajaran</th>
-                                    <th>Nama Guru di PDF</th>
+                                    <th>Nama Guru di Excel</th>
                                     <th>Hasil Match DB</th>
                                     <th style="width: 320px;">Aksi / Pilih Guru</th>
                                 </tr>

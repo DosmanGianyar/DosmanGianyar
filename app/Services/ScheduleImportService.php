@@ -9,8 +9,8 @@ use App\Models\User;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Smalot\PdfParser\Parser;
 use Maatwebsite\Excel\Facades\Excel;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class ScheduleImportService
 {
@@ -55,60 +55,61 @@ class ScheduleImportService
     ];
 
     /**
-     * Parsing PDF / Excel untuk jadwal per tingkat (10, 11, 12)
+     * Map nama hari ke nomor (1: Senin, ..., 6: Sabtu)
      */
-    public function parseFile(string $filePath, string $mimeOrExt, string $grade): array
-    {
-        $extension = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
-        if ($extension === 'pdf' || str_contains($mimeOrExt, 'pdf')) {
-            return $this->parsePdf($filePath, $grade);
-        }
+    public const DAY_MAP = [
+        'SENIN'  => 1,
+        'SELASA' => 2,
+        'RABU'   => 3,
+        'KAMIS'  => 4,
+        'JUMAT'  => 5,
+        'SABTU'  => 6,
+        'MINGGU' => 7,
+    ];
 
+    /**
+     * Main entry point: Parsing file Excel untuk jadwal pelajaran
+     */
+    public function parseFile(string $filePath, string $mimeOrExt = '', string $grade = 'ALL'): array
+    {
         return $this->parseExcel($filePath, $grade);
     }
 
     /**
-     * Parsing PDF grid aSc Timetables (Mendukung Jadwal Per Kelas & Jadwal Per Guru)
+     * Parsing file Excel (.xlsx, .xls, .csv) dari export aSc Timetables atau format tabel/grid
      */
-    public function parsePdf(string $filePath, string $targetGrade = '10'): array
+    public function parseExcel(string $filePath, string $targetGrade = 'ALL'): array
     {
-        $parser = new Parser();
-        $pdf = $parser->parseFile($filePath);
-        $pages = $pdf->getPages();
-
         $rawItems = [];
 
-        foreach ($pages as $index => $page) {
-            $text = $page->getText();
-            $lines = array_values(array_filter(array_map('trim', explode("\n", $text))));
-            if (empty($lines)) continue;
+        try {
+            $spreadsheet = IOFactory::load($filePath);
+            $sheetCount  = $spreadsheet->getSheetCount();
 
-            // Deteksi 1: Cek apakah ini PDF Tipe "Jadwal Per Guru" (Header: Guru [Nama] / Teacher [Nama])
-            $teacherHeader = $this->extractTeacherHeader($text, $lines);
+            // Periksa setiap sheet untuk menemukan data jadwal (Matrix Grid atau List)
+            for ($i = 0; $i < $sheetCount; $i++) {
+                $sheet      = $spreadsheet->getSheet($i);
+                $sheetItems = $this->parseWorksheet($sheet, $targetGrade);
+                if (!empty($sheetItems)) {
+                    $rawItems = array_merge($rawItems, $sheetItems);
+                }
+            }
+        } catch (\Throwable $e) {
+            Log::error("ScheduleImportService parseExcel Error: " . $e->getMessage());
+        }
 
-            if ($teacherHeader) {
-                // Tipe Jadwal Per Guru: Nama Guru Lengkap ada di Header Halaman
-                $extractedCells = $this->extractCellsFromTeacherPdf($page, $teacherHeader);
-                foreach ($extractedCells as $cell) {
-                    $rawItems[] = array_merge($cell, [
-                        'teacher_raw'  => $teacherHeader,
-                        'target_grade' => $targetGrade,
-                    ]);
+        // Jika cara Spreadsheet belum mendapatkan item, coba via Maatwebsite Excel array
+        if (empty($rawItems)) {
+            try {
+                $sheets = Excel::toArray([], $filePath);
+                foreach ($sheets as $rows) {
+                    $sheetItems = $this->parseRowsArray($rows, $targetGrade);
+                    if (!empty($sheetItems)) {
+                        $rawItems = array_merge($rawItems, $sheetItems);
+                    }
                 }
-            } else {
-                // Tipe Jadwal Per Kelas: Nama Kelas ada di Header Halaman (e.g. X1, X2... X10)
-                $className = $this->extractClassName($text, $lines, $targetGrade);
-                if (! $className) {
-                    $className = strtoupper($targetGrade === '10' ? 'X' : ($targetGrade === '11' ? 'XI' : 'XII')) . ($index + 1);
-                }
-
-                $extractedCells = $this->extractCellsFromText($text, $lines);
-                foreach ($extractedCells as $cell) {
-                    $rawItems[] = array_merge($cell, [
-                        'class_name'   => $className,
-                        'target_grade' => $targetGrade,
-                    ]);
-                }
+            } catch (\Throwable $e) {
+                Log::error("ScheduleImportService parseRowsArray Error: " . $e->getMessage());
             }
         }
 
@@ -116,62 +117,245 @@ class ScheduleImportService
     }
 
     /**
-     * Parsing file Excel / CSV dari export aSc Timetables
+     * Parsing sheet PhpSpreadsheet secara spesifik (Mendukung Tipe Matrix Grid & Tipe Daftar Tabel)
      */
-    public function parseExcel(string $filePath, string $targetGrade = '10'): array
+    protected function parseWorksheet($sheet, string $targetGrade): array
     {
-        $rows = Excel::toArray([], $filePath)[0] ?? [];
+        $rawItems        = [];
+        $highestRow      = $sheet->getHighestRow();
+        $highestCol      = $sheet->getHighestColumn();
+        $highestColIndex = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString($highestCol);
+
+        if ($highestRow < 2 || $highestColIndex < 2) {
+            return [];
+        }
+
+        // 1. Deteksi Tipe Grid Matrix (Cari baris header nama-nama kelas, e.g., Row 1..10)
+        $gridHeaderRow = null;
+        $classColumns  = []; // colIndex => ClassName
+        $dayCol        = null;
+        $periodCol     = null;
+
+        for ($r = 1; $r <= min(10, $highestRow); $r++) {
+            $colsWithClass = [];
+            for ($c = 1; $c <= $highestColIndex; $c++) {
+                $colLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($c);
+                $val       = trim((string)$sheet->getCell($colLetter . $r)->getFormattedValue());
+                $valUpper  = strtoupper($val);
+
+                if (in_array($valUpper, ['HARI', 'DAY'])) {
+                    $dayCol = $c;
+                } elseif (in_array($valUpper, ['JAM', 'PERIOD', 'WAKTU', 'TIME', 'JAM KE'])) {
+                    if (!$periodCol) $periodCol = $c;
+                } elseif (preg_match('/^(X|XI|XII)[-\s]?\d{1,2}$/i', $val) || preg_match('/^(XI|XII)[-\s]?[A-Z]\d?$/i', $val)) {
+                    $colsWithClass[$c] = $this->normalizeClassName($val);
+                }
+            }
+
+            if (count($colsWithClass) >= 2) { // Ditemukan minimal 2 kolom kelas
+                $gridHeaderRow = $r;
+                $classColumns  = $colsWithClass;
+                break;
+            }
+        }
+
+        // Jika ini adalah Tipe Matrix Grid (Hari, Jam, Kolom Kelas)
+        if ($gridHeaderRow && !empty($classColumns)) {
+            $currentDay = 1;
+
+            for ($r = $gridHeaderRow + 1; $r <= $highestRow; $r++) {
+                // Deteksi Hari
+                if ($dayCol) {
+                    $dayLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($dayCol);
+                    $dayVal    = strtoupper(trim((string)$sheet->getCell($dayLetter . $r)->getFormattedValue()));
+                    if (!empty($dayVal) && isset(self::DAY_MAP[$dayVal])) {
+                        $currentDay = self::DAY_MAP[$dayVal];
+                    }
+                }
+
+                // Deteksi Jam / Period
+                $period = 1;
+                if ($periodCol) {
+                    $periodLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($periodCol);
+                    $periodVal    = trim((string)$sheet->getCell($periodLetter . $r)->getFormattedValue());
+                    if (is_numeric($periodVal)) {
+                        $period = (int)$periodVal;
+                    }
+                }
+
+                // Iterasi kolom-kolom kelas
+                foreach ($classColumns as $cIndex => $className) {
+                    $colLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($cIndex);
+                    $cellVal   = trim((string)$sheet->getCell($colLetter . $r)->getFormattedValue());
+
+                    if (empty($cellVal) || in_array(strtoupper($cellVal), ['UP', 'ISTIRAHAT', 'UPACARA', 'SHOLAT', '-'])) {
+                        continue;
+                    }
+
+                    // Parse isi sel (misal: "AGAMA BP 63", "MAT 29", "SOS 42", "FISIKA (P. Madra)")
+                    $parsedCell = $this->parseCellContent($cellVal);
+                    if ($parsedCell['subject_code']) {
+                        $rawItems[] = [
+                            'class_name'   => $className,
+                            'day'          => $currentDay,
+                            'period'       => $period,
+                            'subject_code' => $parsedCell['subject_code'],
+                            'teacher_raw'  => $parsedCell['teacher_raw'],
+                            'room'         => $parsedCell['room'] ?? null,
+                            'target_grade' => $targetGrade,
+                        ];
+                    }
+                }
+            }
+
+            return $rawItems;
+        }
+
+        // 2. Tipe Daftar / Table List (Baris per Baris)
+        $headers = [];
+        for ($c = 1; $c <= $highestColIndex; $c++) {
+            $colLetter      = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($c);
+            $hVal           = strtoupper(trim((string)$sheet->getCell($colLetter . '1')->getFormattedValue()));
+            $headers[$hVal] = $c;
+        }
+
+        $colClass = $headers['KELAS'] ?? $headers['CLASS'] ?? 1;
+        $colGuru  = $headers['GURU'] ?? $headers['NAMA GURU'] ?? $headers['TEACHER'] ?? null;
+        $colMapel = $headers['MATA PELAJARAN'] ?? $headers['MAPEL'] ?? $headers['SUBJECT'] ?? null;
+        $colHari  = $headers['HARI'] ?? $headers['DAY'] ?? null;
+        $colJam   = $headers['JAM'] ?? $headers['PERIOD'] ?? null;
+
+        if ($colGuru && $colMapel) {
+            for ($r = 2; $r <= $highestRow; $r++) {
+                $cValLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colClass);
+                $className  = trim((string)$sheet->getCell($cValLetter . $r)->getFormattedValue());
+                if (empty($className)) continue;
+
+                $gValLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colGuru);
+                $teacherRaw = trim((string)$sheet->getCell($gValLetter . $r)->getFormattedValue());
+
+                $mValLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colMapel);
+                $subjRaw    = trim((string)$sheet->getCell($mValLetter . $r)->getFormattedValue());
+
+                $day = 1;
+                if ($colHari) {
+                    $hValLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colHari);
+                    $dayStr     = strtoupper(trim((string)$sheet->getCell($hValLetter . $r)->getFormattedValue()));
+                    $day        = self::DAY_MAP[$dayStr] ?? (is_numeric($dayStr) ? (int)$dayStr : 1);
+                }
+
+                $period = 1;
+                if ($colJam) {
+                    $jValLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colJam);
+                    $jStr       = trim((string)$sheet->getCell($jValLetter . $r)->getFormattedValue());
+                    if (is_numeric($jStr)) $period = (int)$jStr;
+                }
+
+                if (!empty($subjRaw) && !empty($teacherRaw)) {
+                    $rawItems[] = [
+                        'class_name'   => $this->normalizeClassName($className),
+                        'day'          => $day,
+                        'period'       => $period,
+                        'subject_code' => $subjRaw,
+                        'teacher_raw'  => $teacherRaw,
+                        'room'         => null,
+                        'target_grade' => $targetGrade,
+                    ];
+                }
+            }
+        }
+
+        return $rawItems;
+    }
+
+    /**
+     * Fallback parsing dari Maatwebsite Excel array
+     */
+    protected function parseRowsArray(array $rows, string $targetGrade): array
+    {
         $rawItems = [];
+        if (count($rows) < 2) return [];
 
-        if (empty($rows)) return [];
-
-        // Deteksi header kolom (Hari) & baris (Jam/Kelas)
         foreach ($rows as $rIndex => $row) {
             if ($rIndex < 2) continue; // Skip header
             $className = trim($row[0] ?? '');
             if (empty($className)) continue;
 
-            $day = (int) ($row[1] ?? 1);
-            $period = (int) ($row[2] ?? 1);
+            $day        = (int) ($row[1] ?? 1);
+            $period     = (int) ($row[2] ?? 1);
             $subjectRaw = trim($row[3] ?? '');
             $teacherRaw = trim($row[4] ?? '');
-            $room = trim($row[5] ?? '');
+            $room       = trim($row[5] ?? '');
 
             if ($subjectRaw) {
                 $rawItems[] = [
-                    'class_name'    => $className,
-                    'day'           => $day,
-                    'period'        => $period,
-                    'subject_code'  => $subjectRaw,
-                    'teacher_raw'   => $teacherRaw,
-                    'room'          => $room,
-                    'target_grade'  => $targetGrade,
+                    'class_name'   => $this->normalizeClassName($className),
+                    'day'          => $day > 0 ? $day : 1,
+                    'period'       => $period > 0 ? $period : 1,
+                    'subject_code' => $subjectRaw,
+                    'teacher_raw'  => $teacherRaw,
+                    'room'         => $room,
+                    'target_grade' => $targetGrade,
                 ];
             }
         }
 
-        return $this->matchEntities($rawItems);
+        return $rawItems;
     }
 
     /**
-     * Normalisasi nama kelas PDF (misal: "X1" -> "X-01", "X10" -> "X-10", "XI2" -> "XI-02")
+     * Ekstraksi Mapel & Kode/Nama Guru dari isi sel (misal: "AGAMA BP 63", "MAT 29", "SOS 42")
+     */
+    protected function parseCellContent(string $cellContent): array
+    {
+        $clean = trim($cellContent);
+        
+        // Pola 1: "AGAMA BP 63", "SOS 42", "MAT 29", "FIS 68"
+        if (preg_match('/^([A-Z\s]+)\s+(\d+)$/i', $clean, $matches)) {
+            return [
+                'subject_code' => trim($matches[1]),
+                'teacher_raw'  => trim($matches[2]),
+                'room'         => null,
+            ];
+        }
+
+        // Pola 2: "FISIKA (Pak Madra)"
+        if (preg_match('/^([A-Z\s]+)\s*\(([^)]+)\)$/i', $clean, $matches)) {
+            return [
+                'subject_code' => trim($matches[1]),
+                'teacher_raw'  => trim($matches[2]),
+                'room'         => null,
+            ];
+        }
+
+        // Pola 3: Kata pertama adalah kode mapel, sisanya nama/kode guru
+        $parts = explode(' ', $clean, 2);
+        return [
+            'subject_code' => trim($parts[0] ?? $clean),
+            'teacher_raw'  => trim($parts[1] ?? ''),
+            'room'         => null,
+        ];
+    }
+
+    /**
+     * Normalisasi nama kelas Excel (misal: "X1" -> "X-01", "X10" -> "X-10", "XI2" -> "XI-02")
      */
     public function normalizeClassName(string $rawClassName): string
     {
         $clean = strtoupper(trim(str_replace(['KELAS', ' '], '', $rawClassName)));
 
         if (preg_match('/^(X|XI|XII)-?0?(\d+)$/i', $clean, $matches)) {
-            $prefix = strtoupper($matches[1]);
-            $number = (int) $matches[2];
+            $prefix          = strtoupper($matches[1]);
+            $number          = (int) $matches[2];
             $formattedNumber = str_pad($number, 2, '0', STR_PAD_LEFT);
-            return "{$prefix}-{$formattedNumber}"; // e.g. "X-01", "X-02", "X-10", "XI-01", "XII-05"
+            return "{$prefix}-{$formattedNumber}"; // e.g. "X-01", "X-02", "X-10"
         }
 
         return $clean;
     }
 
     /**
-     * Cari ID Mata Pelajaran berdasarkan data Guru dan/atau kode dari PDF
+     * Cari ID Mata Pelajaran berdasarkan data Guru dan/atau kode dari Excel
      */
     public function resolveSubjectForTeacher(?User $teacher, Collection $allSubjects, ?string $rawSubjectCode = null): array
     {
@@ -212,12 +396,12 @@ class ScheduleImportService
         if (count($allowedSubjectIds) === 1) {
             $matchedSubjectId = $allowedSubjectIds[0];
         } else {
-            // Jika ada lebih dari 1 mapel atau belum terdaftar di profil guru, cari berdasarkan kode dari PDF
+            // Cari berdasarkan kode dari Excel
             if ($rawSubjectCode) {
                 $codeUpper  = strtoupper(trim($rawSubjectCode));
                 $mappedName = self::SUBJECT_MAP[$codeUpper] ?? $codeUpper;
 
-                $foundFromPdf = $allSubjects->first(function ($s) use ($codeUpper, $mappedName, $allowedSubjectIds) {
+                $foundFromExcel = $allSubjects->first(function ($s) use ($codeUpper, $mappedName, $allowedSubjectIds) {
                     if (! empty($allowedSubjectIds) && ! in_array($s->id, $allowedSubjectIds)) {
                         return false;
                     }
@@ -232,12 +416,12 @@ class ScheduleImportService
                         || str_contains($sName, strtoupper($mappedName));
                 });
 
-                if ($foundFromPdf) {
-                    $matchedSubjectId = $foundFromPdf->id;
+                if ($foundFromExcel) {
+                    $matchedSubjectId = $foundFromExcel->id;
                 }
             }
 
-            // Fallback: jika masih null tapi ada allowedSubjectIds
+            // Fallback
             if (! $matchedSubjectId && ! empty($allowedSubjectIds)) {
                 $matchedSubjectId = $allowedSubjectIds[0];
             }
@@ -270,7 +454,6 @@ class ScheduleImportService
             $schoolClass = $classes->get($lookupKey) ?? $classes->get($cleanClassName);
 
             if (! $schoolClass) {
-                // Auto-create kelas di DB jika belum ada agar admin tidak perlu buat manual
                 $schoolClass = SchoolClass::firstOrCreate(
                     ['name' => $normalizedClassName],
                     ['grade' => $targetGrade]
@@ -285,7 +468,7 @@ class ScheduleImportService
             $teacherMatch   = $this->findBestTeacherMatch($teacherRaw, $teachers);
             $matchedTeacher = $teacherMatch['user'];
 
-            // 3. Match Subject berdasarkan data Guru & Kode PDF
+            // 3. Match Subject
             $subjCode = strtoupper(trim($item['subject_code']));
             $subjRes  = $this->resolveSubjectForTeacher($matchedTeacher, $subjects, $subjCode);
 
@@ -294,7 +477,7 @@ class ScheduleImportService
 
             $matchedList[] = [
                 'temp_id'             => 'item_' . $index,
-                'class_name'          => $schoolClass->name, // Selalu tampilkan format rapi e.g. X-01
+                'class_name'          => $schoolClass->name,
                 'class_id'            => $classId,
                 'day'                 => $item['day'],
                 'period'              => $item['period'],
@@ -307,7 +490,7 @@ class ScheduleImportService
                 'teacher_raw'         => $teacherRaw,
                 'teacher_id'          => $matchedTeacher?->id,
                 'teacher_name'        => $matchedTeacher?->name ?? $teacherRaw,
-                'match_confidence'    => $teacherMatch['confidence'], // 'exact', 'fuzzy', 'unmatched'
+                'match_confidence'    => $teacherMatch['confidence'],
                 'room'                => $item['room'] ?? null,
             ];
         }
@@ -324,7 +507,6 @@ class ScheduleImportService
             return ['user' => null, 'confidence' => 'unmatched'];
         }
 
-        // Bersihkan inisial gelar depan P. (Pak), B. (Bu)
         $cleanName = preg_replace('/^(P\.|B\.|Pak|Bu|Ibu)\s+/i', '', $rawName);
         $cleanName = trim(preg_replace('/[^a-zA-Z\s]/', '', $cleanName));
 
@@ -332,18 +514,16 @@ class ScheduleImportService
             return ['user' => null, 'confidence' => 'unmatched'];
         }
 
-        $bestUser = null;
+        $bestUser     = null;
         $highestScore = 0;
 
         foreach ($teachers as $teacher) {
             $tName = preg_replace('/[^a-zA-Z\s]/', '', $teacher->name);
             
-            // Check exact token substring (misal: "Puspita" ada di "Dra. Ni Made Puspita, M.Pd.")
             if (str_contains(strtolower($tName), strtolower($cleanName))) {
                 return ['user' => $teacher, 'confidence' => 'exact'];
             }
 
-            // Levenshtein / similarity score
             similar_text(strtolower($cleanName), strtolower($tName), $percent);
             if ($percent > $highestScore) {
                 $highestScore = $percent;
@@ -364,8 +544,6 @@ class ScheduleImportService
     public function saveSchedules(array $confirmedItems, string $academicYear, bool $replaceExisting = true): int
     {
         return DB::transaction(function () use ($confirmedItems, $academicYear, $replaceExisting) {
-            $classIds = collect($confirmedItems)->pluck('class_id')->filter()->unique()->toArray();
-
             if ($replaceExisting) {
                 Schedule::where('academic_year', $academicYear)->delete();
             }
@@ -373,7 +551,7 @@ class ScheduleImportService
             $count = 0;
             foreach ($confirmedItems as $item) {
                 if (empty($item['class_id']) || empty($item['subject_id'])) {
-                    continue; // Skip slot tanpa kelas / mapel
+                    continue;
                 }
 
                 Schedule::create([
@@ -411,163 +589,5 @@ class ScheduleImportService
             'role'                 => 'guru',
             'must_change_password' => true,
         ]);
-    }
-
-    // ─── Internal Parsing Helpers ──────────────────────────────────────────────
-
-    protected function extractClassName(string $fullText, array $lines, string $grade): ?string
-    {
-        $prefix = strtoupper($grade === '10' ? 'X' : ($grade === '11' ? 'XI' : 'XII'));
-        
-        foreach ($lines as $line) {
-            $str = is_array($line) ? implode(' ', $line) : (string) $line;
-            if (preg_match('/^(' . $prefix . '\d{1,2})$/i', trim($str), $matches)) {
-                return strtoupper($matches[1]);
-            }
-        }
-        return null;
-    }
-
-    protected function extractCellsFromText(string $text, array $lines): array
-    {
-        $cells = [];
-        $days = ['SENIN' => 1, 'SELASA' => 2, 'RABU' => 3, 'KAMIS' => 4, 'JUMAT' => 5, 'SABTU' => 6];
-        
-        // Pola sederhana pencarian sel mapel + guru (misal: "SOS\nB. Puspita")
-        foreach (self::SUBJECT_MAP as $code => $fullName) {
-            if (preg_match_all('/' . preg_quote($code, '/') . '\s+(?:(LAB\s+[A-Z]+)\s+)?([PB]\.\s*[A-Za-z\s]+)/i', $text, $matches, PREG_SET_ORDER)) {
-                foreach ($matches as $m) {
-                    $cells[] = [
-                        'day'          => rand(1, 5), // default slot (dapat diubah di staging UI)
-                        'period'       => rand(1, 8),
-                        'subject_code' => $code,
-                        'teacher_raw'  => trim($m[2] ?? ''),
-                        'room'         => trim($m[1] ?? ''),
-                    ];
-                }
-            }
-        }
-
-        return $cells;
-    }
-
-    protected function extractTeacherHeader(string $fullText, array $lines): ?string
-    {
-        foreach ($lines as $line) {
-            $str = is_array($line) ? implode(' ', $line) : (string) $line;
-            $str = trim($str);
-            if (preg_match('/^(Guru|Teacher)\s+(.+)$/i', $str, $matches)) {
-                return trim($matches[2]);
-            }
-        }
-        return null;
-    }
-
-    protected function extractCellsFromTeacherPdf($page, string $teacherName): array
-    {
-        $cells = [];
-        $text  = $page->getText();
-
-        // Kumpulkan token teks dan koordinat jika dataTm tersedia
-        $tokens = [];
-        try {
-            $dataTm = $page->getDataTm();
-            if (is_array($dataTm)) {
-                foreach ($dataTm as $tm) {
-                    $raw    = $tm[0] ?? '';
-                    $rawStr = is_array($raw) ? implode(' ', array_map('trim', $raw)) : (string) $raw;
-                    $tText  = trim($rawStr);
-                    $matrix = $tm[1] ?? [];
-                    $x      = floatval($matrix[4] ?? 0);
-                    $y      = floatval($matrix[5] ?? 0);
-
-                    if ($tText !== '') {
-                        $tokens[] = ['text' => $tText, 'x' => $x, 'y' => $y];
-                    }
-                }
-            }
-        } catch (\Throwable $e) {
-            $tokens = [];
-        }
-
-        // Patterns untuk nama kelas (misal: XII C1, XII C2, XI A, X1, X2, X10, dst.)
-        $classPattern = '(?:X\d{1,2}|XI\s+[A-Z0-9]+|XII\s+[A-Z0-9]+|X-\d{1,2}|XI-[A-Z0-9]+|XII-[A-Z0-9]+)';
-
-        // Ekstraksi semua sel dari teks lengkap halaman
-        foreach (self::SUBJECT_MAP as $code => $fullName) {
-            $quotedCode = preg_quote($code, '/');
-            $quotedFull = preg_quote($fullName, '/');
-
-            // Pola: "AGAMA BP\nXII C2" atau "XII C2\nAGAMA BP" atau "MAT.L\nXII C1"
-            $pattern = '/(?:' . $quotedCode . '|' . $quotedFull . ')\s+(?:(LAB\s+[A-Z]+)\s+)?(' . $classPattern . ')|(' . $classPattern . ')\s+(?:(LAB\s+[A-Z]+)\s+)?(?:' . $quotedCode . '|' . $quotedFull . ')/i';
-
-            if (preg_match_all($pattern, $text, $matches, PREG_SET_ORDER)) {
-                foreach ($matches as $m) {
-                    $className = !empty($m[2]) ? trim($m[2]) : (!empty($m[3]) ? trim($m[3]) : '');
-                    $room      = !empty($m[1]) ? trim($m[1]) : (!empty($m[4]) ? trim($m[4]) : '');
-
-                    if (! $className) continue;
-
-                    // Cari koordinat X, Y untuk nama kelas ini di $tokens jika ada
-                    $x = 0;
-                    $y = 0;
-                    $foundToken = false;
-
-                    foreach ($tokens as $tok) {
-                        $tUpper = strtoupper($tok['text']);
-                        $cUpper = strtoupper($className);
-                        if (str_contains($tUpper, $cUpper) || str_contains($cUpper, $tUpper)) {
-                            if ($tok['x'] > 50) { // Lewati label margin kiri
-                                $x = $tok['x'];
-                                $y = $tok['y'];
-                                $foundToken = true;
-                                break;
-                            }
-                        }
-                    }
-
-                    // 1. Tentukan HARI berdasarkan koordinat X
-                    $day = 1;
-                    if ($foundToken && $x > 0) {
-                        if ($x < 210)      $day = 1; // Senin
-                        elseif ($x < 330) $day = 2; // Selasa
-                        elseif ($x < 450) $day = 3; // Rabu
-                        elseif ($x < 570) $day = 4; // Kamis
-                        elseif ($x < 690) $day = 5; // Jumat
-                        else              $day = 6; // Sabtu
-                    } else {
-                        $day = rand(1, 5);
-                    }
-
-                    // 2. Tentukan JAM / PERIOD berdasarkan koordinat Y
-                    $period = 1;
-                    if ($foundToken && $y > 0) {
-                        if ($y > 450)     $period = 0;
-                        elseif ($y > 415) $period = 1;
-                        elseif ($y > 380) $period = 2;
-                        elseif ($y > 345) $period = 3;
-                        elseif ($y > 310) $period = 4;
-                        elseif ($y > 275) $period = 5;
-                        elseif ($y > 240) $period = 6;
-                        elseif ($y > 205) $period = 7;
-                        elseif ($y > 170) $period = 8;
-                        elseif ($y > 135) $period = 9;
-                        else              $period = 10;
-                    } else {
-                        $period = rand(1, 8);
-                    }
-
-                    $cells[] = [
-                        'day'          => $day,
-                        'period'       => $period,
-                        'subject_code' => $code,
-                        'class_name'   => $className,
-                        'room'         => $room,
-                    ];
-                }
-            }
-        }
-
-        return $cells;
     }
 }

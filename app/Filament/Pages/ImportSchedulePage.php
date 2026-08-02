@@ -18,7 +18,7 @@ class ImportSchedulePage extends Page
 {
     protected static string|\BackedEnum|null $navigationIcon  = 'heroicon-o-calendar';
     protected static string|\UnitEnum|null   $navigationGroup = 'Kurikulum';
-    protected static ?string                 $navigationLabel = 'Import Jadwal PDF/Excel';
+    protected static ?string                 $navigationLabel = 'Import Jadwal Excel';
     protected static ?string                 $slug            = 'import-schedule';
     protected static ?int                    $navigationSort  = 5;
 
@@ -58,13 +58,12 @@ class ImportSchedulePage extends Page
                 Toggle::make('replace_existing')
                     ->label('Otomatis Hapus & Gantikan Jadwal Lama')
                     ->default(true)
-                    ->helperText('Jadwal lama pada tahun ajaran ini akan otomatis dibersihkan dan digantikan dengan jadwal baru dari PDF.'),
+                    ->helperText('Jadwal lama pada tahun ajaran ini akan otomatis dibersihkan dan digantikan dengan jadwal baru dari Excel.'),
 
                 FileUpload::make('file')
-                    ->label('File Master PDF / Excel Jadwal (aSc Timetables)')
-                    ->helperText('Unggah file PDF master jadwal (berisi seluruh guru & kelas). Sistem otomatis membaca semua kelas 10, 11, 12.')
+                    ->label('File Master Excel Jadwal (.xlsx / .xls)')
+                    ->helperText('Unggah file Excel master jadwal pelajaran. Sistem otomatis mengekstrak hari, jam, kelas, mapel, dan guru.')
                     ->acceptedFileTypes([
-                        'application/pdf',
                         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
                         'application/vnd.ms-excel',
                         'text/csv',
