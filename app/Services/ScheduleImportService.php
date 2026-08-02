@@ -420,7 +420,8 @@ class ScheduleImportService
         $prefix = strtoupper($grade === '10' ? 'X' : ($grade === '11' ? 'XI' : 'XII'));
         
         foreach ($lines as $line) {
-            if (preg_match('/^(' . $prefix . '\d{1,2})$/i', $line, $matches)) {
+            $str = is_array($line) ? implode(' ', $line) : (string) $line;
+            if (preg_match('/^(' . $prefix . '\d{1,2})$/i', trim($str), $matches)) {
                 return strtoupper($matches[1]);
             }
         }
@@ -453,7 +454,9 @@ class ScheduleImportService
     protected function extractTeacherHeader(string $fullText, array $lines): ?string
     {
         foreach ($lines as $line) {
-            if (preg_match('/^(Guru|Teacher)\s+(.+)$/i', $line, $matches)) {
+            $str = is_array($line) ? implode(' ', $line) : (string) $line;
+            $str = trim($str);
+            if (preg_match('/^(Guru|Teacher)\s+(.+)$/i', $str, $matches)) {
                 return trim($matches[2]);
             }
         }
@@ -477,7 +480,10 @@ class ScheduleImportService
         // Kumpulkan token teks beserta koordinat X dan Y
         $tokens = [];
         foreach ($dataTm as $tm) {
-            $text   = trim($tm[0] ?? '');
+            $raw    = $tm[0] ?? '';
+            $rawStr = is_array($raw) ? implode(' ', array_map('trim', $raw)) : (string) $raw;
+            $text   = trim($rawStr);
+
             $matrix = $tm[1] ?? [];
             $x      = floatval($matrix[4] ?? 0);
             $y      = floatval($matrix[5] ?? 0);
