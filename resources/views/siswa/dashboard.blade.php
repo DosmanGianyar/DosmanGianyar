@@ -5,37 +5,37 @@
 
 @section('content')
 
-{{-- ─── Sapaan & Hero Header (Sleek Compact Design) ───────────────────── --}}
-<div class="relative overflow-hidden bg-linear-to-r from-blue-700 via-indigo-700 to-blue-800 rounded-2xl px-4 py-3.5 mb-3 text-white shadow-md">
+{{-- ─── Sapaan & Hero Header (High Contrast & Large Font Design) ───────── --}}
+<div class="relative overflow-hidden bg-linear-to-r from-blue-800 via-indigo-900 to-blue-900 rounded-2xl p-4 mb-3.5 text-white shadow-lg border border-blue-600/30">
     {{-- Decorative Background Watermark Logo --}}
-    <div class="absolute -right-6 -bottom-6 w-32 h-32 opacity-10 pointer-events-none">
+    <div class="absolute -right-6 -bottom-6 w-36 h-36 opacity-15 pointer-events-none">
         <img src="{{ asset('img/logo_sekolah.png') }}" class="w-full h-full object-contain">
     </div>
 
-    <div class="relative z-10 flex items-center justify-between gap-3">
+    <div class="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div class="flex-1 min-w-0">
-            <div class="flex items-center gap-2 mb-0.5">
-                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/15 backdrop-blur-xs text-[10px] font-semibold text-blue-100 border border-white/20">
+            <div class="flex items-center gap-2 mb-1">
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/20 backdrop-blur-md text-xs font-bold text-white border border-white/30 shadow-2xs">
                     📅 {{ now()->isoFormat('dddd, D MMMM Y') }}
                 </span>
             </div>
-            <h2 class="text-base sm:text-lg font-black tracking-tight leading-tight truncate text-white">
+            <h2 class="text-lg sm:text-xl font-black tracking-tight leading-tight truncate text-white mt-1">
                 Selamat {{ match(true) { now()->hour < 11 => 'Pagi', now()->hour < 15 => 'Siang', now()->hour < 18 => 'Sore', default => 'Malam' } }}, {{ explode(' ', trim($siswa->name))[0] }}! 👋
             </h2>
-            <p class="text-blue-100/90 text-xs mt-0.5 truncate font-medium">
-                {{ $siswa->schoolClass?->name ?? 'Siswa SMAN 1 Gianyar' }} @if($siswa->angkatan) · <span class="font-bold text-amber-300">{{ $siswa->angkatan }}</span>@endif · NIS {{ $siswa->nis ?? '—' }}
+            <p class="text-xs sm:text-sm font-semibold text-blue-50 mt-1 truncate">
+                {{ $siswa->schoolClass?->name ?? 'Siswa SMAN 1 Gianyar' }} @if($siswa->angkatan) · <span class="font-extrabold text-amber-300 bg-amber-400/25 px-1.5 py-0.5 rounded border border-amber-300/40 text-xs">{{ $siswa->angkatan }}</span>@endif · NIS {{ $siswa->nis ?? '—' }}
             </p>
         </div>
 
-        {{-- Ringkasan Kehadiran Ringkas --}}
-        <div class="shrink-0 text-right bg-white/10 backdrop-blur-md rounded-xl p-2 border border-white/15">
-            <p class="text-[10px] font-bold text-blue-200 uppercase tracking-wider mb-1">Bulan Ini</p>
-            <div class="flex items-center justify-end gap-1.5 text-[11px] font-extrabold">
-                <span class="inline-flex items-center gap-1 text-yellow-300" title="Terlambat"><span class="w-2 h-2 rounded-full bg-yellow-400"></span>{{ $monthlySummary['terlambat'] }}</span>
-                <span class="inline-flex items-center gap-1 text-red-300" title="Alpa"><span class="w-2 h-2 rounded-full bg-red-400"></span>{{ $monthlySummary['alpa'] }}</span>
-                <span class="inline-flex items-center gap-1 text-sky-300" title="Izin"><span class="w-2 h-2 rounded-full bg-sky-400"></span>{{ $monthlySummary['izin'] }}</span>
-                <span class="inline-flex items-center gap-1 text-purple-300" title="Sakit"><span class="w-2 h-2 rounded-full bg-purple-400"></span>{{ $monthlySummary['sakit'] }}</span>
-                <span class="inline-flex items-center gap-1 text-orange-300" title="Dispensasi"><span class="w-2 h-2 rounded-full bg-orange-400"></span>{{ $monthlySummary['dispensasi'] }}</span>
+        {{-- Ringkasan Kehadiran Bulan Ini --}}
+        <div class="shrink-0 bg-white/15 backdrop-blur-md rounded-xl p-2.5 border border-white/25 shadow-xs">
+            <p class="text-[11px] font-extrabold text-amber-300 uppercase tracking-wider mb-1.5 text-center">Rekap Bulan Ini</p>
+            <div class="flex items-center justify-center gap-1.5 text-xs font-black">
+                <span class="inline-flex items-center gap-1 bg-yellow-400/20 px-1.5 py-0.5 rounded text-yellow-200 border border-yellow-400/30" title="Terlambat"><span class="w-2 h-2 rounded-full bg-yellow-400"></span>{{ $monthlySummary['terlambat'] }} TL</span>
+                <span class="inline-flex items-center gap-1 bg-red-500/20 px-1.5 py-0.5 rounded text-red-200 border border-red-400/30" title="Alpa"><span class="w-2 h-2 rounded-full bg-red-400"></span>{{ $monthlySummary['alpa'] }} A</span>
+                <span class="inline-flex items-center gap-1 bg-sky-400/20 px-1.5 py-0.5 rounded text-sky-200 border border-sky-400/30" title="Izin"><span class="w-2 h-2 rounded-full bg-sky-400"></span>{{ $monthlySummary['izin'] }} I</span>
+                <span class="inline-flex items-center gap-1 bg-purple-400/20 px-1.5 py-0.5 rounded text-purple-200 border border-purple-400/30" title="Sakit"><span class="w-2 h-2 rounded-full bg-purple-400"></span>{{ $monthlySummary['sakit'] }} S</span>
+                <span class="inline-flex items-center gap-1 bg-orange-400/20 px-1.5 py-0.5 rounded text-orange-200 border border-orange-400/30" title="Dispensasi"><span class="w-2 h-2 rounded-full bg-orange-400"></span>{{ $monthlySummary['dispensasi'] }} D</span>
             </div>
         </div>
     </div>
