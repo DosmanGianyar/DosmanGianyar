@@ -6,6 +6,7 @@ use App\Models\Schedule;
 use App\Models\SchoolClass;
 use App\Models\Subject;
 use App\Models\User;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Smalot\PdfParser\Parser;
