@@ -760,7 +760,7 @@ class _StudentIdCardState extends State<StudentIdCard> {
         ),
         const SizedBox(height: 8),
         SizedBox(
-          height: 228,
+          height: 220,
           child: GestureDetector(
             onTap: () => setState(() => _showFront = !_showFront),
             child: AnimatedSwitcher(
@@ -881,107 +881,116 @@ class _IdFront extends StatelessWidget {
             ),
           ),
 
-          // ── Body ──────────────────────────────────────────────────
-          Padding(
-            padding: const EdgeInsets.fromLTRB(10, 8, 10, 6),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Foto
-                Container(
-                  width: 62, height: 82,
-                  decoration: BoxDecoration(
-                    border: Border.all(color: const Color(0xFF1565C0), width: 2),
-                    boxShadow: const [BoxShadow(
-                      color: Color(0x331565C0), blurRadius: 8, offset: Offset(0, 3))],
+          // ── Body & Footer (Expanded to anchor bottom blue strip) ──
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(10, 6, 10, 4),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Row Foto & Data
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Foto
+                      Container(
+                        width: 60, height: 78,
+                        decoration: BoxDecoration(
+                          border: Border.all(color: const Color(0xFF1565C0), width: 2),
+                          boxShadow: const [BoxShadow(
+                            color: Color(0x331565C0), blurRadius: 8, offset: Offset(0, 3))],
+                        ),
+                        clipBehavior: Clip.antiAlias,
+                        child: user?.photoUrl != null
+                            ? Image.network(user!.photoUrl!, fit: BoxFit.cover, alignment: Alignment.topCenter,
+                                errorBuilder: (_, __, ___) => _photoPlaceholder())
+                            : _photoPlaceholder(),
+                      ),
+                      const SizedBox(width: 9),
+                      // Data
+                      Expanded(child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Sub-judul
+                          const Center(
+                            child: Text('KARTU PELAJAR',
+                              style: TextStyle(
+                                fontSize: 8.5, fontWeight: FontWeight.w900, color: Color(0xFF0A3880),
+                                letterSpacing: 1.2, decoration: TextDecoration.underline,
+                                decorationColor: Color(0xFF0A3880))),
+                          ),
+                          const SizedBox(height: 4),
+                          // Baris data
+                          _KidRow(icon: Icons.person_rounded,           label: 'Nama',          value: user?.name.toUpperCase() ?? '—', bold: true),
+                          _KidRow(icon: Icons.badge_outlined,            label: 'NIS/NISN',      value: '${user?.nis ?? '—'} / ${user?.nisn ?? '—'}'),
+                          _KidRow(icon: Icons.school_rounded,            label: 'Kelas',         value: user?.className ?? '—'),
+                          _KidRow(icon: Icons.calendar_today_rounded,    label: 'Tgl. Lahir',    value: _fmtDate(user?.birthDate)),
+                          _KidRow(icon: Icons.wc_rounded,                label: 'Jenis Kelamin', value: user?.genderLabel ?? '—'),
+                        ],
+                      )),
+                    ],
                   ),
-                  clipBehavior: Clip.antiAlias,
-                  child: user?.photoUrl != null
-                      ? Image.network(user!.photoUrl!, fit: BoxFit.cover, alignment: Alignment.topCenter,
-                          errorBuilder: (_, __, ___) => _photoPlaceholder())
-                      : _photoPlaceholder(),
-                ),
-                const SizedBox(width: 9),
-                // Data
-                Expanded(child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Sub-judul
-                    const Center(
-                      child: Text('KARTU PELAJAR',
-                        style: TextStyle(
-                          fontSize: 8.5, fontWeight: FontWeight.w900, color: Color(0xFF0A3880),
-                          letterSpacing: 1.2, decoration: TextDecoration.underline,
-                          decorationColor: Color(0xFF0A3880))),
-                    ),
-                    const SizedBox(height: 5),
-                    // Baris data
-                    _KidRow(icon: Icons.person_rounded,           label: 'Nama',          value: user?.name.toUpperCase() ?? '—', bold: true),
-                    _KidRow(icon: Icons.badge_outlined,            label: 'NIS/NISN',      value: '${user?.nis ?? '—'} / ${user?.nisn ?? '—'}'),
-                    _KidRow(icon: Icons.school_rounded,            label: 'Kelas',         value: user?.className ?? '—'),
-                    _KidRow(icon: Icons.calendar_today_rounded,    label: 'Tgl. Lahir',    value: _fmtDate(user?.birthDate)),
-                    _KidRow(icon: Icons.wc_rounded,                label: 'Jenis Kelamin', value: user?.genderLabel ?? '—'),
-                  ],
-                )),
-              ],
+
+                  // Footer: berlaku + ttd kepsek + QR Verifikasi
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      const Text('Berlaku selama\nmenjadi siswa SMAN 1 Gianyar',
+                        style: TextStyle(fontSize: 7, color: AppColors.gray400, fontStyle: FontStyle.italic, height: 1.4)),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          const Text('Gianyar, 13 Juli 2026',
+                            style: TextStyle(fontSize: 7, color: AppColors.gray600, fontWeight: FontWeight.w500)),
+                          const SizedBox(height: 1),
+                          const Text('Kepala Sekolah,',
+                            style: TextStyle(fontSize: 7.5, color: AppColors.gray600, fontWeight: FontWeight.w500)),
+                          const SizedBox(height: 1),
+                          // QR Verifikasi Kepsek CENTERED ABOVE NAME
+                          Container(
+                            width: 22, height: 22,
+                            margin: const EdgeInsets.symmetric(vertical: 1),
+                            padding: const EdgeInsets.all(1),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              border: Border.all(color: AppColors.gray300, width: 0.5),
+                              borderRadius: BorderRadius.circular(3),
+                              boxShadow: const [BoxShadow(color: Color(0x11000000), blurRadius: 2, offset: Offset(0, 1))],
+                            ),
+                            child: QrImageView(
+                              data: verifyUrl,
+                              version: QrVersions.auto,
+                              size: 20,
+                              padding: EdgeInsets.zero,
+                              eyeStyle: const QrEyeStyle(eyeShape: QrEyeShape.square, color: Color(0xFF0A3880)),
+                              dataModuleStyle: const QrDataModuleStyle(dataModuleShape: QrDataModuleShape.square, color: Color(0xFF0A3880)),
+                            ),
+                          ),
+                          const SizedBox(height: 1),
+                          const Text('I Wayan Sudra Astra, S.Pd., M.Pd.',
+                            style: TextStyle(fontSize: 7.5, color: AppColors.gray800, fontWeight: FontWeight.bold, decoration: TextDecoration.underline)),
+                          const SizedBox(height: 1),
+                          const Text('NIP. 19710415 199703 1 007',
+                            style: TextStyle(fontSize: 6.5, color: AppColors.gray600, fontWeight: FontWeight.w600)),
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
 
-          // ── Footer: berlaku + ttd kepsek + QR Verifikasi ─────────
-          Padding(
-            padding: const EdgeInsets.fromLTRB(10, 0, 10, 6),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                const Text('Berlaku selama\nmenjadi siswa SMAN 1 Gianyar',
-                  style: TextStyle(fontSize: 7, color: AppColors.gray400, fontStyle: FontStyle.italic, height: 1.4)),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const Text('Gianyar, 13 Juli 2026',
-                      style: TextStyle(fontSize: 7, color: AppColors.gray600, fontWeight: FontWeight.w500)),
-                    const SizedBox(height: 1),
-                    const Text('Kepala Sekolah,',
-                      style: TextStyle(fontSize: 7.5, color: AppColors.gray600, fontWeight: FontWeight.w500)),
-                    const SizedBox(height: 1),
-                    // QR Verifikasi Kepsek CENTERED ABOVE NAME
-                    Container(
-                      width: 22, height: 22,
-                      margin: const EdgeInsets.symmetric(vertical: 1),
-                      padding: const EdgeInsets.all(1),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        border: Border.all(color: AppColors.gray300, width: 0.5),
-                        borderRadius: BorderRadius.circular(3),
-                        boxShadow: const [BoxShadow(color: Color(0x11000000), blurRadius: 2, offset: Offset(0, 1))],
-                      ),
-                      child: QrImageView(
-                        data: verifyUrl,
-                        version: QrVersions.auto,
-                        size: 20,
-                        padding: EdgeInsets.zero,
-                        eyeStyle: const QrEyeStyle(eyeShape: QrEyeShape.square, color: Color(0xFF0A3880)),
-                        dataModuleStyle: const QrDataModuleStyle(dataModuleShape: QrDataModuleShape.square, color: Color(0xFF0A3880)),
-                      ),
-                    ),
-                    const SizedBox(height: 1),
-                    const Text('I Wayan Sudra Astra, S.Pd., M.Pd.',
-                      style: TextStyle(fontSize: 7.5, color: AppColors.gray800, fontWeight: FontWeight.bold, decoration: TextDecoration.underline)),
-                    const SizedBox(height: 1),
-                    const Text('NIP. 19710415 199703 1 007',
-                      style: TextStyle(fontSize: 6.5, color: AppColors.gray600, fontWeight: FontWeight.w600)),
-                  ],
-                ),
-              ],
-            ),
-          ),
-
-          // ── Strip bawah biru ─────────────────────────────────────
+          // ── Strip bawah biru (Footer Biru Kartu) ─────────────────
           Container(
-            height: 7,
+            height: 12,
             decoration: const BoxDecoration(
-              gradient: LinearGradient(colors: [Color(0xFF0A3880), Color(0xFF1565C0), Color(0xFF1976D2)]),
+              gradient: LinearGradient(
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+                colors: [Color(0xFF0A3880), Color(0xFF1565C0), Color(0xFF1976D2)],
+              ),
             ),
           ),
         ],
