@@ -4,6 +4,40 @@
 @endphp
 
 <x-filament-panels::page>
+    <style>
+        /* Force strictly bounded SVG dimensions for Blade Icons */
+        svg {
+            display: inline-block !important;
+            vertical-align: middle !important;
+        }
+        .sc-stat-icon svg {
+            width: 28px !important;
+            height: 28px !important;
+            min-width: 28px !important;
+            min-height: 28px !important;
+            max-width: 28px !important;
+            max-height: 28px !important;
+        }
+        .fi-section-header-icon svg,
+        .fi-section-header svg {
+            width: 20px !important;
+            height: 20px !important;
+            min-width: 20px !important;
+            min-height: 20px !important;
+            max-width: 20px !important;
+            max-height: 20px !important;
+        }
+        .fi-btn svg,
+        button svg {
+            width: 16px !important;
+            height: 16px !important;
+            min-width: 16px !important;
+            min-height: 16px !important;
+            max-width: 16px !important;
+            max-height: 16px !important;
+        }
+    </style>
+
     <div class="space-y-6">
 
         {{-- Petunjuk Keamanan / Info --}}
@@ -33,8 +67,8 @@
                         Total <strong>{{ number_format($attStats['files']) }}</strong> file foto ({{ number_format($attStats['records']) }} data presensi)
                     </p>
                 </div>
-                <div class="w-12 h-12 rounded-xl bg-red-500/10 text-red-600 dark:text-red-400 flex items-center justify-center shrink-0">
-                    <x-heroicon-o-camera class="w-6 h-6" />
+                <div class="sc-stat-icon w-12 h-12 rounded-xl bg-red-500/10 text-red-600 dark:text-red-400 flex items-center justify-center shrink-0">
+                    <x-heroicon-o-camera />
                 </div>
             </div>
 
@@ -47,8 +81,8 @@
                         Total <strong>{{ number_format($permitStats['files']) }}</strong> file surat ({{ number_format($permitStats['records']) }} pengajuan)
                     </p>
                 </div>
-                <div class="w-12 h-12 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0">
-                    <x-heroicon-o-document-text class="w-6 h-6" />
+                <div class="sc-stat-icon w-12 h-12 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0">
+                    <x-heroicon-o-document-text />
                 </div>
             </div>
 
