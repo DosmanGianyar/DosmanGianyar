@@ -110,9 +110,9 @@
         $studentPendingCount = 0;
         if (auth()->check() && auth()->user()->isSiswa()) {
             $uId = auth()->id();
-            $studentPendingCount += \App\Models\Permit::where('user_id', $uId)->where('status', 'pending')->count();
-            $studentPendingCount += \App\Models\EarlyCheckoutRequest::where('user_id', $uId)->where('status', 'pending')->count();
-            $studentPendingCount += \App\Models\ForgotAttendanceRequest::where('user_id', $uId)->where('status', 'pending')->count();
+            $studentPendingCount += \App\Models\Permit::where('student_id', $uId)->where('status', 'pending')->count();
+            $studentPendingCount += \App\Models\EarlyCheckoutRequest::where('student_id', $uId)->where('status', 'pending')->count();
+            $studentPendingCount += \App\Models\ForgotAttendanceRequest::where('student_id', $uId)->where('status', 'pending')->count();
         }
     @endphp
     <div class="flex items-center h-16">
