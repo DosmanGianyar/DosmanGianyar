@@ -7,6 +7,7 @@ use App\Models\Asset;
 use App\Models\AssetLoan;
 use App\Models\User;
 use Filament\Actions\Action;
+use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -23,6 +24,7 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Collection;
 
 class AssetLoanResource extends Resource
 {
@@ -216,7 +218,59 @@ class AssetLoanResource extends Resource
                     }),
                 EditAction::make()->iconButton(),
             ])
-            ->toolbarActions([BulkActionGroup::make([DeleteBulkAction::make()])])
+            ->bulkActions([
+                BulkActionGroup::make([
+                    BulkAction::make('bulk_approve')
+                        ->label('Setujui / Disetujui Terpilih')
+                        ->icon('heroicon-o-check-circle')
+                        ->color('success')
+                        ->requiresConfirmation()
+                        ->action(function (Collection $records): void {
+                            $updated = 0;
+                            foreach ($records as $record) {
+                                if (in_array($record->status, ['pending', 'active'])) {
+                                    $record->update(['status' => 'approved', 'approved_by' => auth()->id()]);
+                                    $updated++;
+                                }
+                            }
+                            Notification::make()->title("{$updated} peminjaman aset disetujui.")->success()->send();
+                        }),
+
+                    BulkAction::make('bulk_return')
+                        ->label('Tandai Dikembalikan Terpilih')
+                        ->icon('heroicon-o-arrow-path')
+                        ->color('info')
+                        ->requiresConfirmation()
+                        ->action(function (Collection $records): void {
+                            $updated = 0;
+                            foreach ($records as $record) {
+                                if (in_array($record->status, ['active', 'approved'])) {
+                                    $record->update(['status' => 'returned']);
+                                    $updated++;
+                                }
+                            }
+                            Notification::make()->title("{$updated} peminjaman aset telah ditandai dikembalikan.")->success()->send();
+                        }),
+
+                    BulkAction::make('bulk_reject')
+                        ->label('Tolak Terpilih')
+                        ->icon('heroicon-o-x-circle')
+                        ->color('danger')
+                        ->requiresConfirmation()
+                        ->action(function (Collection $records): void {
+                            $updated = 0;
+                            foreach ($records as $record) {
+                                if ($record->status === 'pending') {
+                                    $record->update(['status' => 'rejected', 'approved_by' => auth()->id()]);
+                                    $updated++;
+                                }
+                            }
+                            Notification::make()->title("{$updated} peminjaman aset ditolak.")->danger()->send();
+                        }),
+
+                    DeleteBulkAction::make(),
+                ]),
+            ])
             ->defaultSort('created_at', 'desc');
     }
 

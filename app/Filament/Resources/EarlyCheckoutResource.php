@@ -6,6 +6,7 @@ use App\Filament\Resources\EarlyCheckoutResource\Pages;
 use App\Models\EarlyCheckoutRequest;
 use App\Services\NotificationService;
 use Filament\Actions\Action;
+use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Forms\Components\Textarea;
@@ -16,6 +17,7 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 
 class EarlyCheckoutResource extends Resource
@@ -170,7 +172,85 @@ class EarlyCheckoutResource extends Resource
                         Notification::make()->title('Pengajuan ditolak')->danger()->send();
                     }),
             ])
-            ->toolbarActions([BulkActionGroup::make([DeleteBulkAction::make()])]);
+            ->bulkActions([
+                BulkActionGroup::make([
+                    BulkAction::make('bulk_approve')
+                        ->label('Setujui Terpilih')
+                        ->icon('heroicon-o-check-circle')
+                        ->color('success')
+                        ->requiresConfirmation()
+                        ->modalHeading('Setujui Pengajuan Pulang Awal Terpilih?')
+                        ->action(function (Collection $records): void {
+                            $approvedCount = 0;
+                            foreach ($records as $record) {
+                                if ($record->isPending()) {
+                                    $record->update([
+                                        'status'      => 'approved',
+                                        'reviewed_by' => Auth::id(),
+                                        'reviewed_at' => now(),
+                                    ]);
+
+                                    NotificationService::send(
+                                        userId: $record->student_id,
+                                        title:  'Izin Pulang Awal Disetujui',
+                                        body:   'Pengajuan pulang lebih awal tanggal ' . $record->date->isoFormat('D MMMM Y') . ' pukul ' . substr($record->requested_time, 0, 5) . ' telah disetujui oleh admin.',
+                                        type:   'success',
+                                        url:    route('siswa.early-checkout.index'),
+                                    );
+
+                                    $approvedCount++;
+                                }
+                            }
+
+                            Notification::make()
+                                ->title("{$approvedCount} pengajuan pulang awal berhasil disetujui.")
+                                ->success()
+                                ->send();
+                        }),
+
+                    BulkAction::make('bulk_reject')
+                        ->label('Tolak Terpilih')
+                        ->icon('heroicon-o-x-circle')
+                        ->color('danger')
+                        ->form([
+                            Textarea::make('reviewer_note')
+                                ->label('Alasan Penolakan (untuk semua yang terpilih)')
+                                ->default('Ditolak oleh admin via aksi massal.')
+                                ->required()
+                                ->rows(2),
+                        ])
+                        ->action(function (Collection $records, array $data): void {
+                            $rejectedCount = 0;
+                            foreach ($records as $record) {
+                                if ($record->isPending()) {
+                                    $record->update([
+                                        'status'        => 'rejected',
+                                        'reviewed_by'   => Auth::id(),
+                                        'reviewed_at'   => now(),
+                                        'reviewer_note' => $data['reviewer_note'],
+                                    ]);
+
+                                    NotificationService::send(
+                                        userId: $record->student_id,
+                                        title:  'Izin Pulang Awal Ditolak',
+                                        body:   'Pengajuan pulang lebih awal tanggal ' . $record->date->isoFormat('D MMMM Y') . ' ditolak. Alasan: ' . $data['reviewer_note'],
+                                        type:   'warning',
+                                        url:    route('siswa.early-checkout.index'),
+                                    );
+
+                                    $rejectedCount++;
+                                }
+                            }
+
+                            Notification::make()
+                                ->title("{$rejectedCount} pengajuan ditolak.")
+                                ->danger()
+                                ->send();
+                        }),
+
+                    DeleteBulkAction::make(),
+                ]),
+            ]);
     }
 
     public static function getPages(): array

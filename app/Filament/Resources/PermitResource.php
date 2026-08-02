@@ -7,6 +7,7 @@ use App\Models\Attendance;
 use App\Models\Permit;
 use App\Services\NotificationService;
 use Filament\Actions\Action;
+use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Forms\Components\Textarea;
@@ -17,6 +18,7 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 
 class PermitResource extends Resource
@@ -200,7 +202,96 @@ class PermitResource extends Resource
                         Notification::make()->title('Pengajuan ditolak')->danger()->send();
                     }),
             ])
-            ->toolbarActions([BulkActionGroup::make([DeleteBulkAction::make()])]);
+            ->bulkActions([
+                BulkActionGroup::make([
+                    BulkAction::make('bulk_approve')
+                        ->label('Setujui Terpilih')
+                        ->icon('heroicon-o-check-circle')
+                        ->color('success')
+                        ->requiresConfirmation()
+                        ->modalHeading('Setujui Pengajuan Terpilih?')
+                        ->modalDescription('Seluruh pengajuan izin/sakit/dispensasi terpilih akan disetujui dan absensi siswa akan disinkronkan.')
+                        ->action(function (Collection $records): void {
+                            $approvedCount = 0;
+                            foreach ($records as $record) {
+                                if ($record->isPending()) {
+                                    $record->update([
+                                        'status'      => 'approved',
+                                        'approved_by' => Auth::id(),
+                                    ]);
+
+                                    // Sync absensi
+                                    $current = $record->start_date->copy();
+                                    while ($current->lte($record->end_date)) {
+                                        if ($current->isWeekday()) {
+                                            Attendance::updateOrCreate(
+                                                ['user_id' => $record->student_id, 'date' => $current->toDateString()],
+                                                ['status' => $record->type, 'check_in_time' => null]
+                                            );
+                                        }
+                                        $current->addDay();
+                                    }
+
+                                    NotificationService::send(
+                                        $record->student_id,
+                                        "{$record->typeLabel()} Disetujui",
+                                        "Pengajuan {$record->typeLabel()} kamu untuk tanggal {$record->start_date->isoFormat('D MMM Y')} telah disetujui oleh admin.",
+                                        'success',
+                                        route('siswa.permit.index'),
+                                    );
+
+                                    $approvedCount++;
+                                }
+                            }
+
+                            Notification::make()
+                                ->title("{$approvedCount} pengajuan berhasil disetujui.")
+                                ->success()
+                                ->send();
+                        }),
+
+                    BulkAction::make('bulk_reject')
+                        ->label('Tolak Terpilih')
+                        ->icon('heroicon-o-x-circle')
+                        ->color('danger')
+                        ->form([
+                            Textarea::make('rejection_note')
+                                ->label('Alasan Penolakan (untuk semua yang terpilih)')
+                                ->default('Ditolak oleh admin via aksi massal.')
+                                ->required()
+                                ->rows(2),
+                        ])
+                        ->action(function (Collection $records, array $data): void {
+                            $rejectedCount = 0;
+                            foreach ($records as $record) {
+                                if ($record->isPending()) {
+                                    $record->update([
+                                        'status'         => 'rejected',
+                                        'approved_by'    => Auth::id(),
+                                        'rejection_note' => $data['rejection_note'],
+                                    ]);
+
+                                    NotificationService::send(
+                                        $record->student_id,
+                                        "{$record->typeLabel()} Ditolak",
+                                        "Pengajuan {$record->typeLabel()} kamu ditolak. Alasan: {$data['rejection_note']}",
+                                        'warning',
+                                        route('siswa.permit.index'),
+                                    );
+
+                                    $rejectedCount++;
+                                }
+                            }
+
+                            Notification::make()
+                                ->title("{$rejectedCount} pengajuan ditolak.")
+                                ->danger()
+                                ->send();
+                        }),
+
+                    DeleteBulkAction::make(),
+                ]),
+            ]);
     }
 
     public static function getPages(): array

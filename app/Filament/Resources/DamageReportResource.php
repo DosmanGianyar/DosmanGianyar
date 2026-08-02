@@ -4,11 +4,13 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\DamageReportResource\Pages;
 use App\Models\DamageReport;
+use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use App\Filament\Support\AdminAccess;
 use Filament\Schemas\Schema;
@@ -16,6 +18,7 @@ use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Collection;
 
 class DamageReportResource extends Resource
 {
@@ -107,7 +110,27 @@ class DamageReportResource extends Resource
                     ]),
             ])
             ->recordActions([EditAction::make()])
-            ->toolbarActions([BulkActionGroup::make([DeleteBulkAction::make()])])
+            ->bulkActions([
+                BulkActionGroup::make([
+                    BulkAction::make('bulk_resolve')
+                        ->label('Tandai Selesai Terpilih')
+                        ->icon('heroicon-o-check-circle')
+                        ->color('success')
+                        ->requiresConfirmation()
+                        ->action(function (Collection $records): void {
+                            $updated = 0;
+                            foreach ($records as $record) {
+                                if ($record->status !== 'resolved') {
+                                    $record->update(['status' => 'resolved']);
+                                    $updated++;
+                                }
+                            }
+                            Notification::make()->title("{$updated} laporan kerusakan telah ditandai selesai.")->success()->send();
+                        }),
+
+                    DeleteBulkAction::make(),
+                ]),
+            ])
             ->defaultSort('created_at', 'desc');
     }
 

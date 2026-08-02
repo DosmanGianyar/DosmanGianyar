@@ -7,6 +7,7 @@ use App\Models\Attendance;
 use App\Models\ForgotAttendanceRequest;
 use App\Services\NotificationService;
 use Filament\Actions\Action;
+use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Forms\Components\Textarea;
@@ -17,6 +18,7 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 
 class ForgotAttendanceResource extends Resource
@@ -173,7 +175,90 @@ class ForgotAttendanceResource extends Resource
                         Notification::make()->title('Pengajuan ditolak')->danger()->send();
                     }),
             ])
-            ->toolbarActions([BulkActionGroup::make([DeleteBulkAction::make()])]);
+            ->bulkActions([
+                BulkActionGroup::make([
+                    BulkAction::make('bulk_approve')
+                        ->label('Setujui Terpilih')
+                        ->icon('heroicon-o-check-circle')
+                        ->color('success')
+                        ->requiresConfirmation()
+                        ->modalHeading('Setujui Pengajuan Lupa Absen Terpilih?')
+                        ->action(function (Collection $records): void {
+                            $approvedCount = 0;
+                            foreach ($records as $record) {
+                                if ($record->isPending()) {
+                                    Attendance::updateOrCreate(
+                                        ['user_id' => $record->student_id, 'date' => $record->date->toDateString()],
+                                        ['status' => 'hadir']
+                                    );
+
+                                    $record->update([
+                                        'status'      => 'approved',
+                                        'reviewed_by' => Auth::id(),
+                                        'reviewed_at' => now(),
+                                    ]);
+
+                                    NotificationService::send(
+                                        userId: $record->student_id,
+                                        title:  'Lupa Absen Disetujui',
+                                        body:   'Pengajuan lupa absen tanggal ' . $record->date->isoFormat('D MMMM Y') . ' telah disetujui. Presensi dicatat sebagai Hadir.',
+                                        type:   'success',
+                                        url:    route('siswa.forgot-attendance.index'),
+                                    );
+
+                                    $approvedCount++;
+                                }
+                            }
+
+                            Notification::make()
+                                ->title("{$approvedCount} pengajuan lupa absen disetujui (presensi dicatat Hadir).")
+                                ->success()
+                                ->send();
+                        }),
+
+                    BulkAction::make('bulk_reject')
+                        ->label('Tolak Terpilih')
+                        ->icon('heroicon-o-x-circle')
+                        ->color('danger')
+                        ->form([
+                            Textarea::make('teacher_note')
+                                ->label('Alasan Penolakan (untuk semua yang terpilih)')
+                                ->default('Ditolak oleh admin via aksi massal.')
+                                ->required()
+                                ->rows(2),
+                        ])
+                        ->action(function (Collection $records, array $data): void {
+                            $rejectedCount = 0;
+                            foreach ($records as $record) {
+                                if ($record->isPending()) {
+                                    $record->update([
+                                        'status'       => 'rejected',
+                                        'reviewed_by'  => Auth::id(),
+                                        'reviewed_at'  => now(),
+                                        'teacher_note' => $data['teacher_note'],
+                                    ]);
+
+                                    NotificationService::send(
+                                        userId: $record->student_id,
+                                        title:  'Lupa Absen Ditolak',
+                                        body:   'Pengajuan lupa absen tanggal ' . $record->date->isoFormat('D MMMM Y') . ' ditolak. Alasan: ' . $data['teacher_note'],
+                                        type:   'warning',
+                                        url:    route('siswa.forgot-attendance.index'),
+                                    );
+
+                                    $rejectedCount++;
+                                }
+                            }
+
+                            Notification::make()
+                                ->title("{$rejectedCount} pengajuan ditolak.")
+                                ->danger()
+                                ->send();
+                        }),
+
+                    DeleteBulkAction::make(),
+                ]),
+            ]);
     }
 
     public static function getPages(): array
