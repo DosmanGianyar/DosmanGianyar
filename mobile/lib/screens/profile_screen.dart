@@ -759,19 +759,22 @@ class _StudentIdCardState extends State<StudentIdCard> {
           ],
         ),
         const SizedBox(height: 8),
-        GestureDetector(
-          onTap: () => setState(() => _showFront = !_showFront),
-          child: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 350),
-            switchInCurve:  Curves.easeOut,
-            switchOutCurve: Curves.easeIn,
-            transitionBuilder: (child, anim) => FadeTransition(
-              opacity: anim,
-              child: ScaleTransition(scale: Tween(begin: 0.93, end: 1.0).animate(anim), child: child),
+        SizedBox(
+          height: 205,
+          child: GestureDetector(
+            onTap: () => setState(() => _showFront = !_showFront),
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 350),
+              switchInCurve:  Curves.easeOut,
+              switchOutCurve: Curves.easeIn,
+              transitionBuilder: (child, anim) => FadeTransition(
+                opacity: anim,
+                child: ScaleTransition(scale: Tween(begin: 0.93, end: 1.0).animate(anim), child: child),
+              ),
+              child: _showFront
+                  ? _IdFront(key: const ValueKey('f'), user: widget.user)
+                  : _IdBack (key: const ValueKey('b'), user: widget.user),
             ),
-            child: _showFront
-                ? _IdFront(key: const ValueKey('f'), user: widget.user)
-                : _IdBack (key: const ValueKey('b'), user: widget.user),
           ),
         ),
         const SizedBox(height: 4),
@@ -933,44 +936,41 @@ class _IdFront extends StatelessWidget {
               children: [
                 const Text('Berlaku selama\nmenjadi siswa SMAN 1 Gianyar',
                   style: TextStyle(fontSize: 7, color: AppColors.gray400, fontStyle: FontStyle.italic, height: 1.4)),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // QR Verifikasi Kepsek
+                    const Text('Gianyar, 13 Juli 2026',
+                      style: TextStyle(fontSize: 7, color: AppColors.gray600, fontWeight: FontWeight.w500)),
+                    const SizedBox(height: 1),
+                    const Text('Kepala Sekolah,',
+                      style: TextStyle(fontSize: 7.5, color: AppColors.gray600, fontWeight: FontWeight.w500)),
+                    const SizedBox(height: 1),
+                    // QR Verifikasi Kepsek CENTERED ABOVE NAME
                     Container(
-                      width: 28, height: 28,
-                      margin: const EdgeInsets.only(right: 6, bottom: 2),
+                      width: 22, height: 22,
+                      margin: const EdgeInsets.symmetric(vertical: 1),
                       padding: const EdgeInsets.all(1),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         border: Border.all(color: AppColors.gray300, width: 0.5),
-                        borderRadius: BorderRadius.circular(4),
+                        borderRadius: BorderRadius.circular(3),
+                        boxShadow: const [BoxShadow(color: Color(0x11000000), blurRadius: 2, offset: Offset(0, 1))],
                       ),
                       child: QrImageView(
                         data: verifyUrl,
                         version: QrVersions.auto,
-                        size: 26,
+                        size: 20,
                         padding: EdgeInsets.zero,
                         eyeStyle: const QrEyeStyle(eyeShape: QrEyeShape.square, color: Color(0xFF0A3880)),
                         dataModuleStyle: const QrDataModuleStyle(dataModuleShape: QrDataModuleShape.square, color: Color(0xFF0A3880)),
                       ),
                     ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: const [
-                        Text('Gianyar, 13 Juli 2026',
-                          style: TextStyle(fontSize: 7, color: AppColors.gray600, fontWeight: FontWeight.w500)),
-                        SizedBox(height: 1),
-                        Text('Kepala Sekolah,',
-                          style: TextStyle(fontSize: 7.5, color: AppColors.gray600, fontWeight: FontWeight.w500)),
-                        SizedBox(height: 2),
-                        Text('I Wayan Sudra Astra, S.Pd., M.Pd.',
-                          style: TextStyle(fontSize: 7.5, color: AppColors.gray800, fontWeight: FontWeight.bold, decoration: TextDecoration.underline)),
-                        SizedBox(height: 1),
-                        Text('NIP. 19710415 199703 1 007',
-                          style: TextStyle(fontSize: 6.5, color: AppColors.gray600, fontWeight: FontWeight.w600)),
-                      ],
-                    ),
+                    const SizedBox(height: 1),
+                    const Text('I Wayan Sudra Astra, S.Pd., M.Pd.',
+                      style: TextStyle(fontSize: 7.5, color: AppColors.gray800, fontWeight: FontWeight.bold, decoration: TextDecoration.underline)),
+                    const SizedBox(height: 1),
+                    const Text('NIP. 19710415 199703 1 007',
+                      style: TextStyle(fontSize: 6.5, color: AppColors.gray600, fontWeight: FontWeight.w600)),
                   ],
                 ),
               ],
@@ -1056,18 +1056,18 @@ class _IdBack extends StatelessWidget {
               children: [
                 // QR Code
                 Container(
-                  padding: const EdgeInsets.all(8),
+                  padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     border: Border.all(color: AppColors.gray200),
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(8),
                     boxShadow: const [BoxShadow(
-                      color: Color(0x1A000000), blurRadius: 8, offset: Offset(0, 2))],
+                      color: Color(0x1A000000), blurRadius: 6, offset: Offset(0, 2))],
                   ),
                   child: QrImageView(
                     data: qrData,
                     version: QrVersions.auto,
-                    size: 100,
+                    size: 72,
                     eyeStyle: const QrEyeStyle(
                       eyeShape: QrEyeShape.square,
                       color: Color(0xFF0A3880),
@@ -1078,31 +1078,31 @@ class _IdBack extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(height: 8),
-                const Text('Scan untuk verifikasi identitas siswa',
-                  style: TextStyle(fontSize: 8.5, color: AppColors.gray400, letterSpacing: 0.2)),
+                const SizedBox(height: 5),
+                const Text('Scan untuk verifikasi keabsahan kartu pelajar',
+                  style: TextStyle(fontSize: 8, color: AppColors.gray500, fontWeight: FontWeight.w500, letterSpacing: 0.2)),
 
                 // Divider
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 8),
-                  child: Container(height: 1, color: AppColors.gray100),
+                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 4),
+                  child: Container(height: 1, color: AppColors.gray200),
                 ),
 
                 // Nama + NIS
-                Text(user?.name ?? '—',
+                Text(user?.name.toUpperCase() ?? '—',
                   style: const TextStyle(
-                    fontSize: 11.5, fontWeight: FontWeight.w700, color: AppColors.gray800),
+                    fontSize: 10.5, fontWeight: FontWeight.w900, color: Color(0xFF0A3880)),
                   textAlign: TextAlign.center,
                   maxLines: 1, overflow: TextOverflow.ellipsis),
-                const SizedBox(height: 3),
-                Text(
-                  'NIS: ${user?.nis ?? '—'}  ·  NISN: ${user?.nisn ?? '—'}',
-                  style: const TextStyle(fontSize: 8.5, color: AppColors.gray500),
-                  textAlign: TextAlign.center),
                 const SizedBox(height: 2),
                 Text(
+                  'NIS: ${user?.nis ?? '—'}  ·  NISN: ${user?.nisn ?? '—'}',
+                  style: const TextStyle(fontSize: 8, color: AppColors.gray600, fontWeight: FontWeight.w600),
+                  textAlign: TextAlign.center),
+                const SizedBox(height: 1),
+                Text(
                   '${user?.className ?? ''}${(user?.className?.isNotEmpty == true && (user?.genderLabel.isNotEmpty ?? false)) ? '  ·  ' : ''}${user?.genderLabel ?? ''}',
-                  style: const TextStyle(fontSize: 8, color: AppColors.gray400),
+                  style: const TextStyle(fontSize: 7.5, color: AppColors.gray500, fontWeight: FontWeight.w500),
                   textAlign: TextAlign.center),
               ],
             ),
