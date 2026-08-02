@@ -175,6 +175,24 @@
             </div>
             <h3 class="text-sm font-bold text-gray-800">Ganti Password</h3>
         </div>
+
+        {{-- Catatan Syarat Password --}}
+        <div class="mb-3 p-2.5 rounded-xl bg-amber-50/90 border border-amber-200/90 text-amber-900 text-xs">
+            <div class="flex items-start gap-2">
+                <svg class="w-4 h-4 text-amber-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <div class="leading-relaxed">
+                    <p class="font-bold text-amber-950 mb-0.5">Syarat Ketentuan Password Baru:</p>
+                    <ul class="list-disc list-inside space-y-0.5 text-[11px] text-amber-850 font-medium">
+                        <li>Panjang password <strong>minimal 8 karakter</strong>.</li>
+                        <li>Password Baru & Konfirmasi harus <strong>sama persis</strong>.</li>
+                        <li>Gunakan kombinasi angka atau huruf yang mudah Anda ingat.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
         <form method="POST" action="{{ route('siswa.profile.password') }}" class="space-y-3">
             @csrf @method('PUT')
             
