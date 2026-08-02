@@ -8,12 +8,12 @@
             </svg>
             Kartu Pelajar Digital
         </h3>
-        <span class="text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200 rounded-full px-2 py-0.5 shadow-xs">
+        <span class="text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200 rounded-full px-2.5 py-0.5 shadow-2xs">
             Resmi & Read-Only
         </span>
     </div>
 
-    {{-- Container Kartu (Fixed Aspect Ratio 85.6/54 KTP Standard, Max Width 440px) --}}
+    {{-- Container Kartu (KTP Aspect Ratio 85.6/54, Max Width 440px) --}}
     <div class="relative w-full max-w-[440px] mx-auto cursor-pointer"
          style="aspect-ratio: 85.6 / 54; -webkit-perspective: 1200px; perspective: 1200px;"
          @click="flipped = !flipped">
@@ -30,43 +30,49 @@
                  style="-webkit-backface-visibility: hidden; backface-visibility: hidden; -webkit-transform: rotateY(0deg) translateZ(1px); transform: rotateY(0deg) translateZ(1px); font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
 
                 {{-- Header Biru SMAN 1 Gianyar --}}
-                <div class="shrink-0 bg-linear-to-r from-[#0a3880] via-[#1565c0] to-[#1976d2] px-[3%] py-[2.5%] flex items-center gap-[2.5%] border-b border-blue-900/30">
-                    <div class="w-[12%] aspect-square rounded-full bg-white shrink-0 relative shadow-md flex items-center justify-center">
-                        <img src="{{ asset('img/logo_sekolah.png') }}" alt="Logo" class="w-[120%] h-[120%] object-contain absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 drop-shadow-sm">
+                <div style="background: linear-gradient(135deg, #0a3880 0%, #1565c0 60%, #1976d2 100%); padding: 2.5% 3.5%; display: flex; align-items: center; gap: 3%; border-bottom: 1px solid rgba(10,56,128,0.3); flex-shrink: 0;">
+                    
+                    {{-- Circular Logo Badge --}}
+                    <div style="width: 11%; aspect-ratio: 1; border-radius: 50%; background: #ffffff; flex-shrink: 0; overflow: hidden; display: flex; align-items: center; justify-content: center; padding: 2.5%; box-shadow: 0 2px 6px rgba(0,0,0,0.3);">
+                        <img src="{{ asset('img/logo_sekolah.png') }}" alt="Logo" style="width: 100%; height: 100%; object-fit: contain; display: block;">
                     </div>
-                    <div class="flex-1 min-w-0 leading-tight">
-                        <p class="font-extrabold text-white uppercase tracking-wider text-[clamp(8px,2.6vw,14px)] leading-none" style="font-family: 'Oswald', system-ui, sans-serif;">
+
+                    <div style="flex: 1; min-width: 0; line-height: 1.15;">
+                        <p style="font-weight: 800; color: #ffffff; text-transform: uppercase; letter-spacing: 0.04em; font-size: clamp(8.5px, 2.7vw, 14px); margin: 0; font-family: 'Oswald', system-ui, sans-serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                             SMA Negeri 1 Gianyar
                         </p>
-                        <p class="text-blue-100/80 text-[clamp(4px,1.3vw,7.5px)] mt-0.5 truncate">
+                        <p style="color: rgba(255,255,255,0.85); font-size: clamp(4px, 1.35vw, 7.5px); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                             Jl. Ratna No.1, Gianyar, Bali 80511 · Telp. (0361) 943443
                         </p>
                     </div>
-                    <div class="shrink-0 border border-white/40 rounded-md px-1.5 py-0.5 text-center bg-white/10">
-                        <p class="font-black text-white text-[clamp(4.5px,1.4vw,8px)] tracking-widest uppercase leading-tight">
+
+                    {{-- Badge KARTU PELAJAR --}}
+                    <div style="flex-shrink: 0; border: 1px solid rgba(255,255,255,0.35); border-radius: 5px; padding: 1.5% 2.5%; text-align: center; background: rgba(255,255,255,0.15);">
+                        <p style="font-weight: 900; color: #ffffff; font-size: clamp(4.5px, 1.4vw, 8px); letter-spacing: 0.1em; text-transform: uppercase; line-height: 1.2; margin: 0;">
                             KARTU<br>PELAJAR
                         </p>
                     </div>
                 </div>
 
                 {{-- Accent Strip Emas --}}
-                <div class="shrink-0 h-[1.2%] bg-linear-to-r from-[#b45309] via-[#fbbf24] to-[#b45309]"></div>
+                <div style="flex-shrink: 0; height: 1.2%; background: linear-gradient(90deg, #b45309 0%, #fbbf24 50%, #b45309 100%);"></div>
 
                 {{-- Body Utama Kartu --}}
-                <div class="flex-1 flex min-h-0 overflow-hidden relative p-[3%]">
+                <div style="flex: 1; display: flex; min-height: 0; overflow: hidden; position: relative; padding: 3% 3.5% 2.5% 3.5%;">
+                    
                     {{-- Watermark Logo Transparan --}}
-                    <div class="absolute right-[2%] top-1/2 -translate-y-1/2 w-[34%] aspect-square opacity-5 pointer-events-none">
-                        <img src="{{ asset('img/logo_sekolah.png') }}" class="w-full h-full object-contain">
+                    <div style="position: absolute; right: 2%; top: 50%; transform: translateY(-50%); width: 32%; aspect-ratio: 1; opacity: 0.04; pointer-events: none; overflow: hidden;">
+                        <img src="{{ asset('img/logo_sekolah.png') }}" style="width: 100%; height: 100%; object-fit: contain; display: block;">
                     </div>
 
                     {{-- Foto Siswa 3x4 --}}
-                    <div class="shrink-0 mr-[3%] flex items-start">
-                        <div class="w-[16.5vw] max-w-[72px] aspect-[3/4] border-[1.5px] border-[#1565c0] bg-[#dce8f8] rounded-md overflow-hidden shadow-sm">
+                    <div style="flex-shrink: 0; margin-right: 3.5%; display: flex; align-items: flex-start;">
+                        <div style="width: 16.5vw; max-width: 70px; aspect-ratio: 3/4; border: 1.5px solid #1565c0; background: #dce8f8; border-radius: 6px; overflow: hidden; box-shadow: 0 2px 8px rgba(21,101,192,0.2);">
                             @if($siswa->photo)
-                                <img src="{{ $siswa->photo_url }}" class="w-full h-full object-cover object-top">
+                                <img src="{{ $siswa->photo_url }}" style="width: 100%; height: 100%; object-fit: cover; object-position: top; display: block;">
                             @else
-                                <div class="w-full h-full bg-[#dce8f8] flex items-end justify-center pb-1">
-                                    <svg viewBox="0 0 24 30" fill="none" class="w-[75%] text-[#6fa3d8]">
+                                <div style="width: 100%; height: 100%; background: #dce8f8; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 4px;">
+                                    <svg viewBox="0 0 24 30" fill="none" style="width: 75%; color: #6fa3d8;">
                                         <ellipse cx="12" cy="9" rx="6" ry="6.5" fill="currentColor"/>
                                         <path d="M0 29c0-6.627 5.373-12 12-12s12 5.373 12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                                     </svg>
@@ -76,9 +82,9 @@
                     </div>
 
                     {{-- Data Siswa Detail --}}
-                    <div class="flex-1 min-w-0 flex flex-col relative z-10 justify-between">
+                    <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: space-between; position: relative; z-index: 10;">
                         <div>
-                            <p class="font-black text-[#0a3880] text-[clamp(6px,1.9vw,10.5px)] tracking-widest text-center uppercase underline underline-offset-1 mb-1">
+                            <p style="font-weight: 900; color: #0a3880; font-size: clamp(6px, 1.9vw, 10.5px); letter-spacing: 0.1em; text-align: center; text-transform: uppercase; text-decoration: underline; margin: 0 0 3px 0;">
                                 KARTU PELAJAR
                             </p>
 
@@ -93,12 +99,12 @@
                             ];
                             @endphp
 
-                            <div class="space-y-[1.2%]">
+                            <div style="display: flex; flex-direction: column; gap: 1.5px;">
                                 @foreach($rows as $r)
-                                <div class="flex items-center text-[clamp(4.5px,1.45vw,8.5px)] leading-tight">
-                                    <span class="w-[26%] text-gray-500 shrink-0 font-medium">{{ $r['label'] }}</span>
-                                    <span class="text-gray-400 shrink-0 mr-1">:</span>
-                                    <span class="truncate font-semibold {{ !empty($r['highlight']) ? 'text-amber-800 font-extrabold' : (!empty($r['bold']) ? 'text-gray-900 font-bold' : 'text-gray-700') }}">
+                                <div style="display: flex; align-items: center; font-size: clamp(4.5px, 1.45vw, 8.5px); line-height: 1.25;">
+                                    <span style="width: 25%; color: #6b7280; flex-shrink: 0; font-weight: 500;">{{ $r['label'] }}</span>
+                                    <span style="color: #9ca3af; flex-shrink: 0; margin-right: 4px;">:</span>
+                                    <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; {{ !empty($r['highlight']) ? 'color: #92400e; font-weight: 800;' : (!empty($r['bold']) ? 'color: #111827; font-weight: 700;' : 'color: #374151; font-weight: 600;') }}">
                                         {{ $r['value'] }}
                                     </span>
                                 </div>
@@ -107,19 +113,19 @@
                         </div>
 
                         {{-- Footer Tanda Tangan & Masa Berlaku --}}
-                        <div class="flex justify-between items-end pt-1">
-                            <p class="text-[clamp(3.5px,1.15vw,6.5px)] text-gray-400 italic leading-tight">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-end; padding-top: 2px;">
+                            <p style="font-size: clamp(3.5px, 1.15vw, 6.5px); color: #9ca3af; font-style: italic; line-height: 1.2; margin: 0;">
                                 Berlaku selama menjadi<br>siswa SMAN 1 Gianyar
                             </p>
-                            <div class="text-center shrink-0">
-                                <p class="text-[clamp(3.5px,1.15vw,6.5px)] text-gray-600">
+                            <div style="text-align: center; flex-shrink: 0;">
+                                <p style="font-size: clamp(3.5px, 1.15vw, 6.5px); color: #4b5563; margin: 0;">
                                     Gianyar, {{ now()->isoFormat('D MMMM Y') }}
                                 </p>
-                                <p class="text-[clamp(3.5px,1.15vw,6.5px)] text-gray-600 font-medium">
+                                <p style="font-size: clamp(3.5px, 1.15vw, 6.5px); color: #4b5563; font-weight: 500; margin: 0;">
                                     Kepala Sekolah,
                                 </p>
-                                <div class="mt-2 border-t border-gray-700 pt-0.5 inline-block min-w-[50px]">
-                                    <p class="text-[clamp(3px,1vw,5.5px)] text-gray-400">
+                                <div style="margin-top: 6px; border-top: 1px solid #374151; padding-top: 1px; display: inline-block; min-width: 45px;">
+                                    <p style="font-size: clamp(3px, 1vw, 5.5px); color: #9ca3af; margin: 0;">
                                         NIP. ———————————
                                     </p>
                                 </div>
@@ -129,7 +135,7 @@
                 </div>
 
                 {{-- Strip Bawah Biru --}}
-                <div class="shrink-0 h-[3.5%] bg-linear-to-r from-[#0a3880] via-[#1565c0] to-[#1976d2]"></div>
+                <div style="flex-shrink: 0; height: 3.5%; background: linear-gradient(90deg, #0a3880 0%, #1565c0 50%, #1976d2 100%);"></div>
             </div>
 
             {{-- ══════════════════════════════════════════════════════════════ --}}
@@ -139,46 +145,46 @@
                  style="-webkit-backface-visibility: hidden; backface-visibility: hidden; -webkit-transform: rotateY(180deg) translateZ(1px); transform: rotateY(180deg) translateZ(1px); font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
 
                 {{-- Strip Atas Biru --}}
-                <div class="shrink-0 h-[6%] bg-linear-to-r from-[#0a3880] via-[#1565c0] to-[#1976d2] px-[3%] flex items-center gap-2">
-                    <div class="w-3 h-3 rounded-full bg-white shrink-0 overflow-hidden">
-                        <img src="{{ asset('img/logo_sekolah.png') }}" class="w-full h-full object-contain">
+                <div style="height: 6%; background: linear-gradient(90deg, #0a3880 0%, #1565c0 60%, #1976d2 100%); padding: 0 3.5%; display: flex; align-items: center; gap: 6px; flex-shrink: 0;">
+                    <div style="width: 10px; height: 10px; border-radius: 50%; background: #ffffff; flex-shrink: 0; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+                        <img src="{{ asset('img/logo_sekolah.png') }}" style="width: 100%; height: 100%; object-fit: contain; display: block;">
                     </div>
-                    <p class="font-extrabold text-white text-[clamp(5px,1.6vw,9px)] uppercase tracking-wider">
+                    <p style="font-weight: 800; color: #ffffff; font-size: clamp(5px, 1.6vw, 9px); text-transform: uppercase; letter-spacing: 0.05em; margin: 0;">
                         SMA NEGERI 1 GIANYAR
                     </p>
-                    <p class="text-blue-100/70 text-[clamp(3.5px,1.2vw,7px)] ml-auto">
+                    <p style="color: rgba(255,255,255,0.7); font-size: clamp(3.5px, 1.2vw, 7px); margin-left: auto; margin-top: 0; margin-bottom: 0;">
                         NPSN 50102079
                     </p>
                 </div>
 
                 {{-- Body Tengah Belakang (QR Code & Detail) --}}
-                <div class="flex-1 flex flex-col items-center justify-center p-[4%] text-center overflow-hidden">
+                <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4%; text-align: center; overflow: hidden;">
                     @if(isset($qrSvg))
-                    <div class="w-[32%] aspect-square border border-gray-200 rounded-lg p-1 shadow-sm bg-white">
-                        <img src="{{ $qrSvg }}" alt="QR Code" class="w-full h-full object-contain block">
+                    <div style="width: 32%; aspect-ratio: 1; border: 1px solid #e5e7eb; border-radius: 8px; padding: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); background: #ffffff;">
+                        <img src="{{ $qrSvg }}" alt="QR Code" style="width: 100%; height: 100%; object-fit: contain; display: block;">
                     </div>
                     @endif
 
-                    <p class="text-[clamp(4.5px,1.4vw,8px)] text-gray-400 mt-1 tracking-wide">
+                    <p style="font-size: clamp(4.5px, 1.4vw, 8px); color: #9ca3af; margin-top: 4px; letter-spacing: 0.02em;">
                         Scan untuk verifikasi identitas resmi siswa
                     </p>
 
-                    <div class="w-1/2 h-px bg-linear-to-r from-transparent via-gray-200 to-transparent my-1.5"></div>
+                    <div style="width: 50%; height: 1px; background: linear-gradient(90deg, transparent 0%, #e5e7eb 50%, transparent 100%); margin: 6px 0;"></div>
 
-                    <p class="font-bold text-gray-900 text-[clamp(6.5px,2vw,12px)] truncate max-w-[90%]">
+                    <p style="font-weight: 700; color: #111827; font-size: clamp(6.5px, 2vw, 12px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90%; margin: 0;">
                         {{ $siswa->name }}
                     </p>
-                    <p class="text-gray-500 text-[clamp(4.5px,1.4vw,8.5px)] mt-0.5">
+                    <p style="color: #6b7280; font-size: clamp(4.5px, 1.4vw, 8.5px); margin-top: 2px; margin-bottom: 0;">
                         NIS: {{ $siswa->nis ?? '—' }} @if($siswa->nisn) · NISN: {{ $siswa->nisn }} @endif
                     </p>
-                    <p class="text-gray-400 text-[clamp(4px,1.3vw,7.5px)] mt-0.5">
-                        {{ $siswa->schoolClass?->name ?? '—' }} @if($siswa->angkatan) · <strong class="text-amber-800 font-bold">{{ $siswa->angkatan }}</strong> @endif
+                    <p style="color: #9ca3af; font-size: clamp(4px, 1.3vw, 7.5px); margin-top: 2px; margin-bottom: 0;">
+                        {{ $siswa->schoolClass?->name ?? '—' }} @if($siswa->angkatan) · <strong style="color: #92400e; font-weight: 700;">{{ $siswa->angkatan }}</strong> @endif
                     </p>
                 </div>
 
                 {{-- Strip Bawah Emas --}}
-                <div class="shrink-0 h-[4%] bg-linear-to-r from-[#b45309] via-[#fbbf24] to-[#b45309] flex items-center justify-center">
-                    <p class="font-extrabold text-white text-[clamp(4px,1.3vw,7.5px)] tracking-widest uppercase">
+                <div style="height: 4%; background: linear-gradient(90deg, #b45309 0%, #fbbf24 50%, #b45309 100%); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                    <p style="font-weight: 800; color: #ffffff; font-size: clamp(4px, 1.3vw, 7.5px); letter-spacing: 0.1em; text-transform: uppercase; margin: 0;">
                         SISWA {{ $siswa->angkatan ? '· ' . strtoupper($siswa->angkatan) : '' }}
                     </p>
                 </div>

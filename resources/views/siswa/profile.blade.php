@@ -129,41 +129,63 @@
         </div>
     </div>
 
-    {{-- ─── Edit Data ───────────────────────────────────────────────── --}}
+    {{-- ─── Edit Data Diri ────────────────────────────────────────────── --}}
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
-        <h3 class="text-sm font-semibold text-gray-700 mb-3">Edit Data Diri</h3>
+        <div class="flex items-center gap-2 mb-3 pb-2 border-b border-gray-100">
+            <div class="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                </svg>
+            </div>
+            <h3 class="text-sm font-bold text-gray-800">Edit Data Diri</h3>
+        </div>
         <form method="POST" action="{{ route('siswa.profile.update') }}" class="space-y-3">
             @csrf @method('PUT')
             <div>
-                <label class="block text-xs font-medium text-gray-600 mb-1">No. HP Siswa</label>
-                <input type="text" name="phone" value="{{ old('phone', $siswa->phone) }}"
-                    class="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="08xxxxxxxxxx">
+                <label class="block text-xs font-semibold text-gray-600 mb-1">No. HP Siswa</label>
+                <div class="flex items-center rounded-xl border border-gray-300 bg-gray-50/50 focus-within:border-blue-500 focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-100 transition-all overflow-hidden">
+                    <input type="text" name="phone" value="{{ old('phone', $siswa->phone) }}"
+                        class="w-full px-3 py-2.5 text-sm text-gray-900 bg-transparent focus:outline-none border-0"
+                        placeholder="08xxxxxxxxxx">
+                </div>
             </div>
             <div>
-                <label class="block text-xs font-medium text-gray-600 mb-1">Alamat</label>
-                <input type="text" name="address" value="{{ old('address', $siswa->address) }}"
-                    class="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <label class="block text-xs font-semibold text-gray-600 mb-1">Alamat Tempat Tinggal</label>
+                <div class="flex items-center rounded-xl border border-gray-300 bg-gray-50/50 focus-within:border-blue-500 focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-100 transition-all overflow-hidden">
+                    <input type="text" name="address" value="{{ old('address', $siswa->address) }}"
+                        class="w-full px-3 py-2.5 text-sm text-gray-900 bg-transparent focus:outline-none border-0"
+                        placeholder="Jl. Contoh No. X, Gianyar">
+                </div>
             </div>
             <button type="submit"
-                class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors">
-                Simpan
+                class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-xl shadow-xs active:scale-[0.99] transition-all">
+                Simpan Perubahan
             </button>
         </form>
     </div>
 
     {{-- ─── Ganti Password ──────────────────────────────────────────── --}}
     <div id="ganti-password" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
-        <h3 class="text-sm font-semibold text-gray-700 mb-3">Ganti Password</h3>
+        <div class="flex items-center gap-2 mb-3 pb-2 border-b border-gray-100">
+            <div class="w-7 h-7 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                </svg>
+            </div>
+            <h3 class="text-sm font-bold text-gray-800">Ganti Password</h3>
+        </div>
         <form method="POST" action="{{ route('siswa.profile.password') }}" class="space-y-3">
             @csrf @method('PUT')
+            
+            {{-- Password Saat Ini --}}
             <div>
-                <label class="block text-xs font-medium text-gray-600 mb-1">Password Saat Ini</label>
-                <div class="relative">
+                <label class="block text-xs font-semibold text-gray-600 mb-1">Password Saat Ini</label>
+                <div class="relative flex items-center rounded-xl border border-gray-300 bg-gray-50/50 focus-within:border-blue-500 focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-100 transition-all overflow-hidden">
                     <input type="password" id="siswa_current_password" name="current_password" required
-                        class="w-full pl-3 pr-10 py-2 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        class="w-full pl-3 pr-10 py-2.5 text-sm text-gray-900 bg-transparent focus:outline-none border-0"
+                        placeholder="••••••••">
                     <button type="button" onclick="togglePasswordVisibility('siswa_current_password', this)"
-                        class="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors p-1"
+                        class="absolute right-0 top-0 bottom-0 px-3 flex items-center justify-center text-gray-400 hover:text-gray-600 focus:outline-none bg-transparent transition-colors"
                         title="Tampilkan/sembunyikan password">
                         <svg class="w-4 h-4 eye-open" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -176,13 +198,16 @@
                 </div>
                 @error('current_password') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
             </div>
+
+            {{-- Password Baru --}}
             <div>
-                <label class="block text-xs font-medium text-gray-600 mb-1">Password Baru</label>
-                <div class="relative">
+                <label class="block text-xs font-semibold text-gray-600 mb-1">Password Baru</label>
+                <div class="relative flex items-center rounded-xl border border-gray-300 bg-gray-50/50 focus-within:border-blue-500 focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-100 transition-all overflow-hidden">
                     <input type="password" id="siswa_new_password" name="password" required
-                        class="w-full pl-3 pr-10 py-2 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        class="w-full pl-3 pr-10 py-2.5 text-sm text-gray-900 bg-transparent focus:outline-none border-0"
+                        placeholder="••••••••">
                     <button type="button" onclick="togglePasswordVisibility('siswa_new_password', this)"
-                        class="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors p-1"
+                        class="absolute right-0 top-0 bottom-0 px-3 flex items-center justify-center text-gray-400 hover:text-gray-600 focus:outline-none bg-transparent transition-colors"
                         title="Tampilkan/sembunyikan password">
                         <svg class="w-4 h-4 eye-open" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -194,13 +219,16 @@
                     </button>
                 </div>
             </div>
+
+            {{-- Konfirmasi Password Baru --}}
             <div>
-                <label class="block text-xs font-medium text-gray-600 mb-1">Konfirmasi Password Baru</label>
-                <div class="relative">
+                <label class="block text-xs font-semibold text-gray-600 mb-1">Konfirmasi Password Baru</label>
+                <div class="relative flex items-center rounded-xl border border-gray-300 bg-gray-50/50 focus-within:border-blue-500 focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-100 transition-all overflow-hidden">
                     <input type="password" id="siswa_confirm_password" name="password_confirmation" required
-                        class="w-full pl-3 pr-10 py-2 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        class="w-full pl-3 pr-10 py-2.5 text-sm text-gray-900 bg-transparent focus:outline-none border-0"
+                        placeholder="••••••••">
                     <button type="button" onclick="togglePasswordVisibility('siswa_confirm_password', this)"
-                        class="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors p-1"
+                        class="absolute right-0 top-0 bottom-0 px-3 flex items-center justify-center text-gray-400 hover:text-gray-600 focus:outline-none bg-transparent transition-colors"
                         title="Tampilkan/sembunyikan password">
                         <svg class="w-4 h-4 eye-open" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -212,8 +240,9 @@
                     </button>
                 </div>
             </div>
+
             <button type="submit"
-                class="w-full py-2.5 bg-gray-700 hover:bg-gray-800 text-white text-sm font-medium rounded-lg transition-colors">
+                class="w-full py-2.5 bg-slate-800 hover:bg-slate-900 text-white text-sm font-bold rounded-xl shadow-xs active:scale-[0.99] transition-all">
                 Perbarui Password
             </button>
         </form>
