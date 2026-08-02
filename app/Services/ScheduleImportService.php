@@ -200,36 +200,59 @@ class ScheduleImportService
 
             $classId = $schoolClass->id;
 
-            // 2. Match Subject
+            // 3. Match Teacher
+            $teacherRaw   = trim($item['teacher_raw']);
+            $teacherMatch = $this->findBestTeacherMatch($teacherRaw, $teachers);
+            $matchedTeacher = $teacherMatch['user'];
+
+            // 2. Match Subject & Filter by Teacher's Subjects
             $subjCode = strtoupper(trim($item['subject_code']));
             $subjName = self::SUBJECT_MAP[$subjCode] ?? $subjCode;
-            
-            $matchedSubj = $subjects->first(function ($s) use ($subjCode, $subjName) {
-                return strtoupper($s->code) === $subjCode
-                    || str_contains(strtolower($s->name), strtolower($subjCode))
-                    || str_contains(strtolower($s->name), strtolower($subjName));
-            });
 
-            // 3. Match Teacher
-            $teacherRaw = trim($item['teacher_raw']);
-            $teacherMatch = $this->findBestTeacherMatch($teacherRaw, $teachers);
+            $allowedSubjectIds = [];
+            if ($matchedTeacher && ! empty($matchedTeacher->subject)) {
+                $tSubjNames = array_map('trim', explode(',', $matchedTeacher->subject));
+                foreach ($tSubjNames as $tName) {
+                    $found = $subjects->first(function ($s) use ($tName) {
+                        return strcasecmp($s->name, $tName) === 0
+                            || (strcasecmp($s->code, $tName) === 0)
+                            || str_contains(strtolower($s->name), strtolower($tName))
+                            || str_contains(strtolower($tName), strtolower($s->name));
+                    });
+                    if ($found) {
+                        $allowedSubjectIds[] = $found->id;
+                    }
+                }
+            }
+
+            // Jika guru di DB hanya mengampu 1 mapel, otomatis pilih mapel tersebut!
+            if (count($allowedSubjectIds) === 1) {
+                $matchedSubj = $subjects->find($allowedSubjectIds[0]);
+            } else {
+                $matchedSubj = $subjects->first(function ($s) use ($subjCode, $subjName) {
+                    return strtoupper($s->code) === $subjCode
+                        || str_contains(strtolower($s->name), strtolower($subjCode))
+                        || str_contains(strtolower($s->name), strtolower($subjName));
+                });
+            }
 
             $matchedList[] = [
-                'temp_id'          => 'item_' . $index,
-                'class_name'       => $schoolClass->name, // Selalu tampilkan format rapi e.g. X-01
-                'class_id'         => $classId,
-                'day'              => $item['day'],
-                'period'           => $item['period'],
-                'start_time'       => self::TIME_SLOTS[$item['period']][0] ?? '07:30',
-                'end_time'         => self::TIME_SLOTS[$item['period']][1] ?? '08:15',
-                'subject_code'     => $subjCode,
-                'subject_id'       => $matchedSubj?->id,
-                'subject_name'     => $matchedSubj?->name ?? $subjName,
-                'teacher_raw'      => $teacherRaw,
-                'teacher_id'       => $teacherMatch['user']?->id,
-                'teacher_name'     => $teacherMatch['user']?->name ?? $teacherRaw,
-                'match_confidence' => $teacherMatch['confidence'], // 'exact', 'fuzzy', 'unmatched'
-                'room'             => $item['room'] ?? null,
+                'temp_id'             => 'item_' . $index,
+                'class_name'          => $schoolClass->name, // Selalu tampilkan format rapi e.g. X-01
+                'class_id'            => $classId,
+                'day'                 => $item['day'],
+                'period'              => $item['period'],
+                'start_time'          => self::TIME_SLOTS[$item['period']][0] ?? '07:30',
+                'end_time'            => self::TIME_SLOTS[$item['period']][1] ?? '08:15',
+                'subject_code'        => $subjCode,
+                'subject_id'          => $matchedSubj?->id,
+                'subject_name'        => $matchedSubj?->name ?? $subjName,
+                'allowed_subject_ids' => $allowedSubjectIds,
+                'teacher_raw'         => $teacherRaw,
+                'teacher_id'          => $matchedTeacher?->id,
+                'teacher_name'        => $matchedTeacher?->name ?? $teacherRaw,
+                'match_confidence'    => $teacherMatch['confidence'], // 'exact', 'fuzzy', 'unmatched'
+                'room'                => $item['room'] ?? null,
             ];
         }
 

@@ -294,9 +294,15 @@
 
                                         {{-- Mapel --}}
                                         <td>
-                                            <select wire:model="parsedItems.{{ $idx }}.subject_id" class="imp-select">
+                                            @php
+                                                $allowedIds  = $item['allowed_subject_ids'] ?? [];
+                                                $rowSubjects = (!empty($allowedIds))
+                                                    ? $subjectsList->whereIn('id', $allowedIds)
+                                                    : $subjectsList;
+                                            @endphp
+                                            <select wire:model="parsedItems.{{ $idx }}.subject_id" class="imp-select font-bold text-amber-300">
                                                 <option value="">— Pilih Mapel —</option>
-                                                @foreach ($subjectsList as $s)
+                                                @foreach ($rowSubjects as $s)
                                                     <option value="{{ $s->id }}">{{ $s->code ? "[{$s->code}] " : '' }}{{ $s->name }}</option>
                                                 @endforeach
                                             </select>
