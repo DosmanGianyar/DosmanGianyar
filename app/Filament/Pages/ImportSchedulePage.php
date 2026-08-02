@@ -134,11 +134,18 @@ class ImportSchedulePage extends Page
             $newTeacher = $service->createDraftTeacher($rawName);
 
             // Update item yang bersangkutan di parsedItems
+            $allSubjects = Subject::all();
             foreach ($this->parsedItems as &$item) {
                 if ($item['temp_id'] === $tempId || $item['teacher_raw'] === $rawName) {
                     $item['teacher_id']       = $newTeacher->id;
                     $item['teacher_name']     = $newTeacher->name;
                     $item['match_confidence'] = 'exact';
+
+                    $res = $service->resolveSubjectForTeacher($newTeacher, $allSubjects, $item['subject_code'] ?? null);
+                    if ($res['subject_id']) {
+                        $item['subject_id'] = $res['subject_id'];
+                    }
+                    $item['allowed_subject_ids'] = $res['allowed_subject_ids'];
                 }
             }
 
@@ -153,6 +160,32 @@ class ImportSchedulePage extends Page
                 ->body($e->getMessage())
                 ->danger()
                 ->send();
+        }
+    }
+
+    public function updatedParsedItems($value, $key): void
+    {
+        if (str_contains($key, '.teacher_id') && ! empty($value)) {
+            $parts     = explode('.', $key);
+            $idx       = (int) $parts[0];
+            $teacherId = $value;
+
+            $teacher     = User::find($teacherId);
+            $allSubjects = Subject::all();
+
+            if ($teacher) {
+                $res = (new ScheduleImportService())->resolveSubjectForTeacher(
+                    $teacher,
+                    $allSubjects,
+                    $this->parsedItems[$idx]['subject_code'] ?? null
+                );
+
+                if ($res['subject_id']) {
+                    $this->parsedItems[$idx]['subject_id'] = $res['subject_id'];
+                }
+                $this->parsedItems[$idx]['allowed_subject_ids'] = $res['allowed_subject_ids'];
+                $this->parsedItems[$idx]['teacher_name']        = $teacher->name;
+            }
         }
     }
 

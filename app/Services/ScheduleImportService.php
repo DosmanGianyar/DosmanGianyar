@@ -170,6 +170,85 @@ class ScheduleImportService
     }
 
     /**
+     * Cari ID Mata Pelajaran berdasarkan data Guru dan/atau kode dari PDF
+     */
+    public function resolveSubjectForTeacher(?User $teacher, Collection $allSubjects, ?string $rawSubjectCode = null): array
+    {
+        $allowedSubjectIds = [];
+        $matchedSubjectId  = null;
+
+        // 1. Cek mata pelajaran yang terdaftar pada profil Guru di DB
+        if ($teacher && ! empty($teacher->subject)) {
+            $tSubjNames = array_map('trim', explode(',', $teacher->subject));
+
+            foreach ($tSubjNames as $tName) {
+                $mappedName = self::SUBJECT_MAP[strtoupper($tName)] ?? $tName;
+
+                $found = $allSubjects->first(function ($s) use ($tName, $mappedName) {
+                    $sName      = strtoupper($s->name);
+                    $sCode      = strtoupper($s->code);
+                    $tNameUpper = strtoupper($tName);
+                    $mNameUpper = strtoupper($mappedName);
+
+                    return $sCode === $tNameUpper
+                        || $sCode === $mNameUpper
+                        || $sName === $tNameUpper
+                        || $sName === $mNameUpper
+                        || str_contains($sName, $tNameUpper)
+                        || str_contains($tNameUpper, $sName)
+                        || str_contains($sName, $mNameUpper);
+                });
+
+                if ($found) {
+                    $allowedSubjectIds[] = $found->id;
+                }
+            }
+        }
+
+        $allowedSubjectIds = array_values(array_unique($allowedSubjectIds));
+
+        // Jika Guru di DB HANYA mengampu 1 mata pelajaran -> OTOMATIS PILIH MAPEL TERSEBUT!
+        if (count($allowedSubjectIds) === 1) {
+            $matchedSubjectId = $allowedSubjectIds[0];
+        } else {
+            // Jika ada lebih dari 1 mapel atau belum terdaftar di profil guru, cari berdasarkan kode dari PDF
+            if ($rawSubjectCode) {
+                $codeUpper  = strtoupper(trim($rawSubjectCode));
+                $mappedName = self::SUBJECT_MAP[$codeUpper] ?? $codeUpper;
+
+                $foundFromPdf = $allSubjects->first(function ($s) use ($codeUpper, $mappedName, $allowedSubjectIds) {
+                    if (! empty($allowedSubjectIds) && ! in_array($s->id, $allowedSubjectIds)) {
+                        return false;
+                    }
+
+                    $sName = strtoupper($s->name);
+                    $sCode = strtoupper($s->code);
+
+                    return $sCode === $codeUpper
+                        || $sName === $codeUpper
+                        || $sName === strtoupper($mappedName)
+                        || str_contains($sName, $codeUpper)
+                        || str_contains($sName, strtoupper($mappedName));
+                });
+
+                if ($foundFromPdf) {
+                    $matchedSubjectId = $foundFromPdf->id;
+                }
+            }
+
+            // Fallback: jika masih null tapi ada allowedSubjectIds
+            if (! $matchedSubjectId && ! empty($allowedSubjectIds)) {
+                $matchedSubjectId = $allowedSubjectIds[0];
+            }
+        }
+
+        return [
+            'subject_id'          => $matchedSubjectId,
+            'allowed_subject_ids' => $allowedSubjectIds,
+        ];
+    }
+
+    /**
      * Jalankan pencocokan cerdas (Smart Matching) ke Database
      */
     public function matchEntities(array $rawItems): array
@@ -200,41 +279,17 @@ class ScheduleImportService
 
             $classId = $schoolClass->id;
 
-            // 3. Match Teacher
-            $teacherRaw   = trim($item['teacher_raw']);
-            $teacherMatch = $this->findBestTeacherMatch($teacherRaw, $teachers);
+            // 2. Match Teacher
+            $teacherRaw     = trim($item['teacher_raw']);
+            $teacherMatch   = $this->findBestTeacherMatch($teacherRaw, $teachers);
             $matchedTeacher = $teacherMatch['user'];
 
-            // 2. Match Subject & Filter by Teacher's Subjects
+            // 3. Match Subject berdasarkan data Guru & Kode PDF
             $subjCode = strtoupper(trim($item['subject_code']));
-            $subjName = self::SUBJECT_MAP[$subjCode] ?? $subjCode;
+            $subjRes  = $this->resolveSubjectForTeacher($matchedTeacher, $subjects, $subjCode);
 
-            $allowedSubjectIds = [];
-            if ($matchedTeacher && ! empty($matchedTeacher->subject)) {
-                $tSubjNames = array_map('trim', explode(',', $matchedTeacher->subject));
-                foreach ($tSubjNames as $tName) {
-                    $found = $subjects->first(function ($s) use ($tName) {
-                        return strcasecmp($s->name, $tName) === 0
-                            || (strcasecmp($s->code, $tName) === 0)
-                            || str_contains(strtolower($s->name), strtolower($tName))
-                            || str_contains(strtolower($tName), strtolower($s->name));
-                    });
-                    if ($found) {
-                        $allowedSubjectIds[] = $found->id;
-                    }
-                }
-            }
-
-            // Jika guru di DB hanya mengampu 1 mapel, otomatis pilih mapel tersebut!
-            if (count($allowedSubjectIds) === 1) {
-                $matchedSubj = $subjects->find($allowedSubjectIds[0]);
-            } else {
-                $matchedSubj = $subjects->first(function ($s) use ($subjCode, $subjName) {
-                    return strtoupper($s->code) === $subjCode
-                        || str_contains(strtolower($s->name), strtolower($subjCode))
-                        || str_contains(strtolower($s->name), strtolower($subjName));
-                });
-            }
+            $matchedSubject = $subjRes['subject_id'] ? $subjects->find($subjRes['subject_id']) : null;
+            $subjName       = self::SUBJECT_MAP[$subjCode] ?? $subjCode;
 
             $matchedList[] = [
                 'temp_id'             => 'item_' . $index,
@@ -245,9 +300,9 @@ class ScheduleImportService
                 'start_time'          => self::TIME_SLOTS[$item['period']][0] ?? '07:30',
                 'end_time'            => self::TIME_SLOTS[$item['period']][1] ?? '08:15',
                 'subject_code'        => $subjCode,
-                'subject_id'          => $matchedSubj?->id,
-                'subject_name'        => $matchedSubj?->name ?? $subjName,
-                'allowed_subject_ids' => $allowedSubjectIds,
+                'subject_id'          => $subjRes['subject_id'],
+                'subject_name'        => $matchedSubject?->name ?? $subjName,
+                'allowed_subject_ids' => $subjRes['allowed_subject_ids'],
                 'teacher_raw'         => $teacherRaw,
                 'teacher_id'          => $matchedTeacher?->id,
                 'teacher_name'        => $matchedTeacher?->name ?? $teacherRaw,
