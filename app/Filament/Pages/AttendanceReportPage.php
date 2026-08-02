@@ -51,11 +51,14 @@ class AttendanceReportPage extends Page
 
     public function getWorkingDays(): int
     {
-        $start = Carbon::createFromDate($this->year, $this->month, 1);
-        $end   = $start->copy()->endOfMonth();
+        $start       = Carbon::createFromDate($this->year, $this->month, 1);
+        $end         = $start->copy()->endOfMonth();
+        $holidays    = \App\Models\Holiday::getHolidayDates($start, $end, $this->classId);
+        $specialDays = \App\Models\Holiday::getSpecialSchoolDates($start, $end, $this->classId);
+
         $count = 0;
         for ($d = $start->copy(); $d->lte($end); $d->addDay()) {
-            if (! $d->isSunday()) {
+            if (\App\Models\Holiday::isSchoolDay($d, $holidays, $specialDays)) {
                 $count++;
             }
         }

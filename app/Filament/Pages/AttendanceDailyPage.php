@@ -93,7 +93,7 @@ class AttendanceDailyPage extends Page
                 $checkIn  = null;
                 $checkOut = null;
             } else {
-                $status   = 'alpa';
+                $status   = \App\Models\Holiday::isOffDayFor($date, $this->classId) ? 'libur' : 'alpa';
                 $checkIn  = null;
                 $checkOut = null;
             }
