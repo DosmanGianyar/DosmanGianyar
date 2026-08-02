@@ -1,96 +1,272 @@
 <x-filament-panels::page>
-    <div class="space-y-6">
+    <style>
+        /* Modern & Ultra-Clean Custom Styling for Import Schedule Page */
+        .imp-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            width: 100%;
+        }
 
-        {{-- ── Card Panduan Import ────────────────────────────────────────── --}}
-        <div class="p-5 bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl text-white shadow-lg">
-            <div class="flex items-start gap-4">
-                <div class="p-3 bg-white/10 rounded-xl backdrop-blur-md shrink-0">
-                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                    </svg>
-                </div>
-                <div>
-                    <h3 class="text-lg font-bold">Import & Parsing PDF Jadwal Pelajaran (aSc Timetables)</h3>
-                    <p class="text-xs text-blue-100 mt-1 leading-relaxed">
-                        Unggah file PDF jadwal hasil cetak **aSc Timetables** atau file Excel export per tingkat kelas (Kelas 10, 11, atau 12). Sistem akan mengekstrak jam, hari, mapel, dan melakukan pencocokan nama guru secara otomatis.
-                    </p>
+        /* Banner Header */
+        .imp-banner {
+            background: linear-gradient(135deg, #1d4ed8 0%, #3730a3 100%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            padding: 1.25rem 1.5rem;
+            color: #ffffff;
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        .imp-banner-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 0.75rem;
+            background: rgba(255, 255, 255, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            backdrop-filter: blur(4px);
+        }
+        .imp-banner-title {
+            font-size: 1.125rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 0.25rem;
+        }
+        .imp-banner-desc {
+            font-size: 0.825rem;
+            color: #e0e7ff;
+            line-height: 1.5;
+        }
+
+        /* Section Cards */
+        .imp-card {
+            background-color: #0f1d33;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        .imp-card-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #f1f5f9;
+            margin-bottom: 1.25rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* Stat Grid */
+        .imp-grid-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .imp-stat-card {
+            background-color: #0f1d33;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 0.875rem;
+            padding: 1rem 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+        .imp-stat-label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .imp-stat-value {
+            font-size: 1.35rem;
+            font-weight: 900;
+            color: #ffffff;
+        }
+
+        /* Preview Table */
+        .imp-table-container {
+            background-color: #0f1d33;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        .imp-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.775rem;
+            text-align: left;
+        }
+        .imp-table th {
+            background-color: #1e293b;
+            color: #cbd5e1;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 0.875rem 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .imp-table td {
+            padding: 0.875rem 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            color: #e2e8f0;
+            vertical-align: middle;
+        }
+        .imp-table tr:hover td {
+            background-color: rgba(255, 255, 255, 0.03);
+        }
+
+        /* Badges */
+        .imp-badge-matched {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.25rem 0.65rem;
+            border-radius: 9999px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            background-color: rgba(34, 197, 94, 0.15);
+            color: #4ade80;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+        .imp-badge-unmatched {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.25rem 0.65rem;
+            border-radius: 9999px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            background-color: rgba(245, 158, 11, 0.15);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+        .imp-badge-room {
+            display: inline-block;
+            padding: 0.15rem 0.4rem;
+            border-radius: 0.35rem;
+            font-size: 0.65rem;
+            font-weight: 700;
+            background-color: rgba(168, 85, 247, 0.2);
+            color: #c084fc;
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            margin-left: 0.25rem;
+        }
+
+        /* Select Input Styling inside table */
+        .imp-select {
+            background-color: #1e293b;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            border-radius: 0.5rem;
+            padding: 0.35rem 0.6rem;
+            font-size: 0.75rem;
+            outline: none;
+            width: 100%;
+        }
+        .imp-select:focus {
+            border-color: #3b82f6;
+        }
+    </style>
+
+    <div class="imp-wrap">
+
+        {{-- ── Banner Panduan Header ──────────────────────────────────────── --}}
+        <div class="imp-banner">
+            <div class="imp-banner-icon">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+            </div>
+            <div>
+                <div class="imp-banner-title">Import & Parsing PDF Jadwal Pelajaran (aSc Timetables)</div>
+                <div class="imp-banner-desc">
+                    Unggah file PDF jadwal cetakan **aSc Timetables** atau file Excel export per tingkat kelas (Kelas 10, 11, atau 12). Sistem akan mengekstrak jam, hari, mapel, serta melakukan pencocokan guru secara otomatis ke database.
                 </div>
             </div>
         </div>
 
         @if (! $isParsed)
             {{-- ── Form Langkah 1: Upload File & Parameter ──────────────────── --}}
-            <div class="p-6 bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm space-y-6">
-                <h4 class="text-base font-bold text-gray-800 dark:text-gray-200 border-b pb-3">Langkah 1: Unggah File & Pilih Tingkat Kelas</h4>
+            <div class="imp-card">
+                <div class="imp-card-title">
+                    <span>Langkah 1: Unggah File & Pilih Tingkat Kelas</span>
+                </div>
 
                 <form wire:submit.prevent="startParsing" class="space-y-6">
                     {{ $this->form }}
 
                     <div class="pt-4 flex justify-end">
-                        <button type="submit" class="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm rounded-xl shadow-md transition-all">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
-                            </svg>
+                        <x-filament::button type="submit" icon="heroicon-o-arrow-path" size="lg" color="primary">
                             Ekstrak & Pratinjau Jadwal
-                        </button>
+                        </x-filament::button>
                     </div>
                 </form>
             </div>
         @else
-            {{-- ── Langkah 2: Ringkasan & Pratinjau Pencocokan ───────────── --}}
+            {{-- ── Langkah 2: Ringkasan Stat & Pratinjau Tabel Match ───────── --}}
             <div class="space-y-6">
 
-                {{-- Summary Cards --}}
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div class="p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm">
-                        <div class="text-xs font-semibold text-gray-500">Tingkat Kelas</div>
-                        <div class="text-xl font-extrabold text-blue-600 mt-1">Kelas {{ $selectedGrade }}</div>
+                {{-- Stat Grid Cards --}}
+                <div class="imp-grid-stats">
+                    <div class="imp-stat-card">
+                        <span class="imp-stat-label">Tingkat Kelas</span>
+                        <span class="imp-stat-value" style="color: #60a5fa;">Kelas {{ $selectedGrade }}</span>
                     </div>
-                    <div class="p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm">
-                        <div class="text-xs font-semibold text-gray-500">Tahun Ajaran</div>
-                        <div class="text-lg font-bold text-gray-800 dark:text-gray-200 mt-1">{{ $academicYear }}</div>
+                    <div class="imp-stat-card">
+                        <span class="imp-stat-label">Tahun Ajaran</span>
+                        <span class="imp-stat-value" style="font-size: 1.1rem; margin-top: 0.2rem;">{{ $academicYear }}</span>
                     </div>
-                    <div class="p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm">
-                        <div class="text-xs font-semibold text-gray-500">Total Slot Jadwal</div>
-                        <div class="text-xl font-extrabold text-emerald-600 mt-1">{{ count($parsedItems) }} Slot</div>
+                    <div class="imp-stat-card">
+                        <span class="imp-stat-label">Total Slot Jadwal</span>
+                        <span class="imp-stat-value" style="color: #4ade80;">{{ count($parsedItems) }} Slot</span>
                     </div>
-                    <div class="p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm">
-                        <div class="text-xs font-semibold text-gray-500">Status Opsi</div>
-                        <div class="text-xs font-bold text-amber-600 mt-1">
+                    <div class="imp-stat-card">
+                        <span class="imp-stat-label">Status Opsi Timpa</span>
+                        <span class="imp-stat-value" style="font-size: 0.95rem; color: #fbbf24; margin-top: 0.25rem;">
                             {{ $replaceExisting ? 'Hapus & Timpa Jadwal Lama' : 'Tambahkan Ke Jadwal Ada' }}
-                        </div>
+                        </span>
                     </div>
                 </div>
 
                 {{-- Table Pratinjau --}}
-                <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
-                    <div class="p-4 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-                        <h4 class="text-sm font-bold text-gray-800 dark:text-gray-200">
-                            Pratinjau & Verifikasi Pencocokan Guru ({{ count($parsedItems) }} Data)
+                <div class="imp-table-container">
+                    <div class="p-4 bg-slate-800/80 border-b border-white/10 flex justify-between items-center">
+                        <h4 class="text-sm font-bold text-white flex items-center gap-2">
+                            <span>Pratinjau & Verifikasi Pencocokan Guru ({{ count($parsedItems) }} Data)</span>
                         </h4>
-                        <div class="flex gap-2">
-                            <button wire:click="cancelPreview" type="button" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 text-xs font-bold rounded-lg transition-colors">
-                                Ulangi / Batal
-                            </button>
-                            <button wire:click="saveToDatabase" type="button" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg shadow transition-colors">
-                                💾 SIMPAN KE DATABASE
-                            </button>
+                        <div class="flex items-center gap-3">
+                            <x-filament::button wire:click="cancelPreview" color="gray" size="sm">
+                                Batal / Upload Ulang
+                            </x-filament::button>
+                            <x-filament::button wire:click="saveToDatabase" color="success" size="sm" icon="heroicon-o-check-circle">
+                                SIMPAN JADWAL KE DATABASE
+                            </x-filament::button>
                         </div>
                     </div>
 
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-xs text-left">
-                            <thead class="bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 font-bold uppercase">
+                    <div style="overflow-x: auto;">
+                        <table class="imp-table">
+                            <thead>
                                 <tr>
-                                    <th class="px-4 py-3">Kelas</th>
-                                    <th class="px-4 py-3">Hari & Jam</th>
-                                    <th class="px-4 py-3">Mata Pelajaran</th>
-                                    <th class="px-4 py-3">Nama Guru di PDF</th>
-                                    <th class="px-4 py-3">Hasil Match Database</th>
-                                    <th class="px-4 py-3">Aksi Guru</th>
+                                    <th style="width: 130px;">Kelas</th>
+                                    <th style="width: 170px;">Hari & Jam</th>
+                                    <th>Mata Pelajaran</th>
+                                    <th>Nama Guru di PDF</th>
+                                    <th>Hasil Match DB</th>
+                                    <th style="width: 320px;">Aksi / Pilih Guru</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+                            <tbody>
                                 @php
                                     $teachersList = \App\Models\User::where('role', 'guru')->orderBy('name')->get();
                                     $classesList  = \App\Models\SchoolClass::orderBy('name')->get();
@@ -99,10 +275,10 @@
                                 @endphp
 
                                 @foreach ($parsedItems as $idx => $item)
-                                    <tr class="hover:bg-gray-50/50 dark:hover:bg-gray-800/50">
+                                    <tr>
                                         {{-- Kelas --}}
-                                        <td class="px-4 py-3 font-extrabold text-blue-600">
-                                            <select wire:model="parsedItems.{{ $idx }}.class_id" class="text-xs py-1 px-2 rounded border border-gray-300 dark:bg-gray-800 dark:text-white">
+                                        <td>
+                                            <select wire:model="parsedItems.{{ $idx }}.class_id" class="imp-select font-bold text-blue-400">
                                                 <option value="">— Pilih Kelas —</option>
                                                 @foreach ($classesList as $c)
                                                     <option value="{{ $c->id }}">{{ $c->name }}</option>
@@ -111,15 +287,14 @@
                                         </td>
 
                                         {{-- Hari & Jam --}}
-                                        <td class="px-4 py-3 font-medium text-gray-700 dark:text-gray-300">
-                                            <span class="font-bold text-gray-900 dark:text-white">{{ $daysName[$item['day']] ?? 'Hari ' . $item['day'] }}</span>
-                                            <br>
-                                            <span class="text-[11px] text-gray-500">Jam {{ $item['period'] }} ({{ $item['start_time'] }} - {{ $item['end_time'] }})</span>
+                                        <td>
+                                            <strong style="color: #ffffff;">{{ $daysName[$item['day']] ?? 'Hari ' . $item['day'] }}</strong>
+                                            <div style="font-size: 0.7rem; color: #94a3b8;">Jam {{ $item['period'] }} ({{ $item['start_time'] }} - {{ $item['end_time'] }})</div>
                                         </td>
 
                                         {{-- Mapel --}}
-                                        <td class="px-4 py-3">
-                                            <select wire:model="parsedItems.{{ $idx }}.subject_id" class="text-xs py-1 px-2 rounded border border-gray-300 dark:bg-gray-800 dark:text-white">
+                                        <td>
+                                            <select wire:model="parsedItems.{{ $idx }}.subject_id" class="imp-select">
                                                 <option value="">— Pilih Mapel —</option>
                                                 @foreach ($subjectsList as $s)
                                                     <option value="{{ $s->id }}">{{ $s->code ? "[{$s->code}] " : '' }}{{ $s->name }}</option>
@@ -128,32 +303,30 @@
                                         </td>
 
                                         {{-- Teks Raw PDF --}}
-                                        <td class="px-4 py-3 font-semibold text-gray-800 dark:text-gray-200">
-                                            {{ $item['teacher_raw'] ?: '—' }}
+                                        <td>
+                                            <strong style="color: #f8fafc;">{{ $item['teacher_raw'] ?: '—' }}</strong>
                                             @if(!empty($item['room']))
-                                                <span class="inline-block px-1.5 py-0.5 ml-1 text-[10px] bg-purple-100 text-purple-700 font-bold rounded">
-                                                    {{ $item['room'] }}
-                                                </span>
+                                                <span class="imp-badge-room">{{ $item['room'] }}</span>
                                             @endif
                                         </td>
 
                                         {{-- Match Status --}}
-                                        <td class="px-4 py-3">
+                                        <td>
                                             @if ($item['teacher_id'])
-                                                <span class="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-bold rounded-full bg-emerald-100 text-emerald-800">
+                                                <span class="imp-badge-matched">
                                                     ✓ {{ $item['teacher_name'] }}
                                                 </span>
                                             @else
-                                                <span class="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-bold rounded-full bg-amber-100 text-amber-800">
+                                                <span class="imp-badge-unmatched">
                                                     ⚠ Belum Ada di DB
                                                 </span>
                                             @endif
                                         </td>
 
                                         {{-- Aksi Guru --}}
-                                        <td class="px-4 py-3">
-                                            <div class="flex items-center gap-2">
-                                                <select wire:model="parsedItems.{{ $idx }}.teacher_id" class="text-xs py-1 px-2 rounded border border-gray-300 dark:bg-gray-800 dark:text-white">
+                                        <td>
+                                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                                <select wire:model="parsedItems.{{ $idx }}.teacher_id" class="imp-select" style="flex: 1;">
                                                     <option value="">— Pilih Guru —</option>
                                                     @foreach ($teachersList as $t)
                                                         <option value="{{ $t->id }}">{{ $t->name }}</option>
@@ -161,12 +334,13 @@
                                                 </select>
 
                                                 @if (! $item['teacher_id'] && ! empty($item['teacher_raw']))
-                                                    <button type="button"
-                                                        wire:click="createTeacherInline('{{ $item['temp_id'] }}', '{{ addslashes($item['teacher_raw']) }}')"
-                                                        class="px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white font-bold text-[10px] rounded transition-colors whitespace-nowrap"
-                                                        title="Buat akun guru baru secara instan">
+                                                    <x-filament::button
+                                                        type="button"
+                                                        color="info"
+                                                        size="xs"
+                                                        wire:click="createTeacherInline('{{ $item['temp_id'] }}', '{{ addslashes($item['teacher_raw']) }}')">
                                                         + Buat Guru Baru
-                                                    </button>
+                                                    </x-filament::button>
                                                 @endif
                                             </div>
                                         </td>
@@ -176,13 +350,13 @@
                         </table>
                     </div>
 
-                    <div class="p-4 bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-3">
-                        <button wire:click="cancelPreview" type="button" class="px-4 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-700 text-xs font-bold rounded-xl transition-colors">
-                            Batal
-                        </button>
-                        <button wire:click="saveToDatabase" type="button" class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-lg transition-colors">
-                            💾 SIMPAN JADWAL KE DATABASE
-                        </button>
+                    <div class="p-4 bg-slate-800/80 border-t border-white/10 flex justify-end gap-3">
+                        <x-filament::button wire:click="cancelPreview" color="gray" size="md">
+                            Batal / Upload Ulang
+                        </x-filament::button>
+                        <x-filament::button wire:click="saveToDatabase" color="success" size="md" icon="heroicon-o-check-circle">
+                            SIMPAN JADWAL KE DATABASE
+                        </x-filament::button>
                     </div>
                 </div>
             </div>
