@@ -760,7 +760,7 @@ class _StudentIdCardState extends State<StudentIdCard> {
         ),
         const SizedBox(height: 8),
         SizedBox(
-          height: 205,
+          height: 228,
           child: GestureDetector(
             onTap: () => setState(() => _showFront = !_showFront),
             child: AnimatedSwitcher(
