@@ -466,114 +466,105 @@ class ScheduleImportService
     protected function extractCellsFromTeacherPdf($page, string $teacherName): array
     {
         $cells = [];
+        $text  = $page->getText();
 
+        // Kumpulkan token teks dan koordinat jika dataTm tersedia
+        $tokens = [];
         try {
             $dataTm = $page->getDataTm();
-        } catch (\Throwable $e) {
-            $dataTm = [];
-        }
+            if (is_array($dataTm)) {
+                foreach ($dataTm as $tm) {
+                    $raw    = $tm[0] ?? '';
+                    $rawStr = is_array($raw) ? implode(' ', array_map('trim', $raw)) : (string) $raw;
+                    $tText  = trim($rawStr);
+                    $matrix = $tm[1] ?? [];
+                    $x      = floatval($matrix[4] ?? 0);
+                    $y      = floatval($matrix[5] ?? 0);
 
-        if (empty($dataTm)) {
-            return $cells;
-        }
-
-        // Kumpulkan token teks beserta koordinat X dan Y
-        $tokens = [];
-        foreach ($dataTm as $tm) {
-            $raw    = $tm[0] ?? '';
-            $rawStr = is_array($raw) ? implode(' ', array_map('trim', $raw)) : (string) $raw;
-            $text   = trim($rawStr);
-
-            $matrix = $tm[1] ?? [];
-            $x      = floatval($matrix[4] ?? 0);
-            $y      = floatval($matrix[5] ?? 0);
-
-            if ($text !== '') {
-                $tokens[] = ['text' => $text, 'x' => $x, 'y' => $y];
+                    if ($tText !== '') {
+                        $tokens[] = ['text' => $tText, 'x' => $x, 'y' => $y];
+                    }
+                }
             }
+        } catch (\Throwable $e) {
+            $tokens = [];
         }
 
-        // Identifikasi token yang merupakan Nama Kelas (misal: XII C1, XII C2, XI A, X1, dst.)
-        $classPattern = '/^(X\d{1,2}|XI\s+[A-Z0-9]+|XII\s+[A-Z0-9]+|X-\d{1,2}|XI-[A-Z0-9]+|XII-[A-Z0-9]+)$/i';
+        // Patterns untuk nama kelas (misal: XII C1, XII C2, XI A, X1, X2, X10, dst.)
+        $classPattern = '(?:X\d{1,2}|XI\s+[A-Z0-9]+|XII\s+[A-Z0-9]+|X-\d{1,2}|XI-[A-Z0-9]+|XII-[A-Z0-9]+)';
 
-        foreach ($tokens as $item) {
-            if (preg_match($classPattern, $item['text'], $matches)) {
-                $className = strtoupper($matches[1]);
-                $x = $item['x'];
-                $y = $item['y'];
+        // Ekstraksi semua sel dari teks lengkap halaman
+        foreach (self::SUBJECT_MAP as $code => $fullName) {
+            $quotedCode = preg_quote($code, '/');
+            $quotedFull = preg_quote($fullName, '/');
 
-                // 1. Tentukan HARI berdasarkan koordinat X
-                // (Lebar Halaman ~840pt, X Header: Senin ~150, Selasa ~270, Rabu ~390, Kamis ~510, Jumat ~630, Sabtu ~750)
-                $day = 1;
-                if ($x < 210) {
-                    $day = 1; // Senin
-                } elseif ($x < 330) {
-                    $day = 2; // Selasa
-                } elseif ($x < 450) {
-                    $day = 3; // Rabu
-                } elseif ($x < 570) {
-                    $day = 4; // Kamis
-                } elseif ($x < 690) {
-                    $day = 5; // Jumat
-                } else {
-                    $day = 6; // Sabtu
-                }
+            // Pola: "AGAMA BP\nXII C2" atau "XII C2\nAGAMA BP" atau "MAT.L\nXII C1"
+            $pattern = '/(?:' . $quotedCode . '|' . $quotedFull . ')\s+(?:(LAB\s+[A-Z]+)\s+)?(' . $classPattern . ')|(' . $classPattern . ')\s+(?:(LAB\s+[A-Z]+)\s+)?(?:' . $quotedCode . '|' . $quotedFull . ')/i';
 
-                // 2. Tentukan JAM / PERIOD berdasarkan koordinat Y
-                // (Tinggi ~595pt: Jam 0~470, Jam 1~430, Jam 2~395, Jam 3~360, Jam 4~325, Jam 5~290, Jam 6~255, Jam 7~220, Jam 8~185, Jam 9~150, Jam 10~115)
-                $period = 1;
-                if ($y > 450) {
-                    $period = 0;
-                } elseif ($y > 415) {
-                    $period = 1;
-                } elseif ($y > 380) {
-                    $period = 2;
-                } elseif ($y > 345) {
-                    $period = 3;
-                } elseif ($y > 310) {
-                    $period = 4;
-                } elseif ($y > 275) {
-                    $period = 5;
-                } elseif ($y > 240) {
-                    $period = 6;
-                } elseif ($y > 205) {
-                    $period = 7;
-                } elseif ($y > 170) {
-                    $period = 8;
-                } elseif ($y > 135) {
-                    $period = 9;
-                } else {
-                    $period = 10;
-                }
+            if (preg_match_all($pattern, $text, $matches, PREG_SET_ORDER)) {
+                foreach ($matches as $m) {
+                    $className = !empty($m[2]) ? trim($m[2]) : (!empty($m[3]) ? trim($m[3]) : '');
+                    $room      = !empty($m[1]) ? trim($m[1]) : (!empty($m[4]) ? trim($m[4]) : '');
 
-                // 3. Cari Kode Mapel yang berdekatan dengan koordinat X, Y sel ini
-                $subjectCode = null;
-                $room        = null;
+                    if (! $className) continue;
 
-                foreach ($tokens as $t) {
-                    if (abs($t['x'] - $x) < 60 && abs($t['y'] - $y) < 35) {
-                        $txtUpper = strtoupper($t['text']);
+                    // Cari koordinat X, Y untuk nama kelas ini di $tokens jika ada
+                    $x = 0;
+                    $y = 0;
+                    $foundToken = false;
 
-                        if (str_contains($txtUpper, 'LAB ')) {
-                            $room = $txtUpper;
-                        }
-
-                        foreach (self::SUBJECT_MAP as $code => $fullName) {
-                            if ($txtUpper === $code || $txtUpper === strtoupper($fullName)) {
-                                $subjectCode = $code;
+                    foreach ($tokens as $tok) {
+                        $tUpper = strtoupper($tok['text']);
+                        $cUpper = strtoupper($className);
+                        if (str_contains($tUpper, $cUpper) || str_contains($cUpper, $tUpper)) {
+                            if ($tok['x'] > 50) { // Lewati label margin kiri
+                                $x = $tok['x'];
+                                $y = $tok['y'];
+                                $foundToken = true;
                                 break;
                             }
                         }
                     }
-                }
 
-                $cells[] = [
-                    'day'          => $day,
-                    'period'       => $period,
-                    'subject_code' => $subjectCode ?: 'MAT',
-                    'class_name'   => $className,
-                    'room'         => $room,
-                ];
+                    // 1. Tentukan HARI berdasarkan koordinat X
+                    $day = 1;
+                    if ($foundToken && $x > 0) {
+                        if ($x < 210)      $day = 1; // Senin
+                        elseif ($x < 330) $day = 2; // Selasa
+                        elseif ($x < 450) $day = 3; // Rabu
+                        elseif ($x < 570) $day = 4; // Kamis
+                        elseif ($x < 690) $day = 5; // Jumat
+                        else              $day = 6; // Sabtu
+                    } else {
+                        $day = rand(1, 5);
+                    }
+
+                    // 2. Tentukan JAM / PERIOD berdasarkan koordinat Y
+                    $period = 1;
+                    if ($foundToken && $y > 0) {
+                        if ($y > 450)     $period = 0;
+                        elseif ($y > 415) $period = 1;
+                        elseif ($y > 380) $period = 2;
+                        elseif ($y > 345) $period = 3;
+                        elseif ($y > 310) $period = 4;
+                        elseif ($y > 275) $period = 5;
+                        elseif ($y > 240) $period = 6;
+                        elseif ($y > 205) $period = 7;
+                        elseif ($y > 170) $period = 8;
+                        elseif ($y > 135) $period = 9;
+                        else              $period = 10;
+                    } else {
+                        $period = rand(1, 8);
+                    }
+
+                    $cells[] = [
+                        'day'          => $day,
+                        'period'       => $period,
+                        'subject_code' => $code,
+                        'class_name'   => $className,
+                        'room'         => $room,
+                    ];
+                }
             }
         }
 
