@@ -40,7 +40,6 @@ class ImportSchedulePage extends Page
     public function mount(): void
     {
         $this->form->fill([
-            'grade_level'      => '10',
             'academic_year'    => '2026/2027 Ganjil',
             'replace_existing' => true,
         ]);
@@ -50,36 +49,27 @@ class ImportSchedulePage extends Page
     {
         return $schema
             ->components([
-                Select::make('grade_level')
-                    ->label('Tingkat Kelas')
-                    ->options([
-                        '10' => 'Kelas 10 (X)',
-                        '11' => 'Kelas 11 (XI)',
-                        '12' => 'Kelas 12 (XII)',
-                    ])
-                    ->required()
-                    ->native(false),
-
                 TextInput::make('academic_year')
                     ->label('Tahun Ajaran & Semester')
                     ->default('2026/2027 Ganjil')
-                    ->required(),
+                    ->required()
+                    ->helperText('Jadwal baru akan disimpan untuk tahun ajaran ini.'),
 
                 Toggle::make('replace_existing')
-                    ->label('Hapus & Timpa Jadwal Lama Kelas Ini')
+                    ->label('Otomatis Hapus & Gantikan Jadwal Lama')
                     ->default(true)
-                    ->helperText('Jika diaktifkan, jadwal lama untuk kelas di tingkat ini pada tahun ajaran tersebut akan digantikan.'),
+                    ->helperText('Jadwal lama pada tahun ajaran ini akan otomatis dibersihkan dan digantikan dengan jadwal baru dari PDF.'),
 
                 FileUpload::make('file')
-                    ->label('File Jadwal (PDF / Excel aSc Timetables)')
-                    ->helperText('Upload file PDF aSc Timetables atau file Excel (.xlsx/.csv). Per halaman PDF mewakili 1 kelas.')
+                    ->label('File Master PDF / Excel Jadwal (aSc Timetables)')
+                    ->helperText('Unggah file PDF master jadwal (berisi seluruh guru & kelas). Sistem otomatis membaca semua kelas 10, 11, 12.')
                     ->acceptedFileTypes([
                         'application/pdf',
                         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
                         'application/vnd.ms-excel',
                         'text/csv',
                     ])
-                    ->maxSize(15360) // 15MB
+                    ->maxSize(20480) // 20MB
                     ->required()
                     ->storeFiles(false),
             ])
@@ -87,7 +77,7 @@ class ImportSchedulePage extends Page
     }
 
     /**
-     * Langkah 1: Parsing file PDF / Excel
+     * Langkah 1: Parsing file PDF / Excel Master
      */
     public function startParsing(ScheduleImportService $service): void
     {
@@ -99,15 +89,15 @@ class ImportSchedulePage extends Page
             return;
         }
 
-        $filePath = $uploadedFile->getRealPath();
-        $mimeType = $uploadedFile->getMimeType();
-
-        $this->selectedGrade   = $state['grade_level'] ?? '10';
         $this->academicYear    = $state['academic_year'] ?? '2026/2027 Ganjil';
         $this->replaceExisting = (bool) ($state['replace_existing'] ?? true);
+        $this->selectedGrade   = 'Semua Kelas (10, 11, 12)';
 
         try {
-            $items = $service->parseFile($filePath, $mimeType, $this->selectedGrade);
+            $filePath = $uploadedFile->getRealPath();
+            $mimeType = $uploadedFile->getMimeType();
+
+            $items = $service->parseFile($filePath, $mimeType, 'ALL');
 
             if (empty($items)) {
                 Notification::make()
@@ -123,7 +113,7 @@ class ImportSchedulePage extends Page
 
             Notification::make()
                 ->title('File Berhasil Diparsing!')
-                ->body('Ditemukan ' . count($items) . ' slot jadwal pelajaran. Silakan periksa tabel pratinjau di bawah.')
+                ->body('Ditemukan ' . count($items) . ' slot jadwal pelajaran master. Silakan periksa tabel pratinjau di bawah.')
                 ->success()
                 ->send();
         } catch (\Throwable $e) {

@@ -310,10 +310,8 @@ class ScheduleImportService
         return DB::transaction(function () use ($confirmedItems, $academicYear, $replaceExisting) {
             $classIds = collect($confirmedItems)->pluck('class_id')->filter()->unique()->toArray();
 
-            if ($replaceExisting && ! empty($classIds)) {
-                Schedule::whereIn('class_id', $classIds)
-                    ->where('academic_year', $academicYear)
-                    ->delete();
+            if ($replaceExisting) {
+                Schedule::where('academic_year', $academicYear)->delete();
             }
 
             $count = 0;
