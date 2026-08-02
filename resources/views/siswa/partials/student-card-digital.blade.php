@@ -15,19 +15,19 @@
 
     {{-- Container Kartu (KTP Aspect Ratio 85.6/54, Max Width 440px) --}}
     <div class="relative w-full max-w-[440px] mx-auto cursor-pointer"
-         style="aspect-ratio: 85.6 / 54; -webkit-perspective: 1200px; perspective: 1200px;"
+         style="container-type: inline-size; @container (inline-size); aspect-ratio: 85.6 / 54; -webkit-perspective: 1200px; perspective: 1200px; -webkit-tap-highlight-color: transparent;"
          @click="flipped = !flipped">
 
         {{-- Flip Inner Container --}}
-        <div class="w-full h-full relative"
-             style="-webkit-transform-style: preserve-3d; transform-style: preserve-3d; -webkit-transition: -webkit-transform 0.6s ease, transform 0.6s ease; transition: transform 0.6s ease;"
+        <div class="absolute inset-0 w-full h-full"
+             style="-webkit-transform-style: preserve-3d; transform-style: preserve-3d; -webkit-transition: -webkit-transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1), transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1); transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);"
              :style="{ transform: flipped ? 'rotateY(180deg)' : 'rotateY(0deg)', '-webkit-transform': flipped ? 'rotateY(180deg)' : 'rotateY(0deg)' }">
 
             {{-- ══════════════════════════════════════════════════════════════ --}}
             {{-- SISI DEPAN (FRONT CARD) --}}
             {{-- ══════════════════════════════════════════════════════════════ --}}
             <div class="absolute inset-0 rounded-2xl overflow-hidden shadow-xl flex flex-col bg-[#f8f7f4]"
-                 style="-webkit-backface-visibility: hidden; backface-visibility: hidden; -webkit-transform: rotateY(0deg) translateZ(1px); transform: rotateY(0deg) translateZ(1px); font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                 style="-webkit-backface-visibility: hidden !important; backface-visibility: hidden !important; -webkit-transform-style: preserve-3d; transform-style: preserve-3d; -webkit-transform: rotateY(0deg) translateZ(1px); transform: rotateY(0deg) translateZ(1px); font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
 
                 {{-- Header Biru SMAN 1 Gianyar --}}
                 <div style="background: linear-gradient(135deg, #0a3880 0%, #1565c0 60%, #1976d2 100%); padding: 2.5% 3.5%; display: flex; align-items: center; gap: 3%; border-bottom: 1px solid rgba(10,56,128,0.3); flex-shrink: 0;">
@@ -38,17 +38,17 @@
                     </div>
 
                     <div style="flex: 1; min-width: 0; line-height: 1.15;">
-                        <p style="font-weight: 800; color: #ffffff; text-transform: uppercase; letter-spacing: 0.04em; font-size: clamp(10px, 3.2vw, 15.5px); margin: 0; font-family: 'Oswald', system-ui, sans-serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                        <p style="font-weight: 800; color: #ffffff; text-transform: uppercase; letter-spacing: 0.04em; font-size: clamp(10px, 3.2cqw, 15.5px); margin: 0; font-family: 'Oswald', system-ui, sans-serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                             SMA Negeri 1 Gianyar
                         </p>
-                        <p style="color: rgba(255,255,255,0.9); font-size: clamp(5.5px, 1.7vw, 8.5px); margin-top: 1px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                        <p style="color: rgba(255,255,255,0.9); font-size: clamp(5.5px, 1.7cqw, 8.5px); margin-top: 1px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                             Jl. Ratna No.1, Gianyar, Bali 80511 · Telp. (0361) 943443
                         </p>
                     </div>
 
                     {{-- Badge KARTU PELAJAR --}}
                     <div style="flex-shrink: 0; border: 1px solid rgba(255,255,255,0.4); border-radius: 5px; padding: 1.5% 2.5%; text-align: center; background: rgba(255,255,255,0.18);">
-                        <p style="font-weight: 900; color: #ffffff; font-size: clamp(5.5px, 1.7vw, 9px); letter-spacing: 0.1em; text-transform: uppercase; line-height: 1.2; margin: 0;">
+                        <p style="font-weight: 900; color: #ffffff; font-size: clamp(5.5px, 1.7cqw, 9px); letter-spacing: 0.1em; text-transform: uppercase; line-height: 1.2; margin: 0;">
                             KARTU<br>PELAJAR
                         </p>
                     </div>
@@ -67,7 +67,7 @@
 
                     {{-- Foto Siswa 3x4 --}}
                     <div style="flex-shrink: 0; margin-right: 3.5%; display: flex; align-items: flex-start;">
-                        <div style="width: 16.5vw; max-width: 72px; aspect-ratio: 3/4; border: 1.5px solid #1565c0; background: #dce8f8; border-radius: 6px; overflow: hidden; box-shadow: 0 2px 8px rgba(21,101,192,0.2);">
+                        <div style="width: 17.5cqw; max-width: 74px; aspect-ratio: 3/4; border: 1.5px solid #1565c0; background: #dce8f8; border-radius: 6px; overflow: hidden; box-shadow: 0 2px 8px rgba(21,101,192,0.2);">
                             @if($siswa->photo)
                                 <img src="{{ $siswa->photo_url }}" style="width: 100%; height: 100%; object-fit: cover; object-position: top; display: block;">
                             @else
@@ -84,7 +84,7 @@
                     {{-- Data Siswa Detail --}}
                     <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: space-between; position: relative; z-index: 10;">
                         <div>
-                            <p style="font-weight: 900; color: #0a3880; font-size: clamp(7.5px, 2.3vw, 12px); letter-spacing: 0.12em; text-align: center; text-transform: uppercase; text-decoration: underline; margin: 0 0 2px 0;">
+                            <p style="font-weight: 900; color: #0a3880; font-size: clamp(7.5px, 2.3cqw, 12px); letter-spacing: 0.12em; text-align: center; text-transform: uppercase; text-decoration: underline; margin: 0 0 2px 0;">
                                 KARTU PELAJAR
                             </p>
 
@@ -104,10 +104,10 @@
 
                             <div style="display: flex; flex-direction: column; gap: 1.5px;">
                                 @foreach($rows as $r)
-                                <div style="display: flex; align-items: center; font-size: clamp(6px, 1.85vw, 10px); line-height: 1.3;">
-                                    <span style="width: 26%; color: #4b5563; flex-shrink: 0; font-weight: 600;">{{ $r['label'] }}</span>
+                                <div style="display: flex; align-items: center; font-size: clamp(6px, 1.9cqw, 10px); line-height: 1.3;">
+                                    <span style="width: 25%; color: #4b5563; flex-shrink: 0; font-weight: 600;">{{ $r['label'] }}</span>
                                     <span style="color: #6b7280; flex-shrink: 0; margin-right: 4px;">:</span>
-                                    <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; {{ !empty($r['isName']) ? 'color: #0a3880; font-weight: 900; font-size: clamp(6.5px, 2.05vw, 11px); letter-spacing: 0.02em;' : (!empty($r['highlight']) ? 'color: #92400e; font-weight: 800;' : (!empty($r['bold']) ? 'color: #111827; font-weight: 800;' : 'color: #1f2937; font-weight: 700;')) }}">
+                                    <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; {{ !empty($r['isName']) ? 'color: #0a3880; font-weight: 900; font-size: clamp(6.5px, 2.1cqw, 11px); letter-spacing: 0.02em;' : (!empty($r['highlight']) ? 'color: #92400e; font-weight: 800;' : (!empty($r['bold']) ? 'color: #111827; font-weight: 800;' : 'color: #1f2937; font-weight: 700;')) }}">
                                         {{ $r['value'] }}
                                     </span>
                                 </div>
@@ -117,26 +117,26 @@
 
                         {{-- Footer Tanda Tangan & Masa Berlaku --}}
                         <div style="display: flex; justify-content: space-between; align-items: flex-end; padding-top: 1px;">
-                            <p style="font-size: clamp(4.5px, 1.4vw, 7.5px); color: #6b7280; font-style: italic; line-height: 1.25; margin: 0; font-weight: 500;">
+                            <p style="font-size: clamp(4.5px, 1.4cqw, 7.5px); color: #6b7280; font-style: italic; line-height: 1.25; margin: 0; font-weight: 500;">
                                 Berlaku selama menjadi<br>siswa SMAN 1 Gianyar
                             </p>
                             <div style="text-align: center; flex-shrink: 0;">
-                                <p style="font-size: clamp(4.5px, 1.4vw, 7.5px); color: #374151; font-weight: 500; margin: 0;">
+                                <p style="font-size: clamp(4.5px, 1.4cqw, 7.5px); color: #374151; font-weight: 500; margin: 0;">
                                     Gianyar, 13 Juli 2026
                                 </p>
-                                <p style="font-size: clamp(4.5px, 1.4vw, 7.5px); color: #374151; font-weight: 600; margin: 0 0 1px 0;">
+                                <p style="font-size: clamp(4.5px, 1.4cqw, 7.5px); color: #374151; font-weight: 600; margin: 0 0 1px 0;">
                                     Kepala Sekolah,
                                 </p>
 
                                 {{-- Barcode / QR Code Verifikasi Keabsahan Kepsek --}}
-                                <div style="width: 6.5vw; max-width: 28px; aspect-ratio: 1; margin: 1px auto 2px auto; padding: 1px; background: #ffffff; border: 0.8px solid #cbd5e1; border-radius: 3px; box-shadow: 0 1px 2px rgba(0,0,0,0.06);" title="Scan untuk verifikasi keabsahan kartu pelajar">
+                                <div style="width: 6.5cqw; max-width: 28px; aspect-ratio: 1; margin: 1px auto 2px auto; padding: 1px; background: #ffffff; border: 0.8px solid #cbd5e1; border-radius: 3px; box-shadow: 0 1px 2px rgba(0,0,0,0.06);" title="Scan untuk verifikasi keabsahan kartu pelajar">
                                     <img src="{{ $qrKepsekSvg }}" alt="QR Verifikasi Resmi" style="width: 100%; height: 100%; object-fit: contain; display: block;">
                                 </div>
 
-                                <p style="font-size: clamp(4.5px, 1.45vw, 8px); color: #111827; font-weight: 800; text-decoration: underline; margin: 0; white-space: nowrap;">
+                                <p style="font-size: clamp(4.5px, 1.45cqw, 8px); color: #111827; font-weight: 800; text-decoration: underline; margin: 0; white-space: nowrap;">
                                     I Wayan Sudra Astra, S.Pd., M.Pd.
                                 </p>
-                                <p style="font-size: clamp(4px, 1.25vw, 7px); color: #4b5563; font-weight: 600; margin: 0.5px 0 0 0; white-space: nowrap;">
+                                <p style="font-size: clamp(4px, 1.25cqw, 7px); color: #4b5563; font-weight: 600; margin: 0.5px 0 0 0; white-space: nowrap;">
                                     NIP. 19710415 199703 1 007
                                 </p>
                             </div>
