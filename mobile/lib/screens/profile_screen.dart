@@ -633,22 +633,42 @@ class _ChangePasswordCard extends StatelessWidget {
           const Text('Ganti Password',
             style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.gray700)),
           const SizedBox(height: 10),
-          // Alert Box Syarat Password
+          // Alert Box Syarat Password (Sama persis dengan Web)
           Container(
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: const Color(0xFFFFFBEB),
               border: Border.all(color: const Color(0xFFFCD34D)),
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(10),
             ),
-            child: const Row(
-              children: [
-                Icon(Icons.info_outline_rounded, color: Color(0xFFD97706), size: 18),
-                SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    'Syarat Password Baru: Wajib minimal 8 karakter dan sama persis dengan konfirmasi.',
-                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF92400E)),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: const [
+                Row(
+                  children: [
+                    Icon(Icons.info_outline_rounded, color: Color(0xFFD97706), size: 16),
+                    SizedBox(width: 6),
+                    Text(
+                      'Syarat Ketentuan Password Baru:',
+                      style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: Color(0xFF78350F)),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 6),
+                Padding(
+                  padding: EdgeInsets.only(left: 22),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('• Panjang password minimal 8 karakter.',
+                        style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: Color(0xFF92400E))),
+                      SizedBox(height: 2),
+                      Text('• Password Baru & Konfirmasi harus sama persis.',
+                        style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: Color(0xFF92400E))),
+                      SizedBox(height: 2),
+                      Text('• Gunakan kombinasi angka atau huruf yang mudah Anda ingat.',
+                        style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: Color(0xFF92400E))),
+                    ],
                   ),
                 ),
               ],

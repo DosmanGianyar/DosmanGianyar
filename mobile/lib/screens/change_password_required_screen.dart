@@ -145,14 +145,44 @@ class _ChangePasswordRequiredScreenState extends State<ChangePasswordRequiredScr
               children: [
                 Container(
                   decoration: BoxDecoration(
-                    color:        AppColors.yellow50,
+                    color:        const Color(0xFFFFFBEB),
                     borderRadius: AppRadius.card,
-                    border:       Border.all(color: AppColors.amber100),
+                    border:       Border.all(color: const Color(0xFFFCD34D)),
                   ),
-                  padding: const EdgeInsets.all(14),
-                  child: const Text(
-                    'Demi keamanan akun, Anda wajib mengganti password default sebelum melanjutkan.',
-                    style: TextStyle(fontSize: 12.5, color: AppColors.yellow600, height: 1.4),
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: const [
+                      Row(
+                        children: [
+                          Icon(Icons.info_outline_rounded, color: Color(0xFFD97706), size: 16),
+                          SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              'Demi keamanan akun, Anda wajib mengganti password default sebelum melanjutkan.',
+                              style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: Color(0xFF78350F)),
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 6),
+                      Padding(
+                        padding: EdgeInsets.only(left: 22),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('• Panjang password minimal 8 karakter.',
+                              style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: Color(0xFF92400E))),
+                            SizedBox(height: 2),
+                            Text('• Password Baru & Konfirmasi harus sama persis.',
+                              style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: Color(0xFF92400E))),
+                            SizedBox(height: 2),
+                            Text('• Gunakan kombinasi angka atau huruf yang mudah Anda ingat.',
+                              style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: Color(0xFF92400E))),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 16),
