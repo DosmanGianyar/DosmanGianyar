@@ -55,14 +55,14 @@ class AdminPanelProvider extends PanelProvider
                     ->sort(20),
             ])
             ->navigationGroups([
-                NavigationGroup::make('Manajemen User')->collapsed(fn (NavigationGroup $group) => ! $group->isActive()),
-                NavigationGroup::make('Kesiswaan')->collapsed(fn (NavigationGroup $group) => ! $group->isActive()),
-                NavigationGroup::make('Kurikulum')->collapsed(fn (NavigationGroup $group) => ! $group->isActive()),
-                NavigationGroup::make('Akademik')->collapsed(fn (NavigationGroup $group) => ! $group->isActive()),
-                NavigationGroup::make('Sarpras')->collapsed(fn (NavigationGroup $group) => ! $group->isActive()),
-                NavigationGroup::make('Humas')->collapsed(fn (NavigationGroup $group) => ! $group->isActive()),
-                NavigationGroup::make('E-Voting')->collapsed(fn (NavigationGroup $group) => ! $group->isActive()),
-                NavigationGroup::make('Sistem')->collapsed(fn (NavigationGroup $group) => ! $group->isActive()),
+                NavigationGroup::make('Manajemen User'),
+                NavigationGroup::make('Kesiswaan'),
+                NavigationGroup::make('Kurikulum'),
+                NavigationGroup::make('Akademik'),
+                NavigationGroup::make('Sarpras'),
+                NavigationGroup::make('Humas'),
+                NavigationGroup::make('E-Voting'),
+                NavigationGroup::make('Sistem'),
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
