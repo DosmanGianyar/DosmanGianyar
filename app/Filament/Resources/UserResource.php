@@ -6,6 +6,7 @@ use App\Filament\Resources\UserResource\Pages;
 use App\Models\SchoolClass;
 use App\Models\User;
 use Filament\Actions\Action;
+use Filament\Actions\BulkAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
@@ -28,6 +29,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\HtmlString;
@@ -395,6 +397,25 @@ class UserResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
+                SelectFilter::make('nisn_length')
+                    ->label('Validasi Digit NISN')
+                    ->options([
+                        'invalid_9' => '⚠️ NISN 9 Digit (Kurang 0 di Depan)',
+                        'less_10'   => '⚠️ Semua NISN < 10 Digit',
+                        'valid_10'  => '✅ NISN Valid (10 Digit)',
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return match ($data['value'] ?? null) {
+                            'invalid_9' => $query->whereIn('role', ['siswa', 'pengelola'])
+                                                 ->whereRaw('LENGTH(TRIM(nisn)) = 9'),
+                            'less_10'   => $query->whereIn('role', ['siswa', 'pengelola'])
+                                                 ->whereRaw('LENGTH(TRIM(nisn)) > 0 AND LENGTH(TRIM(nisn)) < 10'),
+                            'valid_10'  => $query->whereIn('role', ['siswa', 'pengelola'])
+                                                 ->whereRaw('LENGTH(TRIM(nisn)) >= 10'),
+                            default     => $query,
+                        };
+                    }),
+
                 SelectFilter::make('role')
                     ->label('Tipe Siswa')
                     ->options([
@@ -425,6 +446,25 @@ class UserResource extends Resource
                 ViewAction::make()->iconButton()
                     ->visible(fn (User $record): bool => in_array($record->role, ['siswa', 'pengelola'])),
                 EditAction::make()->iconButton(),
+                Action::make('padSingleNisn')
+                    ->label('Fix NISN (+0)')
+                    ->icon('heroicon-o-plus-circle')
+                    ->color('warning')
+                    ->iconButton()
+                    ->visible(fn (User $record): bool => in_array($record->role, ['siswa', 'pengelola']) && strlen(trim((string) $record->nisn)) === 9)
+                    ->tooltip('Tambah 0 di depan NISN (menjadi 10 digit)')
+                    ->requiresConfirmation()
+                    ->modalHeading('Tambahkan angka 0 di depan NISN?')
+                    ->modalDescription(fn (User $record): string => "Ubah NISN '{$record->nisn}' milik {$record->name} menjadi '0{$record->nisn}' (10 digit)?")
+                    ->action(function (User $record): void {
+                        $oldNisn = trim((string) $record->nisn);
+                        $newNisn = '0' . $oldNisn;
+                        $record->update(['nisn' => $newNisn]);
+                        Notification::make()
+                            ->title("NISN {$record->name} berhasil diubah ke 10 digit: {$newNisn}.")
+                            ->success()
+                            ->send();
+                    }),
                 Action::make('resetDevice')
                     ->label('Reset Perangkat')
                     ->icon(fn (User $record): string => $record->hasDeviceLocked()
@@ -457,6 +497,29 @@ class UserResource extends Resource
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
+                    BulkAction::make('pad_nisn_zeros')
+                        ->label('Fix NISN 9 Digit (Tambahkan 0 di Depan)')
+                        ->icon('heroicon-o-sparkles')
+                        ->color('warning')
+                        ->requiresConfirmation()
+                        ->modalHeading('Perbaiki NISN 9 Digit Terpilih?')
+                        ->modalDescription('Semua siswa terpilih yang memiliki NISN 9 digit akan ditambahkan angka 0 di depan secara otomatis menjadi 10 digit.')
+                        ->action(function (Collection $records): void {
+                            $fixedCount = 0;
+                            foreach ($records as $record) {
+                                if (in_array($record->role, ['siswa', 'pengelola'], true) && $record->nisn) {
+                                    $val = trim((string) $record->nisn);
+                                    if (strlen($val) === 9) {
+                                        $record->update(['nisn' => '0' . $val]);
+                                        $fixedCount++;
+                                    }
+                                }
+                            }
+                            Notification::make()
+                                ->title("{$fixedCount} NISN siswa berhasil diperbaiki (ditambahkan 0 di depan).")
+                                ->success()
+                                ->send();
+                        }),
                     DeleteBulkAction::make(),
                 ]),
             ])
