@@ -22,7 +22,7 @@
          bawaan sistem / document picker, tidak memerlukan permission penyimpanan. -->
 
     <application
-        android:label="DOSMAN"
+        android:label="SIMS SMAN 1 Gianyar"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher_round"
