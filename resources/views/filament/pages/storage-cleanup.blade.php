@@ -11,7 +11,6 @@
             border-radius: 0.75rem;
             padding: 1.25rem 1.5rem;
             box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            transition: all 0.2s ease-in-out;
         }
         .dark .sc-card {
             background-color: #111827;
@@ -25,13 +24,52 @@
             color: #92400e;
             display: flex;
             align-items: flex-start;
-            gap: 0.75rem;
+            gap: 0.875rem;
         }
         .dark .sc-alert {
             background-color: rgba(245, 158, 11, 0.12);
             border-color: rgba(245, 158, 11, 0.4);
             color: #fef3c7;
         }
+
+        /* Enforce strict SVG dimensions so icons never blow up */
+        .sc-alert svg,
+        .sc-alert img {
+            width: 24px !important;
+            height: 24px !important;
+            min-width: 24px !important;
+            min-height: 24px !important;
+            max-width: 24px !important;
+            max-height: 24px !important;
+        }
+        .sc-icon-lg svg,
+        .sc-icon-lg img {
+            width: 32px !important;
+            height: 32px !important;
+            min-width: 32px !important;
+            min-height: 32px !important;
+            max-width: 32px !important;
+            max-height: 32px !important;
+        }
+        .sc-icon-md svg,
+        .sc-icon-md img {
+            width: 24px !important;
+            height: 24px !important;
+            min-width: 24px !important;
+            min-height: 24px !important;
+            max-width: 24px !important;
+            max-height: 24px !important;
+        }
+        .sc-icon-sm svg,
+        .sc-icon-sm img {
+            width: 18px !important;
+            height: 18px !important;
+            min-width: 18px !important;
+            min-height: 18px !important;
+            max-width: 18px !important;
+            max-height: 18px !important;
+        }
+
         .sc-input {
             width: 100%;
             border-radius: 0.5rem;
@@ -91,7 +129,9 @@
 
         {{-- Alert Info Keamanan --}}
         <div class="sc-alert">
-            <x-heroicon-o-information-circle class="w-6 h-6 text-amber-500 shrink-0 mt-0.5" />
+            <div class="sc-icon-md text-amber-500 shrink-0 mt-0.5" style="width: 24px; height: 24px;">
+                <x-heroicon-o-information-circle style="width: 24px; height: 24px;" />
+            </div>
             <div class="text-sm leading-relaxed">
                 <strong class="font-bold block text-base mb-1">💡 Petunjuk Pembersihan Disk Server:</strong>
                 Fitur ini menghapus <strong>file foto fisik & file lampiran surat</strong> di folder storage server untuk membebaskan ruang disk.
@@ -112,8 +152,8 @@
                         Total <strong>{{ number_format($attStats['files']) }}</strong> file foto ({{ number_format($attStats['records']) }} data presensi)
                     </p>
                 </div>
-                <div class="p-3 bg-red-500/10 text-red-600 dark:text-red-400 rounded-xl">
-                    <x-heroicon-o-camera class="w-8 h-8" />
+                <div class="sc-icon-lg p-3 bg-red-500/10 text-red-600 dark:text-red-400 rounded-xl" style="width: 56px; height: 56px; display: flex; align-items: center; justify-content: center;">
+                    <x-heroicon-o-camera style="width: 32px; height: 32px;" />
                 </div>
             </div>
 
@@ -125,8 +165,8 @@
                         Total <strong>{{ number_format($permitStats['files']) }}</strong> file surat ({{ number_format($permitStats['records']) }} pengajuan)
                     </p>
                 </div>
-                <div class="p-3 bg-purple-500/10 text-purple-600 dark:text-purple-400 rounded-xl">
-                    <x-heroicon-o-document-text class="w-8 h-8" />
+                <div class="sc-icon-lg p-3 bg-purple-500/10 text-purple-600 dark:text-purple-400 rounded-xl" style="width: 56px; height: 56px; display: flex; align-items: center; justify-content: center;">
+                    <x-heroicon-o-document-text style="width: 32px; height: 32px;" />
                 </div>
             </div>
         </div>
@@ -134,8 +174,8 @@
         {{-- SECTION 1: Pembersihan Foto Selfie Presensi --}}
         <div class="sc-card space-y-4">
             <div class="flex items-center gap-3 border-b border-gray-200 dark:border-gray-800 pb-4">
-                <div class="p-2 rounded-lg bg-red-500/10 text-red-600 dark:text-red-400">
-                    <x-heroicon-o-photo class="w-6 h-6" />
+                <div class="sc-icon-md p-2 rounded-lg bg-red-500/10 text-red-600 dark:text-red-400" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                    <x-heroicon-o-photo style="width: 24px; height: 24px;" />
                 </div>
                 <div>
                     <h2 class="text-lg font-bold text-gray-900 dark:text-white">1. Pembersihan Foto Selfie Presensi (Masuk & Pulang)</h2>
@@ -168,7 +208,9 @@
                     "
                     class="sc-btn-danger"
                 >
-                    <x-heroicon-o-trash class="w-4 h-4" />
+                    <div class="sc-icon-sm" style="width: 18px; height: 18px; display: flex; align-items: center;">
+                        <x-heroicon-o-trash style="width: 18px; height: 18px;" />
+                    </div>
                     Hapus Foto Presensi
                 </button>
             </div>
@@ -177,8 +219,8 @@
         {{-- SECTION 2: Pembersihan File Surat Lampiran (Izin / Sakit / Dispensasi) --}}
         <div class="sc-card space-y-4">
             <div class="flex items-center gap-3 border-b border-gray-200 dark:border-gray-800 pb-4">
-                <div class="p-2 rounded-lg bg-purple-500/10 text-purple-600 dark:text-purple-400">
-                    <x-heroicon-o-document-duplicate class="w-6 h-6" />
+                <div class="sc-icon-md p-2 rounded-lg bg-purple-500/10 text-purple-600 dark:text-purple-400" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                    <x-heroicon-o-document-duplicate style="width: 24px; height: 24px;" />
                 </div>
                 <div>
                     <h2 class="text-lg font-bold text-gray-900 dark:text-white">2. Pembersihan File Surat Lampiran (Izin, Sakit, Dispensasi)</h2>
@@ -211,7 +253,9 @@
                     "
                     class="sc-btn-purple"
                 >
-                    <x-heroicon-o-trash class="w-4 h-4" />
+                    <div class="sc-icon-sm" style="width: 18px; height: 18px; display: flex; align-items: center;">
+                        <x-heroicon-o-trash style="width: 18px; height: 18px;" />
+                    </div>
                     Hapus File Surat Lampiran
                 </button>
             </div>
