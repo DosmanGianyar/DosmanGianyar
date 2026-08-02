@@ -88,7 +88,7 @@ class ScheduleImportService
 
             if ($teacherHeader) {
                 // Tipe Jadwal Per Guru: Nama Guru Lengkap ada di Header Halaman
-                $extractedCells = $this->extractCellsFromTeacherPdf($text, $lines, $teacherHeader);
+                $extractedCells = $this->extractCellsFromTeacherPdf($page, $teacherHeader);
                 foreach ($extractedCells as $cell) {
                     $rawItems[] = array_merge($cell, [
                         'teacher_raw'  => $teacherHeader,
@@ -460,33 +460,114 @@ class ScheduleImportService
         return null;
     }
 
-    protected function extractCellsFromTeacherPdf(string $text, array $lines, string $teacherName): array
+    protected function extractCellsFromTeacherPdf($page, string $teacherName): array
     {
         $cells = [];
-        $classPattern = '(?:X\d{1,2}|XI\s+[A-Z0-9]+|XII\s+[A-Z0-9]+|X-\d{1,2}|XI-[A-Z0-9]+|XII-[A-Z0-9]+)';
 
-        foreach (self::SUBJECT_MAP as $code => $fullName) {
-            $quotedCode = preg_quote($code, '/');
-            $quotedFull = preg_quote($fullName, '/');
+        try {
+            $dataTm = $page->getDataTm();
+        } catch (\Throwable $e) {
+            $dataTm = [];
+        }
 
-            // Regex pola: "XII B4\nAGAMA BP" atau "AGAMA BP\nXII C2" atau "X1\nSENI"
-            $pattern = '/(?:' . $quotedCode . '|' . $quotedFull . ')\s+(?:(LAB\s+[A-Z]+)\s+)?(' . $classPattern . ')|(' . $classPattern . ')\s+(?:(LAB\s+[A-Z]+)\s+)?(?:' . $quotedCode . '|' . $quotedFull . ')/i';
+        if (empty($dataTm)) {
+            return $cells;
+        }
 
-            if (preg_match_all($pattern, $text, $matches, PREG_SET_ORDER)) {
-                foreach ($matches as $m) {
-                    $className = !empty($m[2]) ? $m[2] : (!empty($m[3]) ? $m[3] : '');
-                    $room      = !empty($m[1]) ? $m[1] : (!empty($m[4]) ? $m[4] : '');
+        // Kumpulkan token teks beserta koordinat X dan Y
+        $tokens = [];
+        foreach ($dataTm as $tm) {
+            $text   = trim($tm[0] ?? '');
+            $matrix = $tm[1] ?? [];
+            $x      = floatval($matrix[4] ?? 0);
+            $y      = floatval($matrix[5] ?? 0);
 
-                    if ($className) {
-                        $cells[] = [
-                            'day'          => rand(1, 5), // default slot (dapat diubah di UI pratinjau)
-                            'period'       => rand(1, 8),
-                            'subject_code' => $code,
-                            'class_name'   => $className,
-                            'room'         => $room,
-                        ];
+            if ($text !== '') {
+                $tokens[] = ['text' => $text, 'x' => $x, 'y' => $y];
+            }
+        }
+
+        // Identifikasi token yang merupakan Nama Kelas (misal: XII C1, XII C2, XI A, X1, dst.)
+        $classPattern = '/^(X\d{1,2}|XI\s+[A-Z0-9]+|XII\s+[A-Z0-9]+|X-\d{1,2}|XI-[A-Z0-9]+|XII-[A-Z0-9]+)$/i';
+
+        foreach ($tokens as $item) {
+            if (preg_match($classPattern, $item['text'], $matches)) {
+                $className = strtoupper($matches[1]);
+                $x = $item['x'];
+                $y = $item['y'];
+
+                // 1. Tentukan HARI berdasarkan koordinat X
+                // (Lebar Halaman ~840pt, X Header: Senin ~150, Selasa ~270, Rabu ~390, Kamis ~510, Jumat ~630, Sabtu ~750)
+                $day = 1;
+                if ($x < 210) {
+                    $day = 1; // Senin
+                } elseif ($x < 330) {
+                    $day = 2; // Selasa
+                } elseif ($x < 450) {
+                    $day = 3; // Rabu
+                } elseif ($x < 570) {
+                    $day = 4; // Kamis
+                } elseif ($x < 690) {
+                    $day = 5; // Jumat
+                } else {
+                    $day = 6; // Sabtu
+                }
+
+                // 2. Tentukan JAM / PERIOD berdasarkan koordinat Y
+                // (Tinggi ~595pt: Jam 0~470, Jam 1~430, Jam 2~395, Jam 3~360, Jam 4~325, Jam 5~290, Jam 6~255, Jam 7~220, Jam 8~185, Jam 9~150, Jam 10~115)
+                $period = 1;
+                if ($y > 450) {
+                    $period = 0;
+                } elseif ($y > 415) {
+                    $period = 1;
+                } elseif ($y > 380) {
+                    $period = 2;
+                } elseif ($y > 345) {
+                    $period = 3;
+                } elseif ($y > 310) {
+                    $period = 4;
+                } elseif ($y > 275) {
+                    $period = 5;
+                } elseif ($y > 240) {
+                    $period = 6;
+                } elseif ($y > 205) {
+                    $period = 7;
+                } elseif ($y > 170) {
+                    $period = 8;
+                } elseif ($y > 135) {
+                    $period = 9;
+                } else {
+                    $period = 10;
+                }
+
+                // 3. Cari Kode Mapel yang berdekatan dengan koordinat X, Y sel ini
+                $subjectCode = null;
+                $room        = null;
+
+                foreach ($tokens as $t) {
+                    if (abs($t['x'] - $x) < 60 && abs($t['y'] - $y) < 35) {
+                        $txtUpper = strtoupper($t['text']);
+
+                        if (str_contains($txtUpper, 'LAB ')) {
+                            $room = $txtUpper;
+                        }
+
+                        foreach (self::SUBJECT_MAP as $code => $fullName) {
+                            if ($txtUpper === $code || $txtUpper === strtoupper($fullName)) {
+                                $subjectCode = $code;
+                                break;
+                            }
+                        }
                     }
                 }
+
+                $cells[] = [
+                    'day'          => $day,
+                    'period'       => $period,
+                    'subject_code' => $subjectCode ?: 'MAT',
+                    'class_name'   => $className,
+                    'room'         => $room,
+                ];
             }
         }
 
