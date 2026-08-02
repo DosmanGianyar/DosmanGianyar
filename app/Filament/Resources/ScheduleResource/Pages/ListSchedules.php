@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\ScheduleResource\Pages;
 
 use App\Filament\Resources\ScheduleResource;
+use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 
@@ -12,6 +13,13 @@ class ListSchedules extends ListRecords
 
     protected function getHeaderActions(): array
     {
-        return [CreateAction::make()];
+        return [
+            Action::make('importPdf')
+                ->label('Import PDF / Excel')
+                ->icon('heroicon-o-arrow-up-tray')
+                ->color('success')
+                ->url(fn (): string => url('/admin/import-schedule')),
+            CreateAction::make(),
+        ];
     }
 }
