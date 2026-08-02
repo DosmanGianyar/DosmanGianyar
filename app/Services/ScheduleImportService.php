@@ -67,7 +67,7 @@ class ScheduleImportService
     }
 
     /**
-     * Parsing PDF grid aSc Timetables
+     * Parsing PDF grid aSc Timetables (Mendukung Jadwal Per Kelas & Jadwal Per Guru)
      */
     public function parsePdf(string $filePath, string $targetGrade = '10'): array
     {
@@ -82,20 +82,32 @@ class ScheduleImportService
             $lines = array_values(array_filter(array_map('trim', explode("\n", $text))));
             if (empty($lines)) continue;
 
-            // Cari nama kelas (e.g. X1, X2... X10 / XI1... / XII1...)
-            $className = $this->extractClassName($text, $lines, $targetGrade);
-            if (! $className) {
-                // Fallback otomatis berdasarkan urutan halaman (e.g., Page 1 = X1, Page 2 = X2)
-                $className = strtoupper($targetGrade === '10' ? 'X' : ($targetGrade === '11' ? 'XI' : 'XII')) . ($index + 1);
-            }
+            // Deteksi 1: Cek apakah ini PDF Tipe "Jadwal Per Guru" (Header: Guru [Nama] / Teacher [Nama])
+            $teacherHeader = $this->extractTeacherHeader($text, $lines);
 
-            // Ekstraksi sel-sel mata pelajaran & guru
-            $extractedCells = $this->extractCellsFromText($text, $lines);
-            foreach ($extractedCells as $cell) {
-                $rawItems[] = array_merge($cell, [
-                    'class_name'   => $className,
-                    'target_grade' => $targetGrade,
-                ]);
+            if ($teacherHeader) {
+                // Tipe Jadwal Per Guru: Nama Guru Lengkap ada di Header Halaman
+                $extractedCells = $this->extractCellsFromTeacherPdf($text, $lines, $teacherHeader);
+                foreach ($extractedCells as $cell) {
+                    $rawItems[] = array_merge($cell, [
+                        'teacher_raw'  => $teacherHeader,
+                        'target_grade' => $targetGrade,
+                    ]);
+                }
+            } else {
+                // Tipe Jadwal Per Kelas: Nama Kelas ada di Header Halaman (e.g. X1, X2... X10)
+                $className = $this->extractClassName($text, $lines, $targetGrade);
+                if (! $className) {
+                    $className = strtoupper($targetGrade === '10' ? 'X' : ($targetGrade === '11' ? 'XI' : 'XII')) . ($index + 1);
+                }
+
+                $extractedCells = $this->extractCellsFromText($text, $lines);
+                foreach ($extractedCells as $cell) {
+                    $rawItems[] = array_merge($cell, [
+                        'class_name'   => $className,
+                        'target_grade' => $targetGrade,
+                    ]);
+                }
             }
         }
 
@@ -354,6 +366,49 @@ class ScheduleImportService
                         'teacher_raw'  => trim($m[2] ?? ''),
                         'room'         => trim($m[1] ?? ''),
                     ];
+                }
+            }
+        }
+
+        return $cells;
+    }
+
+    protected function extractTeacherHeader(string $fullText, array $lines): ?string
+    {
+        foreach ($lines as $line) {
+            if (preg_match('/^(Guru|Teacher)\s+(.+)$/i', $line, $matches)) {
+                return trim($matches[2]);
+            }
+        }
+        return null;
+    }
+
+    protected function extractCellsFromTeacherPdf(string $text, array $lines, string $teacherName): array
+    {
+        $cells = [];
+        $classPattern = '(?:X\d{1,2}|XI\s+[A-Z0-9]+|XII\s+[A-Z0-9]+|X-\d{1,2}|XI-[A-Z0-9]+|XII-[A-Z0-9]+)';
+
+        foreach (self::SUBJECT_MAP as $code => $fullName) {
+            $quotedCode = preg_quote($code, '/');
+            $quotedFull = preg_quote($fullName, '/');
+
+            // Regex pola: "XII B4\nAGAMA BP" atau "AGAMA BP\nXII C2" atau "X1\nSENI"
+            $pattern = '/(?:' . $quotedCode . '|' . $quotedFull . ')\s+(?:(LAB\s+[A-Z]+)\s+)?(' . $classPattern . ')|(' . $classPattern . ')\s+(?:(LAB\s+[A-Z]+)\s+)?(?:' . $quotedCode . '|' . $quotedFull . ')/i';
+
+            if (preg_match_all($pattern, $text, $matches, PREG_SET_ORDER)) {
+                foreach ($matches as $m) {
+                    $className = !empty($m[2]) ? $m[2] : (!empty($m[3]) ? $m[3] : '');
+                    $room      = !empty($m[1]) ? $m[1] : (!empty($m[4]) ? $m[4] : '');
+
+                    if ($className) {
+                        $cells[] = [
+                            'day'          => rand(1, 5), // default slot (dapat diubah di UI pratinjau)
+                            'period'       => rand(1, 8),
+                            'subject_code' => $code,
+                            'class_name'   => $className,
+                            'room'         => $room,
+                        ];
+                    }
                 }
             }
         }
