@@ -497,6 +497,44 @@ class UserResource extends Resource
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
+                    BulkAction::make('bulk_reset_password')
+                        ->label('Reset Password Terpilih (Sesuai NISN/NIP/HP)')
+                        ->icon('heroicon-o-key')
+                        ->color('danger')
+                        ->requiresConfirmation()
+                        ->modalHeading('Reset Password Akun Terpilih?')
+                        ->modalDescription('Password seluruh akun terpilih akan diubah ke default (NISN untuk Siswa, NIP untuk Guru, No. HP untuk Orangtua) dan pengguna WAJIB mengganti password saat login.')
+                        ->action(function (Collection $records): void {
+                            $resetCount = 0;
+                            foreach ($records as $user) {
+                                if ($user->role === 'admin' || $user->email === 'playstore.demo@sims.sch.id') {
+                                    continue;
+                                }
+
+                                $newPasswordRaw = null;
+                                if (in_array($user->role, ['siswa', 'pengelola'], true)) {
+                                    $newPasswordRaw = trim((string) ($user->nisn ?? $user->nis ?? $user->username));
+                                } elseif ($user->role === 'guru') {
+                                    $newPasswordRaw = trim((string) ($user->nip ?? $user->username));
+                                } elseif ($user->role === 'orangtua') {
+                                    $newPasswordRaw = trim((string) $user->phone);
+                                }
+
+                                if (filled($newPasswordRaw)) {
+                                    $user->update([
+                                        'password'             => Hash::make($newPasswordRaw),
+                                        'must_change_password' => true,
+                                    ]);
+                                    $user->resetDevices();
+                                    $resetCount++;
+                                }
+                            }
+
+                            Notification::make()
+                                ->title("Password {$resetCount} akun terpilih berhasil direset & ditandai wajib ganti password.")
+                                ->success()
+                                ->send();
+                        }),
                     BulkAction::make('pad_nisn_zeros')
                         ->label('Fix NISN 9 Digit (Tambahkan 0 di Depan)')
                         ->icon('heroicon-o-sparkles')

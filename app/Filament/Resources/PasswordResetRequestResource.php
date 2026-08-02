@@ -145,6 +145,50 @@ class PasswordResetRequestResource extends Resource
                         $record->reject(Auth::user());
                         \Filament\Notifications\Notification::make()->title('Permintaan ditolak')->success()->send();
                     }),
+            ])
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    BulkAction::make('bulk_approve')
+                        ->label('Disetujui & Reset Password Terpilih')
+                        ->icon('heroicon-o-check-circle')
+                        ->color('success')
+                        ->requiresConfirmation()
+                        ->modalHeading('Setujui Permintaan Reset Password Terpilih?')
+                        ->modalDescription('Seluruh pengajuan terpilih akan di-reset password-nya ke default (NISN/NIP) dan pengguna ditandai wajib ganti password.')
+                        ->action(function (Collection $records): void {
+                            $approvedCount = 0;
+                            foreach ($records as $record) {
+                                if ($record->status === 'pending') {
+                                    $record->approve(Auth::user());
+                                    $approvedCount++;
+                                }
+                            }
+                            \Filament\Notifications\Notification::make()
+                                ->title("{$approvedCount} permintaan reset password berhasil disetujui.")
+                                ->success()
+                                ->send();
+                        }),
+                    BulkAction::make('bulk_reject')
+                        ->label('Tolak Permintaan Terpilih')
+                        ->icon('heroicon-o-x-circle')
+                        ->color('danger')
+                        ->requiresConfirmation()
+                        ->modalHeading('Tolak Permintaan Reset Password Terpilih?')
+                        ->action(function (Collection $records): void {
+                            $rejectedCount = 0;
+                            foreach ($records as $record) {
+                                if ($record->status === 'pending') {
+                                    $record->reject(Auth::user());
+                                    $rejectedCount++;
+                                }
+                            }
+                            \Filament\Notifications\Notification::make()
+                                ->title("{$rejectedCount} permintaan reset password ditolak.")
+                                ->success()
+                                ->send();
+                        }),
+                    DeleteBulkAction::make(),
+                ]),
             ]);
     }
 

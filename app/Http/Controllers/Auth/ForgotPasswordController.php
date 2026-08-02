@@ -21,9 +21,11 @@ class ForgotPasswordController extends Controller
     {
         $request->validate([
             'identifier' => 'required|string',
+            'birth_date' => 'required|date',
         ]);
 
         $identifier = trim($request->input('identifier'));
+        $birthDate  = trim($request->input('birth_date'));
         $normalizedPhone = OrangtuaSyncService::normalizePhone($identifier);
 
         $user = User::where('nisn', $identifier)
@@ -36,7 +38,18 @@ class ForgotPasswordController extends Controller
         if (! $user) {
             return back()
                 ->withErrors(['identifier' => 'NISN/NIP/No. HP tidak ditemukan. Periksa kembali nomor yang Anda masukkan.'])
-                ->onlyInput('identifier');
+                ->withInput();
+        }
+
+        // Verifikasi Tanggal Lahir jika tersimpan di database
+        if ($user->birth_date) {
+            $userBirth = \Illuminate\Support\Carbon::parse($user->birth_date)->format('Y-m-d');
+            $inputBirth = \Illuminate\Support\Carbon::parse($birthDate)->format('Y-m-d');
+            if ($userBirth !== $inputBirth) {
+                return back()
+                    ->withErrors(['birth_date' => 'Tanggal lahir tidak cocok dengan data NISN/NIP tersebut. Silakan periksa kembali.'])
+                    ->withInput();
+            }
         }
 
         // Auto-reset khusus akun demo Play Store

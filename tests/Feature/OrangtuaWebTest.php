@@ -128,9 +128,11 @@ class OrangtuaWebTest extends TestCase
     public function test_orangtua_forgot_password_with_phone_creates_request(): void
     {
         [$orangtua] = $this->makeFamily();
+        $orangtua->update(['birth_date' => '2000-01-01']);
 
         $this->post(route('forgot-password.submit'), [
             'identifier' => '081234567890',
+            'birth_date' => '2000-01-01',
         ])->assertSessionHasNoErrors();
 
         $this->assertDatabaseHas('password_reset_requests', [

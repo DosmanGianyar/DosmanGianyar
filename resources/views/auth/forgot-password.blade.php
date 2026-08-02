@@ -24,8 +24,7 @@
 
             <div class="px-8 py-8">
                 <p class="text-sm text-gray-500 mb-6 text-center">
-                    Masukkan <strong>NISN</strong> (siswa), <strong>NIP</strong> (guru), atau <strong>No. HP</strong> (orangtua) Anda.
-                    Permintaan akan dikirim ke admin untuk diproses.
+                    Masukkan <strong>NISN/NIP/No. HP</strong> beserta <strong>Tanggal Lahir</strong> Anda untuk mengajukan reset password ke Admin.
                 </p>
 
                 @if (session('status'))
@@ -40,22 +39,36 @@
                 </div>
                 @endif
 
-                <form method="POST" action="{{ route('forgot-password.submit') }}" class="w-full space-y-3">
+                <form method="POST" action="{{ route('forgot-password.submit') }}" class="w-full space-y-4">
                     @csrf
 
-                    <input
-                        type="text"
-                        name="identifier"
-                        value="{{ old('identifier') }}"
-                        required autofocus
-                        placeholder="NISN / NIP / No. HP"
-                        class="w-full px-4 py-2.5 rounded-xl border {{ $errors->has('identifier') ? 'border-red-400 bg-red-50' : 'border-gray-200 bg-gray-50' }} focus:bg-white focus:outline-none focus:ring-2 focus:border-transparent text-sm text-gray-700 placeholder-gray-400 transition"
-                        style="--tw-ring-color:#0d2460;">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Nomor Pengenal (NISN / NIP / No. HP)</label>
+                        <input
+                            type="text"
+                            name="identifier"
+                            value="{{ old('identifier') }}"
+                            required autofocus
+                            placeholder="Contoh: 0012345678"
+                            class="w-full px-4 py-2.5 rounded-xl border {{ $errors->has('identifier') ? 'border-red-400 bg-red-50' : 'border-gray-200 bg-gray-50' }} focus:bg-white focus:outline-none focus:ring-2 focus:border-transparent text-sm text-gray-700 placeholder-gray-400 transition"
+                            style="--tw-ring-color:#0d2460;">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Tanggal Lahir (Siswa / Guru)</label>
+                        <input
+                            type="date"
+                            name="birth_date"
+                            value="{{ old('birth_date') }}"
+                            required
+                            class="w-full px-4 py-2.5 rounded-xl border {{ $errors->has('birth_date') ? 'border-red-400 bg-red-50' : 'border-gray-200 bg-gray-50' }} focus:bg-white focus:outline-none focus:ring-2 focus:border-transparent text-sm text-gray-700 transition"
+                            style="--tw-ring-color:#0d2460;">
+                    </div>
 
                     <button type="submit"
-                        class="w-full py-2.5 text-white font-semibold rounded-xl shadow-md hover:shadow-lg transition-all text-sm"
+                        class="w-full py-2.5 text-white font-semibold rounded-xl shadow-md hover:shadow-lg transition-all text-sm mt-2"
                         style="background:linear-gradient(135deg,#0d2460,#1a3a8a); letter-spacing:.03em;">
-                        Kirim Permintaan
+                        Kirim Permintaan Reset
                     </button>
                 </form>
 
