@@ -38,17 +38,17 @@
                     </div>
 
                     <div style="flex: 1; min-width: 0; line-height: 1.15;">
-                        <p style="font-weight: 800; color: #ffffff; text-transform: uppercase; letter-spacing: 0.04em; font-size: clamp(8.5px, 2.7vw, 14px); margin: 0; font-family: 'Oswald', system-ui, sans-serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                        <p style="font-weight: 800; color: #ffffff; text-transform: uppercase; letter-spacing: 0.04em; font-size: clamp(10px, 3.2vw, 15.5px); margin: 0; font-family: 'Oswald', system-ui, sans-serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                             SMA Negeri 1 Gianyar
                         </p>
-                        <p style="color: rgba(255,255,255,0.85); font-size: clamp(4px, 1.35vw, 7.5px); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                        <p style="color: rgba(255,255,255,0.9); font-size: clamp(5.5px, 1.7vw, 8.5px); margin-top: 1px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                             Jl. Ratna No.1, Gianyar, Bali 80511 · Telp. (0361) 943443
                         </p>
                     </div>
 
                     {{-- Badge KARTU PELAJAR --}}
-                    <div style="flex-shrink: 0; border: 1px solid rgba(255,255,255,0.35); border-radius: 5px; padding: 1.5% 2.5%; text-align: center; background: rgba(255,255,255,0.15);">
-                        <p style="font-weight: 900; color: #ffffff; font-size: clamp(4.5px, 1.4vw, 8px); letter-spacing: 0.1em; text-transform: uppercase; line-height: 1.2; margin: 0;">
+                    <div style="flex-shrink: 0; border: 1px solid rgba(255,255,255,0.4); border-radius: 5px; padding: 1.5% 2.5%; text-align: center; background: rgba(255,255,255,0.18);">
+                        <p style="font-weight: 900; color: #ffffff; font-size: clamp(5.5px, 1.7vw, 9px); letter-spacing: 0.1em; text-transform: uppercase; line-height: 1.2; margin: 0;">
                             KARTU<br>PELAJAR
                         </p>
                     </div>
@@ -58,7 +58,7 @@
                 <div style="flex-shrink: 0; height: 1.2%; background: linear-gradient(90deg, #b45309 0%, #fbbf24 50%, #b45309 100%);"></div>
 
                 {{-- Body Utama Kartu --}}
-                <div style="flex: 1; display: flex; min-height: 0; overflow: hidden; position: relative; padding: 3% 3.5% 2.5% 3.5%;">
+                <div style="flex: 1; display: flex; min-height: 0; overflow: hidden; position: relative; padding: 2.5% 3.5% 2% 3.5%;">
                     
                     {{-- Watermark Logo Transparan --}}
                     <div style="position: absolute; right: 2%; top: 50%; transform: translateY(-50%); width: 32%; aspect-ratio: 1; opacity: 0.04; pointer-events: none; overflow: hidden;">
@@ -67,7 +67,7 @@
 
                     {{-- Foto Siswa 3x4 --}}
                     <div style="flex-shrink: 0; margin-right: 3.5%; display: flex; align-items: flex-start;">
-                        <div style="width: 16.5vw; max-width: 70px; aspect-ratio: 3/4; border: 1.5px solid #1565c0; background: #dce8f8; border-radius: 6px; overflow: hidden; box-shadow: 0 2px 8px rgba(21,101,192,0.2);">
+                        <div style="width: 16.5vw; max-width: 72px; aspect-ratio: 3/4; border: 1.5px solid #1565c0; background: #dce8f8; border-radius: 6px; overflow: hidden; box-shadow: 0 2px 8px rgba(21,101,192,0.2);">
                             @if($siswa->photo)
                                 <img src="{{ $siswa->photo_url }}" style="width: 100%; height: 100%; object-fit: cover; object-position: top; display: block;">
                             @else
@@ -84,7 +84,7 @@
                     {{-- Data Siswa Detail --}}
                     <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: space-between; position: relative; z-index: 10;">
                         <div>
-                            <p style="font-weight: 900; color: #0a3880; font-size: clamp(6px, 1.9vw, 10.5px); letter-spacing: 0.1em; text-align: center; text-transform: uppercase; text-decoration: underline; margin: 0 0 3px 0;">
+                            <p style="font-weight: 900; color: #0a3880; font-size: clamp(7.5px, 2.3vw, 12px); letter-spacing: 0.12em; text-align: center; text-transform: uppercase; text-decoration: underline; margin: 0 0 2px 0;">
                                 KARTU PELAJAR
                             </p>
 
@@ -101,10 +101,10 @@
 
                             <div style="display: flex; flex-direction: column; gap: 1.5px;">
                                 @foreach($rows as $r)
-                                <div style="display: flex; align-items: center; font-size: clamp(4.5px, 1.45vw, 8.5px); line-height: 1.25;">
-                                    <span style="width: 25%; color: #6b7280; flex-shrink: 0; font-weight: 500;">{{ $r['label'] }}</span>
-                                    <span style="color: #9ca3af; flex-shrink: 0; margin-right: 4px;">:</span>
-                                    <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; {{ !empty($r['highlight']) ? 'color: #92400e; font-weight: 800;' : (!empty($r['bold']) ? 'color: #111827; font-weight: 700;' : 'color: #374151; font-weight: 600;') }}">
+                                <div style="display: flex; align-items: center; font-size: clamp(6px, 1.85vw, 10px); line-height: 1.3;">
+                                    <span style="width: 26%; color: #4b5563; flex-shrink: 0; font-weight: 600;">{{ $r['label'] }}</span>
+                                    <span style="color: #6b7280; flex-shrink: 0; margin-right: 4px;">:</span>
+                                    <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; {{ !empty($r['highlight']) ? 'color: #92400e; font-weight: 800;' : (!empty($r['bold']) ? 'color: #111827; font-weight: 800;' : 'color: #1f2937; font-weight: 700;') }}">
                                         {{ $r['value'] }}
                                     </span>
                                 </div>
@@ -113,22 +113,23 @@
                         </div>
 
                         {{-- Footer Tanda Tangan & Masa Berlaku --}}
-                        <div style="display: flex; justify-content: space-between; align-items: flex-end; padding-top: 2px;">
-                            <p style="font-size: clamp(3.5px, 1.15vw, 6.5px); color: #9ca3af; font-style: italic; line-height: 1.2; margin: 0;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-end; padding-top: 1px;">
+                            <p style="font-size: clamp(4.5px, 1.4vw, 7.5px); color: #6b7280; font-style: italic; line-height: 1.25; margin: 0; font-weight: 500;">
                                 Berlaku selama menjadi<br>siswa SMAN 1 Gianyar
                             </p>
                             <div style="text-align: center; flex-shrink: 0;">
-                                <p style="font-size: clamp(3.5px, 1.15vw, 6.5px); color: #4b5563; margin: 0;">
+                                <p style="font-size: clamp(4.5px, 1.4vw, 7.5px); color: #374151; font-weight: 500; margin: 0;">
                                     Gianyar, {{ now()->isoFormat('D MMMM Y') }}
                                 </p>
-                                <p style="font-size: clamp(3.5px, 1.15vw, 6.5px); color: #4b5563; font-weight: 500; margin: 0;">
+                                <p style="font-size: clamp(4.5px, 1.4vw, 7.5px); color: #374151; font-weight: 600; margin: 0 0 6px 0;">
                                     Kepala Sekolah,
                                 </p>
-                                <div style="margin-top: 6px; border-top: 1px solid #374151; padding-top: 1px; display: inline-block; min-width: 45px;">
-                                    <p style="font-size: clamp(3px, 1vw, 5.5px); color: #9ca3af; margin: 0;">
-                                        NIP. ———————————
-                                    </p>
-                                </div>
+                                <p style="font-size: clamp(4.5px, 1.45vw, 8px); color: #111827; font-weight: 800; text-decoration: underline; margin: 0; white-space: nowrap;">
+                                    I Wayan Sudra Astra, S.Pd., M.Pd.
+                                </p>
+                                <p style="font-size: clamp(4px, 1.25vw, 7px); color: #4b5563; font-weight: 600; margin: 0.5px 0 0 0; white-space: nowrap;">
+                                    NIP. 19710415 199703 1 007
+                                </p>
                             </div>
                         </div>
                     </div>

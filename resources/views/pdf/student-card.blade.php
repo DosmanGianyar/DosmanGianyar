@@ -453,9 +453,10 @@ html, body {
         <div class="footer-left">
             Berlaku selama menjadi<br>siswa SMA Negeri 1 Gianyar
         </div>
-        <div class="footer-right">
-            <div class="sig-role">Kepala Sekolah,</div>
-            <div class="sig-line">.............................</div>
+        <div class="footer-right" style="width: 32mm;">
+            <div class="sig-role" style="font-size: 3.5pt; margin-bottom: 0.5mm;">Kepala Sekolah,</div>
+            <div style="font-size: 4pt; font-weight: bold; color: #111827; text-decoration: underline; white-space: nowrap;">I Wayan Sudra Astra, S.Pd., M.Pd.</div>
+            <div style="font-size: 3.2pt; font-weight: bold; color: #374151; white-space: nowrap; margin-top: 0.3mm;">NIP. 19710415 199703 1 007</div>
         </div>
     </div>
 
