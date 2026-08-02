@@ -5,44 +5,37 @@
 
 @section('content')
 
-{{-- ─── Sapaan ──────────────────────────────────────────────────────── --}}
-<div class="bg-linear-to-br from-blue-600 to-indigo-700 rounded-2xl px-3.5 py-2.5 mb-3 text-white">
-    <div class="flex items-center gap-3">
-        <a href="{{ route('siswa.profile') }}" class="shrink-0">
-            @if($siswa->photo)
-                <img src="{{ $siswa->photo_url }}"
-                    class="w-20 h-20 rounded-2xl object-cover border-[2.5px] border-black shadow">
-            @else
-                <div class="w-20 h-20 rounded-2xl border-[2.5px] border-black shadow overflow-hidden bg-white/20 flex items-end justify-center">
-                    <svg viewBox="0 0 56 64" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-16">
-                        <ellipse cx="28" cy="22" rx="11" ry="12" fill="white" fill-opacity="0.9"/>
-                        <path d="M4 64c0-13.255 10.745-24 24-24s24 10.745 24 24" fill="white" fill-opacity="0.9"/>
-                    </svg>
-                </div>
-            @endif
-        </a>
+{{-- ─── Sapaan & Hero Header (Sleek Compact Design) ───────────────────── --}}
+<div class="relative overflow-hidden bg-linear-to-r from-blue-700 via-indigo-700 to-blue-800 rounded-2xl px-4 py-3.5 mb-3 text-white shadow-md">
+    {{-- Decorative Background Watermark Logo --}}
+    <div class="absolute -right-6 -bottom-6 w-32 h-32 opacity-10 pointer-events-none">
+        <img src="{{ asset('img/logo_sekolah.png') }}" class="w-full h-full object-contain">
+    </div>
+
+    <div class="relative z-10 flex items-center justify-between gap-3">
         <div class="flex-1 min-w-0">
-            <p class="text-blue-200 text-xs">{{ now()->isoFormat('dddd, D MMMM Y') }}</p>
-            @php
-                $nl = mb_strlen($siswa->name);
-                $nf = $nl <= 15 ? 'text-lg' : ($nl <= 22 ? 'text-base' : ($nl <= 30 ? 'text-sm' : 'text-xs'));
-            @endphp
-            <h2 class="{{ $nf }} font-bold leading-tight whitespace-nowrap overflow-hidden">
-                {{ $siswa->name }}
+            <div class="flex items-center gap-2 mb-0.5">
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/15 backdrop-blur-xs text-[10px] font-semibold text-blue-100 border border-white/20">
+                    📅 {{ now()->isoFormat('dddd, D MMMM Y') }}
+                </span>
+            </div>
+            <h2 class="text-base sm:text-lg font-black tracking-tight leading-tight truncate text-white">
+                Selamat {{ match(true) { now()->hour < 11 => 'Pagi', now()->hour < 15 => 'Siang', now()->hour < 18 => 'Sore', default => 'Malam' } }}, {{ explode(' ', trim($siswa->name))[0] }}! 👋
             </h2>
-            <p class="text-blue-100 text-xs mt-0.5 truncate">
-                {{ $siswa->schoolClass?->name ?? 'SMA Negeri 1 Gianyar' }} @if($siswa->angkatan)· <span class="font-bold text-amber-300">{{ $siswa->angkatan }}</span>@endif · NIS {{ $siswa->nis ?? '—' }}
+            <p class="text-blue-100/90 text-xs mt-0.5 truncate font-medium">
+                {{ $siswa->schoolClass?->name ?? 'Siswa SMAN 1 Gianyar' }} @if($siswa->angkatan) · <span class="font-bold text-amber-300">{{ $siswa->angkatan }}</span>@endif · NIS {{ $siswa->nis ?? '—' }}
             </p>
-            @if($siswa->nisn)
-            <p class="text-blue-200 text-xs mt-0.5 truncate">NISN {{ $siswa->nisn }}</p>
-            @endif
-            {{-- Ringkasan kehadiran bulan ini --}}
-            <div class="flex items-center gap-2.5 mt-1.5">
-                <span class="inline-flex items-center gap-1 text-[11px] font-bold text-yellow-200 leading-none"><span class="w-2 h-2 rounded-full bg-yellow-400 shrink-0"></span>{{ $monthlySummary['terlambat'] }}</span>
-                <span class="inline-flex items-center gap-1 text-[11px] font-bold text-red-200 leading-none"><span class="w-2 h-2 rounded-full bg-red-400 shrink-0"></span>{{ $monthlySummary['alpa'] }}</span>
-                <span class="inline-flex items-center gap-1 text-[11px] font-bold text-sky-200 leading-none"><span class="w-2 h-2 rounded-full bg-sky-400 shrink-0"></span>{{ $monthlySummary['izin'] }}</span>
-                <span class="inline-flex items-center gap-1 text-[11px] font-bold text-purple-200 leading-none"><span class="w-2 h-2 rounded-full bg-purple-400 shrink-0"></span>{{ $monthlySummary['sakit'] }}</span>
-                <span class="inline-flex items-center gap-1 text-[11px] font-bold text-orange-200 leading-none"><span class="w-2 h-2 rounded-full bg-orange-400 shrink-0"></span>{{ $monthlySummary['dispensasi'] }}</span>
+        </div>
+
+        {{-- Ringkasan Kehadiran Ringkas --}}
+        <div class="shrink-0 text-right bg-white/10 backdrop-blur-md rounded-xl p-2 border border-white/15">
+            <p class="text-[10px] font-bold text-blue-200 uppercase tracking-wider mb-1">Bulan Ini</p>
+            <div class="flex items-center justify-end gap-1.5 text-[11px] font-extrabold">
+                <span class="inline-flex items-center gap-1 text-yellow-300" title="Terlambat"><span class="w-2 h-2 rounded-full bg-yellow-400"></span>{{ $monthlySummary['terlambat'] }}</span>
+                <span class="inline-flex items-center gap-1 text-red-300" title="Alpa"><span class="w-2 h-2 rounded-full bg-red-400"></span>{{ $monthlySummary['alpa'] }}</span>
+                <span class="inline-flex items-center gap-1 text-sky-300" title="Izin"><span class="w-2 h-2 rounded-full bg-sky-400"></span>{{ $monthlySummary['izin'] }}</span>
+                <span class="inline-flex items-center gap-1 text-purple-300" title="Sakit"><span class="w-2 h-2 rounded-full bg-purple-400"></span>{{ $monthlySummary['sakit'] }}</span>
+                <span class="inline-flex items-center gap-1 text-orange-300" title="Dispensasi"><span class="w-2 h-2 rounded-full bg-orange-400"></span>{{ $monthlySummary['dispensasi'] }}</span>
             </div>
         </div>
     </div>
