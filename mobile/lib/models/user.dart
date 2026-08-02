@@ -60,6 +60,7 @@ class User {
   final String? gender;
   final String? parentName;
   final String? parentPhone;
+  final String? angkatan;
   final List<ChildSummary> children;
 
   const User({
@@ -86,6 +87,7 @@ class User {
     this.gender,
     this.parentName,
     this.parentPhone,
+    this.angkatan,
     this.children = const [],
   });
 
@@ -121,6 +123,7 @@ class User {
       gender:            json['gender'] as String?,
       parentName:        json['parent_name'] as String?,
       parentPhone:       json['parent_phone'] as String?,
+      angkatan:          json['angkatan'] as String?,
       children:          (json['children'] as List<dynamic>? ?? [])
                              .map((e) => ChildSummary.fromJson(e as Map<String, dynamic>))
                              .toList(),
@@ -149,6 +152,7 @@ class User {
     'gender':             gender,
     'parent_name':        parentName,
     'parent_phone':       parentPhone,
+    'angkatan':           angkatan,
     'children':           children.map((c) => {
       'id': c.id, 'name': c.name, 'class_name': c.className, 'photo_url': c.photoUrl,
     }).toList(),

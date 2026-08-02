@@ -185,7 +185,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             const SizedBox(height: 12),
             if (user?.role != 'guru' && user?.role != 'orangtua') ...[
-              _StudentIdCard(user: user),
+              StudentIdCard(user: user),
               const SizedBox(height: 12),
             ],
             if (user?.parentName != null || user?.parentPhone != null) ...[
@@ -965,7 +965,7 @@ class _IdFront extends StatelessWidget {
                           style: TextStyle(fontSize: 7.5, color: AppColors.gray600, fontWeight: FontWeight.w500)),
                         SizedBox(height: 2),
                         Text('I Wayan Sudra Astra, S.Pd., M.Pd.',
-                          style: TextStyle(fontSize: 7.5, color: AppColors.gray900, fontWeight: FontWeight.bold, decoration: TextDecoration.underline)),
+                          style: TextStyle(fontSize: 7.5, color: AppColors.gray800, fontWeight: FontWeight.bold, decoration: TextDecoration.underline)),
                         SizedBox(height: 1),
                         Text('NIP. 19710415 199703 1 007',
                           style: TextStyle(fontSize: 6.5, color: AppColors.gray600, fontWeight: FontWeight.w600)),
