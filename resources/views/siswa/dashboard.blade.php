@@ -5,37 +5,59 @@
 
 @section('content')
 
-{{-- ─── Sapaan & Hero Header (High Contrast & Large Font Design) ───────── --}}
-<div class="relative overflow-hidden bg-linear-to-r from-blue-800 via-indigo-900 to-blue-900 rounded-2xl p-4 mb-3.5 text-white shadow-lg border border-blue-600/30">
-    {{-- Decorative Background Watermark Logo --}}
-    <div class="absolute -right-6 -bottom-6 w-36 h-36 opacity-15 pointer-events-none">
-        <img src="{{ asset('img/logo_sekolah.png') }}" class="w-full h-full object-contain">
-    </div>
+{{-- ─── Sapaan & Hero Header (Fixed Solid Gradient & High Contrast) ─────── --}}
+<div class="relative rounded-2xl p-4 mb-3.5 text-white shadow-lg overflow-hidden"
+     style="background: linear-gradient(135deg, #0a3880 0%, #1565c0 50%, #1d4ed8 100%); border: 1px solid rgba(255,255,255,0.2);">
+    
+    {{-- Background Accent Circle (Soft Decorative) --}}
+    <div style="position: absolute; right: -20px; bottom: -20px; width: 140px; height: 140px; border-radius: 50%; background: rgba(255,255,255,0.06); pointer-events: none;"></div>
 
-    <div class="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div class="flex-1 min-w-0">
-            <div class="flex items-center gap-2 mb-1">
-                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/20 backdrop-blur-md text-xs font-bold text-white border border-white/30 shadow-2xs">
-                    📅 {{ now()->isoFormat('dddd, D MMMM Y') }}
-                </span>
-            </div>
-            <h2 class="text-lg sm:text-xl font-black tracking-tight leading-tight truncate text-white mt-1">
+    <div class="relative z-10 flex flex-col gap-3">
+        {{-- Baris Atas: Tanggal & Rekap --}}
+        <div class="flex items-center justify-between gap-2">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-xs font-bold text-white border border-white/30 shadow-2xs">
+                📅 {{ now()->isoFormat('dddd, D MMMM Y') }}
+            </span>
+            <span class="text-[11px] font-extrabold text-amber-300 bg-black/20 px-2.5 py-1 rounded-full border border-amber-300/30 uppercase tracking-wider">
+                Rekap Kehadiran Bulan Ini
+            </span>
+        </div>
+
+        {{-- Sapaan Nama --}}
+        <div>
+            <h2 class="text-xl sm:text-2xl font-black tracking-tight leading-tight text-white drop-shadow-xs">
                 Selamat {{ match(true) { now()->hour < 11 => 'Pagi', now()->hour < 15 => 'Siang', now()->hour < 18 => 'Sore', default => 'Malam' } }}, {{ explode(' ', trim($siswa->name))[0] }}! 👋
             </h2>
-            <p class="text-xs sm:text-sm font-semibold text-blue-50 mt-1 truncate">
-                {{ $siswa->schoolClass?->name ?? 'Siswa SMAN 1 Gianyar' }} @if($siswa->angkatan) · <span class="font-extrabold text-amber-300 bg-amber-400/25 px-1.5 py-0.5 rounded border border-amber-300/40 text-xs">{{ $siswa->angkatan }}</span>@endif · NIS {{ $siswa->nis ?? '—' }}
+            <p class="text-xs sm:text-sm font-semibold text-blue-100 mt-1 flex items-center gap-1.5 flex-wrap">
+                <span>{{ $siswa->schoolClass?->name ?? 'Siswa SMAN 1 Gianyar' }}</span>
+                @if($siswa->angkatan)
+                    <span class="font-extrabold text-amber-300 bg-amber-400/30 px-2 py-0.5 rounded-md border border-amber-300/40 text-xs">{{ $siswa->angkatan }}</span>
+                @endif
+                <span>· NIS {{ $siswa->nis ?? '—' }}</span>
             </p>
         </div>
 
-        {{-- Ringkasan Kehadiran Bulan Ini --}}
-        <div class="shrink-0 bg-white/15 backdrop-blur-md rounded-xl p-2.5 border border-white/25 shadow-xs">
-            <p class="text-[11px] font-extrabold text-amber-300 uppercase tracking-wider mb-1.5 text-center">Rekap Bulan Ini</p>
-            <div class="flex items-center justify-center gap-1.5 text-xs font-black">
-                <span class="inline-flex items-center gap-1 bg-yellow-400/20 px-1.5 py-0.5 rounded text-yellow-200 border border-yellow-400/30" title="Terlambat"><span class="w-2 h-2 rounded-full bg-yellow-400"></span>{{ $monthlySummary['terlambat'] }} TL</span>
-                <span class="inline-flex items-center gap-1 bg-red-500/20 px-1.5 py-0.5 rounded text-red-200 border border-red-400/30" title="Alpa"><span class="w-2 h-2 rounded-full bg-red-400"></span>{{ $monthlySummary['alpa'] }} A</span>
-                <span class="inline-flex items-center gap-1 bg-sky-400/20 px-1.5 py-0.5 rounded text-sky-200 border border-sky-400/30" title="Izin"><span class="w-2 h-2 rounded-full bg-sky-400"></span>{{ $monthlySummary['izin'] }} I</span>
-                <span class="inline-flex items-center gap-1 bg-purple-400/20 px-1.5 py-0.5 rounded text-purple-200 border border-purple-400/30" title="Sakit"><span class="w-2 h-2 rounded-full bg-purple-400"></span>{{ $monthlySummary['sakit'] }} S</span>
-                <span class="inline-flex items-center gap-1 bg-orange-400/20 px-1.5 py-0.5 rounded text-orange-200 border border-orange-400/30" title="Dispensasi"><span class="w-2 h-2 rounded-full bg-orange-400"></span>{{ $monthlySummary['dispensasi'] }} D</span>
+        {{-- Indicator Badges Rekap --}}
+        <div class="grid grid-cols-5 gap-1.5 pt-1 text-center font-black text-xs">
+            <div class="bg-yellow-400/25 border border-yellow-300/40 rounded-lg p-1.5 text-yellow-200">
+                <span class="block text-[10px] opacity-90 font-bold uppercase">Terlambat</span>
+                <span class="text-sm font-black">{{ $monthlySummary['terlambat'] }}</span>
+            </div>
+            <div class="bg-red-500/25 border border-red-400/40 rounded-lg p-1.5 text-red-200">
+                <span class="block text-[10px] opacity-90 font-bold uppercase">Alpa</span>
+                <span class="text-sm font-black">{{ $monthlySummary['alpa'] }}</span>
+            </div>
+            <div class="bg-sky-400/25 border border-sky-300/40 rounded-lg p-1.5 text-sky-200">
+                <span class="block text-[10px] opacity-90 font-bold uppercase">Izin</span>
+                <span class="text-sm font-black">{{ $monthlySummary['izin'] }}</span>
+            </div>
+            <div class="bg-purple-400/25 border border-purple-300/40 rounded-lg p-1.5 text-purple-200">
+                <span class="block text-[10px] opacity-90 font-bold uppercase">Sakit</span>
+                <span class="text-sm font-black">{{ $monthlySummary['sakit'] }}</span>
+            </div>
+            <div class="bg-orange-400/25 border border-orange-300/40 rounded-lg p-1.5 text-orange-200">
+                <span class="block text-[10px] opacity-90 font-bold uppercase">Disp.</span>
+                <span class="text-sm font-black">{{ $monthlySummary['dispensasi'] }}</span>
             </div>
         </div>
     </div>
