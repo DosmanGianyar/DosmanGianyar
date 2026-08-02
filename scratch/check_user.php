@@ -4,16 +4,28 @@ $app = require_once __DIR__ . '/../bootstrap/app.php';
 $app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
 
 $u = App\Models\User::where('nisn', '0071234571')->orWhere('nis', '0071234571')->first();
-if ($u) {
-    echo "ID: {$u->id}\n";
-    echo "NAME: {$u->name}\n";
-    echo "NIS: {$u->nis}\n";
-    echo "NISN: {$u->nisn}\n";
-    echo "MUST_CHANGE: " . ($u->must_change_password ? 'true' : 'false') . "\n";
-    echo "CHECK_NISN (0071234571): " . (Illuminate\Support\Facades\Hash::check('0071234571', $u->password) ? 'MATCH' : 'NO') . "\n";
-    echo "CHECK_NISN_NO_ZERO (71234571): " . (Illuminate\Support\Facades\Hash::check('71234571', $u->password) ? 'MATCH' : 'NO') . "\n";
-    echo "CHECK_NIS ({$u->nis}): " . (Illuminate\Support\Facades\Hash::check($u->nis, $u->password) ? 'MATCH' : 'NO') . "\n";
-    echo "CHECK_12345678: " . (Illuminate\Support\Facades\Hash::check('12345678', $u->password) ? 'MATCH' : 'NO') . "\n";
-} else {
-    echo "USER 0071234571 NOT FOUND IN LOCAL DB\n";
+if (! $u) {
+    echo "USER NOT FOUND\n";
+    exit;
+}
+
+echo "Current User Password Hash: " . $u->password . "\n";
+echo "Testing Hash::check('0071234571', password): " . (Illuminate\Support\Facades\Hash::check('0071234571', $u->password) ? 'YES' : 'NO') . "\n";
+
+// Let's test calling $u->update(['password' => '12345678', 'must_change_password' => false])
+try {
+    $u->password = '12345678';
+    $u->must_change_password = false;
+    $u->save();
+    echo "UPDATE SUCCESSFUL!\n";
+    echo "New Password Hash: " . $u->password . "\n";
+    echo "Testing Hash::check('12345678', new_password): " . (Illuminate\Support\Facades\Hash::check('12345678', $u->password) ? 'YES' : 'NO') . "\n";
+
+    // Revert back to 0071234571 for testing
+    $u->password = '0071234571';
+    $u->must_change_password = true;
+    $u->save();
+    echo "REVERTED BACK TO 0071234571 SUCCESSFUL!\n";
+} catch (\Throwable $e) {
+    echo "ERROR: " . $e->getMessage() . "\n" . $e->getTraceAsString() . "\n";
 }
