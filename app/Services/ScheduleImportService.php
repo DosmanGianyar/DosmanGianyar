@@ -141,22 +141,52 @@ class ScheduleImportService
     }
 
     /**
+     * Normalisasi nama kelas PDF (misal: "X1" -> "X-01", "X10" -> "X-10", "XI2" -> "XI-02")
+     */
+    public function normalizeClassName(string $rawClassName): string
+    {
+        $clean = strtoupper(trim(str_replace(['KELAS', ' '], '', $rawClassName)));
+
+        if (preg_match('/^(X|XI|XII)-?0?(\d+)$/i', $clean, $matches)) {
+            $prefix = strtoupper($matches[1]);
+            $number = (int) $matches[2];
+            $formattedNumber = str_pad($number, 2, '0', STR_PAD_LEFT);
+            return "{$prefix}-{$formattedNumber}"; // e.g. "X-01", "X-02", "X-10", "XI-01", "XII-05"
+        }
+
+        return $clean;
+    }
+
+    /**
      * Jalankan pencocokan cerdas (Smart Matching) ke Database
      */
     public function matchEntities(array $rawItems): array
     {
-        $classes  = SchoolClass::all()->keyBy(fn($c) => strtoupper(str_replace(' ', '', $c->name)));
+        $classes  = SchoolClass::all()->keyBy(fn($c) => strtoupper(str_replace([' ', '-'], '', $c->name)));
         $subjects = Subject::all();
         $teachers = User::where('role', 'guru')->get();
 
         $matchedList = [];
 
         foreach ($rawItems as $index => $item) {
-            $cleanClassName = strtoupper(str_replace(['KELAS', ' '], '', $item['class_name']));
+            $normalizedClassName = $this->normalizeClassName($item['class_name']);
+            $cleanClassName      = strtoupper(str_replace(['KELAS', ' ', '-'], '', $item['class_name']));
+            $targetGrade         = (int) ($item['target_grade'] ?? 10);
             
-            // 1. Match Class
-            $schoolClass = $classes->get($cleanClassName);
-            $classId     = $schoolClass?->id;
+            // 1. Match / Auto-Create Class (misal X1 -> X-01)
+            $lookupKey   = str_replace([' ', '-'], '', $normalizedClassName);
+            $schoolClass = $classes->get($lookupKey) ?? $classes->get($cleanClassName);
+
+            if (! $schoolClass) {
+                // Auto-create kelas di DB jika belum ada agar admin tidak perlu buat manual
+                $schoolClass = SchoolClass::firstOrCreate(
+                    ['name' => $normalizedClassName],
+                    ['grade' => $targetGrade]
+                );
+                $classes->put($lookupKey, $schoolClass);
+            }
+
+            $classId = $schoolClass->id;
 
             // 2. Match Subject
             $subjCode = strtoupper(trim($item['subject_code']));
@@ -174,7 +204,7 @@ class ScheduleImportService
 
             $matchedList[] = [
                 'temp_id'          => 'item_' . $index,
-                'class_name'       => $item['class_name'],
+                'class_name'       => $schoolClass->name, // Selalu tampilkan format rapi e.g. X-01
                 'class_id'         => $classId,
                 'day'              => $item['day'],
                 'period'           => $item['period'],

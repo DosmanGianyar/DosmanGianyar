@@ -17,7 +17,7 @@
         "laravel/tinker": "^2.10.1",
         "livewire/livewire": "^4.3",
         "maatwebsite/excel": "^3.1",
-        "smalot/pdfparser": "*",
+        "smalot/pdfparser": "^2.12",
         "spatie/browsershot": "^5.3"
     },
     "require-dev": {
