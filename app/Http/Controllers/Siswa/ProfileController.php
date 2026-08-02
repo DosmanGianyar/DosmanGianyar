@@ -47,13 +47,18 @@ class ProfileController extends Controller
         $request->validate([
             'current_password' => 'required',
             'password'         => 'required|min:8|confirmed',
+        ], [
+            'current_password.required' => 'Password saat ini wajib diisi.',
+            'password.required'         => 'Password baru wajib diisi.',
+            'password.min'              => 'Password baru minimal 8 karakter.',
+            'password.confirmed'        => 'Konfirmasi password baru tidak cocok dengan password baru.',
         ]);
 
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
         if (!Hash::check($request->current_password, $user->password)) {
-            return back()->withErrors(['current_password' => 'Password saat ini tidak sesuai.']);
+            return back()->withErrors(['current_password' => 'Password saat ini yang Anda masukkan salah / tidak sesuai.']);
         }
 
         $user->update(['password' => $request->password, 'must_change_password' => false]);

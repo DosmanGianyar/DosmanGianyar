@@ -180,7 +180,7 @@
             {{-- Password Saat Ini --}}
             <div>
                 <label class="block text-xs font-semibold text-gray-600 mb-1">Password Saat Ini</label>
-                <div class="relative flex items-center rounded-xl border border-gray-300 bg-gray-50/50 focus-within:border-blue-500 focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-100 transition-all overflow-hidden">
+                <div class="relative flex items-center rounded-xl border @error('current_password') border-red-400 bg-red-50/20 @else border-gray-300 bg-gray-50/50 @enderror focus-within:border-blue-500 focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-100 transition-all overflow-hidden">
                     <input type="password" id="siswa_current_password" name="current_password" required
                         class="w-full pl-3 pr-10 py-2.5 text-sm text-gray-900 bg-transparent focus:outline-none border-0"
                         placeholder="••••••••">
@@ -196,13 +196,18 @@
                         </svg>
                     </button>
                 </div>
-                @error('current_password') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                @error('current_password')
+                <p class="text-red-500 text-xs mt-1.5 flex items-center gap-1 font-medium">
+                    <svg class="w-3.5 h-3.5 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                    {{ $message }}
+                </p>
+                @enderror
             </div>
 
             {{-- Password Baru --}}
             <div>
-                <label class="block text-xs font-semibold text-gray-600 mb-1">Password Baru</label>
-                <div class="relative flex items-center rounded-xl border border-gray-300 bg-gray-50/50 focus-within:border-blue-500 focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-100 transition-all overflow-hidden">
+                <label class="block text-xs font-semibold text-gray-600 mb-1">Password Baru (Min. 8 Karakter)</label>
+                <div class="relative flex items-center rounded-xl border @error('password') border-red-400 bg-red-50/20 @else border-gray-300 bg-gray-50/50 @enderror focus-within:border-blue-500 focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-100 transition-all overflow-hidden">
                     <input type="password" id="siswa_new_password" name="password" required
                         class="w-full pl-3 pr-10 py-2.5 text-sm text-gray-900 bg-transparent focus:outline-none border-0"
                         placeholder="••••••••">
@@ -218,12 +223,18 @@
                         </svg>
                     </button>
                 </div>
+                @error('password')
+                <p class="text-red-500 text-xs mt-1.5 flex items-center gap-1 font-medium">
+                    <svg class="w-3.5 h-3.5 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                    {{ $message }}
+                </p>
+                @enderror
             </div>
 
             {{-- Konfirmasi Password Baru --}}
             <div>
                 <label class="block text-xs font-semibold text-gray-600 mb-1">Konfirmasi Password Baru</label>
-                <div class="relative flex items-center rounded-xl border border-gray-300 bg-gray-50/50 focus-within:border-blue-500 focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-100 transition-all overflow-hidden">
+                <div class="relative flex items-center rounded-xl border @error('password_confirmation') border-red-400 bg-red-50/20 @else border-gray-300 bg-gray-50/50 @enderror focus-within:border-blue-500 focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-100 transition-all overflow-hidden">
                     <input type="password" id="siswa_confirm_password" name="password_confirmation" required
                         class="w-full pl-3 pr-10 py-2.5 text-sm text-gray-900 bg-transparent focus:outline-none border-0"
                         placeholder="••••••••">
@@ -239,6 +250,12 @@
                         </svg>
                     </button>
                 </div>
+                @error('password_confirmation')
+                <p class="text-red-500 text-xs mt-1.5 flex items-center gap-1 font-medium">
+                    <svg class="w-3.5 h-3.5 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                    {{ $message }}
+                </p>
+                @enderror
             </div>
 
             <button type="submit"
