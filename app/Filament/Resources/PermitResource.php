@@ -79,12 +79,12 @@ class PermitResource extends Resource
                     ->formatStateUsing(fn (Permit $record) => $record->typeLabel()),
 
                 TextColumn::make('file')
-                    ->label('Surat / Lampiran')
-                    ->formatStateUsing(fn ($state) => $state ? '📄 Lihat Surat' : '⚠️ Tidak Ada File')
+                    ->label('Surat')
+                    ->formatStateUsing(fn ($state) => $state ? '📄 Ada Surat' : '—')
                     ->color(fn ($state) => $state ? 'info' : 'gray')
                     ->url(fn (Permit $record) => $record->file ? asset('storage/' . $record->file) : null)
                     ->openUrlInNewTab()
-                    ->badge(),
+                    ->badge(fn ($state) => (bool) $state),
 
                 TextColumn::make('start_date')
                     ->label('Tanggal')
@@ -146,16 +146,20 @@ class PermitResource extends Resource
             ->recordActions([
                 Action::make('view_letter')
                     ->label('Lihat Surat')
+                    ->tooltip('Lihat Surat Bukti / Lampiran')
                     ->icon('heroicon-o-document-text')
                     ->color('info')
+                    ->iconButton()
                     ->visible(fn (Permit $record) => ! empty($record->file))
                     ->url(fn (Permit $record) => asset('storage/' . $record->file))
                     ->openUrlInNewTab(),
 
                 Action::make('approve')
                     ->label('Setujui')
+                    ->tooltip('Setujui Pengajuan')
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
+                    ->iconButton()
                     ->visible(fn (Permit $record) => $record->isPending())
                     ->requiresConfirmation()
                     ->modalHeading('Setujui Pengajuan')
@@ -191,8 +195,10 @@ class PermitResource extends Resource
 
                 Action::make('reject')
                     ->label('Tolak')
+                    ->tooltip('Tolak Pengajuan')
                     ->icon('heroicon-o-x-circle')
                     ->color('danger')
+                    ->iconButton()
                     ->visible(fn (Permit $record) => $record->isPending())
                     ->form([
                         Textarea::make('rejection_note')
