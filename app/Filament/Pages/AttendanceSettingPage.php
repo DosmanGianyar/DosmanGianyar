@@ -12,11 +12,11 @@ use Filament\Schemas\Schema;
 class AttendanceSettingPage extends Page
 {
     protected static string|\BackedEnum|null $navigationIcon       = 'heroicon-o-clock';
-    protected static string|\UnitEnum|null  $navigationGroup      = 'Kesiswaan';
+    protected static string|\UnitEnum|null  $navigationGroup      = 'Presensi Siswa';
     protected static ?string                $navigationLabel      = 'Pengaturan Waktu Presensi';
     protected static ?int                   $navigationSort  = 10;
 
-    public static function canAccess(): bool { return AdminAccess::can('Kesiswaan'); }
+    public static function canAccess(): bool { return AdminAccess::can('Presensi Siswa'); }
 
     protected string $view = 'filament.pages.attendance-setting';
 

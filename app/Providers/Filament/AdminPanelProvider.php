@@ -48,7 +48,10 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->navigationGroups([
                 NavigationGroup::make('Manajemen User'),
-                NavigationGroup::make('Kesiswaan'),
+                NavigationGroup::make('Presensi Siswa'),
+                NavigationGroup::make('Kedisiplinan & Tata Tertib'),
+                NavigationGroup::make('Prestasi & Ekskul'),
+                NavigationGroup::make('Kesiswaan & Layanan'),
                 NavigationGroup::make('Kurikulum'),
                 NavigationGroup::make('Akademik'),
                 NavigationGroup::make('Sarpras'),

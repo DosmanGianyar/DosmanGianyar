@@ -25,13 +25,13 @@ class ScanEventResource extends Resource
     protected static ?string $model = ScanEvent::class;
 
     protected static string|\BackedEnum|null $navigationIcon  = 'heroicon-o-qr-code';
-    protected static string|\UnitEnum|null   $navigationGroup = 'Kesiswaan';
+    protected static string|\UnitEnum|null   $navigationGroup = 'Kesiswaan & Layanan';
     protected static ?string                 $navigationLabel = 'Absen QR Kegiatan';
     protected static ?string                 $modelLabel       = 'Kegiatan';
     protected static ?string                 $pluralModelLabel = 'Absen QR Kegiatan';
     protected static ?int                    $navigationSort  = 25;
 
-    public static function canAccess(): bool { return AdminAccess::can('Kesiswaan'); }
+    public static function canAccess(): bool { return AdminAccess::can('Kesiswaan & Layanan'); }
 
     public static function form(Schema $schema): Schema
     {

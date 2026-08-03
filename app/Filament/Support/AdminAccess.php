@@ -10,10 +10,10 @@ class AdminAccess
      */
     private const SCOPES = [
         'admin'           => null,
-        'admin_kesiswaan' => 'Kesiswaan',
-        'admin_kurikulum' => 'Kurikulum',
-        'admin_sarpras'   => 'Sarpras',
-        'admin_humas'     => 'Humas',
+        'admin_kesiswaan' => ['Kesiswaan', 'Presensi Siswa', 'Kedisiplinan & Tata Tertib', 'Prestasi & Ekskul', 'Kesiswaan & Layanan'],
+        'admin_kurikulum' => ['Kurikulum'],
+        'admin_sarpras'   => ['Sarpras'],
+        'admin_humas'     => ['Humas'],
     ];
 
     /**
@@ -30,7 +30,15 @@ class AdminAccess
 
         $scope = self::SCOPES[$role];
 
-        return $scope === null || $scope === $group;
+        if ($scope === null) {
+            return true;
+        }
+
+        if (is_array($scope)) {
+            return in_array($group, $scope, true);
+        }
+
+        return $scope === $group;
     }
 
     /**

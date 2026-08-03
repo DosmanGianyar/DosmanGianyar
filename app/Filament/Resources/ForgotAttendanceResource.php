@@ -26,13 +26,13 @@ class ForgotAttendanceResource extends Resource
     protected static ?string $model = ForgotAttendanceRequest::class;
 
     protected static string|\BackedEnum|null $navigationIcon  = 'heroicon-o-clock';
-    protected static string|\UnitEnum|null   $navigationGroup = 'Kesiswaan';
+    protected static string|\UnitEnum|null   $navigationGroup = 'Presensi Siswa';
     protected static ?string                 $navigationLabel = 'Lupa Absen';
     protected static ?string                 $modelLabel      = 'Lupa Absen';
     protected static ?string                 $pluralModelLabel = 'Lupa Absen Siswa';
     protected static ?int                    $navigationSort  = 32;
 
-    public static function canAccess(): bool { return AdminAccess::can('Kesiswaan'); }
+    public static function canAccess(): bool { return AdminAccess::can('Presensi Siswa'); }
 
     public static function getNavigationBadge(): ?string
     {

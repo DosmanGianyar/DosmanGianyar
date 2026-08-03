@@ -12,12 +12,12 @@ use Illuminate\Support\Carbon;
 class AttendanceReportPage extends Page
 {
     protected static string|\BackedEnum|null $navigationIcon       = 'heroicon-o-clipboard-document-list';
-    protected static string|\UnitEnum|null   $navigationGroup      = 'Kesiswaan';
+    protected static string|\UnitEnum|null   $navigationGroup      = 'Presensi Siswa';
     protected static ?string                 $navigationLabel      = 'Laporan Presensi';
     protected static ?string                 $title                = 'Laporan Presensi Bulanan';
     protected static ?int                    $navigationSort       = 15;
 
-    public static function canAccess(): bool { return AdminAccess::can('Kesiswaan'); }
+    public static function canAccess(): bool { return AdminAccess::can('Presensi Siswa'); }
 
     protected string $view = 'filament.pages.attendance-report';
 

@@ -29,12 +29,12 @@ class AttendanceLocationResource extends Resource
     protected static ?string $model = AttendanceLocation::class;
 
     protected static string|\BackedEnum|null $navigationIcon       = 'heroicon-o-map-pin';
-    protected static string|\UnitEnum|null   $navigationGroup      = 'Kesiswaan';
+    protected static string|\UnitEnum|null   $navigationGroup      = 'Presensi Siswa';
     protected static ?string                 $navigationLabel      = 'Lokasi Presensi';
     protected static ?string                 $modelLabel           = 'Lokasi Presensi';
     protected static ?string                 $pluralModelLabel     = 'Lokasi Presensi';
 
-    public static function canAccess(): bool { return AdminAccess::can('Kesiswaan'); }
+    public static function canAccess(): bool { return AdminAccess::can('Presensi Siswa'); }
 
     public static function form(Schema $schema): Schema
     {

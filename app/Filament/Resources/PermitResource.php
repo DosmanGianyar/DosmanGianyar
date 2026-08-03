@@ -26,13 +26,13 @@ class PermitResource extends Resource
     protected static ?string $model = Permit::class;
 
     protected static string|\BackedEnum|null $navigationIcon  = 'heroicon-o-document-check';
-    protected static string|\UnitEnum|null   $navigationGroup = 'Kesiswaan';
+    protected static string|\UnitEnum|null   $navigationGroup = 'Presensi Siswa';
     protected static ?string                 $navigationLabel = 'Izin / Sakit / Dispen';
     protected static ?string                 $modelLabel      = 'Pengajuan Izin';
     protected static ?string                 $pluralModelLabel = 'Izin / Sakit / Dispensasi';
     protected static ?int                    $navigationSort  = 30;
 
-    public static function canAccess(): bool { return AdminAccess::can('Kesiswaan'); }
+    public static function canAccess(): bool { return AdminAccess::can('Presensi Siswa'); }
 
     public static function getNavigationBadge(): ?string
     {

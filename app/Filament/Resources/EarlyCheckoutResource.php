@@ -25,13 +25,13 @@ class EarlyCheckoutResource extends Resource
     protected static ?string $model = EarlyCheckoutRequest::class;
 
     protected static string|\BackedEnum|null $navigationIcon  = 'heroicon-o-arrow-left-end-on-rectangle';
-    protected static string|\UnitEnum|null   $navigationGroup = 'Kesiswaan';
+    protected static string|\UnitEnum|null   $navigationGroup = 'Presensi Siswa';
     protected static ?string                 $navigationLabel = 'Pulang Lebih Awal';
     protected static ?string                 $modelLabel      = 'Izin Pulang Awal';
     protected static ?string                 $pluralModelLabel = 'Izin Pulang Lebih Awal';
     protected static ?int                    $navigationSort  = 31;
 
-    public static function canAccess(): bool { return AdminAccess::can('Kesiswaan'); }
+    public static function canAccess(): bool { return AdminAccess::can('Presensi Siswa'); }
 
     public static function getNavigationBadge(): ?string
     {

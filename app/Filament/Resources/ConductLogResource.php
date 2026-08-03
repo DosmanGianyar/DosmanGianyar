@@ -27,13 +27,13 @@ class ConductLogResource extends Resource
     protected static ?string $model = ConductLog::class;
 
     protected static string|\BackedEnum|null $navigationIcon       = 'heroicon-o-clipboard-document-list';
-    protected static string|\UnitEnum|null   $navigationGroup      = 'Kesiswaan';
+    protected static string|\UnitEnum|null   $navigationGroup      = 'Kedisiplinan & Tata Tertib';
     protected static ?string                 $navigationLabel      = 'Catatan Perilaku Siswa';
     protected static ?string                 $modelLabel           = 'Catatan Perilaku';
     protected static ?string                 $pluralModelLabel     = 'Catatan Perilaku Siswa';
     protected static ?int                    $navigationSort       = 1;
 
-    public static function canAccess(): bool { return AdminAccess::can('Kesiswaan'); }
+    public static function canAccess(): bool { return AdminAccess::can('Kedisiplinan & Tata Tertib'); }
 
     public static function form(Schema $schema): Schema
     {

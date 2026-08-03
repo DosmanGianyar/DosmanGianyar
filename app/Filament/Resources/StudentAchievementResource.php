@@ -22,12 +22,12 @@ class StudentAchievementResource extends Resource
     protected static ?string $model = StudentAchievement::class;
 
     protected static string|\BackedEnum|null $navigationIcon       = 'heroicon-o-trophy';
-    protected static string|\UnitEnum|null   $navigationGroup      = 'Kesiswaan';
+    protected static string|\UnitEnum|null   $navigationGroup      = 'Prestasi & Ekskul';
     protected static ?string                 $navigationLabel      = 'Laporan Prestasi';
     protected static ?string                 $modelLabel           = 'Prestasi Siswa';
     protected static ?string                 $pluralModelLabel     = 'Laporan Prestasi';
 
-    public static function canAccess(): bool { return AdminAccess::can('Kesiswaan'); }
+    public static function canAccess(): bool { return AdminAccess::can('Prestasi & Ekskul'); }
 
     public static function canCreate(): bool
     {

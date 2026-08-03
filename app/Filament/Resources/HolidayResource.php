@@ -28,13 +28,13 @@ class HolidayResource extends Resource
     protected static ?string $model = Holiday::class;
 
     protected static string|\BackedEnum|null $navigationIcon      = 'heroicon-o-calendar-days';
-    protected static string|\UnitEnum|null   $navigationGroup     = 'Kesiswaan';
+    protected static string|\UnitEnum|null   $navigationGroup     = 'Presensi Siswa';
     protected static ?string                 $navigationLabel     = 'Hari Libur & Sekolah Khusus';
     protected static ?string                 $modelLabel          = 'Hari Libur';
     protected static ?string                 $pluralModelLabel    = 'Hari Libur & Sekolah Khusus';
     protected static ?int                    $navigationSort      = 5;
 
-    public static function canAccess(): bool { return AdminAccess::can('Kesiswaan'); }
+    public static function canAccess(): bool { return AdminAccess::can('Presensi Siswa'); }
 
     public static function form(Schema $schema): Schema
     {

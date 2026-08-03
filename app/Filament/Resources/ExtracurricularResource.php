@@ -29,13 +29,13 @@ class ExtracurricularResource extends Resource
     protected static ?string $model = Extracurricular::class;
 
     protected static string|\BackedEnum|null $navigationIcon  = 'heroicon-o-academic-cap';
-    protected static string|\UnitEnum|null   $navigationGroup = 'Kesiswaan';
+    protected static string|\UnitEnum|null   $navigationGroup = 'Prestasi & Ekskul';
     protected static ?string                 $navigationLabel = 'Ekstrakurikuler';
     protected static ?string                 $modelLabel      = 'Ekstrakurikuler';
     protected static ?string                 $pluralModelLabel = 'Ekstrakurikuler';
     protected static ?int                    $navigationSort  = 10;
 
-    public static function canAccess(): bool { return AdminAccess::can('Kesiswaan'); }
+    public static function canAccess(): bool { return AdminAccess::can('Prestasi & Ekskul'); }
 
     public static function form(Schema $schema): Schema
     {

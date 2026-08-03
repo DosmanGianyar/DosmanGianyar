@@ -24,12 +24,12 @@ class ConductCategoryResource extends Resource
     protected static ?string $model = ConductCategory::class;
 
     protected static string|\BackedEnum|null $navigationIcon       = 'heroicon-o-tag';
-    protected static string|\UnitEnum|null   $navigationGroup      = 'Kesiswaan';
+    protected static string|\UnitEnum|null   $navigationGroup      = 'Kedisiplinan & Tata Tertib';
     protected static ?string                 $navigationLabel      = 'Kategori Catatan Perilaku';
     protected static ?string                 $modelLabel           = 'Kategori Catatan Perilaku';
     protected static ?string                 $pluralModelLabel     = 'Kategori Catatan Perilaku';
 
-    public static function canAccess(): bool { return AdminAccess::can('Kesiswaan'); }
+    public static function canAccess(): bool { return AdminAccess::can('Kedisiplinan & Tata Tertib'); }
 
     public static function form(Schema $schema): Schema
     {

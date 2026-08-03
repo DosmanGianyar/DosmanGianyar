@@ -21,12 +21,12 @@ class AchievementCategoryResource extends Resource
     protected static ?string $model = AchievementCategory::class;
 
     protected static string|\BackedEnum|null $navigationIcon       = 'heroicon-o-tag';
-    protected static string|\UnitEnum|null   $navigationGroup      = 'Kesiswaan';
+    protected static string|\UnitEnum|null   $navigationGroup      = 'Prestasi & Ekskul';
     protected static ?string $modelLabel         = 'Kategori Prestasi';
     protected static ?string $pluralModelLabel  = 'Kategori Prestasi';
     protected static ?string $navigationLabel      = 'Kategori Prestasi';
 
-    public static function canAccess(): bool { return AdminAccess::can('Kesiswaan'); }
+    public static function canAccess(): bool { return AdminAccess::can('Prestasi & Ekskul'); }
 
     public static function form(Schema $schema): Schema
     {

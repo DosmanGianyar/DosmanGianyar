@@ -10,12 +10,12 @@ use Filament\Pages\Page;
 class StudentCardPage extends Page
 {
     protected static string|\BackedEnum|null $navigationIcon  = 'heroicon-o-identification';
-    protected static string|\UnitEnum|null   $navigationGroup = 'Kesiswaan';
+    protected static string|\UnitEnum|null   $navigationGroup = 'Kesiswaan & Layanan';
     protected static ?string                 $navigationLabel = 'Download Kartu Siswa';
     protected static ?string                 $title           = 'Download Kartu Pelajar';
     protected static ?int                    $navigationSort  = 20;
 
-    public static function canAccess(): bool { return AdminAccess::can('Kesiswaan'); }
+    public static function canAccess(): bool { return AdminAccess::can('Kesiswaan & Layanan'); }
 
     protected string $view = 'filament.pages.student-card';
 
