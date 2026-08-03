@@ -344,22 +344,19 @@ class ScheduleImportService
 
         $found = $allSubjects->first(function ($s) use ($codeUpper, $mappedName) {
             $sName = strtoupper($s->name);
-            $sCode = strtoupper($s->code);
+            $sCode = strtoupper($s->code ?? '');
             $mName = strtoupper($mappedName);
 
-            return $sCode === $codeUpper
+            return ($sCode !== '' && $sCode === $codeUpper)
                 || $sName === $codeUpper
-                || $sName === $mName
-                || str_contains($sName, $codeUpper)
-                || str_contains($sName, $mName);
+                || $sName === $mName;
         });
 
         if (!$found) {
-            $found = Subject::create([
-                'code' => $codeUpper,
-                'name' => self::SUBJECT_MAP[$codeUpper] ?? $codeUpper,
-            ]);
-            $allSubjects->push($found);
+            return [
+                'subject_id'          => null,
+                'allowed_subject_ids' => [],
+            ];
         }
 
         return [
@@ -428,7 +425,7 @@ class ScheduleImportService
                 'end_time'            => self::TIME_SLOTS[$item['period']][1] ?? '08:15',
                 'subject_code'        => $subjCode,
                 'subject_id'          => $subjRes['subject_id'],
-                'subject_name'        => $matchedSubject?->name ?? $subjName,
+                'subject_name'        => $matchedSubject?->name ?? '-',
                 'allowed_subject_ids' => $subjRes['allowed_subject_ids'],
                 'teacher_raw'         => $teacherRaw,
                 'teacher_id'          => $matchedTeacher?->id,

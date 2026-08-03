@@ -471,7 +471,7 @@
                                         {{-- Mapel --}}
                                         <td>
                                             <select wire:change="updateItemRow('{{ $item['temp_id'] }}', 'subject_id', $event.target.value)" class="imp-select font-bold text-amber-300">
-                                                <option value="">— Pilih Mapel —</option>
+                                                <option value="">— Belum Ada di DB (-) —</option>
                                                 @foreach ($subjectsList as $s)
                                                     <option value="{{ $s->id }}" @selected($item['subject_id'] == $s->id)>{{ $s->code ? "[{$s->code}] " : '' }}{{ $s->name }}</option>
                                                 @endforeach
