@@ -21,6 +21,7 @@ class GuruAbsensiHarianScreen extends StatefulWidget {
 
 class _GuruAbsensiHarianScreenState extends State<GuruAbsensiHarianScreen> {
   late int _classId;
+  late List<GuruClass> _classes;
   DateTime _date = DateTime.now();
   DailyAttendanceSummary? _data;
   bool _loading = true;
@@ -29,13 +30,28 @@ class _GuruAbsensiHarianScreenState extends State<GuruAbsensiHarianScreen> {
   @override
   void initState() {
     super.initState();
-    _classId = widget.initialClassId ?? (widget.classes.isNotEmpty ? widget.classes.first.id : 0);
+    _classes = List.from(widget.classes);
+    _classId = widget.initialClassId ?? (_classes.isNotEmpty ? _classes.first.id : 0);
     _load();
   }
 
   Future<void> _load() async {
-    if (widget.classes.isEmpty) return;
     setState(() { _loading = true; _error = null; });
+    try {
+      final freshClasses = await GuruService.getClasses();
+      if (freshClasses.isNotEmpty) {
+        _classes = freshClasses;
+        if (!_classes.any((c) => c.id == _classId)) {
+          _classId = _classes.first.id;
+        }
+      }
+    } catch (_) {}
+
+    if (_classes.isEmpty) {
+      if (mounted) setState(() { _loading = false; });
+      return;
+    }
+
     try {
       final data = await GuruService.getAttendanceDaily(
         classId: _classId,
@@ -81,7 +97,7 @@ class _GuruAbsensiHarianScreenState extends State<GuruAbsensiHarianScreen> {
       child: Column(
         children: [
           ClassFilterBar(
-            classes: widget.classes.map((c) => (id: c.id, name: c.name)).toList(),
+            classes: _classes.map((c) => (id: c.id, name: c.name)).toList(),
             selectedId: _classId,
             onChanged: (id) { _classId = id; _load(); },
           ),

@@ -45,9 +45,9 @@
     class="fixed inset-y-0 left-0 w-64 bg-white shadow-lg z-30 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 flex flex-col overflow-hidden">
 
     {{-- Logo --}}
-    <div class="shrink-0 h-16 flex items-center gap-3 px-4 border-b border-gray-100">
+    <div class="shrink-0 h-20 flex items-center gap-3 px-4 pt-3.5 border-b border-gray-100">
         <img src="/img/logo_sekolah.png" alt="Logo"
-            class="w-8 h-8 rounded-lg object-contain shrink-0">
+            class="w-9 h-9 rounded-lg object-contain shrink-0">
         <div class="overflow-hidden">
             <p class="text-gray-900 font-bold text-sm leading-tight truncate">SMA Negeri 1 Gianyar</p>
             <p class="text-gray-400 text-[11px] mt-0.5">Portal Guru</p>

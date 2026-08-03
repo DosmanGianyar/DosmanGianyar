@@ -21,6 +21,7 @@ class GuruRekapScreen extends StatefulWidget {
 
 class _GuruRekapScreenState extends State<GuruRekapScreen> {
   late int _classId;
+  late List<GuruClass> _classes;
   late int _month;
   late int _year;
   RekapAbsensi? _data;
@@ -50,15 +51,30 @@ class _GuruRekapScreenState extends State<GuruRekapScreen> {
   void initState() {
     super.initState();
     final now = DateTime.now();
-    _classId = widget.initialClassId ?? (widget.classes.isNotEmpty ? widget.classes.first.id : 0);
+    _classes = List.from(widget.classes);
+    _classId = widget.initialClassId ?? (_classes.isNotEmpty ? _classes.first.id : 0);
     _month   = now.month;
     _year    = now.year;
     _load();
   }
 
   Future<void> _load() async {
-    if (widget.classes.isEmpty) return;
     setState(() { _loading = true; _error = null; });
+    try {
+      final freshClasses = await GuruService.getClasses();
+      if (freshClasses.isNotEmpty) {
+        _classes = freshClasses;
+        if (!_classes.any((c) => c.id == _classId)) {
+          _classId = _classes.first.id;
+        }
+      }
+    } catch (_) {}
+
+    if (_classes.isEmpty) {
+      if (mounted) setState(() { _loading = false; });
+      return;
+    }
+
     try {
       final data = await GuruService.getAttendanceRekap(
         classId: _classId,
@@ -72,14 +88,23 @@ class _GuruRekapScreenState extends State<GuruRekapScreen> {
   }
 
   void _prevMonth() {
-    if (_month == 1) { _month = 12; _year--; } else { _month--; }
+    if (_month == 1) {
+      _month = 12;
+      _year--;
+    } else {
+      _month--;
+    }
     _load();
   }
 
   void _nextMonth() {
-    final now = DateTime.now();
-    if (_year > now.year || (_year == now.year && _month >= now.month)) return;
-    if (_month == 12) { _month = 1; _year++; } else { _month++; }
+    if (!_canNext) return;
+    if (_month == 12) {
+      _month = 1;
+      _year++;
+    } else {
+      _month++;
+    }
     _load();
   }
 
@@ -109,7 +134,7 @@ class _GuruRekapScreenState extends State<GuruRekapScreen> {
       child: Column(
         children: [
           ClassFilterBar(
-            classes: widget.classes.map((c) => (id: c.id, name: c.name)).toList(),
+            classes: _classes.map((c) => (id: c.id, name: c.name)).toList(),
             selectedId: _classId,
             onChanged: (id) { _classId = id; _load(); },
           ),
