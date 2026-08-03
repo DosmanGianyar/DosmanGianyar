@@ -105,7 +105,7 @@
         }
 
         .imp-input-name {
-            min-width: 260px !important;
+            min-width: 240px !important;
         }
 
         .imp-input-contact {
@@ -165,20 +165,20 @@
                     <span class="imp-table-title">
                         <span>📊 Hasil Pencocokan Data Ekstrakurikuler</span>
                     </span>
-                    <p class="text-xs text-slate-400 mt-0.5">Ditemukan {{ count($previewItems) }} Ekstrakurikuler. Guru & Siswa yang sudah cocok otomatis langsung terpilih.</p>
+                    <p class="text-xs text-slate-400 mt-0.5">Ditemukan {{ count($previewItems) }} Ekstrakurikuler. Ketik nama di kotak pencarian untuk menambah/mengubah Pembina atau Pengurus.</p>
                 </div>
                 <x-filament::button wire:click="saveAll" color="success" size="lg" icon="heroicon-o-check-circle">
                     💾 Simpan All Data Ekstrakurikuler
                 </x-filament::button>
             </div>
 
-            <div class="overflow-visible">
+            <div class="overflow-x-auto">
                 <table class="imp-table">
                     <thead>
                         <tr>
                             <th class="w-10 text-center">No</th>
                             <th class="min-w-[240px]">Nama Ekstra</th>
-                            <th class="min-w-[300px]">Guru Pembina (Otomatis Match)</th>
+                            <th class="min-w-[300px]">Guru Pembina (Multi-Select)</th>
                             <th class="min-w-[300px]">Pengurus Ekstra (Ketua & Wakil)</th>
                             <th class="min-w-[140px]">Contact Person (Admin)</th>
                         </tr>
@@ -193,7 +193,7 @@
                                 <input type="text" wire:model.defer="previewItems.{{ $index }}.name" required class="imp-input imp-input-name font-bold">
                             </td>
 
-                            {{-- Guru Pembina Picker (Badges + Interactive Search) --}}
+                            {{-- Guru Pembina Picker (Badges + Interactive Inline Search) --}}
                             <td>
                                 <div x-data="{
                                     open: false,
@@ -248,25 +248,32 @@
                                         </template>
                                     </div>
 
-                                    {{-- Search Input & Dropdown --}}
-                                    <div class="relative" @click.outside="open = false">
+                                    {{-- Search Input & Inline Dropdown --}}
+                                    <div>
                                         <input type="text" x-model="search" @focus="open = true" @input="open = true"
-                                            placeholder="🔍 Cari & Tambah Guru Pembina..."
+                                            placeholder="🔍 Ketik nama guru pembina..."
                                             class="imp-input text-xs">
 
-                                        <div x-show="open" x-cloak class="absolute z-50 left-0 right-0 mt-1 max-h-48 overflow-y-auto bg-slate-800 border border-slate-700 rounded-lg shadow-2xl p-1 divide-y divide-slate-700/50">
+                                        <div x-show="open" x-cloak class="mt-1.5 max-h-44 overflow-y-auto bg-slate-800 border border-amber-500/40 rounded-lg shadow-xl p-1 divide-y divide-slate-700/50">
+                                            <div class="flex items-center justify-between px-2 py-1 text-[10px] text-slate-400 border-b border-slate-700/50 font-bold uppercase">
+                                                <span>Hasil Pencarian Guru</span>
+                                                <button type="button" @click="open = false" class="text-slate-400 hover:text-white">&times; Tutup</button>
+                                            </div>
                                             <template x-for="(name, id) in filteredTeachers" :key="id">
                                                 <div @click="addTeacher(id)" class="px-2.5 py-1.5 hover:bg-amber-600/30 text-slate-200 hover:text-white text-xs cursor-pointer rounded flex items-center justify-between">
                                                     <span x-text="name"></span>
                                                     <span x-show="(selectedIds || []).includes(parseInt(id))" class="text-amber-400 font-bold text-[10px]">✓ Terpilih</span>
                                                 </div>
                                             </template>
+                                            <template x-if="Object.keys(filteredTeachers).length === 0">
+                                                <div class="px-2.5 py-2 text-xs text-slate-400 italic">Guru tidak ditemukan</div>
+                                            </template>
                                         </div>
                                     </div>
                                 </div>
                             </td>
 
-                            {{-- Pengurus Ekstra (Ketua & Wakil dengan Search Box) --}}
+                            {{-- Pengurus Ekstra (Ketua & Wakil dengan Search Box Inline) --}}
                             <td>
                                 {{-- Ketua Searchable Picker --}}
                                 <div class="space-y-1" x-data="{
@@ -304,16 +311,16 @@
                                         @endif
                                     </div>
 
-                                    <div class="relative" @click.outside="open = false">
+                                    <div>
                                         <div @click="open = !open" class="imp-input flex items-center justify-between cursor-pointer text-xs">
                                             <span x-text="selectedName || '-- Pilih Ketua Ekstra --'" :class="selectedId ? 'font-bold text-white' : 'text-slate-400'"></span>
                                             <span class="text-slate-400 text-[10px]">🔍 ▼</span>
                                         </div>
 
-                                        <div x-show="open" x-cloak class="absolute z-50 left-0 right-0 mt-1 bg-slate-800 border border-slate-700 rounded-lg shadow-2xl p-2 w-72">
-                                            <input type="text" x-model="search" placeholder="Cari nama siswa..." class="imp-input text-xs mb-2">
+                                        <div x-show="open" x-cloak class="mt-1.5 bg-slate-800 border border-emerald-500/40 rounded-lg shadow-xl p-2">
+                                            <input type="text" x-model="search" placeholder="Ketik nama siswa..." class="imp-input text-xs mb-2">
 
-                                            <div class="max-h-44 overflow-y-auto space-y-0.5">
+                                            <div class="max-h-40 overflow-y-auto space-y-0.5">
                                                 <div @click="selectStudent(null)" class="px-2 py-1 hover:bg-slate-700 text-slate-400 text-xs cursor-pointer rounded italic">
                                                     -- Kosongkan --
                                                 </div>
@@ -322,6 +329,9 @@
                                                         <span x-text="name"></span>
                                                         <span x-show="parseInt(selectedId) === parseInt(id)" class="text-emerald-400 font-bold text-[10px]">✓</span>
                                                     </div>
+                                                </template>
+                                                <template x-if="Object.keys(filteredStudents).length === 0">
+                                                    <div class="px-2 py-2 text-xs text-slate-400 italic">Siswa tidak ditemukan</div>
                                                 </template>
                                             </div>
                                         </div>
@@ -364,16 +374,16 @@
                                         @endif
                                     </div>
 
-                                    <div class="relative" @click.outside="open = false">
+                                    <div>
                                         <div @click="open = !open" class="imp-input flex items-center justify-between cursor-pointer text-xs">
                                             <span x-text="selectedName || '-- Pilih Wakil Ketua --'" :class="selectedId ? 'font-bold text-white' : 'text-slate-400'"></span>
                                             <span class="text-slate-400 text-[10px]">🔍 ▼</span>
                                         </div>
 
-                                        <div x-show="open" x-cloak class="absolute z-50 left-0 right-0 mt-1 bg-slate-800 border border-slate-700 rounded-lg shadow-2xl p-2 w-72">
-                                            <input type="text" x-model="search" placeholder="Cari nama siswa..." class="imp-input text-xs mb-2">
+                                        <div x-show="open" x-cloak class="mt-1.5 bg-slate-800 border border-sky-500/40 rounded-lg shadow-xl p-2">
+                                            <input type="text" x-model="search" placeholder="Ketik nama siswa..." class="imp-input text-xs mb-2">
 
-                                            <div class="max-h-44 overflow-y-auto space-y-0.5">
+                                            <div class="max-h-40 overflow-y-auto space-y-0.5">
                                                 <div @click="selectStudent(null)" class="px-2 py-1 hover:bg-slate-700 text-slate-400 text-xs cursor-pointer rounded italic">
                                                     -- Kosongkan --
                                                 </div>
@@ -382,6 +392,9 @@
                                                         <span x-text="name"></span>
                                                         <span x-show="parseInt(selectedId) === parseInt(id)" class="text-sky-400 font-bold text-[10px]">✓</span>
                                                     </div>
+                                                </template>
+                                                <template x-if="Object.keys(filteredStudents).length === 0">
+                                                    <div class="px-2 py-2 text-xs text-slate-400 italic">Siswa tidak ditemukan</div>
                                                 </template>
                                             </div>
                                         </div>
