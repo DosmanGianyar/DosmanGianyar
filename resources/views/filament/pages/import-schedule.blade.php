@@ -268,7 +268,7 @@
                 <div>
                     <div class="imp-banner-title">Import & Parsing CSV / Excel Jadwal Pelajaran</div>
                     <div class="imp-banner-desc">
-                        Unggah file CSV / Excel master jadwal pelajaran. Sistem mendukung <strong>Format Tabel Standar</strong> (Kolom: <code>Kelas, Hari, Jam Ke, Mata Pelajaran, Nama Guru, Ruangan</code>) maupun format matriks horizontal timetable.
+                        Unggah file CSV / Excel master jadwal pelajaran. Sistem mendukung <strong>Format Tabel Standar</strong> (Kolom: <code>Kelas, Hari, Jam Ke, Mata Pelajaran, Nama Guru</code>) maupun format matriks horizontal timetable.
                     </div>
                 </div>
                 <div>

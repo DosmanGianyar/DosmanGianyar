@@ -1,17 +1,17 @@
-Kelas,Hari,Jam Ke,Mata Pelajaran,Nama Guru,Ruangan
-X-01,Senin,1,Sosiologi,"Putu Ayu Dewi Puspita Wulandari, S.Sos.",R.101
-X-01,Senin,2,Sosiologi,"Putu Ayu Dewi Puspita Wulandari, S.Sos.",R.101
-X-01,Senin,3,Kewirausahaan / KKA,"Komang Sabda Kusumantara, S.Pd",R.101
-X-01,Senin,4,Kewirausahaan / KKA,"Komang Sabda Kusumantara, S.Pd",R.101
-X-01,Senin,5,Matematika,"Ni Kadek Risma Sagitarini, S.Pd.M.Pd",R.101
-X-01,Senin,6,Matematika,"Ni Kadek Risma Sagitarini, S.Pd.M.Pd",R.101
-X-01,Senin,7,Bahasa Indonesia,"Dewa Ayu Sri Wisnontari, S.Pd.",R.101
-X-01,Senin,8,Bahasa Indonesia,"Dewa Ayu Sri Wisnontari, S.Pd.",R.101
-X-01,Senin,9,Sejarah,"I Wayan Gede Purna Martha S.Pd",R.101
-X-01,Senin,10,Sejarah,"I Wayan Gede Purna Martha S.Pd",R.101
-X-01,Selasa,1,Fisika,"I Ketut Susila,S.Pd., M.Pd",Lab Fisika
-X-01,Selasa,2,Fisika,"I Ketut Susila,S.Pd., M.Pd",Lab Fisika
-XI-A,Senin,1,Matematika Lanjutan,"Ni Wayan Giri Wahyuni, S.Pd",R.201
-XI-A,Senin,2,Matematika Lanjutan,"Ni Wayan Giri Wahyuni, S.Pd",R.201
-XII-B1,Senin,1,Fisika,"A.A Sri D. Indrayanti,S.Pd., M.Pd",R.301
-XII-B1,Senin,2,Fisika,"A.A Sri D. Indrayanti,S.Pd., M.Pd",R.301
+Kelas,Hari,Jam Ke,Mata Pelajaran,Nama Guru
+X-01,Senin,1,Sosiologi,"Putu Ayu Dewi Puspita Wulandari, S.Sos."
+X-01,Senin,2,Sosiologi,"Putu Ayu Dewi Puspita Wulandari, S.Sos."
+X-01,Senin,3,Kewirausahaan / KKA,"Komang Sabda Kusumantara, S.Pd"
+X-01,Senin,4,Kewirausahaan / KKA,"Komang Sabda Kusumantara, S.Pd"
+X-01,Senin,5,Matematika,"Ni Kadek Risma Sagitarini, S.Pd.M.Pd"
+X-01,Senin,6,Matematika,"Ni Kadek Risma Sagitarini, S.Pd.M.Pd"
+X-01,Senin,7,Bahasa Indonesia,"Dewa Ayu Sri Wisnontari, S.Pd."
+X-01,Senin,8,Bahasa Indonesia,"Dewa Ayu Sri Wisnontari, S.Pd."
+X-01,Senin,9,Sejarah,"I Wayan Gede Purna Martha S.Pd"
+X-01,Senin,10,Sejarah,"I Wayan Gede Purna Martha S.Pd"
+X-01,Selasa,1,Fisika,"I Ketut Susila,S.Pd., M.Pd"
+X-01,Selasa,2,Fisika,"I Ketut Susila,S.Pd., M.Pd"
+XI-A,Senin,1,Matematika Lanjutan,"Ni Wayan Giri Wahyuni, S.Pd"
+XI-A,Senin,2,Matematika Lanjutan,"Ni Wayan Giri Wahyuni, S.Pd"
+XII-B1,Senin,1,Fisika,"A.A Sri D. Indrayanti,S.Pd., M.Pd"
+XII-B1,Senin,2,Fisika,"A.A Sri D. Indrayanti,S.Pd., M.Pd"
