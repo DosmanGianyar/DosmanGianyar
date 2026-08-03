@@ -93,7 +93,7 @@
                             {{ $journal->date?->isoFormat('ddd, D MMM Y') }}
                         </span>
                         @if($journal->period)
-                        <span class="text-xs text-blue-600 font-medium">
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-blue-600 text-white text-[11px] font-bold shadow-xs">
                             Jam ke-{{ $journal->period }}{{ $journal->period_end && $journal->period_end > $journal->period ? '–'.$journal->period_end : '' }}
                         </span>
                         @endif

@@ -21,11 +21,11 @@
         <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 space-y-3 mt-3">
             <p class="text-xs font-semibold text-gray-600 uppercase tracking-wide">Kelas *</p>
             <select name="class_id" id="class-select" required
-                onchange="loadStudents(this.value)"
+                onchange="onClassChange(this.value)"
                 class="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                 <option value="">— Pilih Kelas —</option>
                 @foreach($classes as $class)
-                <option value="{{ $class->id }}" {{ old('class_id') == $class->id ? 'selected' : '' }}>
+                <option value="{{ $class->id }}" {{ old('class_id', $preClassId) == $class->id ? 'selected' : '' }}>
                     {{ $class->name }}
                 </option>
                 @endforeach
@@ -36,11 +36,11 @@
         {{-- ─── Mata Pelajaran --}}
         <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 space-y-3 mt-3">
             <p class="text-xs font-semibold text-gray-600 uppercase tracking-wide">Mata Pelajaran <span class="font-normal text-gray-400">(opsional)</span></p>
-            <select name="subject_id"
+            <select name="subject_id" id="subject-select"
                 class="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                 <option value="">— Tidak dipilih —</option>
                 @foreach($subjects as $subject)
-                <option value="{{ $subject->id }}" {{ old('subject_id') == $subject->id ? 'selected' : '' }}>
+                <option value="{{ $subject->id }}" {{ old('subject_id', $preSubjectId) == $subject->id ? 'selected' : '' }}>
                     {{ $subject->name }}
                 </option>
                 @endforeach
@@ -257,6 +257,24 @@ function renderAbsentInputs() {
     }
 }
 
+const _todaySchedules = @json($todaySchedules);
+const _prePeriod       = @json($prePeriod);
+
+function onClassChange(classId) {
+    loadStudents(classId);
+
+    if (classId && _todaySchedules[classId]) {
+        const sch = _todaySchedules[classId];
+        if (sch.period) {
+            selectPeriod(parseInt(sch.period));
+        }
+        const subjSelect = document.getElementById('subject-select');
+        if (subjSelect && sch.subject_id && !subjSelect.value) {
+            subjSelect.value = sch.subject_id;
+        }
+    }
+}
+
 function selectPeriod(p) {
     _selectedPeriod = (_selectedPeriod === p) ? null : p;
     document.getElementById('period-input').value = _selectedPeriod || '';
@@ -308,10 +326,18 @@ function updatePeriodCountLabels() {
     });
 }
 
-// Auto-load students if class was pre-selected (e.g. on validation error)
+// Auto-load students and pre-select period if class was pre-selected
 document.addEventListener('DOMContentLoaded', () => {
     const sel = document.getElementById('class-select');
-    if (sel && sel.value) loadStudents(sel.value);
+    if (sel && sel.value) {
+        loadStudents(sel.value);
+        if (_todaySchedules[sel.value] && !_selectedPeriod) {
+            onClassChange(sel.value);
+        }
+    }
+    if (_prePeriod && !_selectedPeriod) {
+        selectPeriod(parseInt(_prePeriod));
+    }
 });
 </script>
 @endsection

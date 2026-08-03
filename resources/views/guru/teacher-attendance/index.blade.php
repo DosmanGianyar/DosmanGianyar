@@ -149,15 +149,19 @@
                     {{-- Session Header --}}
                     <div class="flex flex-wrap items-start justify-between gap-3 mb-3">
                         <div>
-                            <p class="font-semibold text-gray-800 text-sm">
-                                Jam ke-{{ $schedule->period }} &nbsp;·&nbsp; {{ $schedule->schoolClass?->name }}
+                            <p class="font-semibold text-gray-800 text-sm flex items-center gap-2">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-bold bg-blue-600 text-white shadow-xs">Jam ke-{{ $schedule->period }}</span>
+                                <span>{{ $schedule->schoolClass?->name }}</span>
                             </p>
-                            <p class="text-xs text-gray-500 mt-0.5">
-                                {{ $schedule->subject?->name }}
+                            <p class="text-xs text-gray-500 mt-1 flex flex-wrap items-center gap-2">
+                                <span>{{ $schedule->subject?->name }}</span>
                                 @if($schedule->start_time)
-                                    &nbsp;·&nbsp; {{ substr($schedule->start_time, 0, 5) }}–{{ substr($schedule->end_time, 0, 5) }}
+                                    <span>· {{ substr($schedule->start_time, 0, 5) }}–{{ substr($schedule->end_time, 0, 5) }}</span>
                                 @endif
-                                @if($schedule->room) &nbsp;·&nbsp; {{ $schedule->room }} @endif
+                                @if($schedule->room) <span>· {{ $schedule->room }}</span> @endif
+                                <a href="{{ route('guru.journal.create', ['class_id' => $schedule->class_id, 'period' => $schedule->period, 'subject_id' => $schedule->subject_id]) }}" class="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-600 hover:text-blue-800 bg-blue-50 px-2 py-0.5 rounded-md hover:bg-blue-100 transition-colors">
+                                    📝 Buat Jurnal
+                                </a>
                             </p>
                         </div>
                         <div class="flex flex-wrap items-center gap-2">

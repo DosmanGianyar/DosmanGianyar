@@ -16,6 +16,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
+use App\Models\Schedule;
+
 class JournalController extends Controller
 {
     public function index(Request $request): View
@@ -43,11 +45,33 @@ class JournalController extends Controller
         return view('guru.journal.index', compact('journals', 'classes', 'month', 'year', 'classId', 'total'));
     }
 
-    public function create(): View
+    public function create(Request $request): View
     {
         $teacher  = Auth::user();
         $classes  = SchoolClass::orderBy('name')->get();
         $subjects = Subject::orderBy('name')->get();
+
+        $dayOfWeek = now()->dayOfWeek; // 0=Sun, 1=Mon...6=Sat
+        $scheduleDay = ($dayOfWeek >= 1 && $dayOfWeek <= 5) ? $dayOfWeek : null;
+
+        $todaySchedules = [];
+        if ($scheduleDay) {
+            $schedules = Schedule::where('teacher_id', $teacher->id)
+                ->where('day', $scheduleDay)
+                ->orderBy('period')
+                ->get();
+
+            foreach ($schedules as $sch) {
+                $todaySchedules[$sch->class_id] = [
+                    'period'     => $sch->period,
+                    'subject_id' => $sch->subject_id,
+                ];
+            }
+        }
+
+        $preClassId   = $request->input('class_id');
+        $preSubjectId = $request->input('subject_id');
+        $prePeriod    = $request->input('period');
 
         $tps = TujuanPembelajaran::where('teacher_id', $teacher->id)
             ->where('is_active', true)
@@ -56,7 +80,7 @@ class JournalController extends Controller
             ->orderByDesc('id')
             ->get();
 
-        return view('guru.journal.create', compact('classes', 'subjects', 'tps'));
+        return view('guru.journal.create', compact('classes', 'subjects', 'tps', 'todaySchedules', 'preClassId', 'preSubjectId', 'prePeriod'));
     }
 
     public function store(Request $request): RedirectResponse
