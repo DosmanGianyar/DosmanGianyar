@@ -430,7 +430,7 @@
                             </thead>
                             <tbody>
                                 @forelse ($paginated as $item)
-                                    <tr>
+                                    <tr wire:key="item-row-{{ $item['temp_id'] }}">
                                         {{-- Kelas --}}
                                         <td>
                                             <select wire:change="updateItemRow('{{ $item['temp_id'] }}', 'class_id', $event.target.value)" class="imp-select font-bold text-blue-400">
