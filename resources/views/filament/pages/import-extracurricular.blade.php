@@ -165,7 +165,7 @@
                     <span class="imp-table-title">
                         <span>📊 Hasil Pencocokan Data Ekstrakurikuler</span>
                     </span>
-                    <p class="text-xs text-slate-400 mt-0.5">Ditemukan {{ count($previewItems) }} Ekstrakurikuler. Gunakan fitur pencarian nama di tiap kolom untuk mengubah Pembina / Pengurus.</p>
+                    <p class="text-xs text-slate-400 mt-0.5">Ditemukan {{ count($previewItems) }} Ekstrakurikuler. Guru & Siswa yang sudah cocok otomatis langsung terpilih.</p>
                 </div>
                 <x-filament::button wire:click="saveAll" color="success" size="lg" icon="heroicon-o-check-circle">
                     💾 Simpan All Data Ekstrakurikuler
@@ -178,7 +178,7 @@
                         <tr>
                             <th class="w-10 text-center">No</th>
                             <th class="min-w-[240px]">Nama Ekstra</th>
-                            <th class="min-w-[300px]">Guru Pembina (Multi-Select)</th>
+                            <th class="min-w-[300px]">Guru Pembina (Otomatis Match)</th>
                             <th class="min-w-[300px]">Pengurus Ekstra (Ketua & Wakil)</th>
                             <th class="min-w-[140px]">Contact Person (Admin)</th>
                         </tr>
@@ -198,8 +198,13 @@
                                 <div x-data="{
                                     open: false,
                                     search: '',
-                                    selectedIds: $wire.entangle('previewItems.{{ $index }}.teacher_ids').defer,
+                                    selectedIds: @js(array_values($item['teacher_ids'] ?? [])),
                                     teachers: @js($teachersList),
+                                    init() {
+                                        this.$watch('selectedIds', val => {
+                                            $wire.set('previewItems.{{ $index }}.teacher_ids', val);
+                                        });
+                                    },
                                     get selectedPembinas() {
                                         return (this.selectedIds || []).map(id => ({ id: parseInt(id), name: this.teachers[id] || id }));
                                     },
@@ -216,7 +221,7 @@
                                         id = parseInt(id);
                                         if (!this.selectedIds) this.selectedIds = [];
                                         if (!this.selectedIds.includes(id)) {
-                                            this.selectedIds.push(id);
+                                            this.selectedIds = [...this.selectedIds, id];
                                         }
                                         this.search = '';
                                         this.open = false;
@@ -233,10 +238,13 @@
                                     {{-- Selected Teacher Badges --}}
                                     <div class="flex flex-wrap gap-1 mb-1">
                                         <template x-for="p in selectedPembinas" :key="p.id">
-                                            <span class="inline-flex items-center gap-1 bg-amber-500/20 text-amber-300 text-[11px] font-semibold px-2 py-0.5 rounded-md border border-amber-500/30 shadow-xs">
+                                            <span class="inline-flex items-center gap-1.5 bg-amber-500/20 text-amber-300 text-[11px] font-semibold px-2 py-0.5 rounded-md border border-amber-500/30 shadow-xs">
                                                 <span x-text="p.name"></span>
                                                 <button type="button" @click="removeTeacher(p.id)" class="hover:text-red-400 font-bold ml-0.5 text-xs">&times;</button>
                                             </span>
+                                        </template>
+                                        <template x-if="selectedPembinas.length === 0">
+                                            <span class="text-xs text-slate-500 italic">Belum ada pembina terpilih</span>
                                         </template>
                                     </div>
 
@@ -264,8 +272,13 @@
                                 <div class="space-y-1" x-data="{
                                     open: false,
                                     search: '',
-                                    selectedId: $wire.entangle('previewItems.{{ $index }}.ketua_id').defer,
+                                    selectedId: @js($item['ketua_id'] ?? null),
                                     students: @js($studentsList),
+                                    init() {
+                                        this.$watch('selectedId', val => {
+                                            $wire.set('previewItems.{{ $index }}.ketua_id', val);
+                                        });
+                                    },
                                     get selectedName() {
                                         return this.selectedId ? (this.students[this.selectedId] || '') : '';
                                     },
@@ -319,8 +332,13 @@
                                 <div class="space-y-1 mt-3" x-data="{
                                     open: false,
                                     search: '',
-                                    selectedId: $wire.entangle('previewItems.{{ $index }}.wakil_ketua_id').defer,
+                                    selectedId: @js($item['wakil_ketua_id'] ?? null),
                                     students: @js($studentsList),
+                                    init() {
+                                        this.$watch('selectedId', val => {
+                                            $wire.set('previewItems.{{ $index }}.wakil_ketua_id', val);
+                                        });
+                                    },
                                     get selectedName() {
                                         return this.selectedId ? (this.students[this.selectedId] || '') : '';
                                     },

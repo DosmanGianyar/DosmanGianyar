@@ -178,6 +178,8 @@ class ExtracurricularImportService
         $bestId    = null;
         $bestScore = 0;
 
+        $rawTokens = array_filter(explode(' ', $cleanRaw), fn ($w) => strlen($w) >= 3);
+
         foreach ($users as $user) {
             $cleanUser = self::cleanName($user->name);
 
@@ -190,11 +192,18 @@ class ExtracurricularImportService
             if (str_contains($cleanUser, $cleanRaw) || str_contains($cleanRaw, $cleanUser)) {
                 $score = 90;
             } else {
-                similar_text($cleanRaw, $cleanUser, $percent);
-                $score = $percent;
+                // Token overlap score
+                $userTokens   = array_filter(explode(' ', $cleanUser), fn ($w) => strlen($w) >= 3);
+                $commonTokens = array_intersect($rawTokens, $userTokens);
+                if (count($rawTokens) > 0 && count($commonTokens) >= min(2, count($rawTokens))) {
+                    $score = 85;
+                } else {
+                    similar_text($cleanRaw, $cleanUser, $percent);
+                    $score = $percent;
+                }
             }
 
-            if ($score > 60 && $score > $bestScore) {
+            if ($score >= 50 && $score > $bestScore) {
                 $bestScore = $score;
                 $bestId    = $user->id;
             }
