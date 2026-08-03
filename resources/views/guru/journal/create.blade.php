@@ -265,9 +265,6 @@ function onClassChange(classId) {
 
     if (classId && _todaySchedules[classId]) {
         const sch = _todaySchedules[classId];
-        if (sch.period) {
-            selectPeriod(parseInt(sch.period));
-        }
         const subjSelect = document.getElementById('subject-select');
         if (subjSelect && sch.subject_id && !subjSelect.value) {
             subjSelect.value = sch.subject_id;

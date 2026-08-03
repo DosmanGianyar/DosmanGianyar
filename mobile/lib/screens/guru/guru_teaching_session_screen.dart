@@ -555,9 +555,6 @@ class _CreateSessionTabState extends State<_CreateSessionTab> {
                 _selectedClassId   = id;
                 _selectedSubjectId = selectedObj['subject_id'] as int?;
                 _selectedPeriods.clear();
-                if (selectedObj['period'] != null) {
-                  _selectedPeriods.add(selectedObj['period'] as int);
-                }
               });
               _loadStudents(id);
               _loadOccupiedPeriods();
