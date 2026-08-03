@@ -80,7 +80,7 @@ class ScheduleImportService
     }
 
     /**
-     * Specialized Parser untuk format CSV / Excel "JADWAL GURU_MAPEL HOR.csv"
+     * Parser Fleksibel: Mendukung Format Tabel Daftar & Format Matrix Timetable
      */
     public function parseCsvSchedule(string $filePath, string $targetGrade = 'ALL'): array
     {
@@ -115,7 +115,66 @@ class ScheduleImportService
             return [];
         }
 
-        // 1. Ekstrak Pemetaan Kode Guru ke Nama Lengkap Guru di tabel bagian bawah (row index 39 ke bawah)
+        // 1. Deteksi jika file menggunakan Format List/Tabel Standar (Baris per Baris: Kelas, Hari, Jam, Mapel, Guru, Ruang)
+        $headerRowIdx = null;
+        $colClass     = null;
+        $colDay       = null;
+        $colPeriod    = null;
+        $colSubject   = null;
+        $colTeacher   = null;
+        $colRoom      = null;
+
+        foreach ($rows as $idx => $r) {
+            if ($idx > 5) break;
+            $rowUpper = array_map(fn($v) => strtoupper(trim((string)$v)), $r);
+            
+            foreach ($rowUpper as $cIdx => $val) {
+                if (in_array($val, ['KELAS', 'CLASS'])) $colClass = $cIdx;
+                if (in_array($val, ['HARI', 'DAY'])) $colDay = $cIdx;
+                if (in_array($val, ['JAM', 'JAM KE', 'PERIOD', 'WAKTU', 'TIME'])) $colPeriod = $cIdx;
+                if (in_array($val, ['MAPEL', 'MATA PELAJARAN', 'SUBJECT', 'KODE MAPEL'])) $colSubject = $cIdx;
+                if (in_array($val, ['GURU', 'NAMA GURU', 'TEACHER', 'KODE GURU'])) $colTeacher = $cIdx;
+                if (in_array($val, ['RUANG', 'RUANGAN', 'ROOM'])) $colRoom = $cIdx;
+            }
+
+            if ($colClass !== null && $colSubject !== null && $colTeacher !== null) {
+                $headerRowIdx = $idx;
+                break;
+            }
+        }
+
+        if ($headerRowIdx !== null) {
+            $rawListItems = [];
+            for ($i = $headerRowIdx + 1; $i < count($rows); $i++) {
+                $r = $rows[$i];
+                $className  = trim($r[$colClass] ?? '');
+                $subjectRaw = trim($r[$colSubject] ?? '');
+                $teacherRaw = trim($r[$colTeacher] ?? '');
+
+                if (empty($className) || empty($subjectRaw)) continue;
+
+                $dayStr = strtoupper(trim($r[$colDay] ?? '1'));
+                $day    = self::DAY_MAP[$dayStr] ?? (is_numeric($dayStr) ? (int)$dayStr : 1);
+
+                $periodVal = trim($r[$colPeriod] ?? '1');
+                $period    = is_numeric($periodVal) ? (int)$periodVal : 1;
+                $room      = ($colRoom !== null) ? trim($r[$colRoom] ?? '') : null;
+
+                $rawListItems[] = [
+                    'class_name'   => $className,
+                    'day'          => $day > 0 ? $day : 1,
+                    'period'       => $period > 0 ? $period : 1,
+                    'subject_code' => $subjectRaw,
+                    'teacher_raw'  => $teacherRaw,
+                    'room'         => $room,
+                    'target_grade' => $targetGrade,
+                ];
+            }
+
+            return $this->matchEntities($rawListItems);
+        }
+
+        // 2. Parser Format Grid Matrix Timetable
         $teacherCodeToName = [];
         $totalRows         = count($rows);
         $startMappingIndex = 39;
@@ -142,14 +201,13 @@ class ScheduleImportService
         // Urutkan kode guru berdasarkan panjang karakter terpanjang lebih dahulu
         uksort($teacherCodeToName, fn($a, $b) => strlen($b) <=> strlen($a));
 
-        // 2. Cocokkan Kode Guru ke Database User role='guru'
+        // Cocokkan Kode Guru ke Database User role='guru'
         $dbTeachers        = User::where('role', 'guru')->get();
         $codeToTeacherUser = [];
         foreach ($teacherCodeToName as $code => $fullName) {
             $codeToTeacherUser[$code] = $this->matchTeacherToDb($fullName, $dbTeachers);
         }
 
-        // 3. Parsel Grid Matrix Jadwal Pelajaran (Baris 6 s.d $startMappingIndex)
         $rawItems = [];
 
         for ($r = 6; $r < $startMappingIndex; $r++) {
@@ -161,7 +219,7 @@ class ScheduleImportService
 
             // Iterate 6 hari (Senin - Sabtu), 11 jam pelajaran per hari
             for ($day = 1; $day <= 6; $day++) {
-                $startCol = 2 + ($day - 1) * 11; // Index 0: empty, 1: ClassName, 2: Monday Period 1
+                $startCol = 2 + ($day - 1) * 11;
                 for ($period = 1; $period <= 11; $period++) {
                     $colIdx = $startCol + ($period - 1);
                     $cell   = trim($row[$colIdx] ?? '');
@@ -170,7 +228,6 @@ class ScheduleImportService
                         continue;
                     }
 
-                    // Deteksi Kode Guru dan Kode Mapel dari isi sel
                     $matchedCode = null;
                     $subjectCode = null;
 

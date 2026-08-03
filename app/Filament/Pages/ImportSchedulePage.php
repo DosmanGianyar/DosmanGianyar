@@ -7,7 +7,6 @@ use App\Models\Subject;
 use App\Models\User;
 use App\Services\ScheduleImportService;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
@@ -62,7 +61,7 @@ class ImportSchedulePage extends Page
 
                 FileUpload::make('file')
                     ->label('File Master CSV / Excel Jadwal (.csv, .xlsx, .xls)')
-                    ->helperText('Unggah file CSV master jadwal (misal: JADWAL GURU_MAPEL HOR.csv). Sistem otomatis mengekstrak hari, jam, kelas, mapel, dan melakukan matching guru.')
+                    ->helperText('Unggah file CSV/Excel master jadwal. Sistem otomatis mengekstrak hari, jam, kelas, mapel, dan melakukan pencocokan guru.')
                     ->acceptedFileTypes([
                         'text/csv',
                         'text/plain',
@@ -71,64 +70,14 @@ class ImportSchedulePage extends Page
                         'application/vnd.ms-excel',
                     ])
                     ->maxSize(20480) // 20MB
-                    ->nullable()
+                    ->required()
                     ->storeFiles(false),
             ])
             ->statePath('data');
     }
 
     /**
-     * Langkah 1A: Parse langsung file default public/JADWAL GURU_MAPEL HOR.csv
-     */
-    public function parseDefaultCsv(ScheduleImportService $service): void
-    {
-        $state                 = $this->form->getState();
-        $this->academicYear    = $state['academic_year'] ?? '2026/2027 Ganjil';
-        $this->replaceExisting = (bool) ($state['replace_existing'] ?? true);
-        $this->selectedGrade   = 'Semua Kelas (10, 11, 12)';
-
-        $defaultCsvPath = public_path('JADWAL GURU_MAPEL HOR.csv');
-
-        if (!file_exists($defaultCsvPath)) {
-            Notification::make()
-                ->title('File Default Tidak Ditemukan')
-                ->body("File 'public/JADWAL GURU_MAPEL HOR.csv' tidak ditemukan di server.")
-                ->danger()
-                ->send();
-            return;
-        }
-
-        try {
-            $items = $service->parseCsvSchedule($defaultCsvPath, 'ALL');
-
-            if (empty($items)) {
-                Notification::make()
-                    ->title('Gagal membaca jadwal dari file CSV default')
-                    ->body('Pastikan file CSV memiliki format tabel/grid jadwal pelajaran yang valid.')
-                    ->warning()
-                    ->send();
-                return;
-            }
-
-            $this->parsedItems = $items;
-            $this->isParsed    = true;
-
-            Notification::make()
-                ->title('File CSV Default Berhasil Diparsing!')
-                ->body('Ditemukan ' . count($items) . ' slot jadwal pelajaran master dari file JADWAL GURU_MAPEL HOR.csv.')
-                ->success()
-                ->send();
-        } catch (\Throwable $e) {
-            Notification::make()
-                ->title('Error Parsing File Default')
-                ->body($e->getMessage())
-                ->danger()
-                ->send();
-        }
-    }
-
-    /**
-     * Langkah 1B: Parsing file CSV / Excel yang diunggah
+     * Langkah 1: Parsing file CSV / Excel yang diunggah
      */
     public function startParsing(ScheduleImportService $service): void
     {
@@ -136,8 +85,7 @@ class ImportSchedulePage extends Page
         $uploadedFile = $state['file'] ?? null;
 
         if (! $uploadedFile) {
-            // Jika tidak ada file di-upload, jalankan parseDefaultCsv
-            $this->parseDefaultCsv($service);
+            Notification::make()->title('Silakan pilih file CSV / Excel terlebih dahulu')->warning()->send();
             return;
         }
 
@@ -152,7 +100,7 @@ class ImportSchedulePage extends Page
             if (empty($items)) {
                 Notification::make()
                     ->title('Gagal membaca jadwal dari file CSV / Excel')
-                    ->body('Pastikan file CSV / Excel memiliki format tabel/grid jadwal pelajaran yang valid.')
+                    ->body('Pastikan file CSV / Excel memiliki format tabel (Kelas, Hari, Jam Ke, Mapel, Nama Guru) atau format matriks yang valid.')
                     ->warning()
                     ->send();
                 return;

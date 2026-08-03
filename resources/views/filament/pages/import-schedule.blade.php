@@ -187,10 +187,20 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                 </svg>
             </div>
-            <div>
-                <div class="imp-banner-title">Import & Parsing CSV / Excel Jadwal Pelajaran</div>
-                <div class="imp-banner-desc">
-                    Unggah file CSV master jadwal (misal: <strong>JADWAL GURU_MAPEL HOR.csv</strong>) atau Excel (.xlsx / .xls). Sistem akan mengekstrak jam, hari, kelas, mapel, serta menyandingkan kode guru di bagian bawah CSV dengan akun guru di database secara otomatis.
+            <div class="flex-1 flex justify-between items-center">
+                <div>
+                    <div class="imp-banner-title">Import & Parsing CSV / Excel Jadwal Pelajaran</div>
+                    <div class="imp-banner-desc">
+                        Unggah file CSV / Excel master jadwal pelajaran. Sistem mendukung <strong>Format Tabel Standar</strong> (Kolom: <code>Kelas, Hari, Jam Ke, Mata Pelajaran, Nama Guru, Ruangan</code>) maupun format matriks horizontal timetable.
+                    </div>
+                </div>
+                <div>
+                    <a href="/templates/template_jadwal_pelajaran.csv" download class="inline-flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg text-xs font-bold transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                        </svg>
+                        Download Model Template CSV / Excel
+                    </a>
                 </div>
             </div>
         </div>
@@ -205,22 +215,10 @@
                 <form wire:submit.prevent="startParsing" class="space-y-6">
                     {{ $this->form }}
 
-                    <div class="pt-4 flex justify-between items-center">
-                        <div>
-                            <x-filament::button
-                                type="button"
-                                wire:click="parseDefaultCsv"
-                                icon="heroicon-o-document-text"
-                                color="info"
-                                size="md">
-                                Import Langsung dari public/JADWAL GURU_MAPEL HOR.csv
-                            </x-filament::button>
-                        </div>
-                        <div>
-                            <x-filament::button type="submit" icon="heroicon-o-arrow-path" size="lg" color="primary">
-                                Ekstrak & Pratinjau Jadwal
-                            </x-filament::button>
-                        </div>
+                    <div class="pt-4 flex justify-end items-center">
+                        <x-filament::button type="submit" icon="heroicon-o-arrow-path" size="lg" color="primary">
+                            Ekstrak & Pratinjau Jadwal
+                        </x-filament::button>
                     </div>
                 </form>
             </div>
@@ -273,7 +271,7 @@
                                     <th style="width: 130px;">Kelas</th>
                                     <th style="width: 200px;">Hari & Jam</th>
                                     <th>Mata Pelajaran</th>
-                                    <th>Nama/Kode Guru di CSV</th>
+                                    <th>Nama/Kode Guru di File</th>
                                     <th>Hasil Match DB</th>
                                     <th style="width: 320px;">Aksi / Pilih Guru</th>
                                 </tr>
