@@ -20,6 +20,7 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class ScheduleResource extends Resource
 {
@@ -136,10 +137,10 @@ class ScheduleResource extends Resource
                 TextColumn::make('teacher.name')
                     ->label('Guru')
                     ->placeholder('—')
-                    ->searchable(query: function (Builder $query, string $search): Builder {
+                    ->searchable(query: function (\Illuminate\Database\Eloquent\Builder $query, string $search): \Illuminate\Database\Eloquent\Builder {
                         $keywords = array_filter(explode(' ', trim($search)));
-                        return $query->whereHas('teacher', function (Builder $q) use ($keywords, $search) {
-                            $q->where(function (Builder $sub) use ($keywords, $search) {
+                        return $query->whereHas('teacher', function (\Illuminate\Database\Eloquent\Builder $q) use ($keywords, $search) {
+                            $q->where(function (\Illuminate\Database\Eloquent\Builder $sub) use ($keywords, $search) {
                                 $sub->where('name', 'like', "%{$search}%");
                                 foreach ($keywords as $kw) {
                                     $sub->where('name', 'like', "%{$kw}%");
