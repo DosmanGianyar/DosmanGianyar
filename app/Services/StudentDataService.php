@@ -79,12 +79,18 @@ class StudentDataService
             'dispensasi' => $all->where('status', 'dispensasi')->count(),
         ];
 
+        $totalDays = count($all);
+        $totalHadir = $summary['hadir'] + $summary['terlambat'];
+        $attendancePercentage = $totalDays > 0 ? round(($totalHadir / $totalDays) * 100, 1) : 100;
+
         return [
-            'month'       => $month,
-            'year'        => $year,
-            'summary'     => $summary,
-            'records'     => $all,
-            'server_time' => now()->toIso8601String(),
+            'month'                 => $month,
+            'year'                  => $year,
+            'summary'               => $summary,
+            'total_days'            => $totalDays,
+            'attendance_percentage' => $attendancePercentage,
+            'records'               => $all,
+            'server_time'           => now()->toIso8601String(),
         ];
     }
 

@@ -28,13 +28,15 @@ class AttendanceController extends Controller
         $canNext   = $nextMonth->lte(now()->endOfMonth());
 
         return view('orangtua.attendance.history', [
-            'student'   => $student,
-            'records'   => $data['records'],
-            'summary'   => $data['summary'],
-            'start'     => $start,
-            'prevMonth' => $prevMonth,
-            'nextMonth' => $nextMonth,
-            'canNext'   => $canNext,
+            'student'    => $student,
+            'records'    => $data['records'],
+            'summary'    => $data['summary'],
+            'percentage' => $data['attendance_percentage'],
+            'totalDays'  => $data['total_days'],
+            'start'      => $start,
+            'prevMonth'  => $prevMonth,
+            'nextMonth'  => $nextMonth,
+            'canNext'    => $canNext,
         ]);
     }
 }

@@ -16,12 +16,35 @@ class OrangtuaController extends Controller
         /** @var User $orangtua */
         $orangtua = Auth::user();
 
-        $children = $orangtua->children()->with('schoolClass')->get()->map(fn (User $c) => [
-            'id'         => $c->id,
-            'name'       => $c->name,
-            'class_name' => $c->schoolClass?->name,
-            'photo_url'  => $c->photo_url,
-        ])->values();
+        $children = $orangtua->children()->with('schoolClass')->get()->map(function (User $c) {
+            $monthData = StudentDataService::attendanceHistory($c, now()->month, now()->year);
+            $todayAttendance = \App\Models\Attendance::where('user_id', $c->id)
+                ->whereDate('date', today())
+                ->first();
+
+            $violationPoints = \App\Models\ConductLog::where('student_id', $c->id)
+                ->whereHas('category', fn ($q) => $q->where('type', 'pelanggaran'))
+                ->with('category')
+                ->get()
+                ->sum(fn ($log) => $log->category?->points ?? 0);
+
+            return [
+                'id'                  => $c->id,
+                'name'                => $c->name,
+                'class_name'          => $c->schoolClass?->name,
+                'photo_url'           => $c->photo_url,
+                'attendance_percentage' => $monthData['attendance_percentage'],
+                'monthly_summary'     => $monthData['summary'],
+                'violation_points'    => $violationPoints,
+                'today_attendance'    => $todayAttendance ? [
+                    'status'              => $todayAttendance->status,
+                    'check_in_time'       => $todayAttendance->check_in_time,
+                    'check_out_time'      => $todayAttendance->check_out_time,
+                    'check_in_photo_url'  => $todayAttendance->photo_url,
+                    'check_out_photo_url' => $todayAttendance->check_out_photo_url,
+                ] : null,
+            ];
+        })->values();
 
         return response()->json(['children' => $children]);
     }
