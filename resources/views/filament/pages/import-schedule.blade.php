@@ -162,6 +162,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
         }
         .imp-table-title {
             font-size: 0.875rem;
@@ -175,6 +177,7 @@
             display: flex;
             align-items: center;
             gap: 0.75rem;
+            flex-wrap: wrap;
         }
 
         .imp-table {
@@ -253,6 +256,18 @@
         .imp-select:focus {
             border-color: #3b82f6;
         }
+
+        /* Pagination Bar */
+        .imp-pagination {
+            padding: 0.75rem 1.25rem;
+            background-color: rgba(30, 41, 59, 0.7);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
     </style>
 
     <div class="imp-wrap">
@@ -300,6 +315,27 @@
                 </form>
             </div>
         @else
+            @php
+                $allItems      = $this->getAllSessionItems();
+                $filteredItems = $this->getFilteredItems();
+                $paginated     = $this->getPaginatedItems();
+                $totalPages    = $this->getTotalPages();
+                $totalCount    = count($allItems);
+                $filteredCount = count($filteredItems);
+                
+                $classesList  = \App\Models\SchoolClass::orderBy('name')->get();
+                $teachersList = \App\Models\User::where('role', 'guru')->orderBy('name')->get();
+                $subjectsList = \App\Models\Subject::orderBy('name')->get();
+
+                $hasUnmatched = false;
+                foreach ($allItems as $p) {
+                    if (empty($p['teacher_id']) && !empty($p['teacher_raw'])) {
+                        $hasUnmatched = true;
+                        break;
+                    }
+                }
+            @endphp
+
             {{-- ── Langkah 2: Ringkasan Stat & Pratinjau Tabel Match ───────── --}}
             <div style="display: flex; flex-direction: column; gap: 1.5rem;">
 
@@ -315,7 +351,7 @@
                     </div>
                     <div class="imp-stat-card">
                         <span class="imp-stat-label">Total Slot Jadwal</span>
-                        <span class="imp-stat-value" style="color: #4ade80;">{{ count($parsedItems) }} Slot</span>
+                        <span class="imp-stat-value" style="color: #4ade80;">{{ $totalCount }} Slot</span>
                     </div>
                     <div class="imp-stat-card">
                         <span class="imp-stat-label">Status Opsi Timpa</span>
@@ -329,21 +365,12 @@
                 <div class="imp-table-container">
                     <div class="imp-table-header">
                         <div class="imp-table-title">
-                            Pratinjau & Verifikasi Pencocokan Guru ({{ count($parsedItems) }} Data)
+                            Pratinjau & Verifikasi Jadwal ({{ $totalCount }} Data Total)
                         </div>
                         <div class="imp-flex-gap">
-                            @php
-                                $hasUnmatched = false;
-                                foreach ($parsedItems as $p) {
-                                    if (empty($p['teacher_id']) && !empty($p['teacher_raw'])) {
-                                        $hasUnmatched = true;
-                                        break;
-                                    }
-                                }
-                            @endphp
                             @if ($hasUnmatched)
                                 <x-filament::button wire:click="createAllUnmatchedTeachers" color="warning" size="sm" icon="heroicon-o-user-plus">
-                                    Buat Otomatis Akun Guru yang Belum Ada
+                                    ⚡ Buat Otomatis Akun Guru yang Belum Ada
                                 </x-filament::button>
                             @endif
                             <x-filament::button wire:click="cancelPreview" color="gray" size="sm">
@@ -351,6 +378,38 @@
                             </x-filament::button>
                             <x-filament::button wire:click="saveToDatabase" color="success" size="sm" icon="heroicon-o-check-circle">
                                 SIMPAN JADWAL KE DATABASE
+                            </x-filament::button>
+                        </div>
+                    </div>
+
+                    {{-- Filter & Pagination Header Bar --}}
+                    <div class="imp-pagination">
+                        <div class="imp-flex-gap">
+                            <label style="font-size: 0.75rem; color: #94a3b8; font-weight: 600;">Filter Kelas:</label>
+                            <select wire:model.live="filterClass" class="imp-select" style="width: auto;">
+                                <option value="ALL">Semua Kelas ({{ $totalCount }})</option>
+                                @foreach ($classesList as $c)
+                                    <option value="{{ $c->name }}">{{ $c->name }}</option>
+                                @endforeach
+                            </select>
+
+                            <label style="font-size: 0.75rem; color: #94a3b8; font-weight: 600; margin-left: 0.5rem;">Status Guru:</label>
+                            <select wire:model.live="filterStatus" class="imp-select" style="width: auto;">
+                                <option value="ALL">Semua Status</option>
+                                <option value="unmatched">Belum Ada di DB (Perlu Dibuat/Dicocokkan)</option>
+                                <option value="matched">Sudah Match DB</option>
+                            </select>
+                        </div>
+
+                        <div class="imp-flex-gap">
+                            <span style="font-size: 0.75rem; color: #cbd5e1;">
+                                Menampilkan <strong>{{ count($paginated) }}</strong> dari <strong>{{ $filteredCount }}</strong> data (Halaman {{ $currentPage }} / {{ $totalPages }})
+                            </span>
+                            <x-filament::button wire:click="previousPage" color="gray" size="xs" :disabled="$currentPage <= 1">
+                                ◄ Sblm
+                            </x-filament::button>
+                            <x-filament::button wire:click="nextPage" color="gray" size="xs" :disabled="$currentPage >= $totalPages">
+                                Lanjut ►
                             </x-filament::button>
                         </div>
                     </div>
@@ -368,21 +427,14 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @php
-                                    $teachersList = \App\Models\User::where('role', 'guru')->orderBy('name')->get();
-                                    $classesList  = \App\Models\SchoolClass::orderBy('name')->get();
-                                    $subjectsList = \App\Models\Subject::orderBy('name')->get();
-                                    $daysName     = ['', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-                                @endphp
-
-                                @foreach ($parsedItems as $idx => $item)
+                                @forelse ($paginated as $item)
                                     <tr>
                                         {{-- Kelas --}}
                                         <td>
-                                            <select wire:model="parsedItems.{{ $idx }}.class_id" class="imp-select font-bold text-blue-400">
+                                            <select wire:change="updateItemRow('{{ $item['temp_id'] }}', 'class_id', $event.target.value)" class="imp-select font-bold text-blue-400">
                                                 <option value="">— Pilih Kelas —</option>
                                                 @foreach ($classesList as $c)
-                                                    <option value="{{ $c->id }}">{{ $c->name }}</option>
+                                                    <option value="{{ $c->id }}" @selected($item['class_id'] == $c->id)>{{ $c->name }}</option>
                                                 @endforeach
                                             </select>
                                         </td>
@@ -390,44 +442,38 @@
                                         {{-- Hari & Jam --}}
                                         <td>
                                             <div style="display: flex; flex-direction: column; gap: 0.25rem;">
-                                                <select wire:model.live="parsedItems.{{ $idx }}.day" class="imp-select font-bold text-emerald-400">
-                                                    <option value="1">Senin</option>
-                                                    <option value="2">Selasa</option>
-                                                    <option value="3">Rabu</option>
-                                                    <option value="4">Kamis</option>
-                                                    <option value="5">Jumat</option>
-                                                    <option value="6">Sabtu</option>
+                                                <select wire:change="updateItemRow('{{ $item['temp_id'] }}', 'day', $event.target.value)" class="imp-select font-bold text-emerald-400">
+                                                    <option value="1" @selected($item['day'] == 1)>Senin</option>
+                                                    <option value="2" @selected($item['day'] == 2)>Selasa</option>
+                                                    <option value="3" @selected($item['day'] == 3)>Rabu</option>
+                                                    <option value="4" @selected($item['day'] == 4)>Kamis</option>
+                                                    <option value="5" @selected($item['day'] == 5)>Jumat</option>
+                                                    <option value="6" @selected($item['day'] == 6)>Sabtu</option>
                                                 </select>
 
-                                                <select wire:model.live="parsedItems.{{ $idx }}.period" class="imp-select font-medium text-slate-300">
-                                                    <option value="0">Jam 0 (07:10 - 07:55)</option>
-                                                    <option value="1">Jam 1 (07:30 - 08:15)</option>
-                                                    <option value="2">Jam 2 (08:15 - 09:00)</option>
-                                                    <option value="3">Jam 3 (09:00 - 09:45)</option>
-                                                    <option value="4">Jam 4 (10:00 - 10:45)</option>
-                                                    <option value="5">Jam 5 (10:45 - 11:30)</option>
-                                                    <option value="6">Jam 6 (11:30 - 12:15)</option>
-                                                    <option value="7">Jam 7 (12:30 - 13:15)</option>
-                                                    <option value="8">Jam 8 (13:15 - 14:00)</option>
-                                                    <option value="9">Jam 9 (16:00 - 16:45)</option>
-                                                    <option value="10">Jam 10 (17:00 - 17:45)</option>
-                                                    <option value="11">Jam 11 (17:45 - 18:30)</option>
+                                                <select wire:change="updateItemRow('{{ $item['temp_id'] }}', 'period', $event.target.value)" class="imp-select font-medium text-slate-300">
+                                                    <option value="0" @selected($item['period'] == 0)>Jam 0 (07:10 - 07:55)</option>
+                                                    <option value="1" @selected($item['period'] == 1)>Jam 1 (07:30 - 08:15)</option>
+                                                    <option value="2" @selected($item['period'] == 2)>Jam 2 (08:15 - 09:00)</option>
+                                                    <option value="3" @selected($item['period'] == 3)>Jam 3 (09:00 - 09:45)</option>
+                                                    <option value="4" @selected($item['period'] == 4)>Jam 4 (10:00 - 10:45)</option>
+                                                    <option value="5" @selected($item['period'] == 5)>Jam 5 (10:45 - 11:30)</option>
+                                                    <option value="6" @selected($item['period'] == 6)>Jam 6 (11:30 - 12:15)</option>
+                                                    <option value="7" @selected($item['period'] == 7)>Jam 7 (12:30 - 13:15)</option>
+                                                    <option value="8" @selected($item['period'] == 8)>Jam 8 (13:15 - 14:00)</option>
+                                                    <option value="9" @selected($item['period'] == 9)>Jam 9 (16:00 - 16:45)</option>
+                                                    <option value="10" @selected($item['period'] == 10)>Jam 10 (17:00 - 17:45)</option>
+                                                    <option value="11" @selected($item['period'] == 11)>Jam 11 (17:45 - 18:30)</option>
                                                 </select>
                                             </div>
                                         </td>
 
                                         {{-- Mapel --}}
                                         <td>
-                                            @php
-                                                $allowedIds  = $item['allowed_subject_ids'] ?? [];
-                                                $rowSubjects = (!empty($allowedIds))
-                                                    ? $subjectsList->whereIn('id', $allowedIds)
-                                                    : $subjectsList;
-                                            @endphp
-                                            <select wire:model="parsedItems.{{ $idx }}.subject_id" class="imp-select font-bold text-amber-300">
+                                            <select wire:change="updateItemRow('{{ $item['temp_id'] }}', 'subject_id', $event.target.value)" class="imp-select font-bold text-amber-300">
                                                 <option value="">— Pilih Mapel —</option>
-                                                @foreach ($rowSubjects as $s)
-                                                    <option value="{{ $s->id }}">{{ $s->code ? "[{$s->code}] " : '' }}{{ $s->name }}</option>
+                                                @foreach ($subjectsList as $s)
+                                                    <option value="{{ $s->id }}" @selected($item['subject_id'] == $s->id)>{{ $s->code ? "[{$s->code}] " : '' }}{{ $s->name }}</option>
                                                 @endforeach
                                             </select>
                                         </td>
@@ -456,10 +502,10 @@
                                         {{-- Aksi Guru --}}
                                         <td>
                                             <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                                <select wire:model="parsedItems.{{ $idx }}.teacher_id" class="imp-select" style="flex: 1;">
+                                                <select wire:change="updateItemRow('{{ $item['temp_id'] }}', 'teacher_id', $event.target.value)" class="imp-select" style="flex: 1;">
                                                     <option value="">— Pilih Guru —</option>
                                                     @foreach ($teachersList as $t)
-                                                        <option value="{{ $t->id }}">{{ $t->name }}</option>
+                                                        <option value="{{ $t->id }}" @selected($item['teacher_id'] == $t->id)>{{ $t->name }}</option>
                                                     @endforeach
                                                 </select>
 
@@ -469,24 +515,42 @@
                                                         color="info"
                                                         size="xs"
                                                         wire:click="createTeacherInline('{{ $item['temp_id'] }}', '{{ addslashes($item['teacher_raw']) }}')">
-                                                        + Buat Guru Baru
+                                                        + Buat Guru
                                                     </x-filament::button>
                                                 @endif
                                             </div>
                                         </td>
                                     </tr>
-                                @endforeach
+                                @empty
+                                    <tr>
+                                        <td colspan="6" style="text-align: center; padding: 2rem; color: #94a3b8;">
+                                            Tidak ada data jadwal yang sesuai dengan filter.
+                                        </td>
+                                    </tr>
+                                @endforelse
                             </tbody>
                         </table>
                     </div>
 
-                    <div style="padding: 1rem 1.25rem; background-color: rgba(30, 41, 59, 0.9); border-top: 1px solid rgba(255, 255, 255, 0.1); display: flex; justify-content: flex-end; gap: 0.75rem;">
-                        <x-filament::button wire:click="cancelPreview" color="gray" size="md">
-                            Batal / Upload Ulang
-                        </x-filament::button>
-                        <x-filament::button wire:click="saveToDatabase" color="success" size="md" icon="heroicon-o-check-circle">
-                            SIMPAN JADWAL KE DATABASE
-                        </x-filament::button>
+                    {{-- Bottom Footer Bar --}}
+                    <div style="padding: 1rem 1.25rem; background-color: rgba(30, 41, 59, 0.9); border-top: 1px solid rgba(255, 255, 255, 0.1); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+                        <div style="font-size: 0.75rem; color: #cbd5e1;">
+                            Halaman {{ $currentPage }} dari {{ $totalPages }} (Total {{ $filteredCount }} data terfilter)
+                        </div>
+                        <div class="imp-flex-gap">
+                            <x-filament::button wire:click="previousPage" color="gray" size="sm" :disabled="$currentPage <= 1">
+                                ◄ Halaman Sebelumnya
+                            </x-filament::button>
+                            <x-filament::button wire:click="nextPage" color="gray" size="sm" :disabled="$currentPage >= $totalPages">
+                                Halaman Selanjutnya ►
+                            </x-filament::button>
+                            <x-filament::button wire:click="cancelPreview" color="gray" size="sm">
+                                Batal / Upload Ulang
+                            </x-filament::button>
+                            <x-filament::button wire:click="saveToDatabase" color="success" size="sm" icon="heroicon-o-check-circle">
+                                SIMPAN JADWAL KE DATABASE
+                            </x-filament::button>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -12,6 +12,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Facades\Session;
 
 class ImportSchedulePage extends Page
 {
@@ -29,16 +30,21 @@ class ImportSchedulePage extends Page
     protected string $view = 'filament.pages.import-schedule';
 
     public ?array $data = [];
-    public ?array $parsedItems = null;
     public bool $isParsed = false;
 
-    public string $selectedGrade = '10, 11, 12';
+    public string $selectedGrade = 'Semua Kelas (10, 11, 12)';
     public string $academicYear = '2026/2027 Ganjil';
     public bool $replaceExisting = true;
 
-    public string $classFilter = 'ALL';
-    public string $statusFilter = 'ALL';
-    public string $searchQuery = '';
+    public string $filterClass = 'ALL';
+    public string $filterStatus = 'ALL';
+    public int $currentPage = 1;
+    public int $perPage = 40;
+
+    protected function getSessionKey(): string
+    {
+        return 'schedule_import_items_' . auth()->id();
+    }
 
     public function mount(): void
     {
@@ -46,6 +52,10 @@ class ImportSchedulePage extends Page
             'academic_year'    => '2026/2027 Ganjil',
             'replace_existing' => true,
         ]);
+
+        if (Session::has($this->getSessionKey())) {
+            $this->isParsed = true;
+        }
     }
 
     public function form(Schema $schema): Schema
@@ -85,6 +95,8 @@ class ImportSchedulePage extends Page
      */
     public function startParsing(ScheduleImportService $service): void
     {
+        @ini_set('memory_limit', '512M');
+
         $state        = $this->form->getState();
         $uploadedFile = $state['file'] ?? null;
 
@@ -104,18 +116,21 @@ class ImportSchedulePage extends Page
             if (empty($items)) {
                 Notification::make()
                     ->title('Gagal membaca jadwal dari file CSV / Excel')
-                    ->body('Pastikan file CSV / Excel memiliki format tabel (Kelas, Hari, Jam Ke, Mapel, Nama Guru) atau format matriks yang valid.')
+                    ->body('Pastikan file CSV / Excel memiliki format tabel atau matriks jadwal yang valid.')
                     ->warning()
                     ->send();
                 return;
             }
 
-            $this->parsedItems = $items;
-            $this->isParsed    = true;
+            Session::put($this->getSessionKey(), $items);
+            $this->isParsed     = true;
+            $this->currentPage  = 1;
+            $this->filterClass  = 'ALL';
+            $this->filterStatus = 'ALL';
 
             Notification::make()
                 ->title('File Berhasil Diparsing!')
-                ->body('Ditemukan ' . count($items) . ' slot jadwal pelajaran master. Silakan periksa tabel pratinjau di bawah.')
+                ->body('Ditemukan ' . count($items) . ' slot jadwal pelajaran. Silakan periksa & koreksi tabel pratinjau di bawah.')
                 ->success()
                 ->send();
         } catch (\Throwable $e) {
@@ -127,16 +142,128 @@ class ImportSchedulePage extends Page
         }
     }
 
-    /**
-     * Buat akun Guru baru secara instan jika belum ada di database
-     */
+    public function getAllSessionItems(): array
+    {
+        return Session::get($this->getSessionKey(), []);
+    }
+
+    public function getFilteredItems(): array
+    {
+        $all = $this->getAllSessionItems();
+
+        return array_filter($all, function ($item) {
+            if ($this->filterClass !== 'ALL' && $item['class_name'] !== $this->filterClass) {
+                return false;
+            }
+            if ($this->filterStatus === 'unmatched' && !empty($item['teacher_id'])) {
+                return false;
+            }
+            if ($this->filterStatus === 'matched' && empty($item['teacher_id'])) {
+                return false;
+            }
+            return true;
+        });
+    }
+
+    public function getPaginatedItems(): array
+    {
+        $filtered = array_values($this->getFilteredItems());
+        $offset   = ($this->currentPage - 1) * $this->perPage;
+        return array_slice($filtered, $offset, $this->perPage);
+    }
+
+    public function getTotalPages(): int
+    {
+        $count = count($this->getFilteredItems());
+        return max(1, (int) ceil($count / $this->perPage));
+    }
+
+    public function nextPage(): void
+    {
+        if ($this->currentPage < $this->getTotalPages()) {
+            $this->currentPage++;
+        }
+    }
+
+    public function previousPage(): void
+    {
+        if ($this->currentPage > 1) {
+            $this->currentPage--;
+        }
+    }
+
+    public function updatedFilterClass(): void
+    {
+        $this->currentPage = 1;
+    }
+
+    public function updatedFilterStatus(): void
+    {
+        $this->currentPage = 1;
+    }
+
+    public function updateItemRow(string $tempId, string $field, $value): void
+    {
+        $items       = $this->getAllSessionItems();
+        $service     = new ScheduleImportService();
+        $allSubjects = Subject::all();
+
+        foreach ($items as &$item) {
+            if ($item['temp_id'] === $tempId) {
+                if ($field === 'teacher_id') {
+                    $item['teacher_id'] = $value ?: null;
+                    if ($value) {
+                        $teacher = User::find($value);
+                        if ($teacher) {
+                            $item['teacher_name']     = $teacher->name;
+                            $item['match_confidence'] = 'exact';
+                            $res = $service->resolveSubjectForTeacher($teacher, $allSubjects, $item['subject_code'] ?? null);
+                            if ($res['subject_id']) {
+                                $item['subject_id'] = $res['subject_id'];
+                            }
+                            $item['allowed_subject_ids'] = $res['allowed_subject_ids'];
+                        }
+                    } else {
+                        $item['match_confidence'] = 'unmatched';
+                    }
+                } elseif ($field === 'class_id') {
+                    $item['class_id'] = $value ?: null;
+                    $c = SchoolClass::find($value);
+                    if ($c) {
+                        $item['class_name'] = $c->name;
+                    }
+                } elseif ($field === 'subject_id') {
+                    $item['subject_id'] = $value ?: null;
+                    $s = Subject::find($value);
+                    if ($s) {
+                        $item['subject_name'] = $s->name;
+                    }
+                } elseif ($field === 'day') {
+                    $item['day'] = (int) $value;
+                } elseif ($field === 'period') {
+                    $period = (int) $value;
+                    $timeSlots = ScheduleImportService::TIME_SLOTS;
+                    if (isset($timeSlots[$period])) {
+                        $item['period']     = $period;
+                        $item['start_time'] = $timeSlots[$period][0];
+                        $item['end_time']   = $timeSlots[$period][1];
+                    }
+                }
+                break;
+            }
+        }
+
+        Session::put($this->getSessionKey(), $items);
+    }
+
     public function createTeacherInline(string $tempId, string $rawName, ScheduleImportService $service): void
     {
         try {
-            $newTeacher = $service->createDraftTeacher($rawName);
-
+            $newTeacher  = $service->createDraftTeacher($rawName);
+            $items       = $this->getAllSessionItems();
             $allSubjects = Subject::all();
-            foreach ($this->parsedItems as &$item) {
+
+            foreach ($items as &$item) {
                 if ($item['temp_id'] === $tempId || $item['teacher_raw'] === $rawName) {
                     $item['teacher_id']       = $newTeacher->id;
                     $item['teacher_name']     = $newTeacher->name;
@@ -149,6 +276,8 @@ class ImportSchedulePage extends Page
                     $item['allowed_subject_ids'] = $res['allowed_subject_ids'];
                 }
             }
+
+            Session::put($this->getSessionKey(), $items);
 
             Notification::make()
                 ->title('Akun Guru Berhasil Dibuat')
@@ -164,19 +293,17 @@ class ImportSchedulePage extends Page
         }
     }
 
-    /**
-     * Buat akun Guru secara massal untuk semua guru yang belum ada di database
-     */
     public function createAllUnmatchedTeachers(ScheduleImportService $service): void
     {
-        if (empty($this->parsedItems)) return;
+        $items = $this->getAllSessionItems();
+        if (empty($items)) return;
 
         try {
             $createdCount = 0;
             $allSubjects  = Subject::all();
             $unmatchedRaw = [];
 
-            foreach ($this->parsedItems as $item) {
+            foreach ($items as $item) {
                 if (empty($item['teacher_id']) && !empty($item['teacher_raw'])) {
                     $unmatchedRaw[$item['teacher_raw']] = true;
                 }
@@ -189,7 +316,7 @@ class ImportSchedulePage extends Page
                 $createdCount++;
             }
 
-            foreach ($this->parsedItems as &$item) {
+            foreach ($items as &$item) {
                 $rawName = $item['teacher_raw'] ?? '';
                 if (isset($createdTeachers[$rawName])) {
                     $newTeacher = $createdTeachers[$rawName];
@@ -205,6 +332,8 @@ class ImportSchedulePage extends Page
                 }
             }
 
+            Session::put($this->getSessionKey(), $items);
+
             Notification::make()
                 ->title('Berhasil Membuat Akun Guru Massal')
                 ->body("Sebanyak {$createdCount} akun guru baru berhasil dibuat dan otomatis terhubung ke pratinjau jadwal.")
@@ -219,71 +348,27 @@ class ImportSchedulePage extends Page
         }
     }
 
-    public function updatedParsedItems($value, $key): void
-    {
-        if (str_contains($key, '.teacher_id') && ! empty($value)) {
-            $parts     = explode('.', $key);
-            $idx       = (int) $parts[0];
-            $teacherId = $value;
-
-            $teacher     = User::find($teacherId);
-            $allSubjects = Subject::all();
-
-            if ($teacher) {
-                $res = (new ScheduleImportService())->resolveSubjectForTeacher(
-                    $teacher,
-                    $allSubjects,
-                    $this->parsedItems[$idx]['subject_code'] ?? null
-                );
-
-                if ($res['subject_id']) {
-                    $this->parsedItems[$idx]['subject_id'] = $res['subject_id'];
-                }
-                $this->parsedItems[$idx]['allowed_subject_ids'] = $res['allowed_subject_ids'];
-                $this->parsedItems[$idx]['teacher_name']        = $teacher->name;
-            }
-        }
-
-        if (str_contains($key, '.period') && is_numeric($value)) {
-            $parts  = explode('.', $key);
-            $idx    = (int) $parts[0];
-            $period = (int) $value;
-
-            $timeSlots = ScheduleImportService::TIME_SLOTS;
-            if (isset($timeSlots[$period])) {
-                $this->parsedItems[$idx]['period']     = $period;
-                $this->parsedItems[$idx]['start_time'] = $timeSlots[$period][0];
-                $this->parsedItems[$idx]['end_time']   = $timeSlots[$period][1];
-            }
-        }
-
-        if (str_contains($key, '.day') && is_numeric($value)) {
-            $parts = explode('.', $key);
-            $idx   = (int) $parts[0];
-            $this->parsedItems[$idx]['day'] = (int) $value;
-        }
-    }
-
-    /**
-     * Langkah 2: Simpan data terverifikasi ke Database
-     */
     public function saveToDatabase(ScheduleImportService $service): void
     {
-        if (empty($this->parsedItems)) {
+        @ini_set('memory_limit', '512M');
+
+        $items = $this->getAllSessionItems();
+
+        if (empty($items)) {
             Notification::make()->title('Tidak ada data jadwal untuk disimpan')->warning()->send();
             return;
         }
 
         try {
-            $count = $service->saveSchedules($this->parsedItems, $this->academicYear, $this->replaceExisting);
+            $count = $service->saveSchedules($items, $this->academicYear, $this->replaceExisting);
 
-            $this->isParsed    = false;
-            $this->parsedItems = null;
+            Session::forget($this->getSessionKey());
+            $this->isParsed = false;
             $this->form->fill();
 
             Notification::make()
                 ->title('Jadwal Pelajaran Berhasil Disimpan!')
-                ->body("Sebanyak {$count} slot jadwal kelas {$this->selectedGrade} telah masuk ke database.")
+                ->body("Sebanyak {$count} slot jadwal telah berhasil tersimpan di database.")
                 ->success()
                 ->persistent()
                 ->send();
@@ -296,10 +381,9 @@ class ImportSchedulePage extends Page
         }
     }
 
-    /** Reset state pratinjau */
     public function cancelPreview(): void
     {
-        $this->isParsed    = false;
-        $this->parsedItems = null;
+        Session::forget($this->getSessionKey());
+        $this->isParsed = false;
     }
 }
