@@ -12,6 +12,16 @@ class SchoolClass extends Model
 
     protected $fillable = ['name', 'grade', 'major', 'homeroom_teacher_id'];
 
+    protected static function booted(): void
+    {
+        static::addGlobalScope('realClass', function ($builder) {
+            $builder->where(function ($q) {
+                $q->whereNull('grade')
+                  ->orWhere('grade', '!=', '0');
+            });
+        });
+    }
+
     public function homeroomTeacher(): BelongsTo
     {
         return $this->belongsTo(User::class, 'homeroom_teacher_id');

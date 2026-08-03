@@ -8,7 +8,7 @@ use Illuminate\Console\Command;
 
 class CheckClassData extends Command
 {
-    protected $signature = 'check:class-data';
+    protected $signature = 'check:class-data {--fix : Delete invalid class entries containing teacher names}';
     protected $description = 'Check school classes and teacher/student assignments';
 
     public function handle()
@@ -26,13 +26,19 @@ class CheckClassData extends Command
         $invalidClasses = SchoolClass::where('grade', '0')->orWhereNull('grade')->get();
         $this->line("Found " . $invalidClasses->count() . " invalid class entries in `classes` table.");
 
-        foreach ($invalidClasses as $ic) {
-            $studentCount = User::where('class_id', $ic->id)->count();
-            $scheduleCount = \App\Models\Schedule::where('class_id', $ic->id)->count();
-            $journalCount = \App\Models\TeacherJournal::where('class_id', $ic->id)->count();
-            $attendanceCount = \App\Models\Attendance::whereHas('student', fn($q) => $q->where('class_id', $ic->id))->count();
-            
-            $this->line("Class ID {$ic->id}: {$ic->name} -> Students: {$studentCount}, Schedules: {$scheduleCount}, Journals: {$journalCount}, Attendances: {$attendanceCount}");
+        if ($this->option('fix')) {
+            $deletedCount = 0;
+            foreach ($invalidClasses as $ic) {
+                $studentCount = User::where('class_id', $ic->id)->count();
+                $scheduleCount = \App\Models\Schedule::where('class_id', $ic->id)->count();
+                if ($studentCount === 0 && $scheduleCount === 0) {
+                    $ic->delete();
+                    $deletedCount++;
+                }
+            }
+            $this->info("Successfully deleted {$deletedCount} invalid class entries!");
+        } else {
+            $this->info("Run with --fix to automatically delete these invalid entries.");
         }
     }
 }
