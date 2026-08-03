@@ -155,6 +155,18 @@ class ImportSchedulePage extends Page
             if ($this->filterClass !== 'ALL' && $item['class_name'] !== $this->filterClass) {
                 return false;
             }
+            if ($this->filterStatus === 'unmatched_teacher' && !empty($item['teacher_id'])) {
+                return false;
+            }
+            if ($this->filterStatus === 'unmatched_subject' && !empty($item['subject_id'])) {
+                return false;
+            }
+            if ($this->filterStatus === 'unmatched_any' && (!empty($item['teacher_id']) && !empty($item['subject_id']))) {
+                return false;
+            }
+            if ($this->filterStatus === 'matched_all' && (empty($item['teacher_id']) || empty($item['subject_id']))) {
+                return false;
+            }
             if ($this->filterStatus === 'unmatched' && !empty($item['teacher_id'])) {
                 return false;
             }

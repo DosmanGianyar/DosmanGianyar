@@ -393,11 +393,13 @@
                                 @endforeach
                             </select>
 
-                            <label style="font-size: 0.75rem; color: #94a3b8; font-weight: 600; margin-left: 0.5rem;">Status Guru:</label>
+                            <label style="font-size: 0.75rem; color: #94a3b8; font-weight: 600; margin-left: 0.5rem;">Status Match:</label>
                             <select wire:model.live="filterStatus" class="imp-select" style="width: auto;">
                                 <option value="ALL">Semua Status</option>
-                                <option value="unmatched">Belum Ada di DB (Perlu Dibuat/Dicocokkan)</option>
-                                <option value="matched">Sudah Match DB</option>
+                                <option value="unmatched_any">⚠️ Ada yang Belum Match (Guru / Mapel)</option>
+                                <option value="unmatched_teacher">⚠️ Guru Belum Ada di DB</option>
+                                <option value="unmatched_subject">⚠️ Mapel Belum Ada di DB</option>
+                                <option value="matched_all">✓ Semua Sudah Match (Guru & Mapel)</option>
                             </select>
                         </div>
 
@@ -488,15 +490,35 @@
 
                                         {{-- Match Status --}}
                                         <td>
-                                            @if ($item['teacher_id'])
-                                                <span class="imp-badge-matched">
-                                                    ✓ {{ $item['teacher_name'] }}
-                                                </span>
-                                            @else
-                                                <span class="imp-badge-unmatched">
-                                                    ⚠ Belum Ada di DB
-                                                </span>
-                                            @endif
+                                            <div style="display: flex; flex-direction: column; gap: 0.35rem;">
+                                                {{-- Status Guru --}}
+                                                <div style="display: flex; align-items: center; gap: 0.25rem;">
+                                                    <span style="font-size: 0.65rem; color: #94a3b8; font-weight: 700; width: 45px;">GURU:</span>
+                                                    @if ($item['teacher_id'])
+                                                        <span class="imp-badge-matched">
+                                                            ✓ Match DB
+                                                        </span>
+                                                    @else
+                                                        <span class="imp-badge-unmatched">
+                                                            ⚠ Belum Ada di DB
+                                                        </span>
+                                                    @endif
+                                                </div>
+
+                                                {{-- Status Mapel --}}
+                                                <div style="display: flex; align-items: center; gap: 0.25rem;">
+                                                    <span style="font-size: 0.65rem; color: #94a3b8; font-weight: 700; width: 45px;">MAPEL:</span>
+                                                    @if ($item['subject_id'])
+                                                        <span class="imp-badge-matched">
+                                                            ✓ Match DB
+                                                        </span>
+                                                    @else
+                                                        <span class="imp-badge-unmatched" style="background-color: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3);">
+                                                            ⚠ Belum Ada di DB
+                                                        </span>
+                                                    @endif
+                                                </div>
+                                            </div>
                                         </td>
 
                                         {{-- Aksi Guru --}}
