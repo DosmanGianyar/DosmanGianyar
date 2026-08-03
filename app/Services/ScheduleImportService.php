@@ -270,35 +270,35 @@ class ScheduleImportService
      */
     protected function matchTeacherToDb(string $fullName, $dbTeachers): ?User
     {
-        $cleanFull = preg_replace('/[^a-zA-Z]/', '', strtolower($fullName));
+        $cleanFull = strtolower(preg_replace('/[^a-zA-Z]/', '', preg_replace('/,.*$/', '', $fullName)));
+        if (empty($cleanFull)) {
+            return null;
+        }
+
+        // 1. Exact match on normalized full names (without degrees/punctuation)
         foreach ($dbTeachers as $t) {
-            $cleanDb = preg_replace('/[^a-zA-Z]/', '', strtolower($t->name));
-            if ($cleanFull === $cleanDb || str_contains($cleanDb, $cleanFull) || str_contains($cleanFull, $cleanDb)) {
+            $cleanDb = strtolower(preg_replace('/[^a-zA-Z]/', '', preg_replace('/,.*$/', '', $t->name)));
+            if ($cleanFull === $cleanDb) {
                 return $t;
             }
         }
 
-        $advFull = $this->cleanNameForMatching($fullName);
+        // 2. High-precision similarity match (>= 85%) on full names
+        $bestMatch = null;
+        $bestScore = 0;
+
         foreach ($dbTeachers as $t) {
-            $advDb = $this->cleanNameForMatching($t->name);
-            if (!empty($advFull) && !empty($advDb) && ($advFull === $advDb || str_contains($advDb, $advFull) || str_contains($advFull, $advDb))) {
-                return $t;
+            $cleanDb = strtolower(preg_replace('/[^a-zA-Z]/', '', preg_replace('/,.*$/', '', $t->name)));
+            if (empty($cleanDb)) continue;
+
+            similar_text($cleanFull, $cleanDb, $percent);
+            if ($percent > $bestScore && $percent >= 85) {
+                $bestScore = $percent;
+                $bestMatch = $t;
             }
         }
 
-        return null;
-    }
-
-    protected function cleanNameForMatching(string $name): string
-    {
-        $name = preg_replace('/,.*$/', '', $name);
-        $name = str_replace(
-            ['A.A', 'AA', 'Gde', 'Ngr', 'Md', 'DA', 'GA', 'B.', 'P.', 'Putu', 'Wayan', 'Kadek', 'Nyoman', 'Gede', 'I', 'Ni', 'Dewa', 'Anak', 'Agung', 'Desak', 'Luh', 'Drs', 'S.Pd', 'M.Pd', 'S.Ag', 'S.Sn', 'S.Kom', 'S.Si', 'S.Sos', 'S.S'],
-            '',
-            $name
-        );
-        $name = preg_replace('/[^a-zA-Z]/', '', $name);
-        return strtolower(trim($name));
+        return $bestMatch;
     }
 
     /**
