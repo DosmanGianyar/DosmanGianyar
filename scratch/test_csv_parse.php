@@ -6,14 +6,8 @@ $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
 $kernel->bootstrap();
 
 use App\Models\User;
-use App\Models\SchoolClass;
-use App\Models\Subject;
 
 $csvPath = public_path('JADWAL GURU_MAPEL HOR.csv');
-if (!file_exists($csvPath)) {
-    die("CSV file not found at $csvPath\n");
-}
-
 $handle = fopen($csvPath, 'r');
 $lines = [];
 while (($data = fgetcsv($handle, 4096, ',')) !== false) {
@@ -21,9 +15,6 @@ while (($data = fgetcsv($handle, 4096, ',')) !== false) {
 }
 fclose($handle);
 
-echo "Total CSV rows: " . count($lines) . "\n";
-
-// 1. Extract Teacher Code Map from bottom table (rows from row index 40 to end)
 $teacherCodeToName = [];
 for ($i = 40; $i < count($lines); $i++) {
     $row = $lines[$i];
@@ -34,41 +25,56 @@ for ($i = 40; $i < count($lines); $i++) {
     }
 }
 
-echo "Found " . count($teacherCodeToName) . " teacher codes in CSV:\n";
-foreach ($teacherCodeToName as $code => $fullName) {
-    echo "  - [$code] => $fullName\n";
-}
-
-// 2. Match CSV Teacher Full Names against Database Teachers (User role=guru)
 $dbTeachers = User::where('role', 'guru')->get();
-echo "\n--- TEACHER NAME MATCHING ---\n";
-$matchedTeachers = 0;
-$unmatchedTeachers = 0;
 
-function cleanName($name) {
+function cleanNameAdvanced($name) {
     $name = preg_replace('/,.*$/', '', $name); // remove titles after comma
-    $name = preg_replace('/\b(S\.Pd|M\.Pd|S\.Ag|S\.Sn|S\.Kom|S\.Si|S\.Sos|S\.S|Drs|M\.Si)\b/i', '', $name);
-    $name = preg_replace('/[^a-zA-Z\s]/', '', $name);
-    return strtolower(trim(preg_replace('/\s+/', ' ', $name)));
+    $name = str_replace(['A.A', 'AA', 'Gde', 'Ngr', 'Md', 'DA', 'GA', 'B.', 'P.', 'Putu', 'Wayan', 'Kadek', 'Nyoman', 'Gede', 'I', 'Ni', 'Dewa', 'Anak', 'Agung', 'Desak', 'Luh', 'Drs', 'S.Pd', 'M.Pd', 'S.Ag', 'S.Sn', 'S.Kom', 'S.Si', 'S.Sos', 'S.S'], '', $name);
+    $name = preg_replace('/[^a-zA-Z]/', '', $name);
+    return strtolower(trim($name));
 }
 
-foreach ($teacherCodeToName as $code => $fullName) {
-    $cleanFull = cleanName($fullName);
-    $found = null;
+function matchTeacher($fullName, $dbTeachers) {
+    // 1. Direct clean match
+    $cleanFull = preg_replace('/[^a-zA-Z]/', '', strtolower($fullName));
     foreach ($dbTeachers as $t) {
-        $cleanDb = cleanName($t->name);
+        $cleanDb = preg_replace('/[^a-zA-Z]/', '', strtolower($t->name));
         if ($cleanFull === $cleanDb || str_contains($cleanDb, $cleanFull) || str_contains($cleanFull, $cleanDb)) {
-            $found = $t;
-            break;
+            return [$t, 'direct'];
         }
     }
+
+    // 2. Token / Advanced clean match
+    $advFull = cleanNameAdvanced($fullName);
+    $bestMatch = null;
+    $maxScore = 0;
+
+    foreach ($dbTeachers as $t) {
+        $advDb = cleanNameAdvanced($t->name);
+        if (empty($advFull) || empty($advDb)) continue;
+        if ($advFull === $advDb || str_contains($advDb, $advFull) || str_contains($advFull, $advDb)) {
+            return [$t, 'advanced'];
+        }
+        similar_text($advFull, $advDb, $score);
+        if ($score > $maxScore && $score > 60) {
+            $maxScore = $score;
+            $bestMatch = $t;
+        }
+    }
+
+    return [$bestMatch, 'fuzzy (' . round($maxScore) . '%)'];
+}
+
+echo "=== MATCHING ALL 65 TEACHERS ===\n";
+$matched = 0;
+foreach ($teacherCodeToName as $code => $fullName) {
+    [$found, $method] = matchTeacher($fullName, $dbTeachers);
     if ($found) {
-        $matchedTeachers++;
-        echo "✅ [$code] '$fullName' => DB Teacher ID {$found->id}: '{$found->name}'\n";
+        $matched++;
+        echo "✅ [$code] '$fullName' => DB ID {$found->id}: '{$found->name}' ($method)\n";
     } else {
-        $unmatchedTeachers++;
-        echo "❌ [$code] '$fullName' => NO MATCH IN DB!\n";
+        echo "❌ [$code] '$fullName' => NO MATCH FOUND!\n";
     }
 }
 
-echo "\nSummary: Matched $matchedTeachers / " . count($teacherCodeToName) . " teachers ($unmatchedTeachers unmatched)\n";
+echo "\nResult: $matched / " . count($teacherCodeToName) . " matched!\n";
