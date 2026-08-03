@@ -500,14 +500,85 @@
                                         </td>
 
                                         {{-- Aksi Guru --}}
-                                        <td>
+                                        <td style="position: relative;">
+                                            @php
+                                                $rawText = $item['teacher_raw'] ?? '';
+                                                $sortedTeachers = $teachersList->sortByDesc(function ($t) use ($rawText) {
+                                                    if (empty($rawText)) return 0;
+                                                    $cleanRaw = strtolower(preg_replace('/[^a-zA-Z]/', '', preg_replace('/,.*$/', '', $rawText)));
+                                                    $cleanDb  = strtolower(preg_replace('/[^a-zA-Z]/', '', preg_replace('/,.*$/', '', $t->name)));
+                                                    if ($cleanRaw === $cleanDb) return 1000;
+                                                    
+                                                    similar_text($cleanRaw, $cleanDb, $percent);
+                                                    
+                                                    $words = array_filter(explode(' ', strtolower(preg_replace('/[^a-zA-Z\s]/', '', $rawText))));
+                                                    $wordBonus = 0;
+                                                    foreach ($words as $w) {
+                                                        if (strlen($w) >= 3 && str_contains(strtolower($t->name), $w)) {
+                                                            $wordBonus += 25;
+                                                        }
+                                                    }
+                                                    return $percent + $wordBonus;
+                                                });
+                                            @endphp
+
                                             <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                                <select wire:change="updateItemRow('{{ $item['temp_id'] }}', 'teacher_id', $event.target.value)" class="imp-select" style="flex: 1;">
-                                                    <option value="">— Pilih Guru —</option>
-                                                    @foreach ($teachersList as $t)
-                                                        <option value="{{ $t->id }}" @selected($item['teacher_id'] == $t->id)>{{ $t->name }}</option>
-                                                    @endforeach
-                                                </select>
+                                                <div x-data="{
+                                                    open: false,
+                                                    search: '',
+                                                    selectedId: '{{ $item['teacher_id'] }}',
+                                                    selectedName: '{{ addslashes($item['teacher_name'] ?? '') }}'
+                                                }" style="position: relative; flex: 1;">
+                                                    <div @click="open = !open; if(open) $nextTick(() => $refs.searchInput.focus())"
+                                                         class="imp-select" 
+                                                         style="cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; background-color: #1e293b; border: 1px solid rgba(255,255,255,0.15); border-radius: 0.5rem; padding: 0.35rem 0.6rem; font-size: 0.75rem; color: #ffffff;">
+                                                        <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" x-text="selectedId ? selectedName : '— Pilih Guru —'"></span>
+                                                        <span style="font-size: 0.65rem; color: #94a3b8;">▼</span>
+                                                    </div>
+
+                                                    <div x-show="open" 
+                                                         @click.away="open = false" 
+                                                         x-transition
+                                                         style="position: absolute; z-index: 9999; top: 100%; left: 0; right: 0; min-width: 260px; margin-top: 0.25rem; background-color: #0f172a; border: 1px solid rgba(255,255,255,0.2); border-radius: 0.5rem; box-shadow: 0 10px 25px rgba(0,0,0,0.5); padding: 0.5rem; max-height: 250px; overflow-y: auto;">
+                                                        <input type="text" 
+                                                               x-model="search" 
+                                                               x-ref="searchInput"
+                                                               placeholder="🔍 Ketik nama / panggilan guru..." 
+                                                               style="width: 100%; margin-bottom: 0.5rem; padding: 0.35rem 0.5rem; font-size: 0.75rem; background-color: #1e293b; border: 1px solid #3b82f6; border-radius: 0.375rem; color: #ffffff; outline: none;"
+                                                               @click.stop />
+
+                                                        <div style="font-size: 0.65rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; margin-bottom: 0.25rem; padding: 0 0.25rem;">
+                                                            Urut Relevansi Kemiripan Nama:
+                                                        </div>
+
+                                                        <div @click="
+                                                            selectedId = '';
+                                                            selectedName = '— Pilih Guru —';
+                                                            open = false;
+                                                            $wire.updateItemRow('{{ $item['temp_id'] }}', 'teacher_id', '');
+                                                        " style="padding: 0.35rem 0.5rem; font-size: 0.75rem; color: #94a3b8; cursor: pointer; border-radius: 0.25rem; margin-bottom: 0.25rem;" onmouseover="this.style.backgroundColor='#1e293b'" onmouseout="this.style.backgroundColor='transparent'">
+                                                            — Pilih Guru —
+                                                        </div>
+
+                                                        @foreach ($sortedTeachers as $t)
+                                                            <div x-show="search === '' || '{{ strtolower(addslashes($t->name)) }}'.includes(search.toLowerCase())"
+                                                                 @click="
+                                                                    selectedId = '{{ $t->id }}';
+                                                                    selectedName = '{{ addslashes($t->name) }}';
+                                                                    open = false;
+                                                                    $wire.updateItemRow('{{ $item['temp_id'] }}', 'teacher_id', '{{ $t->id }}');
+                                                                 "
+                                                                 style="padding: 0.35rem 0.5rem; font-size: 0.75rem; color: #ffffff; cursor: pointer; border-radius: 0.25rem; display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.15rem; @if($item['teacher_id'] == $t->id) background-color: #1e3a8a; font-weight: bold; @endif"
+                                                                 onmouseover="this.style.backgroundColor='#2563eb'" 
+                                                                 onmouseout="this.style.backgroundColor='{{ $item['teacher_id'] == $t->id ? '#1e3a8a' : 'transparent' }}'">
+                                                                <span>{{ $t->name }}</span>
+                                                                @if($item['teacher_id'] == $t->id)
+                                                                    <span style="color: #4ade80; font-size: 0.65rem;">✓ Selected</span>
+                                                                @endif
+                                                            </div>
+                                                        @endforeach
+                                                    </div>
+                                                </div>
 
                                                 @if (! $item['teacher_id'] && ! empty($item['teacher_raw']))
                                                     <x-filament::button
