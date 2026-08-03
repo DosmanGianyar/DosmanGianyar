@@ -1,90 +1,213 @@
 <x-filament-panels::page>
-    <div class="space-y-6">
+    <style>
+        .imp-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            width: 100%;
+        }
 
-        {{-- Section 1: Upload Form & File Default Button --}}
-        <div class="p-6 bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm space-y-4">
-            <div class="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 pb-4">
+        .imp-banner {
+            background: linear-gradient(135deg, #1d4ed8 0%, #3730a3 100%);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 1rem;
+            padding: 1.25rem 1.5rem;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .imp-card {
+            background-color: #0f1d33;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .imp-card-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #f1f5f9;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .imp-table-container {
+            background-color: #0f1d33;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .imp-table-header {
+            padding: 1rem 1.25rem;
+            background-color: rgba(30, 41, 59, 0.9);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .imp-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+            text-align: left;
+        }
+
+        .imp-table th {
+            background-color: #1e293b;
+            color: #cbd5e1;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .imp-table td {
+            padding: 0.875rem 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            color: #e2e8f0;
+            vertical-align: top;
+        }
+
+        .imp-table tr:hover td {
+            background-color: rgba(255, 255, 255, 0.03);
+        }
+
+        .imp-input, .imp-select {
+            width: 100%;
+            background-color: #1e293b !important;
+            color: #ffffff !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            border-radius: 0.5rem !important;
+            padding: 0.45rem 0.65rem !important;
+            font-size: 0.8rem !important;
+            outline: none !important;
+        }
+
+        .imp-input:focus, .imp-select:focus {
+            border-color: #f59e0b !important;
+            box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2) !important;
+        }
+
+        .imp-select-multi {
+            height: 110px !important;
+        }
+
+        .imp-raw-hint {
+            font-size: 0.7rem;
+            color: #94a3b8;
+            margin-bottom: 0.35rem;
+            font-style: italic;
+        }
+    </style>
+
+    <div class="imp-wrap">
+
+        {{-- Top Banner --}}
+        <div class="imp-banner">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-xl shrink-0">
+                    🏆
+                </div>
                 <div>
-                    <h2 class="text-base font-bold text-gray-900 dark:text-white">Import Master Data Ekstrakurikuler</h2>
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Unggah file CSV baru atau muat file default `public/ekstra.csv` untuk melakukan pencocokan otomatis Guru Pembina dan Siswa Pengurus.</p>
+                    <h2 class="font-bold text-base text-white">Import Master Data Ekstrakurikuler</h2>
+                    <p class="text-xs text-blue-100">Unggah file CSV baru atau muat file default `public/ekstra.csv` untuk pencocokan otomatis Guru Pembina dan Siswa Pengurus.</p>
                 </div>
-                <div class="flex items-center gap-2">
-                    <x-filament::button wire:click="loadDefaultFile" color="gray" icon="heroicon-o-arrow-path">
-                        Muat `public/ekstra.csv`
-                    </x-filament::button>
-                </div>
+            </div>
+
+            <x-filament::button wire:click="loadDefaultFile" color="warning" icon="heroicon-o-arrow-path">
+                Muat Default `public/ekstra.csv`
+            </x-filament::button>
+        </div>
+
+        {{-- Upload Card --}}
+        <div class="imp-card">
+            <div class="imp-card-title">
+                <span>📁 Unggah File CSV Baru</span>
             </div>
 
             <form wire:submit.prevent="startParsing" class="space-y-4">
                 {{ $this->form }}
 
-                <div class="flex justify-end">
-                    <x-filament::button type="submit" icon="heroicon-o-magnifying-glass">
+                <div class="flex justify-end pt-2">
+                    <x-filament::button type="submit" icon="heroicon-o-magnifying-glass" color="primary">
                         Pratinjau & Sesuai CSV
                     </x-filament::button>
                 </div>
             </form>
         </div>
 
-        {{-- Section 2: Interactive Preview & Dropdown Matching Table --}}
+        {{-- Preview Table Section --}}
         @if($isParsed && count($previewItems) > 0)
-        <div class="p-6 bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm space-y-4">
-            <div class="flex items-center justify-between">
+        <div class="imp-table-container">
+            <div class="imp-table-header">
                 <div>
-                    <h3 class="text-base font-bold text-gray-900 dark:text-white">Hasil Pencocokan Data Ekstrakurikuler</h3>
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Ditemukan {{ count($previewItems) }} ekstrakurikuler. Periksa dan sesuaikan pilihan dropdown di bawah jika belum cocok.</p>
+                    <span class="imp-table-title">
+                        <span>📊 Hasil Pencocokan Data Ekstrakurikuler</span>
+                    </span>
+                    <p class="text-xs text-slate-400 mt-0.5">Ditemukan {{ count($previewItems) }} Ekstrakurikuler. Periksa & sesuaikan dropdown di bawah jika ada yang belum pas.</p>
                 </div>
                 <x-filament::button wire:click="saveAll" color="success" size="lg" icon="heroicon-o-check-circle">
-                    Simpan All Data Ekstrakurikuler
+                    💾 Simpan All Data Ekstrakurikuler
                 </x-filament::button>
             </div>
 
-            <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-800">
-                <table class="w-full text-left text-xs">
-                    <thead class="bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 font-bold uppercase tracking-wider border-b border-gray-200 dark:border-gray-800">
+            <div class="overflow-x-auto">
+                <table class="imp-table">
+                    <thead>
                         <tr>
-                            <th class="p-3 w-10 text-center">No</th>
-                            <th class="p-3 w-56">Nama Ekstra</th>
-                            <th class="p-3 w-72">Guru Pembina</th>
-                            <th class="p-3 w-64">Ketua Ekstra (Siswa 1)</th>
-                            <th class="p-3 w-64">Wakil Ketua (Siswa 2)</th>
-                            <th class="p-3 w-48">Contact Person (Admin)</th>
+                            <th class="w-12 text-center">No</th>
+                            <th class="w-56">Nama Ekstra</th>
+                            <th class="w-72">Guru Pembina</th>
+                            <th class="w-64">Ketua Ekstra (Siswa 1)</th>
+                            <th class="w-64">Wakil Ketua (Siswa 2)</th>
+                            <th class="w-48">Contact Person (Admin)</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+                    <tbody>
                         @foreach($previewItems as $index => $item)
-                        <tr class="hover:bg-gray-50/50 dark:hover:bg-gray-800/50 transition">
-                            <td class="p-3 text-center font-bold text-gray-400">{{ $index + 1 }}</td>
+                        <tr>
+                            <td class="text-center font-bold text-slate-500">{{ $index + 1 }}</td>
 
                             {{-- Nama Ekstra --}}
-                            <td class="p-3 align-top">
-                                <input type="text" wire:model.defer="previewItems.{{ $index }}.name" required
-                                    class="w-full text-xs font-bold text-gray-900 dark:text-white bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg px-2.5 py-1.5 focus:ring-primary-500">
+                            <td>
+                                <input type="text" wire:model.defer="previewItems.{{ $index }}.name" required class="imp-input font-bold">
                             </td>
 
-                            {{-- Pembina (Guru) --}}
-                            <td class="p-3 align-top space-y-1.5">
+                            {{-- Guru Pembina (Multi Select) --}}
+                            <td>
                                 @if(!empty($item['pembinas_raw']))
-                                    <div class="text-[10px] text-gray-400 italic mb-1">
-                                        CSV: {{ implode(', ', $item['pembinas_raw']) }}
-                                    </div>
+                                    <div class="imp-raw-hint">CSV: {{ implode(', ', $item['pembinas_raw']) }}</div>
                                 @endif
-                                <select multiple wire:model.defer="previewItems.{{ $index }}.teacher_ids"
-                                    class="w-full text-xs bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-700 rounded-lg p-2 focus:ring-primary-500 h-24">
+                                <select multiple wire:model.defer="previewItems.{{ $index }}.teacher_ids" class="imp-select imp-select-multi">
                                     @foreach($teachersList as $tId => $tName)
                                         <option value="{{ $tId }}">{{ $tName }}</option>
                                     @endforeach
                                 </select>
-                                <span class="text-[10px] text-gray-400">Tahan Ctrl/Cmd untuk memilih lebih dari 1 Pembina</span>
+                                <div class="text-[10px] text-slate-400 mt-1">Tahan Ctrl/Cmd untuk memilih lebih dari 1 Pembina</div>
                             </td>
 
-                            {{-- Ketua (Siswa 1) --}}
-                            <td class="p-3 align-top">
+                            {{-- Ketua Ekstra --}}
+                            <td>
                                 @if($item['ketua_raw'])
-                                    <div class="text-[10px] text-gray-400 italic mb-1">CSV: {{ $item['ketua_raw'] }}</div>
+                                    <div class="imp-raw-hint">CSV: {{ $item['ketua_raw'] }}</div>
                                 @endif
-                                <select wire:model.defer="previewItems.{{ $index }}.ketua_id"
-                                    class="w-full text-xs bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-700 rounded-lg px-2.5 py-1.5 focus:ring-emerald-500 font-medium">
+                                <select wire:model.defer="previewItems.{{ $index }}.ketua_id" class="imp-select">
                                     <option value="">-- Pilih Ketua Ekstra --</option>
                                     @foreach($studentsList as $sId => $sName)
                                         <option value="{{ $sId }}">{{ $sName }}</option>
@@ -92,13 +215,12 @@
                                 </select>
                             </td>
 
-                            {{-- Wakil Ketua (Siswa 2) --}}
-                            <td class="p-3 align-top">
+                            {{-- Wakil Ketua Ekstra --}}
+                            <td>
                                 @if($item['wakil_raw'])
-                                    <div class="text-[10px] text-gray-400 italic mb-1">CSV: {{ $item['wakil_raw'] }}</div>
+                                    <div class="imp-raw-hint">CSV: {{ $item['wakil_raw'] }}</div>
                                 @endif
-                                <select wire:model.defer="previewItems.{{ $index }}.wakil_ketua_id"
-                                    class="w-full text-xs bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-700 rounded-lg px-2.5 py-1.5 focus:ring-sky-500 font-medium">
+                                <select wire:model.defer="previewItems.{{ $index }}.wakil_ketua_id" class="imp-select">
                                     <option value="">-- Pilih Wakil Ketua --</option>
                                     @foreach($studentsList as $sId => $sName)
                                         <option value="{{ $sId }}">{{ $sName }}</option>
@@ -107,20 +229,18 @@
                             </td>
 
                             {{-- Contact Person --}}
-                            <td class="p-3 align-top">
-                                <input type="text" wire:model.defer="previewItems.{{ $index }}.contact_person" placeholder="No HP"
-                                    class="w-full text-xs font-mono text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg px-2.5 py-1.5">
+                            <td>
+                                <input type="text" wire:model.defer="previewItems.{{ $index }}.contact_person" placeholder="No HP" class="imp-input font-mono">
                             </td>
-
                         </tr>
                         @endforeach
                     </tbody>
                 </table>
             </div>
 
-            <div class="flex justify-end pt-2">
+            <div class="p-4 bg-slate-900 border-t border-white/10 flex justify-end">
                 <x-filament::button wire:click="saveAll" color="success" size="lg" icon="heroicon-o-check-circle">
-                    Simpan All Data Ekstrakurikuler
+                    💾 Simpan All Data Ekstrakurikuler
                 </x-filament::button>
             </div>
         </div>

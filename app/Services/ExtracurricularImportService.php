@@ -56,10 +56,15 @@ class ExtracurricularImportService
             }
 
             $no           = $row[0] ?? '';
-            $namaEkstra   = $row[1] ?? '';
-            $namaPembina  = $row[2] ?? '';
-            $namaKetua    = $row[3] ?? '';
-            $contact      = $row[4] ?? '';
+            $namaEkstra   = trim($row[1] ?? '');
+            $namaPembina  = trim($row[2] ?? '');
+            $namaKetua    = trim($row[3] ?? '');
+            $contact      = trim($row[4] ?? '');
+
+            // Skip CSV header rows
+            if (str_contains(strtoupper($namaEkstra), 'NAMA EKSTRA') || str_contains(strtoupper($namaEkstra), 'PEMBINA DAN KETUA')) {
+                continue;
+            }
 
             // Clean title/prefix numbers if present in namaEkstra or no
             if (! empty($namaEkstra)) {
