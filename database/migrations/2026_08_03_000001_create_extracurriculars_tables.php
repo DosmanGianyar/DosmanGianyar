@@ -16,6 +16,10 @@ return new class extends Migration
                 $table->text('description')->nullable();
                 $table->timestamps();
             });
+        } elseif (! Schema::hasColumn('extracurriculars', 'contact_person')) {
+            Schema::table('extracurriculars', function (Blueprint $table) {
+                $table->string('contact_person')->nullable()->after('name');
+            });
         }
 
         if (! Schema::hasTable('extracurricular_teachers')) {
@@ -46,6 +50,5 @@ return new class extends Migration
     {
         Schema::dropIfExists('extracurricular_students');
         Schema::dropIfExists('extracurricular_teachers');
-        Schema::dropIfExists('extracurriculars');
     }
 };

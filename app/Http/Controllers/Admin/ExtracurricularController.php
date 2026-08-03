@@ -76,13 +76,18 @@ class ExtracurricularController extends Controller
                     continue;
                 }
 
+                $teacherIds = array_filter(array_map('intval', $data['teacher_ids'] ?? []));
+                $firstTeacherId = $teacherIds[0] ?? null;
+
                 $extra = Extracurricular::updateOrCreate(
                     ['name' => trim($data['name'])],
-                    ['contact_person' => $data['contact_person'] ?? null]
+                    [
+                        'contact_person' => $data['contact_person'] ?? null,
+                        'pembina_id'     => $firstTeacherId,
+                    ]
                 );
 
                 // Sync Teachers (Pembina)
-                $teacherIds = array_filter(array_map('intval', $data['teacher_ids'] ?? []));
                 $extra->teachers()->sync($teacherIds);
 
                 // Sync Students (Ketua & Wakil Ketua)
