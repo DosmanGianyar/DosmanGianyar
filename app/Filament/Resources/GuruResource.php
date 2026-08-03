@@ -73,12 +73,13 @@ class GuruResource extends Resource
                     ->maxLength(20),
 
                 TextInput::make('password')
-                    ->label('Password')
+                    ->label('Password (Opsional)')
                     ->password()
                     ->revealable()
-                    ->dehydrateStateUsing(fn ($state) => Hash::make($state))
+                    ->nullable()
+                    ->dehydrateStateUsing(fn ($state) => filled($state) ? Hash::make($state) : null)
                     ->dehydrated(fn ($state) => filled($state))
-                    ->helperText('Kosongkan untuk menggunakan password default sama dengan NIP — atau isi password khusus'),
+                    ->helperText('Kosongkan — password default otomatis diset sama dengan NIP'),
             ])->columns(2),
 
             Section::make('Data Kepegawaian')->schema([

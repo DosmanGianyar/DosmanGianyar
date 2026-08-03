@@ -78,12 +78,13 @@ class UserResource extends Resource
                     ->maxLength(20),
 
                 TextInput::make('password')
-                    ->label('Password')
+                    ->label('Password (Opsional)')
                     ->password()
                     ->revealable()
-                    ->dehydrateStateUsing(fn ($state) => Hash::make($state))
+                    ->nullable()
+                    ->dehydrateStateUsing(fn ($state) => filled($state) ? Hash::make($state) : null)
                     ->dehydrated(fn ($state) => filled($state))
-                    ->helperText('Kosongkan untuk menggunakan password default sama dengan Username (NISN/NIP) — atau isi password khusus'),
+                    ->helperText('Kosongkan — password default otomatis diset sama dengan NIP (Guru), NISN (Siswa), atau No HP (Orangtua)'),
             ])->columns(2),
 
             Section::make('Data Siswa')
