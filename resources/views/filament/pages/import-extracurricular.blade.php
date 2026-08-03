@@ -163,14 +163,15 @@
         </div>
 
         {{-- Preview Table Section --}}
-        @if($isParsed && count($previewItems) > 0)
+        @php $previewData = $this->previewItems; @endphp
+        @if($isParsed && count($previewData) > 0)
         <div class="imp-table-container">
             <div class="imp-table-header">
                 <div>
                     <span class="imp-table-title">
                         <span>📊 Hasil Pencocokan Data Ekstrakurikuler</span>
                     </span>
-                    <p class="text-xs text-slate-400 mt-0.5">Ditemukan {{ count($previewItems) }} Ekstrakurikuler. Ketik nama di kotak pencarian untuk menambah/mengubah Pembina atau Pengurus.</p>
+                    <p class="text-xs text-slate-400 mt-0.5">Ditemukan {{ count($previewData) }} Ekstrakurikuler. Ketik nama di kotak pencarian untuk menambah/mengubah Pembina atau Pengurus.</p>
                 </div>
                 <x-filament::button wire:click="saveAll" color="success" size="lg" icon="heroicon-o-check-circle">
                     💾 Simpan All Data Ekstrakurikuler
@@ -189,16 +190,19 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($previewItems as $index => $item)
+                        @foreach($previewData as $index => $item)
                         <tr wire:key="extra-row-{{ $index }}">
                             <td class="text-center font-bold text-slate-500 pt-3">{{ $index + 1 }}</td>
 
                             {{-- Nama Ekstra --}}
                             <td>
-                                <input type="text" wire:model.defer="previewItems.{{ $index }}.name" required class="imp-input imp-input-name font-bold">
+                                <input type="text"
+                                    value="{{ $item['name'] }}"
+                                    @change="$wire.updateItem({{ $index }}, 'name', $event.target.value)"
+                                    required class="imp-input imp-input-name font-bold">
                             </td>
 
-                            {{-- Guru Pembina Picker (Badges + Interactive Search without network triggers) --}}
+                            {{-- Guru Pembina Picker --}}
                             <td>
                                 <div x-data="{
                                     open: false,
@@ -222,14 +226,14 @@
                                         if (!this.selectedIds) this.selectedIds = [];
                                         if (!this.selectedIds.includes(id)) {
                                             this.selectedIds = [...this.selectedIds, id];
-                                            $wire.previewItems[{{ $index }}].teacher_ids = this.selectedIds;
+                                            $wire.updateItem({{ $index }}, 'teacher_ids', this.selectedIds);
                                         }
                                         this.search = '';
                                         this.open = false;
                                     },
                                     removeTeacher(id) {
                                         this.selectedIds = (this.selectedIds || []).filter(i => parseInt(i) !== parseInt(id));
-                                        $wire.previewItems[{{ $index }}].teacher_ids = this.selectedIds;
+                                        $wire.updateItem({{ $index }}, 'teacher_ids', this.selectedIds);
                                     }
                                 }" class="space-y-1.5 min-w-[280px]">
 
@@ -300,7 +304,7 @@
                                     },
                                     selectStudent(id) {
                                         this.selectedId = id ? parseInt(id) : null;
-                                        $wire.previewItems[{{ $index }}].ketua_id = this.selectedId;
+                                        $wire.updateItem({{ $index }}, 'ketua_id', this.selectedId);
                                         this.open = false;
                                         this.search = '';
                                     }
@@ -359,7 +363,7 @@
                                     },
                                     selectStudent(id) {
                                         this.selectedId = id ? parseInt(id) : null;
-                                        $wire.previewItems[{{ $index }}].wakil_ketua_id = this.selectedId;
+                                        $wire.updateItem({{ $index }}, 'wakil_ketua_id', this.selectedId);
                                         this.open = false;
                                         this.search = '';
                                     }
@@ -401,7 +405,10 @@
 
                             {{-- Contact Person --}}
                             <td>
-                                <input type="text" wire:model.defer="previewItems.{{ $index }}.contact_person" placeholder="No HP" class="imp-input imp-input-contact font-mono">
+                                <input type="text"
+                                    value="{{ $item['contact_person'] }}"
+                                    @change="$wire.updateItem({{ $index }}, 'contact_person', $event.target.value)"
+                                    placeholder="No HP" class="imp-input imp-input-contact font-mono">
                             </td>
                         </tr>
                         @endforeach

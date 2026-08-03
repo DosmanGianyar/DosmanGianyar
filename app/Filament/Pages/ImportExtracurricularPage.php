@@ -10,6 +10,7 @@ use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Session;
 use Livewire\WithFileUploads;
 
 class ImportExtracurricularPage extends Page
@@ -31,9 +32,13 @@ class ImportExtracurricularPage extends Page
 
     public ?array $data = [];
     public bool $isParsed = false;
-    public array $previewItems = [];
     public array $teachersList = [];
     public array $studentsList = [];
+
+    protected function getSessionKey(): string
+    {
+        return 'extracurricular_import_items_' . auth()->id();
+    }
 
     public function mount(): void
     {
@@ -42,18 +47,19 @@ class ImportExtracurricularPage extends Page
         $this->teachersList = User::where('role', 'guru')->orderBy('name')->pluck('name', 'id')->toArray();
         $this->studentsList = User::where('role', 'siswa')->orderBy('name')->pluck('name', 'id')->toArray();
 
-        // Default parse if file exists
-        $defaultFile = public_path('ekstra.csv');
-        if (file_exists($defaultFile)) {
-            $this->parseFilePath($defaultFile);
+        if (Session::has($this->getSessionKey())) {
+            $this->isParsed = true;
+        } else {
+            $defaultFile = public_path('ekstra.csv');
+            if (file_exists($defaultFile)) {
+                $this->parseFilePath($defaultFile);
+            }
         }
     }
 
-    public function render(): \Illuminate\Contracts\View\View
+    public function getPreviewItemsProperty(): array
     {
-        @ini_set('memory_limit', '512M');
-
-        return parent::render();
+        return Session::get($this->getSessionKey(), []);
     }
 
     public function form(Schema $schema): Schema
@@ -124,8 +130,17 @@ class ImportExtracurricularPage extends Page
             ];
         }
 
-        $this->previewItems = $items;
-        $this->isParsed     = count($items) > 0;
+        Session::put($this->getSessionKey(), $items);
+        $this->isParsed = count($items) > 0;
+    }
+
+    public function updateItem(int $index, string $field, mixed $value): void
+    {
+        $items = Session::get($this->getSessionKey(), []);
+        if (isset($items[$index])) {
+            $items[$index][$field] = $value;
+            Session::put($this->getSessionKey(), $items);
+        }
     }
 
     public function saveAll(): void
@@ -133,14 +148,16 @@ class ImportExtracurricularPage extends Page
         @ini_set('memory_limit', '512M');
         @ini_set('max_execution_time', '300');
 
-        if (empty($this->previewItems)) {
+        $items = Session::get($this->getSessionKey(), []);
+
+        if (empty($items)) {
             Notification::make()->title('Tidak ada data ekstra untuk disimpan.')->danger()->send();
             return;
         }
 
         try {
-            DB::transaction(function () {
-                foreach ($this->previewItems as $item) {
+            DB::transaction(function () use ($items) {
+                foreach ($items as $item) {
                     if (empty($item['name'])) {
                         continue;
                     }
@@ -170,6 +187,8 @@ class ImportExtracurricularPage extends Page
                     $extra->students()->sync($studentSync);
                 }
             });
+
+            Session::forget($this->getSessionKey());
 
             Notification::make()
                 ->title('Data Ekstrakurikuler, Pembina, Ketua, & Wakil Ketua Berhasil Disimpan!')
