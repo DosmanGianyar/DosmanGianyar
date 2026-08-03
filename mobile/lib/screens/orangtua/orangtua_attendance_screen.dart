@@ -314,6 +314,25 @@ class _RecordCard extends StatelessWidget {
                     ],
                   ),
                 ],
+                if (record.checkInPhotoUrl != null || record.checkOutPhotoUrl != null) ...[
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      if (record.checkInPhotoUrl != null)
+                        _PhotoThumbnail(
+                          label: 'Masuk',
+                          url: record.checkInPhotoUrl!,
+                        ),
+                      if (record.checkInPhotoUrl != null && record.checkOutPhotoUrl != null)
+                        const SizedBox(width: 8),
+                      if (record.checkOutPhotoUrl != null)
+                        _PhotoThumbnail(
+                          label: 'Pulang',
+                          url: record.checkOutPhotoUrl!,
+                        ),
+                    ],
+                  ),
+                ],
               ],
             ),
           ),
@@ -321,6 +340,71 @@ class _RecordCard extends StatelessWidget {
       ),
     );
   }
+}
+
+class _PhotoThumbnail extends StatelessWidget {
+  final String label;
+  final String url;
+  const _PhotoThumbnail({required this.label, required this.url});
+
+  void _showFull(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (_) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: Image.network(url, fit: BoxFit.contain),
+            ),
+            const SizedBox(height: 8),
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Tutup', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => _showFull(context),
+      child: Container(
+        padding: const EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          color: AppColors.slate100,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: AppColors.gray200),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(6),
+              child: Image.network(url, width: 36, height: 36, fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => const Icon(Icons.broken_image, size: 20, color: AppColors.gray400),
+              ),
+            ),
+            const SizedBox(width: 6),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(label, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.gray700)),
+                const Text('Lihat Foto', style: TextStyle(fontSize: 9, color: AppColors.blue600)),
+              ],
+            ),
+            const SizedBox(width: 4),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
   (Color, Color, Color) get _statusColors => switch (record.status) {
     'hadir'      => (AppColors.green500,   AppColors.green100,   AppColors.green900),
