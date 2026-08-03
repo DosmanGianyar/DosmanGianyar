@@ -11,7 +11,7 @@
         /* Banner Header */
         .imp-banner {
             background: linear-gradient(135deg, #1d4ed8 0%, #3730a3 100%);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 1rem;
             padding: 1.25rem 1.5rem;
             color: #ffffff;
@@ -24,12 +24,20 @@
             width: 42px;
             height: 42px;
             border-radius: 0.75rem;
-            background: rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.2);
             display: flex;
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
             backdrop-filter: blur(4px);
+        }
+        .imp-banner-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex: 1;
+            gap: 1rem;
+            flex-wrap: wrap;
         }
         .imp-banner-title {
             font-size: 1.125rem;
@@ -41,6 +49,46 @@
             font-size: 0.825rem;
             color: #e0e7ff;
             line-height: 1.5;
+        }
+
+        /* Download Button */
+        .imp-btn-download {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1.2rem;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: #ffffff !important;
+            border-radius: 0.5rem;
+            font-size: 0.775rem;
+            font-weight: 700;
+            text-decoration: none !important;
+            transition: all 0.2s ease-in-out;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            white-space: nowrap;
+            cursor: pointer;
+        }
+        .imp-btn-download:hover {
+            background-color: rgba(255, 255, 255, 0.35);
+            color: #ffffff !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            transform: translateY(-1px);
+        }
+
+        /* SVG Icon Fixes */
+        .imp-svg-banner {
+            width: 24px;
+            height: 24px;
+            flex-shrink: 0;
+            stroke: #ffffff;
+            fill: none;
+        }
+        .imp-svg-btn {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+            stroke: #ffffff;
+            fill: none;
         }
 
         /* Section Cards */
@@ -61,6 +109,13 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+        }
+        .imp-card-actions {
+            padding-top: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 1rem;
         }
 
         /* Stat Grid */
@@ -100,6 +155,28 @@
             overflow: hidden;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
+        .imp-table-header {
+            padding: 1rem 1.25rem;
+            background-color: rgba(30, 41, 59, 0.9);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .imp-table-title {
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .imp-flex-gap {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
         .imp-table {
             width: 100%;
             border-collapse: collapse;
@@ -183,11 +260,11 @@
         {{-- ── Banner Panduan Header ──────────────────────────────────────── --}}
         <div class="imp-banner">
             <div class="imp-banner-icon">
-                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="imp-svg-banner" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                 </svg>
             </div>
-            <div class="flex-1 flex justify-between items-center">
+            <div class="imp-banner-content">
                 <div>
                     <div class="imp-banner-title">Import & Parsing CSV / Excel Jadwal Pelajaran</div>
                     <div class="imp-banner-desc">
@@ -195,8 +272,8 @@
                     </div>
                 </div>
                 <div>
-                    <a href="/templates/template_jadwal_pelajaran.csv" download class="inline-flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg text-xs font-bold transition">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <a href="/templates/template_jadwal_pelajaran.csv" download class="imp-btn-download">
+                        <svg class="imp-svg-btn" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
                         </svg>
                         Download Model Template CSV / Excel
@@ -212,10 +289,10 @@
                     <span>Langkah 1: Unggah File Master CSV / Excel Jadwal Pelajaran</span>
                 </div>
 
-                <form wire:submit.prevent="startParsing" class="space-y-6">
+                <form wire:submit.prevent="startParsing" style="display: flex; flex-direction: column; gap: 1.5rem;">
                     {{ $this->form }}
 
-                    <div class="pt-4 flex justify-end items-center">
+                    <div class="imp-card-actions">
                         <x-filament::button type="submit" icon="heroicon-o-arrow-path" size="lg" color="primary">
                             Ekstrak & Pratinjau Jadwal
                         </x-filament::button>
@@ -224,7 +301,7 @@
             </div>
         @else
             {{-- ── Langkah 2: Ringkasan Stat & Pratinjau Tabel Match ───────── --}}
-            <div class="space-y-6">
+            <div style="display: flex; flex-direction: column; gap: 1.5rem;">
 
                 {{-- Stat Grid Cards --}}
                 <div class="imp-grid-stats">
@@ -250,11 +327,11 @@
 
                 {{-- Table Pratinjau --}}
                 <div class="imp-table-container">
-                    <div class="p-4 bg-slate-800/80 border-b border-white/10 flex justify-between items-center">
-                        <h4 class="text-sm font-bold text-white flex items-center gap-2">
-                            <span>Pratinjau & Verifikasi Pencocokan Guru ({{ count($parsedItems) }} Data)</span>
-                        </h4>
-                        <div class="flex items-center gap-3">
+                    <div class="imp-table-header">
+                        <div class="imp-table-title">
+                            Pratinjau & Verifikasi Pencocokan Guru ({{ count($parsedItems) }} Data)
+                        </div>
+                        <div class="imp-flex-gap">
                             <x-filament::button wire:click="cancelPreview" color="gray" size="sm">
                                 Batal / Upload Ulang
                             </x-filament::button>
@@ -298,7 +375,7 @@
 
                                         {{-- Hari & Jam --}}
                                         <td>
-                                            <div class="space-y-1">
+                                            <div style="display: flex; flex-direction: column; gap: 0.25rem;">
                                                 <select wire:model.live="parsedItems.{{ $idx }}.day" class="imp-select font-bold text-emerald-400">
                                                     <option value="1">Senin</option>
                                                     <option value="2">Selasa</option>
@@ -389,7 +466,7 @@
                         </table>
                     </div>
 
-                    <div class="p-4 bg-slate-800/80 border-t border-white/10 flex justify-end gap-3">
+                    <div style="padding: 1rem 1.25rem; background-color: rgba(30, 41, 59, 0.9); border-top: 1px solid rgba(255, 255, 255, 0.1); display: flex; justify-content: flex-end; gap: 0.75rem;">
                         <x-filament::button wire:click="cancelPreview" color="gray" size="md">
                             Batal / Upload Ulang
                         </x-filament::button>
