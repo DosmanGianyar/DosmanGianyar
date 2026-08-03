@@ -185,7 +185,7 @@
                     </thead>
                     <tbody>
                         @foreach($previewItems as $index => $item)
-                        <tr>
+                        <tr wire:key="extra-row-{{ $index }}">
                             <td class="text-center font-bold text-slate-500 pt-3">{{ $index + 1 }}</td>
 
                             {{-- Nama Ekstra --}}
@@ -193,18 +193,13 @@
                                 <input type="text" wire:model.defer="previewItems.{{ $index }}.name" required class="imp-input imp-input-name font-bold">
                             </td>
 
-                            {{-- Guru Pembina Picker (Badges + Interactive Inline Search) --}}
+                            {{-- Guru Pembina Picker (Badges + Interactive Search without network triggers) --}}
                             <td>
                                 <div x-data="{
                                     open: false,
                                     search: '',
                                     selectedIds: @js(array_values($item['teacher_ids'] ?? [])),
                                     teachers: @js($teachersList),
-                                    init() {
-                                        this.$watch('selectedIds', val => {
-                                            $wire.set('previewItems.{{ $index }}.teacher_ids', val);
-                                        });
-                                    },
                                     get selectedPembinas() {
                                         return (this.selectedIds || []).map(id => ({ id: parseInt(id), name: this.teachers[id] || id }));
                                     },
@@ -222,12 +217,14 @@
                                         if (!this.selectedIds) this.selectedIds = [];
                                         if (!this.selectedIds.includes(id)) {
                                             this.selectedIds = [...this.selectedIds, id];
+                                            $wire.previewItems[{{ $index }}].teacher_ids = this.selectedIds;
                                         }
                                         this.search = '';
                                         this.open = false;
                                     },
                                     removeTeacher(id) {
                                         this.selectedIds = (this.selectedIds || []).filter(i => parseInt(i) !== parseInt(id));
+                                        $wire.previewItems[{{ $index }}].teacher_ids = this.selectedIds;
                                     }
                                 }" class="space-y-1.5 min-w-[280px]">
 
@@ -240,7 +237,7 @@
                                         <template x-for="p in selectedPembinas" :key="p.id">
                                             <span class="inline-flex items-center gap-1.5 bg-amber-500/20 text-amber-300 text-[11px] font-semibold px-2 py-0.5 rounded-md border border-amber-500/30 shadow-xs">
                                                 <span x-text="p.name"></span>
-                                                <button type="button" @click="removeTeacher(p.id)" class="hover:text-red-400 font-bold ml-0.5 text-xs">&times;</button>
+                                                <button type="button" @click.stop="removeTeacher(p.id)" class="hover:text-red-400 font-bold ml-0.5 text-xs">&times;</button>
                                             </span>
                                         </template>
                                         <template x-if="selectedPembinas.length === 0">
@@ -250,17 +247,20 @@
 
                                     {{-- Search Input & Inline Dropdown --}}
                                     <div>
-                                        <input type="text" x-model="search" @focus="open = true" @input="open = true"
+                                        <input type="text"
+                                            x-model="search"
+                                            @focus="open = true"
+                                            @click="open = true"
                                             placeholder="🔍 Ketik nama guru pembina..."
                                             class="imp-input text-xs">
 
                                         <div x-show="open" x-cloak class="mt-1.5 max-h-44 overflow-y-auto bg-slate-800 border border-amber-500/40 rounded-lg shadow-xl p-1 divide-y divide-slate-700/50">
                                             <div class="flex items-center justify-between px-2 py-1 text-[10px] text-slate-400 border-b border-slate-700/50 font-bold uppercase">
-                                                <span>Hasil Pencarian Guru</span>
+                                                <span>Pilih Guru Pembina</span>
                                                 <button type="button" @click="open = false" class="text-slate-400 hover:text-white">&times; Tutup</button>
                                             </div>
                                             <template x-for="(name, id) in filteredTeachers" :key="id">
-                                                <div @click="addTeacher(id)" class="px-2.5 py-1.5 hover:bg-amber-600/30 text-slate-200 hover:text-white text-xs cursor-pointer rounded flex items-center justify-between">
+                                                <div @click.stop="addTeacher(id)" class="px-2.5 py-1.5 hover:bg-amber-600/30 text-slate-200 hover:text-white text-xs cursor-pointer rounded flex items-center justify-between">
                                                     <span x-text="name"></span>
                                                     <span x-show="(selectedIds || []).includes(parseInt(id))" class="text-amber-400 font-bold text-[10px]">✓ Terpilih</span>
                                                 </div>
@@ -281,11 +281,6 @@
                                     search: '',
                                     selectedId: @js($item['ketua_id'] ?? null),
                                     students: @js($studentsList),
-                                    init() {
-                                        this.$watch('selectedId', val => {
-                                            $wire.set('previewItems.{{ $index }}.ketua_id', val);
-                                        });
-                                    },
                                     get selectedName() {
                                         return this.selectedId ? (this.students[this.selectedId] || '') : '';
                                     },
@@ -300,6 +295,7 @@
                                     },
                                     selectStudent(id) {
                                         this.selectedId = id ? parseInt(id) : null;
+                                        $wire.previewItems[{{ $index }}].ketua_id = this.selectedId;
                                         this.open = false;
                                         this.search = '';
                                     }
@@ -344,11 +340,6 @@
                                     search: '',
                                     selectedId: @js($item['wakil_ketua_id'] ?? null),
                                     students: @js($studentsList),
-                                    init() {
-                                        this.$watch('selectedId', val => {
-                                            $wire.set('previewItems.{{ $index }}.wakil_ketua_id', val);
-                                        });
-                                    },
                                     get selectedName() {
                                         return this.selectedId ? (this.students[this.selectedId] || '') : '';
                                     },
@@ -363,6 +354,7 @@
                                     },
                                     selectStudent(id) {
                                         this.selectedId = id ? parseInt(id) : null;
+                                        $wire.previewItems[{{ $index }}].wakil_ketua_id = this.selectedId;
                                         this.open = false;
                                         this.search = '';
                                     }
