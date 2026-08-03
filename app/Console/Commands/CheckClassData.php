@@ -22,14 +22,17 @@ class CheckClassData extends Command
             $this->line("ID: {$c->id} | Name: {$c->name} | Grade: {$c->grade} | Homeroom: {$teacherName} | Students: {$studentCount} | Teachers with class_id: {$guruCount}");
         }
 
-        $this->info("\n=== TEACHERS WITH CLASS_ID ===");
-        $gurusWithClass = User::where('role', 'guru')->whereNotNull('class_id')->get();
-        if ($gurusWithClass->isEmpty()) {
-            $this->line("No teachers have class_id set.");
-        } else {
-            foreach ($gurusWithClass as $g) {
-                $this->line("Guru ID: {$g->id} | Name: {$g->name} | class_id: {$g->class_id}");
-            }
+        $this->info("\n=== INVALID CLASSES (TEACHER NAMES IN CLASSES TABLE) ===");
+        $invalidClasses = SchoolClass::where('grade', '0')->orWhereNull('grade')->get();
+        $this->line("Found " . $invalidClasses->count() . " invalid class entries in `classes` table.");
+
+        foreach ($invalidClasses as $ic) {
+            $studentCount = User::where('class_id', $ic->id)->count();
+            $scheduleCount = \App\Models\Schedule::where('class_id', $ic->id)->count();
+            $journalCount = \App\Models\TeacherJournal::where('class_id', $ic->id)->count();
+            $attendanceCount = \App\Models\Attendance::whereHas('student', fn($q) => $q->where('class_id', $ic->id))->count();
+            
+            $this->line("Class ID {$ic->id}: {$ic->name} -> Students: {$studentCount}, Schedules: {$scheduleCount}, Journals: {$journalCount}, Attendances: {$attendanceCount}");
         }
     }
 }
