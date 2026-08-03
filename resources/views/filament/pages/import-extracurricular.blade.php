@@ -75,6 +75,7 @@
             letter-spacing: 0.05em;
             padding: 0.75rem 1rem;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            white-space: nowrap;
         }
 
         .imp-table td {
@@ -99,13 +100,26 @@
             outline: none !important;
         }
 
+        .imp-input-name {
+            min-width: 320px !important;
+        }
+
         .imp-input:focus, .imp-select:focus {
             border-color: #f59e0b !important;
             box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2) !important;
         }
 
         .imp-select-multi {
+            min-width: 280px !important;
             height: 110px !important;
+        }
+
+        .imp-select-student {
+            min-width: 240px !important;
+        }
+
+        .imp-input-contact {
+            min-width: 160px !important;
         }
 
         .imp-raw-hint {
@@ -172,21 +186,21 @@
                     <thead>
                         <tr>
                             <th class="w-12 text-center">No</th>
-                            <th class="w-56">Nama Ekstra</th>
-                            <th class="w-72">Guru Pembina</th>
-                            <th class="w-64">Ketua Ekstra (Siswa 1)</th>
-                            <th class="w-64">Wakil Ketua (Siswa 2)</th>
-                            <th class="w-48">Contact Person (Admin)</th>
+                            <th class="min-w-[320px]">Nama Ekstra</th>
+                            <th class="min-w-[280px]">Guru Pembina</th>
+                            <th class="min-w-[240px]">Ketua Ekstra (Siswa 1)</th>
+                            <th class="min-w-[240px]">Wakil Ketua (Siswa 2)</th>
+                            <th class="min-w-[160px]">Contact Person (Admin)</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($previewItems as $index => $item)
                         <tr>
-                            <td class="text-center font-bold text-slate-500">{{ $index + 1 }}</td>
+                            <td class="text-center font-bold text-slate-500 pt-3">{{ $index + 1 }}</td>
 
                             {{-- Nama Ekstra --}}
                             <td>
-                                <input type="text" wire:model.defer="previewItems.{{ $index }}.name" required class="imp-input font-bold">
+                                <input type="text" wire:model.defer="previewItems.{{ $index }}.name" required class="imp-input imp-input-name font-bold">
                             </td>
 
                             {{-- Guru Pembina (Multi Select) --}}
@@ -207,7 +221,7 @@
                                 @if($item['ketua_raw'])
                                     <div class="imp-raw-hint">CSV: {{ $item['ketua_raw'] }}</div>
                                 @endif
-                                <select wire:model.defer="previewItems.{{ $index }}.ketua_id" class="imp-select">
+                                <select wire:model.defer="previewItems.{{ $index }}.ketua_id" class="imp-select imp-select-student">
                                     <option value="">-- Pilih Ketua Ekstra --</option>
                                     @foreach($studentsList as $sId => $sName)
                                         <option value="{{ $sId }}">{{ $sName }}</option>
@@ -220,7 +234,7 @@
                                 @if($item['wakil_raw'])
                                     <div class="imp-raw-hint">CSV: {{ $item['wakil_raw'] }}</div>
                                 @endif
-                                <select wire:model.defer="previewItems.{{ $index }}.wakil_ketua_id" class="imp-select">
+                                <select wire:model.defer="previewItems.{{ $index }}.wakil_ketua_id" class="imp-select imp-select-student">
                                     <option value="">-- Pilih Wakil Ketua --</option>
                                     @foreach($studentsList as $sId => $sName)
                                         <option value="{{ $sId }}">{{ $sName }}</option>
@@ -230,7 +244,7 @@
 
                             {{-- Contact Person --}}
                             <td>
-                                <input type="text" wire:model.defer="previewItems.{{ $index }}.contact_person" placeholder="No HP" class="imp-input font-mono">
+                                <input type="text" wire:model.defer="previewItems.{{ $index }}.contact_person" placeholder="No HP" class="imp-input imp-input-contact font-mono">
                             </td>
                         </tr>
                         @endforeach
