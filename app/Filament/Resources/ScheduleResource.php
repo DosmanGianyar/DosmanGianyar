@@ -106,7 +106,8 @@ class ScheduleResource extends Resource
                     ->label('Kelas')
                     ->badge()
                     ->color('info')
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable(),
 
                 TextColumn::make('day')
                     ->label('Hari')
@@ -116,7 +117,8 @@ class ScheduleResource extends Resource
                 TextColumn::make('period')
                     ->label('Jam ke-')
                     ->badge()
-                    ->color('gray'),
+                    ->color('gray')
+                    ->sortable(),
 
                 TextColumn::make('start_time')
                     ->label('Waktu')
@@ -128,25 +130,47 @@ class ScheduleResource extends Resource
                 TextColumn::make('subject.name')
                     ->label('Mata Pelajaran')
                     ->searchable()
+                    ->sortable()
                     ->weight('semibold'),
 
                 TextColumn::make('teacher.name')
                     ->label('Guru')
                     ->placeholder('—')
-                    ->limit(25),
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        $keywords = array_filter(explode(' ', trim($search)));
+                        return $query->whereHas('teacher', function (Builder $q) use ($keywords, $search) {
+                            $q->where(function (Builder $sub) use ($keywords, $search) {
+                                $sub->where('name', 'like', "%{$search}%");
+                                foreach ($keywords as $kw) {
+                                    $sub->where('name', 'like', "%{$kw}%");
+                                }
+                            });
+                        });
+                    })
+                    ->sortable(),
 
                 TextColumn::make('room')
                     ->label('Ruangan')
+                    ->searchable()
                     ->placeholder('—'),
             ])
             ->defaultSort('day')
             ->filters([
                 SelectFilter::make('class_id')
                     ->label('Kelas')
-                    ->options(SchoolClass::orderBy('name')->pluck('name', 'id')),
+                    ->options(SchoolClass::orderBy('name')->pluck('name', 'id'))
+                    ->searchable(),
+                SelectFilter::make('subject_id')
+                    ->label('Mata Pelajaran')
+                    ->options(Subject::orderBy('name')->pluck('name', 'id'))
+                    ->searchable(),
+                SelectFilter::make('teacher_id')
+                    ->label('Guru')
+                    ->options(User::where('role', 'guru')->orderBy('name')->pluck('name', 'id'))
+                    ->searchable(),
                 SelectFilter::make('day')
                     ->label('Hari')
-                    ->options([1 => 'Senin', 2 => 'Selasa', 3 => 'Rabu', 4 => 'Kamis', 5 => 'Jumat']),
+                    ->options([1 => 'Senin', 2 => 'Selasa', 3 => 'Rabu', 4 => 'Kamis', 5 => 'Jumat', 6 => 'Sabtu']),
             ])
             ->actions([EditAction::make(), DeleteAction::make()])
             ->bulkActions([BulkActionGroup::make([DeleteBulkAction::make()])]);
