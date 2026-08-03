@@ -45,7 +45,6 @@
             background-color: #0f1d33;
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 1rem;
-            overflow: hidden;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
 
@@ -89,7 +88,7 @@
             background-color: rgba(255, 255, 255, 0.03);
         }
 
-        .imp-input, .imp-select {
+        .imp-input {
             width: 100%;
             background-color: #1e293b !important;
             color: #ffffff !important;
@@ -100,22 +99,13 @@
             outline: none !important;
         }
 
-        .imp-input-name {
-            min-width: 280px !important;
-        }
-
-        .imp-input:focus, .imp-select:focus {
+        .imp-input:focus {
             border-color: #f59e0b !important;
             box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2) !important;
         }
 
-        .imp-select-multi {
-            min-width: 280px !important;
-            height: 120px !important;
-        }
-
-        .imp-select-student {
-            width: 100% !important;
+        .imp-input-name {
+            min-width: 260px !important;
         }
 
         .imp-input-contact {
@@ -127,6 +117,8 @@
             color: #94a3b8;
             font-style: italic;
         }
+
+        [x-cloak] { display: none !important; }
     </style>
 
     <div class="imp-wrap">
@@ -173,20 +165,20 @@
                     <span class="imp-table-title">
                         <span>📊 Hasil Pencocokan Data Ekstrakurikuler</span>
                     </span>
-                    <p class="text-xs text-slate-400 mt-0.5">Ditemukan {{ count($previewItems) }} Ekstrakurikuler. Pembina & Pengurus yang cocok di DB telah **otomatis terpilih** di bawah.</p>
+                    <p class="text-xs text-slate-400 mt-0.5">Ditemukan {{ count($previewItems) }} Ekstrakurikuler. Gunakan fitur pencarian nama di tiap kolom untuk mengubah Pembina / Pengurus.</p>
                 </div>
                 <x-filament::button wire:click="saveAll" color="success" size="lg" icon="heroicon-o-check-circle">
                     💾 Simpan All Data Ekstrakurikuler
                 </x-filament::button>
             </div>
 
-            <div class="overflow-x-auto">
+            <div class="overflow-visible">
                 <table class="imp-table">
                     <thead>
                         <tr>
                             <th class="w-10 text-center">No</th>
-                            <th class="min-w-[260px]">Nama Ekstra</th>
-                            <th class="min-w-[280px]">Guru Pembina</th>
+                            <th class="min-w-[240px]">Nama Ekstra</th>
+                            <th class="min-w-[300px]">Guru Pembina (Multi-Select)</th>
                             <th class="min-w-[300px]">Pengurus Ekstra (Ketua & Wakil)</th>
                             <th class="min-w-[140px]">Contact Person (Admin)</th>
                         </tr>
@@ -201,63 +193,181 @@
                                 <input type="text" wire:model.defer="previewItems.{{ $index }}.name" required class="imp-input imp-input-name font-bold">
                             </td>
 
-                            {{-- Guru Pembina (Multi Select Auto-Selected) --}}
+                            {{-- Guru Pembina Picker (Badges + Interactive Search) --}}
                             <td>
-                                @if(!empty($item['pembinas_raw']))
-                                    <div class="imp-raw-hint mb-1">CSV: {{ implode(', ', $item['pembinas_raw']) }}</div>
-                                @endif
-                                <select multiple wire:model.defer="previewItems.{{ $index }}.teacher_ids" class="imp-select imp-select-multi">
-                                    @foreach($teachersList as $tId => $tName)
-                                        <option value="{{ $tId }}" {{ in_array($tId, $item['teacher_ids'] ?? []) ? 'selected' : '' }}>
-                                            {{ $tName }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                <div class="text-[10px] text-slate-400 mt-1">
-                                    @if(count($item['teacher_ids'] ?? []) > 0)
-                                        <span class="text-emerald-400 font-semibold">✓ {{ count($item['teacher_ids']) }} Pembina Otomatis Terpilih</span>
-                                    @else
-                                        <span>Tahan Ctrl/Cmd untuk memilih lebih dari 1 Pembina</span>
+                                <div x-data="{
+                                    open: false,
+                                    search: '',
+                                    selectedIds: $wire.entangle('previewItems.{{ $index }}.teacher_ids').defer,
+                                    teachers: @js($teachersList),
+                                    get selectedPembinas() {
+                                        return (this.selectedIds || []).map(id => ({ id: parseInt(id), name: this.teachers[id] || id }));
+                                    },
+                                    get filteredTeachers() {
+                                        if (!this.search) return this.teachers;
+                                        const s = this.search.toLowerCase();
+                                        const res = {};
+                                        for (const [id, name] of Object.entries(this.teachers)) {
+                                            if (name.toLowerCase().includes(s)) res[id] = name;
+                                        }
+                                        return res;
+                                    },
+                                    addTeacher(id) {
+                                        id = parseInt(id);
+                                        if (!this.selectedIds) this.selectedIds = [];
+                                        if (!this.selectedIds.includes(id)) {
+                                            this.selectedIds.push(id);
+                                        }
+                                        this.search = '';
+                                        this.open = false;
+                                    },
+                                    removeTeacher(id) {
+                                        this.selectedIds = (this.selectedIds || []).filter(i => parseInt(i) !== parseInt(id));
+                                    }
+                                }" class="space-y-1.5 min-w-[280px]">
+
+                                    @if(!empty($item['pembinas_raw']))
+                                        <div class="imp-raw-hint mb-1">CSV: {{ implode(', ', $item['pembinas_raw']) }}</div>
                                     @endif
+
+                                    {{-- Selected Teacher Badges --}}
+                                    <div class="flex flex-wrap gap-1 mb-1">
+                                        <template x-for="p in selectedPembinas" :key="p.id">
+                                            <span class="inline-flex items-center gap-1 bg-amber-500/20 text-amber-300 text-[11px] font-semibold px-2 py-0.5 rounded-md border border-amber-500/30 shadow-xs">
+                                                <span x-text="p.name"></span>
+                                                <button type="button" @click="removeTeacher(p.id)" class="hover:text-red-400 font-bold ml-0.5 text-xs">&times;</button>
+                                            </span>
+                                        </template>
+                                    </div>
+
+                                    {{-- Search Input & Dropdown --}}
+                                    <div class="relative" @click.outside="open = false">
+                                        <input type="text" x-model="search" @focus="open = true" @input="open = true"
+                                            placeholder="🔍 Cari & Tambah Guru Pembina..."
+                                            class="imp-input text-xs">
+
+                                        <div x-show="open" x-cloak class="absolute z-50 left-0 right-0 mt-1 max-h-48 overflow-y-auto bg-slate-800 border border-slate-700 rounded-lg shadow-2xl p-1 divide-y divide-slate-700/50">
+                                            <template x-for="(name, id) in filteredTeachers" :key="id">
+                                                <div @click="addTeacher(id)" class="px-2.5 py-1.5 hover:bg-amber-600/30 text-slate-200 hover:text-white text-xs cursor-pointer rounded flex items-center justify-between">
+                                                    <span x-text="name"></span>
+                                                    <span x-show="(selectedIds || []).includes(parseInt(id))" class="text-amber-400 font-bold text-[10px]">✓ Terpilih</span>
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </div>
                                 </div>
                             </td>
 
-                            {{-- Pengurus Ekstra (Ketua & Wakil dalam 1 Kolom Atas Bawah) --}}
+                            {{-- Pengurus Ekstra (Ketua & Wakil dengan Search Box) --}}
                             <td>
-                                {{-- Ketua --}}
-                                <div class="space-y-1">
+                                {{-- Ketua Searchable Picker --}}
+                                <div class="space-y-1" x-data="{
+                                    open: false,
+                                    search: '',
+                                    selectedId: $wire.entangle('previewItems.{{ $index }}.ketua_id').defer,
+                                    students: @js($studentsList),
+                                    get selectedName() {
+                                        return this.selectedId ? (this.students[this.selectedId] || '') : '';
+                                    },
+                                    get filteredStudents() {
+                                        if (!this.search) return this.students;
+                                        const s = this.search.toLowerCase();
+                                        const res = {};
+                                        for (const [id, name] of Object.entries(this.students)) {
+                                            if (name.toLowerCase().includes(s)) res[id] = name;
+                                        }
+                                        return res;
+                                    },
+                                    selectStudent(id) {
+                                        this.selectedId = id ? parseInt(id) : null;
+                                        this.open = false;
+                                        this.search = '';
+                                    }
+                                }">
                                     <div class="flex items-center justify-between text-[11px]">
                                         <span class="font-bold text-emerald-400">👑 Ketua:</span>
                                         @if(!empty($item['ketua_raw']))
                                             <span class="imp-raw-hint">CSV: {{ $item['ketua_raw'] }}</span>
                                         @endif
                                     </div>
-                                    <select wire:model.defer="previewItems.{{ $index }}.ketua_id" class="imp-select imp-select-student">
-                                        <option value="">-- Pilih Ketua Ekstra --</option>
-                                        @foreach($studentsList as $sId => $sName)
-                                            <option value="{{ $sId }}" {{ ($item['ketua_id'] ?? null) == $sId ? 'selected' : '' }}>
-                                                {{ $sName }}
-                                            </option>
-                                        @endforeach
-                                    </select>
+
+                                    <div class="relative" @click.outside="open = false">
+                                        <div @click="open = !open" class="imp-input flex items-center justify-between cursor-pointer text-xs">
+                                            <span x-text="selectedName || '-- Pilih Ketua Ekstra --'" :class="selectedId ? 'font-bold text-white' : 'text-slate-400'"></span>
+                                            <span class="text-slate-400 text-[10px]">🔍 ▼</span>
+                                        </div>
+
+                                        <div x-show="open" x-cloak class="absolute z-50 left-0 right-0 mt-1 bg-slate-800 border border-slate-700 rounded-lg shadow-2xl p-2 w-72">
+                                            <input type="text" x-model="search" placeholder="Cari nama siswa..." class="imp-input text-xs mb-2">
+
+                                            <div class="max-h-44 overflow-y-auto space-y-0.5">
+                                                <div @click="selectStudent(null)" class="px-2 py-1 hover:bg-slate-700 text-slate-400 text-xs cursor-pointer rounded italic">
+                                                    -- Kosongkan --
+                                                </div>
+                                                <template x-for="(name, id) in filteredStudents" :key="id">
+                                                    <div @click="selectStudent(id)" class="px-2 py-1.5 hover:bg-emerald-600/30 text-slate-200 hover:text-white text-xs cursor-pointer rounded flex items-center justify-between">
+                                                        <span x-text="name"></span>
+                                                        <span x-show="parseInt(selectedId) === parseInt(id)" class="text-emerald-400 font-bold text-[10px]">✓</span>
+                                                    </div>
+                                                </template>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
 
-                                {{-- Wakil Ketua --}}
-                                <div class="space-y-1 mt-3">
+                                {{-- Wakil Ketua Searchable Picker --}}
+                                <div class="space-y-1 mt-3" x-data="{
+                                    open: false,
+                                    search: '',
+                                    selectedId: $wire.entangle('previewItems.{{ $index }}.wakil_ketua_id').defer,
+                                    students: @js($studentsList),
+                                    get selectedName() {
+                                        return this.selectedId ? (this.students[this.selectedId] || '') : '';
+                                    },
+                                    get filteredStudents() {
+                                        if (!this.search) return this.students;
+                                        const s = this.search.toLowerCase();
+                                        const res = {};
+                                        for (const [id, name] of Object.entries(this.students)) {
+                                            if (name.toLowerCase().includes(s)) res[id] = name;
+                                        }
+                                        return res;
+                                    },
+                                    selectStudent(id) {
+                                        this.selectedId = id ? parseInt(id) : null;
+                                        this.open = false;
+                                        this.search = '';
+                                    }
+                                }">
                                     <div class="flex items-center justify-between text-[11px]">
                                         <span class="font-bold text-sky-400">🎖️ Wakil Ketua:</span>
                                         @if(!empty($item['wakil_raw']))
                                             <span class="imp-raw-hint">CSV: {{ $item['wakil_raw'] }}</span>
                                         @endif
                                     </div>
-                                    <select wire:model.defer="previewItems.{{ $index }}.wakil_ketua_id" class="imp-select imp-select-student">
-                                        <option value="">-- Pilih Wakil Ketua --</option>
-                                        @foreach($studentsList as $sId => $sName)
-                                            <option value="{{ $sId }}" {{ ($item['wakil_ketua_id'] ?? null) == $sId ? 'selected' : '' }}>
-                                                {{ $sName }}
-                                            </option>
-                                        @endforeach
-                                    </select>
+
+                                    <div class="relative" @click.outside="open = false">
+                                        <div @click="open = !open" class="imp-input flex items-center justify-between cursor-pointer text-xs">
+                                            <span x-text="selectedName || '-- Pilih Wakil Ketua --'" :class="selectedId ? 'font-bold text-white' : 'text-slate-400'"></span>
+                                            <span class="text-slate-400 text-[10px]">🔍 ▼</span>
+                                        </div>
+
+                                        <div x-show="open" x-cloak class="absolute z-50 left-0 right-0 mt-1 bg-slate-800 border border-slate-700 rounded-lg shadow-2xl p-2 w-72">
+                                            <input type="text" x-model="search" placeholder="Cari nama siswa..." class="imp-input text-xs mb-2">
+
+                                            <div class="max-h-44 overflow-y-auto space-y-0.5">
+                                                <div @click="selectStudent(null)" class="px-2 py-1 hover:bg-slate-700 text-slate-400 text-xs cursor-pointer rounded italic">
+                                                    -- Kosongkan --
+                                                </div>
+                                                <template x-for="(name, id) in filteredStudents" :key="id">
+                                                    <div @click="selectStudent(id)" class="px-2 py-1.5 hover:bg-sky-600/30 text-slate-200 hover:text-white text-xs cursor-pointer rounded flex items-center justify-between">
+                                                        <span x-text="name"></span>
+                                                        <span x-show="parseInt(selectedId) === parseInt(id)" class="text-sky-400 font-bold text-[10px]">✓</span>
+                                                    </div>
+                                                </template>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </td>
 
