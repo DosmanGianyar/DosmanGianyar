@@ -115,16 +115,18 @@ class ScheduleImportService
             return [];
         }
 
-        // 1. Ekstrak Pemetaan Kode Guru ke Nama Lengkap Guru di tabel bagian bawah (row index 40 ke bawah)
+        // 1. Ekstrak Pemetaan Kode Guru ke Nama Lengkap Guru di tabel bagian bawah (row index 39 ke bawah)
         $teacherCodeToName = [];
         $totalRows         = count($rows);
-        $startMappingIndex = 40;
+        $startMappingIndex = 39;
 
         foreach ($rows as $idx => $r) {
-            $val = strtoupper(trim($r[1] ?? ''));
-            if (str_contains($val, 'DAFTAR MATA PELAJARAN') || str_contains($val, 'GURU')) {
-                $startMappingIndex = $idx;
-                break;
+            if ($idx >= 35) {
+                $val = strtoupper(trim($r[1] ?? ''));
+                if (str_contains($val, 'DAFTAR') || str_contains($val, 'P. SUDARMA')) {
+                    $startMappingIndex = $idx;
+                    break;
+                }
             }
         }
 
@@ -147,7 +149,7 @@ class ScheduleImportService
             $codeToTeacherUser[$code] = $this->matchTeacherToDb($fullName, $dbTeachers);
         }
 
-        // 3. Parsel Grid Matrix Jadwal Pelajaran (Baris 6 s.d 37 / sebelum baris daftar mapel)
+        // 3. Parsel Grid Matrix Jadwal Pelajaran (Baris 6 s.d $startMappingIndex)
         $rawItems = [];
 
         for ($r = 6; $r < $startMappingIndex; $r++) {
