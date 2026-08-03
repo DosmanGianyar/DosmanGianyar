@@ -399,10 +399,8 @@ Route::middleware(['auth', 'role:orangtua'])->prefix('orangtua')->name('orangtua
 });
 
 // ─── Admin Extracurricular Management ───────────────────────────────────────
-Route::middleware(['auth', 'role:admin,superadmin'])->prefix('admin/extracurriculars')->name('admin.extracurriculars.')->group(function () {
-    Route::get('/', [AdminExtracurricular::class, 'index'])->name('index');
-    Route::get('/import', [AdminExtracurricular::class, 'importForm'])->name('import');
+Route::middleware(['auth', 'role:admin,superadmin'])->prefix('admin/extracurricular-import')->name('admin.extracurriculars.')->group(function () {
+    Route::get('/', [AdminExtracurricular::class, 'importForm'])->name('import');
     Route::post('/preview', [AdminExtracurricular::class, 'preview'])->name('preview');
     Route::post('/store', [AdminExtracurricular::class, 'store'])->name('store');
-    Route::delete('/{extracurricular}', [AdminExtracurricular::class, 'destroy'])->name('destroy');
 });

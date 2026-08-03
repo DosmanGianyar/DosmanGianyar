@@ -9,7 +9,7 @@
             <h1 class="text-xl font-bold text-gray-900">Upload Data Ekstrakurikuler</h1>
             <p class="text-sm text-gray-500 mt-1">Unggah file CSV (ekstra.csv) untuk mengimpor data Ekstra, Pembina (Guru), dan Ketua/Wakil Ketua (Siswa).</p>
         </div>
-        <a href="{{ route('admin.extracurriculars.index') }}" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-xl text-sm font-semibold hover:bg-gray-200 transition">
+        <a href="/admin/extracurriculars" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-xl text-sm font-semibold hover:bg-gray-200 transition">
             &larr; Kembali
         </a>
     </div>

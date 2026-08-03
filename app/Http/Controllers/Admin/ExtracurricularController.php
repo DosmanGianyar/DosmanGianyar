@@ -97,7 +97,7 @@ class ExtracurricularController extends Controller
             }
         });
 
-        return redirect()->route('admin.extracurriculars.index')
+        return redirect('/admin/extracurriculars')
             ->with('success', 'Data Ekstrakurikuler, Pembina, Ketua, dan Wakil Ketua berhasil disimpan!');
     }
 

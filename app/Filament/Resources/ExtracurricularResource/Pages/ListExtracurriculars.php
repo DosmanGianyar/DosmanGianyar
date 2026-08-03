@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\ExtracurricularResource\Pages;
 
 use App\Filament\Resources\ExtracurricularResource;
+use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 
@@ -12,6 +13,13 @@ class ListExtracurriculars extends ListRecords
 
     protected function getHeaderActions(): array
     {
-        return [CreateAction::make()];
+        return [
+            Action::make('import_csv')
+                ->label('Import CSV (ekstra.csv)')
+                ->icon('heroicon-o-document-arrow-up')
+                ->color('info')
+                ->url(fn () => route('admin.extracurriculars.import')),
+            CreateAction::make(),
+        ];
     }
 }
