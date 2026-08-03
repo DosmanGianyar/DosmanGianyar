@@ -101,7 +101,7 @@
         }
 
         .imp-input-name {
-            min-width: 320px !important;
+            min-width: 280px !important;
         }
 
         .imp-input:focus, .imp-select:focus {
@@ -111,21 +111,20 @@
 
         .imp-select-multi {
             min-width: 280px !important;
-            height: 110px !important;
+            height: 120px !important;
         }
 
         .imp-select-student {
-            min-width: 240px !important;
+            width: 100% !important;
         }
 
         .imp-input-contact {
-            min-width: 160px !important;
+            min-width: 140px !important;
         }
 
         .imp-raw-hint {
             font-size: 0.7rem;
             color: #94a3b8;
-            margin-bottom: 0.35rem;
             font-style: italic;
         }
     </style>
@@ -174,7 +173,7 @@
                     <span class="imp-table-title">
                         <span>📊 Hasil Pencocokan Data Ekstrakurikuler</span>
                     </span>
-                    <p class="text-xs text-slate-400 mt-0.5">Ditemukan {{ count($previewItems) }} Ekstrakurikuler. Periksa & sesuaikan dropdown di bawah jika ada yang belum pas.</p>
+                    <p class="text-xs text-slate-400 mt-0.5">Ditemukan {{ count($previewItems) }} Ekstrakurikuler. Pembina & Pengurus yang cocok di DB telah **otomatis terpilih** di bawah.</p>
                 </div>
                 <x-filament::button wire:click="saveAll" color="success" size="lg" icon="heroicon-o-check-circle">
                     💾 Simpan All Data Ekstrakurikuler
@@ -185,12 +184,11 @@
                 <table class="imp-table">
                     <thead>
                         <tr>
-                            <th class="w-12 text-center">No</th>
-                            <th class="min-w-[320px]">Nama Ekstra</th>
+                            <th class="w-10 text-center">No</th>
+                            <th class="min-w-[260px]">Nama Ekstra</th>
                             <th class="min-w-[280px]">Guru Pembina</th>
-                            <th class="min-w-[240px]">Ketua Ekstra (Siswa 1)</th>
-                            <th class="min-w-[240px]">Wakil Ketua (Siswa 2)</th>
-                            <th class="min-w-[160px]">Contact Person (Admin)</th>
+                            <th class="min-w-[300px]">Pengurus Ekstra (Ketua & Wakil)</th>
+                            <th class="min-w-[140px]">Contact Person (Admin)</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -203,43 +201,64 @@
                                 <input type="text" wire:model.defer="previewItems.{{ $index }}.name" required class="imp-input imp-input-name font-bold">
                             </td>
 
-                            {{-- Guru Pembina (Multi Select) --}}
+                            {{-- Guru Pembina (Multi Select Auto-Selected) --}}
                             <td>
                                 @if(!empty($item['pembinas_raw']))
-                                    <div class="imp-raw-hint">CSV: {{ implode(', ', $item['pembinas_raw']) }}</div>
+                                    <div class="imp-raw-hint mb-1">CSV: {{ implode(', ', $item['pembinas_raw']) }}</div>
                                 @endif
                                 <select multiple wire:model.defer="previewItems.{{ $index }}.teacher_ids" class="imp-select imp-select-multi">
                                     @foreach($teachersList as $tId => $tName)
-                                        <option value="{{ $tId }}">{{ $tName }}</option>
+                                        <option value="{{ $tId }}" {{ in_array($tId, $item['teacher_ids'] ?? []) ? 'selected' : '' }}>
+                                            {{ $tName }}
+                                        </option>
                                     @endforeach
                                 </select>
-                                <div class="text-[10px] text-slate-400 mt-1">Tahan Ctrl/Cmd untuk memilih lebih dari 1 Pembina</div>
+                                <div class="text-[10px] text-slate-400 mt-1">
+                                    @if(count($item['teacher_ids'] ?? []) > 0)
+                                        <span class="text-emerald-400 font-semibold">✓ {{ count($item['teacher_ids']) }} Pembina Otomatis Terpilih</span>
+                                    @else
+                                        <span>Tahan Ctrl/Cmd untuk memilih lebih dari 1 Pembina</span>
+                                    @endif
+                                </div>
                             </td>
 
-                            {{-- Ketua Ekstra --}}
+                            {{-- Pengurus Ekstra (Ketua & Wakil dalam 1 Kolom Atas Bawah) --}}
                             <td>
-                                @if($item['ketua_raw'])
-                                    <div class="imp-raw-hint">CSV: {{ $item['ketua_raw'] }}</div>
-                                @endif
-                                <select wire:model.defer="previewItems.{{ $index }}.ketua_id" class="imp-select imp-select-student">
-                                    <option value="">-- Pilih Ketua Ekstra --</option>
-                                    @foreach($studentsList as $sId => $sName)
-                                        <option value="{{ $sId }}">{{ $sName }}</option>
-                                    @endforeach
-                                </select>
-                            </td>
+                                {{-- Ketua --}}
+                                <div class="space-y-1">
+                                    <div class="flex items-center justify-between text-[11px]">
+                                        <span class="font-bold text-emerald-400">👑 Ketua:</span>
+                                        @if(!empty($item['ketua_raw']))
+                                            <span class="imp-raw-hint">CSV: {{ $item['ketua_raw'] }}</span>
+                                        @endif
+                                    </div>
+                                    <select wire:model.defer="previewItems.{{ $index }}.ketua_id" class="imp-select imp-select-student">
+                                        <option value="">-- Pilih Ketua Ekstra --</option>
+                                        @foreach($studentsList as $sId => $sName)
+                                            <option value="{{ $sId }}" {{ ($item['ketua_id'] ?? null) == $sId ? 'selected' : '' }}>
+                                                {{ $sName }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
 
-                            {{-- Wakil Ketua Ekstra --}}
-                            <td>
-                                @if($item['wakil_raw'])
-                                    <div class="imp-raw-hint">CSV: {{ $item['wakil_raw'] }}</div>
-                                @endif
-                                <select wire:model.defer="previewItems.{{ $index }}.wakil_ketua_id" class="imp-select imp-select-student">
-                                    <option value="">-- Pilih Wakil Ketua --</option>
-                                    @foreach($studentsList as $sId => $sName)
-                                        <option value="{{ $sId }}">{{ $sName }}</option>
-                                    @endforeach
-                                </select>
+                                {{-- Wakil Ketua --}}
+                                <div class="space-y-1 mt-3">
+                                    <div class="flex items-center justify-between text-[11px]">
+                                        <span class="font-bold text-sky-400">🎖️ Wakil Ketua:</span>
+                                        @if(!empty($item['wakil_raw']))
+                                            <span class="imp-raw-hint">CSV: {{ $item['wakil_raw'] }}</span>
+                                        @endif
+                                    </div>
+                                    <select wire:model.defer="previewItems.{{ $index }}.wakil_ketua_id" class="imp-select imp-select-student">
+                                        <option value="">-- Pilih Wakil Ketua --</option>
+                                        @foreach($studentsList as $sId => $sName)
+                                            <option value="{{ $sId }}" {{ ($item['wakil_ketua_id'] ?? null) == $sId ? 'selected' : '' }}>
+                                                {{ $sName }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
                             </td>
 
                             {{-- Contact Person --}}

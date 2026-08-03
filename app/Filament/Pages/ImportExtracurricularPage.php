@@ -97,7 +97,7 @@ class ImportExtracurricularPage extends Page
             $teacherIds = [];
             foreach ($p['pembinas'] as $t) {
                 if ($t['teacher_id']) {
-                    $teacherIds[] = $t['teacher_id'];
+                    $teacherIds[] = (int) $t['teacher_id'];
                 }
             }
 
@@ -107,9 +107,9 @@ class ImportExtracurricularPage extends Page
                 'pembinas_raw'   => array_column($p['pembinas'], 'raw_name'),
                 'teacher_ids'    => array_values(array_unique($teacherIds)),
                 'ketua_raw'      => $p['ketua']['raw_name'] ?? null,
-                'ketua_id'       => $p['ketua']['student_id'] ?? null,
+                'ketua_id'       => ! empty($p['ketua']['student_id']) ? (int) $p['ketua']['student_id'] : null,
                 'wakil_raw'      => $p['wakil_ketua']['raw_name'] ?? null,
-                'wakil_ketua_id' => $p['wakil_ketua']['student_id'] ?? null,
+                'wakil_ketua_id' => ! empty($p['wakil_ketua']['student_id']) ? (int) $p['wakil_ketua']['student_id'] : null,
             ];
         }
 
