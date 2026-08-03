@@ -517,6 +517,7 @@ class _CreateSessionTabState extends State<_CreateSessionTab> {
           'id': id,
           'name': subj.isNotEmpty ? '$name — $subj' : name,
           'subject_id': c['subject_id'],
+          'period': c['period'],
         });
       }
     }
@@ -554,6 +555,9 @@ class _CreateSessionTabState extends State<_CreateSessionTab> {
                 _selectedClassId   = id;
                 _selectedSubjectId = selectedObj['subject_id'] as int?;
                 _selectedPeriods.clear();
+                if (selectedObj['period'] != null) {
+                  _selectedPeriods.add(selectedObj['period'] as int);
+                }
               });
               _loadStudents(id);
               _loadOccupiedPeriods();
