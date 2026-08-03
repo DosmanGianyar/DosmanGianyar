@@ -1,16 +1,29 @@
-@extends('layouts.app')
-@section('title', 'Upload Extrakurikuler')
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Ekstrakurikuler — SIMS | SMA Negeri 1 Gianyar</title>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+</head>
+<body class="bg-gray-50 font-sans min-h-screen p-6">
 
-@section('content')
 <div class="max-w-3xl mx-auto space-y-6">
 
     <div class="flex items-center justify-between">
-        <div>
-            <h1 class="text-xl font-bold text-gray-900">Upload Data Ekstrakurikuler</h1>
-            <p class="text-sm text-gray-500 mt-1">Unggah file CSV (ekstra.csv) untuk mengimpor data Ekstra, Pembina (Guru), dan Ketua/Wakil Ketua (Siswa).</p>
+        <div class="flex items-center gap-3">
+            <a href="/admin/extracurriculars" class="w-9 h-9 bg-white rounded-xl border border-gray-200 flex items-center justify-center text-gray-600 hover:bg-gray-100 transition shadow-xs">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
+            </a>
+            <div>
+                <h1 class="text-xl font-bold text-gray-900">Upload Data Ekstrakurikuler</h1>
+                <p class="text-sm text-gray-500 mt-0.5">Unggah file CSV (`ekstra.csv`) untuk mengimpor data Ekstra, Pembina (Guru), dan Ketua/Wakil (Siswa).</p>
+            </div>
         </div>
-        <a href="/admin/extracurriculars" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-xl text-sm font-semibold hover:bg-gray-200 transition">
-            &larr; Kembali
+        <a href="/admin/extracurriculars" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-xl text-xs font-bold hover:bg-gray-300 transition">
+            &larr; Kembali ke Admin
         </a>
     </div>
 
@@ -28,7 +41,7 @@
                 <span class="text-2xl">📄</span>
                 <div>
                     <p class="font-bold text-blue-900 text-sm">File Default Ditemukan (`public/ekstra.csv`)</p>
-                    <p class="text-xs text-blue-700">Anda dapat langsung melakukan pratinjau dan pencocokan dari file default di server.</p>
+                    <p class="text-xs text-blue-700 mt-0.5">Anda dapat langsung melakukan pratinjau dan pencocokan otomatis dari file di server.</p>
                 </div>
             </div>
             <form action="{{ route('admin.extracurriculars.preview') }}" method="POST">
@@ -58,4 +71,6 @@
     </div>
 
 </div>
-@endsection
+
+</body>
+</html>

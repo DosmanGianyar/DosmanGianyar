@@ -1,15 +1,28 @@
-@extends('layouts.app')
-@section('title', 'Pratinjau & Pencocokan Ekstrakurikuler')
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pratinjau & Pencocokan Ekstrakurikuler — SIMS | SMA Negeri 1 Gianyar</title>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+</head>
+<body class="bg-gray-50 font-sans min-h-screen p-6">
 
-@section('content')
 <div class="max-w-7xl mx-auto space-y-6 pb-16">
 
     <div class="flex items-center justify-between">
-        <div>
-            <h1 class="text-xl font-bold text-gray-900">Pratinjau & Pencocokan Ekstrakurikuler</h1>
-            <p class="text-sm text-gray-500 mt-1">Periksa hasil pencocokan otomatis Guru Pembina dan Siswa (Ketua & Wakil). Sesuaikan pilihan dropdown jika ada yang belum tepat sebelum disimpan.</p>
+        <div class="flex items-center gap-3">
+            <a href="{{ route('admin.extracurriculars.import') }}" class="w-9 h-9 bg-white rounded-xl border border-gray-200 flex items-center justify-center text-gray-600 hover:bg-gray-100 transition shadow-xs">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
+            </a>
+            <div>
+                <h1 class="text-xl font-bold text-gray-900">Pratinjau & Pencocokan Ekstrakurikuler</h1>
+                <p class="text-sm text-gray-500 mt-0.5">Periksa hasil pencocokan Guru Pembina dan Siswa (Ketua & Wakil). Sesuaikan pilihan dropdown jika ada yang belum tepat sebelum disimpan.</p>
+            </div>
         </div>
-        <a href="{{ route('admin.extracurriculars.import') }}" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-xl text-sm font-semibold hover:bg-gray-200 transition">
+        <a href="{{ route('admin.extracurriculars.import') }}" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-xl text-xs font-bold hover:bg-gray-300 transition">
             &larr; Batal / Kembali
         </a>
     </div>
@@ -48,7 +61,7 @@
                                     class="w-full text-sm font-bold text-gray-900 bg-white border border-gray-200 rounded-xl px-3 py-2 focus:ring-2 focus:ring-blue-500">
                             </td>
 
-                            {{-- Guru Pembina (Multi Select Checkboxes or Select) --}}
+                            {{-- Guru Pembina --}}
                             <td class="p-3.5 align-top space-y-2">
                                 @forelse($item['pembinas'] as $pIdx => $pembina)
                                     <div>
@@ -129,4 +142,6 @@
     </form>
 
 </div>
-@endsection
+
+</body>
+</html>
