@@ -25,7 +25,7 @@ return new class extends Migration
                 $table->foreignId('teacher_id')->constrained('users')->cascadeOnDelete();
                 $table->timestamps();
 
-                $table->unique(['extracurricular_id', 'teacher_id']);
+                $table->unique(['extracurricular_id', 'teacher_id'], 'ex_teachers_unique');
             });
         }
 
@@ -37,7 +37,7 @@ return new class extends Migration
                 $table->enum('role', ['ketua', 'wakil_ketua', 'anggota'])->default('anggota');
                 $table->timestamps();
 
-                $table->unique(['extracurricular_id', 'student_id', 'role']);
+                $table->unique(['extracurricular_id', 'student_id', 'role'], 'ex_students_unique');
             });
         }
     }
