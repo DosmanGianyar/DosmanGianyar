@@ -93,9 +93,9 @@ class ScheduleResource extends Resource
 
             TextInput::make('academic_year')
                 ->label('Tahun Ajaran')
-                ->default('2025/2026')
+                ->default('2026/2027 Ganjil')
                 ->required()
-                ->maxLength(9),
+                ->maxLength(50),
         ]);
     }
 
