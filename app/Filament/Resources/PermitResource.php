@@ -190,6 +190,15 @@ class PermitResource extends Resource
                             route('siswa.permit.index'),
                         );
 
+                        if ($record->student) {
+                            NotificationService::notifyParentsOfStudent(
+                                $record->student,
+                                "{$record->typeLabel()} Ananda Disetujui",
+                                "Pengajuan {$record->typeLabel()} untuk Ananda {$record->student->name} tanggal {$record->start_date->isoFormat('D MMM Y')} telah disetujui.",
+                                'success'
+                            );
+                        }
+
                         Notification::make()->title('Pengajuan disetujui')->success()->send();
                     }),
 

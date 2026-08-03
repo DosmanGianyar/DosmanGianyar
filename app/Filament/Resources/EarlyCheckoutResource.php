@@ -139,6 +139,15 @@ class EarlyCheckoutResource extends Resource
                             url:    route('siswa.early-checkout.index'),
                         );
 
+                        if ($record->student) {
+                            NotificationService::notifyParentsOfStudent(
+                                $record->student,
+                                'Izin Pulang Awal Ananda Disetujui',
+                                'Pengajuan pulang lebih awal untuk Ananda ' . $record->student->name . ' tanggal ' . $record->date->isoFormat('D MMMM Y') . ' telah disetujui.',
+                                'success'
+                            );
+                        }
+
                         Notification::make()->title('Pengajuan disetujui')->success()->send();
                     }),
 

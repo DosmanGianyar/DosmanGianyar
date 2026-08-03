@@ -150,6 +150,13 @@ class AttendanceController extends Controller
             ]
         );
 
+        \App\Services\NotificationService::notifyParentsOfStudent(
+            $user,
+            "Absensi Masuk Ananda {$user->name}",
+            "Ananda {$user->name} telah melakukan presensi masuk (Status: " . ucfirst($status) . " pukul " . $now->format('H:i') . ").",
+            'info'
+        );
+
         return response()->json([
             'message'        => 'Absen masuk berhasil!',
             'status'         => $status,
@@ -225,6 +232,13 @@ class AttendanceController extends Controller
             'check_out_time'  => $now->format('H:i:s'),
             'check_out_photo' => $filename,
         ]);
+
+        \App\Services\NotificationService::notifyParentsOfStudent(
+            $user,
+            "Absensi Pulang Ananda {$user->name}",
+            "Ananda {$user->name} telah melakukan presensi pulang pukul " . $now->format('H:i') . ".",
+            'info'
+        );
 
         return response()->json([
             'message'         => 'Absen pulang berhasil!',
