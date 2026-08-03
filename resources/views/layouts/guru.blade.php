@@ -291,6 +291,7 @@
         sidebar.classList.toggle('-translate-x-full', isOpen);
         overlay.classList.toggle('hidden', isOpen);
     }
-    @include('components.image-lightbox')
+</script>
+@include('components.image-lightbox')
 </body>
 </html>

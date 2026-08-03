@@ -131,6 +131,7 @@
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/sw.js');
 }
-    @include('components.image-lightbox')
+</script>
+@include('components.image-lightbox')
 </body>
 </html>
