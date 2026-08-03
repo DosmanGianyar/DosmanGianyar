@@ -101,7 +101,7 @@ class StudentDataService
             ->orderByDesc('created_at')
             ->get();
 
-        $prestasiCount    = $logs->filter(fn ($l) => ($l->category?->type ?? $l->type) === 'prestasi')->count();
+        $prestasiCount    = $logs->filter(fn ($l) => in_array($l->category?->type ?? $l->type, ['prestasi', 'positif']))->count();
         $pelanggaranCount = $logs->filter(fn ($l) => ($l->category?->type ?? $l->type) === 'pelanggaran')->count();
 
         return [
@@ -109,17 +109,20 @@ class StudentDataService
                 'prestasi_count'    => $prestasiCount,
                 'pelanggaran_count' => $pelanggaranCount,
             ],
-            'logs' => $logs->map(fn ($log) => [
-                'id'            => $log->id,
-                'category_name' => $log->category?->name ?? ucfirst($log->type ?? 'Catatan'),
-                'type'          => $log->category?->type ?? $log->type,
-                'context'       => $log->category?->context,
-                'note'          => $log->note,
-                'photo_url'     => $log->photo ? Storage::disk('public')->url($log->photo) : null,
-                'teacher_name'  => $log->teacher?->name,
-                'date'          => $log->created_at->toDateString(),
-                'created_at'    => $log->created_at->toIso8601String(),
-            ])->values(),
+            'logs' => $logs->map(function ($log) {
+                $type = $log->category?->type ?? $log->type ?? 'pelanggaran';
+                return [
+                    'id'            => $log->id,
+                    'category_name' => $log->category?->name ?? ucfirst($type),
+                    'type'          => $type,
+                    'context'       => $log->category?->context,
+                    'note'          => $log->note,
+                    'photo_url'     => $log->photo ? Storage::disk('public')->url($log->photo) : null,
+                    'teacher_name'  => $log->teacher?->name,
+                    'date'          => $log->created_at?->toDateString() ?? now()->toDateString(),
+                    'created_at'    => $log->created_at?->toIso8601String() ?? now()->toIso8601String(),
+                ];
+            })->values(),
         ];
     }
 
@@ -151,14 +154,14 @@ class StudentDataService
             'level'            => $a->level,
             'level_label'      => $a->levelLabel(),
             'rank'             => $a->rank,
-            'achievement_date' => $a->achievement_date->toDateString(),
+            'achievement_date' => $a->achievement_date?->toDateString() ?? $a->created_at?->toDateString() ?? now()->toDateString(),
             'description'      => $a->description,
             'status'           => $a->status,
             'status_label'     => $a->statusLabel(),
             'rejection_reason' => $a->rejection_reason,
             'photo_url'        => $a->photoUrl(),
             'certificate_url'  => $a->certificateUrl(),
-            'created_at'       => $a->created_at->toIso8601String(),
+            'created_at'       => $a->created_at?->toIso8601String() ?? now()->toIso8601String(),
         ];
     }
 }

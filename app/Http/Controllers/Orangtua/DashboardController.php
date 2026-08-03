@@ -27,12 +27,21 @@ class DashboardController extends Controller
                 ->first();
 
             $violationPoints = ConductLog::where('student_id', $child->id)
-                ->whereHas('category', fn ($q) => $q->where('type', 'pelanggaran'))
+                ->where(function ($query) {
+                    $query->where('type', 'pelanggaran')
+                          ->orWhereHas('category', fn ($q) => $q->where('type', 'pelanggaran'));
+                })
                 ->with('category')
                 ->get()
                 ->sum(fn ($log) => $log->category?->points ?? 0);
 
-            $achievementCount = StudentAchievement::where('student_id', $child->id)->count();
+            $achievementCount = StudentAchievement::where('student_id', $child->id)->count()
+                + ConductLog::where('student_id', $child->id)
+                    ->where(function ($query) {
+                        $query->whereIn('type', ['prestasi', 'positif'])
+                              ->orWhereHas('category', fn ($q) => $q->whereIn('type', ['prestasi', 'positif']));
+                    })
+                    ->count();
 
             return [
                 'student'           => $child,

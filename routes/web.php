@@ -385,6 +385,13 @@ Route::middleware(['auth', 'role:siswa,pengelola', 'force.password.change'])->pr
 // ─── Orangtua ─────────────────────────────────────────────────────────────────
 Route::middleware(['auth', 'role:orangtua'])->prefix('orangtua')->name('orangtua.')->group(function () {
     Route::get('/dashboard', [OrangtuaDashboard::class, 'index'])->name('dashboard');
+    Route::get('/attendance', function () {
+        $parent = auth()->user();
+        $child  = $parent?->children()->first();
+        return $child
+            ? redirect()->route('orangtua.attendance.history', $child->id)
+            : redirect()->route('orangtua.dashboard');
+    })->name('attendance.index');
     Route::get('/children/{studentId}/attendance', [OrangtuaAttendance::class, 'history'])->name('attendance.history');
     Route::get('/children/{studentId}/conduct', [OrangtuaConduct::class, 'index'])->name('conduct.index');
     Route::get('/children/{studentId}/achievements', [OrangtuaAchievement::class, 'index'])->name('achievements.index');
