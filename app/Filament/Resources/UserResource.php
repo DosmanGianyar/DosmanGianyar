@@ -13,6 +13,7 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\IconEntry;
@@ -77,14 +78,10 @@ class UserResource extends Resource
                     ->tel()
                     ->maxLength(20),
 
-                TextInput::make('password')
-                    ->label('Password (Opsional)')
-                    ->password()
-                    ->revealable()
-                    ->nullable()
-                    ->dehydrateStateUsing(fn ($state) => filled($state) ? Hash::make($state) : null)
-                    ->dehydrated(fn ($state) => filled($state))
-                    ->helperText('Kosongkan — password default otomatis diset sama dengan NIP (Guru), NISN (Siswa), atau No HP (Orangtua)'),
+                Placeholder::make('password_info')
+                    ->label('Info Password')
+                    ->content('🔑 Password pertama otomatis diset sama dengan NISN (Siswa), NIP (Guru), atau No. HP (Orang Tua)')
+                    ->helperText('Pengguna dapat memperbarui password setelah login pertama kali.'),
             ])->columns(2),
 
             Section::make('Data Siswa')
