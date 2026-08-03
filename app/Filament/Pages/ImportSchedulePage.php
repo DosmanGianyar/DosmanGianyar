@@ -18,7 +18,7 @@ class ImportSchedulePage extends Page
 {
     protected static string|\BackedEnum|null $navigationIcon  = 'heroicon-o-calendar';
     protected static string|\UnitEnum|null   $navigationGroup = 'Kurikulum';
-    protected static ?string                 $navigationLabel = 'Import Jadwal PDF/Excel';
+    protected static ?string                 $navigationLabel = 'Import Jadwal CSV/Excel';
     protected static ?string                 $slug            = 'import-schedule';
     protected static ?int                    $navigationSort  = 5;
 
@@ -33,7 +33,7 @@ class ImportSchedulePage extends Page
     public ?array $parsedItems = null;
     public bool $isParsed = false;
 
-    public string $selectedGrade = '10';
+    public string $selectedGrade = '10, 11, 12';
     public string $academicYear = '2026/2027 Ganjil';
     public bool $replaceExisting = true;
 
@@ -61,23 +61,74 @@ class ImportSchedulePage extends Page
                     ->helperText('Jadwal lama pada tahun ajaran ini akan otomatis dibersihkan dan digantikan dengan jadwal baru.'),
 
                 FileUpload::make('file')
-                    ->label('File Master PDF / Excel Jadwal (.pdf, .xlsx, .xls)')
-                    ->helperText('Unggah file PDF cetakan aSc Timetables atau file Excel master jadwal. Sistem otomatis mengekstrak hari, jam, kelas, mapel, dan guru.')
+                    ->label('File Master CSV / Excel Jadwal (.csv, .xlsx, .xls)')
+                    ->helperText('Unggah file CSV master jadwal (misal: JADWAL GURU_MAPEL HOR.csv). Sistem otomatis mengekstrak hari, jam, kelas, mapel, dan melakukan matching guru.')
                     ->acceptedFileTypes([
-                        'application/pdf',
+                        'text/csv',
+                        'text/plain',
+                        'application/csv',
                         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
                         'application/vnd.ms-excel',
-                        'text/csv',
                     ])
                     ->maxSize(20480) // 20MB
-                    ->required()
+                    ->nullable()
                     ->storeFiles(false),
             ])
             ->statePath('data');
     }
 
     /**
-     * Langkah 1: Parsing file PDF / Excel Master
+     * Langkah 1A: Parse langsung file default public/JADWAL GURU_MAPEL HOR.csv
+     */
+    public function parseDefaultCsv(ScheduleImportService $service): void
+    {
+        $state                 = $this->form->getState();
+        $this->academicYear    = $state['academic_year'] ?? '2026/2027 Ganjil';
+        $this->replaceExisting = (bool) ($state['replace_existing'] ?? true);
+        $this->selectedGrade   = 'Semua Kelas (10, 11, 12)';
+
+        $defaultCsvPath = public_path('JADWAL GURU_MAPEL HOR.csv');
+
+        if (!file_exists($defaultCsvPath)) {
+            Notification::make()
+                ->title('File Default Tidak Ditemukan')
+                ->body("File 'public/JADWAL GURU_MAPEL HOR.csv' tidak ditemukan di server.")
+                ->danger()
+                ->send();
+            return;
+        }
+
+        try {
+            $items = $service->parseCsvSchedule($defaultCsvPath, 'ALL');
+
+            if (empty($items)) {
+                Notification::make()
+                    ->title('Gagal membaca jadwal dari file CSV default')
+                    ->body('Pastikan file CSV memiliki format tabel/grid jadwal pelajaran yang valid.')
+                    ->warning()
+                    ->send();
+                return;
+            }
+
+            $this->parsedItems = $items;
+            $this->isParsed    = true;
+
+            Notification::make()
+                ->title('File CSV Default Berhasil Diparsing!')
+                ->body('Ditemukan ' . count($items) . ' slot jadwal pelajaran master dari file JADWAL GURU_MAPEL HOR.csv.')
+                ->success()
+                ->send();
+        } catch (\Throwable $e) {
+            Notification::make()
+                ->title('Error Parsing File Default')
+                ->body($e->getMessage())
+                ->danger()
+                ->send();
+        }
+    }
+
+    /**
+     * Langkah 1B: Parsing file CSV / Excel yang diunggah
      */
     public function startParsing(ScheduleImportService $service): void
     {
@@ -85,7 +136,8 @@ class ImportSchedulePage extends Page
         $uploadedFile = $state['file'] ?? null;
 
         if (! $uploadedFile) {
-            Notification::make()->title('File tidak ditemukan')->danger()->send();
+            // Jika tidak ada file di-upload, jalankan parseDefaultCsv
+            $this->parseDefaultCsv($service);
             return;
         }
 
@@ -94,17 +146,13 @@ class ImportSchedulePage extends Page
         $this->selectedGrade   = 'Semua Kelas (10, 11, 12)';
 
         try {
-            $filePath     = $uploadedFile->getRealPath();
-            $mimeType     = $uploadedFile->getMimeType() ?? '';
-            $originalName = method_exists($uploadedFile, 'getClientOriginalName') ? $uploadedFile->getClientOriginalName() : '';
-            $hint         = $mimeType . ' ' . $originalName;
-
-            $items = $service->parseFile($filePath, $hint, 'ALL');
+            $filePath = $uploadedFile->getRealPath();
+            $items    = $service->parseCsvSchedule($filePath, 'ALL');
 
             if (empty($items)) {
                 Notification::make()
-                    ->title('Gagal membaca jadwal dari file PDF / Excel')
-                    ->body('Pastikan file PDF (cetakan aSc Timetables) atau Excel memiliki format tabel/grid jadwal pelajaran yang valid.')
+                    ->title('Gagal membaca jadwal dari file CSV / Excel')
+                    ->body('Pastikan file CSV / Excel memiliki format tabel/grid jadwal pelajaran yang valid.')
                     ->warning()
                     ->send();
                 return;
@@ -135,7 +183,6 @@ class ImportSchedulePage extends Page
         try {
             $newTeacher = $service->createDraftTeacher($rawName);
 
-            // Update item yang bersangkutan di parsedItems
             $allSubjects = Subject::all();
             foreach ($this->parsedItems as &$item) {
                 if ($item['temp_id'] === $tempId || $item['teacher_raw'] === $rawName) {

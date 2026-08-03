@@ -188,9 +188,9 @@
                 </svg>
             </div>
             <div>
-                <div class="imp-banner-title">Import & Parsing PDF / Excel Jadwal Pelajaran (aSc Timetables)</div>
+                <div class="imp-banner-title">Import & Parsing CSV / Excel Jadwal Pelajaran</div>
                 <div class="imp-banner-desc">
-                    Unggah file PDF cetakan aSc Timetables atau file Excel master jadwal (.xlsx / .xls). Sistem akan mengekstrak jam, hari, kelas, mapel, serta melakukan pencocokan guru secara otomatis ke database.
+                    Unggah file CSV master jadwal (misal: <strong>JADWAL GURU_MAPEL HOR.csv</strong>) atau Excel (.xlsx / .xls). Sistem akan mengekstrak jam, hari, kelas, mapel, serta menyandingkan kode guru di bagian bawah CSV dengan akun guru di database secara otomatis.
                 </div>
             </div>
         </div>
@@ -199,16 +199,28 @@
             {{-- ── Form Langkah 1: Upload File & Parameter ──────────────────── --}}
             <div class="imp-card">
                 <div class="imp-card-title">
-                    <span>Langkah 1: Unggah File Master PDF / Excel Jadwal Pelajaran</span>
+                    <span>Langkah 1: Unggah File Master CSV / Excel Jadwal Pelajaran</span>
                 </div>
 
                 <form wire:submit.prevent="startParsing" class="space-y-6">
                     {{ $this->form }}
 
-                    <div class="pt-4 flex justify-end">
-                        <x-filament::button type="submit" icon="heroicon-o-arrow-path" size="lg" color="primary">
-                            Ekstrak & Pratinjau Jadwal
-                        </x-filament::button>
+                    <div class="pt-4 flex justify-between items-center">
+                        <div>
+                            <x-filament::button
+                                type="button"
+                                wire:click="parseDefaultCsv"
+                                icon="heroicon-o-document-text"
+                                color="info"
+                                size="md">
+                                Import Langsung dari public/JADWAL GURU_MAPEL HOR.csv
+                            </x-filament::button>
+                        </div>
+                        <div>
+                            <x-filament::button type="submit" icon="heroicon-o-arrow-path" size="lg" color="primary">
+                                Ekstrak & Pratinjau Jadwal
+                            </x-filament::button>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -261,7 +273,7 @@
                                     <th style="width: 130px;">Kelas</th>
                                     <th style="width: 200px;">Hari & Jam</th>
                                     <th>Mata Pelajaran</th>
-                                    <th>Nama Guru di PDF/Excel</th>
+                                    <th>Nama/Kode Guru di CSV</th>
                                     <th>Hasil Match DB</th>
                                     <th style="width: 320px;">Aksi / Pilih Guru</th>
                                 </tr>
@@ -310,6 +322,7 @@
                                                     <option value="8">Jam 8 (13:15 - 14:00)</option>
                                                     <option value="9">Jam 9 (16:00 - 16:45)</option>
                                                     <option value="10">Jam 10 (17:00 - 17:45)</option>
+                                                    <option value="11">Jam 11 (17:45 - 18:30)</option>
                                                 </select>
                                             </div>
                                         </td>
@@ -330,7 +343,7 @@
                                             </select>
                                         </td>
 
-                                        {{-- Teks Raw PDF --}}
+                                        {{-- Teks Raw CSV --}}
                                         <td>
                                             <strong style="color: #f8fafc;">{{ $item['teacher_raw'] ?: '—' }}</strong>
                                             @if(!empty($item['room']))
