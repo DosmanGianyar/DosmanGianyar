@@ -13,7 +13,6 @@ class AttendanceReportPage extends Page
 {
     protected static string|\BackedEnum|null $navigationIcon       = 'heroicon-o-clipboard-document-list';
     protected static string|\UnitEnum|null   $navigationGroup      = 'Kesiswaan';
-    protected static ?string                 $navigationParentItem = 'Presensi';
     protected static ?string                 $navigationLabel      = 'Laporan Presensi';
     protected static ?string                 $title                = 'Laporan Presensi Bulanan';
     protected static ?int                    $navigationSort       = 15;

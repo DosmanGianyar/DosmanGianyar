@@ -13,7 +13,6 @@ class AttendanceSettingPage extends Page
 {
     protected static string|\BackedEnum|null $navigationIcon       = 'heroicon-o-clock';
     protected static string|\UnitEnum|null  $navigationGroup      = 'Kesiswaan';
-    protected static ?string               $navigationParentItem  = 'Presensi';
     protected static ?string                $navigationLabel      = 'Pengaturan Waktu Presensi';
     protected static ?int                   $navigationSort  = 10;
 

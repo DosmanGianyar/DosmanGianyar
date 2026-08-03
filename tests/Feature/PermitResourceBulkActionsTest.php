@@ -31,8 +31,8 @@ class PermitResourceBulkActionsTest extends TestCase
         $permit2 = Permit::create([
             'student_id' => $siswa->id,
             'type'       => 'sakit',
-            'start_date' => now()->toDateString(),
-            'end_date'   => now()->toDateString(),
+            'start_date' => now()->addDay()->toDateString(),
+            'end_date'   => now()->addDay()->toDateString(),
             'reason'     => 'Sakit 2',
             'status'     => 'pending',
             'file'       => 'permits/test2.jpg',

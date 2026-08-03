@@ -30,7 +30,6 @@ class AttendanceLocationResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon       = 'heroicon-o-map-pin';
     protected static string|\UnitEnum|null   $navigationGroup      = 'Kesiswaan';
-    protected static ?string                 $navigationParentItem = 'Presensi';
     protected static ?string                 $navigationLabel      = 'Lokasi Presensi';
     protected static ?string                 $modelLabel           = 'Lokasi Presensi';
     protected static ?string                 $pluralModelLabel     = 'Lokasi Presensi';

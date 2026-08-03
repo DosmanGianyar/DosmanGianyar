@@ -22,7 +22,6 @@ class AchievementCategoryResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon       = 'heroicon-o-tag';
     protected static string|\UnitEnum|null   $navigationGroup      = 'Kesiswaan';
-    protected static ?string                 $navigationParentItem = 'Prestasi';
     protected static ?string $modelLabel         = 'Kategori Prestasi';
     protected static ?string $pluralModelLabel  = 'Kategori Prestasi';
     protected static ?string $navigationLabel      = 'Kategori Prestasi';

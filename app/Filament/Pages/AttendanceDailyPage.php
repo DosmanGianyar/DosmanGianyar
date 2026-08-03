@@ -16,7 +16,6 @@ class AttendanceDailyPage extends Page
 {
     protected static string|\BackedEnum|null $navigationIcon       = 'heroicon-o-calendar-days';
     protected static string|\UnitEnum|null   $navigationGroup      = 'Kesiswaan';
-    protected static ?string                 $navigationParentItem = 'Presensi';
     protected static ?string                 $navigationLabel      = 'Absensi Harian';
     protected static ?string                 $title                = 'Absensi Harian Siswa';
     protected static ?int                    $navigationSort       = 14;

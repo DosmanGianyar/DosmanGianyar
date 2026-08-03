@@ -29,7 +29,6 @@ class HolidayResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon      = 'heroicon-o-calendar-days';
     protected static string|\UnitEnum|null   $navigationGroup     = 'Kesiswaan';
-    protected static ?string                 $navigationParentItem = 'Presensi';
     protected static ?string                 $navigationLabel     = 'Hari Libur & Sekolah Khusus';
     protected static ?string                 $modelLabel          = 'Hari Libur';
     protected static ?string                 $pluralModelLabel    = 'Hari Libur & Sekolah Khusus';

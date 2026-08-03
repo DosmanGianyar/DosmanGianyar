@@ -23,7 +23,6 @@ class StudentAchievementResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon       = 'heroicon-o-trophy';
     protected static string|\UnitEnum|null   $navigationGroup      = 'Kesiswaan';
-    protected static ?string                 $navigationParentItem = 'Prestasi';
     protected static ?string                 $navigationLabel      = 'Laporan Prestasi';
     protected static ?string                 $modelLabel           = 'Prestasi Siswa';
     protected static ?string                 $pluralModelLabel     = 'Laporan Prestasi';
