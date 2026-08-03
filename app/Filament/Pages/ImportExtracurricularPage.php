@@ -2,14 +2,12 @@
 
 namespace App\Filament\Pages;
 
-use App\Models\Extracurricular;
 use App\Models\User;
 use App\Services\ExtracurricularImportService;
 use Filament\Forms\Components\FileUpload;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Schema;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use Livewire\WithFileUploads;
 
@@ -32,8 +30,19 @@ class ImportExtracurricularPage extends Page
 
     public ?array $data = [];
     public bool $isParsed = false;
-    public array $teachersList = [];
-    public array $studentsList = [];
+
+    public int $currentPage = 1;
+    public int $perPage = 20;
+
+    public function getTeachersCollectionProperty()
+    {
+        return User::where('role', 'guru')->orderBy('name')->get();
+    }
+
+    public function getStudentsCollectionProperty()
+    {
+        return User::where('role', 'siswa')->orderBy('name')->get();
+    }
 
     protected function getSessionKey(): string
     {
@@ -44,9 +53,6 @@ class ImportExtracurricularPage extends Page
     {
         @ini_set('memory_limit', '512M');
 
-        $this->teachersList = User::where('role', 'guru')->orderBy('name')->pluck('name', 'id')->toArray();
-        $this->studentsList = User::where('role', 'siswa')->orderBy('name')->pluck('name', 'id')->toArray();
-
         if (Session::has($this->getSessionKey())) {
             $this->isParsed = true;
         } else {
@@ -55,11 +61,6 @@ class ImportExtracurricularPage extends Page
                 $this->parseFilePath($defaultFile);
             }
         }
-    }
-
-    public function getPreviewItemsProperty(): array
-    {
-        return Session::get($this->getSessionKey(), []);
     }
 
     public function form(Schema $schema): Schema
@@ -119,6 +120,7 @@ class ImportExtracurricularPage extends Page
             }
 
             $items[] = [
+                'temp_id'        => $p['temp_id'] ?? uniqid('extra_'),
                 'name'           => $p['name'],
                 'contact_person' => $p['contact_person'],
                 'pembinas_raw'   => array_column($p['pembinas'], 'raw_name'),
@@ -131,76 +133,109 @@ class ImportExtracurricularPage extends Page
         }
 
         Session::put($this->getSessionKey(), $items);
-        $this->isParsed = count($items) > 0;
+        $this->isParsed    = count($items) > 0;
+        $this->currentPage = 1;
     }
 
-    public function updateItem(int $index, string $field, mixed $value): void
+    public function getAllSessionItems(): array
     {
-        $items = Session::get($this->getSessionKey(), []);
-        if (isset($items[$index])) {
-            $items[$index][$field] = $value;
-            Session::put($this->getSessionKey(), $items);
+        return Session::get($this->getSessionKey(), []);
+    }
+
+    public function getPaginatedItems(): array
+    {
+        $all    = $this->getAllSessionItems();
+        $offset = ($this->currentPage - 1) * $this->perPage;
+        return array_slice($all, $offset, $this->perPage);
+    }
+
+    public function getTotalPages(): int
+    {
+        $count = count($this->getAllSessionItems());
+        return max(1, (int) ceil($count / $this->perPage));
+    }
+
+    public function nextPage(): void
+    {
+        if ($this->currentPage < $this->getTotalPages()) {
+            $this->currentPage++;
         }
     }
 
-    public function saveAll(): void
+    public function previousPage(): void
+    {
+        if ($this->currentPage > 1) {
+            $this->currentPage--;
+        }
+    }
+
+    public function updateItemRow(string $tempId, string $field, mixed $value): void
+    {
+        $items = $this->getAllSessionItems();
+
+        foreach ($items as &$item) {
+            if ($item['temp_id'] === $tempId) {
+                if ($field === 'add_teacher_id') {
+                    $tId = (int) $value;
+                    if (! in_array($tId, $item['teacher_ids'])) {
+                        $item['teacher_ids'][] = $tId;
+                    }
+                } elseif ($field === 'remove_teacher_id') {
+                    $tId                 = (int) $value;
+                    $item['teacher_ids'] = array_values(array_filter($item['teacher_ids'], fn ($id) => (int) $id !== $tId));
+                } elseif ($field === 'ketua_id') {
+                    $item['ketua_id'] = $value ? (int) $value : null;
+                } elseif ($field === 'wakil_ketua_id') {
+                    $item['wakil_ketua_id'] = $value ? (int) $value : null;
+                } elseif ($field === 'name') {
+                    $item['name'] = trim((string) $value);
+                } elseif ($field === 'contact_person') {
+                    $item['contact_person'] = trim((string) $value);
+                }
+                break;
+            }
+        }
+
+        Session::put($this->getSessionKey(), $items);
+    }
+
+    public function saveToDatabase(ExtracurricularImportService $service): void
     {
         @ini_set('memory_limit', '512M');
         @ini_set('max_execution_time', '300');
 
-        $items = Session::get($this->getSessionKey(), []);
+        $items = $this->getAllSessionItems();
 
         if (empty($items)) {
-            Notification::make()->title('Tidak ada data ekstra untuk disimpan.')->danger()->send();
+            Notification::make()->title('Tidak ada data ekstra untuk disimpan.')->warning()->send();
             return;
         }
 
         try {
-            DB::transaction(function () use ($items) {
-                foreach ($items as $item) {
-                    if (empty($item['name'])) {
-                        continue;
-                    }
-
-                    $teacherIds     = array_filter(array_map('intval', $item['teacher_ids'] ?? []));
-                    $firstTeacherId = $teacherIds[0] ?? null;
-
-                    $extra = Extracurricular::updateOrCreate(
-                        ['name' => trim($item['name'])],
-                        [
-                            'contact_person' => $item['contact_person'] ?? null,
-                            'pembina_id'     => $firstTeacherId,
-                        ]
-                    );
-
-                    // Sync Teachers (Pembina)
-                    $extra->teachers()->sync($teacherIds);
-
-                    // Sync Students (Ketua & Wakil Ketua)
-                    $studentSync = [];
-                    if (! empty($item['ketua_id'])) {
-                        $studentSync[(int) $item['ketua_id']] = ['role' => 'ketua'];
-                    }
-                    if (! empty($item['wakil_ketua_id'])) {
-                        $studentSync[(int) $item['wakil_ketua_id']] = ['role' => 'wakil_ketua'];
-                    }
-                    $extra->students()->sync($studentSync);
-                }
-            });
+            $count = $service->saveExtracurriculars($items);
 
             Session::forget($this->getSessionKey());
+            $this->isParsed = false;
+            $this->form->fill();
 
             Notification::make()
-                ->title('Data Ekstrakurikuler, Pembina, Ketua, & Wakil Ketua Berhasil Disimpan!')
+                ->title('Data Ekstrakurikuler Berhasil Disimpan!')
+                ->body("Sebanyak {$count} data ekstrakurikuler beserta Pembina & Pengurus telah tersimpan di database.")
                 ->success()
+                ->persistent()
                 ->send();
-
-            $this->redirect('/admin/extracurriculars');
         } catch (\Throwable $e) {
             Notification::make()
-                ->title('Gagal menyimpan data: ' . $e->getMessage())
+                ->title('Gagal Menyimpan Ekstrakurikuler')
+                ->body($e->getMessage())
                 ->danger()
                 ->send();
         }
+    }
+
+    public function cancelPreview(): void
+    {
+        Session::forget($this->getSessionKey());
+        $this->isParsed = false;
     }
 }

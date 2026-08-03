@@ -115,6 +115,7 @@ class ExtracurricularImportService
             $studentMatches = self::splitAndMatchStudents($rawKetuaText, $allStudents);
 
             $previewData[] = [
+                'temp_id'        => uniqid('extra_'),
                 'name'           => $ekstraName,
                 'contact_person' => $contactPerson,
                 'pembinas'       => $matchedTeachers,
@@ -124,6 +125,46 @@ class ExtracurricularImportService
         }
 
         return $previewData;
+    }
+
+    public function saveExtracurriculars(array $items): int
+    {
+        $count = 0;
+        DB::transaction(function () use ($items, &$count) {
+            foreach ($items as $item) {
+                if (empty($item['name'])) {
+                    continue;
+                }
+
+                $teacherIds     = array_filter(array_map('intval', $item['teacher_ids'] ?? []));
+                $firstTeacherId = $teacherIds[0] ?? null;
+
+                $extra = Extracurricular::updateOrCreate(
+                    ['name' => trim($item['name'])],
+                    [
+                        'contact_person' => $item['contact_person'] ?? null,
+                        'pembina_id'     => $firstTeacherId,
+                    ]
+                );
+
+                // Sync Teachers (Pembina)
+                $extra->teachers()->sync($teacherIds);
+
+                // Sync Students (Ketua & Wakil Ketua)
+                $studentSync = [];
+                if (! empty($item['ketua_id'])) {
+                    $studentSync[(int) $item['ketua_id']] = ['role' => 'ketua'];
+                }
+                if (! empty($item['wakil_ketua_id'])) {
+                    $studentSync[(int) $item['wakil_ketua_id']] = ['role' => 'wakil_ketua'];
+                }
+                $extra->students()->sync($studentSync);
+
+                $count++;
+            }
+        });
+
+        return $count;
     }
 
     /**
