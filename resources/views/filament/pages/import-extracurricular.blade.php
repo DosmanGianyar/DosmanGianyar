@@ -121,6 +121,11 @@
         [x-cloak] { display: none !important; }
     </style>
 
+    <script>
+        window.teachersList = @json($teachersList);
+        window.studentsList = @json($studentsList);
+    </script>
+
     <div class="imp-wrap">
 
         {{-- Top Banner --}}
@@ -199,7 +204,7 @@
                                     open: false,
                                     search: '',
                                     selectedIds: @js(array_values($item['teacher_ids'] ?? [])),
-                                    teachers: @js($teachersList),
+                                    get teachers() { return window.teachersList || {}; },
                                     get selectedPembinas() {
                                         return (this.selectedIds || []).map(id => ({ id: parseInt(id), name: this.teachers[id] || id }));
                                     },
@@ -280,7 +285,7 @@
                                     open: false,
                                     search: '',
                                     selectedId: @js($item['ketua_id'] ?? null),
-                                    students: @js($studentsList),
+                                    get students() { return window.studentsList || {}; },
                                     get selectedName() {
                                         return this.selectedId ? (this.students[this.selectedId] || '') : '';
                                     },
@@ -339,7 +344,7 @@
                                     open: false,
                                     search: '',
                                     selectedId: @js($item['wakil_ketua_id'] ?? null),
-                                    students: @js($studentsList),
+                                    get students() { return window.studentsList || {}; },
                                     get selectedName() {
                                         return this.selectedId ? (this.students[this.selectedId] || '') : '';
                                     },
