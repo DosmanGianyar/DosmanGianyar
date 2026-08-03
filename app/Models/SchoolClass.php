@@ -19,7 +19,7 @@ class SchoolClass extends Model
 
     public function students(): HasMany
     {
-        return $this->hasMany(User::class, 'class_id');
+        return $this->hasMany(User::class, 'class_id')->whereIn('role', ['siswa', 'pengelola']);
     }
 
     public function getFullNameAttribute(): string
