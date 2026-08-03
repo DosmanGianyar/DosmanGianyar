@@ -37,6 +37,8 @@ class ImportExtracurricularPage extends Page
 
     public function mount(): void
     {
+        @ini_set('memory_limit', '512M');
+
         $this->teachersList = User::where('role', 'guru')->orderBy('name')->pluck('name', 'id')->toArray();
         $this->studentsList = User::where('role', 'siswa')->orderBy('name')->pluck('name', 'id')->toArray();
 
@@ -45,6 +47,13 @@ class ImportExtracurricularPage extends Page
         if (file_exists($defaultFile)) {
             $this->parseFilePath($defaultFile);
         }
+    }
+
+    public function render(): \Illuminate\Contracts\View\View
+    {
+        @ini_set('memory_limit', '512M');
+
+        return parent::render();
     }
 
     public function form(Schema $schema): Schema
@@ -90,6 +99,8 @@ class ImportExtracurricularPage extends Page
 
     private function parseFilePath(string $path): void
     {
+        @ini_set('memory_limit', '512M');
+
         $parsed = ExtracurricularImportService::parseCsv($path);
 
         $items = [];
