@@ -36,6 +36,10 @@ class ImportSchedulePage extends Page
     public string $academicYear = '2026/2027 Ganjil';
     public bool $replaceExisting = true;
 
+    public string $classFilter = 'ALL';
+    public string $statusFilter = 'ALL';
+    public string $searchQuery = '';
+
     public function mount(): void
     {
         $this->form->fill([
@@ -154,6 +158,61 @@ class ImportSchedulePage extends Page
         } catch (\Throwable $e) {
             Notification::make()
                 ->title('Gagal Buat Akun Guru')
+                ->body($e->getMessage())
+                ->danger()
+                ->send();
+        }
+    }
+
+    /**
+     * Buat akun Guru secara massal untuk semua guru yang belum ada di database
+     */
+    public function createAllUnmatchedTeachers(ScheduleImportService $service): void
+    {
+        if (empty($this->parsedItems)) return;
+
+        try {
+            $createdCount = 0;
+            $allSubjects  = Subject::all();
+            $unmatchedRaw = [];
+
+            foreach ($this->parsedItems as $item) {
+                if (empty($item['teacher_id']) && !empty($item['teacher_raw'])) {
+                    $unmatchedRaw[$item['teacher_raw']] = true;
+                }
+            }
+
+            $createdTeachers = [];
+            foreach (array_keys($unmatchedRaw) as $rawName) {
+                $teacher = $service->createDraftTeacher($rawName);
+                $createdTeachers[$rawName] = $teacher;
+                $createdCount++;
+            }
+
+            foreach ($this->parsedItems as &$item) {
+                $rawName = $item['teacher_raw'] ?? '';
+                if (isset($createdTeachers[$rawName])) {
+                    $newTeacher = $createdTeachers[$rawName];
+                    $item['teacher_id']       = $newTeacher->id;
+                    $item['teacher_name']     = $newTeacher->name;
+                    $item['match_confidence'] = 'exact';
+
+                    $res = $service->resolveSubjectForTeacher($newTeacher, $allSubjects, $item['subject_code'] ?? null);
+                    if ($res['subject_id']) {
+                        $item['subject_id'] = $res['subject_id'];
+                    }
+                    $item['allowed_subject_ids'] = $res['allowed_subject_ids'];
+                }
+            }
+
+            Notification::make()
+                ->title('Berhasil Membuat Akun Guru Massal')
+                ->body("Sebanyak {$createdCount} akun guru baru berhasil dibuat dan otomatis terhubung ke pratinjau jadwal.")
+                ->success()
+                ->send();
+        } catch (\Throwable $e) {
+            Notification::make()
+                ->title('Gagal Buat Akun Guru Massal')
                 ->body($e->getMessage())
                 ->danger()
                 ->send();

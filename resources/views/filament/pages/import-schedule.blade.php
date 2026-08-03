@@ -332,6 +332,20 @@
                             Pratinjau & Verifikasi Pencocokan Guru ({{ count($parsedItems) }} Data)
                         </div>
                         <div class="imp-flex-gap">
+                            @php
+                                $hasUnmatched = false;
+                                foreach ($parsedItems as $p) {
+                                    if (empty($p['teacher_id']) && !empty($p['teacher_raw'])) {
+                                        $hasUnmatched = true;
+                                        break;
+                                    }
+                                }
+                            @endphp
+                            @if ($hasUnmatched)
+                                <x-filament::button wire:click="createAllUnmatchedTeachers" color="warning" size="sm" icon="heroicon-o-user-plus">
+                                    Buat Otomatis Akun Guru yang Belum Ada
+                                </x-filament::button>
+                            @endif
                             <x-filament::button wire:click="cancelPreview" color="gray" size="sm">
                                 Batal / Upload Ulang
                             </x-filament::button>
