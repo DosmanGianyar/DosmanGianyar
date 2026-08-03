@@ -18,7 +18,7 @@ class ListExtracurriculars extends ListRecords
                 ->label('Import CSV (ekstra.csv)')
                 ->icon('heroicon-o-document-arrow-up')
                 ->color('info')
-                ->url(fn () => route('admin.extracurriculars.import')),
+                ->url(fn () => \App\Filament\Pages\ImportExtracurricularPage::getUrl()),
             CreateAction::make(),
         ];
     }
