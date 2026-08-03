@@ -269,6 +269,19 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(StudentHomeroomTeacher::class, 'teacher_id');
     }
 
+    public function extracurricularsAsTeacher(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Extracurricular::class, 'extracurricular_teachers', 'teacher_id', 'extracurricular_id')
+            ->withTimestamps();
+    }
+
+    public function extracurricularsAsStudent(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Extracurricular::class, 'extracurricular_students', 'student_id', 'extracurricular_id')
+            ->withPivot('role')
+            ->withTimestamps();
+    }
+
     // Orangtua: daftar anak (untuk akun orangtua)
     public function children(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {

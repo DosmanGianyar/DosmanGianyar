@@ -63,6 +63,28 @@
     </div>
 </div>
 
+{{-- ─── Pengurus Ekstrakurikuler Banner ─────────────────────────────── --}}
+@if(isset($myExtracurricularRoles) && $myExtracurricularRoles->count() > 0)
+<div class="mb-3.5 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 rounded-2xl p-4 text-white shadow-md border border-amber-400/40">
+    <div class="flex items-center gap-2.5 mb-1.5">
+        <span class="text-xl">👑</span>
+        <div>
+            <h3 class="font-extrabold text-sm text-white uppercase tracking-wide">Pengurus Ekstrakurikuler</h3>
+            <p class="text-[11px] text-amber-100 font-medium">Anda tercatat sebagai pengurus pada ekstrakurikuler berikut:</p>
+        </div>
+    </div>
+    <div class="flex flex-wrap gap-2 mt-2">
+        @foreach($myExtracurricularRoles as $ex)
+            @php $roleLabel = $ex->pivot->role === 'ketua' ? 'Ketua' : ($ex->pivot->role === 'wakil_ketua' ? 'Wakil Ketua' : 'Anggota'); @endphp
+            <div class="bg-black/20 backdrop-blur-md border border-white/30 rounded-xl px-3 py-1.5 text-xs font-black flex items-center gap-1.5">
+                <span class="px-1.5 py-0.5 rounded bg-white text-amber-900 text-[10px] font-black uppercase">{{ $roleLabel }}</span>
+                <span>{{ $ex->name }}</span>
+            </div>
+        @endforeach
+    </div>
+</div>
+@endif
+
 {{-- ─── Kartu Pelajar Digital ───────────────────────────────────────── --}}
 @include('siswa.partials.student-card-digital')
 

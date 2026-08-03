@@ -2,88 +2,32 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Extracurricular extends Model
 {
     protected $fillable = [
-        'name', 'description', 'logo', 'pembina_id', 'max_members', 'is_active',
+        'name',
+        'contact_person',
+        'description',
     ];
 
-    protected function casts(): array
+    public function teachers(): BelongsToMany
     {
-        return [
-            'is_active'   => 'boolean',
-            'max_members' => 'integer',
-        ];
+        return $this->belongsToMany(User::class, 'extracurricular_teachers', 'extracurricular_id', 'teacher_id')
+            ->withTimestamps();
     }
 
-    // ─── Relations ────────────────────────────────────────────────────────────
-
-    public function pembina(): BelongsTo
+    public function students(): BelongsToMany
     {
-        return $this->belongsTo(User::class, 'pembina_id');
+        return $this->belongsToMany(User::class, 'extracurricular_students', 'extracurricular_id', 'student_id')
+            ->withPivot('role')
+            ->withTimestamps();
     }
 
-    public function members(): HasMany
+    public function leaders(): BelongsToMany
     {
-        return $this->hasMany(ExtracurricularMember::class);
-    }
-
-    public function activeMembers(): HasMany
-    {
-        return $this->hasMany(ExtracurricularMember::class)->where('status', 'active');
-    }
-
-    public function pendingMembers(): HasMany
-    {
-        return $this->hasMany(ExtracurricularMember::class)
-            ->whereIn('status', ['pending_join', 'pending_leave']);
-    }
-
-    public function sessions(): HasMany
-    {
-        return $this->hasMany(ExtracurricularSession::class);
-    }
-
-    // ─── Scopes ───────────────────────────────────────────────────────────────
-
-    public function scopeActive(Builder $query): Builder
-    {
-        return $query->where('is_active', true);
-    }
-
-    // ─── Helpers ──────────────────────────────────────────────────────────────
-
-    public function getLogoUrlAttribute(): ?string
-    {
-        return $this->logo ? Storage::url($this->logo) : null;
-    }
-
-    public function activeMemberCount(): int
-    {
-        return $this->activeMembers()->count();
-    }
-
-    public function isFull(): bool
-    {
-        return $this->max_members !== null
-            && $this->activeMemberCount() >= $this->max_members;
-    }
-
-    public function memberStatusFor(int $userId): ?string
-    {
-        $member = $this->members()->where('user_id', $userId)->first();
-        return $member?->status;
-    }
-
-    public function memberRoleFor(int $userId): ?string
-    {
-        $member = $this->activeMembers()->where('user_id', $userId)->first();
-        return $member?->role;
+        return $this->students()->wherePivotIn('role', ['ketua', 'wakil_ketua']);
     }
 }

@@ -45,6 +45,7 @@ use App\Http\Controllers\Guru\ForgotAttendanceController as GuruForgotAttendance
 use App\Http\Controllers\Siswa\EarlyCheckoutRequestController as SiswaEarlyCheckout;
 use App\Http\Controllers\Guru\EarlyCheckoutRequestController as GuruEarlyCheckout;
 use App\Http\Controllers\Admin\GuruWaliController as AdminGuruWali;
+use App\Http\Controllers\Admin\ExtracurricularController as AdminExtracurricular;
 use App\Http\Controllers\PublicBiodataController;
 use App\Http\Controllers\Orangtua\DashboardController as OrangtuaDashboard;
 use App\Http\Controllers\Orangtua\AttendanceController as OrangtuaAttendance;
@@ -395,4 +396,13 @@ Route::middleware(['auth', 'role:orangtua'])->prefix('orangtua')->name('orangtua
     Route::get('/children/{studentId}/attendance', [OrangtuaAttendance::class, 'history'])->name('attendance.history');
     Route::get('/children/{studentId}/conduct', [OrangtuaConduct::class, 'index'])->name('conduct.index');
     Route::get('/children/{studentId}/achievements', [OrangtuaAchievement::class, 'index'])->name('achievements.index');
+});
+
+// ─── Admin Extracurricular Management ───────────────────────────────────────
+Route::middleware(['auth', 'role:admin,superadmin'])->prefix('admin/extracurriculars')->name('admin.extracurriculars.')->group(function () {
+    Route::get('/', [AdminExtracurricular::class, 'index'])->name('index');
+    Route::get('/import', [AdminExtracurricular::class, 'importForm'])->name('import');
+    Route::post('/preview', [AdminExtracurricular::class, 'preview'])->name('preview');
+    Route::post('/store', [AdminExtracurricular::class, 'store'])->name('store');
+    Route::delete('/{extracurricular}', [AdminExtracurricular::class, 'destroy'])->name('destroy');
 });

@@ -50,12 +50,14 @@ class DashboardController extends Controller
                 return "Minggu ($startOfWeek - $endOfWeek)";
             });
 
+        $myExtracurriculars = $guru->extracurricularsAsTeacher()->with('students')->get();
+
         $stats = [
             'alert_kritis'   => $recentAlerts->count(),
             'total_students' => $totalStudents,
             'total_journals' => TeacherJournal::where('teacher_id', $guru->id)->count(),
         ];
 
-        return view('guru.dashboard', compact('guru', 'stats', 'recentAlerts', 'weeklyJournals'));
+        return view('guru.dashboard', compact('guru', 'stats', 'recentAlerts', 'weeklyJournals', 'myExtracurriculars'));
     }
 }

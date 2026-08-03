@@ -13,6 +13,26 @@
     <p class="text-sm text-gray-500 mt-0.5">{{ now()->isoFormat('dddd, D MMMM Y') }}</p>
 </div>
 
+{{-- ─── Pembina Ekstrakurikuler Banner ─────────────────────────────── --}}
+@if(isset($myExtracurriculars) && $myExtracurriculars->count() > 0)
+<div class="mb-5 bg-gradient-to-r from-indigo-900 via-indigo-800 to-blue-900 rounded-2xl p-4 text-white shadow-md">
+    <div class="flex items-center gap-2.5 mb-2">
+        <span class="text-xl">🎗️</span>
+        <div>
+            <h3 class="font-bold text-sm text-indigo-100 uppercase tracking-wide">Pembina Ekstrakurikuler</h3>
+            <p class="text-[11px] text-indigo-200">Anda bertugas sebagai Pembina pada {{ $myExtracurriculars->count() }} Ekstrakurikuler:</p>
+        </div>
+    </div>
+    <div class="flex flex-wrap gap-2 mt-2.5">
+        @foreach($myExtracurriculars as $ex)
+            <div class="bg-white/15 backdrop-blur-md border border-white/25 rounded-xl px-3 py-1.5 text-xs font-bold flex items-center gap-2">
+                <span>🏆 {{ $ex->name }}</span>
+            </div>
+        @endforeach
+    </div>
+</div>
+@endif
+
 {{-- ─── Stat Cards ─────────────────────────────────────────────────── --}}
 <div class="grid grid-cols-2 gap-3 mb-5">
 

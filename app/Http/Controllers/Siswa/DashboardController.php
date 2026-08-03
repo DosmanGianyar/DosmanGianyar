@@ -125,10 +125,13 @@ class DashboardController extends Controller
         $options   = new \chillerlan\QRCode\QROptions(['outputType' => 'svg']);
         $qrSvg     = (new \chillerlan\QRCode\QRCode($options))->render($qrContent);
 
+        $myExtracurricularRoles = $siswa->extracurricularsAsStudent()->get();
+
         return view('siswa.dashboard', compact(
             'siswa', 'todayStatus', 'pointSummary',
             'recentPoints', 'announcements', 'unreadNotifications',
-            'monthlySummary', 'monthlyByDate', 'monthlyHolidays', 'monthlySpecial', 'qrSvg'
+            'monthlySummary', 'monthlyByDate', 'monthlyHolidays', 'monthlySpecial', 'qrSvg',
+            'myExtracurricularRoles'
         ));
     }
 }
