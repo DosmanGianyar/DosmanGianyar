@@ -25,25 +25,32 @@ class _GuruTpScreenState extends State<GuruTpScreen> {
     _load();
   }
 
+  List<SubjectRef> _subjects = [];
+
   Future<void> _load() async {
-    setState(() { _loading = true; _error = null; });
+    setState(() => _loading = true);
     try {
       final list = await GuruService.getTpList();
-      if (mounted) setState(() { _tpList = list; _loading = false; });
+      final subList = await GuruService.getSubjects();
+      final userSubs = context.read<AuthProvider>().user?.subjects ?? [];
+      if (mounted) {
+        setState(() {
+          _tpList = list;
+          _subjects = subList.isNotEmpty ? subList : userSubs;
+          _loading = false;
+        });
+      }
     } catch (e) {
       if (mounted) setState(() { _error = e.toString(); _loading = false; });
     }
   }
-
-  List<SubjectRef> get _mySubjects =>
-      context.read<AuthProvider>().user?.subjects ?? [];
 
   Future<void> _showForm({TujuanPembelajaran? existing}) async {
     final result = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => _TpFormSheet(existing: existing, subjects: _mySubjects),
+      builder: (_) => _TpFormSheet(existing: existing, subjects: _subjects),
     );
     if (result == true) _load();
   }
@@ -381,17 +388,24 @@ class _TpFormSheetState extends State<_TpFormSheet> {
             // Mata Pelajaran
             const Text('Mata Pelajaran (opsional)', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.gray600)),
             const SizedBox(height: 6),
-            if (widget.subjects.isEmpty)
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(color: AppColors.orange50, borderRadius: BorderRadius.circular(8), border: Border.all(color: AppColors.orange100)),
-                child: const Text('Belum ada mata pelajaran. Hubungi admin untuk menambahkan mata pelajaran Anda.',
-                  style: TextStyle(fontSize: 12, color: AppColors.orange600)),
-              )
-            else
-              Wrap(
-                spacing: 6, runSpacing: 6,
-                children: widget.subjects.map((s) {
+            Wrap(
+              spacing: 6, runSpacing: 6,
+              children: [
+                GestureDetector(
+                  onTap: () => setState(() => _selectedSubjectId = null),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                    decoration: BoxDecoration(
+                      color: _selectedSubjectId == null ? AppColors.blue600 : AppColors.gray50,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: _selectedSubjectId == null ? AppColors.blue600 : AppColors.gray200),
+                    ),
+                    child: Text('— Tidak Spesifik —', style: TextStyle(
+                      fontSize: 12, fontWeight: FontWeight.w600,
+                      color: _selectedSubjectId == null ? Colors.white : AppColors.gray700)),
+                  ),
+                ),
+                ...widget.subjects.map((s) {
                   final sel = _selectedSubjectId == s.id;
                   return GestureDetector(
                     onTap: () => setState(() => _selectedSubjectId = sel ? null : s.id),
@@ -407,8 +421,9 @@ class _TpFormSheetState extends State<_TpFormSheet> {
                         color: sel ? Colors.white : AppColors.gray700)),
                     ),
                   );
-                }).toList(),
-              ),
+                }),
+              ],
+            ),
             const SizedBox(height: 12),
 
             // Tingkatan Kelas

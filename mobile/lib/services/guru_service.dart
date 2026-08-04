@@ -429,6 +429,15 @@ class GuruService {
     return body.map((e) => SubjectItem.fromJson(e as Map<String, dynamic>)).toList();
   }
 
+  static Future<List<SubjectRef>> getSubjects() async {
+    try {
+      final list = await ApiClient.getList('/guru/grades/subjects');
+      return list.map((e) => SubjectRef.fromJson(e as Map<String, dynamic>)).toList();
+    } catch (_) {
+      return [];
+    }
+  }
+
   static Future<({List<StudentGradeRow> students, List<SubjectItem> subjects})> getGrades({
     required int classId,
     required int semester,
