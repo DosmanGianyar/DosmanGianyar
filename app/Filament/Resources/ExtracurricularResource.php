@@ -124,6 +124,22 @@ class ExtracurricularResource extends Resource
                 TernaryFilter::make('is_active')->label('Status'),
             ])
             ->headerActions([
+                Action::make('cetak_per_ekstra')
+                    ->label('Cetak Per Ekstra')
+                    ->icon('heroicon-o-document-text')
+                    ->color('success')
+                    ->form([
+                        Select::make('extracurricular_id')
+                            ->label('Pilih Ekstrakurikuler')
+                            ->options(Extracurricular::orderBy('name')->pluck('name', 'id'))
+                            ->searchable()
+                            ->required(),
+                    ])
+                    ->action(function (array $data) {
+                        $url = route('admin.extracurricular.members.pdf', $data['extracurricular_id']);
+                        return redirect()->away($url);
+                    }),
+
                 Action::make('cetak_tanpa_ekstra')
                     ->label('Siswa Tanpa Ekstra')
                     ->icon('heroicon-o-user-minus')
