@@ -75,35 +75,32 @@
                                 @endif
                             </td>
                             <td class="px-6 py-4 text-center whitespace-nowrap">
-                                <div class="flex items-center justify-center gap-2">
+                                <div class="flex items-center justify-center gap-1.5">
                                     <form method="POST" action="{{ route('admin.extracurriculars.members.approve', $member->id) }}">
                                         @csrf
-                                        <button type="submit" class="inline-flex items-center gap-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg shadow-sm transition">
-                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <button type="submit" title="Setujui Pengajuan" class="p-2 bg-emerald-100 hover:bg-emerald-600 text-emerald-700 hover:text-white rounded-lg transition shadow-xs">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
                                             </svg>
-                                            Setujui
                                         </button>
                                     </form>
 
                                     <form method="POST" action="{{ route('admin.extracurriculars.members.reject', $member->id) }}">
                                         @csrf
-                                        <button type="submit" onclick="return confirm('Yakin ingin menolak pengajuan ini?')" class="inline-flex items-center gap-1 px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-lg shadow-sm transition">
-                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <button type="submit" title="Tolak Pengajuan" onclick="return confirm('Yakin ingin menolak pengajuan ini?')" class="p-2 bg-rose-100 hover:bg-rose-600 text-rose-700 hover:text-white rounded-lg transition shadow-xs">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
                                             </svg>
-                                            Tolak
                                         </button>
                                     </form>
 
                                     <form method="POST" action="{{ route('admin.extracurriculars.members.cancel', $member->id) }}">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" onclick="return confirm('Yakin ingin membatalkan/menghapus kepesertaan siswa ini?')" class="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-600 hover:bg-gray-700 text-white text-xs font-bold rounded-lg shadow-sm transition">
-                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <button type="submit" title="Batalkan / Hapus Kepesertaan" onclick="return confirm('Yakin ingin membatalkan/menghapus kepesertaan siswa ini?')" class="p-2 bg-gray-100 hover:bg-gray-700 text-gray-600 hover:text-white rounded-lg transition shadow-xs">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                             </svg>
-                                            Batalkan / Hapus
                                         </button>
                                     </form>
                                 </div>

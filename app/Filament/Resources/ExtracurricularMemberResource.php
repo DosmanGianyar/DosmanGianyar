@@ -103,8 +103,10 @@ class ExtracurricularMemberResource extends Resource
                 // Setujui
                 TableAction::make('approve')
                     ->label('Setujui')
+                    ->tooltip('Setujui Pengajuan')
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
+                    ->iconButton()
                     ->visible(fn (ExtracurricularMember $r) => in_array($r->status, ['pending_join', 'pending_leave']))
                     ->action(function (ExtracurricularMember $r) {
                         if ($r->status === 'pending_join') {
@@ -143,8 +145,10 @@ class ExtracurricularMemberResource extends Resource
                 // Tolak
                 TableAction::make('reject')
                     ->label('Tolak')
+                    ->tooltip('Tolak Pengajuan')
                     ->icon('heroicon-o-x-circle')
                     ->color('danger')
+                    ->iconButton()
                     ->visible(fn (ExtracurricularMember $r) => in_array($r->status, ['pending_join', 'pending_leave']))
                     ->requiresConfirmation()
                     ->action(function (ExtracurricularMember $r) {
@@ -172,8 +176,10 @@ class ExtracurricularMemberResource extends Resource
                 // Batalkan / Hapus Kepesertaan (Untuk salah mendaftar)
                 TableAction::make('cancel_membership')
                     ->label('Batalkan / Hapus')
+                    ->tooltip('Batalkan / Hapus Kepesertaan')
                     ->icon('heroicon-o-trash')
                     ->color('danger')
+                    ->iconButton()
                     ->requiresConfirmation()
                     ->modalHeading('Batalkan / Hapus Kepesertaan Siswa?')
                     ->modalDescription('Kepesertaan siswa pada ekstrakurikuler ini akan dibatalkan/dihapus sehingga siswa dapat mendaftar ke ekstrakurikuler lain.')
