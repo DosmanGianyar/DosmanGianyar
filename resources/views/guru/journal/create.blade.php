@@ -263,7 +263,7 @@ function onClassChange(classId) {
     if (classId && _todaySchedules[classId]) {
         const sch = _todaySchedules[classId];
         const subjSelect = document.getElementById('subject-select');
-        if (subjSelect && sch.subject_id && !subjSelect.value) {
+        if (subjSelect && sch.subject_id) {
             subjSelect.value = sch.subject_id;
         }
     }
@@ -278,7 +278,6 @@ function filterTpBySubject(subjectId) {
     if (!tpSelect) return;
 
     const options = tpSelect.querySelectorAll('option[data-subject-id]');
-    let visibleCount = 0;
 
     options.forEach(opt => {
         const optSubject = opt.dataset.subjectId;
@@ -286,13 +285,14 @@ function filterTpBySubject(subjectId) {
         // atau tampilkan TP yang subject-nya cocok ATAU TP tanpa subject (umum)
         const show = !subjectId || optSubject === '' || optSubject === subjectId;
         opt.style.display = show ? '' : 'none';
-        if (show) visibleCount++;
+        opt.disabled = !show;
+        opt.hidden = !show;
     });
 
-    // Jika option yang sedang dipilih jadi tersembunyi, reset ke kosong
+    // Jika option yang sedang dipilih jadi tersembunyi/disabled, reset ke kosong
     if (tpSelect.value) {
         const selected = tpSelect.querySelector('option[value="' + tpSelect.value + '"]');
-        if (selected && selected.style.display === 'none') {
+        if (selected && (selected.style.display === 'none' || selected.disabled)) {
             tpSelect.value = '';
         }
     }
