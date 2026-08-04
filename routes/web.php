@@ -416,6 +416,7 @@ Route::middleware(['auth', 'role:admin,superadmin,pengelola'])->prefix('admin/ex
     Route::get('/approvals', [AdminExtracurricular::class, 'approvals'])->name('approvals');
     Route::post('/members/{id}/approve', [AdminExtracurricular::class, 'approveMember'])->name('members.approve');
     Route::post('/members/{id}/reject', [AdminExtracurricular::class, 'rejectMember'])->name('members.reject');
+    Route::delete('/members/{id}/cancel', [AdminExtracurricular::class, 'cancelMember'])->name('members.cancel');
 });
 
 Route::middleware(['auth', 'role:admin,superadmin'])->prefix('admin/extracurricular-import')->name('admin.extracurriculars.')->group(function () {

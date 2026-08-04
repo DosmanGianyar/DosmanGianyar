@@ -168,6 +168,32 @@ class ExtracurricularMemberResource extends Resource
                             Notification::make()->title('Pengajuan keluar ditolak.')->warning()->send();
                         }
                     }),
+
+                // Batalkan / Hapus Kepesertaan (Untuk salah mendaftar)
+                TableAction::make('cancel_membership')
+                    ->label('Batalkan / Hapus')
+                    ->icon('heroicon-o-trash')
+                    ->color('danger')
+                    ->requiresConfirmation()
+                    ->modalHeading('Batalkan / Hapus Kepesertaan Siswa?')
+                    ->modalDescription('Kepesertaan siswa pada ekstrakurikuler ini akan dibatalkan/dihapus sehingga siswa dapat mendaftar ke ekstrakurikuler lain.')
+                    ->action(function (ExtracurricularMember $r) {
+                        $extraName = $r->extracurricular?->name ?? 'ekstrakurikuler';
+                        $userId    = $r->user_id;
+
+                        $r->delete();
+
+                        if ($userId) {
+                            NotificationService::send(
+                                $userId,
+                                'Kepesertaan Ekstra Dibatalkan',
+                                "Kepesertaan Anda pada ekstrakurikuler {$extraName} telah dibatalkan oleh Sekolah.",
+                                'warning'
+                            );
+                        }
+
+                        Notification::make()->title('Kepesertaan siswa berhasil dibatalkan.')->success()->send();
+                    }),
             ])
             ->defaultSort('created_at', 'desc');
     }

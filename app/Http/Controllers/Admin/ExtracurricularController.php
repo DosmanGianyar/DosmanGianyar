@@ -177,4 +177,24 @@ class ExtracurricularController extends Controller
 
         return back()->with('success', 'Pengajuan anggota ekstra berhasil ditolak.');
     }
+
+    public function cancelMember(int $id)
+    {
+        $member = \App\Models\ExtracurricularMember::with(['extracurricular', 'student'])->findOrFail($id);
+        $extraName = $member->extracurricular?->name ?? 'ekstrakurikuler';
+        $userId    = $member->user_id;
+
+        $member->delete();
+
+        if ($userId) {
+            \App\Services\NotificationService::send(
+                $userId,
+                'Kepesertaan Ekstra Dibatalkan',
+                "Kepesertaan Anda pada ekstrakurikuler {$extraName} telah dibatalkan oleh Sekolah.",
+                'warning'
+            );
+        }
+
+        return back()->with('success', 'Kepesertaan siswa berhasil dibatalkan/dihapus.');
+    }
 }
