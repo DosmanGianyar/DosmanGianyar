@@ -1,5 +1,6 @@
 import '../models/guru_dashboard.dart';
 import '../models/guru_models.dart';
+import '../models/user.dart';
 import 'api_client.dart';
 
 class GuruService {
