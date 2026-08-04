@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login — DOSMAN | SMA Negeri 1 Gianyar</title>
+    <title>Login — SIMAK DOSMAN | SMA Negeri 1 Gianyar</title>
     <link rel="icon" type="image/png" href="/img/logo_sekolah.png">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
@@ -30,12 +30,12 @@
                 </div>
 
                 {{-- Nama Aplikasi --}}
-                <h1 class="text-3xl font-black tracking-widest mb-1" style="color:#fff; letter-spacing:.2em;">DOSMAN</h1>
-                <p class="text-xs font-semibold mb-1" style="color:rgba(147,197,253,1); letter-spacing:.08em;">
-                    Sistem Informasi Manajemen Siswa
+                <h1 class="text-3xl font-black tracking-widest mb-1" style="color:#fff; letter-spacing:.2em;">SIMAK</h1>
+                <p class="text-[11px] font-bold uppercase tracking-wider mb-1" style="color:rgba(147,197,253,1);">
+                    Sistem Informasi Manajemen Anak Kolektif
                 </p>
 
-                <div class="w-8 h-px my-4" style="background:rgba(255,255,255,.25);"></div>
+                <div class="w-8 h-px my-3" style="background:rgba(255,255,255,.25);"></div>
 
                 {{-- Nama Sekolah --}}
                 <p class="font-balinese text-sm whitespace-nowrap -mx-4" style="color:rgba(255,255,255,.9);">
@@ -53,7 +53,7 @@
             <div class="flex-1 bg-white flex flex-col items-center justify-center px-8 py-10">
 
                 {{-- Header kecil --}}
-                <div class="hidden sm:block mb-7">
+                <div class="hidden sm:block mb-6">
                     <p class="font-balinese text-xs text-gray-400 text-center mb-1 px-2">᭞ᬏᬲ᭄ᬏᬫ᭄ᬅ᭞ᬦᭂᬕᭂᬭᬶ᭞᭑᭞ᬕ᭄ᬬᬜᬃ᭞</p>
                     <div class="flex items-center justify-center gap-2.5">
                         <img src="/img/logo_sekolah.png" alt="Logo" class="w-9 h-9 object-contain">
@@ -64,7 +64,7 @@
                     </div>
                 </div>
 
-                <h2 class="text-2xl font-bold mb-1" style="color:#0d2460;">Masuk ke DOSMAN</h2>
+                <h2 class="text-2xl font-bold mb-1" style="color:#0d2460;">Masuk ke SIMAK DOSMAN</h2>
                 <p class="text-xs text-gray-400 mb-5">Silakan masukkan kredensial Anda</p>
 
                 @if ($errors->any())
@@ -134,9 +134,14 @@
                     </button>
                 </form>
 
-                <p class="text-[10px] text-gray-300 mt-8">
-                    &copy; {{ date('Y') }} SMA Negeri 1 Gianyar &middot; DOSMAN
-                </p>
+                <div class="mt-8 text-center border-t border-gray-100 pt-4 w-full">
+                    <p class="text-[11px] text-gray-500 font-semibold">
+                        &copy; {{ date('Y') }} SMA Negeri 1 Gianyar &middot; <span class="text-blue-900 font-black">SIMAK DOSMAN</span>
+                    </p>
+                    <p class="text-[10px] text-gray-400 font-medium mt-0.5">
+                        Sistem Informasi Manajemen Anak Kolektif
+                    </p>
+                </div>
             </div>
 
         </div>

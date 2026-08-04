@@ -311,7 +311,7 @@ class _DosmanBrand extends StatelessWidget {
         ),
         const SizedBox(height: 14),
 
-        // Wordmark DOSMAN dengan gradient
+        // Wordmark SIMAK dengan gradient
         ShaderMask(
           shaderCallback: (bounds) => const LinearGradient(
             begin: Alignment.topLeft,
@@ -319,7 +319,7 @@ class _DosmanBrand extends StatelessWidget {
             colors: [AppColors.blue600, AppColors.indigo700],
           ).createShader(bounds),
           child: const Text(
-            'DOSMAN',
+            'SIMAK',
             style: TextStyle(
               color:         Colors.white,
               fontSize:      30,
@@ -327,6 +327,16 @@ class _DosmanBrand extends StatelessWidget {
               letterSpacing: 6,
               height:        1,
             ),
+          ),
+        ),
+        const SizedBox(height: 3),
+        const Text(
+          'Sistem Informasi Manajemen Anak Kolektif',
+          style: TextStyle(
+            fontSize: 10,
+            fontWeight: FontWeight.w700,
+            color: AppColors.blue800,
+            letterSpacing: 0.1,
           ),
         ),
         const SizedBox(height: 6),
