@@ -337,6 +337,7 @@ class ConductHistoryItem {
   final String  studentName;
   final String? studentNis;
   final String  className;
+  final String? teacherName;
   // Pelanggaran
   final String? description;
   final String? severity;
@@ -361,6 +362,7 @@ class ConductHistoryItem {
     required this.studentName,
     this.studentNis,
     required this.className,
+    this.teacherName,
     this.description,
     this.severity,
     this.categoryName,
@@ -382,6 +384,7 @@ class ConductHistoryItem {
     studentName:     json['student_name']      as String,
     studentNis:      json['student_nis']       as String?,
     className:       json['class_name']        as String,
+    teacherName:     json['teacher_name']      as String?,
     description:     json['description']       as String?,
     severity:        json['severity']          as String?,
     categoryName:    json['category_name']     as String?,

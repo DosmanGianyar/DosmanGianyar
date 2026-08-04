@@ -107,10 +107,16 @@ class GuruController extends Controller
                 'logo_url'       => $e->logo ? asset('storage/' . $e->logo) : null,
             ]);
 
+        $subjects = $guru->subjects()->pluck('name')->toArray();
+        if (empty($subjects) && $guru->subject) {
+            $subjects = array_filter(array_map('trim', explode(',', $guru->subject)));
+        }
+
         return response()->json([
             'is_homeroom'                 => (bool) $classId,
             'homeroom_class_id'           => $classId,
             'homeroom_class_name'         => $guru->homeroomClass?->name,
+            'my_subjects'                 => array_values($subjects),
             'total_students'              => $totalStudents,
             'pending_permits'             => $pendingPermits,
             'pending_early_checkouts'     => $pendingEarlyCheckouts,

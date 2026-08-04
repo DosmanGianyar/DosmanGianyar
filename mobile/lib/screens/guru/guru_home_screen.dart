@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../models/guru_dashboard.dart';
+import '../../models/user.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/guru_service.dart';
 import '../../theme/app_colors.dart';
@@ -61,19 +62,66 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ─── Greeting ───────────────────────────────────────────────
-            Text(
-              'Selamat $_greeting, $fullName 👋',
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                color: AppColors.gray800,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              DateFormat('EEEE, d MMMM y', 'id_ID').format(DateTime.now()),
-              style: const TextStyle(fontSize: 13, color: AppColors.gray500),
+            // ─── Header: Greeting, Subject Badges & Dosman Logo ─────────
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Selamat $_greeting,',
+                        style: const TextStyle(fontSize: 13, color: AppColors.gray500, fontWeight: FontWeight.w500),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        '$fullName 👋',
+                        style: const TextStyle(
+                          fontSize: 19,
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.gray900,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        DateFormat('EEEE, d MMMM y', 'id_ID').format(DateTime.now()),
+                        style: const TextStyle(fontSize: 12, color: AppColors.gray500),
+                      ),
+                      // ─── Badges Mata Pelajaran yang Diampu ──────────────
+                      _buildSubjectBadges(user),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 12),
+                // Logo DOSMAN di Kanan Atas Header
+                Container(
+                  padding: const EdgeInsets.all(3),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.08),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      )
+                    ],
+                    border: Border.all(color: AppColors.blue100, width: 1.5),
+                  ),
+                  child: Image.asset(
+                    'assets/images/logo_sekolah.png',
+                    width: 44,
+                    height: 44,
+                    fit: BoxFit.contain,
+                    errorBuilder: (_, __, ___) => Image.asset(
+                      'assets/images/dosman_white_icon.png',
+                      width: 44,
+                      height: 44,
+                    ),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 20),
 
@@ -99,6 +147,52 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
             ],
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildSubjectBadges(User? user) {
+    List<String> subjects = [];
+    if (_dashboard != null && _dashboard!.mySubjects.isNotEmpty) {
+      subjects = _dashboard!.mySubjects;
+    } else if (user != null) {
+      if (user.subjects.isNotEmpty) {
+        subjects = user.subjects.map((s) => s.name).toList();
+      } else if (user.subject != null && user.subject!.isNotEmpty) {
+        subjects = user.subject!.split(',').map((s) => s.trim()).where((s) => s.isNotEmpty).toList();
+      }
+    }
+
+    if (subjects.isEmpty) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 6),
+      child: Wrap(
+        spacing: 6,
+        runSpacing: 4,
+        children: subjects.map((sub) => Container(
+          padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3.5),
+          decoration: BoxDecoration(
+            color: AppColors.blue50,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: AppColors.blue200, width: 0.8),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.menu_book_rounded, size: 11, color: AppColors.blue600),
+              const SizedBox(width: 4),
+              Text(
+                sub,
+                style: const TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.blue700,
+                ),
+              ),
+            ],
+          ),
+        )).toList(),
       ),
     );
   }
