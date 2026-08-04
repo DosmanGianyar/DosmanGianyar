@@ -188,26 +188,33 @@ class User extends Authenticatable implements FilamentUser
     public function getAngkatanAttribute(): ?string
     {
         $class = $this->schoolClass;
-        if (! $class) {
-            return null;
+        if ($class) {
+            $grade = (string) ($class->grade ?? '');
+            $name  = (string) ($class->name ?? '');
+
+            if ($grade === '10' || str_contains($name, 'X-') || str_starts_with($name, 'X ') || str_starts_with($name, '10') || preg_match('/^X\b/i', $name)) {
+                return 'Angkatan 62';
+            }
+
+            if ($grade === '11' || str_contains($name, 'XI-') || str_starts_with($name, 'XI ') || str_starts_with($name, '11') || preg_match('/^XI\b/i', $name)) {
+                return 'Angkatan 61';
+            }
+
+            if ($grade === '12' || str_contains($name, 'XII-') || str_starts_with($name, 'XII ') || str_starts_with($name, '12') || preg_match('/^XII\b/i', $name)) {
+                return 'Angkatan 60';
+            }
         }
 
-        $grade = (string) ($class->grade ?? '');
-        $name  = (string) ($class->name ?? '');
-
-        if ($grade === '10' || str_contains($name, 'X-') || str_starts_with($name, 'X ') || str_starts_with($name, '10') || preg_match('/^X\b/i', $name)) {
-            return 'Angkatan 62';
+        if ($this->nis && preg_match('/^(\d{2})/', $this->nis, $m)) {
+            $yr = (int) $m[1];
+            if ($yr === 25) return 'Angkatan 63';
+            if ($yr === 24) return 'Angkatan 62';
+            if ($yr === 23) return 'Angkatan 61';
+            if ($yr === 22) return 'Angkatan 60';
+            return 'Angkatan 20' . $yr;
         }
 
-        if ($grade === '11' || str_contains($name, 'XI-') || str_starts_with($name, 'XI ') || str_starts_with($name, '11') || preg_match('/^XI\b/i', $name)) {
-            return 'Angkatan 61';
-        }
-
-        if ($grade === '12' || str_contains($name, 'XII-') || str_starts_with($name, 'XII ') || str_starts_with($name, '12') || preg_match('/^XII\b/i', $name)) {
-            return 'Angkatan 60';
-        }
-
-        return null;
+        return 'Angkatan 62';
     }
 
     // ─── Relations ───────────────────────────────────────────────────────────

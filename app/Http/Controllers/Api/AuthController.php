@@ -248,6 +248,7 @@ class AuthController extends Controller
             'gender'       => $user->gender,
             'parent_name'  => $user->parent_name,
             'parent_phone' => $user->parent_phone,
+            'angkatan'     => $user->angkatan,
             'children'     => $children,
         ];
     }

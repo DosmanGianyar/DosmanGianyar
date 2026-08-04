@@ -779,23 +779,38 @@ class _StudentIdCardState extends State<StudentIdCard> {
           ],
         ),
         const SizedBox(height: 8),
-        SizedBox(
-          height: 220,
-          child: GestureDetector(
-            onTap: () => setState(() => _showFront = !_showFront),
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 350),
-              switchInCurve:  Curves.easeOut,
-              switchOutCurve: Curves.easeIn,
-              transitionBuilder: (child, anim) => FadeTransition(
-                opacity: anim,
-                child: ScaleTransition(scale: Tween(begin: 0.93, end: 1.0).animate(anim), child: child),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final cardWidth  = constraints.maxWidth;
+            final cardHeight = cardWidth / 1.585;
+
+            return SizedBox(
+              height: cardHeight,
+              child: GestureDetector(
+                onTap: () => setState(() => _showFront = !_showFront),
+                child: FittedBox(
+                  fit: BoxFit.contain,
+                  alignment: Alignment.center,
+                  child: SizedBox(
+                    width: 350,
+                    height: 220,
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 350),
+                      switchInCurve:  Curves.easeOut,
+                      switchOutCurve: Curves.easeIn,
+                      transitionBuilder: (child, anim) => FadeTransition(
+                        opacity: anim,
+                        child: ScaleTransition(scale: Tween(begin: 0.93, end: 1.0).animate(anim), child: child),
+                      ),
+                      child: _showFront
+                          ? _IdFront(key: const ValueKey('f'), user: widget.user)
+                          : _IdBack (key: const ValueKey('b'), user: widget.user),
+                    ),
+                  ),
+                ),
               ),
-              child: _showFront
-                  ? _IdFront(key: const ValueKey('f'), user: widget.user)
-                  : _IdBack (key: const ValueKey('b'), user: widget.user),
-            ),
-          ),
+            );
+          },
         ),
         const SizedBox(height: 4),
         const Center(
@@ -944,6 +959,7 @@ class _IdFront extends StatelessWidget {
                           _KidRow(icon: Icons.person_rounded,           label: 'Nama',          value: user?.name.toUpperCase() ?? '—', bold: true),
                           _KidRow(icon: Icons.badge_outlined,            label: 'NIS/NISN',      value: '${user?.nis ?? '—'} / ${user?.nisn ?? '—'}'),
                           _KidRow(icon: Icons.school_rounded,            label: 'Kelas',         value: user?.className ?? '—'),
+                          _KidRow(icon: Icons.groups_rounded,            label: 'Angkatan',      value: user?.angkatan ?? '—'),
                           _KidRow(icon: Icons.calendar_today_rounded,    label: 'Tgl. Lahir',    value: _fmtDate(user?.birthDate)),
                           _KidRow(icon: Icons.wc_rounded,                label: 'Jenis Kelamin', value: user?.genderLabel ?? '—'),
                         ],
@@ -1130,7 +1146,7 @@ class _IdBack extends StatelessWidget {
                   textAlign: TextAlign.center),
                 const SizedBox(height: 1),
                 Text(
-                  '${user?.className ?? ''}${(user?.className?.isNotEmpty == true && (user?.genderLabel.isNotEmpty ?? false)) ? '  ·  ' : ''}${user?.genderLabel ?? ''}',
+                  '${user?.className ?? ''}${user?.angkatan != null ? '  ·  ' + user!.angkatan! : ''}${(user?.genderLabel.isNotEmpty ?? false) ? '  ·  ' + user!.genderLabel : ''}',
                   style: const TextStyle(fontSize: 7.5, color: AppColors.gray500, fontWeight: FontWeight.w500),
                   textAlign: TextAlign.center),
               ],
