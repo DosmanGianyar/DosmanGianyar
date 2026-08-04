@@ -429,9 +429,9 @@ class _TpFormSheetState extends State<_TpFormSheet> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
-                      color: sel ? AppColors.purple600 : AppColors.gray50,
+                      color: sel ? AppColors.purple500 : AppColors.gray50,
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: sel ? AppColors.purple600 : AppColors.gray200),
+                      border: Border.all(color: sel ? AppColors.purple500 : AppColors.gray200),
                     ),
                     child: Text(g['label']!, style: TextStyle(
                       fontSize: 11, fontWeight: FontWeight.w600,
