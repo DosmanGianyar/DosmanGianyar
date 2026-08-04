@@ -463,7 +463,7 @@ class _WhitePanelBottom extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                            color: isSelected ? AppColors.blue900 : AppColors.gray800,
+                            color: isSelected ? AppColors.blue800 : AppColors.gray800,
                           ),
                         ),
                         const SizedBox(width: 6),
