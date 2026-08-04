@@ -202,6 +202,11 @@ class _TpCard extends StatelessWidget {
                                   if (tp.code != null && tp.code!.isNotEmpty)
                                     _badge(tp.code!, tp.isMine ? AppColors.blue100 : const Color(0xFFD1FAE5), accentColor),
                                   _badge(
+                                    tp.displayGradeLabel,
+                                    const Color(0xFFF3E8FF),
+                                    const Color(0xFF6B21A8),
+                                  ),
+                                  _badge(
                                     tp.isMine ? 'Milik Saya' : 'Dibagikan',
                                     active
                                         ? (tp.isMine ? AppColors.blue50 : const Color(0xFFECFDF5))
@@ -297,6 +302,7 @@ class _TpFormSheetState extends State<_TpFormSheet> {
   late final TextEditingController _codeCtrl;
   late final TextEditingController _descCtrl;
   int? _selectedSubjectId;
+  String? _selectedGradeLevel;
   bool _submitting = false;
 
   @override
@@ -306,6 +312,7 @@ class _TpFormSheetState extends State<_TpFormSheet> {
     _descCtrl = TextEditingController(text: widget.existing?.description ?? '');
     _selectedSubjectId = widget.existing?.subjectId ??
         (widget.subjects.isNotEmpty ? widget.subjects.first.id : null);
+    _selectedGradeLevel = widget.existing?.gradeLevel;
   }
 
   @override
@@ -321,20 +328,21 @@ class _TpFormSheetState extends State<_TpFormSheet> {
   }
 
   Future<void> _submit() async {
-    if (_selectedSubjectId == null) { _snack('Pilih mata pelajaran', AppColors.orange500); return; }
     if (_descCtrl.text.trim().isEmpty) { _snack('Deskripsi TP wajib diisi', AppColors.orange500); return; }
     setState(() => _submitting = true);
     try {
       if (widget.existing != null) {
         await GuruService.updateTp(
           id:          widget.existing!.id,
-          subjectId:   _selectedSubjectId!,
+          subjectId:   _selectedSubjectId,
+          gradeLevel:  _selectedGradeLevel,
           code:        _codeCtrl.text.trim().isEmpty ? null : _codeCtrl.text.trim(),
           description: _descCtrl.text.trim(),
         );
       } else {
         await GuruService.createTp(
-          subjectId:   _selectedSubjectId!,
+          subjectId:   _selectedSubjectId,
+          gradeLevel:  _selectedGradeLevel,
           code:        _codeCtrl.text.trim().isEmpty ? null : _codeCtrl.text.trim(),
           description: _descCtrl.text.trim(),
         );
@@ -371,7 +379,7 @@ class _TpFormSheetState extends State<_TpFormSheet> {
             const SizedBox(height: 16),
 
             // Mata Pelajaran
-            const Text('Mata Pelajaran *', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.gray600)),
+            const Text('Mata Pelajaran (opsional)', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.gray600)),
             const SizedBox(height: 6),
             if (widget.subjects.isEmpty)
               Container(
@@ -386,7 +394,7 @@ class _TpFormSheetState extends State<_TpFormSheet> {
                 children: widget.subjects.map((s) {
                   final sel = _selectedSubjectId == s.id;
                   return GestureDetector(
-                    onTap: () => setState(() => _selectedSubjectId = s.id),
+                    onTap: () => setState(() => _selectedSubjectId = sel ? null : s.id),
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
                       decoration: BoxDecoration(
@@ -401,6 +409,37 @@ class _TpFormSheetState extends State<_TpFormSheet> {
                   );
                 }).toList(),
               ),
+            const SizedBox(height: 12),
+
+            // Tingkatan Kelas
+            const Text('Tingkatan Kelas (opsional)', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.gray600)),
+            const SizedBox(height: 6),
+            Wrap(
+              spacing: 6, runSpacing: 6,
+              children: [
+                {'value': null, 'label': 'Semua Tingkatan'},
+                {'value': '10', 'label': 'Kelas 10 (X)'},
+                {'value': '11', 'label': 'Kelas 11 (XI)'},
+                {'value': '12', 'label': 'Kelas 12 (XII)'},
+              ].map((g) {
+                final val = g['value'];
+                final sel = _selectedGradeLevel == val;
+                return GestureDetector(
+                  onTap: () => setState(() => _selectedGradeLevel = val),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: sel ? AppColors.purple600 : AppColors.gray50,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: sel ? AppColors.purple600 : AppColors.gray200),
+                    ),
+                    child: Text(g['label']!, style: TextStyle(
+                      fontSize: 11, fontWeight: FontWeight.w600,
+                      color: sel ? Colors.white : AppColors.gray700)),
+                  ),
+                );
+              }).toList(),
+            ),
             const SizedBox(height: 12),
 
             // Kode TP
@@ -562,20 +601,35 @@ class _TpPickerSheetState extends State<TpPickerSheet> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                if (tp.code != null && tp.code!.isNotEmpty) ...[
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                    decoration: BoxDecoration(
-                                      color: selected ? AppColors.blue200 : AppColors.gray200,
-                                      borderRadius: BorderRadius.circular(4),
+                                Wrap(
+                                  spacing: 4, runSpacing: 4,
+                                  children: [
+                                    if (tp.code != null && tp.code!.isNotEmpty)
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                        decoration: BoxDecoration(
+                                          color: selected ? AppColors.blue200 : AppColors.gray200,
+                                          borderRadius: BorderRadius.circular(4),
+                                        ),
+                                        child: Text(tp.code!, style: TextStyle(
+                                          fontSize: 10, fontWeight: FontWeight.w800,
+                                          color: selected ? AppColors.blue700 : AppColors.gray600,
+                                        )),
+                                      ),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: selected ? const Color(0xFFE9D5FF) : const Color(0xFFF3E8FF),
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                      child: Text(tp.displayGradeLabel, style: const TextStyle(
+                                        fontSize: 10, fontWeight: FontWeight.w700,
+                                        color: Color(0xFF6B21A8),
+                                      )),
                                     ),
-                                    child: Text(tp.code!, style: TextStyle(
-                                      fontSize: 10, fontWeight: FontWeight.w800,
-                                      color: selected ? AppColors.blue700 : AppColors.gray600,
-                                    )),
-                                  ),
-                                  const SizedBox(height: 4),
-                                ],
+                                  ],
+                                ),
+                                const SizedBox(height: 4),
                                 Text(tp.description, style: TextStyle(
                                   fontSize: 13,
                                   color: selected ? AppColors.blue700 : AppColors.gray700,

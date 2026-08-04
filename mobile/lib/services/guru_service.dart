@@ -312,12 +312,14 @@ class GuruService {
   }
 
   static Future<TujuanPembelajaran> createTp({
-    required int subjectId,
+    int? subjectId,
+    String? gradeLevel,
     String? code,
     required String description,
   }) async {
     final body = await ApiClient.post('/guru/tp', data: {
-      'subject_id':  subjectId,
+      if (subjectId != null) 'subject_id': subjectId,
+      if (gradeLevel != null && gradeLevel.isNotEmpty) 'grade_level': gradeLevel,
       if (code != null && code.isNotEmpty) 'code': code,
       'description': description,
     });
@@ -326,13 +328,15 @@ class GuruService {
 
   static Future<TujuanPembelajaran> updateTp({
     required int id,
-    required int subjectId,
+    int? subjectId,
+    String? gradeLevel,
     String? code,
     required String description,
   }) async {
     final body = await ApiClient.put('/guru/tp/$id', data: {
       'subject_id':  subjectId,
-      if (code != null && code.isNotEmpty) 'code': code,
+      'grade_level': (gradeLevel != null && gradeLevel.isNotEmpty) ? gradeLevel : null,
+      if (code != null) 'code': code,
       'description': description,
     });
     return TujuanPembelajaran.fromJson(body['tp'] as Map<String, dynamic>);

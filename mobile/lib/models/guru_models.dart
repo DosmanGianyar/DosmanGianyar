@@ -479,6 +479,8 @@ class TujuanPembelajaran {
   final int     id;
   final int?    subjectId;
   final String? subjectName;
+  final String? gradeLevel;
+  final String? gradeLabel;
   final String? code;
   final String  description;
   final bool    isActive;
@@ -489,6 +491,8 @@ class TujuanPembelajaran {
     required this.id,
     this.subjectId,
     this.subjectName,
+    this.gradeLevel,
+    this.gradeLabel,
     this.code,
     required this.description,
     this.isActive = true,
@@ -500,12 +504,21 @@ class TujuanPembelajaran {
     id:          json['id'] as int,
     subjectId:   json['subject_id'] as int?,
     subjectName: json['subject_name'] as String?,
+    gradeLevel:  json['grade_level'] as String?,
+    gradeLabel:  json['grade_label'] as String?,
     code:        json['code'] as String?,
     description: json['description'] as String,
     isActive:    json['is_active'] as bool? ?? true,
     isMine:      json['is_mine'] as bool? ?? true,
     teacherName: json['teacher_name'] as String?,
   );
+
+  String get displayGradeLabel {
+    if (gradeLevel == '10') return 'Kelas 10 (X)';
+    if (gradeLevel == '11') return 'Kelas 11 (XI)';
+    if (gradeLevel == '12') return 'Kelas 12 (XII)';
+    return gradeLabel ?? 'Semua Tingkatan';
+  }
 
   String get displayLabel => code != null && code!.isNotEmpty
       ? '[$code] $description'

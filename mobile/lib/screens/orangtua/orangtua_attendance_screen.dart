@@ -340,6 +340,15 @@ class _RecordCard extends StatelessWidget {
       ),
     );
   }
+
+  (Color, Color, Color) get _statusColors => switch (record.status) {
+    'hadir'      => (AppColors.green500,   AppColors.green100,   AppColors.green900),
+    'terlambat'  => (AppColors.yellow500,  AppColors.amber100,   const Color(0xFF78350F)),
+    'izin'       => (AppColors.blue600,    AppColors.blue100,    const Color(0xFF1E40AF)),
+    'sakit'      => (AppColors.purple500,  const Color(0xFFF3E8FF), const Color(0xFF581C87)),
+    'dispensasi' => (AppColors.teal500,    const Color(0xFFCCFBF1), const Color(0xFF134E4A)),
+    _            => (AppColors.red500,     AppColors.red100,     const Color(0xFF7F1D1D)),
+  };
 }
 
 class _PhotoThumbnail extends StatelessWidget {
@@ -377,7 +386,7 @@ class _PhotoThumbnail extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(4),
         decoration: BoxDecoration(
-          color: AppColors.slate100,
+          color: AppColors.gray50,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(color: AppColors.gray200),
         ),
@@ -386,7 +395,9 @@ class _PhotoThumbnail extends StatelessWidget {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(6),
-              child: Image.network(url, width: 36, height: 36, fit: BoxFit.cover,
+              child: Image.network(
+                url,
+                width: 28, height: 28, fit: BoxFit.cover,
                 errorBuilder: (_, __, ___) => const Icon(Icons.broken_image, size: 20, color: AppColors.gray400),
               ),
             ),
@@ -404,14 +415,4 @@ class _PhotoThumbnail extends StatelessWidget {
       ),
     );
   }
-}
-
-  (Color, Color, Color) get _statusColors => switch (record.status) {
-    'hadir'      => (AppColors.green500,   AppColors.green100,   AppColors.green900),
-    'terlambat'  => (AppColors.yellow500,  AppColors.amber100,   const Color(0xFF78350F)),
-    'izin'       => (AppColors.blue600,    AppColors.blue100,    const Color(0xFF1E40AF)),
-    'sakit'      => (AppColors.purple500,  const Color(0xFFF3E8FF), const Color(0xFF581C87)),
-    'dispensasi' => (AppColors.teal500,    const Color(0xFFCCFBF1), const Color(0xFF134E4A)),
-    _            => (AppColors.red500,     AppColors.red100,     const Color(0xFF7F1D1D)),
-  };
 }

@@ -33,6 +33,13 @@ class GuruTpController extends Controller
             $query->where('subject_id', $request->subject_id);
         }
 
+        if ($request->filled('grade_level')) {
+            $query->where(function ($q) use ($request) {
+                $q->where('grade_level', $request->grade_level)
+                  ->orWhereNull('grade_level');
+            });
+        }
+
         $tps = $query->get();
 
         return response()->json($tps->map(fn ($tp) => $this->format($tp, $teacher->id)));
@@ -43,6 +50,7 @@ class GuruTpController extends Controller
     {
         $request->validate([
             'subject_id'  => 'nullable|exists:subjects,id',
+            'grade_level' => 'nullable|string|in:10,11,12',
             'code'        => 'nullable|string|max:30',
             'description' => 'required|string|max:500',
         ]);
@@ -52,6 +60,7 @@ class GuruTpController extends Controller
         $tp = TujuanPembelajaran::create([
             'teacher_id'  => $teacher->id,
             'subject_id'  => $request->subject_id,
+            'grade_level' => $request->grade_level ?: null,
             'code'        => $request->code,
             'description' => $request->description,
         ]);
@@ -72,11 +81,17 @@ class GuruTpController extends Controller
 
         $request->validate([
             'subject_id'  => 'nullable|exists:subjects,id',
+            'grade_level' => 'nullable|string|in:10,11,12',
             'code'        => 'nullable|string|max:30',
             'description' => 'required|string|max:500',
         ]);
 
-        $tp->update($request->only(['subject_id', 'code', 'description']));
+        $tp->update([
+            'subject_id'  => $request->subject_id,
+            'grade_level' => $request->grade_level ?: null,
+            'code'        => $request->code,
+            'description' => $request->description,
+        ]);
         $tp->load(['subject:id,name', 'teacher:id,name']);
 
         return response()->json([
@@ -113,6 +128,8 @@ class GuruTpController extends Controller
             'id'           => $tp->id,
             'subject_id'   => $tp->subject_id,
             'subject_name' => $tp->subject?->name,
+            'grade_level'  => $tp->grade_level,
+            'grade_label'  => $tp->gradeLabel(),
             'code'         => $tp->code,
             'description'  => $tp->description,
             'is_active'    => (bool) $tp->is_active,
