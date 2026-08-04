@@ -83,6 +83,27 @@ class WeeklyJournalGroup {
   );
 }
 
+class GuruMyExtracurricular {
+  final int id;
+  final String name;
+  final int membersCount;
+  final String? contactPerson;
+
+  const GuruMyExtracurricular({
+    required this.id,
+    required this.name,
+    required this.membersCount,
+    this.contactPerson,
+  });
+
+  factory GuruMyExtracurricular.fromJson(Map<String, dynamic> json) => GuruMyExtracurricular(
+    id: json['id'] as int,
+    name: json['name'] as String,
+    membersCount: json['members_count'] as int? ?? 0,
+    contactPerson: json['contact_person'] as String?,
+  );
+}
+
 class GuruDashboard {
   final int totalStudents;
   final int pendingPermits;
@@ -90,6 +111,7 @@ class GuruDashboard {
   final int pendingForgotAttendances;
   final List<GuruAlert> recentAlerts;
   final List<WeeklyJournalGroup> weeklyJournals;
+  final List<GuruMyExtracurricular> myExtracurriculars;
 
   const GuruDashboard({
     required this.totalStudents,
@@ -98,6 +120,7 @@ class GuruDashboard {
     required this.pendingForgotAttendances,
     required this.recentAlerts,
     required this.weeklyJournals,
+    required this.myExtracurriculars,
   });
 
   int get totalPending => pendingPermits + pendingEarlyCheckouts + pendingForgotAttendances;
@@ -112,6 +135,9 @@ class GuruDashboard {
         .toList(),
     weeklyJournals: (json['weekly_journals'] as List<dynamic>? ?? [])
         .map((e) => WeeklyJournalGroup.fromJson(e as Map<String, dynamic>))
+        .toList(),
+    myExtracurriculars: (json['my_extracurriculars'] as List<dynamic>? ?? [])
+        .map((e) => GuruMyExtracurricular.fromJson(e as Map<String, dynamic>))
         .toList(),
   );
 }

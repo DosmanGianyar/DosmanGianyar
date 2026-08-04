@@ -50,7 +50,10 @@ class DashboardController extends Controller
                 return "Minggu ($startOfWeek - $endOfWeek)";
             });
 
-        $myExtracurriculars = $guru->extracurricularsAsTeacher()->with('students')->get();
+        $myExtracurriculars = \App\Models\Extracurricular::where('pembina_id', $guru->id)
+            ->orWhereHas('teachers', fn ($q) => $q->where('users.id', $guru->id))
+            ->withCount(['activeMembers as members_count'])
+            ->get();
 
         $stats = [
             'alert_kritis'   => $recentAlerts->count(),

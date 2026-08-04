@@ -81,6 +81,7 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
             else if (_error != null)
               _buildError()
             else if (_dashboard != null) ...[
+              _buildPembinaBanner(_dashboard!),
               _buildStatGrid(_dashboard!),
               const SizedBox(height: 16),
               _buildQuickActions(),
@@ -91,6 +92,73 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
             ],
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildPembinaBanner(GuruDashboard data) {
+    if (data.myExtracurriculars.isEmpty) return const SizedBox.shrink();
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFF312E81), Color(0xFF1E40AF)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(color: Colors.indigo.withValues(alpha: 0.2), blurRadius: 8, offset: const Offset(0, 4))
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Text('🎗️', style: TextStyle(fontSize: 18)),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'PEMBINA EKSTRAKURIKULER',
+                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.extrabold, color: Color(0xFFC7D2FE), letterSpacing: 0.5),
+                    ),
+                    Text(
+                      'Anda bertugas membina ${data.myExtracurriculars.length} Ekstrakurikuler',
+                      style: const TextStyle(fontSize: 11, color: Colors.white70),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Wrap(
+            spacing: 6, runSpacing: 6,
+            children: data.myExtracurriculars.map((e) => Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.25)),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text('🏆 ', style: TextStyle(fontSize: 12)),
+                  Text(e.name, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white)),
+                  const SizedBox(width: 4),
+                  Text('(${e.membersCount} siswa)', style: const TextStyle(fontSize: 10, color: Colors.white70)),
+                ],
+              ),
+            )).toList(),
+          ),
+        ],
       ),
     );
   }

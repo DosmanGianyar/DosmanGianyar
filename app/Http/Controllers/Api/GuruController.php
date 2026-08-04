@@ -95,6 +95,18 @@ class GuruController extends Controller
             })
             ->values();
 
+        $myExtracurriculars = \App\Models\Extracurricular::where('pembina_id', $guru->id)
+            ->orWhereHas('teachers', fn ($q) => $q->where('users.id', $guru->id))
+            ->withCount(['activeMembers as members_count'])
+            ->get()
+            ->map(fn ($e) => [
+                'id'             => $e->id,
+                'name'           => $e->name,
+                'members_count'  => $e->members_count,
+                'contact_person' => $e->contact_person,
+                'logo_url'       => $e->logo ? asset('storage/' . $e->logo) : null,
+            ]);
+
         return response()->json([
             'total_students'              => $totalStudents,
             'pending_permits'             => $pendingPermits,
@@ -102,6 +114,7 @@ class GuruController extends Controller
             'pending_forgot_attendances'  => $pendingForgotAttendances,
             'recent_alerts'               => $alerts,
             'weekly_journals'             => $weeklyJournals,
+            'my_extracurriculars'         => $myExtracurriculars,
         ]);
     }
 
