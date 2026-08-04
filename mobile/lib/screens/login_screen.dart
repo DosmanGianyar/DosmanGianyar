@@ -22,6 +22,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordCtrl = TextEditingController();
   bool  _obscure      = true;
   bool  _rememberMe   = true;
+  List<Map<String, String>> _savedAccounts = [];
 
   @override
   void initState() {
@@ -30,12 +31,37 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _loadSavedCredentials() async {
-    final creds = await ApiClient.getSavedCredentials();
-    if (creds != null && mounted) {
+    final list = await ApiClient.getSavedAccounts();
+    if (mounted) {
       setState(() {
-        _loginCtrl.text    = creds['login'] ?? '';
-        _passwordCtrl.text = creds['password'] ?? '';
-        _rememberMe        = true;
+        _savedAccounts = list;
+        if (list.isNotEmpty) {
+          _loginCtrl.text    = list.first['login'] ?? '';
+          _passwordCtrl.text = list.first['password'] ?? '';
+          _rememberMe        = true;
+        }
+      });
+    }
+  }
+
+  void _onSelectSavedAccount(Map<String, String> acc) {
+    setState(() {
+      _loginCtrl.text    = acc['login'] ?? '';
+      _passwordCtrl.text = acc['password'] ?? '';
+      _rememberMe        = true;
+    });
+  }
+
+  Future<void> _onRemoveSavedAccount(String login) async {
+    await ApiClient.removeSavedAccount(login);
+    final list = await ApiClient.getSavedAccounts();
+    if (mounted) {
+      setState(() {
+        _savedAccounts = list;
+        if (_loginCtrl.text.trim().toLowerCase() == login.trim().toLowerCase()) {
+          _loginCtrl.clear();
+          _passwordCtrl.clear();
+        }
       });
     }
   }
@@ -57,9 +83,9 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!mounted) return;
     if (success) {
       if (_rememberMe) {
-        await ApiClient.saveSavedCredentials(_loginCtrl.text.trim(), _passwordCtrl.text);
+        await ApiClient.saveSavedAccount(_loginCtrl.text.trim(), _passwordCtrl.text);
       } else {
-        await ApiClient.clearSavedCredentials();
+        await ApiClient.removeSavedAccount(_loginCtrl.text.trim());
       }
 
       final user = context.read<AuthProvider>().user;
@@ -120,15 +146,18 @@ class _LoginScreenState extends State<LoginScreen> {
                 children: [
                   _BluePanelTop(),
                   _WhitePanelBottom(
-                    formKey:          _formKey,
-                    loginCtrl:        _loginCtrl,
-                    passwordCtrl:     _passwordCtrl,
-                    obscure:          _obscure,
-                    rememberMe:       _rememberMe,
-                    isLoading:        isLoading,
-                    onToggleObscure:    () => setState(() => _obscure = !_obscure),
-                    onToggleRememberMe: (val) => setState(() => _rememberMe = val),
-                    onSubmit:         _submit,
+                    formKey:               _formKey,
+                    loginCtrl:             _loginCtrl,
+                    passwordCtrl:          _passwordCtrl,
+                    savedAccounts:         _savedAccounts,
+                    onSelectSavedAccount:  _onSelectSavedAccount,
+                    onRemoveSavedAccount:  _onRemoveSavedAccount,
+                    obscure:               _obscure,
+                    rememberMe:            _rememberMe,
+                    isLoading:             isLoading,
+                    onToggleObscure:       () => setState(() => _obscure = !_obscure),
+                    onToggleRememberMe:    (val) => setState(() => _rememberMe = val),
+                    onSubmit:              _submit,
                   ),
                 ],
               ),
@@ -356,6 +385,9 @@ class _WhitePanelBottom extends StatelessWidget {
   final GlobalKey<FormState> formKey;
   final TextEditingController loginCtrl;
   final TextEditingController passwordCtrl;
+  final List<Map<String, String>> savedAccounts;
+  final ValueChanged<Map<String, String>> onSelectSavedAccount;
+  final ValueChanged<String> onRemoveSavedAccount;
   final bool              obscure;
   final bool              rememberMe;
   final bool              isLoading;
@@ -367,6 +399,9 @@ class _WhitePanelBottom extends StatelessWidget {
     required this.formKey,
     required this.loginCtrl,
     required this.passwordCtrl,
+    this.savedAccounts = const [],
+    required this.onSelectSavedAccount,
+    required this.onRemoveSavedAccount,
     required this.obscure,
     required this.rememberMe,
     required this.isLoading,
@@ -374,6 +409,87 @@ class _WhitePanelBottom extends StatelessWidget {
     required this.onToggleRememberMe,
     required this.onSubmit,
   });
+
+  Widget _buildSavedAccountsList() {
+    if (savedAccounts.isEmpty) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: const [
+              Icon(Icons.account_circle_outlined, size: 14, color: AppColors.blue600),
+              SizedBox(width: 5),
+              Text(
+                'Akun Tersimpan di HP Ini:',
+                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.blue800),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: savedAccounts.map((acc) {
+              final isSelected = loginCtrl.text.trim().toLowerCase() == (acc['login'] ?? '').trim().toLowerCase();
+              return Material(
+                color: isSelected ? AppColors.blue50 : AppColors.gray50,
+                borderRadius: BorderRadius.circular(20),
+                child: InkWell(
+                  onTap: () => onSelectSavedAccount(acc),
+                  borderRadius: BorderRadius.circular(20),
+                  child: Container(
+                    padding: const EdgeInsets.fromLTRB(10, 5, 8, 5),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: isSelected ? AppColors.blue400 : AppColors.gray200,
+                        width: isSelected ? 1.2 : 0.8,
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.person_rounded,
+                          size: 13,
+                          color: isSelected ? AppColors.blue700 : AppColors.gray600,
+                        ),
+                        const SizedBox(width: 5),
+                        Text(
+                          acc['login'] ?? '',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                            color: isSelected ? AppColors.blue900 : AppColors.gray800,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        InkWell(
+                          onTap: () => onRemoveSavedAccount(acc['login']!),
+                          borderRadius: BorderRadius.circular(10),
+                          child: Padding(
+                            padding: const EdgeInsets.all(2),
+                            child: Icon(
+                              Icons.close_rounded,
+                              size: 13,
+                              color: isSelected ? AppColors.blue600 : AppColors.gray400,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -402,6 +518,9 @@ class _WhitePanelBottom extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 20),
+
+          // ── Chip Akun Tersimpan ─────────────────────────────────────
+          _buildSavedAccountsList(),
 
           // ── Form ─────────────────────────────────────────────────────
           Form(

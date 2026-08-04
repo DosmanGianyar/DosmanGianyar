@@ -165,6 +165,43 @@ class ApiClient {
   static Future<String?> getDeviceId()               => _storage.read(key: 'device_id');
   static Future<String?> getUserCache()              => _storage.read(key: 'cached_user');
 
+  // ─── Multi-Account Saved Credentials ────────────────────────────────────
+
+  static Future<List<Map<String, String>>> getSavedAccounts() async {
+    try {
+      final jsonStr = await _storage.read(key: 'saved_accounts_list');
+      if (jsonStr != null && jsonStr.isNotEmpty) {
+        final List<dynamic> list = jsonDecode(jsonStr);
+        return list.map((e) => Map<String, String>.from(e as Map)).toList();
+      }
+    } catch (_) {}
+
+    final single = await getSavedCredentials();
+    if (single != null) {
+      return [single];
+    }
+    return [];
+  }
+
+  static Future<void> saveSavedAccount(String login, String password) async {
+    final list = await getSavedAccounts();
+    list.removeWhere((item) => item['login']?.toLowerCase() == login.trim().toLowerCase());
+    list.insert(0, {'login': login.trim(), 'password': password});
+    if (list.length > 5) list.removeLast();
+
+    await _storage.write(key: 'saved_accounts_list', value: jsonEncode(list));
+    await saveSavedCredentials(login.trim(), password);
+  }
+
+  static Future<void> removeSavedAccount(String login) async {
+    final list = await getSavedAccounts();
+    list.removeWhere((item) => item['login']?.toLowerCase() == login.trim().toLowerCase());
+    await _storage.write(key: 'saved_accounts_list', value: jsonEncode(list));
+    if (list.isEmpty) {
+      await clearSavedCredentials();
+    }
+  }
+
   static Future<void> saveSavedCredentials(String login, String password) async {
     await _storage.write(key: 'saved_login',    value: login);
     await _storage.write(key: 'saved_password', value: password);
@@ -185,10 +222,12 @@ class ApiClient {
   }
 
   static Future<void> clearAuth() async {
+    final savedAccounts = await _storage.read(key: 'saved_accounts_list');
     final savedLogin    = await _storage.read(key: 'saved_login');
     final savedPassword = await _storage.read(key: 'saved_password');
     final deviceId      = await _storage.read(key: 'device_id');
     await _storage.deleteAll();
+    if (savedAccounts != null) await _storage.write(key: 'saved_accounts_list', value: savedAccounts);
     if (savedLogin != null)    await _storage.write(key: 'saved_login',    value: savedLogin);
     if (savedPassword != null) await _storage.write(key: 'saved_password', value: savedPassword);
     if (deviceId != null)      await _storage.write(key: 'device_id',      value: deviceId);
