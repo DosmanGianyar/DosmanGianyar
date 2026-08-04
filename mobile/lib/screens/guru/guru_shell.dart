@@ -156,14 +156,31 @@ class _GuruTopBar extends StatelessWidget {
       decoration: const BoxDecoration(gradient: AppColors.topbarGradient),
       child: Row(
         children: [
-          // Logo Badge Icon
+          // Logo Badge Icon (Pojok Kiri Atas TopBar)
           Container(
-            padding: const EdgeInsets.all(6),
+            padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.15),
+              color: Colors.white,
               borderRadius: BorderRadius.circular(10),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.1),
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
-            child: const Icon(Icons.school_rounded, color: Colors.white, size: 20),
+            child: Image.asset(
+              'assets/images/logo_sekolah.png',
+              width: 24,
+              height: 24,
+              fit: BoxFit.contain,
+              errorBuilder: (_, __, ___) => Image.asset(
+                'assets/images/dosman_white_icon.png',
+                width: 24,
+                height: 24,
+              ),
+            ),
           ),
           const SizedBox(width: 12),
 
