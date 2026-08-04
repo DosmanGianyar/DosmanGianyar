@@ -407,6 +407,8 @@ class TeachingSession {
   final String  subjectName;
   final String  date;
   final int?    period;
+  final int?    periodEnd;
+  final String? periodDisplay;
   final String? startTime;
   final String? endTime;
   final int     total;
@@ -422,6 +424,8 @@ class TeachingSession {
     required this.subjectName,
     required this.date,
     this.period,
+    this.periodEnd,
+    this.periodDisplay,
     this.startTime,
     this.endTime,
     required this.total,
@@ -431,22 +435,31 @@ class TeachingSession {
   });
 
   factory TeachingSession.fromJson(Map<String, dynamic> json) => TeachingSession(
-    id:          json['id'] as int,
-    classId:     json['class_id'] as int,
-    className:   json['class_name'] as String? ?? '—',
-    subjectId:   json['subject_id'] as int?,
-    subjectName: json['subject_name'] as String? ?? '—',
-    date:        json['date'] as String,
-    period:      json['period'] as int?,
-    startTime:   json['start_time'] as String?,
-    endTime:     json['end_time'] as String?,
-    total:       json['total'] as int? ?? 0,
-    hadir:       json['hadir'] as int? ?? 0,
-    alpha:       json['alpha'] as int? ?? 0,
-    students:    (json['students'] as List<dynamic>? ?? [])
+    id:            json['id'] as int,
+    classId:       json['class_id'] as int,
+    className:     json['class_name'] as String? ?? '—',
+    subjectId:     json['subject_id'] as int?,
+    subjectName:   json['subject_name'] as String? ?? '—',
+    date:          json['date'] as String,
+    period:        json['period'] as int?,
+    periodEnd:     json['period_end'] as int?,
+    periodDisplay: json['period_display'] as String?,
+    startTime:     json['start_time'] as String?,
+    endTime:       json['end_time'] as String?,
+    total:         json['total'] as int? ?? 0,
+    hadir:         json['hadir'] as int? ?? 0,
+    alpha:         json['alpha'] as int? ?? 0,
+    students:      (json['students'] as List<dynamic>? ?? [])
         .map((e) => SessionStudentRow.fromJson(e as Map<String, dynamic>))
         .toList(),
   );
+
+  String get displayPeriodLabel {
+    if (periodDisplay != null && periodDisplay!.isNotEmpty) return periodDisplay!;
+    if (period == null) return 'Jam —';
+    if (periodEnd != null && periodEnd! > period!) return 'Jam ke-$period - $periodEnd';
+    return 'Jam ke-$period';
+  }
 }
 
 class SessionStudentRow {

@@ -76,9 +76,7 @@ class GuruTeachingSessionController extends Controller
         $teacher = Auth::user();
 
         $query = TeacherAttendance::where('teacher_id', $teacher->id)
-            ->with(['schoolClass:id,name', 'subject:id,name', 'sessionAttendances'])
-            ->orderByDesc('date')
-            ->orderByDesc('period');
+            ->with(['schoolClass:id,name', 'subject:id,name', 'sessionAttendances']);
 
         if ($request->filled('class_id')) {
             $query->where('class_id', $request->class_id);
@@ -89,14 +87,79 @@ class GuruTeachingSessionController extends Controller
                   ->whereYear('date', $request->year);
         }
 
-        $sessions = $query->paginate(20);
+        $allSessions = $query->orderByDesc('date')->orderBy('period')->get();
+
+        // Kelompokkan sesi berdasarkan tanggal, class_id, subject_id, dan waktu pembuatan (sekali simpan)
+        $grouped = [];
+        foreach ($allSessions as $session) {
+            $createdMinute = $session->created_at ? $session->created_at->format('Y-m-d H:i') : $session->date->format('Y-m-d');
+            $key = "{$session->date->format('Y-m-d')}_{$session->class_id}_{$session->subject_id}_{$createdMinute}";
+
+            if (! isset($grouped[$key])) {
+                $grouped[$key] = [
+                    'primary'     => $session,
+                    'periods'     => [$session->period],
+                    'session_ids' => [$session->id],
+                    'attendances' => collect($session->sessionAttendances),
+                ];
+            } else {
+                $grouped[$key]['periods'][] = $session->period;
+                $grouped[$key]['session_ids'][] = $session->id;
+                foreach ($session->sessionAttendances as $att) {
+                    if (! $grouped[$key]['attendances']->contains('student_id', $att->student_id)) {
+                        $grouped[$key]['attendances']->push($att);
+                    }
+                }
+            }
+        }
+
+        // Format hasil gabungan sesi per submit
+        $items = collect($grouped)->map(function ($group) {
+            $primary = $group['primary'];
+            sort($group['periods']);
+            $minPeriod = min($group['periods']);
+            $maxPeriod = max($group['periods']);
+
+            $total = $group['attendances']->count();
+            $hadir = $group['attendances']->where('status', 'hadir')->count();
+            $alpha = $group['attendances']->where('status', 'tidak_hadir')->count();
+
+            return [
+                'id'             => $primary->id,
+                'session_ids'    => $group['session_ids'],
+                'class_id'       => $primary->class_id,
+                'class_name'     => $primary->schoolClass?->name ?? '—',
+                'subject_id'     => $primary->subject_id,
+                'subject_name'   => $primary->subject?->name ?? '—',
+                'date'           => $primary->date?->format('Y-m-d'),
+                'period'         => $minPeriod,
+                'period_end'     => $minPeriod !== $maxPeriod ? $maxPeriod : null,
+                'period_display' => $minPeriod !== $maxPeriod ? "Jam ke-{$minPeriod} - {$maxPeriod}" : "Jam ke-{$minPeriod}",
+                'start_time'     => $primary->start_time,
+                'end_time'       => $primary->end_time,
+                'status'         => $primary->status,
+                'note'           => $primary->note,
+                'total'          => $total,
+                'hadir'          => $hadir,
+                'alpha'          => $alpha,
+            ];
+        })->values();
+
+        $page = (int) $request->input('page', 1);
+        $perPage = 20;
+        $paginated = new \Illuminate\Pagination\LengthAwarePaginator(
+            $items->slice(($page - 1) * $perPage, $perPage)->values(),
+            $items->count(),
+            $perPage,
+            $page
+        );
 
         return response()->json([
-            'data' => $sessions->map(fn ($s) => $this->formatSession($s)),
+            'data' => $paginated->items(),
             'meta' => [
-                'current_page' => $sessions->currentPage(),
-                'last_page'    => $sessions->lastPage(),
-                'total'        => $sessions->total(),
+                'current_page' => $paginated->currentPage(),
+                'last_page'    => $paginated->lastPage(),
+                'total'        => $paginated->total(),
             ],
         ]);
     }

@@ -48,9 +48,9 @@ class _GuruTeachingSessionScreenState extends State<GuruTeachingSessionScreen>
       ),
       body: TabBarView(
         controller: _tabCtrl,
-        children: const [
-          _CreateSessionTab(),
-          _HistoryTab(),
+        children: [
+          _CreateSessionTab(onSuccess: () => _tabCtrl.animateTo(1)),
+          const _HistoryTab(),
         ],
       ),
     );
@@ -60,7 +60,8 @@ class _GuruTeachingSessionScreenState extends State<GuruTeachingSessionScreen>
 // ─── Tab: Buat Jurnal & Absensi (Terpadu) ───────────────────────────────────
 
 class _CreateSessionTab extends StatefulWidget {
-  const _CreateSessionTab();
+  final VoidCallback? onSuccess;
+  const _CreateSessionTab({this.onSuccess});
 
   @override
   State<_CreateSessionTab> createState() => _CreateSessionTabState();
@@ -258,6 +259,7 @@ class _CreateSessionTabState extends State<_CreateSessionTab> {
           _selectedTp = null;
         });
         _loadOccupiedPeriods();
+        widget.onSuccess?.call();
       }
     } catch (e) {
       if (mounted) _showSnack(e.toString(), AppColors.red500);
@@ -862,7 +864,7 @@ class _SessionCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
-                  'Jam ${session.period}',
+                  session.displayPeriodLabel,
                   style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.blue600),
                 ),
               ),
