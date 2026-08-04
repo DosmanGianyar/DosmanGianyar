@@ -11,6 +11,16 @@ use Illuminate\View\View;
 
 class VotingController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware(function ($request, $next) {
+            if (!\App\Models\AppSetting::isEvotingActive()) {
+                return redirect()->route('siswa.kesiswaan')->with('error', 'Fitur E-Voting saat ini sedang dinonaktifkan oleh Administrator.');
+            }
+            return $next($request);
+        });
+    }
+
     public function index(): View
     {
         $sessions = VotingSession::whereIn('status', ['active', 'closed'])

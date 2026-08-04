@@ -107,6 +107,7 @@ class KesiswaanController extends Controller
             ])->values();
 
         return response()->json([
+            'is_evoting_active'         => \App\Models\AppSetting::isEvotingActive(),
             'permit_pending'            => $permitPending,
             'early_checkout_pending'    => $earlyCheckoutPending,
             'forgot_attendance_pending' => $forgotAttendancePending,

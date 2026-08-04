@@ -35,6 +35,7 @@ class _KesiswaanScreenState extends State<KesiswaanScreen>
   int  _pendingVerify            = 0;
   Map<String, int> _achievementStats = {'pending': 0, 'approved': 0, 'rejected': 0};
   Map<String, dynamic>? _activePermit;
+  bool _isEvotingActive  = true;
   List<Map<String, dynamic>> _recentViolations   = [];
   List<Map<String, dynamic>> _recentPositif      = [];
   List<Map<String, dynamic>> _catatanItems       = [];
@@ -67,6 +68,7 @@ class _KesiswaanScreenState extends State<KesiswaanScreen>
         _earlyCheckoutPending     = (data['early_checkout_pending']    ?? 0) as int;
         _forgotAttendancePending  = (data['forgot_attendance_pending'] ?? 0) as int;
         _unvotedCount             = (data['unvoted_count']             ?? 0) as int;
+        _isEvotingActive          = (data['is_evoting_active']         ?? true) as bool;
         _pendingVerify            = (data['pending_verify']            ?? 0) as int;
         _achievementStats = {
           'pending':  (stats['pending']  ?? 0) as int,
@@ -383,19 +385,21 @@ class _KesiswaanScreenState extends State<KesiswaanScreen>
             const SizedBox(height: 8),
 
             // ─── E-Voting ──────────────────────────────────────────────
-            _LinkRow(
-              icon: Icons.how_to_vote_rounded,
-              iconBg: AppColors.violet100,
-              iconColor: AppColors.violet600,
-              title: 'E-Voting',
-              subtitle: _votingSubtitle,
-              subtitleColor: _unvotedCount > 0 ? AppColors.violet600 : null,
-              trailing: _unvotedCount > 0
-                  ? _Badge(count: _unvotedCount, color: AppColors.violet600)
-                  : null,
-              onTap: () => _showComingSoon('E-Voting'),
-            ),
-            const SizedBox(height: 12),
+            if (_isEvotingActive) ...[
+              _LinkRow(
+                icon: Icons.how_to_vote_rounded,
+                iconBg: AppColors.violet100,
+                iconColor: AppColors.violet600,
+                title: 'E-Voting',
+                subtitle: _votingSubtitle,
+                subtitleColor: _unvotedCount > 0 ? AppColors.violet600 : null,
+                trailing: _unvotedCount > 0
+                    ? _Badge(count: _unvotedCount, color: AppColors.violet600)
+                    : null,
+                onTap: () => _showComingSoon('E-Voting'),
+              ),
+              const SizedBox(height: 12),
+            ],
 
             // ─── Prestasi ──────────────────────────────────────────────
             Container(

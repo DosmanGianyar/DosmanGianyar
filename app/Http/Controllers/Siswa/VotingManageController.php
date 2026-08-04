@@ -13,6 +13,16 @@ use Illuminate\View\View;
 
 class VotingManageController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware(function ($request, $next) {
+            if (!\App\Models\AppSetting::isEvotingActive()) {
+                return redirect()->route('siswa.kesiswaan')->with('error', 'Fitur E-Voting saat ini sedang dinonaktifkan oleh Administrator.');
+            }
+            return $next($request);
+        });
+    }
+
     private function authorizeSession(VotingSession $session): void
     {
         if ($session->created_by !== Auth::id()) {

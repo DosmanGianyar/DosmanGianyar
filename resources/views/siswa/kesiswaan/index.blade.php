@@ -448,6 +448,7 @@ function filterCatatan(type) {
     </div>
 </a>
 
+@if(\App\Models\AppSetting::isEvotingActive())
 {{-- ─── E-Voting ─────────────────────────────────────────────────────── --}}
 <a href="{{ route('siswa.voting.index') }}"
     class="block bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3">
@@ -478,6 +479,7 @@ function filterCatatan(type) {
         </svg>
     </div>
 </a>
+@endif
 
 {{-- ─── Prestasi ─────────────────────────────────────────────────────── --}}
 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3">
