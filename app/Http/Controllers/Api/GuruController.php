@@ -561,6 +561,117 @@ class GuruController extends Controller
         return response()->json(['students' => $students]);
     }
 
+    // ─── Extracurricular Member Approvals (Pembina) ───────────────────────────
+
+    public function pendingExtracurricularMembers(): JsonResponse
+    {
+        $guru = Auth::user();
+
+        $extraIds = Extracurricular::where('pembina_id', $guru->id)
+            ->orWhereHas('teachers', fn($q) => $q->where('users.id', $guru->id))
+            ->pluck('id');
+
+        $pendingMembers = ExtracurricularMember::whereIn('extracurricular_id', $extraIds)
+            ->whereIn('status', ['pending_join', 'pending_leave'])
+            ->with(['student:id,name,class_id,nis', 'student.schoolClass:id,name', 'extracurricular:id,name'])
+            ->latest()
+            ->get()
+            ->map(fn($m) => [
+                'id'                   => $m->id,
+                'extracurricular_id'   => $m->extracurricular_id,
+                'extracurricular_name' => $m->extracurricular?->name ?? '—',
+                'student_id'           => $m->user_id,
+                'student_name'         => $m->student?->name ?? '—',
+                'student_nis'          => $m->student?->nis,
+                'class_name'           => $m->student?->schoolClass?->name ?? '—',
+                'status'               => $m->status,
+                'status_label'         => $m->status === 'pending_join' ? 'Pengajuan Masuk' : 'Pengajuan Keluar',
+                'requested_at'         => $m->created_at->toIso8601String(),
+            ]);
+
+        return response()->json(['pending_members' => $pendingMembers]);
+    }
+
+    public function approveExtracurricularMember(int $id): JsonResponse
+    {
+        $guru   = Auth::user();
+        $member = ExtracurricularMember::with(['extracurricular', 'student'])->findOrFail($id);
+
+        if (!in_array($member->status, ['pending_join', 'pending_leave'])) {
+            return response()->json(['message' => 'Pengajuan ini sudah diproses.'], 422);
+        }
+
+        if ($member->status === 'pending_join') {
+            $member->update([
+                'status'      => 'active',
+                'approved_by' => $guru->id,
+                'approved_at' => now(),
+            ]);
+            $msg = 'Pendaftaran ekstrakurikuler ' . $member->extracurricular?->name . ' disetujui.';
+            if ($member->student) {
+                NotificationService::send(
+                    $member->user_id,
+                    'Pendaftaran Ekstra Disetujui! 🎉',
+                    "Selamat! Pendaftaran Anda di ekstrakurikuler {$member->extracurricular?->name} telah disetujui oleh Pembina.",
+                    'success'
+                );
+            }
+        } else {
+            $member->update([
+                'status'      => 'inactive',
+                'approved_by' => $guru->id,
+                'approved_at' => now(),
+            ]);
+            $msg = 'Pengajuan keluar dari ekstrakurikuler ' . $member->extracurricular?->name . ' disetujui.';
+            if ($member->student) {
+                NotificationService::send(
+                    $member->user_id,
+                    'Pengajuan Keluar Ekstra Disetujui',
+                    "Pengajuan keluar dari ekstrakurikuler {$member->extracurricular?->name} telah disetujui.",
+                    'info'
+                );
+            }
+        }
+
+        return response()->json(['message' => $msg]);
+    }
+
+    public function rejectExtracurricularMember(int $id): JsonResponse
+    {
+        $guru   = Auth::user();
+        $member = ExtracurricularMember::with(['extracurricular', 'student'])->findOrFail($id);
+
+        if (!in_array($member->status, ['pending_join', 'pending_leave'])) {
+            return response()->json(['message' => 'Pengajuan ini sudah diproses.'], 422);
+        }
+
+        if ($member->status === 'pending_join') {
+            $member->update([
+                'status'      => 'rejected',
+                'approved_by' => $guru->id,
+                'approved_at' => now(),
+            ]);
+            $msg = 'Pendaftaran ekstrakurikuler ditolak.';
+            if ($member->student) {
+                NotificationService::send(
+                    $member->user_id,
+                    'Pendaftaran Ekstra Ditolak',
+                    "Mohon maaf, pendaftaran Anda di ekstrakurikuler {$member->extracurricular?->name} belum dapat disetujui.",
+                    'danger'
+                );
+            }
+        } else {
+            $member->update([
+                'status'      => 'active',
+                'approved_by' => $guru->id,
+                'approved_at' => now(),
+            ]);
+            $msg = 'Pengajuan keluar dari ekstrakurikuler ditolak.';
+        }
+
+        return response()->json(['message' => $msg]);
+    }
+
     // ─── Private helpers ──────────────────────────────────────────────────────
 
     private function permitPayload(Permit $p): array

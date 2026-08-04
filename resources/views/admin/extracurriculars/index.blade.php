@@ -9,9 +9,14 @@
             <h1 class="text-xl font-bold text-gray-900">Data Ekstrakurikuler</h1>
             <p class="text-sm text-gray-500 mt-1">Kelola data Ekstra, Pembina (Guru), dan Pengurus (Ketua & Wakil Ketua Siswa).</p>
         </div>
-        <a href="{{ route('admin.extracurriculars.import') }}" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold transition shadow-md flex items-center gap-2">
-            <span>📥 Import Data CSV (`ekstra.csv`)</span>
-        </a>
+        <div class="flex items-center gap-3">
+            <a href="{{ route('admin.extracurriculars.approvals') }}" class="px-4 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-sm font-bold transition shadow-md flex items-center gap-2">
+                <span>📋 Persetujuan Pendaftaran Ekstra</span>
+            </a>
+            <a href="{{ route('admin.extracurriculars.import') }}" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold transition shadow-md flex items-center gap-2">
+                <span>📥 Import Data CSV (`ekstra.csv`)</span>
+            </a>
+        </div>
     </div>
 
     @if(session('success'))

@@ -113,4 +113,68 @@ class ExtracurricularController extends Controller
         return redirect()->route('admin.extracurriculars.index')
             ->with('success', 'Ekstrakurikuler berhasil dihapus.');
     }
+
+    public function approvals(): View
+    {
+        $pendingMembers = \App\Models\ExtracurricularMember::whereIn('status', ['pending_join', 'pending_leave'])
+            ->with(['student:id,name,class_id,nis', 'student.schoolClass:id,name', 'extracurricular:id,name'])
+            ->latest()
+            ->paginate(25);
+
+        return view('admin.extracurriculars.approvals', compact('pendingMembers'));
+    }
+
+    public function approveMember(int $id)
+    {
+        $member = \App\Models\ExtracurricularMember::with(['extracurricular', 'student'])->findOrFail($id);
+
+        if ($member->status === 'pending_join') {
+            $member->update([
+                'status'      => 'active',
+                'approved_by' => auth()->id(),
+                'approved_at' => now(),
+            ]);
+            if ($member->student) {
+                \App\Services\NotificationService::send(
+                    $member->user_id,
+                    'Pendaftaran Ekstra Disetujui! 🎉',
+                    "Pendaftaran Anda di ekstrakurikuler {$member->extracurricular?->name} telah disetujui oleh Sekolah.",
+                    'success'
+                );
+            }
+        } else {
+            $member->update([
+                'status'      => 'inactive',
+                'approved_by' => auth()->id(),
+                'approved_at' => now(),
+            ]);
+        }
+
+        return back()->with('success', 'Pengajuan anggota ekstra berhasil disetujui.');
+    }
+
+    public function rejectMember(int $id)
+    {
+        $member = \App\Models\ExtracurricularMember::with(['extracurricular', 'student'])->findOrFail($id);
+
+        if ($member->status === 'pending_join') {
+            $member->update([
+                'status'      => 'rejected',
+                'approved_by' => auth()->id(),
+                'approved_at' => now(),
+            ]);
+            if ($member->student) {
+                \App\Services\NotificationService::send(
+                    $member->user_id,
+                    'Pendaftaran Ekstra Ditolak',
+                    "Mohon maaf, pendaftaran Anda di ekstrakurikuler {$member->extracurricular?->name} belum dapat disetujui.",
+                    'danger'
+                );
+            }
+        } else {
+            $member->update(['status' => 'active']);
+        }
+
+        return back()->with('success', 'Pengajuan anggota ekstra berhasil ditolak.');
+    }
 }

@@ -133,6 +133,11 @@ Route::prefix('v1')->group(function () {
             Route::get('/guru/early-checkouts',                           [GuruController::class, 'earlyCheckouts']);
             Route::post('/guru/early-checkouts/{earlyCheckout}/approve',  [GuruController::class, 'approveEarlyCheckout']);
             Route::post('/guru/early-checkouts/{earlyCheckout}/reject',   [GuruController::class, 'rejectEarlyCheckout']);
+            
+            // Ekstrakurikuler Pembina
+            Route::get('/guru/extracurriculars/pending-members',          [GuruController::class, 'pendingExtracurricularMembers']);
+            Route::post('/guru/extracurriculars/members/{id}/approve',     [GuruController::class, 'approveExtracurricularMember']);
+            Route::post('/guru/extracurriculars/members/{id}/reject',      [GuruController::class, 'rejectExtracurricularMember']);
             Route::get('/guru/conduct',                                   [GuruController::class, 'conduct']);
 
             // Guru Conduct API (catat pelanggaran & prestasi)

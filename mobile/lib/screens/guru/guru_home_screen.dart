@@ -259,6 +259,24 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
               ),
             )).toList(),
           ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: _showPendingExtraMembersModal,
+              icon: const Icon(Icons.check_circle_outline_rounded, size: 16, color: Color(0xFF312E81)),
+              label: const Text(
+                '📋 Persetujuan Pendaftaran Anggota Ekstra',
+                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF312E81)),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                elevation: 0,
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -893,6 +911,229 @@ class _QuickActionChip extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  void _showPendingExtraMembersModal() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => const _PendingExtraMembersSheet(),
+    );
+  }
+}
+
+class _PendingExtraMembersSheet extends StatefulWidget {
+  const _PendingExtraMembersSheet();
+
+  @override
+  State<_PendingExtraMembersSheet> createState() => _PendingExtraMembersSheetState();
+}
+
+class _PendingExtraMembersSheetState extends State<_PendingExtraMembersSheet> {
+  bool _loading = true;
+  String? _error;
+  List<dynamic> _items = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetch();
+  }
+
+  Future<void> _fetch() async {
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    try {
+      final res = await ApiClient.dio.get('/api/v1/guru/extracurriculars/pending-members');
+      if (mounted) {
+        setState(() {
+          _items = res.data['pending_members'] ?? [];
+          _loading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _error = 'Gagal memuat daftar pengajuan.';
+          _loading = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _process(int id, bool approve) async {
+    final endpoint = approve ? '/approve' : '/reject';
+    try {
+      final res = await ApiClient.dio.post('/api/v1/guru/extracurriculars/members/$id$endpoint');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(res.data['message'] ?? 'Berhasil diproses.'),
+            backgroundColor: approve ? AppColors.emerald600 : AppColors.rose600,
+          ),
+        );
+        _fetch();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Gagal memproses pengajuan.'), backgroundColor: AppColors.rose600),
+        );
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.8,
+      ),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      padding: EdgeInsets.fromLTRB(20, 16, 20, MediaQuery.of(context).viewInsets.bottom + 20),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Center(
+            child: Container(
+              width: 36, height: 4,
+              decoration: BoxDecoration(color: AppColors.gray300, borderRadius: BorderRadius.circular(2)),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: const [
+              Icon(Icons.how_to_reg_rounded, color: AppColors.blue800, size: 22),
+              SizedBox(width: 8),
+              Text(
+                'Persetujuan Anggota Ekstra',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.gray900),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          if (_loading)
+            const Padding(
+              padding: EdgeInsets.all(32),
+              child: Center(child: CircularProgressIndicator()),
+            )
+          else if (_error != null)
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Text(_error!, style: const TextStyle(color: AppColors.rose600, fontSize: 13)),
+              ),
+            )
+          else if (_items.isEmpty)
+            const Padding(
+              padding: EdgeInsets.all(32),
+              child: Center(
+                child: Text(
+                  'Tidak ada pengajuan pendaftaran/keluar ekstra yang menanti.',
+                  style: TextStyle(color: AppColors.gray500, fontSize: 13),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            )
+          else
+            Flexible(
+              child: ListView.separated(
+                shrinkWrap: true,
+                itemCount: _items.length,
+                separatorBuilder: (_, __) => const SizedBox(height: 12),
+                itemBuilder: (ctx, i) {
+                  final item = _items[i];
+                  final isJoin = item['status'] == 'pending_join';
+
+                  return Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: AppColors.gray50,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: AppColors.gray200),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.between,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                item['student_name'] ?? '—',
+                                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.gray900),
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: isJoin ? AppColors.amber50 : AppColors.rose50,
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(color: isJoin ? AppColors.amber200 : AppColors.rose200),
+                              ),
+                              child: Text(
+                                item['status_label'] ?? 'Pending',
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                  color: isJoin ? AppColors.amber800 : AppColors.rose800,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Kelas: ${item['class_name']} • Ekstra: ${item['extracurricular_name']}',
+                          style: const TextStyle(fontSize: 12, color: AppColors.gray600),
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: OutlinedButton(
+                                onPressed: () => _process(item['id'], false),
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: AppColors.rose600,
+                                  side: const BorderSide(color: AppColors.rose300),
+                                  padding: const EdgeInsets.symmetric(vertical: 8),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                ),
+                                child: const Text('Tolak', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: ElevatedButton(
+                                onPressed: () => _process(item['id'], true),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.emerald600,
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(vertical: 8),
+                                  elevation: 0,
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                ),
+                                child: const Text('Setujui', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+        ],
       ),
     );
   }

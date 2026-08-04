@@ -412,6 +412,12 @@ Route::middleware(['auth', 'role:orangtua'])->prefix('orangtua')->name('orangtua
 });
 
 // ─── Admin Extracurricular Management ───────────────────────────────────────
+Route::middleware(['auth', 'role:admin,superadmin,pengelola'])->prefix('admin/extracurriculars')->name('admin.extracurriculars.')->group(function () {
+    Route::get('/approvals', [AdminExtracurricular::class, 'approvals'])->name('approvals');
+    Route::post('/members/{id}/approve', [AdminExtracurricular::class, 'approveMember'])->name('members.approve');
+    Route::post('/members/{id}/reject', [AdminExtracurricular::class, 'rejectMember'])->name('members.reject');
+});
+
 Route::middleware(['auth', 'role:admin,superadmin'])->prefix('admin/extracurricular-import')->name('admin.extracurriculars.')->group(function () {
     Route::get('/', [AdminExtracurricular::class, 'importForm'])->name('import');
     Route::post('/preview', [AdminExtracurricular::class, 'preview'])->name('preview');

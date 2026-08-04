@@ -51,6 +51,14 @@ class ExtracurricularController extends Controller
             return back()->with('error', 'Kuota anggota ekstra ini sudah penuh.');
         }
 
+        $joinedCount = ExtracurricularMember::where('user_id', $siswa->id)
+            ->whereIn('status', ['active', 'pending_join'])
+            ->count();
+
+        if ($joinedCount >= 3) {
+            return back()->with('error', 'Setiap siswa maksimal hanya dapat mendaftar 3 ekstrakurikuler.');
+        }
+
         ExtracurricularMember::create([
             'extracurricular_id' => $extracurricular->id,
             'user_id'            => $siswa->id,
