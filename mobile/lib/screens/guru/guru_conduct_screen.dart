@@ -79,6 +79,18 @@ class _GuruConductScreenState extends State<GuruConductScreen> {
     return list;
   }
 
+  void _showStudentDetail(GuruConductStudent student, String? initialType) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => _StudentConductDetailSheet(
+        student: student,
+        initialFilter: initialType ?? (_filterType != 'all' ? _filterType : 'all'),
+      ),
+    ).then((_) => _load());
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -335,7 +347,7 @@ class _GuruConductScreenState extends State<GuruConductScreen> {
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.bold,
-                      color: _filterType == 'pelanggaran' ? AppColors.red600 : AppColors.green800,
+                      color: _filterType == 'pelanggaran' ? AppColors.red500 : AppColors.green600,
                     ),
                   ),
                 ),
@@ -347,13 +359,13 @@ class _GuruConductScreenState extends State<GuruConductScreen> {
                       color: Colors.white,
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: _filterType == 'pelanggaran' ? AppColors.red200 : AppColors.green200,
+                        color: _filterType == 'pelanggaran' ? AppColors.red300 : AppColors.green100,
                       ),
                     ),
                     child: Icon(
                       Icons.close_rounded,
                       size: 12,
-                      color: _filterType == 'pelanggaran' ? AppColors.red600 : AppColors.green800,
+                      color: _filterType == 'pelanggaran' ? AppColors.red500 : AppColors.green600,
                     ),
                   ),
                 ),
@@ -367,17 +379,7 @@ class _GuruConductScreenState extends State<GuruConductScreen> {
 
   Widget _buildRow(GuruConductStudent s, int i, int total) {
     return InkWell(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => GuruConductInputScreen(
-              initialTab: 2,
-              initialFilter: _filterType != 'all' ? _filterType : null,
-            ),
-          ),
-        ).then((_) => _load());
-      },
+      onTap: () => _showStudentDetail(s, null),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
@@ -402,7 +404,7 @@ class _GuruConductScreenState extends State<GuruConductScreen> {
                 children: [
                   Text(s.name, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.gray800)),
                   if (s.nis != null)
-                    Text(s.nis!, style: const TextStyle(fontSize: 11, color: AppColors.gray400)),
+                    Text('NIS: ${s.nis}', style: const TextStyle(fontSize: 11, color: AppColors.gray400)),
                 ],
               ),
             ),
@@ -410,17 +412,7 @@ class _GuruConductScreenState extends State<GuruConductScreen> {
               children: [
                 if (s.pelanggaranCount > 0) ...[
                   GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const GuruConductInputScreen(
-                            initialTab: 2,
-                            initialFilter: 'pelanggaran',
-                          ),
-                        ),
-                      ).then((_) => _load());
-                    },
+                    onTap: () => _showStudentDetail(s, 'pelanggaran'),
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(color: AppColors.red100, borderRadius: BorderRadius.circular(8)),
@@ -438,17 +430,7 @@ class _GuruConductScreenState extends State<GuruConductScreen> {
                 ],
                 if (s.prestasiCount > 0)
                   GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const GuruConductInputScreen(
-                            initialTab: 2,
-                            initialFilter: 'prestasi',
-                          ),
-                        ),
-                      ).then((_) => _load());
-                    },
+                    onTap: () => _showStudentDetail(s, 'prestasi'),
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(color: AppColors.green100, borderRadius: BorderRadius.circular(8)),
@@ -468,6 +450,378 @@ class _GuruConductScreenState extends State<GuruConductScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+// ─── Bottom Sheet: Detail & Riwayat Perilaku Per Siswa ────────────────────────
+
+class _StudentConductDetailSheet extends StatefulWidget {
+  final GuruConductStudent student;
+  final String? initialFilter;
+
+  const _StudentConductDetailSheet({
+    required this.student,
+    this.initialFilter,
+  });
+
+  @override
+  State<_StudentConductDetailSheet> createState() => _StudentConductDetailSheetState();
+}
+
+class _StudentConductDetailSheetState extends State<_StudentConductDetailSheet> {
+  List<ConductHistoryItem> _history = [];
+  bool _loading = true;
+  String _filter = 'all'; // 'all', 'pelanggaran', 'prestasi'
+
+  @override
+  void initState() {
+    super.initState();
+    _filter = widget.initialFilter ?? 'all';
+    _loadHistory();
+  }
+
+  Future<void> _loadHistory() async {
+    setState(() => _loading = true);
+    try {
+      final res = await GuruService.getConductHistory(
+        studentId: widget.student.id,
+        type: _filter != 'all' ? _filter : null,
+      );
+      final rawList = res['data'] as List<dynamic>? ?? [];
+      final items = rawList.map((e) => ConductHistoryItem.fromJson(e as Map<String, dynamic>)).toList();
+      if (mounted) {
+        setState(() {
+          _history = items;
+          _loading = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final s = widget.student;
+
+    return Container(
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.88,
+      ),
+      decoration: const BoxDecoration(
+        color: AppColors.slate100,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      child: Column(
+        children: [
+          // Handle drag
+          Center(
+            child: Container(
+              margin: const EdgeInsets.only(top: 10, bottom: 6),
+              width: 36,
+              height: 4,
+              decoration: BoxDecoration(
+                color: AppColors.gray300,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+
+          // Header Banner dengan Nama Siswa yang Jelas
+          Container(
+            width: double.infinity,
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFF1E293B), Color(0xFF334155)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(18),
+              boxShadow: [
+                BoxShadow(color: Colors.black.withOpacity(0.15), blurRadius: 10, offset: const Offset(0, 4))
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.remove_red_eye_rounded, size: 14, color: Color(0xFF94A3B8)),
+                    const SizedBox(width: 6),
+                    const Text(
+                      'AMATI CATATAN PERILAKU SISWA',
+                      style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: Color(0xFF94A3B8), letterSpacing: 0.8),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 20,
+                      backgroundColor: AppColors.blue600,
+                      child: Text(
+                        s.name.isNotEmpty ? s.name[0].toUpperCase() : '?',
+                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            s.name,
+                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                          ),
+                          if (s.nis != null)
+                            Text(
+                              'NIS: ${s.nis}',
+                              style: const TextStyle(fontSize: 12, color: Color(0xFFCBD5E1)),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 14),
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.red.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.red.withOpacity(0.4)),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.warning_amber_rounded, size: 12, color: Colors.redAccent),
+                          const SizedBox(width: 4),
+                          Text(
+                            'Negatif: ${s.pelanggaranCount}',
+                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.green.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.green.withOpacity(0.4)),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.emoji_events_rounded, size: 12, color: Colors.greenAccent),
+                          const SizedBox(width: 4),
+                          Text(
+                            'Positif: ${s.prestasiCount}',
+                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Spacer(),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const GuruConductInputScreen(),
+                          ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.blue600,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        minimumSize: Size.zero,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
+                      icon: const Icon(Icons.add, size: 14),
+                      label: const Text('Catat baru', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          // Filter bar di dalam modal
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Row(
+              children: [
+                _buildFilterChip('Semua Catatan', 'all'),
+                const SizedBox(width: 8),
+                _buildFilterChip('Hanya Negatif', 'pelanggaran'),
+                const SizedBox(width: 8),
+                _buildFilterChip('Hanya Positif', 'prestasi'),
+              ],
+            ),
+          ),
+
+          // Content list histori per siswa
+          Expanded(
+            child: _loading
+                ? const Center(child: CircularProgressIndicator())
+                : _history.isEmpty
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(Icons.folder_open_rounded, size: 40, color: AppColors.gray300),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Belum ada catatan ${_filter == 'pelanggaran' ? 'negatif' : _filter == 'prestasi' ? 'positif' : ''} untuk ${s.name}',
+                              style: const TextStyle(fontSize: 12, color: AppColors.gray400),
+                            ),
+                          ],
+                        ),
+                      )
+                    : ListView.separated(
+                        padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
+                        itemCount: _history.length,
+                        separatorBuilder: (_, __) => const SizedBox(height: 8),
+                        itemBuilder: (ctx, i) {
+                          final item = _history[i];
+                          return _buildHistoryCard(item);
+                        },
+                      ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFilterChip(String label, String value) {
+    final active = _filter == value;
+    return GestureDetector(
+      onTap: () {
+        if (_filter != value) {
+          setState(() {
+            _filter = value;
+          });
+          _loadHistory();
+        }
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: active ? AppColors.blue600 : AppColors.white,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: active ? AppColors.blue600 : AppColors.gray200),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: active ? FontWeight.bold : FontWeight.w500,
+            color: active ? Colors.white : AppColors.gray600,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHistoryCard(ConductHistoryItem item) {
+    final isNegatif = item.type == 'pelanggaran';
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: isNegatif ? AppColors.red100 : AppColors.green100),
+        boxShadow: AppShadow.sm,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: isNegatif ? AppColors.red100 : AppColors.green100,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      isNegatif ? Icons.warning_amber_rounded : Icons.emoji_events_rounded,
+                      size: 12,
+                      color: isNegatif ? AppColors.red500 : AppColors.green600,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      isNegatif ? 'Pelanggaran' : 'Prestasi',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        color: isNegatif ? AppColors.red500 : AppColors.green600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Spacer(),
+              Text(
+                item.dateLabel ?? item.date,
+                style: const TextStyle(fontSize: 11, color: AppColors.gray400),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          if (isNegatif) ...[
+            if (item.severity != null)
+              Text(
+                'Tingkat: ${item.severity!.toUpperCase()}',
+                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.gray700),
+              ),
+            if (item.description != null && item.description!.isNotEmpty)
+              Text(
+                item.description!,
+                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.gray800),
+              ),
+          ] else ...[
+            if (item.categoryName != null)
+              Text(
+                item.categoryName!,
+                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.green600),
+              ),
+            if (item.lombaName != null)
+              Text(
+                '${item.lombaRankLabel ?? ''} - ${item.lombaName}',
+                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.gray800),
+              ),
+          ],
+          if (item.note != null && item.note!.isNotEmpty) ...[
+            const SizedBox(height: 4),
+            Text(
+              'Catatan: ${item.note}',
+              style: const TextStyle(fontSize: 11, fontStyle: FontStyle.italic, color: AppColors.gray500),
+            ),
+          ],
+          if (item.teacherName != null) ...[
+            const SizedBox(height: 4),
+            Text(
+              'Dicatat oleh: ${item.teacherName}',
+              style: const TextStyle(fontSize: 10, color: AppColors.gray400),
+            ),
+          ],
+        ],
       ),
     );
   }

@@ -129,16 +129,22 @@ class GuruConductApiController extends Controller
         return response()->json(['message' => 'Prestasi lomba berhasil dicatat.', 'id' => $log->id], 201);
     }
 
-    // GET /api/v1/guru/conduct-history?type=&page=
+    // GET /api/v1/guru/conduct-history?type=&student_id=&page=
     public function history(Request $request): JsonResponse
     {
         $query = ConductLog::with([
                 'student:id,name,nis,class_id',
                 'student.schoolClass:id,name',
                 'category:id,name,type',
+                'teacher:id,name',
             ])
-            ->where('teacher_id', Auth::id())
             ->latest();
+
+        if ($request->filled('student_id')) {
+            $query->where('student_id', $request->student_id);
+        } else {
+            $query->where('teacher_id', Auth::id());
+        }
 
         if ($request->filled('type')) {
             $query->where('type', $request->type);
@@ -190,6 +196,7 @@ class GuruConductApiController extends Controller
                 'lomba_rank'       => $log->lomba_rank,
                 'lomba_rank_label' => $lombaRankLabel,
                 'note'             => $log->note,
+                'teacher_name'     => $log->teacher?->name ?? 'Guru',
                 'date'             => $log->created_at->format('Y-m-d'),
                 'date_label'       => $log->created_at->format('d M Y'),
             ];

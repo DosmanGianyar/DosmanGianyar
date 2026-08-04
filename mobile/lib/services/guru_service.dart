@@ -208,10 +208,12 @@ class GuruService {
 
   static Future<Map<String, dynamic>> getConductHistory({
     String? type,
+    int? studentId,
     int page = 1,
   }) async {
     return ApiClient.get('/guru/conduct-history', params: {
       if (type != null) 'type': type,
+      if (studentId != null) 'student_id': studentId,
       'page': page,
     });
   }
