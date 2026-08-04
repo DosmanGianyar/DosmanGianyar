@@ -4,7 +4,14 @@ import '../../services/guru_service.dart';
 import '../../theme/app_colors.dart';
 
 class GuruConductInputScreen extends StatefulWidget {
-  const GuruConductInputScreen({super.key});
+  final int initialTab;
+  final String? initialFilter;
+
+  const GuruConductInputScreen({
+    super.key,
+    this.initialTab = 0,
+    this.initialFilter,
+  });
 
   @override
   State<GuruConductInputScreen> createState() => _GuruConductInputScreenState();
@@ -45,11 +52,11 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
   String? _historyFilter;
   late final ScrollController _historyScrollCtrl;
 
-
   @override
   void initState() {
     super.initState();
-    _tabCtrl = TabController(length: 3, vsync: this);
+    _historyFilter = widget.initialFilter;
+    _tabCtrl = TabController(length: 3, vsync: this, initialIndex: widget.initialTab);
     _tabCtrl.addListener(() {
       if (_tabCtrl.indexIsChanging) return;
       if (_tabCtrl.index == 2 && _history.isEmpty && !_historyLoading) {
