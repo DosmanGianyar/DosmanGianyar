@@ -2,17 +2,17 @@
 
 namespace App\Filament\Pages;
 
+use App\Models\Extracurricular;
+use App\Models\ExtracurricularMember;
 use App\Models\SchoolClass;
 use App\Models\User;
-use App\Models\ExtracurricularMember;
-use App\Models\Extracurricular;
 use Filament\Actions\Action;
 use Filament\Pages\Page;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
-use Filament\Tables\Table;
-use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
 class ExtracurricularReportPage extends Page implements HasTable
@@ -38,11 +38,14 @@ class ExtracurricularReportPage extends Page implements HasTable
             ->query(
                 User::query()
                     ->where('role', 'siswa')
-                    ->whereDoesntHave('memberExtracurriculars', fn (Builder $q) => $q->where('status', 'active'))
-                    ->with('schoolClass')
+                    ->with(['schoolClass', 'memberExtracurriculars.extracurricular'])
                     ->orderBy('name')
             )
             ->columns([
+                TextColumn::make('row_num')
+                    ->label('No')
+                    ->rowIndex(),
+
                 TextColumn::make('name')
                     ->label('Nama Siswa')
                     ->searchable()
@@ -58,11 +61,44 @@ class ExtracurricularReportPage extends Page implements HasTable
                     ->badge()
                     ->color('info'),
 
-                TextColumn::make('angkatan')
-                    ->label('Angkatan')
-                    ->placeholder('—'),
+                TextColumn::make('memberExtracurriculars')
+                    ->label('Ekstrakurikuler Diikuti')
+                    ->badge()
+                    ->color(fn (User $record) => $record->memberExtracurriculars->where('status', 'active')->count() > 0 ? 'success' : 'danger')
+                    ->formatStateUsing(function (User $record) {
+                        $active = $record->memberExtracurriculars->where('status', 'active');
+                        if ($active->isEmpty()) {
+                            return 'Tanpa Ekstra';
+                        }
+                        return $active->map(fn ($m) => $m->extracurricular?->name)->filter()->implode(', ');
+                    }),
             ])
             ->filters([
+                SelectFilter::make('status_ekstra')
+                    ->label('Status Ekstrakurikuler')
+                    ->options([
+                        'tanpa_ekstra' => 'Tanpa Ekstrakurikuler',
+                        'ber_ekstra'   => 'Memiliki Ekstrakurikuler',
+                    ])
+                    ->default('tanpa_ekstra')
+                    ->query(function (Builder $query, array $data) {
+                        if (($data['value'] ?? null) === 'tanpa_ekstra') {
+                            $query->whereDoesntHave('memberExtracurriculars', fn (Builder $q) => $q->where('status', 'active'));
+                        } elseif (($data['value'] ?? null) === 'ber_ekstra') {
+                            $query->whereHas('memberExtracurriculars', fn (Builder $q) => $q->where('status', 'active'));
+                        }
+                    }),
+
+                SelectFilter::make('extracurricular_id')
+                    ->label('Filter Ekstrakurikuler')
+                    ->options(Extracurricular::orderBy('name')->pluck('name', 'id'))
+                    ->searchable()
+                    ->query(function (Builder $query, array $data) {
+                        if ($data['value'] ?? null) {
+                            $query->whereHas('memberExtracurriculars', fn (Builder $q) => $q->where('status', 'active')->where('extracurricular_id', $data['value']));
+                        }
+                    }),
+
                 SelectFilter::make('class_id')
                     ->label('Kelas')
                     ->relationship('schoolClass', 'name')
@@ -107,8 +143,8 @@ class ExtracurricularReportPage extends Page implements HasTable
             ->defaultPaginationPageOption(100)
             ->paginationPageOptions([10, 25, 50, 100, 'all'])
             ->emptyStateIcon('heroicon-o-check-badge')
-            ->emptyStateHeading('Semua Siswa Sudah Punya Ekstra!')
-            ->emptyStateDescription('Tidak ada siswa yang belum mengikuti ekstrakurikuler aktif.')
+            ->emptyStateHeading('Tidak Ada Data')
+            ->emptyStateDescription('Tidak ada siswa yang sesuai dengan filter yang dipilih.')
             ->defaultSort('name');
     }
 

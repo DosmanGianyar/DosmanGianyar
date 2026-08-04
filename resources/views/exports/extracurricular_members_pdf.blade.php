@@ -11,20 +11,19 @@
   .header .title  { font-size: 16px; font-weight: bold; margin: 4px 0 2px; }
   .header .sub    { font-size: 12px; color: #6b7280; }
 
-  .info-grid { display: flex; gap: 8px; margin-bottom: 16px; }
-  .info-box  { flex: 1; padding: 8px 12px; background: #f5f3ff; border-radius: 6px; border-left: 3px solid #7c3aed; }
+  .info-table { width: 100%; border-collapse: separate; border-spacing: 6px; margin-bottom: 12px; }
+  .info-box  { padding: 8px 12px; background: #f5f3ff; border-radius: 6px; border-left: 3px solid #7c3aed; }
   .info-box .label { font-size: 9px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; }
   .info-box .value { font-size: 12px; font-weight: bold; color: #5b21b6; margin-top: 2px; }
 
-  .summary-row { display: flex; gap: 8px; margin-bottom: 16px; }
-  .summary-card { flex: 1; text-align: center; padding: 8px; border-radius: 6px; background: #f5f3ff; }
-  .summary-card .count { font-size: 22px; font-weight: bold; color: #7c3aed; }
+  .summary-card { text-align: center; padding: 8px; border-radius: 6px; background: #f5f3ff; }
+  .summary-card .count { font-size: 20px; font-weight: bold; color: #7c3aed; }
   .summary-card .label { font-size: 10px; color: #6b7280; }
 
-  table { width: 100%; border-collapse: collapse; }
-  thead tr th { background: #7c3aed; color: #fff; font-size: 10px; padding: 8px 10px; text-align: left; }
-  tbody tr td { padding: 7px 10px; border-bottom: 1px solid #e5e7eb; font-size: 11px; }
-  tbody tr:nth-child(even) td { background: #faf5ff; }
+  table.data-table { width: 100%; border-collapse: collapse; }
+  table.data-table thead tr th { background: #7c3aed; color: #fff; font-size: 10px; padding: 8px 10px; text-align: left; }
+  table.data-table tbody tr td { padding: 7px 10px; border-bottom: 1px solid #e5e7eb; font-size: 11px; }
+  table.data-table tbody tr:nth-child(even) td { background: #faf5ff; }
   .badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 10px; font-weight: bold; }
   .badge-ketua   { background: #fef3c7; color: #78350f; }
   .badge-anggota { background: #ede9fe; color: #5b21b6; }
@@ -40,37 +39,53 @@
   <div class="sub">{{ $extracurricular->name }}</div>
 </div>
 
-<div class="info-grid">
-  <div class="info-box">
-    <div class="label">Nama Ekstra</div>
-    <div class="value">{{ $extracurricular->name }}</div>
-  </div>
-  <div class="info-box">
-    <div class="label">Guru Pembina</div>
-    <div class="value">{{ $extracurricular->pembina?->name ?? '—' }}</div>
-  </div>
-  <div class="info-box">
-    <div class="label">Kuota</div>
-    <div class="value">{{ $extracurricular->max_members ?? 'Tidak Terbatas' }}</div>
-  </div>
-</div>
+<table class="info-table">
+  <tr>
+    <td style="width:33.3%;">
+      <div class="info-box">
+        <div class="label">Nama Ekstra</div>
+        <div class="value">{{ $extracurricular->name }}</div>
+      </div>
+    </td>
+    <td style="width:33.3%;">
+      <div class="info-box">
+        <div class="label">Guru Pembina</div>
+        <div class="value">{{ $extracurricular->pembina?->name ?? '—' }}</div>
+      </div>
+    </td>
+    <td style="width:33.3%;">
+      <div class="info-box">
+        <div class="label">Kuota</div>
+        <div class="value">{{ $extracurricular->max_members ?? 'Tidak Terbatas' }}</div>
+      </div>
+    </td>
+  </tr>
+</table>
 
-<div class="summary-row">
-  <div class="summary-card">
-    <div class="count">{{ $members->count() }}</div>
-    <div class="label">Total Anggota Aktif</div>
-  </div>
-  <div class="summary-card">
-    <div class="count">{{ $members->where('role', 'ketua')->count() }}</div>
-    <div class="label">Ketua</div>
-  </div>
-  <div class="summary-card">
-    <div class="count">{{ $members->where('role', 'member')->count() }}</div>
-    <div class="label">Anggota</div>
-  </div>
-</div>
+<table class="info-table" style="margin-bottom:16px;">
+  <tr>
+    <td style="width:33.3%;">
+      <div class="summary-card">
+        <div class="count">{{ $members->count() }}</div>
+        <div class="label">Total Anggota Aktif</div>
+      </div>
+    </td>
+    <td style="width:33.3%;">
+      <div class="summary-card">
+        <div class="count">{{ $members->where('role', 'ketua')->count() }}</div>
+        <div class="label">Ketua</div>
+      </div>
+    </td>
+    <td style="width:33.3%;">
+      <div class="summary-card">
+        <div class="count">{{ $members->where('role', 'member')->count() }}</div>
+        <div class="label">Anggota</div>
+      </div>
+    </td>
+  </tr>
+</table>
 
-<table>
+<table class="data-table">
   <thead>
     <tr>
       <th style="width:36px">No</th>

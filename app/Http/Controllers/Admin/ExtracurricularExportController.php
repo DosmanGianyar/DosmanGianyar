@@ -16,6 +16,9 @@ class ExtracurricularExportController extends Controller
 {
     public function pdf(ExtracurricularSession $session): Response
     {
+        @ini_set('memory_limit', '512M');
+        @set_time_limit(300);
+
         $session->load('extracurricular');
 
         $activeMembers = ExtracurricularMember::with('user.schoolClass')
@@ -53,6 +56,9 @@ class ExtracurricularExportController extends Controller
      */
     public function membersPdf(Extracurricular $extracurricular): Response
     {
+        @ini_set('memory_limit', '512M');
+        @set_time_limit(300);
+
         $members = ExtracurricularMember::with('user.schoolClass')
             ->where('extracurricular_id', $extracurricular->id)
             ->where('status', 'active')
@@ -75,6 +81,9 @@ class ExtracurricularExportController extends Controller
      */
     public function noEkstraPdf(Request $request): Response
     {
+        @ini_set('memory_limit', '512M');
+        @set_time_limit(300);
+
         $query = User::where('role', 'siswa')
             ->whereDoesntHave('memberExtracurriculars', fn ($q) => $q->where('status', 'active'))
             ->with('schoolClass')
