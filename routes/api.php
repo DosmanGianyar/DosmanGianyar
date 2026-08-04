@@ -28,6 +28,8 @@ use App\Http\Controllers\Api\BkConsultationController;
 use App\Http\Controllers\Api\GuruBkConsultationApiController;
 use App\Http\Controllers\Api\GuruTeachingSessionController;
 use App\Http\Controllers\Api\TeacherAttendanceController;
+use App\Http\Controllers\Api\SiswaVotingApiController;
+use App\Http\Controllers\Api\SiswaSarprasApiController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -118,6 +120,19 @@ Route::prefix('v1')->group(function () {
 
             // Absensi Guru Mengajar (untuk siswa)
             Route::get('/teacher-attendance', [TeacherAttendanceController::class, 'index']);
+
+            // E-Voting Siswa
+            Route::get('/siswa/voting',             [SiswaVotingApiController::class, 'index']);
+            Route::get('/siswa/voting/{id}',        [SiswaVotingApiController::class, 'show']);
+            Route::post('/siswa/voting/{id}/vote',  [SiswaVotingApiController::class, 'vote']);
+
+            // Sarpras Siswa
+            Route::get('/siswa/sarpras/summary',        [SiswaSarprasApiController::class, 'summary']);
+            Route::get('/siswa/sarpras/catalog',        [SiswaSarprasApiController::class, 'catalog']);
+            Route::get('/siswa/sarpras/loans',          [SiswaSarprasApiController::class, 'myLoans']);
+            Route::post('/siswa/sarpras/loans',         [SiswaSarprasApiController::class, 'storeLoan']);
+            Route::get('/siswa/sarpras/damage-reports', [SiswaSarprasApiController::class, 'myDamageReports']);
+            Route::post('/siswa/sarpras/damage-reports',[SiswaSarprasApiController::class, 'storeDamageReport']);
 
             // Guru
             Route::get('/guru/dashboard',                                 [GuruController::class, 'dashboard']);

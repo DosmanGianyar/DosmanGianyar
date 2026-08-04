@@ -15,6 +15,7 @@ import 'bk_consultation_screen.dart';
 import 'homeroom_consultation_screen.dart';
 import 'permit_screen.dart';
 import 'school_regulation_screen.dart';
+import 'voting_screen.dart';
 
 class KesiswaanScreen extends StatefulWidget {
   const KesiswaanScreen({super.key});
@@ -396,7 +397,10 @@ class _KesiswaanScreenState extends State<KesiswaanScreen>
                 trailing: _unvotedCount > 0
                     ? _Badge(count: _unvotedCount, color: AppColors.violet600)
                     : null,
-                onTap: () => _showComingSoon('E-Voting'),
+                onTap: () async {
+                  await Navigator.push(context, MaterialPageRoute(builder: (_) => const VotingScreen()));
+                  _loadSummary();
+                },
               ),
               const SizedBox(height: 12),
             ],
