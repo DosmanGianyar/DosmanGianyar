@@ -6,13 +6,13 @@ use App\Models\SchoolClass;
 use App\Models\User;
 use App\Models\ExtracurricularMember;
 use App\Models\Extracurricular;
+use Filament\Actions\Action;
 use Filament\Pages\Page;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Actions\Action as TableAction;
 use Illuminate\Database\Eloquent\Builder;
 
 class ExtracurricularReportPage extends Page implements HasTable
@@ -70,7 +70,7 @@ class ExtracurricularReportPage extends Page implements HasTable
                     ->preload(),
             ])
             ->headerActions([
-                TableAction::make('cetak_pdf')
+                Action::make('cetak_pdf')
                     ->label('Cetak PDF')
                     ->icon('heroicon-o-printer')
                     ->color('danger')
