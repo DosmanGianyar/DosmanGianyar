@@ -3,9 +3,7 @@
 namespace App\Observers;
 
 use App\Models\Announcement;
-use App\Models\AppNotification;
-use App\Models\User;
-use Illuminate\Support\Facades\DB;
+use App\Services\NotificationService;
 
 class AnnouncementObserver
 {
@@ -36,33 +34,18 @@ class AnnouncementObserver
 
     private function notify(Announcement $announcement): void
     {
-        $roles = match ($announcement->target) {
-            'siswa' => ['siswa', 'pengelola'],
-            'guru'  => ['guru'],
-            default => ['siswa', 'pengelola', 'guru'],
-        };
-
-        $now  = now()->toDateTimeString();
-        $body = strlen($announcement->title) > 80
+        $title = 'Pengumuman Baru';
+        $body  = strlen($announcement->title) > 80
             ? substr($announcement->title, 0, 77) . '...'
             : $announcement->title;
 
-        // Chunk 200 agar tidak OOM untuk sekolah besar
-        User::whereIn('role', $roles)
-            ->select('id')
-            ->chunkById(200, function ($users) use ($announcement, $body, $now) {
-                DB::table('app_notifications')->insert(
-                    $users->map(fn ($u) => [
-                        'user_id'    => $u->id,
-                        'title'      => 'Pengumuman Baru',
-                        'body'       => $body,
-                        'type'       => 'info',
-                        'url'        => 'announcement/' . $announcement->id,
-                        'read_at'    => null,
-                        'created_at' => $now,
-                        'updated_at' => $now,
-                    ])->all()
-                );
-            });
+        NotificationService::broadcastToTarget(
+            targetRole: $announcement->target ?? 'all',
+            targetClassIds: $announcement->target_class_ids,
+            title: $title,
+            body: $body,
+            type: 'info',
+            url: 'announcement/' . $announcement->id
+        );
     }
 }

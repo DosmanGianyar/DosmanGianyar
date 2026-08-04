@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Siswa;
 
 use App\Http\Controllers\Controller;
 use App\Models\Announcement;
+use App\Models\SchoolClass;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -29,7 +30,7 @@ class AnnouncementController extends Controller
         return view('siswa.announcements.show', compact('announcement'));
     }
 
-    // ─── Pengelola only ───────────────────────────────────────────────────────
+    // ─── Pengelola / Humas only ───────────────────────────────────────────────
 
     public function manageIndex(): View
     {
@@ -44,7 +45,8 @@ class AnnouncementController extends Controller
     public function create(): View
     {
         $this->checkPengelola();
-        return view('siswa.announcements.form', ['announcement' => null]);
+        $classes = SchoolClass::orderBy('name')->get();
+        return view('siswa.announcements.form', ['announcement' => null, 'classes' => $classes]);
     }
 
     public function store(Request $request): RedirectResponse
@@ -52,11 +54,13 @@ class AnnouncementController extends Controller
         $this->checkPengelola();
 
         $data = $request->validate([
-            'title'        => 'required|string|max:255',
-            'body'         => 'required|string',
-            'target'       => 'required|in:all,siswa,guru',
-            'is_pinned'    => 'boolean',
-            'published_at' => 'nullable|date',
+            'title'            => 'required|string|max:255',
+            'body'             => 'required|string',
+            'target'           => 'required|in:all,siswa,guru,orangtua',
+            'target_class_ids' => 'nullable|array',
+            'target_class_ids.*' => 'integer|exists:classes,id',
+            'is_pinned'        => 'boolean',
+            'published_at'     => 'nullable|date',
         ]);
 
         $data['author_id'] = Auth::id();
@@ -76,7 +80,8 @@ class AnnouncementController extends Controller
     {
         $this->checkPengelola();
         abort_unless($announcement->author_id === Auth::id(), 403);
-        return view('siswa.announcements.form', compact('announcement'));
+        $classes = SchoolClass::orderBy('name')->get();
+        return view('siswa.announcements.form', compact('announcement', 'classes'));
     }
 
     public function update(Request $request, Announcement $announcement): RedirectResponse
@@ -85,14 +90,17 @@ class AnnouncementController extends Controller
         abort_unless($announcement->author_id === Auth::id(), 403);
 
         $data = $request->validate([
-            'title'        => 'required|string|max:255',
-            'body'         => 'required|string',
-            'target'       => 'required|in:all,siswa,guru',
-            'is_pinned'    => 'boolean',
-            'published_at' => 'nullable|date',
+            'title'            => 'required|string|max:255',
+            'body'             => 'required|string',
+            'target'           => 'required|in:all,siswa,guru,orangtua',
+            'target_class_ids' => 'nullable|array',
+            'target_class_ids.*' => 'integer|exists:classes,id',
+            'is_pinned'        => 'boolean',
+            'published_at'     => 'nullable|date',
         ]);
 
         $data['is_pinned'] = $request->boolean('is_pinned');
+
         $announcement->update($data);
 
         return redirect()->route('siswa.announcements.manage')
@@ -103,15 +111,15 @@ class AnnouncementController extends Controller
     {
         $this->checkPengelola();
         abort_unless($announcement->author_id === Auth::id(), 403);
+
         $announcement->delete();
 
-        return back()->with('success', 'Pengumuman dihapus.');
+        return redirect()->route('siswa.announcements.manage')
+            ->with('success', 'Pengumuman berhasil dihapus.');
     }
 
     private function checkPengelola(): void
     {
-        if (Auth::user()->role !== 'pengelola') {
-            abort(403, 'Hanya Siswa Pengelola yang dapat mengelola pengumuman.');
-        }
+        abort_unless(in_array(Auth::user()->role, ['pengelola', 'admin']), 403);
     }
 }

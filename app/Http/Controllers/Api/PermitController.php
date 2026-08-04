@@ -62,6 +62,23 @@ class PermitController extends Controller
             'status'     => 'pending',
         ]);
 
+        // Notifikasi ke Wali Kelas & Orang Tua
+        \App\Services\NotificationService::notifyHomeroomTeacher(
+            $student,
+            'Pengajuan Izin Siswa Baru',
+            "Siswa {$student->name} menyetorkan pengajuan " . $permit->typeLabel() . " untuk tanggal {$permit->start_date->format('d/m/Y')}.",
+            'info',
+            'guru/permits'
+        );
+
+        \App\Services\NotificationService::notifyParentsOfStudent(
+            $student,
+            'Pengajuan Izin Anak',
+            "Anak Anda {$student->name} telah mengajukan " . $permit->typeLabel() . " untuk tanggal {$permit->start_date->format('d/m/Y')}.",
+            'info',
+            'orangtua/permits'
+        );
+
         return response()->json([
             'message' => 'Pengajuan ' . $permit->typeLabel() . ' berhasil dikirim.',
             'permit'  => [

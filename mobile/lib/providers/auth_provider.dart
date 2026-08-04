@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import '../models/user.dart';
 import '../services/auth_service.dart';
 import '../services/api_client.dart';
+import '../services/push_notification_service.dart';
 
 enum AuthState { unknown, authenticated, unauthenticated }
 
@@ -82,6 +83,9 @@ class AuthProvider extends ChangeNotifier {
   // ─── Logout ───────────────────────────────────────────────────────────────
 
   Future<void> logout() async {
+    try {
+      await PushNotificationService.unregisterToken();
+    } catch (_) {}
     await AuthService.logout();
     _user  = null;
     _state = AuthState.unauthenticated;

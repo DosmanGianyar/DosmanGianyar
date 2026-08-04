@@ -72,6 +72,8 @@ Route::prefix('v1')->group(function () {
             Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount']);
             Route::post('/notifications/{id}/read',   [NotificationController::class, 'markRead']);
             Route::post('/notifications/read-all',    [NotificationController::class, 'markAllRead']);
+            Route::post('/fcm-token',                 [\App\Http\Controllers\Api\FcmTokenController::class, 'store']);
+            Route::delete('/fcm-token',               [\App\Http\Controllers\Api\FcmTokenController::class, 'destroy']);
 
             // Pengumuman
             Route::get('/announcements',        [AnnouncementController::class, 'index']);

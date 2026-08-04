@@ -99,7 +99,12 @@ class GuruConductApiController extends Controller
             };
 
             $log = ConductLog::create($data);
-            NotificationService::send($request->student_id, "Catatan Negatif ({$severityLabel})", $request->description, 'warning');
+            $student = User::find($request->student_id);
+            if ($student) {
+                NotificationService::send($student->id, "Catatan Negatif ({$severityLabel})", $request->description, 'warning');
+                NotificationService::notifyParentsOfStudent($student, "Catatan Negatif Anak ({$severityLabel})", $request->description, 'warning');
+                NotificationService::notifyHomeroomTeacher($student, "Catatan Negatif Siswa ({$severityLabel})", "Siswa {$student->name}: {$request->description}", 'warning');
+            }
             return response()->json(['message' => 'Catatan negatif berhasil dicatat.', 'id' => $log->id], 201);
         }
 
@@ -110,7 +115,12 @@ class GuruConductApiController extends Controller
             $data['prestasi_type'] = 'perilaku';
 
             $log = ConductLog::create($data);
-            NotificationService::send($request->student_id, "Catatan Positif: {$category->name}", "Dicatat oleh guru.", 'success');
+            $student = User::find($request->student_id);
+            if ($student) {
+                NotificationService::send($student->id, "Catatan Positif: {$category->name}", "Dicatat oleh guru.", 'success');
+                NotificationService::notifyParentsOfStudent($student, "Catatan Positif Anak: {$category->name}", "Dicatat oleh guru.", 'success');
+                NotificationService::notifyHomeroomTeacher($student, "Catatan Positif Siswa: {$category->name}", "Siswa {$student->name}", 'success');
+            }
             return response()->json(['message' => 'Catatan positif berhasil dicatat.', 'id' => $log->id], 201);
         }
 
