@@ -364,128 +364,136 @@ class _TpFormSheetState extends State<_TpFormSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+    final maxHeight = MediaQuery.of(context).size.height * 0.85;
+
+    return AnimatedPadding(
+      padding: EdgeInsets.only(bottom: bottomInset),
+      duration: const Duration(milliseconds: 150),
+      curve: Curves.easeOut,
       child: Container(
+        constraints: BoxConstraints(maxHeight: maxHeight),
         decoration: const BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
-        padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(child: Container(width: 36, height: 4,
-              decoration: BoxDecoration(color: AppColors.gray300, borderRadius: BorderRadius.circular(2)))),
-            const SizedBox(height: 16),
-            Text(
-              widget.existing != null ? 'Edit TP' : 'Tambah TP Baru',
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.gray800),
-            ),
-            const SizedBox(height: 16),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(child: Container(width: 36, height: 4,
+                decoration: BoxDecoration(color: AppColors.gray300, borderRadius: BorderRadius.circular(2)))),
+              const SizedBox(height: 16),
+              Text(
+                widget.existing != null ? 'Edit TP' : 'Tambah TP Baru',
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.gray800),
+              ),
+              const SizedBox(height: 16),
 
-            // Mata Pelajaran
-            const Text('Mata Pelajaran (opsional)', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.gray600)),
-            const SizedBox(height: 6),
-            Wrap(
-              spacing: 6, runSpacing: 6,
-              children: [
-                GestureDetector(
-                  onTap: () => setState(() => _selectedSubjectId = null),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-                    decoration: BoxDecoration(
-                      color: _selectedSubjectId == null ? AppColors.blue600 : AppColors.gray50,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: _selectedSubjectId == null ? AppColors.blue600 : AppColors.gray200),
-                    ),
-                    child: Text('— Tidak Spesifik —', style: TextStyle(
-                      fontSize: 12, fontWeight: FontWeight.w600,
-                      color: _selectedSubjectId == null ? Colors.white : AppColors.gray700)),
-                  ),
-                ),
-                ...widget.subjects.map((s) {
-                  final sel = _selectedSubjectId == s.id;
-                  return GestureDetector(
-                    onTap: () => setState(() => _selectedSubjectId = sel ? null : s.id),
+              // Mata Pelajaran
+              const Text('Mata Pelajaran (opsional)', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.gray600)),
+              const SizedBox(height: 6),
+              Wrap(
+                spacing: 6, runSpacing: 6,
+                children: [
+                  GestureDetector(
+                    onTap: () => setState(() => _selectedSubjectId = null),
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
                       decoration: BoxDecoration(
-                        color: sel ? AppColors.blue600 : AppColors.gray50,
+                        color: _selectedSubjectId == null ? AppColors.blue600 : AppColors.gray50,
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: sel ? AppColors.blue600 : AppColors.gray200),
+                        border: Border.all(color: _selectedSubjectId == null ? AppColors.blue600 : AppColors.gray200),
                       ),
-                      child: Text(s.name, style: TextStyle(
+                      child: Text('— Tidak Spesifik —', style: TextStyle(
                         fontSize: 12, fontWeight: FontWeight.w600,
+                        color: _selectedSubjectId == null ? Colors.white : AppColors.gray700)),
+                    ),
+                  ),
+                  ...widget.subjects.map((s) {
+                    final sel = _selectedSubjectId == s.id;
+                    return GestureDetector(
+                      onTap: () => setState(() => _selectedSubjectId = sel ? null : s.id),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                        decoration: BoxDecoration(
+                          color: sel ? AppColors.blue600 : AppColors.gray50,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: sel ? AppColors.blue600 : AppColors.gray200),
+                        ),
+                        child: Text(s.name, style: TextStyle(
+                          fontSize: 12, fontWeight: FontWeight.w600,
+                          color: sel ? Colors.white : AppColors.gray700)),
+                      ),
+                    );
+                  }),
+                ],
+              ),
+              const SizedBox(height: 12),
+
+              // Tingkatan Kelas
+              const Text('Tingkatan Kelas (opsional)', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.gray600)),
+              const SizedBox(height: 6),
+              Wrap(
+                spacing: 6, runSpacing: 6,
+                children: [
+                  {'value': null, 'label': 'Semua Tingkatan'},
+                  {'value': '10', 'label': 'Kelas 10 (X)'},
+                  {'value': '11', 'label': 'Kelas 11 (XI)'},
+                  {'value': '12', 'label': 'Kelas 12 (XII)'},
+                ].map((g) {
+                  final val = g['value'];
+                  final sel = _selectedGradeLevel == val;
+                  return GestureDetector(
+                    onTap: () => setState(() => _selectedGradeLevel = val),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: sel ? AppColors.purple500 : AppColors.gray50,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: sel ? AppColors.purple500 : AppColors.gray200),
+                      ),
+                      child: Text(g['label']!, style: TextStyle(
+                        fontSize: 11, fontWeight: FontWeight.w600,
                         color: sel ? Colors.white : AppColors.gray700)),
                     ),
                   );
-                }),
-              ],
-            ),
-            const SizedBox(height: 12),
-
-            // Tingkatan Kelas
-            const Text('Tingkatan Kelas (opsional)', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.gray600)),
-            const SizedBox(height: 6),
-            Wrap(
-              spacing: 6, runSpacing: 6,
-              children: [
-                {'value': null, 'label': 'Semua Tingkatan'},
-                {'value': '10', 'label': 'Kelas 10 (X)'},
-                {'value': '11', 'label': 'Kelas 11 (XI)'},
-                {'value': '12', 'label': 'Kelas 12 (XII)'},
-              ].map((g) {
-                final val = g['value'];
-                final sel = _selectedGradeLevel == val;
-                return GestureDetector(
-                  onTap: () => setState(() => _selectedGradeLevel = val),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: sel ? AppColors.purple500 : AppColors.gray50,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: sel ? AppColors.purple500 : AppColors.gray200),
-                    ),
-                    child: Text(g['label']!, style: TextStyle(
-                      fontSize: 11, fontWeight: FontWeight.w600,
-                      color: sel ? Colors.white : AppColors.gray700)),
-                  ),
-                );
-              }).toList(),
-            ),
-            const SizedBox(height: 12),
-
-            // Kode TP
-            const Text('Kode TP (opsional)', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.gray600)),
-            const SizedBox(height: 6),
-            TextField(controller: _codeCtrl, decoration: _inputDeco('Contoh: TP 1.1'),
-              style: const TextStyle(fontSize: 13)),
-            const SizedBox(height: 12),
-
-            // Deskripsi
-            const Text('Deskripsi Tujuan Pembelajaran *', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.gray600)),
-            const SizedBox(height: 6),
-            TextField(controller: _descCtrl, maxLines: 4, decoration: _inputDeco('Peserta didik mampu...'),
-              style: const TextStyle(fontSize: 13)),
-            const SizedBox(height: 20),
-
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton(
-                onPressed: _submitting ? null : _submit,
-                style: FilledButton.styleFrom(
-                  backgroundColor: AppColors.blue600,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                ),
-                child: _submitting
-                    ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                    : Text(widget.existing != null ? 'Simpan Perubahan' : 'Tambah TP'),
+                }).toList(),
               ),
-            ),
-          ],
+              const SizedBox(height: 12),
+
+              // Kode TP
+              const Text('Kode TP (opsional)', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.gray600)),
+              const SizedBox(height: 6),
+              TextField(controller: _codeCtrl, decoration: _inputDeco('Contoh: TP 1.1'),
+                style: const TextStyle(fontSize: 13)),
+              const SizedBox(height: 12),
+
+              // Deskripsi
+              const Text('Deskripsi Tujuan Pembelajaran *', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.gray600)),
+              const SizedBox(height: 6),
+              TextField(controller: _descCtrl, maxLines: 4, decoration: _inputDeco('Peserta didik mampu...'),
+                style: const TextStyle(fontSize: 13)),
+              const SizedBox(height: 20),
+
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  onPressed: _submitting ? null : _submit,
+                  style: FilledButton.styleFrom(
+                    backgroundColor: AppColors.blue600,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                  child: _submitting
+                      ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                      : Text(widget.existing != null ? 'Simpan Perubahan' : 'Tambah TP'),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
