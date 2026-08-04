@@ -5,6 +5,12 @@ import '../../models/guru_dashboard.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/guru_service.dart';
 import '../../theme/app_colors.dart';
+import 'guru_conduct_screen.dart';
+import 'guru_input_nilai_screen.dart';
+import 'guru_permit_screen.dart';
+import 'guru_sarpras_screen.dart';
+import 'guru_teaching_session_screen.dart';
+import 'guru_tp_screen.dart';
 
 class GuruHomeScreen extends StatefulWidget {
   const GuruHomeScreen({super.key});
@@ -365,24 +371,129 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
     );
   }
 
-  // ─── Quick Action Bar ────────────────────────────────────────────────────────
+  // ─── Quick Action Grid ────────────────────────────────────────────────────────
+
+  // ─── Quick Action Grid ────────────────────────────────────────────────────────
   Widget _buildQuickActions() {
-    return Row(
+    final menuItems = [
+      {
+        'title': 'Sesi Mengajar',
+        'subtitle': 'Absensi & Jurnal',
+        'icon': Icons.timer_outlined,
+        'color': AppColors.blue600,
+        'bg': AppColors.blue50,
+        'onTap': () => Navigator.push(context, MaterialPageRoute(builder: (_) => const GuruTeachingSessionScreen())),
+      },
+      {
+        'title': 'Tujuan Pembelajaran',
+        'subtitle': 'Kelola & Share TP',
+        'icon': Icons.checklist_rounded,
+        'color': AppColors.purple600,
+        'bg': const Color(0xFFF3E8FF),
+        'onTap': () => Navigator.push(context, MaterialPageRoute(builder: (_) => const GuruTpScreen())),
+      },
+      {
+        'title': 'Input Nilai',
+        'subtitle': 'Penilaian Siswa',
+        'icon': Icons.assignment_turned_in_rounded,
+        'color': AppColors.emerald600,
+        'bg': const Color(0xFFECFDF5),
+        'onTap': () => Navigator.push(context, MaterialPageRoute(builder: (_) => const GuruInputNilaiScreen())),
+      },
+      {
+        'title': 'Kedisiplinan',
+        'subtitle': 'Poin Pelanggaran',
+        'icon': Icons.warning_amber_rounded,
+        'color': AppColors.orange600,
+        'bg': AppColors.orange50,
+        'onTap': () => Navigator.push(context, MaterialPageRoute(builder: (_) => const GuruConductScreen())),
+      },
+      {
+        'title': 'Persetujuan Izin',
+        'subtitle': 'Izin / Dispensasi',
+        'icon': Icons.mark_email_unread_rounded,
+        'color': AppColors.teal600,
+        'bg': const Color(0xFFCCFBF1),
+        'onTap': () => Navigator.push(context, MaterialPageRoute(builder: (_) => const GuruPermitScreen())),
+      },
+      {
+        'title': 'Sarana Prasarana',
+        'subtitle': 'Peminjaman Asset',
+        'icon': Icons.inventory_2_rounded,
+        'color': AppColors.indigo600,
+        'bg': AppColors.indigo50,
+        'onTap': () => Navigator.push(context, MaterialPageRoute(builder: (_) => const GuruSarprasScreen())),
+      },
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _QuickActionChip(
-          label:     'Input Nilai',
-          icon:      Icons.assignment_rounded,
-          color:     AppColors.emerald900,
-          bg:        AppColors.emerald50,
-          comingSoon: true,
+        const Text(
+          'Menu Utama Guru',
+          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.gray800),
         ),
-        const SizedBox(width: 8),
-        _QuickActionChip(
-          label:     'Export Nilai',
-          icon:      Icons.download_rounded,
-          color:     AppColors.teal700,
-          bg:        AppColors.teal50,
-          comingSoon: true,
+        const SizedBox(height: 10),
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            childAspectRatio: 2.3,
+            crossAxisSpacing: 10,
+            mainAxisSpacing: 10,
+          ),
+          itemCount: menuItems.length,
+          itemBuilder: (context, i) {
+            final item = menuItems[i];
+            final color = item['color'] as Color;
+            final bg = item['bg'] as Color;
+            return GestureDetector(
+              onTap: item['onTap'] as VoidCallback,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                decoration: BoxDecoration(
+                  color: AppColors.white,
+                  borderRadius: BorderRadius.circular(AppRadius.xl),
+                  border: Border.all(color: AppColors.gray100),
+                  boxShadow: AppShadow.sm,
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 36,
+                      height: 38,
+                      decoration: BoxDecoration(
+                        color: bg,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Icon(item['icon'] as IconData, color: color, size: 20),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            item['title'] as String,
+                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.gray800),
+                            maxLines: 1, overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            item['subtitle'] as String,
+                            style: const TextStyle(fontSize: 10, color: AppColors.gray400),
+                            maxLines: 1, overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
         ),
       ],
     );
