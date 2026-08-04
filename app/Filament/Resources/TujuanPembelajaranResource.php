@@ -53,6 +53,16 @@ class TujuanPembelajaranResource extends Resource
                     ->preload()
                     ->nullable(),
 
+                Select::make('grade_level')
+                    ->label('Tingkatan Kelas')
+                    ->options([
+                        '10' => 'Kelas 10 (X)',
+                        '11' => 'Kelas 11 (XI)',
+                        '12' => 'Kelas 12 (XII)',
+                    ])
+                    ->nullable()
+                    ->placeholder('Semua Tingkatan'),
+
                 TextInput::make('code')
                     ->label('Kode TP')
                     ->maxLength(30)
@@ -88,6 +98,13 @@ class TujuanPembelajaranResource extends Resource
                     ->color('info')
                     ->placeholder('—'),
 
+                TextColumn::make('grade_level')
+                    ->label('Tingkatan')
+                    ->badge()
+                    ->color('purple')
+                    ->formatStateUsing(fn (TujuanPembelajaran $record) => $record->gradeLabel())
+                    ->placeholder('Semua'),
+
                 TextColumn::make('code')
                     ->label('Kode')
                     ->badge()
@@ -113,6 +130,14 @@ class TujuanPembelajaranResource extends Resource
                 SelectFilter::make('subject_id')
                     ->label('Mata Pelajaran')
                     ->relationship('subject', 'name'),
+
+                SelectFilter::make('grade_level')
+                    ->label('Tingkatan Kelas')
+                    ->options([
+                        '10' => 'Kelas 10 (X)',
+                        '11' => 'Kelas 11 (XI)',
+                        '12' => 'Kelas 12 (XII)',
+                    ]),
 
                 SelectFilter::make('teacher_id')
                     ->label('Guru')

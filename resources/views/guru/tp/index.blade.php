@@ -7,7 +7,7 @@
 
     {{-- ─── Header --}}
     <div class="flex items-center justify-between gap-3">
-        <p class="text-sm text-gray-500">Kelola TP yang Anda buat. TP dari guru lain dengan mapel sama juga tampil.</p>
+        <p class="text-sm text-gray-500">Kelola TP yang Anda buat. TP dari guru lain dengan mapel sama juga dapat dilihat.</p>
         <button onclick="document.getElementById('modal-add-tp').classList.remove('hidden')"
             class="flex items-center gap-1.5 px-4 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 transition-colors shrink-0">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -50,6 +50,9 @@
                         @if($tp->code)
                         <span class="inline-block px-1.5 py-0.5 rounded text-xs font-bold bg-blue-100 text-blue-700 shrink-0">{{ $tp->code }}</span>
                         @endif
+                        <span class="inline-block px-1.5 py-0.5 rounded text-xs font-semibold bg-purple-100 text-purple-700 shrink-0">
+                            {{ $tp->gradeLabel() }}
+                        </span>
                         <span class="text-sm text-gray-800 leading-relaxed">{{ $tp->description }}</span>
                     </div>
                     @if($tp->teacher_id !== auth()->id())
@@ -78,7 +81,7 @@
                     </form>
                     {{-- Edit --}}
                     <button
-                        onclick="openEditTp({{ $tp->id }}, {{ json_encode($tp->code ?? '') }}, {{ json_encode($tp->description) }}, {{ $tp->subject_id ?? 'null' }})"
+                        onclick="openEditTp({{ $tp->id }}, {{ json_encode($tp->code ?? '') }}, {{ json_encode($tp->description) }}, {{ $tp->subject_id ?? 'null' }}, {{ json_encode($tp->grade_level ?? '') }})"
                         class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-400 hover:text-blue-500 transition-colors">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -129,6 +132,16 @@
                     @foreach($subjects as $subject)
                     <option value="{{ $subject->id }}">{{ $subject->name }}</option>
                     @endforeach
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-600 mb-1.5">Tingkatan Kelas <span class="font-normal text-gray-400">(opsional)</span></label>
+                <select name="grade_level"
+                    class="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                    <option value="">— Semua Tingkatan —</option>
+                    <option value="10">Kelas 10 (X)</option>
+                    <option value="11">Kelas 11 (XI)</option>
+                    <option value="12">Kelas 12 (XII)</option>
                 </select>
             </div>
             <div>
@@ -183,6 +196,16 @@
                 </select>
             </div>
             <div>
+                <label class="block text-xs font-semibold text-gray-600 mb-1.5">Tingkatan Kelas <span class="font-normal text-gray-400">(opsional)</span></label>
+                <select id="edit-tp-grade" name="grade_level"
+                    class="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                    <option value="">— Semua Tingkatan —</option>
+                    <option value="10">Kelas 10 (X)</option>
+                    <option value="11">Kelas 11 (XI)</option>
+                    <option value="12">Kelas 12 (XII)</option>
+                </select>
+            </div>
+            <div>
                 <label class="block text-xs font-semibold text-gray-600 mb-1.5">Kode TP <span class="font-normal text-gray-400">(opsional)</span></label>
                 <input id="edit-tp-code" type="text" name="code" maxlength="30"
                     class="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -207,11 +230,12 @@
 </div>
 
 <script>
-function openEditTp(id, code, description, subjectId) {
+function openEditTp(id, code, description, subjectId, gradeLevel) {
     document.getElementById('edit-tp-form').action = '/guru/tp/' + id;
     document.getElementById('edit-tp-code').value = code || '';
     document.getElementById('edit-tp-desc').value = description || '';
     document.getElementById('edit-tp-subject').value = subjectId || '';
+    document.getElementById('edit-tp-grade').value = gradeLevel || '';
     document.getElementById('modal-edit-tp').classList.remove('hidden');
 }
 </script>

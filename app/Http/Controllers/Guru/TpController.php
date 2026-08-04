@@ -19,14 +19,14 @@ class TpController extends Controller
         $tps = TujuanPembelajaran::where(function ($q) use ($teacher, $mySubjectIds) {
             $q->where('teacher_id', $teacher->id);
             if (count($mySubjectIds)) {
-                $q->orWhere(function ($q2) use ($teacher, $mySubjectIds) {
-                    $q2->whereIn('subject_id', $mySubjectIds)
-                       ->where('teacher_id', '!=', $teacher->id);
+                $q->orWhere(function ($q2) use ($mySubjectIds) {
+                    $q2->whereIn('subject_id', $mySubjectIds);
                 });
             }
         })
         ->with(['subject', 'teacher'])
         ->orderBy('subject_id')
+        ->orderBy('grade_level')
         ->orderByDesc('id')
         ->get();
 
@@ -39,6 +39,7 @@ class TpController extends Controller
     {
         $request->validate([
             'subject_id'  => 'nullable|exists:subjects,id',
+            'grade_level' => 'nullable|string|in:10,11,12',
             'code'        => 'nullable|string|max:30',
             'description' => 'required|string|max:500',
         ]);
@@ -46,6 +47,7 @@ class TpController extends Controller
         TujuanPembelajaran::create([
             'teacher_id'  => Auth::id(),
             'subject_id'  => $request->subject_id ?: null,
+            'grade_level' => $request->grade_level ?: null,
             'code'        => $request->code ?: null,
             'description' => $request->description,
             'is_active'   => true,
@@ -60,12 +62,14 @@ class TpController extends Controller
 
         $request->validate([
             'subject_id'  => 'nullable|exists:subjects,id',
+            'grade_level' => 'nullable|string|in:10,11,12',
             'code'        => 'nullable|string|max:30',
             'description' => 'required|string|max:500',
         ]);
 
         $tp->update([
             'subject_id'  => $request->subject_id ?: null,
+            'grade_level' => $request->grade_level ?: null,
             'code'        => $request->code ?: null,
             'description' => $request->description,
         ]);

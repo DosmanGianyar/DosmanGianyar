@@ -25,7 +25,7 @@
                 class="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                 <option value="">— Pilih Kelas —</option>
                 @foreach($classes as $class)
-                <option value="{{ $class->id }}" {{ old('class_id', $preClassId) == $class->id ? 'selected' : '' }}>
+                <option value="{{ $class->id }}" data-grade="{{ $class->grade }}" {{ old('class_id', $preClassId) == $class->id ? 'selected' : '' }}>
                     {{ $class->name }}
                 </option>
                 @endforeach
@@ -92,8 +92,9 @@
                 @foreach($tps as $tp)
                 <option value="{{ $tp->id }}"
                     data-subject-id="{{ $tp->subject_id ?? '' }}"
+                    data-grade-level="{{ $tp->grade_level ?? '' }}"
                     {{ old('tp_id') == $tp->id ? 'selected' : '' }}>
-                    {{ $tp->subject ? '[' . $tp->subject->name . '] ' : '' }}{{ $tp->code ? '('.$tp->code.') ' : '' }}{{ Str::limit($tp->description, 60) }}
+                    {{ $tp->subject ? '[' . $tp->subject->name . '] ' : '' }}{{ $tp->grade_level ? '[Kls '.$tp->grade_level.'] ' : '' }}{{ $tp->code ? '('.$tp->code.') ' : '' }}{{ Str::limit($tp->description, 60) }}
                 </option>
                 @endforeach
             </select>
@@ -257,6 +258,13 @@ function renderAbsentInputs() {
 const _todaySchedules = @json($todaySchedules);
 const _prePeriod       = @json($prePeriod);
 
+function getSelectedClassGrade() {
+    const classSelect = document.getElementById('class-select');
+    if (!classSelect || !classSelect.value) return '';
+    const selectedOpt = classSelect.options[classSelect.selectedIndex];
+    return selectedOpt ? (selectedOpt.dataset.grade || '') : '';
+}
+
 function onClassChange(classId) {
     loadStudents(classId);
 
@@ -268,28 +276,34 @@ function onClassChange(classId) {
         }
     }
 
-    // Filter TP berdasarkan subject yang sedang aktif
     const subjSelect = document.getElementById('subject-select');
-    filterTpBySubject(subjSelect ? subjSelect.value : '');
+    const classGrade = getSelectedClassGrade();
+    filterTpBySubject(subjSelect ? subjSelect.value : '', classGrade);
 }
 
-function filterTpBySubject(subjectId) {
+function filterTpBySubject(subjectId, classGrade) {
     const tpSelect = document.getElementById('tp-select');
     if (!tpSelect) return;
+
+    if (classGrade === undefined) {
+        classGrade = getSelectedClassGrade();
+    }
 
     const options = tpSelect.querySelectorAll('option[data-subject-id]');
 
     options.forEach(opt => {
         const optSubject = opt.dataset.subjectId;
-        // Tampilkan semua jika tidak ada subject dipilih,
-        // atau tampilkan TP yang subject-nya cocok ATAU TP tanpa subject (umum)
-        const show = !subjectId || optSubject === '' || optSubject === subjectId;
+        const optGrade   = opt.dataset.gradeLevel;
+
+        const matchSubject = !subjectId || optSubject === '' || optSubject === subjectId;
+        const matchGrade   = !classGrade || optGrade === '' || optGrade === classGrade;
+
+        const show = matchSubject && matchGrade;
         opt.style.display = show ? '' : 'none';
         opt.disabled = !show;
         opt.hidden = !show;
     });
 
-    // Jika option yang sedang dipilih jadi tersembunyi/disabled, reset ke kosong
     if (tpSelect.value) {
         const selected = tpSelect.querySelector('option[value="' + tpSelect.value + '"]');
         if (selected && (selected.style.display === 'none' || selected.disabled)) {
