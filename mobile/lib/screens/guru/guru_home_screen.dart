@@ -80,7 +80,7 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
                         style: const TextStyle(
                           fontSize: 19,
                           fontWeight: FontWeight.w800,
-                          color: AppColors.gray900,
+                          color: AppColors.gray800,
                         ),
                       ),
                       const SizedBox(height: 4),
