@@ -552,17 +552,125 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
           onSubmitted: (_) => _loadStudents(),
         ),
       ),
-      const SizedBox(width: 8),
+      const SizedBox(width: 6),
       ElevatedButton(
         onPressed: _loadStudents,
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.blue600, foregroundColor: Colors.white,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         ),
         child: const Icon(Icons.search, size: 18),
       ),
+      const SizedBox(width: 6),
+      ElevatedButton.icon(
+        onPressed: _openBarcodeScanner,
+        icon: const Icon(Icons.qr_code_scanner_rounded, size: 18),
+        label: const Text('Scan Kartu', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.indigo600, foregroundColor: Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+        ),
+      ),
     ]);
+  }
+
+  Future<void> _openBarcodeScanner() async {
+    final codeCtrl = TextEditingController();
+    final code = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Row(
+          children: [
+            Icon(Icons.qr_code_scanner_rounded, color: AppColors.blue600),
+            SizedBox(width: 8),
+            Text('Scan / Input Barcode Siswa', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Masukkan atau tempel kode NISN/NIS dari barcode Kartu Siswa:',
+              style: TextStyle(fontSize: 12, color: AppColors.gray600),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: codeCtrl,
+              autofocus: true,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                hintText: 'Contoh: 0081234567',
+                prefixIcon: const Icon(Icons.qr_code_rounded, size: 20),
+                filled: true,
+                fillColor: AppColors.gray50,
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+              onSubmitted: (val) => Navigator.pop(ctx, val.trim()),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Batal'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.blue600,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+            onPressed: () => Navigator.pop(ctx, codeCtrl.text.trim()),
+            child: const Text('Cari Siswa'),
+          ),
+        ],
+      ),
+    );
+
+    if (code == null || code.isEmpty) return;
+
+    try {
+      final res = await ApiClient.post('/guru/conduct-scan-lookup', {'code': code});
+      if (res['success'] == true && res['student'] != null) {
+        final st = res['student'];
+        setState(() {
+          _selectedClassId = st['class_id'] as int?;
+          _selectedStudent = SimpleStudent(
+            id: (st['id'] as num).toInt(),
+            name: st['name'] ?? '',
+            nis: st['nis']?.toString(),
+            className: st['class_name']?.toString(),
+          );
+        });
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text('Siswa Ditemukan: ${st['name']} (${st['class_name'] ?? ''})'),
+            backgroundColor: AppColors.emerald600,
+            behavior: SnackBarBehavior.floating,
+          ));
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(res['message'] ?? 'Siswa tidak ditemukan.'),
+            backgroundColor: AppColors.red600,
+            behavior: SnackBarBehavior.floating,
+          ));
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Gagal mencari siswa: $e'),
+          backgroundColor: AppColors.red600,
+          behavior: SnackBarBehavior.floating,
+        ));
+      }
+    }
   }
 
   Widget _studentPickerArea() {

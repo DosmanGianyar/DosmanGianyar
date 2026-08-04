@@ -144,6 +144,7 @@ Route::prefix('v1')->group(function () {
             Route::get('/guru/conduct-categories',                        [GuruConductApiController::class, 'categories']);
             Route::get('/guru/conduct-classes',                           [GuruConductApiController::class, 'classes']);
             Route::get('/guru/conduct-students',                          [GuruConductApiController::class, 'students']);
+            Route::post('/guru/conduct-scan-lookup',                      [GuruConductApiController::class, 'scanLookup']);
             Route::post('/guru/conduct-logs',                             [GuruConductApiController::class, 'store']);
             Route::get('/guru/conduct-history',                           [GuruConductApiController::class, 'history']);
 

@@ -150,6 +150,7 @@ Route::middleware(['auth', 'role:guru,admin'])->prefix('guru')->name('guru.')->g
         Route::get('/pilih', [GuruConduct::class, 'choose'])->name('choose');
         Route::get('/create', [GuruConduct::class, 'create'])->name('create');
         Route::post('/', [GuruConduct::class, 'store'])->name('store');
+        Route::post('/scan-lookup', [GuruConduct::class, 'scanLookup'])->name('scan-lookup');
         Route::get('/student/{student}', [GuruConduct::class, 'studentDetail'])->name('student');
     });
 

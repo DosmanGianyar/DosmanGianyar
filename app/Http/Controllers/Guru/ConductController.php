@@ -156,4 +156,47 @@ class ConductController extends Controller
 
         return view('guru.conduct.student-detail', compact('student', 'logs', 'prestasiCount', 'pelanggaranCount', 'bkLogs'));
     }
+
+    public function scanLookup(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $code = trim((string) $request->input('code', ''));
+        if (! $code) {
+            return response()->json(['success' => false, 'message' => 'Kode scan barcode kosong.'], 400);
+        }
+
+        if (str_contains($code, '/')) {
+            $parts = explode('/', rtrim($code, '/'));
+            $code = end($parts);
+        }
+
+        $student = User::where('role', 'like', 'siswa%')
+            ->where(function ($q) use ($code) {
+                $q->where('nisn', $code)
+                  ->orWhere('nis', $code);
+                if (is_numeric($code)) {
+                    $q->orWhere('id', (int) $code);
+                }
+            })
+            ->with('schoolClass:id,name')
+            ->first();
+
+        if (! $student) {
+            return response()->json([
+                'success' => false,
+                'message' => "Siswa dengan NISN/NIS/ID '{$code}' tidak ditemukan.",
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'student' => [
+                'id'         => $student->id,
+                'name'       => $student->name,
+                'nis'        => $student->nis,
+                'nisn'       => $student->nisn,
+                'class_id'   => $student->class_id,
+                'class_name' => $student->schoolClass?->name ?? '—',
+            ],
+        ]);
+    }
 }

@@ -55,9 +55,29 @@
 
         {{-- 1. Pilih Siswa --}}
         <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
-                <span class="text-gray-400 font-normal mr-1">1.</span> Pilih Siswa
-            </label>
+            <div class="flex items-center justify-between mb-2">
+                <label class="block text-sm font-medium text-gray-700">
+                    <span class="text-gray-400 font-normal mr-1">1.</span> Pilih Siswa
+                </label>
+                <button type="button" onclick="openBarcodeScanner('cn')"
+                        class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-xs transition shrink-0">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    Scan Kartu Siswa
+                </button>
+            </div>
+
+            <div id="cn-scanned-card" class="hidden mb-2 p-2.5 bg-green-50 border border-green-200 rounded-xl flex items-center justify-between">
+                <div class="flex items-center gap-2 text-xs text-green-800 font-bold">
+                    <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>Terpilih via Barcode: <span id="cn-scanned-name"></span></span>
+                </div>
+            </div>
+
             <div class="flex gap-2 mb-2">
                 <select id="cn-class" onchange="filterStudentSelect('cn-class','cn-student')"
                     class="flex-1 px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-red-400 bg-white">
@@ -177,9 +197,29 @@
 
         {{-- 1. Pilih Siswa --}}
         <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
-                <span class="text-gray-400 font-normal mr-1">1.</span> Pilih Siswa
-            </label>
+            <div class="flex items-center justify-between mb-2">
+                <label class="block text-sm font-medium text-gray-700">
+                    <span class="text-gray-400 font-normal mr-1">1.</span> Pilih Siswa
+                </label>
+                <button type="button" onclick="openBarcodeScanner('cp')"
+                        class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-xs transition shrink-0">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    Scan Kartu Siswa
+                </button>
+            </div>
+
+            <div id="cp-scanned-card" class="hidden mb-2 p-2.5 bg-green-50 border border-green-200 rounded-xl flex items-center justify-between">
+                <div class="flex items-center gap-2 text-xs text-green-800 font-bold">
+                    <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>Terpilih via Barcode: <span id="cp-scanned-name"></span></span>
+                </div>
+            </div>
+
             <div class="flex gap-2 mb-2">
                 <select id="cp-class" onchange="filterStudentSelect('cp-class','cp-student')"
                     class="flex-1 px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-400 bg-white">
@@ -509,6 +549,142 @@ function filterHistory(type, btn) {
             : ['bg-blue-600',  'text-white'];
     btn.classList.remove('bg-gray-100','text-gray-600');
     btn.classList.add(...activeColors);
+}
+</script>
+
+<!-- HTML5 QR Code Library -->
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
+<!-- Modal Scanner Barcode Kartu Siswa -->
+<div id="scannerModal" class="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 hidden">
+    <div class="bg-white w-full max-w-md rounded-2xl overflow-hidden shadow-2xl flex flex-col">
+        <div class="p-4 bg-slate-900 text-white flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <h3 class="font-bold text-sm">Scan Barcode / QR Kartu Siswa</h3>
+            </div>
+            <button type="button" onclick="closeBarcodeScanner()" class="p-1 text-slate-400 hover:text-white rounded-lg">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <div class="p-4 flex-1 flex flex-col items-center justify-center">
+            <p class="text-xs text-gray-500 mb-3 text-center">Arahkan kamera ke Barcode / QR Code pada Kartu Siswa</p>
+            <div id="reader" class="w-full rounded-xl overflow-hidden bg-slate-900 border border-slate-200" style="min-height: 250px;"></div>
+            
+            <div class="w-full mt-4 pt-3 border-t border-gray-100 flex gap-2">
+                <input type="text" id="manualBarcodeInput" placeholder="Atau ketik/paste NISN / NIS..." class="flex-1 px-3 py-2 text-xs border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <button type="button" onclick="processManualCode()" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold rounded-xl transition">
+                    Cari
+                </button>
+            </div>
+            <p id="scannerStatus" class="text-xs font-medium text-blue-600 mt-2 text-center hidden"></p>
+        </div>
+    </div>
+</div>
+
+<script>
+let html5QrCode = null;
+let currentTargetPrefix = 'cn';
+
+function openBarcodeScanner(prefix) {
+    currentTargetPrefix = prefix;
+    document.getElementById('scannerModal').classList.remove('hidden');
+    document.getElementById('scannerStatus').textContent = 'Memulai kamera...';
+    document.getElementById('scannerStatus').classList.remove('hidden');
+
+    if (!html5QrCode) {
+        html5QrCode = new Html5Qrcode("reader");
+    }
+
+    const config = { fps: 10, qrbox: { width: 220, height: 220 } };
+
+    html5QrCode.start(
+        { facingMode: "environment" },
+        config,
+        onScanSuccess
+    ).catch(err => {
+        console.error("Camera access error:", err);
+        document.getElementById('scannerStatus').textContent = 'Kamera tidak dapat diakses. Silakan masukkan NISN/NIS secara manual di bawah.';
+        document.getElementById('scannerStatus').classList.remove('hidden');
+    });
+}
+
+function closeBarcodeScanner() {
+    if (html5QrCode && html5QrCode.isScanning) {
+        html5QrCode.stop().then(() => {
+            document.getElementById('scannerModal').classList.add('hidden');
+        }).catch(() => {
+            document.getElementById('scannerModal').classList.add('hidden');
+        });
+    } else {
+        document.getElementById('scannerModal').classList.add('hidden');
+    }
+}
+
+function processManualCode() {
+    const val = document.getElementById('manualBarcodeInput').value.trim();
+    if (val) {
+        onScanSuccess(val);
+    }
+}
+
+function onScanSuccess(decodedText) {
+    document.getElementById('scannerStatus').textContent = 'Memproses identitas siswa...';
+    document.getElementById('scannerStatus').classList.remove('hidden');
+
+    fetch("{{ route('guru.conduct.scan-lookup') }}", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify({ code: decodedText })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success && data.student) {
+            const student = data.student;
+            const prefix  = currentTargetPrefix;
+            
+            const classSelect   = document.getElementById(prefix + '-class');
+            const studentSelect = document.getElementById(prefix + '-student');
+
+            if (classSelect) {
+                classSelect.value = student.class_id || '';
+                filterStudentSelect(prefix + '-class', prefix + '-student');
+            }
+
+            if (studentSelect) {
+                studentSelect.value = student.id;
+            }
+
+            closeBarcodeScanner();
+
+            const alertCard = document.getElementById(prefix + '-scanned-card');
+            if (alertCard) {
+                alertCard.classList.remove('hidden');
+                document.getElementById(prefix + '-scanned-name').textContent = student.name + ' (' + student.class_name + ')';
+            }
+
+            if (typeof triggerSwalToast === 'function') {
+                triggerSwalToast('success', 'Siswa Ditemukan: ' + student.name + ' (' + student.class_name + ')');
+            } else {
+                alert('Siswa Ditemukan: ' + student.name + ' (' + student.class_name + ')');
+            }
+        } else {
+            document.getElementById('scannerStatus').textContent = data.message || 'Siswa tidak ditemukan.';
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        document.getElementById('scannerStatus').textContent = 'Gagal terhubung ke server.';
+    });
 }
 </script>
 @endsection
