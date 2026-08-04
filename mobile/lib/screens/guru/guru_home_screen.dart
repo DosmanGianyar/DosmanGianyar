@@ -915,15 +915,15 @@ class _QuickActionChip extends StatelessWidget {
       ),
     );
   }
+}
 
-  void _showPendingExtraMembersModal(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => const _PendingExtraMembersSheet(),
-    );
-  }
+void _showPendingExtraMembersModal(BuildContext context) {
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
+    builder: (ctx) => const _PendingExtraMembersSheet(),
+  );
 }
 
 class _PendingExtraMembersSheet extends StatefulWidget {
