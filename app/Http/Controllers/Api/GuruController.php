@@ -108,6 +108,9 @@ class GuruController extends Controller
             ]);
 
         return response()->json([
+            'is_homeroom'                 => (bool) $classId,
+            'homeroom_class_id'           => $classId,
+            'homeroom_class_name'         => $guru->homeroomClass?->name,
             'total_students'              => $totalStudents,
             'pending_permits'             => $pendingPermits,
             'pending_early_checkouts'     => $pendingEarlyCheckouts,

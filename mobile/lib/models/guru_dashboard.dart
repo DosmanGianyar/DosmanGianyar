@@ -105,6 +105,9 @@ class GuruMyExtracurricular {
 }
 
 class GuruDashboard {
+  final bool isHomeroom;
+  final int? homeroomClassId;
+  final String? homeroomClassName;
   final int totalStudents;
   final int pendingPermits;
   final int pendingEarlyCheckouts;
@@ -114,6 +117,9 @@ class GuruDashboard {
   final List<GuruMyExtracurricular> myExtracurriculars;
 
   const GuruDashboard({
+    this.isHomeroom = false,
+    this.homeroomClassId,
+    this.homeroomClassName,
     required this.totalStudents,
     required this.pendingPermits,
     required this.pendingEarlyCheckouts,
@@ -126,6 +132,9 @@ class GuruDashboard {
   int get totalPending => pendingPermits + pendingEarlyCheckouts + pendingForgotAttendances;
 
   factory GuruDashboard.fromJson(Map<String, dynamic> json) => GuruDashboard(
+    isHomeroom:                json['is_homeroom'] as bool? ?? ((json['total_students'] as int? ?? 0) > 0),
+    homeroomClassId:           json['homeroom_class_id'] as int?,
+    homeroomClassName:         json['homeroom_class_name'] as String?,
     totalStudents:             json['total_students'] as int? ?? 0,
     pendingPermits:            json['pending_permits'] as int? ?? 0,
     pendingEarlyCheckouts:     json['pending_early_checkouts'] as int? ?? 0,

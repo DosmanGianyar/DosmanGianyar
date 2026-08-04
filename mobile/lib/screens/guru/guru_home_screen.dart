@@ -5,6 +5,7 @@ import '../../models/guru_dashboard.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/guru_service.dart';
 import '../../theme/app_colors.dart';
+import 'guru_absensi_harian_screen.dart';
 import 'guru_conduct_screen.dart';
 import 'guru_input_nilai_screen.dart';
 import 'guru_permit_screen.dart';
@@ -343,28 +344,51 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
   // ─── Stat Cards ─────────────────────────────────────────────────────────────
   Widget _buildStatGrid(GuruDashboard data) {
     final alertCount = data.recentAlerts.length;
+    final isHomeroom = data.isHomeroom;
+
     return Row(
       children: [
-        Expanded(
-          child: _StatCard(
-            label:     'Total Siswa',
-            value:     data.totalStudents.toString(),
-            subtitle:  'siswa di kelas wali',
-            icon:      Icons.groups_rounded,
-            iconColor: AppColors.blue600,
-            iconBg:    AppColors.blue100,
+        if (isHomeroom) ...[
+          Expanded(
+            child: _StatCard(
+              label:     'Total Siswa',
+              value:     data.totalStudents.toString(),
+              subtitle:  'Siswa Perwalian >',
+              icon:      Icons.groups_rounded,
+              iconColor: AppColors.blue600,
+              iconBg:    AppColors.blue100,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => GuruAbsensiHarianScreen(
+                      classes: const [],
+                      initialClassId: data.homeroomClassId,
+                    ),
+                  ),
+                );
+              },
+            ),
           ),
-        ),
-        const SizedBox(width: 12),
+          const SizedBox(width: 12),
+        ],
         Expanded(
           child: _StatCard(
-            label:     'Catatan Negatif',
+            label:     'Catatan Perilaku',
             value:     alertCount.toString(),
-            subtitle:  'catat perilaku',
-            icon:      Icons.warning_amber_rounded,
+            subtitle:  'Negatif / Positif >',
+            icon:      Icons.stars_rounded,
             iconColor: AppColors.orange600,
             iconBg:    AppColors.orange100,
             highlight: alertCount > 0,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const GuruConductScreen(classes: []),
+                ),
+              );
+            },
           ),
         ),
       ],
@@ -628,13 +652,14 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
 // ─── Stat Card ───────────────────────────────────────────────────────────────
 
 class _StatCard extends StatelessWidget {
-  final String  label;
-  final String  value;
-  final String  subtitle;
-  final IconData icon;
-  final Color   iconColor;
-  final Color   iconBg;
-  final bool    highlight;
+  final String       label;
+  final String       value;
+  final String       subtitle;
+  final IconData     icon;
+  final Color        iconColor;
+  final Color        iconBg;
+  final bool         highlight;
+  final VoidCallback? onTap;
 
   const _StatCard({
     required this.label,
@@ -644,64 +669,72 @@ class _StatCard extends StatelessWidget {
     required this.iconColor,
     required this.iconBg,
     this.highlight = false,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: highlight ? AppColors.orange50 : AppColors.white,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
         borderRadius: BorderRadius.circular(AppRadius.xl),
-        border: Border.all(
-          color: highlight
-              ? AppColors.orange500.withValues(alpha: 0.4)
-              : AppColors.gray100,
-        ),
-        boxShadow: AppShadow.sm,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: highlight ? AppColors.orange50 : AppColors.white,
+            borderRadius: BorderRadius.circular(AppRadius.xl),
+            border: Border.all(
+              color: highlight
+                  ? AppColors.orange500.withValues(alpha: 0.4)
+                  : AppColors.gray100,
+            ),
+            boxShadow: AppShadow.sm,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Flexible(
-                child: Text(
-                  label,
-                  style: const TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.gray500,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Flexible(
+                    child: Text(
+                      label,
+                      style: const TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.gray500,
+                      ),
+                    ),
                   ),
+                  Container(
+                    width: 32,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      color: iconBg,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Icon(icon, color: iconColor, size: 16),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 26,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.gray800,
                 ),
               ),
-              Container(
-                width: 32,
-                height: 32,
-                decoration: BoxDecoration(
-                  color: iconBg,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(icon, color: iconColor, size: 16),
+              const SizedBox(height: 2),
+              Text(
+                subtitle,
+                style: TextStyle(fontSize: 11, color: iconColor),
               ),
             ],
           ),
-          const SizedBox(height: 10),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 26,
-              fontWeight: FontWeight.w800,
-              color: AppColors.gray800,
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            subtitle,
-            style: TextStyle(fontSize: 11, color: iconColor),
-          ),
-        ],
+        ),
       ),
     );
   }
