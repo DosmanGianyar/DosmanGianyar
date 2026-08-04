@@ -20,6 +20,7 @@ class GuruConductScreen extends StatefulWidget {
 
 class _GuruConductScreenState extends State<GuruConductScreen> {
   late int _classId;
+  late List<GuruClass> _classes;
   List<GuruConductStudent>? _students;
   bool _loading = true;
   String? _error;
@@ -28,13 +29,30 @@ class _GuruConductScreenState extends State<GuruConductScreen> {
   @override
   void initState() {
     super.initState();
-    _classId = widget.initialClassId ?? (widget.classes.isNotEmpty ? widget.classes.first.id : 0);
+    _classes = List.from(widget.classes);
+    _classId = widget.initialClassId ?? (_classes.isNotEmpty ? _classes.first.id : 0);
     _load();
   }
 
   Future<void> _load() async {
-    if (widget.classes.isEmpty) return;
     setState(() { _loading = true; _error = null; });
+    try {
+      if (_classes.isEmpty) {
+        final freshClasses = await GuruService.getClasses();
+        if (freshClasses.isNotEmpty) {
+          _classes = freshClasses;
+          if (!_classes.any((c) => c.id == _classId)) {
+            _classId = _classes.first.id;
+          }
+        }
+      }
+    } catch (_) {}
+
+    if (_classes.isEmpty) {
+      if (mounted) setState(() { _loading = false; });
+      return;
+    }
+
     try {
       final data = await GuruService.getConduct(_classId);
       if (mounted) setState(() { _students = data; _loading = false; });
@@ -71,7 +89,7 @@ class _GuruConductScreenState extends State<GuruConductScreen> {
       child: Column(
         children: [
           ClassFilterBar(
-            classes: widget.classes.map((c) => (id: c.id, name: c.name)).toList(),
+            classes: _classes.map((c) => (id: c.id, name: c.name)).toList(),
             selectedId: _classId,
             onChanged: (id) { _classId = id; _load(); },
           ),
