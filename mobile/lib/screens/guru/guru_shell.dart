@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../models/guru_models.dart';
 import '../../models/user.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/notification_provider.dart';
+import '../../services/guru_service.dart';
 import '../../theme/app_colors.dart';
 import '../notifications_screen.dart';
 import '../profile_screen.dart';
@@ -29,13 +31,22 @@ class GuruShell extends StatefulWidget {
 
 class _GuruShellState extends State<GuruShell> {
   int _currentIndex = 0;
+  List<GuruClass> _classes = [];
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<NotificationProvider>().fetchUnreadCount();
+      _loadClasses();
     });
+  }
+
+  Future<void> _loadClasses() async {
+    try {
+      final classes = await GuruService.getClasses();
+      if (mounted) setState(() => _classes = classes);
+    } catch (_) {}
   }
 
   void _go(Widget screen) {
@@ -49,8 +60,8 @@ class _GuruShellState extends State<GuruShell> {
 
     final pages = [
       const GuruHomeScreen(),
-      _GuruTeachingTab(onNavigate: _go),
-      _GuruServicesTab(onNavigate: _go),
+      _GuruTeachingTab(classes: _classes, onNavigate: _go),
+      _GuruServicesTab(classes: _classes, onNavigate: _go),
       const ProfileScreen(),
     ];
 
@@ -204,9 +215,10 @@ class _GuruTopBar extends StatelessWidget {
 // ─── Tab 1: Mengajar & Kurikulum Hub ─────────────────────────────────────────
 
 class _GuruTeachingTab extends StatelessWidget {
+  final List<GuruClass> classes;
   final void Function(Widget) onNavigate;
 
-  const _GuruTeachingTab({required this.onNavigate});
+  const _GuruTeachingTab({required this.classes, required this.onNavigate});
 
   @override
   Widget build(BuildContext context) {
@@ -240,7 +252,7 @@ class _GuruTeachingTab extends StatelessWidget {
             title: 'Tujuan Pembelajaran (TP)',
             subtitle: 'Input TP baru, pilih Tingkatan Kelas (10, 11, 12), & bagikan ke guru serumpun',
             icon: Icons.checklist_rounded,
-            color: AppColors.purple600,
+            color: const Color(0xFF9333EA),
             bg: const Color(0xFFF3E8FF),
             badge: 'Pilihan Kelas 10, 11, 12',
             onTap: () => onNavigate(const GuruTpScreen()),
@@ -263,7 +275,7 @@ class _GuruTeachingTab extends StatelessWidget {
             icon: Icons.bar_chart_rounded,
             color: AppColors.teal600,
             bg: const Color(0xFFCCFBF1),
-            onTap: () => onNavigate(const GuruRekapScreen()),
+            onTap: () => onNavigate(GuruRekapScreen(classes: classes)),
           ),
         ],
       ),
@@ -348,9 +360,10 @@ class _GuruTeachingTab extends StatelessWidget {
 // ─── Tab 2: Layanan & Perwalian Hub ──────────────────────────────────────────
 
 class _GuruServicesTab extends StatelessWidget {
+  final List<GuruClass> classes;
   final void Function(Widget) onNavigate;
 
-  const _GuruServicesTab({required this.onNavigate});
+  const _GuruServicesTab({required this.classes, required this.onNavigate});
 
   @override
   Widget build(BuildContext context) {
@@ -376,7 +389,7 @@ class _GuruServicesTab extends StatelessWidget {
             icon: Icons.warning_amber_rounded,
             color: AppColors.orange600,
             bg: AppColors.orange50,
-            onTap: () => onNavigate(const GuruConductScreen()),
+            onTap: () => onNavigate(GuruConductScreen(classes: classes)),
           ),
           const SizedBox(height: 12),
 
@@ -394,7 +407,7 @@ class _GuruServicesTab extends StatelessWidget {
             title: 'Persetujuan Pulang Awal',
             subtitle: 'Kelola persetujuan izin pulang awal siswa saat jam sekolah',
             icon: Icons.directions_run_rounded,
-            color: AppColors.amber600,
+            color: const Color(0xFFD97706),
             bg: const Color(0xFFFEF3C7),
             onTap: () => onNavigate(const GuruEarlyCheckoutScreen()),
           ),
@@ -414,8 +427,8 @@ class _GuruServicesTab extends StatelessWidget {
             title: 'Konsultasi BK & Wali Kelas',
             subtitle: 'Jadwal konsultasi dan bimbingan siswa wali',
             icon: Icons.record_voice_over_rounded,
-            color: AppColors.indigo600,
-            bg: AppColors.indigo50,
+            color: const Color(0xFF4F46E5),
+            bg: const Color(0xFFEEF2FF),
             onTap: () => onNavigate(const GuruHomeroomConsultationScreen()),
           ),
           const SizedBox(height: 12),
@@ -424,7 +437,7 @@ class _GuruServicesTab extends StatelessWidget {
             title: 'Sarana & Prasarana',
             subtitle: 'Pinjam ruangan, alat sekolah, & laporkan kerusakan',
             icon: Icons.inventory_2_rounded,
-            color: AppColors.slate700,
+            color: const Color(0xFF334155),
             bg: AppColors.slate100,
             onTap: () => onNavigate(const GuruSarprasScreen()),
           ),
@@ -436,7 +449,7 @@ class _GuruServicesTab extends StatelessWidget {
             icon: Icons.badge_rounded,
             color: AppColors.emerald600,
             bg: const Color(0xFFECFDF5),
-            onTap: () => onNavigate(const GuruAbsensiHarianScreen()),
+            onTap: () => onNavigate(GuruAbsensiHarianScreen(classes: classes)),
           ),
         ],
       ),

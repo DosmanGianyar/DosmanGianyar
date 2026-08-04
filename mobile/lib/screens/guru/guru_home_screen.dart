@@ -132,7 +132,7 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
                   children: [
                     const Text(
                       'PEMBINA EKSTRAKURIKULER',
-                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.extrabold, color: Color(0xFFC7D2FE), letterSpacing: 0.5),
+                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFFC7D2FE), letterSpacing: 0.5),
                     ),
                     Text(
                       'Anda bertugas membina ${data.myExtracurriculars.length} Ekstrakurikuler',
@@ -388,7 +388,7 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
         'title': 'Tujuan Pembelajaran',
         'subtitle': 'Kelola & Share TP',
         'icon': Icons.checklist_rounded,
-        'color': AppColors.purple600,
+        'color': const Color(0xFF9333EA),
         'bg': const Color(0xFFF3E8FF),
         'onTap': () => Navigator.push(context, MaterialPageRoute(builder: (_) => const GuruTpScreen())),
       },
@@ -406,7 +406,7 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
         'icon': Icons.warning_amber_rounded,
         'color': AppColors.orange600,
         'bg': AppColors.orange50,
-        'onTap': () => Navigator.push(context, MaterialPageRoute(builder: (_) => const GuruConductScreen())),
+        'onTap': () => Navigator.push(context, MaterialPageRoute(builder: (_) => const GuruConductScreen(classes: []))),
       },
       {
         'title': 'Persetujuan Izin',
@@ -420,8 +420,8 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
         'title': 'Sarana Prasarana',
         'subtitle': 'Peminjaman Asset',
         'icon': Icons.inventory_2_rounded,
-        'color': AppColors.indigo600,
-        'bg': AppColors.indigo50,
+        'color': const Color(0xFF4F46E5),
+        'bg': const Color(0xFFEEF2FF),
         'onTap': () => Navigator.push(context, MaterialPageRoute(builder: (_) => const GuruSarprasScreen())),
       },
     ];
