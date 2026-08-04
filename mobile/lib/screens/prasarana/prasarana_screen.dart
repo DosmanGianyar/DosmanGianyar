@@ -375,7 +375,7 @@ class _BorrowAssetModalState extends State<_BorrowAssetModal> {
 
     setState(() => _submitting = true);
     try {
-      await ApiClient.post('/siswa/sarpras/loans', {
+      await ApiClient.post('/siswa/sarpras/loans', data: {
         'asset_id': _selectedAssetId,
         'loan_date': _loanDate.toIso8601String().substring(0, 10),
         'return_date': _returnDate.toIso8601String().substring(0, 10),
@@ -486,7 +486,7 @@ class _DamageReportModalState extends State<_DamageReportModal> {
 
     setState(() => _submitting = true);
     try {
-      await ApiClient.post('/siswa/sarpras/damage-reports', {
+      await ApiClient.post('/siswa/sarpras/damage-reports', data: {
         'title': _titleCtrl.text.trim(),
         'description': _descCtrl.text.trim(),
       });

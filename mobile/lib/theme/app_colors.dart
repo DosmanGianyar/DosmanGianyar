@@ -6,6 +6,7 @@ abstract final class AppColors {
   // ─── Primary (blue-600 → indigo-700 gradient web) ──────────────────────
   static const blue600   = Color(0xFF2563EB); // bg-blue-600  · primary utama
   static const blue700   = Color(0xFF1D4ED8); // bg-blue-700
+  static const indigo600 = Color(0xFF4F46E5);
   static const indigo700 = Color(0xFF4338CA); // bg-indigo-700 · ujung gradient dashboard
   static const indigo800 = Color(0xFF3730A3); // bg-indigo-800 · ujung gradient login panel
 
@@ -15,6 +16,8 @@ abstract final class AppColors {
     end:   Alignment.bottomRight,
     colors: [blue600, blue700, indigo700],
   );
+
+  static const LinearGradient blueGradient = primaryGradient;
 
   /// Topbar header: sesuai web — linear-gradient(135deg, #0f2460, #1a3a8f, #1e3fad)
   static const LinearGradient topbarGradient = LinearGradient(
@@ -63,6 +66,7 @@ abstract final class AppColors {
 
   // ─── Text ────────────────────────────────────────────────────────────────
   static const gray800 = Color(0xFF1F2937); // text-gray-800 · teks utama
+  static const gray900 = Color(0xFF111827); // text-gray-900
   static const gray700 = Color(0xFF374151); // text-gray-700 · teks sub-judul
   static const gray600 = Color(0xFF4B5563); // text-gray-600
   static const gray500 = Color(0xFF6B7280); // text-gray-500 · teks sekunder
@@ -76,19 +80,30 @@ abstract final class AppColors {
   static const green600   = Color(0xFF16A34A); // text-green-600
   static const green900   = Color(0xFF14532D); // text-green-900
 
-  static const emerald500 = Color(0xFF10B981); // bg-emerald-500 · pulang
+  static const emerald50  = Color(0xFFECFDF5);
   static const emerald100 = Color(0xFFD1FAE5); // bg-emerald-100
-  static const emerald900 = Color(0xFF064E3B);
+  static const emerald200 = Color(0xFFA7F3D0);
+  static const emerald500 = Color(0xFF10B981); // bg-emerald-500 · pulang
   static const emerald600 = Color(0xFF059669);
+  static const emerald700 = Color(0xFF047857);
+  static const emerald900 = Color(0xFF064E3B);
 
   static const yellow500  = Color(0xFFEAB308); // bg-yellow-500 · terlambat
+  static const amber50    = Color(0xFFFFFBEB);
   static const amber100   = Color(0xFFFEF3C7); // bg-amber-100  · belum buka
+  static const amber200   = Color(0xFFFDE68A);
   static const amber500   = Color(0xFFF59E0B); // bg-amber-500
+  static const amber600   = Color(0xFFD97706);
+  static const amber700   = Color(0xFFB45309);
+  static const amber800   = Color(0xFF92400E);
+  static const amber900   = Color(0xFF78350F);
 
-  static const red500     = Color(0xFFEF4444); // bg-red-500    · alpa
-  static const red300     = Color(0xFFFCA5A5); // text-red-300
-  static const red100     = Color(0xFFFEE2E2); // bg-red-100
   static const red50      = Color(0xFFFEF2F2); // bg-red-50
+  static const red100     = Color(0xFFFEE2E2); // bg-red-100
+  static const red300     = Color(0xFFFCA5A5); // text-red-300
+  static const red500     = Color(0xFFEF4444); // bg-red-500    · alpa
+  static const red600     = Color(0xFFDC2626);
+  static const red700     = Color(0xFFB91C1C);
 
   static const blue50     = Color(0xFFEFF6FF); // bg-blue-50
   static const blue100    = Color(0xFFDBEAFE); // bg-blue-100
@@ -103,16 +118,26 @@ abstract final class AppColors {
   // ─── Violet (Prasarana) ──────────────────────────────────────────────────
   static const violet50   = Color(0xFFF5F3FF);
   static const violet100  = Color(0xFFEDE9FE);
+  static const violet200  = Color(0xFFDDD6FE);
   static const violet500  = Color(0xFF8B5CF6);
   static const violet600  = Color(0xFF7C3AED);
+  static const violet700  = Color(0xFF6D28D9);
 
   // ─── Orange / Rose (Humas) ───────────────────────────────────────────────
   static const orange50   = Color(0xFFFFF7ED);
   static const orange100  = Color(0xFFFFEDD5);
+  static const orange200  = Color(0xFFFED7AA);
   static const orange500  = Color(0xFFF97316);
   static const orange600  = Color(0xFFEA580C);
-  static const rose500    = Color(0xFFF43F5E);
+  static const orange700  = Color(0xFFC2410C);
+  static const orange900  = Color(0xFF7C2D12);
+  static const rose50     = Color(0xFFFFF1F2);
   static const rose100    = Color(0xFFFFE4E6);
+  static const rose200    = Color(0xFFFECDD3);
+  static const rose300    = Color(0xFFFDA4AF);
+  static const rose500    = Color(0xFFF43F5E);
+  static const rose600    = Color(0xFFE11D48);
+  static const rose800    = Color(0xFF9F1239);
   static const pink100    = Color(0xFFFFE4E6);
   static const pink500    = Color(0xFFEC4899);
 
@@ -124,7 +149,6 @@ abstract final class AppColors {
   static const sky700     = Color(0xFF0369A1);
 
   // ─── Emerald extras ──────────────────────────────────────────────────────
-  static const emerald50  = Color(0xFFECFDF5);
   static const teal50     = Color(0xFFF0FDFA);
   static const teal600    = Color(0xFF0D9488);
   static const teal700    = Color(0xFF0F766E);

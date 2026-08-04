@@ -75,7 +75,7 @@ class _VotingDetailScreenState extends State<VotingDetailScreen> {
     setState(() => _submitting = true);
 
     try {
-      final res = await ApiClient.post('/siswa/voting/${widget.sessionId}/vote', {
+      final res = await ApiClient.post('/siswa/voting/${widget.sessionId}/vote', data: {
         'candidate_id': candidateId,
       });
 

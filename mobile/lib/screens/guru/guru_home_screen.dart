@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../models/guru_dashboard.dart';
 import '../../models/user.dart';
 import '../../providers/auth_provider.dart';
+import '../../services/api_client.dart';
 import '../../services/guru_service.dart';
 import '../../theme/app_colors.dart';
 import 'guru_absensi_harian_screen.dart';
@@ -263,7 +264,7 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
-              onPressed: _showPendingExtraMembersModal,
+              onPressed: () => _showPendingExtraMembersModal(context),
               icon: const Icon(Icons.check_circle_outline_rounded, size: 16, color: Color(0xFF312E81)),
               label: const Text(
                 '📋 Persetujuan Pendaftaran Anggota Ekstra',
@@ -915,7 +916,7 @@ class _QuickActionChip extends StatelessWidget {
     );
   }
 
-  void _showPendingExtraMembersModal() {
+  void _showPendingExtraMembersModal(BuildContext context) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -949,10 +950,10 @@ class _PendingExtraMembersSheetState extends State<_PendingExtraMembersSheet> {
       _error = null;
     });
     try {
-      final res = await ApiClient.dio.get('/api/v1/guru/extracurriculars/pending-members');
+      final res = await ApiClient.get('/guru/extracurriculars/pending-members');
       if (mounted) {
         setState(() {
-          _items = res.data['pending_members'] ?? [];
+          _items = res['pending_members'] ?? [];
           _loading = false;
         });
       }
@@ -969,11 +970,11 @@ class _PendingExtraMembersSheetState extends State<_PendingExtraMembersSheet> {
   Future<void> _process(int id, bool approve) async {
     final endpoint = approve ? '/approve' : '/reject';
     try {
-      final res = await ApiClient.dio.post('/api/v1/guru/extracurriculars/members/$id$endpoint');
+      final res = await ApiClient.post('/guru/extracurriculars/members/$id$endpoint');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(res.data['message'] ?? 'Berhasil diproses.'),
+            content: Text(res['message'] ?? 'Berhasil diproses.'),
             backgroundColor: approve ? AppColors.emerald600 : AppColors.rose600,
           ),
         );
@@ -1065,7 +1066,7 @@ class _PendingExtraMembersSheetState extends State<_PendingExtraMembersSheet> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.between,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Expanded(
                               child: Text(

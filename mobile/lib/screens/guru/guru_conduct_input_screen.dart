@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../models/guru_models.dart';
+import '../../services/api_client.dart';
 import '../../services/guru_service.dart';
 import '../../theme/app_colors.dart';
 
@@ -634,7 +635,7 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
     if (code == null || code.isEmpty) return;
 
     try {
-      final res = await ApiClient.post('/guru/conduct-scan-lookup', {'code': code});
+      final res = await ApiClient.post('/guru/conduct-scan-lookup', data: {'code': code});
       if (res['success'] == true && res['student'] != null) {
         final st = res['student'];
         setState(() {
