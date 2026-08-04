@@ -31,6 +31,7 @@ use App\Http\Controllers\Siswa\VotingController as SiswaVoting;
 use App\Http\Controllers\Siswa\VotingManageController as SiswaVotingManage;
 use App\Http\Controllers\Siswa\AchievementController as SiswaAchievement;
 use App\Http\Controllers\Siswa\AchievementVerifyController as SiswaAchievementVerify;
+use App\Http\Controllers\Siswa\ExtracurricularController as SiswaExtracurricular;
 use App\Http\Controllers\Siswa\KesiswaanController as SiswaKesiswaan;
 use App\Http\Controllers\Siswa\KurikulumController as SiswaKurikulum;
 use App\Http\Controllers\Siswa\HumasController as SiswaHumas;
@@ -86,6 +87,10 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     // Rekap Ekstrakurikuler
     Route::get('/extracurricular/session/{session}/pdf', [\App\Http\Controllers\Admin\ExtracurricularExportController::class, 'pdf'])
         ->name('extracurricular.session.pdf');
+    Route::get('/extracurricular/{extracurricular}/members/pdf', [\App\Http\Controllers\Admin\ExtracurricularExportController::class, 'membersPdf'])
+        ->name('extracurricular.members.pdf');
+    Route::get('/extracurricular/no-ekstra/pdf', [\App\Http\Controllers\Admin\ExtracurricularExportController::class, 'noEkstraPdf'])
+        ->name('extracurricular.no-ekstra.pdf');
 });
 
 // Penugasan Guru Wali (admin + admin_kurikulum)
@@ -380,6 +385,14 @@ Route::middleware(['auth', 'role:siswa,pengelola', 'force.password.change'])->pr
         Route::put('/{announcement}', [SiswaAnnouncement::class, 'update'])->name('update');
         Route::delete('/{announcement}', [SiswaAnnouncement::class, 'destroy'])->name('destroy');
         Route::get('/{announcement}', [SiswaAnnouncement::class, 'show'])->name('show');
+    });
+
+    // Ekstrakurikuler
+    Route::prefix('extracurricular')->name('extracurricular.')->group(function () {
+        Route::get('/', [SiswaExtracurricular::class, 'index'])->name('index');
+        Route::post('/{extracurricular}/join', [SiswaExtracurricular::class, 'join'])->name('join');
+        Route::delete('/{extracurricular}/leave', [SiswaExtracurricular::class, 'leave'])->name('leave');
+        Route::delete('/{extracurricular}/cancel-join', [SiswaExtracurricular::class, 'cancelJoin'])->name('cancel-join');
     });
 });
 

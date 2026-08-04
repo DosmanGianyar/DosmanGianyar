@@ -73,7 +73,14 @@ class JournalController extends Controller
         $preSubjectId = $request->input('subject_id');
         $prePeriod    = $request->input('period');
 
-        $tps = TujuanPembelajaran::where('teacher_id', $teacher->id)
+        $mySubjectIds = $teacher->subjects()->pluck('subjects.id')->toArray();
+
+        $tps = TujuanPembelajaran::where(function ($q) use ($teacher, $mySubjectIds) {
+                $q->where('teacher_id', $teacher->id);
+                if (count($mySubjectIds)) {
+                    $q->orWhereIn('subject_id', $mySubjectIds);
+                }
+            })
             ->where('is_active', true)
             ->with('subject:id,name')
             ->orderBy('subject_id')
@@ -104,7 +111,14 @@ class JournalController extends Controller
 
         $lo = null;
         if ($request->filled('tp_id')) {
-            $tp = TujuanPembelajaran::where('teacher_id', $teacher->id)->find($request->tp_id);
+            $mySubjectIds = $teacher->subjects()->pluck('subjects.id')->toArray();
+            $tp = TujuanPembelajaran::where(function ($q) use ($teacher, $mySubjectIds) {
+                    $q->where('teacher_id', $teacher->id);
+                    if (count($mySubjectIds)) {
+                        $q->orWhereIn('subject_id', $mySubjectIds);
+                    }
+                })
+                ->find($request->tp_id);
             if ($tp) {
                 $lo = ($tp->code ? "[{$tp->code}] " : '') . $tp->description;
             }

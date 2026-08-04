@@ -17,6 +17,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
 use App\Filament\Support\AdminAccess;
 use Filament\Schemas\Schema;
+use Filament\Tables\Actions\Action as TableAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -123,7 +124,21 @@ class ExtracurricularResource extends Resource
             ->filters([
                 TernaryFilter::make('is_active')->label('Status'),
             ])
+            ->headerActions([
+                TableAction::make('cetak_tanpa_ekstra')
+                    ->label('Siswa Tanpa Ekstra')
+                    ->icon('heroicon-o-user-minus')
+                    ->color('danger')
+                    ->url(fn () => route('admin.extracurricular.no-ekstra.pdf'))
+                    ->openUrlInNewTab(),
+            ])
             ->actions([
+                TableAction::make('cetak_anggota')
+                    ->label('Cetak Anggota')
+                    ->icon('heroicon-o-printer')
+                    ->color('success')
+                    ->url(fn (Extracurricular $record) => route('admin.extracurricular.members.pdf', $record))
+                    ->openUrlInNewTab(),
                 EditAction::make(),
                 DeleteAction::make(),
             ])

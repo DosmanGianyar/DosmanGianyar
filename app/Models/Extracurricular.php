@@ -20,6 +20,11 @@ class Extracurricular extends Model
         'is_active',
     ];
 
+    protected $casts = [
+        'is_active'   => 'boolean',
+        'max_members' => 'integer',
+    ];
+
     // ─── Legacy & Filament Relations ──────────────────────────────────────────
 
     public function pembina(): BelongsTo
@@ -50,6 +55,18 @@ class Extracurricular extends Model
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('is_active', true);
+    }
+
+    /**
+     * Cek apakah kuota anggota aktif sudah penuh.
+     * null = tidak terbatas → selalu false.
+     */
+    public function isFull(): bool
+    {
+        if (is_null($this->max_members)) {
+            return false;
+        }
+        return $this->activeMembers()->count() >= $this->max_members;
     }
 
     // ─── Multi-Pembina & Pengurus Relations ───────────────────────────────────

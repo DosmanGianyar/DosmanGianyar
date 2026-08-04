@@ -3,11 +3,14 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Extracurricular;
 use App\Models\ExtracurricularAttendance;
 use App\Models\ExtracurricularMember;
 use App\Models\ExtracurricularSession;
+use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Response;
+use Illuminate\Http\Request;
 
 class ExtracurricularExportController extends Controller
 {
@@ -43,5 +46,52 @@ class ExtracurricularExportController extends Controller
         $filename = 'rekap-ekstra-' . $session->extracurricular->name . '-' . $session->session_date->format('Ymd') . '.pdf';
 
         return $pdf->download($filename);
+    }
+
+    /**
+     * Cetak daftar anggota aktif suatu ekstrakurikuler.
+     */
+    public function membersPdf(Extracurricular $extracurricular): Response
+    {
+        $members = ExtracurricularMember::with('user.schoolClass')
+            ->where('extracurricular_id', $extracurricular->id)
+            ->where('status', 'active')
+            ->orderBy('role', 'asc')  // ketua dulu
+            ->get()
+            ->sortByDesc(fn ($m) => $m->role === 'ketua' ? 1 : 0);
+
+        $pdf = Pdf::loadView('exports.extracurricular_members_pdf', [
+            'extracurricular' => $extracurricular,
+            'members'         => $members,
+        ])->setPaper('a4', 'portrait');
+
+        $filename = 'anggota-' . str($extracurricular->name)->slug() . '.pdf';
+
+        return $pdf->download($filename);
+    }
+
+    /**
+     * Cetak daftar siswa yang tidak memiliki ekstrakurikuler.
+     */
+    public function noEkstraPdf(Request $request): Response
+    {
+        $query = User::where('role', 'siswa')
+            ->whereDoesntHave('memberExtracurriculars', fn ($q) => $q->where('status', 'active'))
+            ->with('schoolClass')
+            ->orderBy('name');
+
+        if ($request->filled('class_id')) {
+            $query->where('class_id', $request->class_id);
+        }
+
+        $students  = $query->get();
+        $className = $request->filled('class_name') ? $request->class_name : null;
+
+        $pdf = Pdf::loadView('exports.students_without_extracurricular_pdf', [
+            'students'  => $students,
+            'className' => $className,
+        ])->setPaper('a4', 'portrait');
+
+        return $pdf->download('siswa-tanpa-ekstra.pdf');
     }
 }

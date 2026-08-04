@@ -282,6 +282,12 @@ class User extends Authenticatable implements FilamentUser
             ->withTimestamps();
     }
 
+    /** Keanggotaan di ExtracurricularMember (tabel members yg baru) */
+    public function memberExtracurriculars(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(\App\Models\ExtracurricularMember::class, 'user_id');
+    }
+
     // Orangtua: daftar anak (untuk akun orangtua)
     public function children(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {

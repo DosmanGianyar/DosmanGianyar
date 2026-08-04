@@ -86,18 +86,15 @@
             @if($tps->isEmpty())
             <p class="text-xs text-gray-400">Belum ada TP. <a href="{{ route('guru.tp.index') }}" class="text-blue-600 hover:underline">Tambah TP terlebih dahulu.</a></p>
             @else
-            <select name="tp_id"
+            <select name="tp_id" id="tp-select"
                 class="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                 <option value="">— Tidak dipilih —</option>
-                @php $tpGrouped = $tps->groupBy(fn($tp) => $tp->subject?->name ?? 'Umum'); @endphp
-                @foreach($tpGrouped as $subjectName => $tpItems)
-                <optgroup label="{{ $subjectName }}">
-                    @foreach($tpItems as $tp)
-                    <option value="{{ $tp->id }}" {{ old('tp_id') == $tp->id ? 'selected' : '' }}>
-                        {{ $tp->code ? '['.$tp->code.'] ' : '' }}{{ Str::limit($tp->description, 60) }}
-                    </option>
-                    @endforeach
-                </optgroup>
+                @foreach($tps as $tp)
+                <option value="{{ $tp->id }}"
+                    data-subject-id="{{ $tp->subject_id ?? '' }}"
+                    {{ old('tp_id') == $tp->id ? 'selected' : '' }}>
+                    {{ $tp->subject ? '[' . $tp->subject->name . '] ' : '' }}{{ $tp->code ? '('.$tp->code.') ' : '' }}{{ Str::limit($tp->description, 60) }}
+                </option>
                 @endforeach
             </select>
             @endif
@@ -270,6 +267,35 @@ function onClassChange(classId) {
             subjSelect.value = sch.subject_id;
         }
     }
+
+    // Filter TP berdasarkan subject yang sedang aktif
+    const subjSelect = document.getElementById('subject-select');
+    filterTpBySubject(subjSelect ? subjSelect.value : '');
+}
+
+function filterTpBySubject(subjectId) {
+    const tpSelect = document.getElementById('tp-select');
+    if (!tpSelect) return;
+
+    const options = tpSelect.querySelectorAll('option[data-subject-id]');
+    let visibleCount = 0;
+
+    options.forEach(opt => {
+        const optSubject = opt.dataset.subjectId;
+        // Tampilkan semua jika tidak ada subject dipilih,
+        // atau tampilkan TP yang subject-nya cocok ATAU TP tanpa subject (umum)
+        const show = !subjectId || optSubject === '' || optSubject === subjectId;
+        opt.style.display = show ? '' : 'none';
+        if (show) visibleCount++;
+    });
+
+    // Jika option yang sedang dipilih jadi tersembunyi, reset ke kosong
+    if (tpSelect.value) {
+        const selected = tpSelect.querySelector('option[value="' + tpSelect.value + '"]');
+        if (selected && selected.style.display === 'none') {
+            tpSelect.value = '';
+        }
+    }
 }
 
 function selectPeriod(p) {
@@ -335,6 +361,18 @@ document.addEventListener('DOMContentLoaded', () => {
     if (_prePeriod && !_selectedPeriod) {
         selectPeriod(parseInt(_prePeriod));
     }
+
+    // Filter TP saat subject berubah secara manual
+    const subjSel = document.getElementById('subject-select');
+    if (subjSel) {
+        subjSel.addEventListener('change', () => {
+            filterTpBySubject(subjSel.value);
+        });
+    }
+
+    // Terapkan filter awal jika sudah ada subject terpilih (misal dari old() setelah error)
+    const initSubject = document.getElementById('subject-select')?.value || '';
+    filterTpBySubject(initSubject);
 });
 </script>
 @endsection
