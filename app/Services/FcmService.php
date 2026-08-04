@@ -17,12 +17,16 @@ class FcmService
         string  $body = '',
         array   $data = []
     ): void {
-        $tokens = UserFcmToken::where('user_id', $userId)->pluck('fcm_token')->toArray();
-        if (empty($tokens)) {
-            return;
-        }
+        try {
+            $tokens = UserFcmToken::where('user_id', $userId)->pluck('fcm_token')->toArray();
+            if (empty($tokens)) {
+                return;
+            }
 
-        static::sendToTokens($tokens, $title, $body, $data);
+            static::sendToTokens($tokens, $title, $body, $data);
+        } catch (\Throwable $e) {
+            Log::error('FCM sendToUser error: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -36,12 +40,16 @@ class FcmService
     ): void {
         if (empty($userIds)) return;
 
-        $tokens = UserFcmToken::whereIn('user_id', $userIds)->pluck('fcm_token')->toArray();
-        if (empty($tokens)) {
-            return;
-        }
+        try {
+            $tokens = UserFcmToken::whereIn('user_id', $userIds)->pluck('fcm_token')->toArray();
+            if (empty($tokens)) {
+                return;
+            }
 
-        static::sendToTokens($tokens, $title, $body, $data);
+            static::sendToTokens($tokens, $title, $body, $data);
+        } catch (\Throwable $e) {
+            Log::error('FCM sendToUsers error: ' . $e->getMessage());
+        }
     }
 
     /**
