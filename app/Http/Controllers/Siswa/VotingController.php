@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Siswa;
 
 use App\Http\Controllers\Controller;
+use App\Models\AppSetting;
 use App\Models\VotingSession;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -14,8 +15,14 @@ class VotingController extends Controller
     public function __construct()
     {
         $this->middleware(function ($request, $next) {
-            if (!\App\Models\AppSetting::isEvotingActive()) {
-                return redirect()->route('siswa.kesiswaan')->with('error', 'Fitur E-Voting saat ini sedang dinonaktifkan oleh Administrator.');
+            if (!AppSetting::isEvotingActive()) {
+                $role = Auth::user()?->role;
+                $redirectRoute = match ($role) {
+                    'guru'      => 'guru.dashboard',
+                    'pengelola' => 'pengelola.dashboard',
+                    default     => 'siswa.kesiswaan',
+                };
+                return redirect()->route($redirectRoute)->with('error', 'Fitur E-Voting saat ini sedang dinonaktifkan oleh Administrator.');
             }
             return $next($request);
         });
@@ -44,8 +51,8 @@ class VotingController extends Controller
         }
 
         $session->load(['candidates.votes', 'votes']);
-        $hasVoted  = $session->hasVoted(Auth::id());
-        $userVote  = $session->myVote(Auth::id());
+        $hasVoted   = $session->hasVoted(Auth::id());
+        $userVote   = $session->myVote(Auth::id());
         $totalVotes = $session->votes()->count();
 
         if ($hasVoted || $session->isClosed()) {
@@ -57,12 +64,16 @@ class VotingController extends Controller
 
     public function vote(Request $request, VotingSession $session): RedirectResponse
     {
-        if (! $session->isActive()) {
+        if (Auth::user()?->role === 'admin') {
+            return back()->with('error', 'Admin bertindak sebagai Panitia Penyelenggara E-Voting dan tidak memiliki hak suara.');
+        }
+
+        if (!$session->isActive()) {
             return back()->with('error', 'Sesi voting tidak sedang berlangsung.');
         }
 
         if ($session->hasVoted(Auth::id())) {
-            return back()->with('error', 'Kamu sudah memberikan suara.');
+            return back()->with('error', 'Anda sudah memberikan suara pada sesi pemilihan ini.');
         }
 
         $request->validate([
@@ -76,7 +87,11 @@ class VotingController extends Controller
             'candidate_id' => $candidate->id,
         ]);
 
+        $candidateDisplayName = $candidate->vice_name
+            ? "Paslon 0{$candidate->candidate_number} ({$candidate->name} & {$candidate->vice_name})"
+            : "{$candidate->name}";
+
         return redirect()->route('siswa.voting.show', $session)
-            ->with('success', "Suaramu untuk {$candidate->name} berhasil dicatat. Terima kasih!");
+            ->with('success', "Suara Anda untuk {$candidateDisplayName} telah berhasil dikirim & dicatat! Terima kasih atas partisipasi Anda.");
     }
 }

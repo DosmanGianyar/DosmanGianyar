@@ -225,12 +225,19 @@ class _VotingDetailScreenState extends State<VotingDetailScreen> {
               final int candidateId   = c['id'] as int;
               final int number        = c['number'] ?? 0;
               final String name       = c['name'] ?? '';
+              final String? viceName  = c['vice_name'] as String?;
               final String? photoUrl  = c['photo_url'] as String?;
+              final String? motto     = c['motto'] as String?;
               final String? vision    = c['vision'] as String?;
               final String? mission   = c['mission'] as String?;
+              final String? programs  = c['programs'] as String?;
               final num percentage    = c['percentage'] ?? 0;
               final int votesCount    = c['votes_count'] ?? 0;
               final bool isMyChoice   = votedId == candidateId;
+
+              final String displayName = viceName != null && viceName.isNotEmpty
+                  ? '$name & $viceName'
+                  : name;
 
               return Container(
                 margin: const EdgeInsets.only(bottom: 14),
@@ -272,9 +279,21 @@ class _VotingDetailScreenState extends State<VotingDetailScreen> {
                               Row(
                                 children: [
                                   Expanded(
-                                    child: Text(
-                                      name,
-                                      style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.gray900),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          displayName,
+                                          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.gray900),
+                                        ),
+                                        if (motto != null && motto.isNotEmpty) ...[
+                                          const SizedBox(height: 2),
+                                          Text(
+                                            '"$motto"',
+                                            style: const TextStyle(fontSize: 11, fontStyle: FontStyle.italic, color: AppColors.violet700, fontWeight: FontWeight.w500),
+                                          ),
+                                        ],
+                                      ],
                                     ),
                                   ),
                                   if (isMyChoice)
@@ -292,7 +311,7 @@ class _VotingDetailScreenState extends State<VotingDetailScreen> {
                                 const SizedBox(height: 8),
                                 ClipRRect(
                                   borderRadius: BorderRadius.circular(8),
-                                  child: Image.network(photoUrl, height: 140, width: double.infinity, fit: BoxFit.cover),
+                                  child: Image.network(photoUrl, height: 160, width: double.infinity, fit: BoxFit.cover, alignment: Alignment.topCenter),
                                 ),
                               ],
                             ],
@@ -302,16 +321,24 @@ class _VotingDetailScreenState extends State<VotingDetailScreen> {
                     ),
                     const SizedBox(height: 12),
 
-                    // Visi & Misi Accordion / Display
+                    // Visi & Misi & Program Kerja
                     if (vision != null && vision.isNotEmpty) ...[
-                      const Text('Visi:', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.gray700)),
+                      const Text('Visi Paslon:', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.gray800)),
+                      const SizedBox(height: 2),
                       Text(vision, style: const TextStyle(fontSize: 11, color: AppColors.gray600, height: 1.3)),
-                      const SizedBox(height: 6),
+                      const SizedBox(height: 8),
                     ],
                     if (mission != null && mission.isNotEmpty) ...[
-                      const Text('Misi:', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.gray700)),
+                      const Text('Misi Paslon:', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.gray800)),
+                      const SizedBox(height: 2),
                       Text(mission, style: const TextStyle(fontSize: 11, color: AppColors.gray600, height: 1.3)),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 8),
+                    ],
+                    if (programs != null && programs.isNotEmpty) ...[
+                      const Text('Program Kerja Unggulan:', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.amber800)),
+                      const SizedBox(height: 2),
+                      Text(programs, style: const TextStyle(fontSize: 11, color: AppColors.gray700, height: 1.3)),
+                      const SizedBox(height: 8),
                     ],
 
                     // Hasil Suara (Jika sudah memilih atau voting selesai)

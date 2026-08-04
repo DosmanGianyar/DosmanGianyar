@@ -10,7 +10,8 @@ use Illuminate\Support\Facades\Storage;
 class Candidate extends Model
 {
     protected $fillable = [
-        'voting_session_id', 'name', 'vision', 'photo', 'order',
+        'voting_session_id', 'candidate_number', 'name', 'vice_name', 'vision', 'mission',
+        'programs', 'motto', 'video_url', 'photo', 'order',
     ];
 
     public function session(): BelongsTo

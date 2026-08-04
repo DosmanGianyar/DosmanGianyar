@@ -81,9 +81,13 @@ class SiswaVotingApiController extends Controller
                 'id'            => $c->id,
                 'number'        => $c->candidate_number,
                 'name'          => $c->name,
-                'photo_url'     => $c->photo_url,
+                'vice_name'     => $c->vice_name,
+                'photo_url'     => $c->photoUrl(),
+                'motto'         => $c->motto,
                 'vision'        => $c->vision,
                 'mission'       => $c->mission,
+                'programs'      => $c->programs,
+                'video_url'     => $c->video_url,
                 'votes_count'   => $votesCount,
                 'percentage'    => $percentage,
             ];
@@ -106,6 +110,10 @@ class SiswaVotingApiController extends Controller
     // POST /api/v1/siswa/voting/{id}/vote
     public function vote(Request $request, int $id): JsonResponse
     {
+        if (Auth::user()?->role === 'admin') {
+            return response()->json(['message' => 'Admin bertindak sebagai Panitia Penyelenggara dan tidak memiliki hak suara.'], 403);
+        }
+
         if (!AppSetting::isEvotingActive()) {
             return response()->json(['message' => 'Fitur E-Voting sedang dinonaktifkan.'], 403);
         }
