@@ -16,7 +16,12 @@ class TeacherAttendanceController extends Controller
         $siswa   = auth()->user();
         $classId = $siswa->class_id;
 
-        $month = $request->input('month', now()->format('Y-m'));
+        $defaultMonth = now()->format('Y-m');
+        $month = $request->input('month', $defaultMonth);
+        if (!preg_match('/^\d{4}-\d{2}$/', $month)) {
+            $month = $defaultMonth;
+        }
+
         [$year, $mon] = explode('-', $month);
 
         $records = TeacherAttendance::with(['teacher', 'subject'])

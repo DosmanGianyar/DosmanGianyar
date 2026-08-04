@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -44,6 +45,11 @@ class Extracurricular extends Model
     public function sessions(): HasMany
     {
         return $this->hasMany(ExtracurricularSession::class, 'extracurricular_id');
+    }
+
+    public function scopeActive(Builder $query): Builder
+    {
+        return $query->where('is_active', true);
     }
 
     // ─── Multi-Pembina & Pengurus Relations ───────────────────────────────────
