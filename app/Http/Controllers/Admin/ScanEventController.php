@@ -36,7 +36,9 @@ class ScanEventController extends Controller
         }
 
         $student = User::where(function ($q) use ($identifier) {
-                $q->where('nis', $identifier)->orWhere('nisn', $identifier);
+                $q->where('qr_code_token', $identifier)
+                  ->orWhere('nis', $identifier)
+                  ->orWhere('nisn', $identifier);
                 if (is_numeric($identifier)) {
                     $q->orWhere('id', (int) $identifier);
                 }

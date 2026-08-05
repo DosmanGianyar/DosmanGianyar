@@ -7,11 +7,15 @@ import '../../theme/app_colors.dart';
 class GuruConductInputScreen extends StatefulWidget {
   final int initialTab;
   final String? initialFilter;
+  final SimpleStudent? initialStudent;
+  final String? initialCode;
 
   const GuruConductInputScreen({
     super.key,
     this.initialTab = 0,
     this.initialFilter,
+    this.initialStudent,
+    this.initialCode,
   });
 
   @override
@@ -110,7 +114,13 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
           _prestasiCats = cats['prestasi'] ?? [];
           _classes      = classes;
           _loadingCats  = false;
+          if (widget.initialStudent != null) {
+            _selectedStudent = widget.initialStudent;
+          }
         });
+        if (widget.initialCode != null && widget.initialCode!.isNotEmpty) {
+          _lookupStudentByCode(widget.initialCode!);
+        }
       }
     } catch (_) {
       if (mounted) setState(() => _loadingCats = false);
@@ -633,7 +643,10 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
     );
 
     if (code == null || code.isEmpty) return;
+    await _lookupStudentByCode(code);
+  }
 
+  Future<void> _lookupStudentByCode(String code) async {
     try {
       final res = await ApiClient.post('/guru/conduct-scan-lookup', data: {'code': code});
       if (res['success'] == true && res['student'] != null) {
@@ -649,7 +662,7 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
         });
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text('Siswa Ditemukan: ${st['name']} (${st['class_name'] ?? ''})'),
+            content: Text('✓ Siswa Ditemukan: ${st['name']} (${st['class_name'] ?? ''})'),
             backgroundColor: AppColors.emerald600,
             behavior: SnackBarBehavior.floating,
           ));

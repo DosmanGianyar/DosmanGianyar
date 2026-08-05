@@ -9,6 +9,7 @@ import '../../services/guru_service.dart';
 import '../../theme/app_colors.dart';
 import 'guru_absensi_harian_screen.dart';
 import 'guru_conduct_screen.dart';
+import 'guru_conduct_input_screen.dart';
 import 'guru_input_nilai_screen.dart';
 import 'guru_permit_screen.dart';
 import 'guru_sarpras_screen.dart';
@@ -137,6 +138,7 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
             else if (_error != null)
               _buildError()
             else if (_dashboard != null) ...[
+              _buildScanKartuShortcutCard(),
               _buildPembinaBanner(_dashboard!),
               _buildTodayScheduleCard(context, _dashboard!),
               _buildStatGrid(_dashboard!),
@@ -197,6 +199,142 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
         )).toList(),
       ),
     );
+  }
+
+  Widget _buildScanKartuShortcutCard() {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 14),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFF4F46E5), Color(0xFF6366F1)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF4F46E5).withValues(alpha: 0.25),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: _openDashboardScanDialog,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            child: Row(
+              children: [
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.qr_code_scanner_rounded, color: Colors.white, size: 24),
+                ),
+                const SizedBox(width: 14),
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '📷 Scan Kartu Siswa',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                        ),
+                      ),
+                      SizedBox(height: 2),
+                      Text(
+                        'Scan barcode Kartu Pelajar untuk catat pelanggaran / prestasi',
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: Colors.white70,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Icon(Icons.chevron_right_rounded, color: Colors.white, size: 22),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _openDashboardScanDialog() async {
+    final codeCtrl = TextEditingController();
+    final code = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Row(
+          children: [
+            Icon(Icons.qr_code_scanner_rounded, color: AppColors.blue600),
+            SizedBox(width: 8),
+            Text('Scan / Input Barcode Siswa', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Masukkan atau tempel kode / URL barcode Kartu Pelajar Siswa:',
+              style: TextStyle(fontSize: 12, color: AppColors.gray600),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: codeCtrl,
+              autofocus: true,
+              decoration: InputDecoration(
+                hintText: 'Scan / tempel QR code di sini...',
+                prefixIcon: const Icon(Icons.qr_code_rounded, size: 20),
+                filled: true,
+                fillColor: AppColors.gray50,
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+              onSubmitted: (val) => Navigator.pop(ctx, val.trim()),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Batal'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.blue600,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+            onPressed: () => Navigator.pop(ctx, codeCtrl.text.trim()),
+            child: const Text('Buka Form Siswa'),
+          ),
+        ],
+      ),
+    );
+
+    if (code == null || code.isEmpty) return;
+
+    if (mounted) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => GuruConductInputScreen(initialCode: code),
+        ),
+      );
+    }
   }
 
   Widget _buildPembinaBanner(GuruDashboard data) {

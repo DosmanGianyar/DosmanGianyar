@@ -190,7 +190,8 @@ class ConductController extends Controller
 
         $student = User::where('role', 'like', 'siswa%')
             ->where(function ($q) use ($code) {
-                $q->where('nisn', $code)
+                $q->where('qr_code_token', $code)
+                  ->orWhere('nisn', $code)
                   ->orWhere('nis', $code);
                 if (is_numeric($code)) {
                     $q->orWhere('id', (int) $code);

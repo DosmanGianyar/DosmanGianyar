@@ -10,7 +10,8 @@ class PublicBiodataController extends Controller
     public function show(string $identifier): View
     {
         $siswa = User::where(function ($q) use ($identifier) {
-                $q->where('nis', $identifier);
+                $q->where('qr_code_token', $identifier)
+                  ->orWhere('nis', $identifier);
                 if (is_numeric($identifier)) {
                     $q->orWhere('id', (int) $identifier);
                 }

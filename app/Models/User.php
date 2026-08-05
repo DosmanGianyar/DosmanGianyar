@@ -22,7 +22,7 @@ class User extends Authenticatable implements FilamentUser
         'name', 'email', 'password', 'must_change_password', 'role', 'photo', 'phone',
         'nis', 'nisn', 'gender', 'class_id', 'parent_name', 'parent_phone', 'birth_date', 'address',
         'nip', 'subject',
-        'device_id', 'device_locked_at',
+        'device_id', 'device_locked_at', 'qr_code_token',
     ];
 
     protected $hidden = ['password', 'remember_token'];
@@ -41,6 +41,9 @@ class User extends Authenticatable implements FilamentUser
     protected static function booted(): void
     {
         static::creating(function (User $user) {
+            if (empty($user->qr_code_token)) {
+                $user->qr_code_token = (string) \Illuminate\Support\Str::uuid();
+            }
             if (empty($user->password)) {
                 $username = match (true) {
                     $user->isGuru()                           => $user->nip ?: ($user->email ?: 'guru123'),
@@ -113,6 +116,18 @@ class User extends Authenticatable implements FilamentUser
 
     // ─── Role Helpers ────────────────────────────────────────────────────────
     public function isAdmin(): bool           { return $this->role === 'admin'; }
+    public function getQrTokenAttribute(): string
+    {
+        if (empty($this->attributes['qr_code_token'])) {
+            $token = (string) \Illuminate\Support\Str::uuid();
+            $this->attributes['qr_code_token'] = $token;
+            if ($this->exists) {
+                $this->saveQuietly();
+            }
+        }
+        return $this->attributes['qr_code_token'];
+    }
+
     public function isGuru(): bool            { return $this->role === 'guru'; }
     public function isSiswa(): bool           { return in_array($this->role, ['siswa', 'pengelola']); }
     public function isPengelola(): bool       { return $this->role === 'pengelola'; }
