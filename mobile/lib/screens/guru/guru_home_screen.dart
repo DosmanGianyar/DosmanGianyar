@@ -65,7 +65,7 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ─── Header: Greeting, Subject Badges & Dosman Logo ─────────
+            // ─── Header: Branding SIMAK_DOSMAN, Greeting & Foto Profile ───────
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -73,6 +73,37 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // ─── Branding Header SIMAK_DOSMAN ──────────────
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              color: AppColors.blue50,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: AppColors.blue200),
+                            ),
+                            child: Image.asset(
+                              'assets/images/logo_sekolah.png',
+                              width: 20,
+                              height: 20,
+                              fit: BoxFit.contain,
+                              errorBuilder: (_, __, ___) => const Icon(Icons.school_rounded, size: 20, color: AppColors.blue600),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          const Text(
+                            'SIMAK_DOSMAN',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: 1.1,
+                              color: AppColors.blue700,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
                       Text(
                         'Selamat $_greeting,',
                         style: const TextStyle(fontSize: 13, color: AppColors.gray500, fontWeight: FontWeight.w500),
@@ -96,33 +127,78 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
                     ],
                   ),
                 ),
-                const SizedBox(width: 12),
-                // Logo DOSMAN di Kanan Atas Header
-                Container(
-                  padding: const EdgeInsets.all(3),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.08),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      )
-                    ],
-                    border: Border.all(color: AppColors.blue100, width: 1.5),
-                  ),
-                  child: Image.asset(
-                    'assets/images/logo_sekolah.png',
-                    width: 44,
-                    height: 44,
-                    fit: BoxFit.contain,
-                    errorBuilder: (_, __, ___) => Image.asset(
-                      'assets/images/dosman_white_icon.png',
-                      width: 44,
-                      height: 44,
-                    ),
-                  ),
+                const SizedBox(width: 14),
+
+                // ─── Foto Profile Guru Estetik (Header Kanan) ─────────────
+                Builder(
+                  builder: (context) {
+                    final photoUrl = user?.photoUrl;
+                    final hasPhoto = photoUrl != null && photoUrl.trim().isNotEmpty;
+                    return GestureDetector(
+                      onTap: () {
+                        // Toast info profile
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: Text('Profil Guru: ${user?.name ?? ''}'),
+                          behavior: SnackBarBehavior.floating,
+                          duration: const Duration(seconds: 1),
+                        ));
+                      },
+                      child: Stack(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(2.5),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              gradient: const LinearGradient(
+                                colors: [AppColors.blue600, Color(0xFF6366F1)],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppColors.blue600.withValues(alpha: 0.25),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: CircleAvatar(
+                              radius: 26,
+                              backgroundColor: Colors.white,
+                              child: CircleAvatar(
+                                radius: 24,
+                                backgroundColor: AppColors.blue100,
+                                backgroundImage: hasPhoto ? NetworkImage(photoUrl) : null,
+                                child: !hasPhoto
+                                    ? Text(
+                                        user?.initials ?? 'G',
+                                        style: const TextStyle(
+                                          fontSize: 17,
+                                          fontWeight: FontWeight.w900,
+                                          color: AppColors.blue700,
+                                        ),
+                                      )
+                                    : null,
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            bottom: 2,
+                            right: 2,
+                            child: Container(
+                              width: 14,
+                              height: 14,
+                              decoration: BoxDecoration(
+                                color: AppColors.emerald500,
+                                shape: BoxShape.circle,
+                                border: Border.all(color: Colors.white, width: 2.5),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
                 ),
               ],
             ),

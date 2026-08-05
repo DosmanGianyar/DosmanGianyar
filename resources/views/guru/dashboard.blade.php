@@ -4,13 +4,44 @@
 @section('page-title', 'Dashboard')
 
 @section('content')
-{{-- Sapaan --}}
-<div class="mb-6">
-    <h2 class="text-xl font-bold text-gray-800">
-        Selamat {{ now()->hour < 11 ? 'Pagi' : (now()->hour < 15 ? 'Siang' : 'Sore') }},
-        {{ $guru->name }} 👋
-    </h2>
-    <p class="text-sm text-gray-500 mt-0.5">{{ now()->isoFormat('dddd, D MMMM Y') }}</p>
+{{-- Header Branding SIMAK_DOSMAN & Foto Profil Guru --}}
+<div class="mb-6 bg-white rounded-2xl p-4 sm:p-5 border border-slate-100 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div class="space-y-1">
+        <div class="flex items-center gap-2 mb-1.5">
+            <img src="/img/logo_sekolah.png" alt="Logo" class="w-6 h-6 object-contain">
+            <span class="text-sm font-black text-indigo-950 tracking-wider">SIMAK_DOSMAN</span>
+            <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-blue-100 text-blue-700">Portal Guru</span>
+        </div>
+        <h2 class="text-xl font-bold text-gray-800">
+            Selamat {{ now()->hour < 11 ? 'Pagi' : (now()->hour < 15 ? 'Siang' : 'Sore') }},
+            {{ $guru->name }} 👋
+        </h2>
+        <p class="text-xs text-gray-500 font-medium">{{ now()->isoFormat('dddd, D MMMM Y') }}</p>
+    </div>
+
+    {{-- Tempat Foto Profil Guru Estetik --}}
+    <a href="{{ route('guru.profile') }}" class="flex items-center gap-3.5 bg-slate-50 hover:bg-blue-50/60 border border-slate-200/80 rounded-2xl p-2.5 transition-all group shrink-0">
+        <div class="relative shrink-0">
+            @if($guru->photo)
+                <img src="{{ $guru->photo_url }}" class="w-12 h-12 rounded-xl object-cover ring-2 ring-blue-500/40 group-hover:ring-blue-600 shadow-xs transition-all">
+            @else
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white font-black text-base ring-2 ring-blue-500/40 group-hover:ring-blue-600 shadow-xs transition-all">
+                    {{ $guru->initials }}
+                </div>
+            @endif
+            <span class="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-emerald-500 rounded-full ring-2 ring-white" title="Status Aktif"></span>
+        </div>
+        <div class="pr-2">
+            <p class="text-xs font-black text-slate-900 group-hover:text-blue-600 transition-colors">{{ $guru->name }}</p>
+            <p class="text-[11px] text-slate-500 font-medium mt-0.5">{{ $guru->subject ?? 'Guru Pengajar' }}</p>
+            <span class="inline-flex items-center gap-1 text-[10.5px] font-bold text-blue-600 mt-1">
+                Edit Profil
+                <svg class="w-3 h-3 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+            </span>
+        </div>
+    </a>
 </div>
 
 {{-- ─── Jadwal Mengajar Guru (Hari Ini & Perminggu) ───────────────── --}}
