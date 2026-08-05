@@ -48,11 +48,13 @@
                         <div class="p-4 rounded-2xl flex flex-col justify-between transition-all {{ $isFilled ? 'bg-slate-100 border-2 border-slate-200 text-slate-700 opacity-90' : 'bg-blue-50/90 border-2 border-blue-200 hover:border-blue-400 shadow-xs' }}">
                             <div class="space-y-2">
                                 <div class="flex items-center justify-between gap-2">
-                                    <div class="flex items-center gap-2">
-                                        <span class="px-2.5 py-1 text-xs font-black rounded-lg {{ $isFilled ? 'bg-slate-500 text-white' : 'bg-blue-600 text-white' }}">
-                                            {{ $sch['period_label'] }}
-                                        </span>
-                                        <span class="text-sm font-black {{ $isFilled ? 'text-slate-600' : 'text-gray-900' }}">
+                                    <div class="flex items-center gap-1.5 flex-wrap">
+                                        @foreach($sch['periods'] as $p)
+                                            <span class="px-2.5 py-1 text-xs font-black rounded-lg {{ $isFilled ? 'bg-slate-500 text-white' : 'bg-blue-600 text-white' }}">
+                                                Jam ke-{{ $p }}
+                                            </span>
+                                        @endforeach
+                                        <span class="text-sm font-black {{ $isFilled ? 'text-slate-600' : 'text-gray-900' }} ml-1">
                                             {{ $sch['start_time'] }} - {{ $sch['end_time'] }}
                                         </span>
                                     </div>
@@ -188,9 +190,13 @@
                                                 @php $isFilledW = $sch['is_filled']; @endphp
                                                 <tr class="transition-colors {{ $isFilledW ? 'bg-slate-100/80 text-slate-500' : 'hover:bg-blue-50/40' }}">
                                                     <td class="px-4 py-3 text-center">
-                                                        <span class="px-2.5 py-1 rounded-md font-extrabold text-xs {{ $isFilledW ? 'bg-slate-300 text-slate-700' : 'bg-blue-100 text-blue-800' }}">
-                                                            {{ $sch['period_label'] }}
-                                                        </span>
+                                                         <div class="flex items-center justify-center gap-1 flex-wrap">
+                                                             @foreach($sch['periods'] as $p)
+                                                                 <span class="px-2 py-0.5 rounded-md font-extrabold text-xs {{ $isFilledW ? 'bg-slate-300 text-slate-700' : 'bg-blue-100 text-blue-800' }}">
+                                                                     Jam ke-{{ $p }}
+                                                                 </span>
+                                                             @endforeach
+                                                         </div>
                                                     </td>
                                                     <td class="px-4 py-3 font-bold text-sm {{ $isFilledW ? 'text-slate-600' : 'text-gray-900' }}">
                                                         {{ $sch['start_time'] }} - {{ $sch['end_time'] }}

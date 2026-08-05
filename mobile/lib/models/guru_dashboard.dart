@@ -110,6 +110,7 @@ class TeacherScheduleItem {
   final String dayName;
   final int period;
   final String periodDisplay;
+  final List<int> periods;
   final String startTime;
   final String endTime;
   final String? room;
@@ -124,6 +125,7 @@ class TeacherScheduleItem {
     required this.dayName,
     required this.period,
     required this.periodDisplay,
+    this.periods = const [],
     required this.startTime,
     required this.endTime,
     this.room,
@@ -139,6 +141,7 @@ class TeacherScheduleItem {
     dayName:       json['day_name'] as String? ?? '—',
     period:        json['period'] as int? ?? 1,
     periodDisplay: json['period_display'] as String? ?? 'Jam ${json['period']}',
+    periods:       (json['periods'] as List<dynamic>?)?.map((e) => (e as num).toInt()).toList() ?? [(json['period'] as int? ?? 1)],
     startTime:     json['start_time'] as String? ?? '',
     endTime:       json['end_time'] as String? ?? '',
     room:          json['room'] as String?,

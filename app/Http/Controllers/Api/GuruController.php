@@ -134,6 +134,7 @@ class GuruController extends Controller
                     ) {
                         $prev['period_end']     = $period;
                         $prev['end_time']       = $endTime;
+                        $prev['periods'][]      = $period;
                         $prev['period_display'] = "Jam ke-{$prev['period_start']} - {$period}";
                         continue;
                     }
@@ -147,6 +148,7 @@ class GuruController extends Controller
                     'period_start'   => $period,
                     'period_end'     => $period,
                     'period_display' => "Jam ke-{$period}",
+                    'periods'        => [$period],
                     'start_time'     => $startTime,
                     'end_time'       => $endTime,
                     'room'           => $sch->room,

@@ -999,16 +999,20 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.blue600,
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Text(
-                                    sch.periodDisplay,
-                                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Colors.white),
-                                  ),
+                                Wrap(
+                                  spacing: 6,
+                                  runSpacing: 4,
+                                  children: (sch.periods.isNotEmpty ? sch.periods : [sch.period]).map((p) => Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4.5),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.blue600,
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Text(
+                                      'Jam ke-$p',
+                                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Colors.white),
+                                    ),
+                                  )).toList(),
                                 ),
                                 Text(
                                   '${sch.startTime} - ${sch.endTime}',
