@@ -53,11 +53,54 @@ class User extends Authenticatable implements FilamentUser
             }
         });
 
+        static::saving(function (User $user) {
+            if ($user->phone) {
+                $user->phone = static::formatPhoneNumber($user->phone);
+            }
+            if ($user->parent_phone) {
+                $user->parent_phone = static::formatPhoneNumber($user->parent_phone);
+            }
+        });
+
         static::saved(function (User $user) {
             if ($user->isSiswa() && ($user->wasRecentlyCreated || $user->wasChanged('parent_phone'))) {
                 \App\Services\OrangtuaSyncService::resyncStudent($user);
             }
         });
+    }
+
+    public static function formatPhoneNumber(?string $phone): ?string
+    {
+        if ($phone === null || trim($phone) === '') {
+            return null;
+        }
+
+        $cleaned = preg_replace('/[^0-9]/', '', trim($phone));
+        if (empty($cleaned)) {
+            return null;
+        }
+
+        if (str_starts_with($cleaned, '62')) {
+            $cleaned = '0' . substr($cleaned, 2);
+        }
+
+        $cleaned = ltrim($cleaned, '0');
+
+        if (empty($cleaned)) {
+            return null;
+        }
+
+        return '0' . $cleaned;
+    }
+
+    public function setPhoneAttribute(?string $value): void
+    {
+        $this->attributes['phone'] = static::formatPhoneNumber($value);
+    }
+
+    public function setParentPhoneAttribute(?string $value): void
+    {
+        $this->attributes['parent_phone'] = static::formatPhoneNumber($value);
     }
 
     // ─── Filament ────────────────────────────────────────────────────────────
