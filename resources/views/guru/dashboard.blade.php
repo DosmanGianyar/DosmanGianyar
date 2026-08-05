@@ -13,26 +13,6 @@
     <p class="text-sm text-gray-500 mt-0.5">{{ now()->isoFormat('dddd, D MMMM Y') }}</p>
 </div>
 
-{{-- ─── Pembina Ekstrakurikuler Banner ─────────────────────────────── --}}
-@if(isset($myExtracurriculars) && $myExtracurriculars->count() > 0)
-<div class="mb-5 bg-gradient-to-r from-indigo-900 via-indigo-800 to-blue-900 rounded-2xl p-4 text-white shadow-md">
-    <div class="flex items-center gap-2.5 mb-2">
-        <span class="text-xl">🎗️</span>
-        <div>
-            <h3 class="font-bold text-sm text-indigo-100 uppercase tracking-wide">Pembina Ekstrakurikuler</h3>
-            <p class="text-[11px] text-indigo-200">Anda bertugas sebagai Pembina pada {{ $myExtracurriculars->count() }} Ekstrakurikuler:</p>
-        </div>
-    </div>
-    <div class="flex flex-wrap gap-2 mt-2.5">
-        @foreach($myExtracurriculars as $ex)
-            <div class="bg-white/15 backdrop-blur-md border border-white/25 rounded-xl px-3 py-1.5 text-xs font-bold flex items-center gap-2">
-                <span>🏆 {{ $ex->name }}</span>
-            </div>
-        @endforeach
-    </div>
-</div>
-@endif
-
 {{-- ─── Jadwal Mengajar Guru (Hari Ini & Perminggu) ───────────────── --}}
 <div x-data="{ showWeeklyModal: false, activeTab: {{ (int) now()->dayOfWeekIso <= 6 ? (int) now()->dayOfWeekIso : 1 }} }}" class="mb-5">
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
@@ -64,25 +44,60 @@
             @if(isset($todaySchedules) && $todaySchedules->isNotEmpty())
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                     @foreach($todaySchedules as $sch)
-                        <div class="p-3 bg-blue-50/60 border border-blue-100 rounded-xl flex items-start justify-between gap-2">
-                            <div class="space-y-1">
-                                <div class="flex items-center gap-2">
-                                    <span class="px-2 py-0.5 bg-blue-600 text-white text-[11px] font-bold rounded-md">
-                                        Jam ke-{{ $sch->period }}
-                                    </span>
-                                    <span class="text-xs font-bold text-gray-800">
-                                        {{ \Carbon\Carbon::parse($sch->start_time)->format('H:i') }} - {{ \Carbon\Carbon::parse($sch->end_time)->format('H:i') }}
-                                    </span>
+                        @php
+                            $isFilled = isset($filledJournalKeys["{$sch->class_id}_{$sch->period}"]) || 
+                                        isset($filledJournalKeys["{$sch->class_id}_{$sch->subject_id}_{$sch->period}"]);
+                        @endphp
+                        <div class="p-3.5 rounded-xl flex flex-col justify-between transition-all {{ $isFilled ? 'bg-slate-100 border border-slate-200 text-slate-700 opacity-90' : 'bg-blue-50/80 border border-blue-200 hover:border-blue-400 shadow-xs' }}">
+                            <div class="space-y-1.5">
+                                <div class="flex items-center justify-between gap-2">
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="px-2 py-0.5 text-[11px] font-bold rounded-md {{ $isFilled ? 'bg-slate-400 text-white' : 'bg-blue-600 text-white' }}">
+                                            Jam ke-{{ $sch->period }}
+                                        </span>
+                                        <span class="text-xs font-bold {{ $isFilled ? 'text-slate-600' : 'text-gray-800' }}">
+                                            {{ \Carbon\Carbon::parse($sch->start_time)->format('H:i') }} - {{ \Carbon\Carbon::parse($sch->end_time)->format('H:i') }}
+                                        </span>
+                                    </div>
+                                    @if($isFilled)
+                                        <span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 border border-emerald-300 text-[10px] font-bold rounded-md flex items-center gap-1 shrink-0">
+                                            ✓ Jurnal Terisi
+                                        </span>
+                                    @else
+                                        <span class="px-2 py-0.5 bg-amber-100 text-amber-800 border border-amber-300 text-[10px] font-bold rounded-md shrink-0">
+                                            Belum Terisi
+                                        </span>
+                                    @endif
                                 </div>
-                                <p class="text-sm font-bold text-blue-900 leading-tight">
+                                <p class="text-sm font-bold leading-tight {{ $isFilled ? 'text-slate-800 line-through decoration-slate-400' : 'text-blue-950' }}">
                                     {{ $sch->subject?->name ?? '—' }}
                                 </p>
-                                <p class="text-xs font-medium text-gray-600 flex items-center gap-1">
+                                <p class="text-xs font-medium {{ $isFilled ? 'text-slate-500' : 'text-gray-600' }} flex items-center gap-1">
                                     <span>🏫 Kelas {{ $sch->schoolClass?->name ?? '—' }}</span>
                                     @if($sch->room)
                                         <span>• 📍 {{ $sch->room }}</span>
                                     @endif
                                 </p>
+                            </div>
+
+                            <div class="mt-3 pt-2.5 border-t {{ $isFilled ? 'border-slate-200' : 'border-blue-100' }} flex items-center justify-between">
+                                @if($isFilled)
+                                    <span class="text-[11px] font-semibold text-emerald-700 flex items-center gap-1">
+                                        ✓ Jurnal Sudah Dibuat
+                                    </span>
+                                    <a href="{{ route('guru.journal.index') }}"
+                                       class="text-[11px] font-bold text-slate-600 hover:text-slate-900 underline">
+                                        Lihat Jurnal →
+                                    </a>
+                                @else
+                                    <span class="text-[11px] font-medium text-amber-700">
+                                        Perlu Jurnal Mengajar
+                                    </span>
+                                    <a href="{{ route('guru.journal.create', ['class_id' => $sch->class_id, 'subject_id' => $sch->subject_id, 'period' => $sch->period]) }}"
+                                       class="inline-flex items-center gap-1 text-xs font-bold text-blue-700 bg-blue-100 hover:bg-blue-200 px-2.5 py-1 rounded-lg transition-colors">
+                                        + Buat Jurnal
+                                    </a>
+                                @endif
                             </div>
                         </div>
                     @endforeach
@@ -162,27 +177,45 @@
                                                 <th class="px-4 py-3">Mata Pelajaran</th>
                                                 <th class="px-4 py-3">Kelas</th>
                                                 <th class="px-4 py-3">Ruang</th>
+                                                <th class="px-4 py-3 text-center">Status Jurnal</th>
                                             </tr>
                                         </thead>
                                         <tbody class="divide-y divide-gray-100 bg-white">
                                             @foreach($weeklySchedules[$dNum] as $sch)
-                                                <tr class="hover:bg-blue-50/40 transition-colors">
+                                                @php
+                                                    $isFilledW = ($dNum === (int) now()->dayOfWeekIso) && 
+                                                                (isset($filledJournalKeys["{$sch->class_id}_{$sch->period}"]) || 
+                                                                 isset($filledJournalKeys["{$sch->class_id}_{$sch->subject_id}_{$sch->period}"]));
+                                                @endphp
+                                                <tr class="transition-colors {{ $isFilledW ? 'bg-slate-100/80 text-slate-500' : 'hover:bg-blue-50/40' }}">
                                                     <td class="px-4 py-3 text-center">
-                                                        <span class="px-2.5 py-1 bg-blue-100 text-blue-800 rounded-md font-bold text-[11px]">
+                                                        <span class="px-2.5 py-1 rounded-md font-bold text-[11px] {{ $isFilledW ? 'bg-slate-300 text-slate-700' : 'bg-blue-100 text-blue-800' }}">
                                                             {{ $sch->period }}
                                                         </span>
                                                     </td>
-                                                    <td class="px-4 py-3 font-semibold text-gray-700">
+                                                    <td class="px-4 py-3 font-semibold {{ $isFilledW ? 'text-slate-600' : 'text-gray-700' }}">
                                                         {{ \Carbon\Carbon::parse($sch->start_time)->format('H:i') }} - {{ \Carbon\Carbon::parse($sch->end_time)->format('H:i') }}
                                                     </td>
-                                                    <td class="px-4 py-3 font-bold text-gray-900">
+                                                    <td class="px-4 py-3 font-bold {{ $isFilledW ? 'text-slate-700 line-through' : 'text-gray-900' }}">
                                                         {{ $sch->subject?->name ?? '—' }}
                                                     </td>
-                                                    <td class="px-4 py-3 font-semibold text-blue-600">
+                                                    <td class="px-4 py-3 font-semibold {{ $isFilledW ? 'text-slate-600' : 'text-blue-600' }}">
                                                         {{ $sch->schoolClass?->name ?? '—' }}
                                                     </td>
                                                     <td class="px-4 py-3 text-gray-500">
                                                         {{ $sch->room ?? '—' }}
+                                                    </td>
+                                                    <td class="px-4 py-3 text-center">
+                                                        @if($isFilledW)
+                                                            <span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 text-[10px] font-bold rounded-md">✓ Terisi Hari Ini</span>
+                                                        @elseif($dNum === (int) now()->dayOfWeekIso)
+                                                            <a href="{{ route('guru.journal.create', ['class_id' => $sch->class_id, 'subject_id' => $sch->subject_id, 'period' => $sch->period]) }}"
+                                                               class="px-2 py-0.5 bg-blue-600 text-white hover:bg-blue-700 text-[10px] font-bold rounded-md inline-block">
+                                                                + Buat Jurnal
+                                                            </a>
+                                                        @else
+                                                            <span class="text-gray-400 text-[10px]">—</span>
+                                                        @endif
                                                     </td>
                                                 </tr>
                                             @endforeach
@@ -209,6 +242,26 @@
         </div>
     </template>
 </div>
+
+{{-- ─── Pembina Ekstrakurikuler Banner ─────────────────────────────── --}}
+@if(isset($myExtracurriculars) && $myExtracurriculars->count() > 0)
+<div class="mb-5 bg-gradient-to-r from-indigo-900 via-indigo-800 to-blue-900 rounded-2xl p-4 text-white shadow-md">
+    <div class="flex items-center gap-2.5 mb-2">
+        <span class="text-xl">🎗️</span>
+        <div>
+            <h3 class="font-bold text-sm text-indigo-100 uppercase tracking-wide">Pembina Ekstrakurikuler</h3>
+            <p class="text-[11px] text-indigo-200">Anda bertugas sebagai Pembina pada {{ $myExtracurriculars->count() }} Ekstrakurikuler:</p>
+        </div>
+    </div>
+    <div class="flex flex-wrap gap-2 mt-2.5">
+        @foreach($myExtracurriculars as $ex)
+            <div class="bg-white/15 backdrop-blur-md border border-white/25 rounded-xl px-3 py-1.5 text-xs font-bold flex items-center gap-2">
+                <span>🏆 {{ $ex->name }}</span>
+            </div>
+        @endforeach
+    </div>
+</div>
+@endif
 
 {{-- ─── Stat Cards ─────────────────────────────────────────────────── --}}
 <div class="grid grid-cols-2 gap-3 mb-5">

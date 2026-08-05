@@ -75,6 +75,23 @@ class DashboardController extends Controller
             ->get()
             ->groupBy('day');
 
+        // Jurnal hari ini untuk mengecek jam mana yang sudah terisi
+        $todayJournals = TeacherJournal::where('teacher_id', $guru->id)
+            ->whereDate('date', today())
+            ->get();
+
+        $filledJournalKeys = [];
+        foreach ($todayJournals as $tj) {
+            $pStart = $tj->period ?: 1;
+            $pEnd   = $tj->period_end ?: $pStart;
+            for ($p = $pStart; $p <= $pEnd; $p++) {
+                $filledJournalKeys["{$tj->class_id}_{$p}"] = true;
+                if ($tj->subject_id) {
+                    $filledJournalKeys["{$tj->class_id}_{$tj->subject_id}_{$p}"] = true;
+                }
+            }
+        }
+
         $stats = [
             'alert_kritis'   => $recentAlerts->count(),
             'total_students' => $totalStudents,
@@ -91,7 +108,8 @@ class DashboardController extends Controller
             'todaySchedules',
             'weeklySchedules',
             'todayDayName',
-            'dayNames'
+            'dayNames',
+            'filledJournalKeys'
         ));
     }
 }
