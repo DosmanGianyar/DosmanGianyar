@@ -997,7 +997,7 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.between,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
@@ -1012,13 +1012,13 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
                                 ),
                                 Text(
                                   '${sch.startTime} - ${sch.endTime}',
-                                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: AppColors.blue900),
+                                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: AppColors.blue800),
                                 ),
                               ],
                             ),
                             const SizedBox(height: 8),
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.between,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
                                   '🏫 Kelas ${sch.className}',
