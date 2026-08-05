@@ -28,6 +28,24 @@ class ConductLog extends Model
         return $this->belongsTo(ConductCategory::class, 'category_id');
     }
 
-    public function isPrestasi(): bool   { return $this->category?->type === 'prestasi'; }
-    public function isPelanggaran(): bool { return $this->category?->type === 'pelanggaran'; }
+    public function isPrestasi(): bool
+    {
+        $t = $this->category?->type ?? $this->type;
+        return in_array($t, ['prestasi', 'positif']);
+    }
+
+    public function isPelanggaran(): bool
+    {
+        $t = $this->category?->type ?? $this->type;
+        return $t === 'pelanggaran';
+    }
+
+    public function displayCategoryName(): string
+    {
+        return $this->category?->name 
+            ?? $this->description 
+            ?? ($this->lomba_name ? 'Lomba: ' . $this->lomba_name : null)
+            ?? $this->note 
+            ?? ($this->isPrestasi() ? 'Catatan Positif' : 'Catatan Negatif');
+    }
 }

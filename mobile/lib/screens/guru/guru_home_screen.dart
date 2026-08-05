@@ -138,6 +138,7 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
               _buildError()
             else if (_dashboard != null) ...[
               _buildPembinaBanner(_dashboard!),
+              _buildTodayScheduleCard(context, _dashboard!),
               _buildStatGrid(_dashboard!),
               const SizedBox(height: 16),
               _buildQuickActions(),
@@ -758,6 +759,368 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
           TextButton(onPressed: _load, child: const Text('Coba Lagi')),
         ],
       ),
+    );
+  }
+
+  // ─── Jadwal Mengajar Guru (Hari Ini & Perminggu) ─────────────────────────
+  Widget _buildTodayScheduleCard(BuildContext context, GuruDashboard data) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(AppRadius.xl2),
+        border: Border.all(color: AppColors.blue100),
+        boxShadow: AppShadow.sm,
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header Card
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () => _showWeeklyScheduleModal(context, data),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Color(0xFF2563EB), Color(0xFF4F46E5)],
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(7),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Icon(Icons.calendar_today_rounded, color: Colors.white, size: 18),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Jadwal Mengajar Hari Ini (${data.todayDayName})',
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const Text(
+                            'Tap untuk melihat jadwal perminggu',
+                            style: TextStyle(fontSize: 10, color: Color(0xFFDBEAFE)),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+                      ),
+                      child: const Row(
+                        children: [
+                          Text('🗓️ Perminggu', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.white)),
+                          SizedBox(width: 2),
+                          Icon(Icons.chevron_right_rounded, size: 14, color: Colors.white),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+
+          // Body Content
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: data.todaySchedules.isNotEmpty
+                ? Column(
+                    children: data.todaySchedules.map((sch) {
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 8),
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: AppColors.blue50.withValues(alpha: 0.5),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: AppColors.blue100),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: AppColors.blue600,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                'Jam ${sch.period}',
+                                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    sch.subjectName,
+                                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.gray800),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    'Kelas ${sch.className}${sch.room != null ? ' • 📍 ${sch.room}' : ''}',
+                                    style: const TextStyle(fontSize: 11, color: AppColors.gray600),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Text(
+                              '${sch.startTime} - ${sch.endTime}',
+                              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.blue700),
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                  )
+                : Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: Center(
+                      child: Column(
+                        children: [
+                          Text(
+                            'Tidak ada jadwal mengajar pada hari ${data.todayDayName}.',
+                            style: const TextStyle(fontSize: 12, color: AppColors.gray500),
+                          ),
+                          const SizedBox(height: 4),
+                          GestureDetector(
+                            onTap: () => _showWeeklyScheduleModal(context, data),
+                            child: const Text(
+                              'Lihat Jadwal Mengajar Hari Lain (Perminggu) →',
+                              style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.blue600),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showWeeklyScheduleModal(BuildContext context, GuruDashboard data) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        final days = [
+          {'day': 1, 'name': 'Senin'},
+          {'day': 2, 'name': 'Selasa'},
+          {'day': 3, 'name': 'Rabu'},
+          {'day': 4, 'name': 'Kamis'},
+          {'day': 5, 'name': 'Jumat'},
+          {'day': 6, 'name': 'Sabtu'},
+        ];
+
+        final todayWeekday = DateTime.now().weekday;
+        final initialIndex = (todayWeekday >= 1 && todayWeekday <= 6) ? todayWeekday - 1 : 0;
+
+        return DefaultTabController(
+          length: 6,
+          initialIndex: initialIndex,
+          child: SizedBox(
+            height: MediaQuery.of(ctx).size.height * 0.82,
+            child: Column(
+              children: [
+                // Modal Header
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF0F172A),
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                  ),
+                  child: Row(
+                    children: [
+                      const Text('📅 ', style: TextStyle(fontSize: 18)),
+                      const Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Jadwal Mengajar Perminggu',
+                              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white),
+                            ),
+                            Text(
+                              'Senin - Sabtu',
+                              style: TextStyle(fontSize: 11, color: Color(0xFF94A3B8)),
+                            ),
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () => Navigator.pop(ctx),
+                        icon: const Icon(Icons.close_rounded, color: Colors.white, size: 20),
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Tab Bar
+                Container(
+                  color: AppColors.gray50,
+                  child: TabBar(
+                    isScrollable: true,
+                    labelColor: AppColors.blue600,
+                    unselectedLabelColor: AppColors.gray500,
+                    indicatorColor: AppColors.blue600,
+                    indicatorWeight: 3,
+                    labelStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                    tabs: days.map((d) {
+                      final dayNum = d['day'] as int;
+                      final dName  = d['name'] as String;
+                      final grp = data.weeklySchedules.firstWhere(
+                        (g) => g.day == dayNum,
+                        orElse: () => WeeklyScheduleGroup(day: dayNum, dayName: dName, count: 0, schedules: const []),
+                      );
+                      return Tab(
+                        child: Row(
+                          children: [
+                            Text(dName),
+                            if (grp.count > 0) ...[
+                              const SizedBox(width: 4),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                                decoration: BoxDecoration(
+                                  color: AppColors.blue100,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  '${grp.count}',
+                                  style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.blue700),
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+
+                // Tab Content
+                Expanded(
+                  child: TabBarView(
+                    children: days.map((d) {
+                      final dayNum = d['day'] as int;
+                      final dName  = d['name'] as String;
+                      final grp = data.weeklySchedules.firstWhere(
+                        (g) => g.day == dayNum,
+                        orElse: () => WeeklyScheduleGroup(day: dayNum, dayName: dName, count: 0, schedules: const []),
+                      );
+
+                      if (grp.schedules.isEmpty) {
+                        return Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.free_breakfast_outlined, size: 40, color: AppColors.gray400),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Tidak ada jadwal mengajar pada hari $dName.',
+                                style: const TextStyle(fontSize: 13, color: AppColors.gray500),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+
+                      return ListView.separated(
+                        padding: const EdgeInsets.all(16),
+                        itemCount: grp.schedules.length,
+                        separatorBuilder: (_, __) => const SizedBox(height: 10),
+                        itemBuilder: (_, idx) {
+                          final sch = grp.schedules[idx];
+                          return Container(
+                            padding: const EdgeInsets.all(14),
+                            decoration: BoxDecoration(
+                              color: AppColors.white,
+                              borderRadius: BorderRadius.circular(14),
+                              border: Border.all(color: AppColors.gray200),
+                              boxShadow: AppShadow.sm,
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.blue100,
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      const Text('Jam', style: TextStyle(fontSize: 9, color: AppColors.blue700, fontWeight: FontWeight.w600)),
+                                      Text(
+                                        '${sch.period}',
+                                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: AppColors.blue800),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        sch.subjectName,
+                                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.gray800),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        'Kelas ${sch.className}${sch.room != null ? ' • Ruang ${sch.room}' : ''}',
+                                        style: const TextStyle(fontSize: 12, color: AppColors.gray600),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        '⏱️ ${sch.startTime} - ${sch.endTime}',
+                                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.blue600),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

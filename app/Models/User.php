@@ -311,6 +311,11 @@ class User extends Authenticatable implements FilamentUser
 
     public function getPelanggaranCountAttribute(): int
     {
-        return $this->conductLogs()->whereHas('category', fn($q) => $q->where('type', 'pelanggaran'))->count();
+        return $this->conductLogs()
+            ->where(function ($q) {
+                $q->where('type', 'pelanggaran')
+                  ->orWhereHas('category', fn ($c) => $c->where('type', 'pelanggaran'));
+            })
+            ->count();
     }
 }

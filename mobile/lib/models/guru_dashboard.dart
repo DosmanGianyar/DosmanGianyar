@@ -104,6 +104,71 @@ class GuruMyExtracurricular {
   );
 }
 
+class TeacherScheduleItem {
+  final int id;
+  final int day;
+  final String dayName;
+  final int period;
+  final String startTime;
+  final String endTime;
+  final String? room;
+  final int classId;
+  final String className;
+  final int subjectId;
+  final String subjectName;
+
+  const TeacherScheduleItem({
+    required this.id,
+    required this.day,
+    required this.dayName,
+    required this.period,
+    required this.startTime,
+    required this.endTime,
+    this.room,
+    required this.classId,
+    required this.className,
+    required this.subjectId,
+    required this.subjectName,
+  });
+
+  factory TeacherScheduleItem.fromJson(Map<String, dynamic> json) => TeacherScheduleItem(
+    id:          json['id'] as int,
+    day:         json['day'] as int? ?? 1,
+    dayName:     json['day_name'] as String? ?? '—',
+    period:      json['period'] as int? ?? 1,
+    startTime:   json['start_time'] as String? ?? '',
+    endTime:     json['end_time'] as String? ?? '',
+    room:        json['room'] as String?,
+    classId:     json['class_id'] as int? ?? 0,
+    className:   json['class_name'] as String? ?? '—',
+    subjectId:   json['subject_id'] as int? ?? 0,
+    subjectName: json['subject_name'] as String? ?? '—',
+  );
+}
+
+class WeeklyScheduleGroup {
+  final int day;
+  final String dayName;
+  final int count;
+  final List<TeacherScheduleItem> schedules;
+
+  const WeeklyScheduleGroup({
+    required this.day,
+    required this.dayName,
+    required this.count,
+    required this.schedules,
+  });
+
+  factory WeeklyScheduleGroup.fromJson(Map<String, dynamic> json) => WeeklyScheduleGroup(
+    day:       json['day'] as int? ?? 1,
+    dayName:   json['day_name'] as String? ?? '—',
+    count:     json['count'] as int? ?? 0,
+    schedules: (json['schedules'] as List<dynamic>? ?? [])
+        .map((e) => TeacherScheduleItem.fromJson(e as Map<String, dynamic>))
+        .toList(),
+  );
+}
+
 class GuruDashboard {
   final bool isHomeroom;
   final int? homeroomClassId;
@@ -116,6 +181,9 @@ class GuruDashboard {
   final List<GuruAlert> recentAlerts;
   final List<WeeklyJournalGroup> weeklyJournals;
   final List<GuruMyExtracurricular> myExtracurriculars;
+  final String todayDayName;
+  final List<TeacherScheduleItem> todaySchedules;
+  final List<WeeklyScheduleGroup> weeklySchedules;
 
   const GuruDashboard({
     this.isHomeroom = false,
@@ -129,6 +197,9 @@ class GuruDashboard {
     required this.recentAlerts,
     required this.weeklyJournals,
     required this.myExtracurriculars,
+    this.todayDayName = 'Hari Ini',
+    this.todaySchedules = const [],
+    this.weeklySchedules = const [],
   });
 
   int get totalPending => pendingPermits + pendingEarlyCheckouts + pendingForgotAttendances;
@@ -150,6 +221,13 @@ class GuruDashboard {
         .toList(),
     myExtracurriculars: (json['my_extracurriculars'] as List<dynamic>? ?? [])
         .map((e) => GuruMyExtracurricular.fromJson(e as Map<String, dynamic>))
+        .toList(),
+    todayDayName: json['today_day_name'] as String? ?? 'Hari Ini',
+    todaySchedules: (json['today_schedules'] as List<dynamic>? ?? [])
+        .map((e) => TeacherScheduleItem.fromJson(e as Map<String, dynamic>))
+        .toList(),
+    weeklySchedules: (json['weekly_schedules'] as List<dynamic>? ?? [])
+        .map((e) => WeeklyScheduleGroup.fromJson(e as Map<String, dynamic>))
         .toList(),
   );
 }

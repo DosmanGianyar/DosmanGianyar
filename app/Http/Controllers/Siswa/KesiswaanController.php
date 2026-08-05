@@ -54,11 +54,12 @@ class KesiswaanController extends Controller
             'alpa'       => (int) ($absensi['alpa']       ?? 0) + $virtualAlpa,
         ];
 
-        // ── Perilaku (poin dihapus, gunakan count per tipe kategori) ──────────
+        // ── Perilaku ──────────────────────────────────────────────────────────
+        $allConductLogs = $siswa->conductLogs()->with('category')->latest()->get();
         $conductSummary = [
-            'total'       => (int) $siswa->conductLogs()->count(),
-            'prestasi'    => (int) $siswa->conductLogs()->whereHas('category', fn ($q) => $q->where('type', 'prestasi'))->count(),
-            'pelanggaran' => (int) $siswa->conductLogs()->whereHas('category', fn ($q) => $q->where('type', 'pelanggaran'))->count(),
+            'total'       => (int) $allConductLogs->count(),
+            'prestasi'    => (int) $allConductLogs->filter(fn ($l) => $l->isPrestasi())->count(),
+            'pelanggaran' => (int) $allConductLogs->filter(fn ($l) => $l->isPelanggaran())->count(),
         ];
 
         // ── Tab Lists ────────────────────────────────────────────────────────
@@ -67,35 +68,23 @@ class KesiswaanController extends Controller
             ->limit(15)
             ->get();
 
-        $tabPelanggaran = $siswa->conductLogs()
-            ->with('category')
-            ->whereHas('category', fn ($q) => $q->where('type', 'pelanggaran'))
-            ->latest()
-            ->limit(15)
-            ->get();
+        $tabPelanggaran = $allConductLogs->filter(fn ($l) => $l->isPelanggaran())->take(15)->values();
 
-        // Catatan positif keseharian (BUKAN Prestasi Lomba — itu StudentAchievement
-        // yang punya alur verifikasi & sertifikat sendiri, tetap terpisah).
-        $tabCatatanPositif = $siswa->conductLogs()
-            ->with('category')
-            ->whereHas('category', fn ($q) => $q->where('type', 'prestasi'))
-            ->latest()
-            ->limit(15)
-            ->get();
+        // Catatan positif keseharian
+        $tabCatatanPositif = $allConductLogs->filter(fn ($l) => $l->isPrestasi())->take(15)->values();
 
-        // Gabungan Catatan Negatif (pelanggaran) + Catatan Positif (keseharian),
-        // diurutkan kronologis, untuk tab "Catatan" dengan filter negatif/positif.
+        // Gabungan Catatan Negatif + Positif
         $tabCatatan = $tabPelanggaran->map(fn ($log) => [
                 'type'  => 'negatif',
                 'date'  => $log->created_at,
-                'title' => $log->category?->name ?? $log->note ?? '—',
-                'note'  => $log->note,
+                'title' => $log->displayCategoryName(),
+                'note'  => $log->note ?: $log->description,
             ])
             ->concat($tabCatatanPositif->map(fn ($log) => [
                 'type'  => 'positif',
                 'date'  => $log->created_at,
-                'title' => $log->category?->name ?? $log->note ?? '—',
-                'note'  => $log->note,
+                'title' => $log->displayCategoryName(),
+                'note'  => $log->note ?: $log->description,
             ]))
             ->sortByDesc('date')
             ->values();

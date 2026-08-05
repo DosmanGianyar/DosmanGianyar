@@ -6,6 +6,8 @@ use App\Filament\Resources\ExtracurricularMemberResource\Pages;
 use App\Models\ExtracurricularMember;
 use App\Services\NotificationService;
 use Filament\Actions\Action as TableAction;
+use Filament\Actions\BulkAction;
+use Filament\Actions\BulkActionGroup;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use App\Filament\Support\AdminAccess;
@@ -13,6 +15,7 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 
 class ExtracurricularMemberResource extends Resource
@@ -42,10 +45,9 @@ class ExtracurricularMemberResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('created_at')
-                    ->label('Tanggal Ajuan')
-                    ->dateTime('d M Y H:i')
-                    ->sortable(),
+                TextColumn::make('index')
+                    ->label('No.')
+                    ->rowIndex(),
 
                 TextColumn::make('user.name')
                     ->label('Nama Siswa')
@@ -115,6 +117,10 @@ class ExtracurricularMemberResource extends Resource
                                 'approved_by' => Auth::id(),
                                 'approved_at' => now(),
                             ]);
+                            \Illuminate\Support\Facades\DB::table('extracurricular_students')->updateOrInsert(
+                                ['extracurricular_id' => $r->extracurricular_id, 'student_id' => $r->user_id],
+                                ['updated_at' => now(), 'created_at' => now()]
+                            );
                             if ($r->user_id) {
                                 NotificationService::send(
                                     $r->user_id,
@@ -130,6 +136,11 @@ class ExtracurricularMemberResource extends Resource
                                 'approved_by' => Auth::id(),
                                 'approved_at' => now(),
                             ]);
+                            \Illuminate\Support\Facades\DB::table('extracurricular_students')
+                                ->where('extracurricular_id', $r->extracurricular_id)
+                                ->where('student_id', $r->user_id)
+                                ->delete();
+
                             if ($r->user_id) {
                                 NotificationService::send(
                                     $r->user_id,
@@ -169,6 +180,14 @@ class ExtracurricularMemberResource extends Resource
                             Notification::make()->title('Pendaftaran anggota ditolak.')->warning()->send();
                         } else {
                             $r->update(['status' => 'active']);
+                            if ($r->user_id) {
+                                NotificationService::send(
+                                    $r->user_id,
+                                    'Pengajuan Keluar Ekstra Ditolak',
+                                    "Pengajuan keluar dari ekstrakurikuler {$r->extracurricular?->name} tidak disetujui.",
+                                    'warning'
+                                );
+                            }
                             Notification::make()->title('Pengajuan keluar ditolak.')->warning()->send();
                         }
                     }),
@@ -200,6 +219,100 @@ class ExtracurricularMemberResource extends Resource
 
                         Notification::make()->title('Kepesertaan siswa berhasil dibatalkan.')->success()->send();
                     }),
+            ])
+            ->bulkActions([
+                BulkActionGroup::make([
+                    BulkAction::make('bulk_approve')
+                        ->label('Setujui Terpilih')
+                        ->icon('heroicon-o-check-circle')
+                        ->color('success')
+                        ->requiresConfirmation()
+                        ->action(function (Collection $records) {
+                            $count = 0;
+                            foreach ($records as $r) {
+                                if ($r->status === 'pending_join') {
+                                    $r->update([
+                                        'status'      => 'active',
+                                        'approved_by' => Auth::id(),
+                                        'approved_at' => now(),
+                                    ]);
+                                    \Illuminate\Support\Facades\DB::table('extracurricular_students')->updateOrInsert(
+                                        ['extracurricular_id' => $r->extracurricular_id, 'student_id' => $r->user_id],
+                                        ['updated_at' => now(), 'created_at' => now()]
+                                    );
+                                    if ($r->user_id) {
+                                        NotificationService::send(
+                                            $r->user_id,
+                                            'Pendaftaran Ekstra Disetujui! 🎉',
+                                            "Selamat! Pendaftaran Anda di ekstrakurikuler {$r->extracurricular?->name} telah disetujui oleh Sekolah.",
+                                            'success'
+                                        );
+                                    }
+                                    $count++;
+                                } elseif ($r->status === 'pending_leave') {
+                                    $r->update([
+                                        'status'      => 'inactive',
+                                        'approved_by' => Auth::id(),
+                                        'approved_at' => now(),
+                                    ]);
+                                    \Illuminate\Support\Facades\DB::table('extracurricular_students')
+                                        ->where('extracurricular_id', $r->extracurricular_id)
+                                        ->where('student_id', $r->user_id)
+                                        ->delete();
+
+                                    if ($r->user_id) {
+                                        NotificationService::send(
+                                            $r->user_id,
+                                            'Pengajuan Keluar Ekstra Disetujui',
+                                            "Pengajuan keluar dari ekstrakurikuler {$r->extracurricular?->name} telah disetujui.",
+                                            'info'
+                                        );
+                                    }
+                                    $count++;
+                                }
+                            }
+                            Notification::make()->title("{$count} pengajuan berhasil disetujui.").success()->send();
+                        }),
+
+                    BulkAction::make('bulk_reject')
+                        ->label('Tolak Terpilih')
+                        ->icon('heroicon-o-x-circle')
+                        ->color('danger')
+                        ->requiresConfirmation()
+                        ->action(function (Collection $records) {
+                            $count = 0;
+                            foreach ($records as $r) {
+                                if ($r->status === 'pending_join') {
+                                    $r->update([
+                                        'status'      => 'rejected',
+                                        'approved_by' => Auth::id(),
+                                        'approved_at' => now(),
+                                    ]);
+                                    if ($r->user_id) {
+                                        NotificationService::send(
+                                            $r->user_id,
+                                            'Pendaftaran Ekstra Ditolak',
+                                            "Mohon maaf, pendaftaran Anda di ekstrakurikuler {$r->extracurricular?->name} belum dapat disetujui.",
+                                            'danger'
+                                        );
+                                    }
+                                    $count++;
+                                } elseif ($r->status === 'pending_leave') {
+                                    $r->update(['status' => 'active']);
+                                    if ($r->user_id) {
+                                        NotificationService::send(
+                                            $r->user_id,
+                                            'Pengajuan Keluar Ekstra Ditolak',
+                                            "Pengajuan keluar dari ekstrakurikuler {$r->extracurricular?->name} tidak disetujui.",
+                                            'warning'
+                                        );
+                                    }
+                                    $count++;
+                                }
+                            }
+                            Notification::make()->title("{$count} pengajuan berhasil ditolak.").warning()->send();
+                        }),
+                ]),
             ])
             ->defaultSort('created_at', 'desc');
     }

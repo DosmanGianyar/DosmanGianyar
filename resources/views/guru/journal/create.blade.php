@@ -163,17 +163,19 @@ let _absentMap      = {};  // { studentId: 'tidak_hadir'|'izin'|'sakit' }
 
 function loadStudents(classId) {
     const wrap = document.getElementById('student-list-wrap');
+    const dateInput = document.querySelector('input[name="date"]');
+    const dateVal = dateInput ? dateInput.value : '';
+
     if (!classId) {
         wrap.innerHTML = '<p class="text-xs text-gray-400">Pilih kelas terlebih dahulu.</p>';
         _absentMap = {};
         renderAbsentInputs();
         return;
     }
-    wrap.innerHTML = '<p class="text-xs text-gray-400">Memuat siswa...</p>';
+    wrap.innerHTML = '<p class="text-xs text-gray-400">Memuat siswa & data absen pagi...</p>';
     _absentMap = {};
-    renderAbsentInputs();
 
-    fetch(AJAX_URL + '?class_id=' + classId)
+    fetch(AJAX_URL + '?class_id=' + classId + '&date=' + dateVal)
         .then(r => r.json())
         .then(students => {
             if (!students.length) {
@@ -182,18 +184,36 @@ function loadStudents(classId) {
             }
             let html = '<div class="space-y-1.5">';
             students.forEach(s => {
+                const sug = s.suggested_status;
+                if (sug && sug !== 'hadir') {
+                    _absentMap[s.id] = (sug === 'alpa') ? 'tidak_hadir' : sug;
+                }
+
+                const morningBadgeBg = (s.morning_status && s.morning_status !== 'hadir') 
+                    ? 'bg-amber-50 text-amber-700 border-amber-200 font-bold' 
+                    : 'bg-gray-50 text-gray-400 border-gray-100';
+
                 html += `
                 <div class="flex items-center gap-2 py-1.5 border-b border-gray-50 last:border-0" data-student-id="${s.id}">
-                    <span class="flex-1 text-sm text-gray-700 truncate">${s.name}${s.nis ? ' <span class="text-gray-400 text-xs">('+s.nis+')</span>' : ''}</span>
+                    <div class="flex-1 min-w-0">
+                        <span class="text-sm font-medium text-gray-700 truncate">${s.name}${s.nis ? ' <span class="text-gray-400 text-xs">('+s.nis+')</span>' : ''}</span>
+                        <span class="ml-1.5 text-[10px] px-1.5 py-0.5 rounded border ${morningBadgeBg}">
+                            Pagi: ${s.morning_status_label}
+                        </span>
+                    </div>
                     <div class="flex gap-1 shrink-0">
-                        ${['tidak_hadir','izin','sakit'].map((st, i) => {
-                            const labels = ['A','I','S'];
-                            const colors = ['red','sky','purple'];
-                            return `<button type="button" onclick="toggleAbsent(${s.id},'${st}',this)"
-                                data-status="${st}"
+                        ${[
+                            {st: 'tidak_hadir', label: 'A', color: 'red'},
+                            {st: 'izin',        label: 'I', color: 'sky'},
+                            {st: 'sakit',       label: 'S', color: 'purple'},
+                            {st: 'dispensasi',  label: 'D', color: 'teal'}
+                        ].map(item => {
+                            const isSelected = _absentMap[s.id] === item.st;
+                            return `<button type="button" onclick="toggleAbsent(${s.id},'${item.st}',this)"
+                                data-status="${item.st}"
                                 class="w-7 h-7 rounded-lg border text-xs font-bold transition-colors absent-btn
-                                    bg-gray-50 border-gray-200 text-gray-400 hover:border-${colors[i]}-400">
-                                ${labels[i]}
+                                    ${isSelected ? `bg-${item.color}-600 border-${item.color}-600 text-white` : `bg-gray-50 border-gray-200 text-gray-400 hover:border-${item.color}-400`}">
+                                ${item.label}
                             </button>`;
                         }).join('')}
                     </div>
@@ -201,6 +221,7 @@ function loadStudents(classId) {
             });
             html += '</div>';
             wrap.innerHTML = html;
+            renderAbsentInputs();
         })
         .catch(() => {
             wrap.innerHTML = '<p class="text-xs text-red-500">Gagal memuat siswa.</p>';
@@ -210,15 +231,12 @@ function loadStudents(classId) {
 function toggleAbsent(studentId, status, btn) {
     const row = btn.closest('[data-student-id]');
     const btns = row.querySelectorAll('.absent-btn');
-    const colors = { 'tidak_hadir': 'red', 'izin': 'sky', 'sakit': 'purple' };
+    const colors = { 'tidak_hadir': 'red', 'izin': 'sky', 'sakit': 'purple', 'dispensasi': 'teal' };
 
     if (_absentMap[studentId] === status) {
-        // deselect
         delete _absentMap[studentId];
         btns.forEach(b => {
-            b.classList.remove('text-white', 'border-red-500', 'bg-red-500',
-                'border-sky-500', 'bg-sky-500', 'border-purple-500', 'bg-purple-500');
-            b.classList.add('bg-gray-50', 'border-gray-200', 'text-gray-400');
+            b.className = 'w-7 h-7 rounded-lg border text-xs font-bold transition-colors absent-btn bg-gray-50 border-gray-200 text-gray-400';
         });
     } else {
         _absentMap[studentId] = status;
@@ -226,11 +244,9 @@ function toggleAbsent(studentId, status, btn) {
             const s = b.dataset.status;
             const c = colors[s];
             if (s === status) {
-                b.classList.remove('bg-gray-50', 'border-gray-200', 'text-gray-400');
-                b.classList.add(`bg-${c}-500`, `border-${c}-500`, 'text-white');
+                b.className = `w-7 h-7 rounded-lg border text-xs font-bold transition-colors absent-btn bg-${c}-600 border-${c}-600 text-white`;
             } else {
-                b.classList.remove('text-white', `border-${colors[b.dataset.status]}-500`, `bg-${colors[b.dataset.status]}-500`);
-                b.classList.add('bg-gray-50', 'border-gray-200', 'text-gray-400');
+                b.className = `w-7 h-7 rounded-lg border text-xs font-bold transition-colors absent-btn bg-gray-50 border-gray-200 text-gray-400`;
             }
         });
     }

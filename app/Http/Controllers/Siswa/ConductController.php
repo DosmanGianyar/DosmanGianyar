@@ -18,8 +18,9 @@ class ConductController extends Controller
             ->latest()
             ->paginate(20);
 
-        $prestasiCount    = $user->conductLogs()->whereHas('category', fn ($q) => $q->where('type', 'prestasi'))->count();
-        $pelanggaranCount = $user->conductLogs()->whereHas('category', fn ($q) => $q->where('type', 'pelanggaran'))->count();
+        $allLogs = $user->conductLogs()->with('category')->get();
+        $prestasiCount    = $allLogs->filter(fn ($l) => $l->isPrestasi())->count();
+        $pelanggaranCount = $allLogs->filter(fn ($l) => $l->isPelanggaran())->count();
 
         return view('siswa.conduct.index', compact('logs', 'prestasiCount', 'pelanggaranCount'));
     }

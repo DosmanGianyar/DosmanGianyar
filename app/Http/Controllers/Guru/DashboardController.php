@@ -25,8 +25,8 @@ class DashboardController extends Controller
         // Siswa dengan pelanggaran terbanyak di kelas wali
         $recentAlerts = User::where('role', 'siswa')
             ->when($classId, fn($q) => $q->where('class_id', $classId))
-            ->whereHas('conductLogs.category', fn($c) => $c->where('type', 'pelanggaran'))
-            ->withCount(['conductLogs as pelanggaran_count' => fn($q) => $q->whereHas('category', fn($c) => $c->where('type', 'pelanggaran'))])
+            ->whereHas('conductLogs', fn($q) => $q->where('type', 'pelanggaran')->orWhereHas('category', fn($c) => $c->where('type', 'pelanggaran')))
+            ->withCount(['conductLogs as pelanggaran_count' => fn($q) => $q->where('type', 'pelanggaran')->orWhereHas('category', fn($c) => $c->where('type', 'pelanggaran'))])
             ->orderByDesc('pelanggaran_count')
             ->limit(5)
             ->get()
@@ -55,12 +55,43 @@ class DashboardController extends Controller
             ->withCount(['activeMembers as members_count'])
             ->get();
 
+        // Jadwal Mengajar Hari Ini & Perminggu
+        $todayIso = (int) now()->dayOfWeekIso; // 1=Senin .. 7=Minggu
+        $dayNames = [1 => 'Senin', 2 => 'Selasa', 3 => 'Rabu', 4 => 'Kamis', 5 => 'Jumat', 6 => 'Sabtu', 7 => 'Minggu'];
+        $todayDayName = $dayNames[$todayIso] ?? 'Hari Ini';
+
+        $todaySchedules = \App\Models\Schedule::where('teacher_id', $guru->id)
+            ->where('day', $todayIso)
+            ->with(['schoolClass', 'subject'])
+            ->orderBy('period')
+            ->orderBy('start_time')
+            ->get();
+
+        $weeklySchedules = \App\Models\Schedule::where('teacher_id', $guru->id)
+            ->with(['schoolClass', 'subject'])
+            ->orderBy('day')
+            ->orderBy('period')
+            ->orderBy('start_time')
+            ->get()
+            ->groupBy('day');
+
         $stats = [
             'alert_kritis'   => $recentAlerts->count(),
             'total_students' => $totalStudents,
             'total_journals' => TeacherJournal::where('teacher_id', $guru->id)->count(),
+            'today_schedules_count' => $todaySchedules->count(),
         ];
 
-        return view('guru.dashboard', compact('guru', 'stats', 'recentAlerts', 'weeklyJournals', 'myExtracurriculars'));
+        return view('guru.dashboard', compact(
+            'guru',
+            'stats',
+            'recentAlerts',
+            'weeklyJournals',
+            'myExtracurriculars',
+            'todaySchedules',
+            'weeklySchedules',
+            'todayDayName',
+            'dayNames'
+        ));
     }
 }

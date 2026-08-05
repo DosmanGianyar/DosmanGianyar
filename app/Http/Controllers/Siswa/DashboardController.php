@@ -48,8 +48,8 @@ class DashboardController extends Controller
 
         // ─── Conduct Summary ──────────────────────────────────────────
         $logs          = $siswa->conductLogs()->with('category')->latest()->get();
-        $prestasiCount = $logs->filter(fn($l) => $l->category?->type === 'prestasi')->count();
-        $pelanggaranCount = $logs->filter(fn($l) => $l->category?->type === 'pelanggaran')->count();
+        $prestasiCount = $logs->filter(fn($l) => $l->isPrestasi())->count();
+        $pelanggaranCount = $logs->filter(fn($l) => $l->isPelanggaran())->count();
         $pointSummary  = [
             'total'       => $logs->count(),
             'prestasi'    => $prestasiCount,
@@ -59,9 +59,9 @@ class DashboardController extends Controller
         // ─── Recent 3 Conduct Logs ────────────────────────────────────
         $recentPoints = $logs->take(3)->map(fn($log) => [
             'date'  => $log->created_at->toDateString(),
-            'type'  => $log->category?->type ?? 'pelanggaran',
-            'desc'  => $log->category?->name ?? $log->note ?? '—',
-            'point' => $log->category?->type === 'prestasi' ? 'Catatan Positif' : 'Catatan Negatif',
+            'type'  => $log->isPrestasi() ? 'prestasi' : 'pelanggaran',
+            'desc'  => $log->displayCategoryName(),
+            'point' => $log->isPrestasi() ? 'Catatan Positif' : 'Catatan Negatif',
         ]);
 
         // ─── Recent Announcements ─────────────────────────────────────

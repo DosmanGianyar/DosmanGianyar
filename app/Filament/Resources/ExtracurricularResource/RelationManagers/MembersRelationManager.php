@@ -4,11 +4,14 @@ namespace App\Filament\Resources\ExtracurricularResource\RelationManagers;
 
 use App\Models\ExtracurricularMember;
 use Filament\Actions\Action as TableAction;
+use Filament\Actions\BulkAction;
+use Filament\Actions\BulkActionGroup;
 use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 
 class MembersRelationManager extends RelationManager
@@ -22,6 +25,10 @@ class MembersRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('user.name')
             ->columns([
+                TextColumn::make('index')
+                    ->label('No.')
+                    ->rowIndex(),
+
                 TextColumn::make('user.name')
                     ->label('Nama Siswa')
                     ->searchable()
@@ -51,11 +58,6 @@ class MembersRelationManager extends RelationManager
                         'pending_leave' => 'danger',
                         default         => 'gray',
                     }),
-
-                TextColumn::make('created_at')
-                    ->label('Tanggal Daftar')
-                    ->date('d M Y')
-                    ->sortable(),
             ])
             ->filters([
                 SelectFilter::make('status')
@@ -143,6 +145,67 @@ class MembersRelationManager extends RelationManager
                     ->visible(fn (ExtracurricularMember $r) => $r->status === 'active')
                     ->requiresConfirmation()
                     ->action(fn (ExtracurricularMember $r) => $r->delete()),
+            ])
+            ->bulkActions([
+                BulkActionGroup::make([
+                    BulkAction::make('bulk_approve')
+                        ->label('Setujui Terpilih')
+                        ->icon('heroicon-o-check-circle')
+                        ->color('success')
+                        ->requiresConfirmation()
+                        ->action(function (Collection $records) {
+                            $count = 0;
+                            foreach ($records as $r) {
+                                if ($r->status === 'pending_join') {
+                                    $r->update([
+                                        'status'      => 'active',
+                                        'approved_by' => Auth::id(),
+                                        'approved_at' => now(),
+                                    ]);
+                                    \Illuminate\Support\Facades\DB::table('extracurricular_students')->updateOrInsert(
+                                        ['extracurricular_id' => $r->extracurricular_id, 'student_id' => $r->user_id],
+                                        ['updated_at' => now(), 'created_at' => now()]
+                                    );
+                                    $count++;
+                                } elseif ($r->status === 'pending_leave') {
+                                    $r->update([
+                                        'status'      => 'inactive',
+                                        'approved_by' => Auth::id(),
+                                        'approved_at' => now(),
+                                    ]);
+                                    \Illuminate\Support\Facades\DB::table('extracurricular_students')
+                                        ->where('extracurricular_id', $r->extracurricular_id)
+                                        ->where('student_id', $r->user_id)
+                                        ->delete();
+                                    $count++;
+                                }
+                            }
+                            Notification::make()->title("{$count} pengajuan berhasil disetujui.").success()->send();
+                        }),
+
+                    BulkAction::make('bulk_reject')
+                        ->label('Tolak Terpilih')
+                        ->icon('heroicon-o-x-circle')
+                        ->color('danger')
+                        ->requiresConfirmation()
+                        ->action(function (Collection $records) {
+                            $count = 0;
+                            foreach ($records as $r) {
+                                if ($r->status === 'pending_join') {
+                                    $r->update([
+                                        'status'      => 'rejected',
+                                        'approved_by' => Auth::id(),
+                                        'approved_at' => now(),
+                                    ]);
+                                    $count++;
+                                } elseif ($r->status === 'pending_leave') {
+                                    $r->update(['status' => 'active']);
+                                    $count++;
+                                }
+                            }
+                            Notification::make()->title("{$count} pengajuan berhasil ditolak.").warning()->send();
+                        }),
+                ]),
             ])
             ->defaultSort('created_at', 'desc');
     }

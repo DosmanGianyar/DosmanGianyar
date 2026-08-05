@@ -26,14 +26,12 @@ class DashboardController extends Controller
                 ->whereDate('date', today())
                 ->first();
 
-            $violationPoints = ConductLog::where('student_id', $child->id)
+            $violationCount = ConductLog::where('student_id', $child->id)
                 ->where(function ($query) {
                     $query->where('type', 'pelanggaran')
                           ->orWhereHas('category', fn ($q) => $q->where('type', 'pelanggaran'));
                 })
-                ->with('category')
-                ->get()
-                ->sum(fn ($log) => $log->category?->points ?? 0);
+                ->count();
 
             $achievementCount = StudentAchievement::where('student_id', $child->id)->count()
                 + ConductLog::where('student_id', $child->id)
@@ -49,7 +47,8 @@ class DashboardController extends Controller
                 'monthly_summary'   => $monthData['summary'],
                 'percentage'        => $monthData['attendance_percentage'],
                 'total_days'        => $monthData['total_days'],
-                'violation_points'  => $violationPoints,
+                'violation_count'   => $violationCount,
+                'violation_points'  => $violationCount, // alias for backward compatibility
                 'achievement_count' => $achievementCount,
             ];
         });

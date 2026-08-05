@@ -33,4 +33,27 @@ class CreateConductLog extends CreateRecord
 
         return $data;
     }
+
+    protected function afterCreate(): void
+    {
+        /** @var \App\Models\ConductLog $record */
+        $record = $this->record;
+        $student = \App\Models\User::find($record->student_id);
+
+        if ($student) {
+            $isPrestasi = $record->isPrestasi();
+            $title = $isPrestasi ? 'Catatan Positif Siswa' : 'Catatan Negatif Siswa';
+            $body = $record->displayCategoryName() . ($record->note ? " — {$record->note}" : '');
+            $type = $isPrestasi ? 'success' : 'warning';
+
+            // 1. Send to Student
+            \App\Services\NotificationService::send($student->id, $title, $body, $type, route('siswa.conduct.index'));
+
+            // 2. Send to Parents
+            \App\Services\NotificationService::notifyParentsOfStudent($student, "Catatan Perilaku Anak", "Ananda {$student->name}: {$body}", $type);
+
+            // 3. Send to Homeroom Teacher
+            \App\Services\NotificationService::notifyHomeroomTeacher($student, "Catatan Perilaku Siswa Kelas", "Siswa {$student->name}: {$body}", $type);
+        }
+    }
 }

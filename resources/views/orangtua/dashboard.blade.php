@@ -183,14 +183,14 @@
         {{-- Important Information Summary Badges (Conduct & Achievement) --}}
         <div class="grid grid-cols-2 gap-2 pt-1 border-t border-gray-100">
             <a href="{{ route('orangtua.conduct.index', $child->id) }}"
-               class="bg-gray-50 border border-gray-100 rounded-2xl p-3 flex items-center justify-between hover:bg-amber-50/60 hover:border-amber-200 transition-colors">
+               class="bg-gray-50 border border-gray-100 rounded-2xl p-3 flex items-center justify-between hover:bg-rose-50/60 hover:border-rose-200 transition-colors">
                 <div>
-                    <p class="text-[10px] text-gray-400 font-semibold uppercase">Poin Pelanggaran</p>
+                    <p class="text-[10px] text-gray-400 font-semibold uppercase">Catatan Negatif</p>
                     <p class="text-base font-bold text-gray-800 mt-0.5">
-                        {{ $data['violation_points'] }} <span class="text-xs font-normal text-gray-500">Poin</span>
+                        {{ $data['violation_count'] ?? $data['violation_points'] }} <span class="text-xs font-normal text-gray-500">Catatan</span>
                     </p>
                 </div>
-                <span class="w-8 h-8 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center text-sm">⚠️</span>
+                <span class="w-8 h-8 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center text-sm">⚠️</span>
             </a>
 
             <a href="{{ route('orangtua.achievements.index', $child->id) }}"

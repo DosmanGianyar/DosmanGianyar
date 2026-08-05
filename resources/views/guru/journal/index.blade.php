@@ -49,11 +49,29 @@
 
             <a href="{{ route('guru.journal.print', ['month' => $month, 'year' => $year, 'class_id' => $classId]) }}"
                 target="_blank"
-                class="flex items-center gap-1.5 px-4 py-2.5 bg-gray-100 text-gray-700 text-sm font-semibold rounded-xl hover:bg-gray-200 transition-colors shrink-0">
+                class="flex items-center gap-1.5 px-3 py-2.5 bg-gray-100 text-gray-700 text-sm font-semibold rounded-xl hover:bg-gray-200 transition-colors shrink-0">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
                 </svg>
-                Cetak
+                Cetak Bulanan
+            </a>
+            <a href="{{ route('guru.journal.print-weekly', ['week_date' => now()->toDateString(), 'class_id' => $classId]) }}"
+                target="_blank"
+                class="flex items-center gap-1.5 px-3 py-2.5 bg-indigo-50 text-indigo-700 border border-indigo-200 text-sm font-semibold rounded-xl hover:bg-indigo-100 transition-colors shrink-0"
+                title="Cetak Jurnal Mengajar Minggu Ini">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+                Cetak Jurnal Perminggu (PDF)
+            </a>
+            <a href="{{ route('guru.journal.print-weekly-attendance', ['week_date' => now()->toDateString(), 'class_id' => $classId]) }}"
+                target="_blank"
+                class="flex items-center gap-1.5 px-3 py-2.5 bg-emerald-50 text-emerald-700 border border-emerald-200 text-sm font-semibold rounded-xl hover:bg-emerald-100 transition-colors shrink-0"
+                title="Cetak Rekap Absen Siswa Perminggu">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                Cetak Absen Perminggu (PDF)
             </a>
             <a href="{{ route('guru.journal.create') }}"
                 class="flex items-center gap-1.5 px-4 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 transition-colors shrink-0">
@@ -110,10 +128,10 @@
                 </span>
                 @endif
                 <form method="POST" action="{{ route('guru.journal.destroy', $journal) }}"
-                    onsubmit="return confirm('Hapus jurnal ini?')">
+                    onsubmit="return confirm('Apakah Anda yakin ingin menghapus jurnal ini?')">
                     @csrf @method('DELETE')
-                    <button type="submit"
-                        class="w-8 h-8 flex items-center justify-center rounded-xl hover:bg-red-100 text-gray-400 hover:text-red-500 transition-colors">
+                    <button type="submit" title="Hapus Jurnal"
+                        class="w-8 h-8 flex items-center justify-center rounded-xl bg-white border border-gray-200 hover:bg-red-50 text-gray-400 hover:text-red-600 hover:border-red-200 transition-colors shadow-xs">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
@@ -157,9 +175,11 @@
                     @foreach($journal->absences as $abs)
                     @php
                         $statusConfig = [
-                            'tidak_hadir' => ['label' => 'A', 'bg' => 'bg-red-100', 'text' => 'text-red-600'],
-                            'izin'        => ['label' => 'I', 'bg' => 'bg-sky-100',  'text' => 'text-sky-600'],
-                            'sakit'       => ['label' => 'S', 'bg' => 'bg-purple-100','text' => 'text-purple-600'],
+                            'tidak_hadir' => ['label' => 'A', 'bg' => 'bg-red-100',    'text' => 'text-red-600'],
+                            'alpa'        => ['label' => 'A', 'bg' => 'bg-red-100',    'text' => 'text-red-600'],
+                            'izin'       => ['label' => 'I', 'bg' => 'bg-sky-100',    'text' => 'text-sky-600'],
+                            'sakit'      => ['label' => 'S', 'bg' => 'bg-purple-100', 'text' => 'text-purple-600'],
+                            'dispensasi' => ['label' => 'D', 'bg' => 'bg-teal-100',   'text' => 'text-teal-600'],
                         ];
                         $cfg = $statusConfig[$abs->status] ?? ['label' => '?', 'bg' => 'bg-gray-100', 'text' => 'text-gray-500'];
                     @endphp

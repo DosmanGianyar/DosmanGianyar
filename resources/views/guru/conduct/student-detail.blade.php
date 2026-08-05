@@ -56,13 +56,13 @@
                     </svg>
                 </div>
                 <div class="flex-1 min-w-0">
-                    <p class="text-sm font-medium text-gray-800">{{ $log->category->name }}</p>
-                    @if($log->note)
-                        <p class="text-xs text-gray-500 mt-0.5">{{ $log->note }}</p>
+                    <p class="text-sm font-medium text-gray-800">{{ $log->displayCategoryName() }}</p>
+                    @if($log->note || ($log->description && $log->description !== $log->displayCategoryName()))
+                        <p class="text-xs text-gray-500 mt-0.5">{{ $log->note ?: $log->description }}</p>
                     @endif
                     <p class="text-xs text-gray-400 mt-0.5">
                         {{ $log->created_at->isoFormat('D MMM Y, HH:mm') }}
-                        · oleh {{ $log->teacher->name }}
+                        · oleh {{ $log->teacher?->name ?? 'Sistem/Admin' }}
                     </p>
                 </div>
                 <div class="flex items-center gap-2 shrink-0">

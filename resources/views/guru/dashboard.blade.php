@@ -33,6 +33,183 @@
 </div>
 @endif
 
+{{-- ─── Jadwal Mengajar Guru (Hari Ini & Perminggu) ───────────────── --}}
+<div x-data="{ showWeeklyModal: false, activeTab: {{ (int) now()->dayOfWeekIso <= 6 ? (int) now()->dayOfWeekIso : 1 }} }}" class="mb-5">
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        {{-- Card Header --}}
+        <div class="px-4 py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white flex items-center justify-between cursor-pointer"
+             @click="showWeeklyModal = true">
+            <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center text-white">
+                    <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="font-bold text-sm text-white flex items-center gap-2">
+                        Jadwal Mengajar Hari Ini ({{ $todayDayName }})
+                    </h3>
+                    <p class="text-[11px] text-blue-100">Klik untuk melihat jadwal lengkap perminggu</p>
+                </div>
+            </div>
+            <button type="button" @click.stop="showWeeklyModal = true"
+                class="px-3 py-1.5 bg-white/20 hover:bg-white/30 backdrop-blur-md border border-white/30 text-white text-xs font-bold rounded-xl transition-all flex items-center gap-1.5">
+                <span>🗓️ Jadwal Perminggu</span>
+            </button>
+        </div>
+
+        {{-- Today's Schedule List --}}
+        <div class="p-4">
+            @if(isset($todaySchedules) && $todaySchedules->isNotEmpty())
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    @foreach($todaySchedules as $sch)
+                        <div class="p-3 bg-blue-50/60 border border-blue-100 rounded-xl flex items-start justify-between gap-2">
+                            <div class="space-y-1">
+                                <div class="flex items-center gap-2">
+                                    <span class="px-2 py-0.5 bg-blue-600 text-white text-[11px] font-bold rounded-md">
+                                        Jam ke-{{ $sch->period }}
+                                    </span>
+                                    <span class="text-xs font-bold text-gray-800">
+                                        {{ \Carbon\Carbon::parse($sch->start_time)->format('H:i') }} - {{ \Carbon\Carbon::parse($sch->end_time)->format('H:i') }}
+                                    </span>
+                                </div>
+                                <p class="text-sm font-bold text-blue-900 leading-tight">
+                                    {{ $sch->subject?->name ?? '—' }}
+                                </p>
+                                <p class="text-xs font-medium text-gray-600 flex items-center gap-1">
+                                    <span>🏫 Kelas {{ $sch->schoolClass?->name ?? '—' }}</span>
+                                    @if($sch->room)
+                                        <span>• 📍 {{ $sch->room }}</span>
+                                    @endif
+                                </p>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            @else
+                <div class="py-4 text-center">
+                    <p class="text-xs font-medium text-gray-500">Tidak ada jadwal mengajar pada hari {{ $todayDayName }}.</p>
+                    <button type="button" @click="showWeeklyModal = true"
+                        class="mt-2 text-xs font-bold text-blue-600 hover:text-blue-700 underline">
+                        Lihat Jadwal Mengajar Hari Lain (Perminggu) →
+                    </button>
+                </div>
+            @endif
+        </div>
+    </div>
+
+    {{-- ─── Modal / Full View Jadwal Perminggu ───────────────────────── --}}
+    <template x-teleport="body">
+        <div x-show="showWeeklyModal" x-cloak
+            class="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+            x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100"
+            x-transition:leave="transition ease-in duration-150"
+            x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0">
+
+            <div class="bg-white rounded-2xl shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden border border-gray-100"
+                @click.outside="showWeeklyModal = false">
+
+                {{-- Modal Header --}}
+                <div class="px-5 py-4 bg-slate-900 text-white flex items-center justify-between shrink-0">
+                    <div class="flex items-center gap-2.5">
+                        <span class="text-xl">📅</span>
+                        <div>
+                            <h3 class="font-bold text-base text-white">Jadwal Mengajar Perminggu</h3>
+                            <p class="text-xs text-slate-300">Tahun Ajaran {{ $todaySchedules->first()?->academic_year ?? '2025/2026' }}</p>
+                        </div>
+                    </div>
+                    <button @click="showWeeklyModal = false"
+                        class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors">
+                        ✕
+                    </button>
+                </div>
+
+                {{-- Day Tabs --}}
+                <div class="px-5 py-3 bg-slate-50 border-b border-gray-200 flex gap-2 overflow-x-auto shrink-0">
+                    @foreach([1 => 'Senin', 2 => 'Selasa', 3 => 'Rabu', 4 => 'Kamis', 5 => 'Jumat', 6 => 'Sabtu'] as $dNum => $dName)
+                        @php
+                            $hasClasses = isset($weeklySchedules[$dNum]) && $weeklySchedules[$dNum]->count() > 0;
+                        @endphp
+                        <button type="button" @click="activeTab = {{ $dNum }}"
+                            :class="activeTab === {{ $dNum }} ? 'bg-blue-600 text-white shadow-sm font-bold' : 'bg-white text-gray-700 hover:bg-gray-100 font-medium'"
+                            class="px-3.5 py-2 text-xs rounded-xl border border-gray-200 transition-all flex items-center gap-1.5 shrink-0">
+                            <span>{{ $dName }}</span>
+                            @if($hasClasses)
+                                <span class="w-5 h-5 rounded-full text-[10px] flex items-center justify-center"
+                                    :class="activeTab === {{ $dNum }} ? 'bg-white/20 text-white' : 'bg-blue-100 text-blue-700'">
+                                    {{ $weeklySchedules[$dNum]->count() }}
+                                </span>
+                            @endif
+                        </button>
+                    @endforeach
+                </div>
+
+                {{-- Modal Body / Content per Tab --}}
+                <div class="p-5 overflow-y-auto flex-1 space-y-4">
+                    @foreach([1 => 'Senin', 2 => 'Selasa', 3 => 'Rabu', 4 => 'Kamis', 5 => 'Jumat', 6 => 'Sabtu'] as $dNum => $dName)
+                        <div x-show="activeTab === {{ $dNum }}">
+                            @if(isset($weeklySchedules[$dNum]) && $weeklySchedules[$dNum]->isNotEmpty())
+                                <div class="overflow-x-auto border border-gray-200 rounded-xl shadow-sm">
+                                    <table class="w-full text-left text-xs">
+                                        <thead class="bg-gray-50 border-b border-gray-200 text-gray-600 font-bold uppercase tracking-wider">
+                                            <tr>
+                                                <th class="px-4 py-3 text-center w-20">Jam Ke</th>
+                                                <th class="px-4 py-3 w-32">Waktu</th>
+                                                <th class="px-4 py-3">Mata Pelajaran</th>
+                                                <th class="px-4 py-3">Kelas</th>
+                                                <th class="px-4 py-3">Ruang</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-gray-100 bg-white">
+                                            @foreach($weeklySchedules[$dNum] as $sch)
+                                                <tr class="hover:bg-blue-50/40 transition-colors">
+                                                    <td class="px-4 py-3 text-center">
+                                                        <span class="px-2.5 py-1 bg-blue-100 text-blue-800 rounded-md font-bold text-[11px]">
+                                                            {{ $sch->period }}
+                                                        </span>
+                                                    </td>
+                                                    <td class="px-4 py-3 font-semibold text-gray-700">
+                                                        {{ \Carbon\Carbon::parse($sch->start_time)->format('H:i') }} - {{ \Carbon\Carbon::parse($sch->end_time)->format('H:i') }}
+                                                    </td>
+                                                    <td class="px-4 py-3 font-bold text-gray-900">
+                                                        {{ $sch->subject?->name ?? '—' }}
+                                                    </td>
+                                                    <td class="px-4 py-3 font-semibold text-blue-600">
+                                                        {{ $sch->schoolClass?->name ?? '—' }}
+                                                    </td>
+                                                    <td class="px-4 py-3 text-gray-500">
+                                                        {{ $sch->room ?? '—' }}
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            @else
+                                <div class="py-12 text-center text-sm text-gray-400 bg-gray-50 rounded-xl border border-dashed border-gray-200">
+                                    <span>☕ Tidak ada jadwal mengajar pada hari {{ $dName }}.</span>
+                                </div>
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
+
+                {{-- Modal Footer --}}
+                <div class="px-5 py-3 bg-gray-50 border-t border-gray-200 flex justify-end shrink-0">
+                    <button type="button" @click="showWeeklyModal = false"
+                        class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 text-xs font-bold rounded-xl transition-colors">
+                        Tutup
+                    </button>
+                </div>
+            </div>
+        </div>
+    </template>
+</div>
+
 {{-- ─── Stat Cards ─────────────────────────────────────────────────── --}}
 <div class="grid grid-cols-2 gap-3 mb-5">
 

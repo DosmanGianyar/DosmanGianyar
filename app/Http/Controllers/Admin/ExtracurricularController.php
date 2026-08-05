@@ -117,7 +117,7 @@ class ExtracurricularController extends Controller
     public function approvals(): View
     {
         $pendingMembers = \App\Models\ExtracurricularMember::whereIn('status', ['pending_join', 'pending_leave'])
-            ->with(['student:id,name,class_id,nis', 'student.schoolClass:id,name', 'extracurricular:id,name'])
+            ->with(['user:id,name,class_id,nis', 'user.schoolClass:id,name', 'extracurricular:id,name'])
             ->latest()
             ->paginate(25);
 
@@ -126,7 +126,7 @@ class ExtracurricularController extends Controller
 
     public function approveMember(int $id)
     {
-        $member = \App\Models\ExtracurricularMember::with(['extracurricular', 'student'])->findOrFail($id);
+        $member = \App\Models\ExtracurricularMember::with(['extracurricular', 'user'])->findOrFail($id);
 
         if ($member->status === 'pending_join') {
             $member->update([
@@ -134,7 +134,11 @@ class ExtracurricularController extends Controller
                 'approved_by' => auth()->id(),
                 'approved_at' => now(),
             ]);
-            if ($member->student) {
+            \Illuminate\Support\Facades\DB::table('extracurricular_students')->updateOrInsert(
+                ['extracurricular_id' => $member->extracurricular_id, 'student_id' => $member->user_id],
+                ['updated_at' => now(), 'created_at' => now()]
+            );
+            if ($member->user_id) {
                 \App\Services\NotificationService::send(
                     $member->user_id,
                     'Pendaftaran Ekstra Disetujui! 🎉',
@@ -148,6 +152,19 @@ class ExtracurricularController extends Controller
                 'approved_by' => auth()->id(),
                 'approved_at' => now(),
             ]);
+            \Illuminate\Support\Facades\DB::table('extracurricular_students')
+                ->where('extracurricular_id', $member->extracurricular_id)
+                ->where('student_id', $member->user_id)
+                ->delete();
+
+            if ($member->user_id) {
+                \App\Services\NotificationService::send(
+                    $member->user_id,
+                    'Pengajuan Keluar Ekstra Disetujui',
+                    "Pengajuan keluar dari ekstrakurikuler {$member->extracurricular?->name} telah disetujui.",
+                    'info'
+                );
+            }
         }
 
         return back()->with('success', 'Pengajuan anggota ekstra berhasil disetujui.');
@@ -155,7 +172,7 @@ class ExtracurricularController extends Controller
 
     public function rejectMember(int $id)
     {
-        $member = \App\Models\ExtracurricularMember::with(['extracurricular', 'student'])->findOrFail($id);
+        $member = \App\Models\ExtracurricularMember::with(['extracurricular', 'user'])->findOrFail($id);
 
         if ($member->status === 'pending_join') {
             $member->update([
@@ -163,7 +180,7 @@ class ExtracurricularController extends Controller
                 'approved_by' => auth()->id(),
                 'approved_at' => now(),
             ]);
-            if ($member->student) {
+            if ($member->user_id) {
                 \App\Services\NotificationService::send(
                     $member->user_id,
                     'Pendaftaran Ekstra Ditolak',
@@ -173,16 +190,128 @@ class ExtracurricularController extends Controller
             }
         } else {
             $member->update(['status' => 'active']);
+            if ($member->user_id) {
+                \App\Services\NotificationService::send(
+                    $member->user_id,
+                    'Pengajuan Keluar Ekstra Ditolak',
+                    "Pengajuan keluar dari ekstrakurikuler {$member->extracurricular?->name} tidak disetujui.",
+                    'warning'
+                );
+            }
         }
 
         return back()->with('success', 'Pengajuan anggota ekstra berhasil ditolak.');
     }
 
+    public function bulkApproveMember(Request $request)
+    {
+        $ids = $request->input('member_ids', []);
+        if (empty($ids)) {
+            return back()->with('error', 'Tidak ada pengajuan yang dipilih.');
+        }
+
+        $members = \App\Models\ExtracurricularMember::with(['extracurricular', 'user'])->whereIn('id', $ids)->get();
+        $count = 0;
+
+        foreach ($members as $member) {
+            if ($member->status === 'pending_join') {
+                $member->update([
+                    'status'      => 'active',
+                    'approved_by' => auth()->id(),
+                    'approved_at' => now(),
+                ]);
+                \Illuminate\Support\Facades\DB::table('extracurricular_students')->updateOrInsert(
+                    ['extracurricular_id' => $member->extracurricular_id, 'student_id' => $member->user_id],
+                    ['updated_at' => now(), 'created_at' => now()]
+                );
+                if ($member->user_id) {
+                    \App\Services\NotificationService::send(
+                        $member->user_id,
+                        'Pendaftaran Ekstra Disetujui! 🎉',
+                        "Pendaftaran Anda di ekstrakurikuler {$member->extracurricular?->name} telah disetujui oleh Sekolah.",
+                        'success'
+                    );
+                }
+                $count++;
+            } elseif ($member->status === 'pending_leave') {
+                $member->update([
+                    'status'      => 'inactive',
+                    'approved_by' => auth()->id(),
+                    'approved_at' => now(),
+                ]);
+                \Illuminate\Support\Facades\DB::table('extracurricular_students')
+                    ->where('extracurricular_id', $member->extracurricular_id)
+                    ->where('student_id', $member->user_id)
+                    ->delete();
+
+                if ($member->user_id) {
+                    \App\Services\NotificationService::send(
+                        $member->user_id,
+                        'Pengajuan Keluar Ekstra Disetujui',
+                        "Pengajuan keluar dari ekstrakurikuler {$member->extracurricular?->name} telah disetujui.",
+                        'info'
+                    );
+                }
+                $count++;
+            }
+        }
+
+        return back()->with('success', "Sebanyak {$count} pengajuan ekstra berhasil disetujui.");
+    }
+
+    public function bulkRejectMember(Request $request)
+    {
+        $ids = $request->input('member_ids', []);
+        if (empty($ids)) {
+            return back()->with('error', 'Tidak ada pengajuan yang dipilih.');
+        }
+
+        $members = \App\Models\ExtracurricularMember::with(['extracurricular', 'user'])->whereIn('id', $ids)->get();
+        $count = 0;
+
+        foreach ($members as $member) {
+            if ($member->status === 'pending_join') {
+                $member->update([
+                    'status'      => 'rejected',
+                    'approved_by' => auth()->id(),
+                    'approved_at' => now(),
+                ]);
+                if ($member->user_id) {
+                    \App\Services\NotificationService::send(
+                        $member->user_id,
+                        'Pendaftaran Ekstra Ditolak',
+                        "Mohon maaf, pendaftaran Anda di ekstrakurikuler {$member->extracurricular?->name} belum dapat disetujui.",
+                        'danger'
+                    );
+                }
+                $count++;
+            } elseif ($member->status === 'pending_leave') {
+                $member->update(['status' => 'active']);
+                if ($member->user_id) {
+                    \App\Services\NotificationService::send(
+                        $member->user_id,
+                        'Pengajuan Keluar Ekstra Ditolak',
+                        "Pengajuan keluar dari ekstrakurikuler {$member->extracurricular?->name} tidak disetujui.",
+                        'warning'
+                    );
+                }
+                $count++;
+            }
+        }
+
+        return back()->with('success', "Sebanyak {$count} pengajuan ekstra berhasil ditolak.");
+    }
+
     public function cancelMember(int $id)
     {
-        $member = \App\Models\ExtracurricularMember::with(['extracurricular', 'student'])->findOrFail($id);
+        $member = \App\Models\ExtracurricularMember::with(['extracurricular', 'user'])->findOrFail($id);
         $extraName = $member->extracurricular?->name ?? 'ekstrakurikuler';
         $userId    = $member->user_id;
+
+        \Illuminate\Support\Facades\DB::table('extracurricular_students')
+            ->where('extracurricular_id', $member->extracurricular_id)
+            ->where('student_id', $member->user_id)
+            ->delete();
 
         $member->delete();
 

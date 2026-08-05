@@ -40,14 +40,14 @@
                 </div>
                 <div class="flex-1 min-w-0">
                     <div class="flex items-center justify-between gap-2">
-                        <p class="text-sm font-medium text-gray-800">{{ $log->category->name }}</p>
+                        <p class="text-sm font-medium text-gray-800">{{ $log->displayCategoryName() }}</p>
                         <span class="text-xs font-semibold shrink-0
                             {{ $log->isPrestasi() ? 'text-green-700' : 'text-red-700' }}">
                             {{ $log->isPrestasi() ? 'Catatan Positif' : 'Catatan Negatif' }}
                         </span>
                     </div>
-                    @if($log->note)
-                        <p class="text-xs text-gray-500 mt-0.5">{{ $log->note }}</p>
+                    @if($log->note || ($log->description && $log->description !== $log->displayCategoryName()))
+                        <p class="text-xs text-gray-500 mt-0.5">{{ $log->note ?: $log->description }}</p>
                     @endif
                     <p class="text-xs text-gray-400 mt-0.5">
                         {{ $log->created_at->isoFormat('D MMM Y, HH:mm') }}

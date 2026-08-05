@@ -74,35 +74,43 @@ class KesiswaanController extends Controller
         // ── Conduct (pelanggaran recent) ──────────────────────────────────
         $recentViolations = ConductLog::with('category')
             ->where('student_id', $siswa->id)
-            ->whereHas('category', fn ($q) => $q->where('type', 'pelanggaran'))
+            ->where(function ($q) {
+                $q->where('type', 'pelanggaran')
+                  ->orWhereHas('category', fn ($c) => $c->where('type', 'pelanggaran'));
+            })
             ->latest()
             ->limit(10)
             ->get()
             ->map(fn ($log) => [
                 'id'            => $log->id,
-                'category_name' => $log->category->name,
-                'context'       => $log->category->context ?? null,
-                'note'          => $log->note,
+                'category_name' => $log->displayCategoryName(),
+                'context'       => $log->category->context ?? ($log->severity ? 'Tingkat ' . ucfirst($log->severity) : 'Kedisiplinan'),
+                'note'          => $log->note ?: $log->description,
                 'date'          => $log->created_at->toDateString(),
             ])->values();
 
         $pelanggaranCount = ConductLog::where('student_id', $siswa->id)
-            ->whereHas('category', fn ($q) => $q->where('type', 'pelanggaran'))
+            ->where(function ($q) {
+                $q->where('type', 'pelanggaran')
+                  ->orWhereHas('category', fn ($c) => $c->where('type', 'pelanggaran'));
+            })
             ->count();
 
-        // Catatan positif keseharian (BUKAN Prestasi Lomba — StudentAchievement
-        // punya alur verifikasi & sertifikat sendiri, tetap terpisah).
+        // Catatan positif keseharian
         $recentPositif = ConductLog::with('category')
             ->where('student_id', $siswa->id)
-            ->whereHas('category', fn ($q) => $q->where('type', 'prestasi'))
+            ->where(function ($q) {
+                $q->whereIn('type', ['prestasi', 'positif'])
+                  ->orWhereHas('category', fn ($c) => $c->whereIn('type', ['prestasi', 'positif']));
+            })
             ->latest()
             ->limit(10)
             ->get()
             ->map(fn ($log) => [
                 'id'            => $log->id,
-                'category_name' => $log->category->name,
-                'context'       => $log->category->context ?? null,
-                'note'          => $log->note,
+                'category_name' => $log->displayCategoryName(),
+                'context'       => $log->category->context ?? 'Prestasi',
+                'note'          => $log->note ?: $log->description,
                 'date'          => $log->created_at->toDateString(),
             ])->values();
 

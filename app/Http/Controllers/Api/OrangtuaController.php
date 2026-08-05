@@ -22,11 +22,20 @@ class OrangtuaController extends Controller
                 ->whereDate('date', today())
                 ->first();
 
-            $violationPoints = \App\Models\ConductLog::where('student_id', $c->id)
-                ->whereHas('category', fn ($q) => $q->where('type', 'pelanggaran'))
-                ->with('category')
-                ->get()
-                ->sum(fn ($log) => $log->category?->points ?? 0);
+            $violationCount = \App\Models\ConductLog::where('student_id', $c->id)
+                ->where(function ($query) {
+                    $query->where('type', 'pelanggaran')
+                          ->orWhereHas('category', fn ($q) => $q->where('type', 'pelanggaran'));
+                })
+                ->count();
+
+            $achievementCount = \App\Models\StudentAchievement::where('student_id', $c->id)->count()
+                + \App\Models\ConductLog::where('student_id', $c->id)
+                    ->where(function ($query) {
+                        $query->whereIn('type', ['prestasi', 'positif'])
+                              ->orWhereHas('category', fn ($q) => $q->whereIn('type', ['prestasi', 'positif']));
+                    })
+                    ->count();
 
             return [
                 'id'                  => $c->id,
@@ -35,7 +44,9 @@ class OrangtuaController extends Controller
                 'photo_url'           => $c->photo_url,
                 'attendance_percentage' => $monthData['attendance_percentage'],
                 'monthly_summary'     => $monthData['summary'],
-                'violation_points'    => $violationPoints,
+                'violation_count'     => $violationCount,
+                'violation_points'    => $violationCount,
+                'achievement_count'   => $achievementCount,
                 'today_attendance'    => $todayAttendance ? [
                     'status'              => $todayAttendance->status,
                     'check_in_time'       => $todayAttendance->check_in_time,

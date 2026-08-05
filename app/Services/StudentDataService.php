@@ -111,12 +111,20 @@ class StudentDataService
             ],
             'logs' => $logs->map(function ($log) {
                 $type = $log->category?->type ?? $log->type ?? 'pelanggaran';
+                $categoryName = $log->category?->name 
+                    ?? $log->description 
+                    ?? ($log->lomba_name ? 'Lomba: ' . $log->lomba_name : null)
+                    ?? $log->note 
+                    ?? ($type === 'prestasi' ? 'Catatan Positif' : 'Catatan Negatif');
+
+                $note = $log->note ?: ($log->description ?: null);
+
                 return [
                     'id'            => $log->id,
-                    'category_name' => $log->category?->name ?? ucfirst($type),
+                    'category_name' => $categoryName,
                     'type'          => $type,
-                    'context'       => $log->category?->context,
-                    'note'          => $log->note,
+                    'context'       => $log->category?->context ?? ($log->severity ? 'Tingkat ' . ucfirst($log->severity) : 'Kedisiplinan'),
+                    'note'          => $note,
                     'photo_url'     => $log->photo ? Storage::disk('public')->url($log->photo) : null,
                     'teacher_name'  => $log->teacher?->name,
                     'date'          => $log->created_at?->toDateString() ?? now()->toDateString(),

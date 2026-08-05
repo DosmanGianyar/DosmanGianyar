@@ -48,8 +48,8 @@ class GuruController extends Controller
 
         $alerts = User::where('role', 'siswa')
             ->when($classId, fn($q) => $q->where('class_id', $classId))
-            ->whereHas('conductLogs.category', fn($c) => $c->where('type', 'pelanggaran'))
-            ->withCount(['conductLogs as pelanggaran_count' => fn($q) => $q->whereHas('category', fn($c) => $c->where('type', 'pelanggaran'))])
+            ->whereHas('conductLogs', fn($q) => $q->where('type', 'pelanggaran')->orWhereHas('category', fn($c) => $c->where('type', 'pelanggaran')))
+            ->withCount(['conductLogs as pelanggaran_count' => fn($q) => $q->where('type', 'pelanggaran')->orWhereHas('category', fn($c) => $c->where('type', 'pelanggaran'))])
             ->orderByDesc('pelanggaran_count')
             ->limit(5)
             ->get()
@@ -112,6 +112,60 @@ class GuruController extends Controller
             $subjects = array_filter(array_map('trim', explode(',', $guru->subject)));
         }
 
+        // Jadwal Mengajar Hari Ini & Perminggu
+        $todayIso = (int) now()->dayOfWeekIso; // 1=Senin .. 7=Minggu
+        $dayNames = [1 => 'Senin', 2 => 'Selasa', 3 => 'Rabu', 4 => 'Kamis', 5 => 'Jumat', 6 => 'Sabtu', 7 => 'Minggu'];
+
+        $todaySchedules = \App\Models\Schedule::where('teacher_id', $guru->id)
+            ->where('day', $todayIso)
+            ->with(['schoolClass', 'subject'])
+            ->orderBy('period')
+            ->orderBy('start_time')
+            ->get()
+            ->map(fn($sch) => [
+                'id'           => $sch->id,
+                'day'          => $sch->day,
+                'day_name'     => $dayNames[$sch->day] ?? '—',
+                'period'       => $sch->period,
+                'start_time'   => Carbon::parse($sch->start_time)->format('H:i'),
+                'end_time'     => Carbon::parse($sch->end_time)->format('H:i'),
+                'room'         => $sch->room,
+                'class_id'     => $sch->class_id,
+                'class_name'   => $sch->schoolClass?->name ?? '—',
+                'subject_id'   => $sch->subject_id,
+                'subject_name' => $sch->subject?->name ?? '—',
+            ])->values();
+
+        $allWeekly = \App\Models\Schedule::where('teacher_id', $guru->id)
+            ->with(['schoolClass', 'subject'])
+            ->orderBy('day')
+            ->orderBy('period')
+            ->orderBy('start_time')
+            ->get()
+            ->groupBy('day');
+
+        $weeklySchedules = collect([1, 2, 3, 4, 5, 6])->map(function ($dNum) use ($allWeekly, $dayNames) {
+            $items = $allWeekly->get($dNum, collect());
+            return [
+                'day'       => $dNum,
+                'day_name'  => $dayNames[$dNum] ?? '—',
+                'count'     => $items->count(),
+                'schedules' => $items->map(fn($sch) => [
+                    'id'           => $sch->id,
+                    'day'          => $sch->day,
+                    'day_name'     => $dayNames[$sch->day] ?? '—',
+                    'period'       => $sch->period,
+                    'start_time'   => Carbon::parse($sch->start_time)->format('H:i'),
+                    'end_time'     => Carbon::parse($sch->end_time)->format('H:i'),
+                    'room'         => $sch->room,
+                    'class_id'     => $sch->class_id,
+                    'class_name'   => $sch->schoolClass?->name ?? '—',
+                    'subject_id'   => $sch->subject_id,
+                    'subject_name' => $sch->subject?->name ?? '—',
+                ])->values(),
+            ];
+        })->values();
+
         return response()->json([
             'is_homeroom'                 => (bool) $classId,
             'homeroom_class_id'           => $classId,
@@ -124,6 +178,9 @@ class GuruController extends Controller
             'recent_alerts'               => $alerts,
             'weekly_journals'             => $weeklyJournals,
             'my_extracurriculars'         => $myExtracurriculars,
+            'today_day_name'              => $dayNames[$todayIso] ?? 'Hari Ini',
+            'today_schedules'             => $todaySchedules,
+            'weekly_schedules'            => $weeklySchedules,
         ]);
     }
 
@@ -545,8 +602,8 @@ class GuruController extends Controller
         $students = User::where('role', 'siswa')
             ->where('class_id', $classId)
             ->withCount([
-                'conductLogs as prestasi_count'    => fn($q) => $q->whereHas('category', fn($c) => $c->where('type', 'prestasi')),
-                'conductLogs as pelanggaran_count' => fn($q) => $q->whereHas('category', fn($c) => $c->where('type', 'pelanggaran')),
+                'conductLogs as prestasi_count'    => fn($q) => $q->whereIn('type', ['prestasi', 'positif'])->orWhereHas('category', fn($c) => $c->whereIn('type', ['prestasi', 'positif'])),
+                'conductLogs as pelanggaran_count' => fn($q) => $q->where('type', 'pelanggaran')->orWhereHas('category', fn($c) => $c->where('type', 'pelanggaran')),
             ])
             ->orderBy('name')
             ->get()

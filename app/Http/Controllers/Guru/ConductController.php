@@ -36,8 +36,8 @@ class ConductController extends Controller
             ->orderBy('name')
             ->get()
             ->map(function ($student) {
-                $student->prestasi_count    = $student->conductLogs->filter(fn ($l) => $l->category?->type === 'prestasi')->count();
-                $student->pelanggaran_count = $student->conductLogs->filter(fn ($l) => $l->category?->type === 'pelanggaran')->count();
+                $student->prestasi_count    = $student->conductLogs->filter(fn ($l) => $l->isPrestasi())->count();
+                $student->pelanggaran_count = $student->conductLogs->filter(fn ($l) => $l->isPelanggaran())->count();
                 return $student;
             });
 
@@ -120,24 +120,42 @@ class ConductController extends Controller
             $photoPath = ImageService::store($request->file('photo'), 'conduct', maxWidth: 1280, quality: 80);
         }
 
-        ConductLog::create([
+        $type = self::CONTEXT_META[$request->context]['type'];
+
+        $log = ConductLog::create([
             'student_id'  => $request->student_id,
             'teacher_id'  => Auth::id(),
             'category_id' => $category->id,
             'photo'       => $photoPath,
             'note'        => $request->note,
+            'type'        => $type,
         ]);
 
         $label = self::CONTEXT_META[$request->context]['label'];
         $desc  = $isLainnya ? $request->note : $category->name;
 
-        NotificationService::send(
-            $request->student_id,
-            "{$label}: {$desc}",
-            "Telah dicatat oleh guru: {$desc}.",
-            $category->type === 'prestasi' ? 'success' : 'warning',
-            route('siswa.conduct.index'),
-        );
+        $student = User::find($request->student_id);
+        if ($student) {
+            NotificationService::send(
+                $student->id,
+                "{$label}: {$desc}",
+                "Telah dicatat oleh guru: {$desc}.",
+                $type === 'prestasi' ? 'success' : 'warning',
+                route('siswa.conduct.index'),
+            );
+            NotificationService::notifyParentsOfStudent(
+                $student,
+                "Catatan Perilaku Anak",
+                "Ananda {$student->name}: {$label} - {$desc}",
+                $type === 'prestasi' ? 'success' : 'warning',
+            );
+            NotificationService::notifyHomeroomTeacher(
+                $student,
+                "Catatan Perilaku Siswa Kelas",
+                "Siswa {$student->name}: {$label} - {$desc}",
+                $type === 'prestasi' ? 'success' : 'warning',
+            );
+        }
 
         return redirect()->route('guru.conduct.choose')
             ->with('success', "{$label} berhasil dicatat.");
@@ -150,8 +168,9 @@ class ConductController extends Controller
             ->latest()
             ->paginate(20);
 
-        $prestasiCount    = $student->conductLogs()->whereHas('category', fn ($q) => $q->where('type', 'prestasi'))->count();
-        $pelanggaranCount = $student->conductLogs()->whereHas('category', fn ($q) => $q->where('type', 'pelanggaran'))->count();
+        $allLogs          = $student->conductLogs()->with('category')->get();
+        $prestasiCount    = $allLogs->filter(fn ($l) => $l->isPrestasi())->count();
+        $pelanggaranCount = $allLogs->filter(fn ($l) => $l->isPelanggaran())->count();
         $bkLogs           = $student->bkLogs()->with('counselor')->latest()->get();
 
         return view('guru.conduct.student-detail', compact('student', 'logs', 'prestasiCount', 'pelanggaranCount', 'bkLogs'));

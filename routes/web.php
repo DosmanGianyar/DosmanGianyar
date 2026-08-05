@@ -222,6 +222,8 @@ Route::middleware(['auth', 'role:guru,admin'])->prefix('guru')->name('guru.')->g
         Route::get('/create', [GuruJournal::class, 'create'])->name('create');
         Route::post('/', [GuruJournal::class, 'store'])->name('store');
         Route::get('/print', [GuruJournal::class, 'print'])->name('print');
+        Route::get('/print-weekly', [GuruJournal::class, 'printWeekly'])->name('print-weekly');
+        Route::get('/print-weekly-attendance', [GuruJournal::class, 'printWeeklyAttendance'])->name('print-weekly-attendance');
         Route::delete('/{journal}', [GuruJournal::class, 'destroy'])->name('destroy');
         Route::get('/api/students', [GuruJournal::class, 'studentsByClass'])->name('api.students');
     });
@@ -417,6 +419,8 @@ Route::middleware(['auth', 'role:admin,superadmin,pengelola'])->prefix('admin/ex
     Route::get('/approvals', [AdminExtracurricular::class, 'approvals'])->name('approvals');
     Route::post('/members/{id}/approve', [AdminExtracurricular::class, 'approveMember'])->name('members.approve');
     Route::post('/members/{id}/reject', [AdminExtracurricular::class, 'rejectMember'])->name('members.reject');
+    Route::post('/members/bulk-approve', [AdminExtracurricular::class, 'bulkApproveMember'])->name('members.bulk-approve');
+    Route::post('/members/bulk-reject', [AdminExtracurricular::class, 'bulkRejectMember'])->name('members.bulk-reject');
     Route::delete('/members/{id}/cancel', [AdminExtracurricular::class, 'cancelMember'])->name('members.cancel');
 });
 

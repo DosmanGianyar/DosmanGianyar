@@ -104,7 +104,7 @@ class JournalController extends Controller
             'notes'                        => 'nullable|string|max:500',
             'absent_students'              => 'nullable|array',
             'absent_students.*.student_id' => 'required|exists:users,id',
-            'absent_students.*.status'     => 'required|in:tidak_hadir,izin,sakit',
+            'absent_students.*.status'     => 'required|string|in:tidak_hadir,izin,sakit,dispensasi,alpa',
         ]);
 
         $teacher = Auth::user();
@@ -187,6 +187,155 @@ class JournalController extends Controller
         ));
     }
 
+    public function printWeekly(Request $request): View
+    {
+        $teacher = $request->filled('teacher_id')
+            ? (User::where('role', 'guru')->find($request->input('teacher_id')) ?: Auth::user())
+            : Auth::user();
+        $classId  = $request->input('class_id');
+        $weekDate = $request->input('week_date', now()->toDateString());
+
+        $carbonDate  = \Illuminate\Support\Carbon::parse($weekDate);
+        $startOfWeek = $carbonDate->copy()->startOfWeek(\Illuminate\Support\Carbon::MONDAY);
+        $endOfWeek   = $carbonDate->copy()->startOfWeek(\Illuminate\Support\Carbon::MONDAY)->addDays(5); // Senin - Sabtu
+
+        $query = TeacherJournal::where('teacher_id', $teacher->id)
+            ->with(['schoolClass:id,name', 'subject:id,name', 'tp:id,code,description', 'absences.student:id,name,nis'])
+            ->whereBetween('date', [$startOfWeek->toDateString(), $endOfWeek->toDateString()])
+            ->orderBy('date')
+            ->orderBy('period');
+
+        if ($classId) {
+            $query->where('class_id', $classId);
+        }
+
+        $journals  = $query->get();
+        $classes   = SchoolClass::orderBy('name')->get();
+        $teachers  = User::where('role', 'guru')->orderBy('name')->get(['id', 'name']);
+        $className = $classId ? SchoolClass::find($classId)?->name : null;
+
+        return view('guru.journal.print_weekly', compact(
+            'teacher', 'journals', 'classes', 'teachers', 'classId', 'className',
+            'startOfWeek', 'endOfWeek', 'weekDate'
+        ));
+    }
+
+    public function printWeeklyAttendance(Request $request): View
+    {
+        $teacher = $request->filled('teacher_id')
+            ? (User::where('role', 'guru')->find($request->input('teacher_id')) ?: Auth::user())
+            : Auth::user();
+        $classes  = SchoolClass::orderBy('name')->get();
+        $classId  = $request->input('class_id') ?: ($classes->first()?->id);
+        $weekDate = $request->input('week_date', now()->toDateString());
+
+        $carbonDate  = \Illuminate\Support\Carbon::parse($weekDate);
+        $startOfWeek = $carbonDate->copy()->startOfWeek(\Illuminate\Support\Carbon::MONDAY);
+        $endOfWeek   = $carbonDate->copy()->startOfWeek(\Illuminate\Support\Carbon::MONDAY)->addDays(5); // Senin - Sabtu
+
+        $selectedClass = $classId ? SchoolClass::find($classId) : null;
+        $students      = $selectedClass
+            ? User::where('role', 'siswa')->where('class_id', $selectedClass->id)->orderBy('name')->get(['id', 'name', 'nis'])
+            : collect();
+
+        // Get journals for this class and date range
+        $journals = TeacherJournal::where('class_id', $classId)
+            ->with(['absences'])
+            ->whereBetween('date', [$startOfWeek->toDateString(), $endOfWeek->toDateString()])
+            ->get();
+
+        // Get morning gate attendances for these students for this week
+        $studentIds = $students->pluck('id')->toArray();
+        $morningAttendances = \App\Models\Attendance::whereIn('user_id', $studentIds)
+            ->whereBetween('date', [$startOfWeek->toDateString(), $endOfWeek->toDateString()])
+            ->get()
+            ->groupBy(fn ($att) => $att->user_id . '_' . $att->date->format('Y-m-d'));
+
+        // Map dates: 6 days (Senin - Sabtu)
+        $days = [];
+        for ($i = 0; $i < 6; $i++) {
+            $dt = $startOfWeek->copy()->addDays($i);
+            $days[] = [
+                'date_str'  => $dt->toDateString(),
+                'day_name'  => $dt->isoFormat('dddd'),
+                'day_short' => $dt->isoFormat('ddd, D/M'),
+            ];
+        }
+
+        // Map student weekly matrix
+        $attendanceMatrix = $students->map(function ($s) use ($days, $journals, $morningAttendances) {
+            $row = [
+                'student' => $s,
+                'days'    => [],
+                'sakit'   => 0,
+                'izin'    => 0,
+                'alpa'    => 0,
+                'dispen'  => 0,
+                'hadir'   => 0,
+            ];
+
+            foreach ($days as $day) {
+                $dateStr = $day['date_str'];
+                
+                // Check journal absence for this student on dateStr
+                $absRecord = null;
+                foreach ($journals->where('date', $dateStr) as $j) {
+                    $found = $j->absences->firstWhere('student_id', $s->id);
+                    if ($found) {
+                        $absRecord = $found;
+                        break;
+                    }
+                }
+
+                if ($absRecord) {
+                    $st = match ($absRecord->status) {
+                        'sakit'               => 'S',
+                        'izin'                => 'I',
+                        'dispensasi'          => 'D',
+                        'alpa', 'tidak_hadir' => 'A',
+                        default               => 'H',
+                    };
+                } else {
+                    // Check morning attendance
+                    $key = $s->id . '_' . $dateStr;
+                    $mAttList = $morningAttendances->get($key);
+                    $mAtt = $mAttList ? $mAttList->first() : null;
+                    if ($mAtt && in_array($mAtt->status, ['sakit', 'izin', 'dispensasi', 'alpa'])) {
+                        $st = match ($mAtt->status) {
+                            'sakit'      => 'S',
+                            'izin'       => 'I',
+                            'dispensasi' => 'D',
+                            'alpa'       => 'A',
+                            default      => 'H',
+                        };
+                    } else {
+                        $st = 'H';
+                    }
+                }
+
+                // Count stats
+                match ($st) {
+                    'S' => $row['sakit']++,
+                    'I' => $row['izin']++,
+                    'A' => $row['alpa']++,
+                    'D' => $row['dispen']++,
+                    default => $row['hadir']++,
+                };
+
+                $row['days'][$dateStr] = $st;
+            }
+
+            return $row;
+        });
+
+        $teachers = User::where('role', 'guru')->orderBy('name')->get(['id', 'name']);
+
+        return view('guru.journal.print_weekly_attendance', compact(
+            'teacher', 'classes', 'teachers', 'classId', 'selectedClass',
+            'startOfWeek', 'endOfWeek', 'weekDate', 'days', 'attendanceMatrix'
+        ));
+    }
+
     public function destroy(TeacherJournal $journal): RedirectResponse
     {
         abort_unless($journal->teacher_id === Auth::id(), 403, 'Akses ditolak.');
@@ -196,12 +345,43 @@ class JournalController extends Controller
 
     public function studentsByClass(Request $request): JsonResponse
     {
-        $classId  = $request->input('class_id');
+        $classId = $request->input('class_id');
+        $date    = $request->input('date', today()->toDateString());
+
         $students = User::where('role', 'siswa')
             ->where('class_id', $classId)
             ->orderBy('name')
             ->get(['id', 'name', 'nis']);
 
-        return response()->json($students);
+        $studentIds = $students->pluck('id')->toArray();
+        $attendances = \App\Models\Attendance::whereIn('user_id', $studentIds)
+            ->whereDate('date', $date)
+            ->get()
+            ->keyBy('user_id');
+
+        $result = $students->map(function ($s) use ($attendances) {
+            $att = $attendances->get($s->id);
+            $morningStatus = $att?->status;
+
+            // Map morning status to suggested journal absence status
+            $suggestedStatus = match ($morningStatus) {
+                'sakit'      => 'sakit',
+                'izin'       => 'izin',
+                'dispensasi' => 'dispensasi',
+                'alpa'       => 'alpa',
+                default      => 'hadir',
+            };
+
+            return [
+                'id'                   => $s->id,
+                'name'                 => $s->name,
+                'nis'                  => $s->nis,
+                'morning_status'       => $morningStatus,
+                'morning_status_label' => $morningStatus ? ucfirst($morningStatus) : 'Belum Absen Pagi',
+                'suggested_status'     => $suggestedStatus,
+            ];
+        });
+
+        return response()->json($result);
     }
 }
