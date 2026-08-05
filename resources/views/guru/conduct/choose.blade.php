@@ -255,7 +255,11 @@
             {{-- Group by context --}}
             @php
                 $grouped = $prestasiCategories->groupBy('context');
-                $contextLabels = ['akademik' => 'Prestasi Akademik', 'lomba' => 'Prestasi Lomba'];
+                $contextLabels = [
+                    'akademik' => 'Kedisiplinan & Karakter Belajar',
+                    'lomba' => 'Prestasi & Perlombaan',
+                    'lainnya_prestasi' => 'Catatan Positif Bebas'
+                ];
             @endphp
             @foreach($grouped as $ctx => $cats)
             <div class="mb-3">
@@ -275,8 +279,22 @@
                 </div>
             </div>
             @endforeach
+            <div class="mb-3">
+                <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">
+                    Catatan Positif Bebas
+                </p>
+                <div class="flex flex-wrap gap-2">
+                    <button type="button"
+                        onclick="selectCategory(this, 'lainnya_prestasi', '')"
+                        class="category-chip px-3 py-2 rounded-lg text-sm font-medium border-2 border-gray-200 text-gray-600
+                               hover:border-green-400 hover:text-green-700 transition-all"
+                        data-context="lainnya_prestasi" data-id="">
+                        ✨ Catatan Positif Lainnya (Deskripsi Bebas)
+                    </button>
+                </div>
+            </div>
             @endif
-            <div id="cp-category-error" class="hidden mt-1 text-xs text-red-600">Pilih kategori terlebih dahulu.</div>
+            <div id="cp-category-error" class="hidden mt-1 text-xs text-red-600">Pilih kategori atau catatan bebas terlebih dahulu.</div>
         </div>
 
         {{-- 3. Catatan (opsional) --}}
@@ -501,8 +519,17 @@ function selectCategory(el, ctx, id) {
 }
 
 function validatePositif() {
-    if (!document.getElementById('cp-category-id').value) {
+    const ctx = document.getElementById('cp-context').value;
+    const cat = document.getElementById('cp-category-id').value;
+    const note = document.getElementById('cp-note').value.trim();
+
+    if (!cat && ctx !== 'lainnya_prestasi') {
         document.getElementById('cp-category-error').classList.remove('hidden');
+        return false;
+    }
+    if (ctx === 'lainnya_prestasi' && !note) {
+        alert('Silakan isi catatan/deskripsi bebas terlebih dahulu.');
+        document.getElementById('cp-note').focus();
         return false;
     }
     return true;

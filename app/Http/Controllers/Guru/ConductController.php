@@ -50,7 +50,7 @@ class ConductController extends Controller
     public function choose(): View
     {
         $prestasiCategories = ConductCategory::active()
-            ->whereIn('context', ['akademik', 'lomba'])
+            ->where('type', 'prestasi')
             ->where('name', 'not like', '__sistem__%')
             ->orderBy('context')
             ->orderBy('name')
