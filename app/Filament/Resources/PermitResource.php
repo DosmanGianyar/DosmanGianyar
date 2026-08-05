@@ -78,14 +78,6 @@ class PermitResource extends Resource
                     })
                     ->formatStateUsing(fn (Permit $record) => $record->typeLabel()),
 
-                TextColumn::make('file')
-                    ->label('Surat')
-                    ->formatStateUsing(fn ($state) => $state ? '📄 Ada Surat' : '—')
-                    ->color(fn ($state) => $state ? 'info' : 'gray')
-                    ->url(fn (Permit $record) => $record->file ? asset('storage/' . $record->file) : null)
-                    ->openUrlInNewTab()
-                    ->badge(fn ($state) => (bool) $state),
-
                 TextColumn::make('start_date')
                     ->label('Tanggal')
                     ->formatStateUsing(fn (Permit $record) => $record->start_date->isoFormat('D MMM Y') .
