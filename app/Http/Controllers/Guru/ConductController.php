@@ -210,12 +210,14 @@ class ConductController extends Controller
         return response()->json([
             'success' => true,
             'student' => [
-                'id'         => $student->id,
-                'name'       => $student->name,
-                'nis'        => $student->nis,
-                'nisn'       => $student->nisn,
-                'class_id'   => $student->class_id,
-                'class_name' => $student->schoolClass?->name ?? '—',
+                'id'           => $student->id,
+                'name'         => $student->name,
+                'nis'          => $student->nis,
+                'nisn'         => $student->nisn,
+                'class_id'     => $student->class_id,
+                'class_name'   => $student->schoolClass?->name ?? '—',
+                'parent_name'  => $student->parent_name,
+                'parent_phone' => $student->parent_phone,
             ],
         ]);
     }

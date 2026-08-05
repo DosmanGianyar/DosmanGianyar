@@ -45,13 +45,15 @@ class GuruConductApiController extends Controller
             });
         }
 
-        $students = $query->orderBy('name')->limit(50)->get(['id', 'name', 'nis', 'class_id']);
+        $students = $query->orderBy('name')->limit(50)->get(['id', 'name', 'nis', 'class_id', 'parent_name', 'parent_phone']);
 
         return response()->json($students->map(fn ($s) => [
-            'id'         => $s->id,
-            'name'       => $s->name,
-            'nis'        => $s->nis,
-            'class_name' => $s->schoolClass?->name ?? '—',
+            'id'           => $s->id,
+            'name'         => $s->name,
+            'nis'          => $s->nis,
+            'class_name'   => $s->schoolClass?->name ?? '—',
+            'parent_name'  => $s->parent_name,
+            'parent_phone' => $s->parent_phone,
         ]));
     }
 
@@ -90,12 +92,14 @@ class GuruConductApiController extends Controller
         return response()->json([
             'success' => true,
             'student' => [
-                'id'         => $student->id,
-                'name'       => $student->name,
-                'nis'        => $student->nis,
-                'nisn'       => $student->nisn,
-                'class_id'   => $student->class_id,
-                'class_name' => $student->schoolClass?->name ?? '—',
+                'id'           => $student->id,
+                'name'         => $student->name,
+                'nis'          => $student->nis,
+                'nisn'         => $student->nisn,
+                'class_id'     => $student->class_id,
+                'class_name'   => $student->schoolClass?->name ?? '—',
+                'parent_name'  => $student->parent_name,
+                'parent_phone' => $student->parent_phone,
             ],
         ]);
     }

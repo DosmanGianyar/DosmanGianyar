@@ -315,18 +315,29 @@ class ConductCategory {
 }
 
 class SimpleStudent {
-  final int    id;
-  final String name;
+  final int     id;
+  final String  name;
   final String? nis;
   final String? className;
+  final String? parentName;
+  final String? parentPhone;
 
-  const SimpleStudent({required this.id, required this.name, this.nis, this.className});
+  const SimpleStudent({
+    required this.id,
+    required this.name,
+    this.nis,
+    this.className,
+    this.parentName,
+    this.parentPhone,
+  });
 
   factory SimpleStudent.fromJson(Map<String, dynamic> json) => SimpleStudent(
-    id:        json['id'] as int,
-    name:      json['name'] as String,
-    nis:       json['nis'] as String?,
-    className: json['class_name'] as String?,
+    id:          json['id'] as int,
+    name:        json['name'] as String,
+    nis:         json['nis'] as String?,
+    className:   json['class_name'] as String?,
+    parentName:  json['parent_name'] as String?,
+    parentPhone: json['parent_phone'] as String?,
   );
 }
 

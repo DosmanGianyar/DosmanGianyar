@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../models/guru_models.dart';
 import '../../services/api_client.dart';
 import '../../services/guru_service.dart';
@@ -7,15 +8,17 @@ import 'guru_qr_scanner_screen.dart';
 
 class GuruConductInputScreen extends StatefulWidget {
   final int initialTab;
-  final String? initialFilter;
+  final int? initialClassId;
   final SimpleStudent? initialStudent;
+  final String? initialFilter;
   final String? initialCode;
 
   const GuruConductInputScreen({
     super.key,
     this.initialTab = 0,
-    this.initialFilter,
+    this.initialClassId,
     this.initialStudent,
+    this.initialFilter,
     this.initialCode,
   });
 
@@ -91,8 +94,6 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
   void _resetForm() {
     setState(() {
       _selectedStudent    = null;
-      _selectedCategory   = null;
-      _selectedSeverity   = null;
       _positifCategoryCtrl.clear();
       _descriptionCtrl.clear();
       _noteCtrl.clear();
@@ -113,70 +114,69 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
           _prestasiCats = cats['prestasi'] ?? [];
           _classes      = classes;
           _loadingCats  = false;
-          if (widget.initialStudent != null) {
+          if (widget.initialCode != null && widget.initialCode!.isNotEmpty) {
+            _lookupStudentByCode(widget.initialCode!);
+          } else if (widget.initialStudent != null) {
             _selectedStudent = widget.initialStudent;
+            _selectedClassId = widget.initialClassId;
+          } else if (widget.initialClassId != null) {
+            _selectedClassId = widget.initialClassId;
+            _loadStudents();
           }
         });
-        if (widget.initialCode != null && widget.initialCode!.isNotEmpty) {
-          _lookupStudentByCode(widget.initialCode!);
-        }
       }
-    } catch (_) {
+    } catch (e) {
       if (mounted) setState(() => _loadingCats = false);
     }
   }
 
   Future<void> _loadStudents() async {
-    setState(() { _loadingStudents = true; _students = []; _selectedStudent = null; });
+    setState(() { _loadingStudents = true; _selectedStudent = null; });
     try {
+      final q = _searchCtrl.text.trim();
       final list = await GuruService.getConductStudents(
         classId: _selectedClassId,
-        q: _searchCtrl.text.trim().isEmpty ? null : _searchCtrl.text.trim(),
+        q: q.isEmpty ? null : q,
       );
       if (mounted) setState(() { _students = list; _loadingStudents = false; });
-    } catch (_) {
+    } catch (e) {
       if (mounted) setState(() => _loadingStudents = false);
     }
   }
 
   Future<void> _loadHistory({bool reset = false}) async {
     if (reset) {
-      setState(() { _historyLoading = true; _history = []; _historyPage = 1; });
+      setState(() { _historyPage = 1; _historyLastPage = 1; _history = []; _historyLoading = true; });
+    } else {
+      setState(() => _historyLoadMore = true);
     }
+
     try {
-      final body = await GuruService.getConductHistory(
+      final res = await GuruService.getConductHistory(
         type: _historyFilter,
-        page: reset ? 1 : _historyPage,
+        page: _historyPage,
       );
-      final items = (body['data'] as List)
-          .map((e) => ConductHistoryItem.fromJson(e as Map<String, dynamic>))
-          .toList();
-      final meta = body['meta'] as Map<String, dynamic>;
+      final items    = res['items']    as List<ConductHistoryItem>;
+      final lastPage = res['last_page'] as int;
       if (mounted) {
         setState(() {
-          if (reset) {
-            _history = items;
-          } else {
-            _history.addAll(items);
-          }
-          _historyLastPage = meta['last_page'] as int;
+          _history          = reset ? items : [..._history, ...items];
+          _historyLastPage = lastPage;
           _historyLoading  = false;
           _historyLoadMore = false;
         });
       }
-    } catch (_) {
+    } catch (e) {
       if (mounted) setState(() { _historyLoading = false; _historyLoadMore = false; });
     }
   }
 
   void _loadMoreHistory() {
-    if (_historyLoadMore || _historyLoading) return;
-    if (_historyPage >= _historyLastPage) return;
-    setState(() { _historyLoadMore = true; _historyPage++; });
+    if (_historyLoading || _historyLoadMore || _historyPage >= _historyLastPage) return;
+    _historyPage++;
     _loadHistory();
   }
 
-  Future<void> _submit() async {
   Future<void> _submit() async {
     if (_selectedStudent == null) {
       _showSnack('Pilih siswa terlebih dahulu', AppColors.orange500);
@@ -363,114 +363,6 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
     );
   }
 
-  Widget _pelanggaranPreview() {
-    final color = switch (_selectedSeverity) {
-      'ringan' => AppColors.amber500, 'sedang' => AppColors.orange500, _ => AppColors.red500,
-    };
-    final label = _selectedSeverity![0].toUpperCase() + _selectedSeverity!.substring(1);
-    return Container(
-      padding: const EdgeInsets.all(14),
-      margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        color: AppColors.red50,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: color.withValues(alpha: 0.4)),
-      ),
-      child: Row(children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-          decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(6)),
-          child: Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white)),
-        ),
-        const SizedBox(width: 10),
-        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(_selectedStudent!.name,
-              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.gray800)),
-          if (_descriptionCtrl.text.isNotEmpty)
-            Text(_descriptionCtrl.text,
-                style: const TextStyle(fontSize: 11, color: AppColors.gray500),
-                maxLines: 2, overflow: TextOverflow.ellipsis),
-        ])),
-      ]),
-    );
-  }
-
-  // ── Prestasi Tab ──────────────────────────────────────────────────────────
-
-  Widget _buildPrestasiForm() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _sectionLabel('1. Pilih Kelas'),
-          const SizedBox(height: 8),
-          _ClassDropdown(classes: _classes, selected: _selectedClassId, onChanged: (id) {
-            setState(() { _selectedClassId = id; _selectedStudent = null; });
-            _loadStudents();
-          }),
-          const SizedBox(height: 16),
-
-          _sectionLabel('2. Pilih Siswa'),
-          const SizedBox(height: 8),
-          _studentSearchBar(),
-          const SizedBox(height: 8),
-          _studentPickerArea(),
-          const SizedBox(height: 16),
-
-          // ── Kategori / Judul Catatan Positif (Bebas Input) ──
-          _sectionLabel('3. Kategori / Judul Catatan Positif (Bebas Input)'),
-          const SizedBox(height: 4),
-          const Text(
-            'Ketik judul atau kategori bebas (opsional)',
-            style: TextStyle(fontSize: 11, color: AppColors.gray400),
-          ),
-          const SizedBox(height: 8),
-          _textField(
-            controller: _positifCategoryCtrl,
-            hint: 'Misal: Kejujuran, Membantu Guru, Keaktifan KBM, Prestasi Seni...',
-          ),
-          const SizedBox(height: 16),
-
-          // ── Detail Catatan Positif (Bebas Input) ──
-          _sectionLabel('4. Detail Catatan Positif / Apresiasi'),
-          const SizedBox(height: 8),
-          _textField(
-            controller: _noteCtrl,
-            hint: 'Ceritakan kebaikan, perilaku positif, atau prestasi yang dilakukan oleh siswa secara bebas...',
-            maxLines: 4,
-          ),
-          const SizedBox(height: 24),
-
-          _submitButton(isPrestasi: true),
-          const SizedBox(height: 32),
-        ],
-      ),
-    );
-  }
-
-  Widget _prestasiPreview() {
-    if (_selectedCategory == null) return const SizedBox.shrink();
-    return Container(
-      padding: const EdgeInsets.all(14),
-      margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        color: AppColors.emerald50,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppColors.emerald600.withValues(alpha: 0.3)),
-      ),
-      child: Row(children: [
-        const Icon(Icons.thumb_up_rounded, color: AppColors.emerald600, size: 20),
-        const SizedBox(width: 10),
-        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(_selectedStudent!.name,
-              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.emerald600)),
-          Text(_selectedCategory!.name, style: const TextStyle(fontSize: 12, color: AppColors.gray700)),
-        ])),
-      ]),
-    );
-  }
-
   // ── Riwayat Tab ───────────────────────────────────────────────────────────
 
   Widget _buildHistoryTab() {
@@ -614,6 +506,8 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
             name: st['name'] ?? '',
             nis: st['nis']?.toString(),
             className: st['class_name']?.toString(),
+            parentName: st['parent_name']?.toString(),
+            parentPhone: st['parent_phone']?.toString(),
           );
         });
         if (mounted) {
@@ -646,7 +540,7 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
   Widget _studentPickerArea() {
     if (_selectedStudent != null) {
       return _SelectedChip(
-        label: '${_selectedStudent!.name} (${_selectedStudent!.nis ?? '—'})',
+        student: _selectedStudent!,
         onRemove: () => setState(() => _selectedStudent = null),
       );
     }
@@ -694,25 +588,6 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
     );
   }
 
-  Widget _submitButton({required bool isPrestasi}) {
-    final color = isPrestasi ? AppColors.emerald600 : AppColors.red500;
-    return SizedBox(
-      width: double.infinity,
-      child: FilledButton.icon(
-        onPressed: _submitting ? null : _submit,
-        icon: _submitting
-            ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-            : Icon(isPrestasi ? Icons.star_rounded : Icons.warning_rounded, size: 18),
-        label: Text(_submitting ? 'Menyimpan...' : 'Simpan ${isPrestasi ? "Catatan Positif" : "Catatan Negatif"}'),
-        style: FilledButton.styleFrom(
-          backgroundColor: color,
-          padding: const EdgeInsets.symmetric(vertical: 14),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        ),
-      ),
-    );
-  }
-
   Widget _sectionLabel(String text) => Text(text,
       style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.gray700));
 }
@@ -756,19 +631,6 @@ class _HistoryCard extends StatelessWidget {
       accentIcon  = Icons.thumb_up_rounded;
       typeLabel   = 'Catatan Positif';
     }
-
-    final severityColor = switch (item.severity) {
-      'ringan' => AppColors.amber500,
-      'sedang' => AppColors.orange500,
-      'berat'  => AppColors.red500,
-      _        => AppColors.gray400,
-    };
-    final rankColor = switch (item.lombaRank) {
-      'juara_1' => const Color(0xFFD4AF37),
-      'juara_2' => const Color(0xFF9EA5A8),
-      'juara_3' => const Color(0xFFCD7F32),
-      _         => AppColors.blue600,
-    };
 
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
@@ -836,12 +698,6 @@ class _HistoryCard extends StatelessWidget {
     ]),
   );
 
-  Widget _solidBadge(String label, Color color) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-    decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(6)),
-    child: Text(label, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Colors.white)),
-  );
-
   Widget _outlineBadge(String label, Color color) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
     decoration: BoxDecoration(
@@ -889,29 +745,99 @@ class _ClassDropdown extends StatelessWidget {
 }
 
 class _SelectedChip extends StatelessWidget {
-  final String label;
+  final SimpleStudent student;
   final VoidCallback onRemove;
 
-  const _SelectedChip({required this.label, required this.onRemove});
+  const _SelectedChip({required this.student, required this.onRemove});
+
+  void _openWhatsApp(BuildContext context, String rawPhone) async {
+    final clean = rawPhone.replaceAll(RegExp(r'[^0-9]'), '');
+    if (clean.isEmpty) return;
+    final waNumber = clean.startsWith('0') ? '62${clean.substring(1)}' : clean;
+    final uri = Uri.parse('https://wa.me/$waNumber');
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Gagal membuka WhatsApp'),
+          backgroundColor: AppColors.red600,
+        ));
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final hasParentPhone = student.parentPhone != null && student.parentPhone!.trim().isNotEmpty;
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.blue50, borderRadius: BorderRadius.circular(8),
+        color: AppColors.blue50,
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppColors.blue200),
       ),
-      child: Row(children: [
-        const Icon(Icons.person_rounded, size: 16, color: AppColors.blue600),
-        const SizedBox(width: 8),
-        Expanded(child: Text(label,
-            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.blue600))),
-        GestureDetector(
-          onTap: onRemove,
-          child: const Icon(Icons.close_rounded, size: 16, color: AppColors.blue600),
-        ),
-      ]),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.person_rounded, size: 18, color: AppColors.blue600),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  '${student.name} (${student.nis ?? '—'}) · ${student.className ?? ''}',
+                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.blue700),
+                ),
+              ),
+              GestureDetector(
+                onTap: onRemove,
+                child: const Icon(Icons.close_rounded, size: 18, color: AppColors.blue600),
+              ),
+            ],
+          ),
+          if (hasParentPhone) ...[
+            const SizedBox(height: 8),
+            const Divider(height: 1, color: AppColors.blue200),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Text(
+                    'Ortu: ${student.parentName ?? 'Orang Tua'}',
+                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.gray700),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                InkWell(
+                  onTap: () => _openWhatsApp(context, student.parentPhone!),
+                  borderRadius: BorderRadius.circular(8),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    decoration: BoxDecoration(
+                      color: AppColors.emerald600,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.chat_bubble_rounded, size: 13, color: Colors.white),
+                        const SizedBox(width: 4),
+                        Text(
+                          'WA (${student.parentPhone})',
+                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
     );
   }
 }
