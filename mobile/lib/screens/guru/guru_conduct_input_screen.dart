@@ -3,6 +3,7 @@ import '../../models/guru_models.dart';
 import '../../services/api_client.dart';
 import '../../services/guru_service.dart';
 import '../../theme/app_colors.dart';
+import 'guru_qr_scanner_screen.dart';
 
 class GuruConductInputScreen extends StatefulWidget {
   final int initialTab;
@@ -588,62 +589,14 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
   }
 
   Future<void> _openBarcodeScanner() async {
-    final codeCtrl = TextEditingController();
-    final code = await showDialog<String>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Row(
-          children: [
-            Icon(Icons.qr_code_scanner_rounded, color: AppColors.blue600),
-            SizedBox(width: 8),
-            Text('Scan / Input Barcode Siswa', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Masukkan atau tempel kode NISN/NIS dari barcode Kartu Siswa:',
-              style: TextStyle(fontSize: 12, color: AppColors.gray600),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: codeCtrl,
-              autofocus: true,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                hintText: 'Contoh: 0081234567',
-                prefixIcon: const Icon(Icons.qr_code_rounded, size: 20),
-                filled: true,
-                fillColor: AppColors.gray50,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-              ),
-              onSubmitted: (val) => Navigator.pop(ctx, val.trim()),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Batal'),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.blue600,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            ),
-            onPressed: () => Navigator.pop(ctx, codeCtrl.text.trim()),
-            child: const Text('Cari Siswa'),
-          ),
-        ],
-      ),
+    final code = await Navigator.push<String>(
+      context,
+      MaterialPageRoute(builder: (_) => const GuruQrScannerScreen()),
     );
 
-    if (code == null || code.isEmpty) return;
-    await _lookupStudentByCode(code);
+    if (code == null || code.trim().isEmpty) return;
+
+    await _lookupStudentByCode(code.trim());
   }
 
   Future<void> _lookupStudentByCode(String code) async {
