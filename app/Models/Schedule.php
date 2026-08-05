@@ -30,6 +30,6 @@ class Schedule extends Model
 
     public function dayName(): string
     {
-        return ['', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'][$this->day] ?? '—';
+        return ['', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'][$this->day] ?? '—';
     }
 }

@@ -182,7 +182,7 @@
     </div>
     @else
     <div class="space-y-3">
-        @foreach(range(1,5) as $day)
+        @foreach(range(1,6) as $day)
         @php $daySchedules = $weekSchedule->get($day, collect()); @endphp
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
             <div class="px-4 py-2.5 flex items-center justify-between

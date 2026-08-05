@@ -21,9 +21,9 @@ class TeacherAttendanceController extends Controller
         $guru = auth()->user();
         $date = $request->date ? Carbon::parse($request->date) : Carbon::today();
 
-        // Day of week: Carbon uses 0=Sunday…6=Saturday, schedules use 1=Mon…5=Fri
+        // Day of week: Carbon uses 0=Sunday…6=Saturday, schedules use 1=Mon…6=Sat
         $dayOfWeek = $date->dayOfWeek; // 0=Sun, 1=Mon…6=Sat
-        $scheduleDay = ($dayOfWeek >= 1 && $dayOfWeek <= 5) ? $dayOfWeek : null;
+        $scheduleDay = ($dayOfWeek >= 1 && $dayOfWeek <= 6) ? $dayOfWeek : null;
 
         $schedules = collect();
         if ($scheduleDay) {

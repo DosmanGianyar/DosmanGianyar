@@ -22,9 +22,9 @@ class KurikulumController extends Controller
         $siswa->load('schoolClass');
         $classId = $siswa->class_id;
 
-        // ISO weekday: 1=Monday … 7=Sunday; sekolah hanya 1–5
+        // ISO weekday: 1=Monday … 7=Sunday; sekolah Senin–Sabtu (1–6)
         $todayIso = now()->dayOfWeekIso;
-        $isWeekday = $todayIso >= 1 && $todayIso <= 5;
+        $isWeekday = $todayIso >= 1 && $todayIso <= 6;
 
         $todaySchedule = $isWeekday
             ? Schedule::where('class_id', $classId)
@@ -46,7 +46,7 @@ class KurikulumController extends Controller
             ->limit(30)
             ->get();
 
-        $dayNames = ['', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'];
+        $dayNames = ['', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
 
         $academicYear = StudentGrade::currentAcademicYear();
         $semester     = StudentGrade::currentSemester();

@@ -52,7 +52,7 @@ class JournalController extends Controller
         $subjects = Subject::orderBy('name')->get();
 
         $dayOfWeek = now()->dayOfWeek; // 0=Sun, 1=Mon...6=Sat
-        $scheduleDay = ($dayOfWeek >= 1 && $dayOfWeek <= 5) ? $dayOfWeek : null;
+        $scheduleDay = ($dayOfWeek >= 1 && $dayOfWeek <= 6) ? $dayOfWeek : null;
 
         $todaySchedules = [];
         if ($scheduleDay) {

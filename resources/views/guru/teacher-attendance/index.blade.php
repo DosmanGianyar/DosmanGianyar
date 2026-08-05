@@ -24,7 +24,7 @@
 
         @if(!$scheduleDay)
         <div class="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-700">
-            Tanggal yang dipilih adalah hari libur (Sabtu/Minggu). Pilih hari Senin–Jumat.
+            Tanggal yang dipilih adalah hari libur (Minggu). Pilih hari Senin–Sabtu.
         </div>
         @endif
     </div>
