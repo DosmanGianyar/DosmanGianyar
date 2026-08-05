@@ -251,14 +251,25 @@ class JournalController extends Controller
             ->get()
             ->groupBy(fn ($att) => $att->user_id . '_' . $att->date->format('Y-m-d'));
 
-        // Map dates: 6 days (Senin - Sabtu)
+        // Map dates: 6 days (Senin - Sabtu) Bahasa Indonesia
+        $dayNamesMap = [
+            1 => 'Senin',
+            2 => 'Selasa',
+            3 => 'Rabu',
+            4 => 'Kamis',
+            5 => 'Jumat',
+            6 => 'Sabtu',
+            7 => 'Minggu',
+        ];
+
         $days = [];
         for ($i = 0; $i < 6; $i++) {
             $dt = $startOfWeek->copy()->addDays($i);
+            $dayIso = (int) $dt->dayOfWeekIso;
             $days[] = [
                 'date_str'  => $dt->toDateString(),
-                'day_name'  => $dt->isoFormat('dddd'),
-                'day_short' => $dt->isoFormat('ddd, D/M'),
+                'day_name'  => $dayNamesMap[$dayIso] ?? '—',
+                'day_short' => ($dayNamesMap[$dayIso] ?? '—') . ', ' . $dt->format('d/m'),
             ];
         }
 
@@ -317,10 +328,12 @@ class JournalController extends Controller
                             default                                   => 'H', // hadir / terlambat
                         };
                     } else {
+                        // Tidak ada scan absen gerbang pagi dan tidak ada catatan izin di jurnal
                         if ($dateStr > now()->toDateString()) {
-                            $st = '—';
+                            $st = '—'; // Hari yang akan datang
                         } else {
-                            $st = 'H';
+                            // Tanggal sudah lewat / hari ini tapi tidak ada bukti scan/jurnal hadir -> Alpa (A)
+                            $st = 'A';
                         }
                     }
                 }

@@ -16,6 +16,10 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        // Set seluruh penanggalan & Carbon ke bahasa Indonesia
+        \Illuminate\Support\Carbon::setLocale('id');
+        @setlocale(LC_TIME, 'id_ID.utf8', 'id_ID', 'indonesia', 'id');
+
         // Paksa HTTPS jika di environment produksi atau dibalik SSL reverse proxy
         if ($this->app->environment('production') || request()->header('x-forwarded-proto') === 'https') {
             URL::forceScheme('https');
