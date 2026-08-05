@@ -356,8 +356,8 @@ body {
     <div class="ttd-box">
         <div class="ttd-lokasi">&nbsp;</div>
         <div class="ttd-jabatan">Mengetahui,<br>Kepala SMAN 1 Gianyar</div>
-        <div class="ttd-nama">Surya Wirawan, S.Pd., M.Pd.</div>
-        <div class="ttd-nip">NIP. 19750512 200003 1 004</div>
+        <div class="ttd-nama">I Wayan Sudra Astra, S.Pd., M.Pd.</div>
+        <div class="ttd-nip">NIP. 19710415 199703 1 007</div>
     </div>
 
     <div class="ttd-box">

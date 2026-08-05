@@ -279,7 +279,15 @@ class JournalController extends Controller
                 
                 // Check journal absence for this student on dateStr
                 $absRecord = null;
-                foreach ($journals->where('date', $dateStr) as $j) {
+                $matchingJournals = $journals->filter(function ($j) use ($dateStr) {
+                    if (! $j->date) return false;
+                    $d = ($j->date instanceof \Carbon\Carbon || $j->date instanceof \Illuminate\Support\Carbon)
+                        ? $j->date->format('Y-m-d')
+                        : (string) $j->date;
+                    return $d === $dateStr;
+                });
+
+                foreach ($matchingJournals as $j) {
                     $found = $j->absences->firstWhere('student_id', $s->id);
                     if ($found) {
                         $absRecord = $found;
@@ -289,27 +297,31 @@ class JournalController extends Controller
 
                 if ($absRecord) {
                     $st = match ($absRecord->status) {
-                        'sakit'               => 'S',
-                        'izin'                => 'I',
-                        'dispensasi'          => 'D',
-                        'alpa', 'tidak_hadir' => 'A',
-                        default               => 'H',
+                        'sakit'                                   => 'S',
+                        'izin'                                    => 'I',
+                        'dispensasi'                              => 'D',
+                        'alpa', 'tidak_hadir', 'tanpa_keterangan' => 'A',
+                        default                                   => 'H',
                     };
                 } else {
                     // Check morning attendance
                     $key = $s->id . '_' . $dateStr;
                     $mAttList = $morningAttendances->get($key);
                     $mAtt = $mAttList ? $mAttList->first() : null;
-                    if ($mAtt && in_array($mAtt->status, ['sakit', 'izin', 'dispensasi', 'alpa'])) {
+                    if ($mAtt) {
                         $st = match ($mAtt->status) {
-                            'sakit'      => 'S',
-                            'izin'       => 'I',
-                            'dispensasi' => 'D',
-                            'alpa'       => 'A',
-                            default      => 'H',
+                            'sakit'                                   => 'S',
+                            'izin'                                    => 'I',
+                            'dispensasi'                              => 'D',
+                            'alpa', 'tanpa_keterangan', 'tidak_hadir' => 'A',
+                            default                                   => 'H', // hadir / terlambat
                         };
                     } else {
-                        $st = 'H';
+                        if ($dateStr > now()->toDateString()) {
+                            $st = '—';
+                        } else {
+                            $st = 'H';
+                        }
                     }
                 }
 
@@ -319,7 +331,8 @@ class JournalController extends Controller
                     'I' => $row['izin']++,
                     'A' => $row['alpa']++,
                     'D' => $row['dispen']++,
-                    default => $row['hadir']++,
+                    'H' => $row['hadir']++,
+                    default => null,
                 };
 
                 $row['days'][$dateStr] = $st;
