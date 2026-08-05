@@ -176,13 +176,16 @@
 {{-- ══════════════════════════════════════════════════════════════
      TAB 2 — CATATAN POSITIF
 ══════════════════════════════════════════════════════════════ --}}
+{{-- ══════════════════════════════════════════════════════════════
+     TAB 2 — CATATAN POSITIF (BEBAS INPUT)
+══════════════════════════════════════════════════════════════ --}}
 <div id="panel-positif" class="hidden">
     <form action="{{ route('guru.conduct.store') }}" method="POST" enctype="multipart/form-data"
-          onsubmit="return validatePositif()"
+          onsubmit="return composeNotePositif(this)"
           class="bg-white rounded-2xl shadow-sm border-2 border-green-300 p-5 space-y-5">
         @csrf
-        <input type="hidden" name="context" id="cp-context" value="">
-        <input type="hidden" name="category_id" id="cp-category-id" value="">
+        <input type="hidden" name="context" value="lainnya_prestasi">
+        <input type="hidden" name="note" id="cp-note-hidden">
 
         {{-- Header badge --}}
         <div class="flex items-center gap-2">
@@ -192,7 +195,7 @@
                 </svg>
                 Catatan Positif
             </span>
-            <span class="text-xs text-gray-400">Catat prestasi atau perilaku positif siswa</span>
+            <span class="text-xs text-gray-400">Catat kebaikan, prestasi, atau perilaku positif siswa (Bebas)</span>
         </div>
 
         {{-- 1. Pilih Siswa --}}
@@ -242,73 +245,27 @@
             </select>
         </div>
 
-        {{-- 2. Pilih Kategori --}}
+        {{-- 2. Kategori / Judul Catatan Positif (Bebas Input) --}}
         <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
-                <span class="text-gray-400 font-normal mr-1">2.</span> Pilih Kategori Catatan Positif
+            <label for="cp-kategori-input" class="block text-sm font-medium text-gray-700 mb-1">
+                <span class="text-gray-400 font-normal mr-1">2.</span> Kategori / Judul Catatan Positif <span class="text-gray-400 font-normal">(opsional)</span>
             </label>
-            @if($prestasiCategories->isEmpty())
-            <div class="py-4 text-center text-sm text-gray-400">
-                Belum ada kategori. Tambahkan melalui panel admin.
-            </div>
-            @else
-            {{-- Group by context --}}
-            @php
-                $grouped = $prestasiCategories->groupBy('context');
-                $contextLabels = [
-                    'akademik' => 'Kedisiplinan & Karakter Belajar',
-                    'lomba' => 'Prestasi & Perlombaan',
-                    'lainnya_prestasi' => 'Catatan Positif Bebas'
-                ];
-            @endphp
-            @foreach($grouped as $ctx => $cats)
-            <div class="mb-3">
-                <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">
-                    {{ $contextLabels[$ctx] ?? ucfirst($ctx) }}
-                </p>
-                <div class="flex flex-wrap gap-2">
-                    @foreach($cats as $cat)
-                    <button type="button"
-                        onclick="selectCategory(this, '{{ $ctx }}', '{{ $cat->id }}')"
-                        class="category-chip px-3 py-2 rounded-lg text-sm font-medium border-2 border-gray-200 text-gray-600
-                               hover:border-green-400 hover:text-green-700 transition-all"
-                        data-context="{{ $ctx }}" data-id="{{ $cat->id }}">
-                        {{ $cat->name }}
-                    </button>
-                    @endforeach
-                </div>
-            </div>
-            @endforeach
-            <div class="mb-3">
-                <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">
-                    Catatan Positif Bebas
-                </p>
-                <div class="flex flex-wrap gap-2">
-                    <button type="button"
-                        onclick="selectCategory(this, 'lainnya_prestasi', '')"
-                        class="category-chip px-3 py-2 rounded-lg text-sm font-medium border-2 border-gray-200 text-gray-600
-                               hover:border-green-400 hover:text-green-700 transition-all"
-                        data-context="lainnya_prestasi" data-id="">
-                        ✨ Catatan Positif Lainnya (Deskripsi Bebas)
-                    </button>
-                </div>
-            </div>
-            @endif
-            <div id="cp-category-error" class="hidden mt-1 text-xs text-red-600">Pilih kategori atau catatan bebas terlebih dahulu.</div>
+            <input type="text" id="cp-kategori-input"
+                placeholder="Misal: Kejujuran, Membantu Guru, Keaktifan KBM, Prestasi Seni..."
+                class="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-400 bg-white">
         </div>
 
-        {{-- 3. Catatan (opsional) --}}
+        {{-- 3. Detail Catatan Positif / Deskripsi (Bebas Input) --}}
         <div>
-            <label for="cp-note" class="block text-sm font-medium text-gray-700 mb-1">
-                <span class="text-gray-400 font-normal mr-1">3.</span> Catatan
-                <span class="text-gray-400 font-normal">(opsional)</span>
+            <label for="cp-deskripsi" class="block text-sm font-medium text-gray-700 mb-1">
+                <span class="text-gray-400 font-normal mr-1">3.</span> Detail Catatan Positif / Apresiasi <span class="text-red-500">*</span>
             </label>
-            <textarea id="cp-note" name="note" rows="3"
-                placeholder="Deskripsi tambahan..."
+            <textarea id="cp-deskripsi" rows="3" required
+                placeholder="Ceritakan kebaikan, perilaku positif, atau prestasi yang dilakukan oleh siswa secara bebas..."
                 class="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-400 resize-none"></textarea>
         </div>
 
-        {{-- Foto --}}
+        {{-- Foto Bukti --}}
         <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">
                 Foto Bukti <span class="text-gray-400 font-normal">(opsional)</span>
@@ -328,6 +285,23 @@
                     class="sr-only" onchange="showPhotoName(this,'cp-photo-ph','cp-photo-name')">
             </label>
         </div>
+
+        {{-- Submit --}}
+        <div class="flex gap-3 pt-1">
+            <a href="{{ route('guru.conduct.index') }}"
+                class="flex-1 py-3 text-center rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50">
+                Batal
+            </a>
+            <button type="submit"
+                class="flex-1 py-3 bg-green-600 text-white rounded-xl text-sm font-semibold hover:bg-green-700 transition-colors flex items-center justify-center gap-2">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
+                </svg>
+                Simpan Catatan Positif
+            </button>
+        </div>
+    </form>
+</div>
 
         {{-- Submit --}}
         <div class="flex gap-3 pt-1">
@@ -532,6 +506,19 @@ function validatePositif() {
         document.getElementById('cp-note').focus();
         return false;
     }
+    return true;
+}
+
+// ── Compose note for catatan positif ──────────────────────────────────────────
+function composeNotePositif(form) {
+    const kategori  = document.getElementById('cp-kategori-input').value.trim();
+    const deskripsi = document.getElementById('cp-deskripsi').value.trim();
+    if (!deskripsi) {
+        document.getElementById('cp-deskripsi').focus();
+        return false;
+    }
+    const prefix = kategori ? '[' + kategori + '] ' : '';
+    document.getElementById('cp-note-hidden').value = prefix + deskripsi;
     return true;
 }
 

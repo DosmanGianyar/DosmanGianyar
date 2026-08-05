@@ -119,7 +119,7 @@ class GuruConductApiController extends Controller
             // prestasi — sub-tipe
             'prestasi_type' => 'required_if:type,prestasi|nullable|in:perilaku,lomba',
             // prestasi perilaku
-            'category_id'  => 'required_if:prestasi_type,perilaku|nullable|exists:conduct_categories,id',
+            'category_id'  => 'nullable|exists:conduct_categories,id',
             // prestasi lomba
             'lomba_name'   => 'required_if:prestasi_type,lomba|nullable|string|max:200',
             'lomba_level'  => 'required_if:prestasi_type,lomba|nullable|in:sekolah,kabupaten,provinsi,nasional,internasional',
@@ -153,18 +153,27 @@ class GuruConductApiController extends Controller
             return response()->json(['message' => 'Catatan negatif berhasil dicatat.', 'id' => $log->id], 201);
         }
 
-        // Catatan Positif — Perilaku
-        if ($request->prestasi_type === 'perilaku') {
-            $category = ConductCategory::findOrFail($request->category_id);
-            $data['category_id']   = $category->id;
+        // Catatan Positif — Perilaku / Bebas Input
+        if ($request->prestasi_type === 'perilaku' || $request->type === 'prestasi') {
+            if ($request->category_id) {
+                $category = ConductCategory::find($request->category_id);
+            } else {
+                $category = ConductCategory::firstOrCreate(
+                    ['name' => '__sistem__prestasi_lainnya'],
+                    ['type' => 'prestasi', 'context' => 'lainnya_prestasi', 'is_active' => true]
+                );
+            }
+            $data['category_id']   = $category?->id;
             $data['prestasi_type'] = 'perilaku';
 
             $log = ConductLog::create($data);
             $student = User::find($request->student_id);
             if ($student) {
-                NotificationService::send($student->id, "Catatan Positif: {$category->name}", "Dicatat oleh guru.", 'success');
-                NotificationService::notifyParentsOfStudent($student, "Catatan Positif Anak: {$category->name}", "Dicatat oleh guru.", 'success');
-                NotificationService::notifyHomeroomTeacher($student, "Catatan Positif Siswa: {$category->name}", "Siswa {$student->name}", 'success');
+                $catTitle = $category && !str_starts_with($category->name, '__sistem__') ? $category->name : 'Catatan Positif';
+                $noteBody = $request->note ?? 'Dicatat oleh guru.';
+                NotificationService::send($student->id, "Catatan Positif: {$catTitle}", $noteBody, 'success');
+                NotificationService::notifyParentsOfStudent($student, "Catatan Positif Anak", $noteBody, 'success');
+                NotificationService::notifyHomeroomTeacher($student, "Catatan Positif Siswa", "Siswa {$student->name}: {$noteBody}", 'success');
             }
             return response()->json(['message' => 'Catatan positif berhasil dicatat.', 'id' => $log->id], 201);
         }

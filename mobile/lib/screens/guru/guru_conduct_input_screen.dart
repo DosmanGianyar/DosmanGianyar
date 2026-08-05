@@ -46,6 +46,7 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
   ConductCategory? _selectedCategory;
 
   // Shared
+  final _positifCategoryCtrl = TextEditingController();
   final _noteCtrl   = TextEditingController();
   final _searchCtrl = TextEditingController();
 
@@ -84,6 +85,7 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
   @override
   void dispose() {
     _tabCtrl.dispose();
+    _positifCategoryCtrl.dispose();
     _noteCtrl.dispose();
     _searchCtrl.dispose();
     _descriptionCtrl.dispose();
@@ -197,23 +199,27 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
         return;
       }
     } else {
-      // Catatan Positif
-      if (_selectedCategory == null) {
-        _showSnack('Pilih kategori catatan positif', AppColors.orange500);
+      // Catatan Positif (Bebas Input)
+      if (_noteCtrl.text.trim().isEmpty) {
+        _showSnack('Isi detail catatan positif / apresiasi siswa', AppColors.orange500);
         return;
       }
     }
 
     setState(() => _submitting = true);
     try {
+      final categoryHeader = _positifCategoryCtrl.text.trim();
+      final detailText     = _noteCtrl.text.trim();
+      final combinedNote   = categoryHeader.isNotEmpty ? '[$categoryHeader] $detailText' : detailText;
+
       final msg = await GuruService.createConductLog(
         studentId:    _selectedStudent!.id,
         type:         isPrestasi ? 'prestasi' : 'pelanggaran',
         description:  isPrestasi ? null : _descriptionCtrl.text.trim(),
         severity:     isPrestasi ? null : _selectedSeverity,
         prestasiType: isPrestasi ? 'perilaku' : null,
-        categoryId:   isPrestasi ? _selectedCategory!.id : null,
-        note:         _noteCtrl.text.trim().isEmpty ? null : _noteCtrl.text.trim(),
+        categoryId:   isPrestasi ? _selectedCategory?.id : null,
+        note:         isPrestasi ? combinedNote : (_noteCtrl.text.trim().isEmpty ? null : _noteCtrl.text.trim()),
       );
       if (mounted) {
         _showSnack(msg, AppColors.emerald600);
@@ -400,45 +406,30 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
           _studentPickerArea(),
           const SizedBox(height: 16),
 
-          // ── Catatan Positif ───────────────────────────────────────────
-          _sectionLabel('3. Pilih Kategori Catatan Positif'),
-            const SizedBox(height: 8),
-            if (_prestasiCats.isEmpty)
-              const Text('Tidak ada kategori prestasi.',
-                  style: TextStyle(color: AppColors.gray400, fontSize: 13))
-            else
-              Wrap(
-                spacing: 8, runSpacing: 8,
-                children: _prestasiCats.map((cat) {
-                  final selected = _selectedCategory?.id == cat.id;
-                  return GestureDetector(
-                    onTap: () => setState(() => _selectedCategory = cat),
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 150),
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: selected ? AppColors.emerald600 : AppColors.white,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                          color: selected ? AppColors.emerald600 : AppColors.gray200,
-                          width: selected ? 2 : 1,
-                        ),
-                      ),
-                      child: Text(cat.name,
-                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500,
-                              color: selected ? Colors.white : AppColors.gray700)),
-                    ),
-                  );
-                }).toList(),
-              ),
+          // ── Kategori / Judul Catatan Positif (Bebas Input) ──
+          _sectionLabel('3. Kategori / Judul Catatan Positif (Bebas Input)'),
+          const SizedBox(height: 4),
+          const Text(
+            'Ketik judul atau kategori bebas (opsional)',
+            style: TextStyle(fontSize: 11, color: AppColors.gray400),
+          ),
+          const SizedBox(height: 8),
+          _textField(
+            controller: _positifCategoryCtrl,
+            hint: 'Misal: Kejujuran, Membantu Guru, Keaktifan KBM, Prestasi Seni...',
+          ),
           const SizedBox(height: 16),
 
-          _sectionLabel('4. Catatan (opsional)'),
+          // ── Detail Catatan Positif (Bebas Input) ──
+          _sectionLabel('4. Detail Catatan Positif / Apresiasi'),
           const SizedBox(height: 8),
-          _textField(controller: _noteCtrl, hint: 'Catatan tambahan...', maxLines: 3),
+          _textField(
+            controller: _noteCtrl,
+            hint: 'Ceritakan kebaikan, perilaku positif, atau prestasi yang dilakukan oleh siswa secara bebas...',
+            maxLines: 4,
+          ),
           const SizedBox(height: 24),
 
-          if (_selectedStudent != null) _prestasiPreview(),
           _submitButton(isPrestasi: true),
           const SizedBox(height: 32),
         ],
