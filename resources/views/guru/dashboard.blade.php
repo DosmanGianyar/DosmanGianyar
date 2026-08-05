@@ -268,88 +268,94 @@
 </div>
 @endif
 
-{{-- ─── Stat Cards ─────────────────────────────────────────────────── --}}
-<div class="grid grid-cols-2 gap-3 mb-5">
+{{-- ─── Stat Cards & Smart Hub ───────────────────────────────────────── --}}
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
 
-    <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-        <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-medium text-gray-500">Total Siswa</span>
-            <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
-                </svg>
-            </div>
+    <div class="bg-white rounded-2xl p-4.5 shadow-2xs border border-slate-200/80 flex items-center justify-between">
+        <div>
+            <span class="text-xs font-bold text-slate-500 uppercase tracking-wide">Siswa Bimbingan</span>
+            <p class="text-3xl font-black text-slate-900 mt-1">{{ $stats['total_students'] }}</p>
+            <p class="text-xs font-bold text-blue-600 mt-1 flex items-center gap-1">
+                <span>🏫</span>
+                <span>{{ $guru->homeroomClass?->name ? 'Wali Kelas ' . $guru->homeroomClass->name : 'Guru Pengajar' }}</span>
+            </p>
         </div>
-        <p class="text-2xl font-bold text-gray-800">{{ $stats['total_students'] }}</p>
-        <p class="text-xs text-blue-600 mt-0.5">siswa di kelas wali</p>
+        <div class="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 text-xl shadow-2xs">
+            👥
+        </div>
     </div>
 
-    <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100 {{ $stats['alert_kritis'] > 0 ? 'border-orange-300 bg-orange-50' : '' }}">
-        <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-medium text-gray-500">Catatan Negatif</span>
-            <div class="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
-                <svg class="w-4 h-4 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                </svg>
-            </div>
+    <div class="bg-white rounded-2xl p-4.5 shadow-2xs border border-slate-200/80 flex items-center justify-between">
+        <div>
+            <span class="text-xs font-bold text-slate-500 uppercase tracking-wide">Jurnal Mengajar Saya</span>
+            <p class="text-3xl font-black text-slate-900 mt-1">{{ $stats['total_journals'] }}</p>
+            <a href="{{ route('guru.journal.create') }}" class="text-xs font-bold text-emerald-600 hover:text-emerald-700 mt-1 flex items-center gap-1">
+                <span>+ Buat Jurnal Baru →</span>
+            </a>
         </div>
-        <p class="text-2xl font-bold text-gray-800">{{ $stats['alert_kritis'] }}</p>
-        <p class="text-xs text-orange-600 mt-0.5">catat perilaku</p>
+        <div class="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 text-xl shadow-2xs">
+            📖
+        </div>
     </div>
+
 </div>
 
-{{-- ─── Quick Action Bar ─────────────────────────────────────────── --}}
-<div class="flex flex-wrap gap-2 mb-4">
-    <a href="{{ route('guru.grades.index') }}"
-        class="flex items-center gap-1.5 px-3 py-2 bg-emerald-50 text-emerald-700 text-xs font-semibold rounded-xl hover:bg-emerald-100 transition-colors">
-        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
-        </svg>
-        Input Nilai
-    </a>
-    <a href="{{ route('guru.export.grades.form') }}"
-        class="flex items-center gap-1.5 px-3 py-2 bg-teal-50 text-teal-700 text-xs font-semibold rounded-xl hover:bg-teal-100 transition-colors">
-        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-        </svg>
-        Export Nilai
-    </a>
-</div>
-
-<div class="pb-2">
-
-    {{-- ─── Alert Poin Kritis ───────────────────────────────────────── --}}
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6">
-        <div class="px-4 py-3 border-b border-gray-100 bg-orange-50">
-            <h3 class="text-sm font-semibold text-orange-800 flex items-center gap-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                </svg>
-                Siswa Catatan Negatif Terbanyak
-            </h3>
-        </div>
-        <div class="divide-y divide-gray-50">
-            @forelse($recentAlerts as $alert)
-            <div class="px-4 py-3">
-                <p class="text-sm font-medium text-gray-800">{{ $alert['name'] }}</p>
-                <p class="text-xs text-gray-500">{{ $alert['class'] }}</p>
-                <div class="mt-1 flex items-center gap-1">
-                    <span class="text-sm font-bold text-red-600">{{ $alert['point'] }}</span>
-                    <span class="text-xs text-gray-400">catatan negatif</span>
-                </div>
-            </div>
-            @empty
-            <div class="px-4 py-6 text-center text-sm text-gray-400">
-                Tidak ada alert poin kritis
-            </div>
-            @endforelse
-        </div>
+{{-- ─── Smart Action Hub Guru ────────────────────────────────────────── --}}
+<div class="bg-white rounded-2xl p-4.5 shadow-2xs border border-slate-200/80 mb-6">
+    <div class="flex items-center justify-between mb-3.5">
+        <h3 class="text-sm font-black text-slate-900 flex items-center gap-2">
+            <span>🚀</span>
+            <span>Akses Pintar & Layanan Guru</span>
+        </h3>
+        <span class="text-xs font-bold text-slate-400">SIMAK_DOSMAN</span>
     </div>
+
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <a href="{{ route('guru.journal.index') }}"
+            class="group p-3 bg-slate-50 hover:bg-blue-50/80 border border-slate-200/70 hover:border-blue-300 rounded-xl transition-all flex items-center gap-3">
+            <div class="w-9 h-9 rounded-lg bg-blue-600 text-white flex items-center justify-center text-sm font-bold shrink-0 group-hover:scale-105 transition-transform">
+                📖
+            </div>
+            <div class="overflow-hidden">
+                <p class="text-xs font-black text-slate-900 group-hover:text-blue-700 truncate">Jurnal Mengajar</p>
+                <p class="text-[10.5px] text-slate-500 font-medium truncate">Kelola & Cetak PDF</p>
+            </div>
+        </a>
+
+        <a href="{{ route('guru.grades.index') }}"
+            class="group p-3 bg-slate-50 hover:bg-emerald-50/80 border border-slate-200/70 hover:border-emerald-300 rounded-xl transition-all flex items-center gap-3">
+            <div class="w-9 h-9 rounded-lg bg-emerald-600 text-white flex items-center justify-center text-sm font-bold shrink-0 group-hover:scale-105 transition-transform">
+                📝
+            </div>
+            <div class="overflow-hidden">
+                <p class="text-xs font-black text-slate-900 group-hover:text-emerald-700 truncate">Input Nilai</p>
+                <p class="text-[10.5px] text-slate-500 font-medium truncate">Nilai Siswa & Export</p>
+            </div>
+        </a>
+
+        <a href="{{ route('guru.conduct.index') }}"
+            class="group p-3 bg-slate-50 hover:bg-purple-50/80 border border-slate-200/70 hover:border-purple-300 rounded-xl transition-all flex items-center gap-3">
+            <div class="w-9 h-9 rounded-lg bg-purple-600 text-white flex items-center justify-center text-sm font-bold shrink-0 group-hover:scale-105 transition-transform">
+                ⭐
+            </div>
+            <div class="overflow-hidden">
+                <p class="text-xs font-black text-slate-900 group-hover:text-purple-700 truncate">Catat Karakter</p>
+                <p class="text-[10.5px] text-slate-500 font-medium truncate">Prestasi & Perilaku</p>
+            </div>
+        </a>
+
+        <a href="{{ route('guru.attendance.permits') }}"
+            class="group p-3 bg-slate-50 hover:bg-amber-50/80 border border-slate-200/70 hover:border-amber-300 rounded-xl transition-all flex items-center gap-3">
+            <div class="w-9 h-9 rounded-lg bg-amber-600 text-white flex items-center justify-center text-sm font-bold shrink-0 group-hover:scale-105 transition-transform">
+                ✉️
+            </div>
+            <div class="overflow-hidden">
+                <p class="text-xs font-black text-slate-900 group-hover:text-amber-700 truncate">Approval Izin</p>
+                <p class="text-[10.5px] text-slate-500 font-medium truncate">Surat Izin & Sakit</p>
+            </div>
+        </a>
+    </div>
+</div>
 
     {{-- ─── Histori Jurnal Mengajar Saya (Per Minggu) ───────────────────────── --}}
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
