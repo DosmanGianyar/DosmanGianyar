@@ -7,16 +7,23 @@
 <style>
 @page {
     size: A4 portrait;
-    margin: 2cm 2.5cm;
+    margin: 1.5cm 2cm;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
     font-family: 'Times New Roman', Times, serif;
-    font-size: 11pt;
+    font-size: 10.5pt;
     color: #000;
     background: #fff;
+}
+
+.weekly-page {
+    page-break-after: always;
+}
+.weekly-page:last-child {
+    page-break-after: auto;
 }
 
 /* ─ Kop Surat ─ */
@@ -29,31 +36,31 @@ body {
     margin-bottom: 4px;
 }
 .kop img {
-    width: 64px;
-    height: 64px;
+    width: 60px;
+    height: 60px;
     object-fit: contain;
     flex-shrink: 0;
 }
 .kop-tengah {
     flex: 1;
     text-align: center;
-    line-height: 1.4;
+    line-height: 1.3;
 }
 .kop-tengah .instansi {
-    font-size: 9.5pt;
+    font-size: 9pt;
     font-weight: normal;
     letter-spacing: 0.3px;
     color: #222;
 }
 .kop-tengah .nama-sekolah {
-    font-size: 16pt;
+    font-size: 15pt;
     font-weight: bold;
     text-transform: uppercase;
     letter-spacing: 1px;
     color: #000;
 }
 .kop-tengah .alamat {
-    font-size: 9pt;
+    font-size: 8.5pt;
     color: #333;
     margin-top: 2px;
 }
@@ -61,25 +68,30 @@ body {
 /* ─ Judul ─ */
 .judul-blok {
     text-align: center;
-    margin: 16px 0 12px;
+    margin: 14px 0 10px;
 }
 .judul-blok h1 {
-    font-size: 13pt;
+    font-size: 12pt;
     font-weight: bold;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 0.5px;
     text-decoration: underline;
+}
+.judul-blok p {
+    font-size: 9.5pt;
+    color: #333;
+    margin-top: 2px;
 }
 
 /* ─ Info Guru ─ */
 .info-table {
     width: 100%;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
     border-collapse: collapse;
 }
 .info-table td {
     padding: 2px 0;
-    font-size: 10.5pt;
+    font-size: 10pt;
     vertical-align: top;
 }
 .info-table .label { width: 140px; font-weight: normal; }
@@ -90,388 +102,243 @@ body {
 .jurnal-table {
     width: 100%;
     border-collapse: collapse;
-    margin-bottom: 20px;
-    font-size: 9.5pt;
+    margin-bottom: 14px;
+    font-size: 9pt;
 }
 .jurnal-table th {
     background: #f0f0f0;
-    border: 1px solid #555;
+    border: 1px solid #444;
     padding: 5px 4px;
     text-align: center;
     font-weight: bold;
-    vertical-align: middle;
-    line-height: 1.3;
+    font-size: 8.5pt;
 }
 .jurnal-table td {
     border: 1px solid #555;
-    padding: 5px 4px;
+    padding: 5px 5px;
     vertical-align: top;
-    line-height: 1.4;
+    line-height: 1.35;
 }
 .jurnal-table td.center { text-align: center; }
-.jurnal-table .no-col   { width: 26px; text-align: center; }
-.jurnal-table .tgl-col  { width: 62px; }
-.jurnal-table .kls-col  { width: 52px; text-align: center; }
-.jurnal-table .jam-col  { width: 36px; text-align: center; }
-.jurnal-table .mp-col   { width: 68px; }
-.jurnal-table .tp-col   { width: 100px; }
-.jurnal-table .materi-col   { width: auto; }
-.jurnal-table .aktivitas-col { width: auto; }
-.jurnal-table .catatan-col  { width: 70px; }
-.jurnal-table .absen-col    { width: 80px; }
 
+/* Badges */
 .tp-kode {
     display: inline-block;
-    background: #e8e8e8;
-    border: 1px solid #bbb;
-    border-radius: 2px;
-    padding: 0 3px;
-    font-size: 8pt;
+    background: #e2e8f0;
+    color: #1e293b;
     font-weight: bold;
+    font-size: 7.5pt;
+    padding: 1px 4px;
+    border-radius: 3px;
     margin-bottom: 2px;
 }
 .absen-badge {
     display: inline-block;
-    font-size: 8pt;
+    font-size: 7.5pt;
     font-weight: bold;
-    padding: 1px 4px;
+    padding: 1px 3px;
     border-radius: 2px;
-    margin: 1px 1px 1px 0;
-    line-height: 1.4;
+    margin-right: 2px;
 }
-.absen-a { background: #fee2e2; color: #b91c1c; }
-.absen-i { background: #e0f2fe; color: #0369a1; }
-.absen-s { background: #f3e8ff; color: #7e22ce; }
+.absen-a { background: #fee2e2; color: #991b1b; }
+.absen-i { background: #e0f2fe; color: #075985; }
+.absen-s { background: #fef3c7; color: #92400e; }
 
-/* ─ Footer / TTD ─ */
-.ttd-wrap {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 8px;
-}
-.ttd-box {
-    text-align: center;
-    width: 200px;
-    font-size: 10.5pt;
-}
-.ttd-box .ttd-lokasi { margin-bottom: 4px; }
-.ttd-box .ttd-jabatan { font-weight: normal; margin-bottom: 56px; }
-.ttd-box .ttd-nama { font-weight: bold; text-decoration: underline; }
-.ttd-box .ttd-nip  { font-size: 9.5pt; }
-
-/* ─ Ringkasan ─ */
+/* Ringkasan */
 .summary-row {
     display: flex;
     gap: 20px;
-    margin-bottom: 12px;
-    font-size: 10.5pt;
+    margin-bottom: 16px;
+    font-size: 9.5pt;
 }
 .summary-item {
-    display: flex;
-    align-items: center;
-    gap: 6px;
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    padding: 4px 10px;
+    border-radius: 4px;
 }
-.summary-item span.badge {
-    display: inline-block;
-    background: #f0f0f0;
-    border: 1px solid #ccc;
-    padding: 1px 8px;
-    border-radius: 3px;
+.summary-item .badge {
     font-weight: bold;
+    color: #1e40af;
 }
 
-/* ─ Halaman baru antar entry besar ─ */
-.page-break { page-break-after: always; }
-
-/* ─ Tombol cetak (disembunyikan saat print) ─ */
-.print-toolbar {
-    position: fixed;
-    top: 16px;
-    right: 20px;
+/* ─ Tanda Tangan ─ */
+.ttd-wrap {
     display: flex;
-    gap: 10px;
-    z-index: 999;
+    justify-content: space-between;
+    margin-top: 20px;
+    page-break-inside: avoid;
 }
-.btn-cetak {
-    background: #1d4ed8;
-    color: #fff;
-    border: none;
-    padding: 9px 20px;
-    border-radius: 8px;
-    font-size: 13px;
-    font-family: sans-serif;
-    font-weight: 600;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+.ttd-box {
+    width: 220px;
+    text-align: center;
+    font-size: 9.5pt;
 }
-.btn-cetak:hover { background: #1e40af; }
-.btn-tutup {
-    background: #e5e7eb;
-    color: #374151;
-    border: none;
-    padding: 9px 16px;
-    border-radius: 8px;
-    font-size: 13px;
-    font-family: sans-serif;
-    font-weight: 600;
-    cursor: pointer;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-}
-.btn-tutup:hover { background: #d1d5db; }
-
-/* ─ Filter bar (hanya layar) ─ */
-.filter-bar {
-    background: #f9fafb;
-    border: 1px solid #e5e7eb;
-    border-radius: 10px;
-    padding: 12px 16px;
-    margin-bottom: 20px;
-    font-family: sans-serif;
-    font-size: 13px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    align-items: flex-end;
-}
-.filter-bar label { display: block; font-size: 11px; font-weight: 600; color: #6b7280; margin-bottom: 3px; }
-.filter-bar select, .filter-bar input {
-    padding: 6px 10px;
-    border-radius: 8px;
-    border: 1px solid #d1d5db;
-    font-size: 13px;
-    background: #fff;
-}
-.filter-bar button {
-    padding: 7px 16px;
-    background: #1d4ed8;
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    align-self: flex-end;
-}
+.ttd-box .ttd-lokasi { margin-bottom: 2px; }
+.ttd-box .ttd-jabatan { font-weight: bold; margin-bottom: 48px; }
+.ttd-box .ttd-nama { font-weight: bold; text-decoration: underline; }
+.ttd-box .ttd-nip { font-size: 8.5pt; color: #333; margin-top: 1px; }
 
 @media print {
-    .print-toolbar { display: none !important; }
-    .filter-bar    { display: none !important; }
-    body { background: #fff; }
+    .no-print { display: none !important; }
 }
 </style>
 </head>
 <body>
 
-{{-- ─── Toolbar (hanya layar) ─────────────────────────────────────── --}}
-<div class="print-toolbar">
-    <button class="btn-cetak" onclick="window.print()">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round"
-                d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
-        </svg>
-        Cetak / Simpan PDF
+{{-- Tombol Cetak / Kembali (No Print) --}}
+<div class="no-print" style="position:fixed; top:15px; right:15px; z-index:9999; display:flex; gap:10px;">
+    <button onclick="window.print()" style="padding:8px 16px; background:#2563eb; color:#fff; font-weight:bold; border:none; border-radius:6px; cursor:pointer; shadow:0 2px 4px rgba(0,0,0,0.2);">
+        🖨️ Cetak Jurnal Bulanan (PDF)
     </button>
-    <button class="btn-tutup" onclick="window.close()">Tutup</button>
+    <button onclick="window.close()" style="padding:8px 16px; background:#64748b; color:#fff; font-weight:bold; border:none; border-radius:6px; cursor:pointer;">
+        Tutup
+    </button>
 </div>
 
-{{-- ─── Filter Bar (hanya layar) ─────────────────────────────────── --}}
-<div class="filter-bar">
-    <form method="GET" action="{{ route('guru.journal.print') }}" style="display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;width:100%">
-        @php
-            $months = ['','Januari','Februari','Maret','April','Mei','Juni',
-                       'Juli','Agustus','September','Oktober','November','Desember'];
-        @endphp
-        <div>
-            <label>Bulan</label>
-            <select name="month" onchange="this.form.submit()">
-                @for($m = 1; $m <= 12; $m++)
-                <option value="{{ $m }}" {{ $month == $m ? 'selected' : '' }}>{{ $months[$m] }}</option>
-                @endfor
-            </select>
+@foreach($weeklyGroups as $group)
+<div class="weekly-page">
+
+    {{-- Kop Surat --}}
+    <div class="kop">
+        <img src="{{ asset('img/logo_sekolah.png') }}" alt="Logo SMAN 1 Gianyar"
+             onerror="this.src='https://via.placeholder.com/64?text=LOGO'">
+        <div class="kop-tengah">
+            <div class="instansi">PEMERINTAH PROVINSI BALI<br>DINAS PENDIDIKAN, KEPEMUDAAN, DAN OLAHRAGA</div>
+            <div class="nama-sekolah">SMA Negeri 1 Gianyar</div>
+            <div class="alamat">Jl. Ratna No. 1, Gianyar, Bali 80511 | Telp: (0361) 943034 | Website: sman1-gianyar.sch.id</div>
         </div>
-        <div>
-            <label>Tahun</label>
-            <select name="year" onchange="this.form.submit()">
-                @for($y = now()->year; $y >= now()->year - 3; $y--)
-                <option value="{{ $y }}" {{ $year == $y ? 'selected' : '' }}>{{ $y }}</option>
-                @endfor
-            </select>
+    </div>
+
+    {{-- Judul --}}
+    <div class="judul-blok">
+        <h1>LAPORAN JURNAL MENGAJAR GURU</h1>
+        <p>Minggu Ke-{{ $group['week_number'] }} · Periode: {{ $group['period_label'] }}</p>
+    </div>
+
+    {{-- Info Guru --}}
+    <table class="info-table">
+        <tr>
+            <td class="label">Nama Guru</td>
+            <td class="sep">:</td>
+            <td class="val"><strong>{{ $teacher->name }}</strong></td>
+            <td class="label" style="text-align:right;">Bulan / Tahun</td>
+            <td class="sep">:</td>
+            <td class="val" style="width:120px;">{{ \Illuminate\Support\Carbon::create($year, $month, 1)->isoFormat('MMMM Y') }}</td>
+        </tr>
+        <tr>
+            <td class="label">NIP</td>
+            <td class="sep">:</td>
+            <td class="val">{{ $teacher->nip ?? '—' }}</td>
+            <td class="label" style="text-align:right;">Kelas Filter</td>
+            <td class="sep">:</td>
+            <td class="val">{{ $className ?? 'Semua Kelas' }}</td>
+        </tr>
+    </table>
+
+    {{-- Tabel Jurnal --}}
+    @if($group['journals']->isEmpty())
+        <div style="padding: 30px; text-align: center; color: #666; font-style: italic; border: 1px dashed #ccc; margin: 15px 0;">
+            Tidak ada catatan jurnal mengajar pada Minggu Ke-{{ $group['week_number'] }} ({{ $group['period_label'] }}).
         </div>
-        <div>
-            <label>Kelas</label>
-            <select name="class_id" onchange="this.form.submit()">
-                <option value="">— Semua Kelas —</option>
-                @foreach($classes as $class)
-                <option value="{{ $class->id }}" {{ $classId == $class->id ? 'selected' : '' }}>{{ $class->name }}</option>
+    @else
+        <table class="jurnal-table">
+            <thead>
+                <tr>
+                    <th style="width:28px">No</th>
+                    <th style="width:75px">Tanggal</th>
+                    <th style="width:65px">Kelas</th>
+                    <th style="width:45px">Jam</th>
+                    <th style="width:110px">Mata Pelajaran</th>
+                    <th>Tujuan Pembelajaran (TP)</th>
+                    <th>Materi / Pokok Bahasan</th>
+                    <th>Kegiatan Pembelajaran</th>
+                    <th style="width:80px">Catatan</th>
+                    <th style="width:110px">Siswa Tidak Hadir</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($group['journals'] as $i => $journal)
+                <tr>
+                    <td class="center">{{ $i + 1 }}</td>
+                    <td>{{ $journal->date?->isoFormat('D MMM Y') }}</td>
+                    <td class="center"><strong>{{ $journal->schoolClass?->name ?? '—' }}</strong></td>
+                    <td class="center">
+                        @if($journal->period)
+                            {{ $journal->period }}{{ $journal->period_end && $journal->period_end > $journal->period ? '–'.$journal->period_end : '' }}
+                        @else
+                            —
+                        @endif
+                    </td>
+                    <td>{{ $journal->subject?->name ?? '—' }}</td>
+                    <td>
+                        @if($journal->tp)
+                            @if($journal->tp->code)
+                            <span class="tp-kode">{{ $journal->tp->code }}</span><br>
+                            @endif
+                            {{ $journal->tp->description }}
+                        @elseif($journal->learning_objectives)
+                            {{ $journal->learning_objectives }}
+                        @else
+                            —
+                        @endif
+                    </td>
+                    <td>{{ $journal->material }}</td>
+                    <td>{{ $journal->activity }}</td>
+                    <td>{{ $journal->notes ?: '—' }}</td>
+                    <td>
+                        @if($journal->absences->isEmpty())
+                            <span style="color:#666;font-style:italic">Hadir semua</span>
+                        @else
+                            @foreach($journal->absences as $abs)
+                            @php
+                                $cls = match($abs->status) {
+                                    'tidak_hadir', 'alpa' => 'absen-a',
+                                    'izin'                 => 'absen-i',
+                                    'sakit'                => 'absen-s',
+                                    default                => '',
+                                };
+                                $lbl = match($abs->status) {
+                                    'tidak_hadir', 'alpa' => 'A',
+                                    'izin'                 => 'I',
+                                    'sakit'                => 'S',
+                                    default                => '?',
+                                };
+                            @endphp
+                            <span class="absen-badge {{ $cls }}">{{ $lbl }}</span> {{ $abs->student?->name ?? '—' }}<br>
+                            @endforeach
+                        @endif
+                    </td>
+                </tr>
                 @endforeach
-            </select>
+            </tbody>
+        </table>
+
+        <div class="summary-row">
+            <div class="summary-item">Pertemuan Minggu Ini: <span class="badge">{{ $group['total_pertemuan'] }}</span></div>
+            <div class="summary-item">Siswa Tidak Hadir: <span class="badge">{{ $group['total_absen'] }}</span></div>
         </div>
-    </form>
-</div>
+    @endif
 
-{{-- ─── Kop Surat ──────────────────────────────────────────────────── --}}
-<div class="kop">
-    <img src="{{ asset('img/logo-pemprov-bali.png') }}" alt="Logo Pemprov Bali">
-    <div class="kop-tengah">
-        <div class="instansi">PEMERINTAH PROVINSI BALI<br>DINAS PENDIDIKAN, KEPEMUDAAN, DAN OLAHRAGA</div>
-        <div class="nama-sekolah">SMA Negeri 1 Gianyar</div>
-        <div class="alamat">Jl. Ratna No. 1, Gianyar, Bali 80511 &nbsp;|&nbsp; Telp. (0361) 943036<br>
-            Email: smansa.gianyar@gmail.com &nbsp;|&nbsp; Website: sman1-gianyar.sch.id</div>
+    {{-- Tanda Tangan Ganda --}}
+    <div class="ttd-wrap">
+        <div class="ttd-box">
+            <div class="ttd-lokasi">&nbsp;</div>
+            <div class="ttd-jabatan">Mengetahui,<br>Kepala SMAN 1 Gianyar</div>
+            <div class="ttd-nama">I Wayan Sudra Astra, S.Pd., M.Pd.</div>
+            <div class="ttd-nip">NIP. 19710415 199703 1 007</div>
+        </div>
+
+        <div class="ttd-box">
+            <div class="ttd-lokasi">Gianyar, {{ now()->isoFormat('D MMMM Y') }}</div>
+            <div class="ttd-jabatan">Guru Mata Pelajaran,</div>
+            <div class="ttd-nama">{{ $teacher->name }}</div>
+            <div class="ttd-nip">NIP. {{ $teacher->nip ?? '—' }}</div>
+        </div>
     </div>
-    <img src="{{ asset('img/logo_sekolah.png') }}" alt="Logo Sekolah">
+
 </div>
-<div style="border-bottom:1px solid #888;margin-bottom:14px;"></div>
-
-{{-- ─── Judul ───────────────────────────────────────────────────────── --}}
-<div class="judul-blok">
-    <h1>Laporan Jurnal Mengajar</h1>
-</div>
-
-{{-- ─── Info Guru ──────────────────────────────────────────────────── --}}
-@php
-    $months2 = ['','Januari','Februari','Maret','April','Mei','Juni',
-                'Juli','Agustus','September','Oktober','November','Desember'];
-    $totalPertemuan = $journals->count();
-    $totalAbsen     = $journals->sum(fn($j) => $j->absences->count());
-    $subjectNames   = $journals->pluck('subject.name')->filter()->unique()->implode(', ');
-    if (!$subjectNames) {
-        $subjectNames = $journals->pluck('tp.subject.name')->filter()->unique()->implode(', ');
-    }
-    if (!$subjectNames && $teacher->subjects->isNotEmpty()) {
-        $subjectNames = $teacher->subjects->pluck('name')->implode(', ');
-    }
-    if (!$subjectNames) $subjectNames = $teacher->subject ?? '—';
-@endphp
-<table class="info-table">
-    <tr>
-        <td class="label">Nama Guru</td>
-        <td class="sep">:</td>
-        <td class="val">{{ $teacher->name }}</td>
-    </tr>
-    <tr>
-        <td class="label">NIP</td>
-        <td class="sep">:</td>
-        <td class="val">{{ $teacher->nip ?? '—' }}</td>
-    </tr>
-    <tr>
-        <td class="label">Mata Pelajaran</td>
-        <td class="sep">:</td>
-        <td class="val">{{ $subjectNames }}</td>
-    </tr>
-    <tr>
-        <td class="label">Kelas</td>
-        <td class="sep">:</td>
-        <td class="val">{{ $className ?? 'Semua Kelas' }}</td>
-    </tr>
-    <tr>
-        <td class="label">Periode</td>
-        <td class="sep">:</td>
-        <td class="val">{{ $months2[$month] }} {{ $year }}</td>
-    </tr>
-    <tr>
-        <td class="label">Jumlah Pertemuan</td>
-        <td class="sep">:</td>
-        <td class="val">{{ $totalPertemuan }} pertemuan</td>
-    </tr>
-</table>
-
-{{-- ─── Tabel Jurnal ────────────────────────────────────────────────── --}}
-@if($journals->isEmpty())
-<p style="text-align:center;padding:30px 0;color:#555;font-style:italic;">
-    Tidak ada data jurnal untuk periode {{ $months2[$month] }} {{ $year }}.
-</p>
-@else
-<table class="jurnal-table">
-    <thead>
-        <tr>
-            <th class="no-col">No</th>
-            <th class="tgl-col">Tanggal</th>
-            <th class="kls-col">Kelas</th>
-            <th class="jam-col">Jam Ke</th>
-            <th class="mp-col">Mata Pelajaran</th>
-            <th class="tp-col">Tujuan Pembelajaran</th>
-            <th class="materi-col">Materi Pokok</th>
-            <th class="aktivitas-col">Aktivitas Pembelajaran</th>
-            <th class="catatan-col">Catatan</th>
-            <th class="absen-col">Siswa Tidak Hadir</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach($journals as $i => $journal)
-        <tr>
-            <td class="center">{{ $i + 1 }}</td>
-            <td>{{ $journal->date?->isoFormat('D MMM Y') }}</td>
-            <td class="center">{{ $journal->schoolClass?->name ?? '—' }}</td>
-            <td class="center">
-                @if($journal->period)
-                    {{ $journal->period }}{{ $journal->period_end && $journal->period_end > $journal->period ? '–'.$journal->period_end : '' }}
-                @else
-                    —
-                @endif
-            </td>
-            <td>{{ $journal->subject?->name ?? '—' }}</td>
-            <td>
-                @if($journal->tp)
-                    @if($journal->tp->code)
-                    <span class="tp-kode">{{ $journal->tp->code }}</span><br>
-                    @endif
-                    {{ $journal->tp->description }}
-                @elseif($journal->learning_objectives)
-                    {{ $journal->learning_objectives }}
-                @else
-                    —
-                @endif
-            </td>
-            <td>{{ $journal->material }}</td>
-            <td>{{ $journal->activity }}</td>
-            <td>{{ $journal->notes ?: '—' }}</td>
-            <td>
-                @if($journal->absences->isEmpty())
-                    <span style="color:#888;font-style:italic">Hadir semua</span>
-                @else
-                    @foreach($journal->absences as $abs)
-                    @php
-                        $cls = match($abs->status) {
-                            'tidak_hadir' => 'absen-a',
-                            'izin'        => 'absen-i',
-                            'sakit'       => 'absen-s',
-                            default       => '',
-                        };
-                        $lbl = match($abs->status) {
-                            'tidak_hadir' => 'A',
-                            'izin'        => 'I',
-                            'sakit'       => 'S',
-                            default       => '?',
-                        };
-                    @endphp
-                    <span class="absen-badge {{ $cls }}">{{ $lbl }}</span> {{ $abs->student?->name ?? '—' }}<br>
-                    @endforeach
-                @endif
-            </td>
-        </tr>
-        @endforeach
-    </tbody>
-</table>
-
-{{-- ─── Ringkasan ───────────────────────────────────────────────────── --}}
-<div class="summary-row">
-    <div class="summary-item">Total Pertemuan: <span class="badge">{{ $totalPertemuan }}</span></div>
-    <div class="summary-item">Total Siswa Tidak Hadir: <span class="badge">{{ $totalAbsen }}</span></div>
-</div>
-@endif
-
-{{-- ─── Tanda Tangan ────────────────────────────────────────────────── --}}
-<div class="ttd-wrap">
-    <div class="ttd-box">
-        <div class="ttd-lokasi">Gianyar, {{ now()->isoFormat('D MMMM Y') }}</div>
-        <div class="ttd-jabatan">Guru Mata Pelajaran,</div>
-        <div class="ttd-nama">{{ $teacher->name }}</div>
-        <div class="ttd-nip">NIP. {{ $teacher->nip ?? '—' }}</div>
-    </div>
-</div>
+@endforeach
 
 </body>
 </html>

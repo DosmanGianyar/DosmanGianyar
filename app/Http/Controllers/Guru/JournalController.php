@@ -161,15 +161,19 @@ class JournalController extends Controller
 
     public function print(Request $request): View
     {
-        $teacher = Auth::user();
-        $month   = $request->integer('month', now()->month);
-        $year    = $request->integer('year', now()->year);
+        $teacher = $request->filled('teacher_id')
+            ? (User::where('role', 'guru')->find($request->input('teacher_id')) ?: Auth::user())
+            : Auth::user();
+        $month = (int) $request->input('month', now()->month);
+        $year  = (int) $request->input('year', now()->year);
         $classId = $request->input('class_id');
+
+        $firstDayOfMonth = \Illuminate\Support\Carbon::create($year, $month, 1)->startOfDay();
+        $lastDayOfMonth  = $firstDayOfMonth->copy()->endOfMonth()->endOfDay();
 
         $query = TeacherJournal::where('teacher_id', $teacher->id)
             ->with(['schoolClass:id,name', 'subject:id,name', 'tp:id,code,description', 'absences.student:id,name,nis'])
-            ->whereMonth('date', $month)
-            ->whereYear('date', $year)
+            ->whereBetween('date', [$firstDayOfMonth->toDateString(), $lastDayOfMonth->toDateString()])
             ->orderBy('date')
             ->orderBy('period');
 
@@ -177,12 +181,41 @@ class JournalController extends Controller
             $query->where('class_id', $classId);
         }
 
-        $journals  = $query->get();
+        $allJournals = $query->get();
+
+        // Bagi jurnal perhalaman baru perminggu (Minggu 1, Minggu 2, Minggu 3, Minggu 4, dst.)
+        $weeklyGroups = [];
+        $currStart = $firstDayOfMonth->copy()->startOfWeek(\Illuminate\Support\Carbon::MONDAY);
+        $weekIndex = 1;
+
+        while ($currStart->lte($lastDayOfMonth)) {
+            $currEnd = $currStart->copy()->addDays(5); // Senin - Sabtu
+
+            $weekJournals = $allJournals->filter(function ($j) use ($currStart, $currEnd) {
+                if (! $j->date) return false;
+                $dt = $j->date instanceof \Illuminate\Support\Carbon ? $j->date : \Illuminate\Support\Carbon::parse($j->date);
+                return $dt->gte($currStart->startOfDay()) && $dt->lte($currEnd->endOfDay());
+            })->values();
+
+            $weeklyGroups[] = [
+                'week_number'     => $weekIndex,
+                'start_date'      => $currStart->copy(),
+                'end_date'        => $currEnd->copy(),
+                'period_label'    => $currStart->isoFormat('D MMMM Y') . ' s/d ' . $currEnd->isoFormat('D MMMM Y'),
+                'journals'        => $weekJournals,
+                'total_pertemuan' => $weekJournals->count(),
+                'total_absen'     => $weekJournals->sum(fn ($j) => $j->absences->count()),
+            ];
+
+            $currStart->addWeek();
+            $weekIndex++;
+        }
+
         $classes   = SchoolClass::orderBy('name')->get();
         $className = $classId ? SchoolClass::find($classId)?->name : null;
 
         return view('guru.journal.print', compact(
-            'teacher', 'journals', 'classes',
+            'teacher', 'weeklyGroups', 'classes',
             'month', 'year', 'classId', 'className'
         ));
     }
@@ -225,55 +258,82 @@ class JournalController extends Controller
         $teacher = $request->filled('teacher_id')
             ? (User::where('role', 'guru')->find($request->input('teacher_id')) ?: Auth::user())
             : Auth::user();
-        $classes  = SchoolClass::orderBy('name')->get();
-        $classId  = $request->input('class_id') ?: ($classes->first()?->id);
-        $weekDate = $request->input('week_date', now()->toDateString());
+        $classes = SchoolClass::orderBy('name')->get();
+        $classId = $request->input('class_id') ?: ($classes->first()?->id);
 
-        $carbonDate  = \Illuminate\Support\Carbon::parse($weekDate);
-        $startOfWeek = $carbonDate->copy()->startOfWeek(\Illuminate\Support\Carbon::MONDAY);
-        $endOfWeek   = $carbonDate->copy()->startOfWeek(\Illuminate\Support\Carbon::MONDAY)->addDays(5); // Senin - Sabtu
+        $month = (int) $request->input('month', now()->month);
+        $year  = (int) $request->input('year', now()->year);
+
+        if ($request->filled('week_date') && ! $request->filled('month')) {
+            $parsedDate = \Illuminate\Support\Carbon::parse($request->input('week_date'));
+            $month      = (int) $parsedDate->month;
+            $year       = (int) $parsedDate->year;
+        }
+
+        $startOfMonth = \Illuminate\Support\Carbon::create($year, $month, 1)->startOfDay();
+        $endOfMonth   = $startOfMonth->copy()->endOfMonth()->endOfDay();
+        $totalDays    = (int) $endOfMonth->day;
 
         $selectedClass = $classId ? SchoolClass::find($classId) : null;
         $students      = $selectedClass
             ? User::where('role', 'siswa')->where('class_id', $selectedClass->id)->orderBy('name')->get(['id', 'name', 'nis'])
             : collect();
 
-        // Get journals for this class and date range
+        // Ambil Hari Libur di bulan ini
+        $holidays = \App\Models\Holiday::whereBetween('date', [$startOfMonth->toDateString(), $endOfMonth->toDateString()])
+            ->get()
+            ->keyBy(fn ($h) => $h->date instanceof \Illuminate\Support\Carbon ? $h->date->format('Y-m-d') : (string) $h->date);
+
+        // Ambil Jurnal Mengajar di bulan ini
         $journals = TeacherJournal::where('class_id', $classId)
             ->with(['absences'])
-            ->whereBetween('date', [$startOfWeek->toDateString(), $endOfWeek->toDateString()])
+            ->whereBetween('date', [$startOfMonth->toDateString(), $endOfMonth->toDateString()])
             ->get();
 
-        // Get morning gate attendances for these students for this week
+        // Ambil Absensi Gerbang Pagi di bulan ini
         $studentIds = $students->pluck('id')->toArray();
         $morningAttendances = \App\Models\Attendance::whereIn('user_id', $studentIds)
-            ->whereBetween('date', [$startOfWeek->toDateString(), $endOfWeek->toDateString()])
+            ->whereBetween('date', [$startOfMonth->toDateString(), $endOfMonth->toDateString()])
             ->get()
             ->groupBy(fn ($att) => $att->user_id . '_' . $att->date->format('Y-m-d'));
 
-        // Map dates: 6 days (Senin - Sabtu) Bahasa Indonesia
         $dayNamesMap = [
-            1 => 'Senin',
-            2 => 'Selasa',
-            3 => 'Rabu',
-            4 => 'Kamis',
-            5 => 'Jumat',
-            6 => 'Sabtu',
-            7 => 'Minggu',
+            1 => 'Senin', 2 => 'Selasa', 3 => 'Rabu', 4 => 'Kamis', 5 => 'Jumat', 6 => 'Sabtu', 7 => 'Minggu',
+        ];
+
+        $dayShortMap = [
+            1 => 'Sn', 2 => 'Sl', 3 => 'Rb', 4 => 'Km', 5 => 'Jm', 6 => 'Sb', 7 => 'Mg',
         ];
 
         $days = [];
-        for ($i = 0; $i < 6; $i++) {
-            $dt = $startOfWeek->copy()->addDays($i);
-            $dayIso = (int) $dt->dayOfWeekIso;
+        $holidayNotes = [];
+
+        for ($d = 1; $d <= $totalDays; $d++) {
+            $dt      = \Illuminate\Support\Carbon::create($year, $month, $d);
+            $dateStr = $dt->toDateString();
+            $dayIso  = (int) $dt->dayOfWeekIso;
+
+            $isSunday    = ($dayIso === 7);
+            $holiday     = $holidays->get($dateStr);
+            $isHoliday   = $isSunday || ($holiday !== null && $holiday->type === 'libur');
+            $holidayDesc = $holiday ? $holiday->description : ($isSunday ? 'Libur Minggu' : null);
+
+            if ($holidayDesc && ! $isSunday) {
+                $holidayNotes[$d] = "$d " . $dt->isoFormat('MMMM') . ": $holidayDesc";
+            }
+
             $days[] = [
-                'date_str'  => $dt->toDateString(),
-                'day_name'  => $dayNamesMap[$dayIso] ?? '—',
-                'day_short' => ($dayNamesMap[$dayIso] ?? '—') . ', ' . $dt->format('d/m'),
+                'day_num'      => $d,
+                'date_str'     => $dateStr,
+                'day_name'     => $dayNamesMap[$dayIso] ?? '—',
+                'day_short'    => $dayShortMap[$dayIso] ?? '—',
+                'is_sunday'    => $isSunday,
+                'is_holiday'   => $isHoliday,
+                'holiday_desc' => $holidayDesc,
             ];
         }
 
-        // Map student weekly matrix
+        // Matriks Absensi Siswa Bulanan (Tgl 1 - Tgl Terakhir)
         $attendanceMatrix = $students->map(function ($s) use ($days, $journals, $morningAttendances) {
             $row = [
                 'student' => $s,
@@ -283,68 +343,68 @@ class JournalController extends Controller
                 'alpa'    => 0,
                 'dispen'  => 0,
                 'hadir'   => 0,
+                'libur'   => 0,
             ];
 
             foreach ($days as $day) {
-                $dateStr = $day['date_str'];
-                
-                // Check journal absence for this student on dateStr
-                $absRecord = null;
-                $matchingJournals = $journals->filter(function ($j) use ($dateStr) {
-                    if (! $j->date) return false;
-                    $d = ($j->date instanceof \Carbon\Carbon || $j->date instanceof \Illuminate\Support\Carbon)
-                        ? $j->date->format('Y-m-d')
-                        : (string) $j->date;
-                    return $d === $dateStr;
-                });
+                $dateStr   = $day['date_str'];
+                $isHoliday = $day['is_holiday'];
 
-                foreach ($matchingJournals as $j) {
-                    $found = $j->absences->firstWhere('student_id', $s->id);
-                    if ($found) {
-                        $absRecord = $found;
-                        break;
-                    }
-                }
-
-                if ($absRecord) {
-                    $st = match ($absRecord->status) {
-                        'sakit'                                   => 'S',
-                        'izin'                                    => 'I',
-                        'dispensasi'                              => 'D',
-                        'alpa', 'tidak_hadir', 'tanpa_keterangan' => 'A',
-                        default                                   => 'H',
-                    };
+                if ($isHoliday) {
+                    $st = 'L'; // Libur
+                } elseif ($dateStr > now()->toDateString()) {
+                    $st = '—';
                 } else {
-                    // Check morning attendance
-                    $key = $s->id . '_' . $dateStr;
-                    $mAttList = $morningAttendances->get($key);
-                    $mAtt = $mAttList ? $mAttList->first() : null;
-                    if ($mAtt) {
-                        $st = match ($mAtt->status) {
+                    $absRecord = null;
+                    $matchingJournals = $journals->filter(function ($j) use ($dateStr) {
+                        if (! $j->date) return false;
+                        $d = ($j->date instanceof \Carbon\Carbon || $j->date instanceof \Illuminate\Support\Carbon)
+                            ? $j->date->format('Y-m-d')
+                            : (string) $j->date;
+                        return $d === $dateStr;
+                    });
+
+                    foreach ($matchingJournals as $j) {
+                        $found = $j->absences->firstWhere('student_id', $s->id);
+                        if ($found) {
+                            $absRecord = $found;
+                            break;
+                        }
+                    }
+
+                    if ($absRecord) {
+                        $st = match ($absRecord->status) {
                             'sakit'                                   => 'S',
                             'izin'                                    => 'I',
                             'dispensasi'                              => 'D',
-                            'alpa', 'tanpa_keterangan', 'tidak_hadir' => 'A',
-                            default                                   => 'H', // hadir / terlambat
+                            'alpa', 'tidak_hadir', 'tanpa_keterangan' => 'A',
+                            default                                   => 'H',
                         };
                     } else {
-                        // Tidak ada scan absen gerbang pagi dan tidak ada catatan izin di jurnal
-                        if ($dateStr > now()->toDateString()) {
-                            $st = '—'; // Hari yang akan datang
+                        $key = $s->id . '_' . $dateStr;
+                        $mAttList = $morningAttendances->get($key);
+                        $mAtt = $mAttList ? $mAttList->first() : null;
+                        if ($mAtt) {
+                            $st = match ($mAtt->status) {
+                                'sakit'                                   => 'S',
+                                'izin'                                    => 'I',
+                                'dispensasi'                              => 'D',
+                                'alpa', 'tanpa_keterangan', 'tidak_hadir' => 'A',
+                                default                                   => 'H',
+                            };
                         } else {
-                            // Tanggal sudah lewat / hari ini tapi tidak ada bukti scan/jurnal hadir -> Alpa (A)
-                            $st = 'A';
+                            $st = 'A'; // Tanggal lewat tanpa scan -> Alpa
                         }
                     }
                 }
 
-                // Count stats
                 match ($st) {
                     'S' => $row['sakit']++,
                     'I' => $row['izin']++,
                     'A' => $row['alpa']++,
                     'D' => $row['dispen']++,
                     'H' => $row['hadir']++,
+                    'L' => $row['libur']++,
                     default => null,
                 };
 
@@ -354,11 +414,10 @@ class JournalController extends Controller
             return $row;
         });
 
-        $teachers = User::where('role', 'guru')->orderBy('name')->get(['id', 'name']);
-
         return view('guru.journal.print_weekly_attendance', compact(
-            'teacher', 'classes', 'teachers', 'classId', 'selectedClass',
-            'startOfWeek', 'endOfWeek', 'weekDate', 'days', 'attendanceMatrix'
+            'teacher', 'selectedClass', 'students', 'days', 'attendanceMatrix',
+            'month', 'year', 'classId', 'classes', 'startOfMonth', 'endOfMonth',
+            'holidayNotes'
         ));
     }
 
