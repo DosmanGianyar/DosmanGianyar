@@ -85,6 +85,12 @@ class ExtracurricularResource extends Resource
     {
         return $table
             ->columns([
+                TextColumn::make('no_urut')
+                    ->label('No.')
+                    ->rowIndex()
+                    ->alignCenter()
+                    ->width('48px'),
+
                 ImageColumn::make('logo')
                     ->label('')
                     ->disk('public')
@@ -107,14 +113,16 @@ class ExtracurricularResource extends Resource
                 TextColumn::make('active_members_count')
                     ->label('Anggota')
                     ->counts('activeMembers')
-                    ->badge()
-                    ->color('success'),
+                    ->weight('bold')
+                    ->color('success')
+                    ->alignCenter(),
 
                 TextColumn::make('pending_members_count')
                     ->label('Permintaan')
                     ->counts('pendingMembers')
-                    ->badge()
-                    ->color(fn (int $state): string => $state > 0 ? 'warning' : 'gray'),
+                    ->weight('bold')
+                    ->color(fn (int $state): string => $state > 0 ? 'warning' : 'gray')
+                    ->alignCenter(),
 
                 IconColumn::make('is_active')
                     ->label('Aktif')
@@ -150,12 +158,20 @@ class ExtracurricularResource extends Resource
             ->actions([
                 Action::make('cetak_anggota')
                     ->label('Cetak Anggota')
+                    ->tooltip('Cetak Anggota Ekstra')
                     ->icon('heroicon-o-printer')
                     ->color('success')
+                    ->iconButton()
                     ->url(fn (Extracurricular $record) => route('admin.extracurricular.members.pdf', $record))
                     ->openUrlInNewTab(),
-                EditAction::make(),
-                DeleteAction::make(),
+                EditAction::make()
+                    ->label('Edit')
+                    ->tooltip('Edit Ekstrakurikuler')
+                    ->iconButton(),
+                DeleteAction::make()
+                    ->label('Hapus')
+                    ->tooltip('Hapus Ekstrakurikuler')
+                    ->iconButton(),
             ])
             ->defaultSort('name');
     }
