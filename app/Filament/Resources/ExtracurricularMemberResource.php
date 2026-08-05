@@ -271,7 +271,7 @@ class ExtracurricularMemberResource extends Resource
                                     $count++;
                                 }
                             }
-                            Notification::make()->title("{$count} pengajuan berhasil disetujui.").success()->send();
+                            Notification::make()->title("{$count} pengajuan berhasil disetujui.")->success()->send();
                         }),
 
                     BulkAction::make('bulk_reject')
@@ -310,7 +310,7 @@ class ExtracurricularMemberResource extends Resource
                                     $count++;
                                 }
                             }
-                            Notification::make()->title("{$count} pengajuan berhasil ditolak.").warning()->send();
+                            Notification::make()->title("{$count} pengajuan berhasil ditolak.")->warning()->send();
                         }),
                 ]),
             ])
