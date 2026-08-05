@@ -38,17 +38,12 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
   int?           _selectedClassId;
   SimpleStudent? _selectedStudent;
 
-  // Catatan Negatif
-  final _descriptionCtrl = TextEditingController();
-  String? _selectedSeverity;
-
-  // Catatan Positif
-  ConductCategory? _selectedCategory;
-
-  // Shared
-  final _positifCategoryCtrl = TextEditingController();
-  final _noteCtrl   = TextEditingController();
-  final _searchCtrl = TextEditingController();
+  // Form Unified
+  String _selectedConductType = 'positif'; // 'positif' or 'negatif'
+  final _positifCategoryCtrl  = TextEditingController();
+  final _descriptionCtrl      = TextEditingController();
+  final _noteCtrl             = TextEditingController();
+  final _searchCtrl           = TextEditingController();
 
   // Riwayat
   List<ConductHistoryItem> _history     = [];
@@ -63,12 +58,12 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
   void initState() {
     super.initState();
     _historyFilter = widget.initialFilter;
-    _tabCtrl = TabController(length: 3, vsync: this, initialIndex: widget.initialTab);
+    _tabCtrl = TabController(length: 2, vsync: this, initialIndex: widget.initialTab > 1 ? 1 : widget.initialTab);
     _tabCtrl.addListener(() {
       if (_tabCtrl.indexIsChanging) return;
-      if (_tabCtrl.index == 2 && _history.isEmpty && !_historyLoading) {
+      if (_tabCtrl.index == 1 && _history.isEmpty && !_historyLoading) {
         _loadHistory(reset: true);
-      } else if (_tabCtrl.index != 2) {
+      } else if (_tabCtrl.index != 1) {
         _resetForm();
       }
     });
@@ -86,9 +81,9 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
   void dispose() {
     _tabCtrl.dispose();
     _positifCategoryCtrl.dispose();
+    _descriptionCtrl.dispose();
     _noteCtrl.dispose();
     _searchCtrl.dispose();
-    _descriptionCtrl.dispose();
     _historyScrollCtrl.dispose();
     super.dispose();
   }
@@ -98,6 +93,7 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
       _selectedStudent    = null;
       _selectedCategory   = null;
       _selectedSeverity   = null;
+      _positifCategoryCtrl.clear();
       _descriptionCtrl.clear();
       _noteCtrl.clear();
       _students = [];
@@ -181,48 +177,34 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
   }
 
   Future<void> _submit() async {
-    final isPrestasi = _tabCtrl.index == 1;
-
+  Future<void> _submit() async {
     if (_selectedStudent == null) {
       _showSnack('Pilih siswa terlebih dahulu', AppColors.orange500);
       return;
     }
 
-    if (!isPrestasi) {
-      // Catatan Negatif
-      if (_descriptionCtrl.text.trim().isEmpty) {
-        _showSnack('Isi deskripsi catatan negatif', AppColors.orange500);
-        return;
-      }
-      if (_selectedSeverity == null) {
-        _showSnack('Pilih tingkat catatan negatif', AppColors.orange500);
-        return;
-      }
-    } else {
-      // Catatan Positif (Bebas Input)
-      if (_noteCtrl.text.trim().isEmpty) {
-        _showSnack('Isi detail catatan positif / apresiasi siswa', AppColors.orange500);
-        return;
-      }
+    if (_descriptionCtrl.text.trim().isEmpty) {
+      _showSnack('Isi detail catatan / deskripsi terlebih dahulu', AppColors.orange500);
+      return;
     }
 
     setState(() => _submitting = true);
     try {
+      final isPositif      = _selectedConductType == 'positif';
       final categoryHeader = _positifCategoryCtrl.text.trim();
-      final detailText     = _noteCtrl.text.trim();
+      final detailText     = _descriptionCtrl.text.trim();
       final combinedNote   = categoryHeader.isNotEmpty ? '[$categoryHeader] $detailText' : detailText;
 
       final msg = await GuruService.createConductLog(
         studentId:    _selectedStudent!.id,
-        type:         isPrestasi ? 'prestasi' : 'pelanggaran',
-        description:  isPrestasi ? null : _descriptionCtrl.text.trim(),
-        severity:     isPrestasi ? null : _selectedSeverity,
-        prestasiType: isPrestasi ? 'perilaku' : null,
-        categoryId:   isPrestasi ? _selectedCategory?.id : null,
-        note:         isPrestasi ? combinedNote : (_noteCtrl.text.trim().isEmpty ? null : _noteCtrl.text.trim()),
+        type:         isPositif ? 'prestasi' : 'pelanggaran',
+        description:  isPositif ? null : detailText,
+        severity:     isPositif ? null : 'ringan',
+        prestasiType: isPositif ? 'perilaku' : null,
+        note:         combinedNote,
       );
       if (mounted) {
-        _showSnack(msg, AppColors.emerald600);
+        _showSnack(msg, isPositif ? AppColors.emerald600 : AppColors.red600);
         _resetForm();
         if (_history.isNotEmpty) _loadHistory(reset: true);
       }
@@ -248,13 +230,12 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
     return Scaffold(
       backgroundColor: AppColors.slate100,
       appBar: AppBar(
-        title: const Text('Catat Perilaku Siswa'),
+        title: const Text('Pencatatan Catatan Siswa'),
         bottom: TabBar(
           controller: _tabCtrl,
           tabs: const [
-            Tab(text: 'Catatan Negatif'),
-            Tab(text: 'Catatan Positif'),
-            Tab(text: 'Riwayat'),
+            Tab(text: 'Pencatatan Siswa'),
+            Tab(text: 'Riwayat Catatan'),
           ],
           labelColor: AppColors.blue600,
           indicatorColor: AppColors.blue600,
@@ -266,85 +247,116 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
           : TabBarView(
               controller: _tabCtrl,
               children: [
-                _buildCatatanNegatifForm(),
-                _buildPrestasiForm(),
+                _buildUnifiedForm(),
                 _buildHistoryTab(),
               ],
             ),
     );
   }
 
-  // ── Pelanggaran Tab ───────────────────────────────────────────────────────
+  // ── Form Unified ──────────────────────────────────────────────────────────
 
-  Widget _buildCatatanNegatifForm() {
+  Widget _buildUnifiedForm() {
+    final isPositif = _selectedConductType == 'positif';
+    final themeColor = isPositif ? AppColors.emerald600 : AppColors.red600;
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _sectionLabel('1. Pilih Kelas'),
+          _sectionLabel('1. Pilih Kelas & Siswa'),
           const SizedBox(height: 8),
           _ClassDropdown(classes: _classes, selected: _selectedClassId, onChanged: (id) {
             setState(() { _selectedClassId = id; _selectedStudent = null; });
             _loadStudents();
           }),
-          const SizedBox(height: 16),
-
-          _sectionLabel('2. Pilih Siswa'),
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
           _studentSearchBar(),
           const SizedBox(height: 8),
           _studentPickerArea(),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
 
-          _sectionLabel('3. Deskripsi Catatan Negatif'),
+          _sectionLabel('2. Jenis Catatan'),
           const SizedBox(height: 8),
-          _textField(controller: _descriptionCtrl, hint: 'Ceritakan catatan negatif yang dilakukan...', maxLines: 4),
-          const SizedBox(height: 16),
-
-          _sectionLabel('4. Tingkat'),
-          const SizedBox(height: 8),
-          Row(
-            children: ['ringan', 'sedang', 'berat'].map((s) {
-              final isSelected = _selectedSeverity == s;
-              final color = switch (s) {
-                'ringan' => AppColors.amber500,
-                'sedang' => AppColors.orange500,
-                _        => AppColors.red500,
-              };
-              return Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: GestureDetector(
-                    onTap: () => setState(() => _selectedSeverity = s),
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 150),
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      decoration: BoxDecoration(
-                        color: isSelected ? color : AppColors.white,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: isSelected ? color : AppColors.gray200, width: isSelected ? 2 : 1),
-                      ),
-                      alignment: Alignment.center,
-                      child: Text(
-                        s[0].toUpperCase() + s.substring(1),
-                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: isSelected ? Colors.white : AppColors.gray600),
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            }).toList(),
+          DropdownButtonFormField<String>(
+            value: _selectedConductType,
+            decoration: InputDecoration(
+              filled: true,
+              fillColor: AppColors.white,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.gray200)),
+              enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.gray200)),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: themeColor, width: 2),
+              ),
+            ),
+            items: const [
+              DropdownMenuItem(
+                value: 'positif',
+                child: Text('🟢 Catatan Positif (Perilaku Baik / Apresiasi)',
+                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.emerald700)),
+              ),
+              DropdownMenuItem(
+                value: 'negatif',
+                child: Text('🔴 Catatan Negatif (Pelanggaran / Ketidakdisiplinan)',
+                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.red700)),
+              ),
+            ],
+            onChanged: (val) {
+              if (val != null) setState(() => _selectedConductType = val);
+            },
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
 
-          _sectionLabel('5. Catatan (opsional)'),
+          _sectionLabel('3. Judul / Kategori Catatan (Bebas Input)'),
+          const SizedBox(height: 4),
+          const Text(
+            'Misal: Kejujuran, Membantu Guru, Keaktifan KBM, Rambut Panjang, Keterlambatan...',
+            style: TextStyle(fontSize: 11, color: AppColors.gray400),
+          ),
           const SizedBox(height: 8),
-          _textField(controller: _noteCtrl, hint: 'Catatan tambahan...', maxLines: 2),
+          _textField(
+            controller: _positifCategoryCtrl,
+            hint: isPositif ? 'Misal: Kejujuran, Keaktifan, Membantu Teman...' : 'Misal: Rambut Panjang, Keterlambatan, HP Saat KBM...',
+          ),
+          const SizedBox(height: 20),
+
+          _sectionLabel('4. Detail Catatan / Deskripsi'),
+          const SizedBox(height: 8),
+          _textField(
+            controller: _descriptionCtrl,
+            hint: isPositif
+                ? 'Ceritakan kebaikan atau perilaku positif yang dilakukan siswa secara bebas...'
+                : 'Ceritakan kejadian atau catatan negatif yang dilakukan siswa secara bebas...',
+            maxLines: 4,
+          ),
           const SizedBox(height: 24),
 
-          if (_selectedStudent != null && _selectedSeverity != null) _pelanggaranPreview(),
-          _submitButton(isPrestasi: false),
+          // Submit Button
+          SizedBox(
+            width: double.infinity,
+            height: 48,
+            child: ElevatedButton.icon(
+              onPressed: _submitting ? null : _submit,
+              icon: _submitting
+                  ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                  : Icon(isPositif ? Icons.thumb_up_rounded : Icons.warning_amber_rounded, size: 20),
+              label: Text(
+                _submitting
+                    ? 'Menyimpan...'
+                    : (isPositif ? 'Simpan Catatan Positif' : 'Simpan Catatan Negatif'),
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: themeColor,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                elevation: 2,
+              ),
+            ),
+          ),
           const SizedBox(height: 32),
         ],
       ),
@@ -790,43 +802,16 @@ class _HistoryCard extends StatelessWidget {
                   // Badge tipe utama dengan icon
                   Wrap(spacing: 6, runSpacing: 6, children: [
                     _iconBadge(accentIcon, typeLabel, accentColor, accentBg),
-                    if (isPelanggaran && item.severity != null)
-                      _solidBadge(
-                        item.severity![0].toUpperCase() + item.severity!.substring(1),
-                        severityColor,
-                      ),
-                    if (isLomba && item.lombaRankLabel != null)
-                      _solidBadge(item.lombaRankLabel!, rankColor),
-                    if (isLomba && item.lombaLevelLabel != null)
-                      _outlineBadge(item.lombaLevelLabel!, _lombaColor),
-                    if (!isPelanggaran && !isLomba && item.categoryName != null)
-                      _outlineBadge(item.categoryName!, _perilakuColor),
+                    if (item.displayTitle != typeLabel)
+                      _outlineBadge(item.displayTitle, accentColor),
                   ]),
 
-                  // Konten utama
-                  if (isPelanggaran && item.description != null && item.description!.isNotEmpty) ...[
+                  // Konten Utama / Deskripsi
+                  if (item.displayDescription != null && item.displayDescription!.isNotEmpty) ...[
                     const SizedBox(height: 8),
-                    Text(item.description!,
+                    Text(item.displayDescription!,
                         style: const TextStyle(fontSize: 13, color: AppColors.gray700),
-                        maxLines: 3, overflow: TextOverflow.ellipsis),
-                  ],
-                  if (isLomba && item.lombaName != null) ...[
-                    const SizedBox(height: 8),
-                    Text(item.lombaName!,
-                        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.gray800),
-                        maxLines: 2, overflow: TextOverflow.ellipsis),
-                  ],
-
-                  // Catatan
-                  if (item.note != null && item.note!.isNotEmpty) ...[
-                    const SizedBox(height: 6),
-                    Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      const Icon(Icons.notes_rounded, size: 13, color: AppColors.gray400),
-                      const SizedBox(width: 4),
-                      Expanded(child: Text(item.note!,
-                          style: const TextStyle(fontSize: 12, color: AppColors.gray500),
-                          maxLines: 2, overflow: TextOverflow.ellipsis)),
-                    ]),
+                        maxLines: 4, overflow: TextOverflow.ellipsis),
                   ],
                 ]),
               ),

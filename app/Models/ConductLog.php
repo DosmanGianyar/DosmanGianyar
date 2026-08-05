@@ -40,12 +40,41 @@ class ConductLog extends Model
         return $t === 'pelanggaran';
     }
 
+    public function getParsedTitleAttribute(): string
+    {
+        if ($this->category && !str_starts_with($this->category->name, '__sistem__')) {
+            return $this->category->name;
+        }
+
+        if (!empty($this->note) && preg_match('/^\[(.*?)\]\s*(.*)$/s', $this->note, $matches)) {
+            return $matches[1];
+        }
+
+        if ($this->description) {
+            return $this->description;
+        }
+
+        if ($this->lomba_name) {
+            return 'Lomba: ' . $this->lomba_name;
+        }
+
+        return $this->isPrestasi() ? 'Catatan Positif' : 'Catatan Negatif';
+    }
+
+    public function getParsedDescriptionAttribute(): ?string
+    {
+        if (!empty($this->note)) {
+            if (preg_match('/^\[(.*?)\]\s*(.*)$/s', $this->note, $matches)) {
+                return !empty($matches[2]) ? $matches[2] : null;
+            }
+            return $this->note;
+        }
+
+        return $this->description;
+    }
+
     public function displayCategoryName(): string
     {
-        return $this->category?->name 
-            ?? $this->description 
-            ?? ($this->lomba_name ? 'Lomba: ' . $this->lomba_name : null)
-            ?? $this->note 
-            ?? ($this->isPrestasi() ? 'Catatan Positif' : 'Catatan Negatif');
+        return $this->getParsedTitleAttribute();
     }
 }

@@ -1,6 +1,6 @@
 @extends('layouts.guru')
-@section('title', 'Catat Perilaku Siswa')
-@section('page-title', 'Catat Perilaku Siswa')
+@section('title', 'Pencatatan Catatan Siswa')
+@section('page-title', 'Pencatatan Catatan Siswa')
 
 @section('content')
 <div class="max-w-xl mx-auto space-y-4">
@@ -10,56 +10,41 @@
     <svg class="w-5 h-5 text-green-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
     </svg>
-    <p class="text-green-700 text-sm">{{ session('success') }}</p>
+    <p class="text-green-700 text-sm font-medium">{{ session('success') }}</p>
 </div>
 @endif
 
 {{-- Tab Bar --}}
 <div class="flex bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-    <button onclick="switchTab('negatif')" id="tab-negatif"
-        class="flex-1 py-3 text-sm font-semibold border-b-2 border-red-500 text-red-600 transition-colors">
-        Catatan Negatif
+    <button onclick="switchMainTab('catat')" id="tab-catat"
+        class="flex-1 py-3 text-sm font-semibold border-b-2 border-blue-600 text-blue-600 transition-colors">
+        Pencatatan Siswa
     </button>
-    <button onclick="switchTab('positif')" id="tab-positif"
+    <button onclick="switchMainTab('riwayat')" id="tab-riwayat"
         class="flex-1 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-gray-600 transition-colors">
-        Catatan Positif
-    </button>
-    <button onclick="switchTab('riwayat')" id="tab-riwayat"
-        class="flex-1 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-gray-600 transition-colors">
-        Riwayat
+        Riwayat Catatan
     </button>
 </div>
 
 {{-- ══════════════════════════════════════════════════════════════
-     TAB 1 — CATATAN NEGATIF
+     PANEL 1 — FORM PENCATATAN UNIFIED (POSITIF & NEGATIF)
 ══════════════════════════════════════════════════════════════ --}}
-<div id="panel-negatif">
+<div id="panel-catat">
     <form action="{{ route('guru.conduct.store') }}" method="POST" enctype="multipart/form-data"
-          onsubmit="return composeNoteNegatif(this)"
-          class="bg-white rounded-2xl shadow-sm border-2 border-red-300 p-5 space-y-5">
+          onsubmit="return composeUnifiedConduct(this)"
+          id="unified-conduct-form"
+          class="bg-white rounded-2xl shadow-sm border-2 border-emerald-400 p-5 space-y-5 transition-colors">
         @csrf
-        <input type="hidden" name="context" value="lainnya_pelanggaran">
-        <input type="hidden" name="note" id="cn-note-hidden">
+        <input type="hidden" name="context" id="uf-context" value="lainnya_prestasi">
+        <input type="hidden" name="note" id="uf-note-hidden">
 
-        {{-- Header badge --}}
-        <div class="flex items-center gap-2">
-            <span class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-red-50 text-red-700">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                </svg>
-                Catatan Negatif
-            </span>
-            <span class="text-xs text-gray-400">Catat catatan negatif siswa</span>
-        </div>
-
-        {{-- 1. Pilih Siswa --}}
+        {{-- 1. Pilih Siswa & Scan Barcode --}}
         <div>
             <div class="flex items-center justify-between mb-2">
                 <label class="block text-sm font-medium text-gray-700">
                     <span class="text-gray-400 font-normal mr-1">1.</span> Pilih Siswa
                 </label>
-                <button type="button" onclick="openBarcodeScanner('cn')"
+                <button type="button" onclick="openBarcodeScanner('uf')"
                         class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-xs transition shrink-0">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
@@ -69,26 +54,26 @@
                 </button>
             </div>
 
-            <div id="cn-scanned-card" class="hidden mb-2 p-2.5 bg-green-50 border border-green-200 rounded-xl flex items-center justify-between">
+            <div id="uf-scanned-card" class="hidden mb-2 p-2.5 bg-green-50 border border-green-200 rounded-xl flex items-center justify-between">
                 <div class="flex items-center gap-2 text-xs text-green-800 font-bold">
                     <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
                     </svg>
-                    <span>Terpilih via Barcode: <span id="cn-scanned-name"></span></span>
+                    <span>Terpilih via Barcode: <span id="uf-scanned-name"></span></span>
                 </div>
             </div>
 
             <div class="flex gap-2 mb-2">
-                <select id="cn-class" onchange="filterStudentSelect('cn-class','cn-student')"
-                    class="flex-1 px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-red-400 bg-white">
+                <select id="uf-class" onchange="filterStudentSelect('uf-class','uf-student')"
+                    class="flex-1 px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white">
                     <option value="">— Semua Kelas —</option>
                     @foreach($classes as $class)
                         <option value="{{ $class->id }}">{{ $class->name }}</option>
                     @endforeach
                 </select>
             </div>
-            <select name="student_id" id="cn-student" required
-                class="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-red-400 bg-white">
+            <select name="student_id" id="uf-student" required
+                class="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white">
                 <option value="">— Pilih Siswa —</option>
                 @foreach($classes as $class)
                     @foreach($class->students as $student)
@@ -103,176 +88,46 @@
             @enderror
         </div>
 
-        {{-- 2. Tingkat --}}
+        {{-- 2. Jenis Catatan (Dropdown Selector) --}}
         <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
-                <span class="text-gray-400 font-normal mr-1">2.</span> Tingkat
+            <label for="uf-jenis-catatan" class="block text-sm font-medium text-gray-700 mb-1">
+                <span class="text-gray-400 font-normal mr-1">2.</span> Jenis Catatan <span class="text-red-500">*</span>
             </label>
-            <div class="grid grid-cols-3 gap-2">
-                @foreach(['ringan' => ['Ringan','amber'], 'sedang' => ['Sedang','orange'], 'berat' => ['Berat','red']] as $val => [$label, $color])
-                <button type="button" onclick="selectTingkat('{{ $val }}')"
-                    id="tingkat-{{ $val }}"
-                    class="tingkat-chip py-2.5 rounded-xl text-sm font-bold border-2 transition-all
-                        {{ $color === 'amber'  ? 'border-amber-200  text-amber-600  hover:border-amber-400'  : '' }}
-                        {{ $color === 'orange' ? 'border-orange-200 text-orange-600 hover:border-orange-400' : '' }}
-                        {{ $color === 'red'    ? 'border-red-200    text-red-600    hover:border-red-400'    : '' }}">
-                    {{ $label }}
-                </button>
-                @endforeach
-            </div>
-            <input type="hidden" id="cn-tingkat" value="">
-        </div>
-
-        {{-- 3. Deskripsi --}}
-        <div>
-            <label for="cn-deskripsi" class="block text-sm font-medium text-gray-700 mb-1">
-                <span class="text-gray-400 font-normal mr-1">3.</span> Deskripsi <span class="text-red-500">*</span>
-            </label>
-            <textarea id="cn-deskripsi" rows="3" required
-                placeholder="Ceritakan catatan negatif yang dilakukan siswa..."
-                class="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-red-400 resize-none"></textarea>
-        </div>
-
-
-        {{-- Foto --}}
-        <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">
-                Foto Bukti <span class="text-gray-400 font-normal">(opsional)</span>
-            </label>
-            <label for="cn-photo"
-                class="flex flex-col items-center justify-center w-full h-20 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-red-300 hover:bg-red-50 transition-all">
-                <div id="cn-photo-ph" class="flex items-center gap-2">
-                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
-                    </svg>
-                    <span class="text-xs text-gray-400">Upload / ambil foto</span>
-                </div>
-                <p id="cn-photo-name" class="hidden text-xs text-red-600 font-medium px-2 text-center"></p>
-                <input type="file" id="cn-photo" name="photo" accept="image/*" capture="environment"
-                    class="sr-only" onchange="showPhotoName(this,'cn-photo-ph','cn-photo-name')">
-            </label>
-        </div>
-
-        {{-- Submit --}}
-        <div class="flex gap-3 pt-1">
-            <a href="{{ route('guru.conduct.index') }}"
-                class="flex-1 py-3 text-center rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50">
-                Batal
-            </a>
-            <button type="submit"
-                class="flex-1 py-3 bg-red-600 text-white rounded-xl text-sm font-semibold hover:bg-red-700 transition-colors flex items-center justify-center gap-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                </svg>
-                Simpan Catatan Negatif
-            </button>
-        </div>
-    </form>
-</div>
-
-{{-- ══════════════════════════════════════════════════════════════
-     TAB 2 — CATATAN POSITIF
-══════════════════════════════════════════════════════════════ --}}
-{{-- ══════════════════════════════════════════════════════════════
-     TAB 2 — CATATAN POSITIF (BEBAS INPUT)
-══════════════════════════════════════════════════════════════ --}}
-<div id="panel-positif" class="hidden">
-    <form action="{{ route('guru.conduct.store') }}" method="POST" enctype="multipart/form-data"
-          onsubmit="return composeNotePositif(this)"
-          class="bg-white rounded-2xl shadow-sm border-2 border-green-300 p-5 space-y-5">
-        @csrf
-        <input type="hidden" name="context" value="lainnya_prestasi">
-        <input type="hidden" name="note" id="cp-note-hidden">
-
-        {{-- Header badge --}}
-        <div class="flex items-center gap-2">
-            <span class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-green-50 text-green-700">
-                <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
-                </svg>
-                Catatan Positif
-            </span>
-            <span class="text-xs text-gray-400">Catat kebaikan, prestasi, atau perilaku positif siswa (Bebas)</span>
-        </div>
-
-        {{-- 1. Pilih Siswa --}}
-        <div>
-            <div class="flex items-center justify-between mb-2">
-                <label class="block text-sm font-medium text-gray-700">
-                    <span class="text-gray-400 font-normal mr-1">1.</span> Pilih Siswa
-                </label>
-                <button type="button" onclick="openBarcodeScanner('cp')"
-                        class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-xs transition shrink-0">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                    Scan Kartu Siswa
-                </button>
-            </div>
-
-            <div id="cp-scanned-card" class="hidden mb-2 p-2.5 bg-green-50 border border-green-200 rounded-xl flex items-center justify-between">
-                <div class="flex items-center gap-2 text-xs text-green-800 font-bold">
-                    <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
-                    </svg>
-                    <span>Terpilih via Barcode: <span id="cp-scanned-name"></span></span>
-                </div>
-            </div>
-
-            <div class="flex gap-2 mb-2">
-                <select id="cp-class" onchange="filterStudentSelect('cp-class','cp-student')"
-                    class="flex-1 px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-400 bg-white">
-                    <option value="">— Semua Kelas —</option>
-                    @foreach($classes as $class)
-                        <option value="{{ $class->id }}">{{ $class->name }}</option>
-                    @endforeach
-                </select>
-            </div>
-            <select name="student_id" id="cp-student" required
-                class="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-400 bg-white">
-                <option value="">— Pilih Siswa —</option>
-                @foreach($classes as $class)
-                    @foreach($class->students as $student)
-                    <option value="{{ $student->id }}" data-class="{{ $class->id }}">
-                        {{ $student->name }} ({{ $class->name }})
-                    </option>
-                    @endforeach
-                @endforeach
+            <select id="uf-jenis-catatan" onchange="onJenisCatatanChange(this.value)"
+                class="w-full px-3.5 py-3 rounded-xl border-2 font-bold text-sm focus:outline-none transition-all bg-white cursor-pointer border-emerald-400 text-emerald-700">
+                <option value="lainnya_prestasi">🟢 Catatan Positif (Perilaku Baik / Apresiasi / Kebaikan)</option>
+                <option value="lainnya_pelanggaran">🔴 Catatan Negatif (Pelanggaran / Ketidakdisiplinan)</option>
             </select>
         </div>
 
-        {{-- 2. Kategori / Judul Catatan Positif (Bebas Input) --}}
+        {{-- 3. Judul / Kategori Catatan (Bebas Input) --}}
         <div>
-            <label for="cp-kategori-input" class="block text-sm font-medium text-gray-700 mb-1">
-                <span class="text-gray-400 font-normal mr-1">2.</span> Kategori / Judul Catatan Positif <span class="text-gray-400 font-normal">(opsional)</span>
+            <label for="uf-kategori-input" class="block text-sm font-medium text-gray-700 mb-1">
+                <span class="text-gray-400 font-normal mr-1">3.</span> Judul / Kategori Catatan <span class="text-gray-400 font-normal">(Bebas Input)</span>
             </label>
-            <input type="text" id="cp-kategori-input"
-                placeholder="Misal: Kejujuran, Membantu Guru, Keaktifan KBM, Prestasi Seni..."
-                class="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-400 bg-white">
+            <input type="text" id="uf-kategori-input"
+                placeholder="Misal: Kejujuran, Membantu Guru, Keaktifan, Rambut Panjang, Keterlambatan..."
+                class="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white">
         </div>
 
-        {{-- 3. Detail Catatan Positif / Deskripsi (Bebas Input) --}}
+        {{-- 4. Detail / Deskripsi Catatan (Bebas Input) --}}
         <div>
-            <label for="cp-deskripsi" class="block text-sm font-medium text-gray-700 mb-1">
-                <span class="text-gray-400 font-normal mr-1">3.</span> Detail Catatan Positif / Apresiasi <span class="text-red-500">*</span>
+            <label for="uf-deskripsi" class="block text-sm font-medium text-gray-700 mb-1">
+                <span class="text-gray-400 font-normal mr-1">4.</span> Detail Catatan / Deskripsi <span class="text-red-500">*</span>
             </label>
-            <textarea id="cp-deskripsi" rows="3" required
-                placeholder="Ceritakan kebaikan, perilaku positif, atau prestasi yang dilakukan oleh siswa secara bebas..."
-                class="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-400 resize-none"></textarea>
+            <textarea id="uf-deskripsi" rows="3" required
+                placeholder="Ceritakan kejadian, detail kebaikan, atau catatan negatif siswa secara bebas..."
+                class="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none"></textarea>
         </div>
 
-        {{-- Foto Bukti --}}
+        {{-- 5. Foto Bukti (Opsional) --}}
         <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">
                 Foto Bukti <span class="text-gray-400 font-normal">(opsional)</span>
             </label>
-            <label for="cp-photo"
-                class="flex flex-col items-center justify-center w-full h-20 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-green-300 hover:bg-green-50 transition-all">
-                <div id="cp-photo-ph" class="flex items-center gap-2">
+            <label for="uf-photo"
+                class="flex flex-col items-center justify-center w-full h-20 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-blue-300 hover:bg-blue-50 transition-all">
+                <div id="uf-photo-ph" class="flex items-center gap-2">
                     <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
@@ -280,64 +135,46 @@
                     </svg>
                     <span class="text-xs text-gray-400">Upload / ambil foto</span>
                 </div>
-                <p id="cp-photo-name" class="hidden text-xs text-green-600 font-medium px-2 text-center"></p>
-                <input type="file" id="cp-photo" name="photo" accept="image/*" capture="environment"
-                    class="sr-only" onchange="showPhotoName(this,'cp-photo-ph','cp-photo-name')">
+                <p id="uf-photo-name" class="hidden text-xs font-medium px-2 text-center text-emerald-600"></p>
+                <input type="file" id="uf-photo" name="photo" accept="image/*" capture="environment"
+                    class="sr-only" onchange="showPhotoName(this,'uf-photo-ph','uf-photo-name')">
             </label>
         </div>
 
-        {{-- Submit --}}
+        {{-- Submit Button --}}
         <div class="flex gap-3 pt-1">
             <a href="{{ route('guru.conduct.index') }}"
                 class="flex-1 py-3 text-center rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50">
                 Batal
             </a>
-            <button type="submit"
-                class="flex-1 py-3 bg-green-600 text-white rounded-xl text-sm font-semibold hover:bg-green-700 transition-colors flex items-center justify-center gap-2">
+            <button type="submit" id="uf-submit-btn"
+                class="flex-1 py-3 bg-emerald-600 text-white rounded-xl text-sm font-semibold hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2 shadow-md">
                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
                 </svg>
-                Simpan Catatan Positif
-            </button>
-        </div>
-    </form>
-</div>
-
-        {{-- Submit --}}
-        <div class="flex gap-3 pt-1">
-            <a href="{{ route('guru.conduct.index') }}"
-                class="flex-1 py-3 text-center rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50">
-                Batal
-            </a>
-            <button type="submit"
-                class="flex-1 py-3 bg-green-600 text-white rounded-xl text-sm font-semibold hover:bg-green-700 transition-colors flex items-center justify-center gap-2">
-                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
-                </svg>
-                Simpan Catatan Positif
+                <span id="uf-btn-text">Simpan Catatan Positif</span>
             </button>
         </div>
     </form>
 </div>
 
 {{-- ══════════════════════════════════════════════════════════════
-     TAB 3 — RIWAYAT
+     PANEL 2 — RIWAYAT CATATAN
 ══════════════════════════════════════════════════════════════ --}}
 <div id="panel-riwayat" class="hidden">
-
     {{-- Filter chips --}}
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 px-4 py-3 flex items-center gap-2 flex-wrap">
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 px-4 py-3 flex items-center gap-2 flex-wrap mb-3">
         <button onclick="filterHistory(null,this)"
             class="hist-filter px-4 py-1.5 rounded-full text-xs font-semibold bg-blue-600 text-white transition-all">
             Semua
         </button>
         <button onclick="filterHistory('pelanggaran',this)"
             class="hist-filter px-4 py-1.5 rounded-full text-xs font-semibold bg-gray-100 text-gray-600 hover:bg-red-100 hover:text-red-600 transition-all">
-            Catatan Negatif
+            Catatan Negatif 🔴
         </button>
         <button onclick="filterHistory('prestasi',this)"
             class="hist-filter px-4 py-1.5 rounded-full text-xs font-semibold bg-gray-100 text-gray-600 hover:bg-green-100 hover:text-green-700 transition-all">
-            Catatan Positif
+            Catatan Positif 🟢
         </button>
     </div>
 
@@ -345,49 +182,38 @@
     <div id="history-list" class="space-y-2">
         @forelse($recentLogs as $log)
         @php
-            $isPelanggaran = $log->category?->type === 'pelanggaran';
-            $accentColor   = $isPelanggaran ? 'bg-red-500'   : 'bg-green-500';
-            $badgeBg       = $isPelanggaran ? 'bg-red-50 text-red-700 border-red-200'  : 'bg-green-50 text-green-700 border-green-200';
+            $isPelanggaran = $log->isPelanggaran();
+            $accentColor   = $isPelanggaran ? 'bg-red-500'   : 'bg-emerald-500';
+            $badgeBg       = $isPelanggaran ? 'bg-red-50 text-red-700 border-red-200'  : 'bg-emerald-50 text-emerald-700 border-emerald-200';
             $typeLabel     = $isPelanggaran ? 'Catatan Negatif' : 'Catatan Positif';
+            $cleanTitle    = $log->parsed_title;
+            $cleanDesc     = $log->parsed_description;
         @endphp
-        <div class="history-card bg-white rounded-xl border border-gray-100 overflow-hidden shadow-sm"
-             data-type="{{ $log->category?->type ?? 'unknown' }}">
+        <div class="history-card bg-white rounded-xl border border-gray-100 overflow-hidden shadow-xs"
+             data-type="{{ $isPelanggaran ? 'pelanggaran' : 'prestasi' }}">
             <div class="flex">
-                {{-- Left accent bar --}}
-                <div class="w-1.5 {{ $accentColor }} shrink-0"></div>
-                <div class="flex-1 px-3 py-3">
-                    {{-- Header --}}
+                <div class="w-2 {{ $accentColor }} shrink-0"></div>
+                <div class="flex-1 px-3.5 py-3">
                     <div class="flex items-start justify-between gap-2 mb-1">
                         <p class="text-sm font-bold text-gray-800">{{ $log->student->name }}</p>
-                        <p class="text-xs text-gray-400 shrink-0">{{ $log->created_at->isoFormat('D MMM Y') }}</p>
+                        <p class="text-xs text-gray-400 shrink-0">{{ $log->created_at->isoFormat('D MMM Y, HH:mm') }}</p>
                     </div>
                     <p class="text-xs text-gray-500 mb-2">
                         {{ $log->student->nis ?? '—' }} · {{ $log->student->schoolClass?->name ?? '—' }}
                     </p>
-                    {{-- Badges --}}
-                    <div class="flex flex-wrap gap-1.5 mb-2">
-                        <span class="flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold border {{ $badgeBg }}">
-                            @if($isPelanggaran)
-                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                            </svg>
-                            @else
-                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
-                            </svg>
-                            @endif
+                    <div class="flex flex-wrap items-center gap-1.5 mb-2">
+                        <span class="flex items-center gap-1 px-2.5 py-0.5 rounded-md text-xs font-bold border {{ $badgeBg }}">
+                            <span class="w-1.5 h-1.5 rounded-full {{ $isPelanggaran ? 'bg-red-500' : 'bg-emerald-500' }}"></span>
                             {{ $typeLabel }}
                         </span>
-                        @if($log->category && !str_starts_with($log->category->name, '__sistem__'))
-                        <span class="px-2 py-1 rounded-md text-xs font-medium bg-gray-50 text-gray-600 border border-gray-200">
-                            {{ $log->category->name }}
+                        @if($cleanTitle && $cleanTitle !== $typeLabel)
+                        <span class="px-2 py-0.5 rounded-md text-xs font-semibold bg-gray-100 text-gray-700 border border-gray-200">
+                            {{ $cleanTitle }}
                         </span>
                         @endif
                     </div>
-                    {{-- Note --}}
-                    @if($log->note)
-                    <p class="text-xs text-gray-600 line-clamp-2">{{ $log->note }}</p>
+                    @if($cleanDesc)
+                    <p class="text-xs text-gray-700 leading-relaxed">{{ $cleanDesc }}</p>
                     @endif
                 </div>
             </div>
@@ -399,44 +225,62 @@
                     d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
             </svg>
             <p class="text-sm font-semibold text-gray-400">Belum ada catatan</p>
-            <p class="text-xs text-gray-300 mt-1">Catatan yang Anda buat akan muncul di sini</p>
         </div>
         @endforelse
     </div>
-
-    @if($recentLogs->count() >= 20)
-    <p class="text-center">
-        <a href="{{ route('guru.conduct.index') }}" class="text-xs text-gray-400 hover:text-blue-600">
-            Lihat semua rekap →
-        </a>
-    </p>
-    @endif
 </div>
 
 </div>
 
 <script>
-// ── Tab switching ──────────────────────────────────────────────────────────────
-const TABS = {
-    negatif: { border: 'border-red-500',   text: 'text-red-600'   },
-    positif: { border: 'border-green-500', text: 'text-green-600' },
-    riwayat: { border: 'border-blue-500',  text: 'text-blue-600'  },
-};
+// ── Main Tab switching ────────────────────────────────────────────────────────
+function switchMainTab(name) {
+    const isCatat = name === 'catat';
+    document.getElementById('panel-catat').classList.toggle('hidden', !isCatat);
+    document.getElementById('panel-riwayat').classList.toggle('hidden', isCatat);
 
-function switchTab(name) {
-    ['negatif','positif','riwayat'].forEach(t => {
-        const btn   = document.getElementById('tab-' + t);
-        const panel = document.getElementById('panel-' + t);
-        const active = t === name;
-        panel.classList.toggle('hidden', !active);
-        btn.className = btn.className
-            .replace(/border-(red|green|blue|transparent)-\d+/g, 'border-transparent')
-            .replace(/text-(red|green|blue)-\d+/g, 'text-gray-400');
-        if (active) {
-            btn.classList.remove('border-transparent', 'text-gray-400', 'hover:text-gray-600');
-            btn.classList.add(TABS[t].border, TABS[t].text);
-        }
-    });
+    const btnCatat   = document.getElementById('tab-catat');
+    const btnRiwayat = document.getElementById('tab-riwayat');
+
+    btnCatat.className   = isCatat   ? 'flex-1 py-3 text-sm font-semibold border-b-2 border-blue-600 text-blue-600 transition-colors' : 'flex-1 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-gray-600 transition-colors';
+    btnRiwayat.className = !isCatat  ? 'flex-1 py-3 text-sm font-semibold border-b-2 border-blue-600 text-blue-600 transition-colors' : 'flex-1 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-gray-600 transition-colors';
+}
+
+// ── Handle Dropdown Jenis Catatan Change ──────────────────────────────────────
+function onJenisCatatanChange(val) {
+    document.getElementById('uf-context').value = val;
+    const form     = document.getElementById('unified-conduct-form');
+    const select   = document.getElementById('uf-jenis-catatan');
+    const btn      = document.getElementById('uf-submit-btn');
+    const btnText  = document.getElementById('uf-btn-text');
+
+    if (val === 'lainnya_pelanggaran') {
+        // Red Theme (Catatan Negatif)
+        form.className   = 'bg-white rounded-2xl shadow-sm border-2 border-red-400 p-5 space-y-5 transition-colors';
+        select.className = 'w-full px-3.5 py-3 rounded-xl border-2 font-bold text-sm focus:outline-none transition-all bg-white cursor-pointer border-red-400 text-red-700';
+        btn.className    = 'flex-1 py-3 bg-red-600 text-white rounded-xl text-sm font-semibold hover:bg-red-700 transition-colors flex items-center justify-center gap-2 shadow-md';
+        btnText.textContent = 'Simpan Catatan Negatif';
+    } else {
+        // Green Theme (Catatan Positif)
+        form.className   = 'bg-white rounded-2xl shadow-sm border-2 border-emerald-400 p-5 space-y-5 transition-colors';
+        select.className = 'w-full px-3.5 py-3 rounded-xl border-2 font-bold text-sm focus:outline-none transition-all bg-white cursor-pointer border-emerald-400 text-emerald-700';
+        btn.className    = 'flex-1 py-3 bg-emerald-600 text-white rounded-xl text-sm font-semibold hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2 shadow-md';
+        btnText.textContent = 'Simpan Catatan Positif';
+    }
+}
+
+// ── Compose note for unified conduct ──────────────────────────────────────────
+function composeUnifiedConduct(form) {
+    const kategori  = document.getElementById('uf-kategori-input').value.trim();
+    const deskripsi = document.getElementById('uf-deskripsi').value.trim();
+    if (!deskripsi) {
+        alert('Silakan isi detail catatan / deskripsi terlebih dahulu.');
+        document.getElementById('uf-deskripsi').focus();
+        return false;
+    }
+    const prefix = kategori ? '[' + kategori + '] ' : '';
+    document.getElementById('uf-note-hidden').value = prefix + deskripsi;
+    return true;
 }
 
 // ── Siswa filter ───────────────────────────────────────────────────────────────
@@ -448,91 +292,6 @@ function filterStudentSelect(classSelectId, studentSelectId) {
         opt.style.display = (!classId || opt.dataset.class === classId) ? '' : 'none';
     });
     if (select.selectedOptions[0]?.style.display === 'none') select.value = '';
-}
-
-// ── Tingkat chips ──────────────────────────────────────────────────────────────
-const TINGKAT_COLORS = {
-    ringan: ['border-amber-400',  'bg-amber-50',  'text-amber-700'],
-    sedang: ['border-orange-400', 'bg-orange-50', 'text-orange-700'],
-    berat:  ['border-red-500',    'bg-red-50',    'text-red-700'],
-};
-
-function selectTingkat(val) {
-    document.getElementById('cn-tingkat').value = val;
-    ['ringan','sedang','berat'].forEach(t => {
-        const btn = document.getElementById('tingkat-' + t);
-        if (!btn) return;
-        btn.className = btn.className
-            .replace(/border-(amber|orange|red)-\d+\s*/g, '')
-            .replace(/bg-(amber|orange|red)-\d+\s*/g, '')
-            .replace(/text-(amber|orange|red)-\d+\s*/g, '');
-        if (t === val) {
-            btn.classList.add(...TINGKAT_COLORS[t]);
-        } else {
-            const defaultColors = {
-                ringan: ['border-amber-200',  'text-amber-600'],
-                sedang: ['border-orange-200', 'text-orange-600'],
-                berat:  ['border-red-200',    'text-red-600'],
-            };
-            btn.classList.add(...defaultColors[t]);
-        }
-    });
-}
-
-// ── Category chips ─────────────────────────────────────────────────────────────
-function selectCategory(el, ctx, id) {
-    document.querySelectorAll('.category-chip').forEach(c => {
-        c.classList.remove('border-green-500','bg-green-50','text-green-700','font-semibold');
-        c.classList.add('border-gray-200','text-gray-600');
-    });
-    el.classList.remove('border-gray-200','text-gray-600');
-    el.classList.add('border-green-500','bg-green-50','text-green-700','font-semibold');
-    document.getElementById('cp-context').value     = ctx;
-    document.getElementById('cp-category-id').value = id;
-    document.getElementById('cp-category-error').classList.add('hidden');
-}
-
-function validatePositif() {
-    const ctx = document.getElementById('cp-context').value;
-    const cat = document.getElementById('cp-category-id').value;
-    const note = document.getElementById('cp-note').value.trim();
-
-    if (!cat && ctx !== 'lainnya_prestasi') {
-        document.getElementById('cp-category-error').classList.remove('hidden');
-        return false;
-    }
-    if (ctx === 'lainnya_prestasi' && !note) {
-        alert('Silakan isi catatan/deskripsi bebas terlebih dahulu.');
-        document.getElementById('cp-note').focus();
-        return false;
-    }
-    return true;
-}
-
-// ── Compose note for catatan positif ──────────────────────────────────────────
-function composeNotePositif(form) {
-    const kategori  = document.getElementById('cp-kategori-input').value.trim();
-    const deskripsi = document.getElementById('cp-deskripsi').value.trim();
-    if (!deskripsi) {
-        document.getElementById('cp-deskripsi').focus();
-        return false;
-    }
-    const prefix = kategori ? '[' + kategori + '] ' : '';
-    document.getElementById('cp-note-hidden').value = prefix + deskripsi;
-    return true;
-}
-
-// ── Compose note for catatan negatif ──────────────────────────────────────────
-function composeNoteNegatif(form) {
-    const tingkat   = document.getElementById('cn-tingkat').value;
-    const deskripsi = document.getElementById('cn-deskripsi').value.trim();
-    if (!deskripsi) {
-        document.getElementById('cn-deskripsi').focus();
-        return false;
-    }
-    const prefix = tingkat ? '[' + tingkat.charAt(0).toUpperCase() + tingkat.slice(1) + '] ' : '';
-    document.getElementById('cn-note-hidden').value = prefix + deskripsi;
-    return true;
 }
 
 // ── Photo preview ──────────────────────────────────────────────────────────────
@@ -553,13 +312,13 @@ function filterHistory(type, btn) {
     });
     document.querySelectorAll('.hist-filter').forEach(b => {
         b.className = b.className
-            .replace(/bg-(blue|red|green)-\d+\s*/g, 'bg-gray-100 ')
-            .replace(/text-(white|red|green)-\d*\s*/g, 'text-gray-600 ');
+            .replace(/bg-(blue|red|green|emerald)-\d+\s*/g, 'bg-gray-100 ')
+            .replace(/text-(white|red|green|emerald)-\d*\s*/g, 'text-gray-600 ');
     });
     const activeColors = type === 'pelanggaran'
         ? ['bg-red-500',   'text-white']
         : type === 'prestasi'
-            ? ['bg-green-600', 'text-white']
+            ? ['bg-emerald-600', 'text-white']
             : ['bg-blue-600',  'text-white'];
     btn.classList.remove('bg-gray-100','text-gray-600');
     btn.classList.add(...activeColors);
@@ -604,10 +363,10 @@ function filterHistory(type, btn) {
 
 <script>
 let html5QrCode = null;
-let currentTargetPrefix = 'cn';
+let currentTargetPrefix = 'uf';
 
 function openBarcodeScanner(prefix) {
-    currentTargetPrefix = prefix;
+    currentTargetPrefix = prefix || 'uf';
     document.getElementById('scannerModal').classList.remove('hidden');
     document.getElementById('scannerStatus').textContent = 'Memulai kamera...';
     document.getElementById('scannerStatus').classList.remove('hidden');

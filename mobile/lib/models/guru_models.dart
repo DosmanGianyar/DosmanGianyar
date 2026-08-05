@@ -398,6 +398,38 @@ class ConductHistoryItem {
     date:            json['date']              as String,
     dateLabel:       json['date_label']        as String,
   );
+
+  String get displayTitle {
+    if (categoryName != null && !categoryName!.startsWith('__sistem__')) {
+      return categoryName!;
+    }
+    if (note != null && note!.isNotEmpty) {
+      final reg = RegExp(r'^\[(.*?)\]\s*(.*)$');
+      final match = reg.firstMatch(note!);
+      if (match != null && match.group(1) != null && match.group(1)!.isNotEmpty) {
+        return match.group(1)!;
+      }
+    }
+    if (description != null && description!.isNotEmpty) {
+      return description!;
+    }
+    if (lombaName != null && lombaName!.isNotEmpty) {
+      return 'Lomba: $lombaName';
+    }
+    return type == 'pelanggaran' ? 'Catatan Negatif' : 'Catatan Positif';
+  }
+
+  String? get displayDescription {
+    if (note != null && note!.isNotEmpty) {
+      final reg = RegExp(r'^\[(.*?)\]\s*(.*)$');
+      final match = reg.firstMatch(note!);
+      if (match != null && match.group(2) != null && match.group(2)!.isNotEmpty) {
+        return match.group(2)!;
+      }
+      return note;
+    }
+    return description;
+  }
 }
 
 // ─── Teaching Session ─────────────────────────────────────────────────────────
