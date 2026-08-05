@@ -63,28 +63,6 @@
     </div>
 </div>
 
-{{-- ─── Pengurus Ekstrakurikuler Banner ─────────────────────────────── --}}
-@if(isset($myExtracurricularRoles) && $myExtracurricularRoles->count() > 0)
-<div class="mb-3.5 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 rounded-2xl p-4 text-white shadow-md border border-amber-400/40">
-    <div class="flex items-center gap-2.5 mb-1.5">
-        <span class="text-xl">👑</span>
-        <div>
-            <h3 class="font-extrabold text-sm text-white uppercase tracking-wide">Pengurus Ekstrakurikuler</h3>
-            <p class="text-[11px] text-amber-100 font-medium">Anda tercatat sebagai pengurus pada ekstrakurikuler berikut:</p>
-        </div>
-    </div>
-    <div class="flex flex-wrap gap-2 mt-2">
-        @foreach($myExtracurricularRoles as $ex)
-            @php $roleLabel = $ex->pivot->role === 'ketua' ? 'Ketua' : ($ex->pivot->role === 'wakil_ketua' ? 'Wakil Ketua' : 'Anggota'); @endphp
-            <div class="bg-black/20 backdrop-blur-md border border-white/30 rounded-xl px-3 py-1.5 text-xs font-black flex items-center gap-1.5">
-                <span class="px-1.5 py-0.5 rounded bg-white text-amber-900 text-[10px] font-black uppercase">{{ $roleLabel }}</span>
-                <span>{{ $ex->name }}</span>
-            </div>
-        @endforeach
-    </div>
-</div>
-@endif
-
 {{-- ─── Kartu Pelajar Digital ───────────────────────────────────────── --}}
 @include('siswa.partials.student-card-digital')
 
@@ -341,24 +319,6 @@
     </svg>
 </a>
 @endif
-
-{{-- ─── Quick Link Ekstrakurikuler ──────────────────────────────────── --}}
-<a href="{{ route('siswa.extracurricular.index') }}"
-    class="flex items-center gap-3 bg-violet-50 border border-violet-100 rounded-2xl px-4 py-3 mb-4">
-    <div class="w-9 h-9 bg-violet-600 rounded-xl flex items-center justify-center shrink-0">
-        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
-        </svg>
-    </div>
-    <div class="flex-1">
-        <p class="text-sm font-semibold text-violet-800">Ekstrakurikuler</p>
-        <p class="text-xs text-violet-500">Lihat & daftar ekstrakurikuler sekolah</p>
-    </div>
-    <svg class="w-4 h-4 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-    </svg>
-</a>
 
 {{-- ─── Pengumuman ──────────────────────────────────────────────────── --}}
 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">

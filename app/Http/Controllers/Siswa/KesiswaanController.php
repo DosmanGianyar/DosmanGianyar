@@ -154,6 +154,9 @@ class KesiswaanController extends Controller
             ->where('status', 'pending')
             ->count();
 
+        // ── Ekstrakurikuler ───────────────────────────────────────────────────
+        $myExtracurricularRoles = $siswa->extracurricularsAsStudent()->get();
+
         return view('siswa.kesiswaan.index', compact(
             'absensiSummary',
             'conductSummary',
@@ -172,6 +175,7 @@ class KesiswaanController extends Controller
             'siswa',
             'forgotAttendancePending',
             'earlyCheckoutPending',
+            'myExtracurricularRoles',
         ));
     }
 }

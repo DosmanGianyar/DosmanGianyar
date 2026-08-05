@@ -111,6 +111,39 @@
 
 </div>
 
+{{-- ─── Ekstrakurikuler Card ────────────────────────────────────────── --}}
+<a href="{{ route('siswa.extracurricular.index') }}"
+    class="flex items-center justify-between bg-white rounded-2xl shadow-sm border border-violet-100 p-4 mb-4 hover:border-violet-300 transition-colors">
+    <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-violet-100 rounded-xl flex items-center justify-center shrink-0">
+            <svg class="w-5 h-5 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
+            </svg>
+        </div>
+        <div class="flex-1 min-w-0">
+            <p class="text-sm font-semibold text-gray-800">Ekstrakurikuler</p>
+            @if(isset($myExtracurricularRoles) && $myExtracurricularRoles->count() > 0)
+                <p class="text-xs text-violet-600 font-medium mt-0.5 truncate">
+                    Mengikuti {{ $myExtracurricularRoles->count() }} Ekstrakurikuler
+                </p>
+            @else
+                <p class="text-xs text-gray-400 mt-0.5">Pendaftaran & info kegiatan ekstra</p>
+            @endif
+        </div>
+    </div>
+    <div class="flex items-center gap-1.5 shrink-0">
+        @if(isset($myExtracurricularRoles) && $myExtracurricularRoles->count() > 0)
+            <span class="text-xs font-bold text-violet-700 bg-violet-50 border border-violet-200 px-2.5 py-0.5 rounded-full">
+                {{ $myExtracurricularRoles->count() }} Ekstra
+            </span>
+        @endif
+        <svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+    </div>
+</a>
+
 {{-- ─── Layanan BK ────────────────────────────────────────────────────── --}}
 <a href="{{ route('siswa.bk-consultation.index') }}"
     class="flex items-center gap-3 bg-white rounded-2xl shadow-sm border border-purple-100 p-4 mb-4">
