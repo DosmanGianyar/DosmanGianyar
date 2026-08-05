@@ -209,6 +209,7 @@ class GuruDashboard {
   });
 
   int get totalPending => pendingPermits + pendingEarlyCheckouts + pendingForgotAttendances;
+  int get totalJournals => weeklyJournals.fold<int>(0, (sum, g) => sum + g.count);
 
   factory GuruDashboard.fromJson(Map<String, dynamic> json) => GuruDashboard(
     isHomeroom:                json['is_homeroom'] as bool? ?? ((json['total_students'] as int? ?? 0) > 0),

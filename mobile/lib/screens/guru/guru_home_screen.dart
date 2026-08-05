@@ -145,8 +145,6 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
               _buildStatGrid(_dashboard!),
               const SizedBox(height: 16),
               _buildQuickActions(),
-              const SizedBox(height: 16),
-              _buildAlertList(_dashboard!),
               const SizedBox(height: 20),
               _buildWeeklyJournals(_dashboard!),
             ],
@@ -548,7 +546,7 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
 
   // ─── Stat Cards ─────────────────────────────────────────────────────────────
   Widget _buildStatGrid(GuruDashboard data) {
-    final alertCount = data.recentAlerts.length;
+    final journalCount = data.totalJournals;
     final isHomeroom = data.isHomeroom;
 
     return Row(
@@ -579,18 +577,17 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
         ],
         Expanded(
           child: _StatCard(
-            label:     'Catatan Perilaku',
-            value:     alertCount.toString(),
-            subtitle:  'Negatif / Positif >',
-            icon:      Icons.stars_rounded,
-            iconColor: AppColors.orange600,
-            iconBg:    AppColors.orange100,
-            highlight: alertCount > 0,
+            label:     'Jurnal Saya',
+            value:     journalCount.toString(),
+            subtitle:  'Histori Mengajar >',
+            icon:      Icons.menu_book_rounded,
+            iconColor: AppColors.emerald600,
+            iconBg:    const Color(0xFFECFDF5),
             onTap: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => const GuruConductScreen(classes: []),
+                  builder: (_) => const GuruTeachingSessionScreen(),
                 ),
               );
             },
