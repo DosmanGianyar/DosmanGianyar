@@ -986,46 +986,63 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
                 ? Column(
                     children: data.todaySchedules.map((sch) {
                       return Container(
-                        margin: const EdgeInsets.only(bottom: 8),
-                        padding: const EdgeInsets.all(12),
+                        margin: const EdgeInsets.only(bottom: 10),
+                        padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
-                          color: AppColors.blue50.withValues(alpha: 0.5),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: AppColors.blue100),
+                          color: AppColors.blue50.withValues(alpha: 0.7),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(color: AppColors.blue200, width: 1.2),
                         ),
-                        child: Row(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: AppColors.blue600,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Text(
-                                'Jam ${sch.period}',
-                                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white),
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    sch.subjectName,
-                                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.gray800),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.between,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.blue600,
+                                    borderRadius: BorderRadius.circular(8),
                                   ),
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    'Kelas ${sch.className}${sch.room != null ? ' • 📍 ${sch.room}' : ''}',
-                                    style: const TextStyle(fontSize: 11, color: AppColors.gray600),
+                                  child: Text(
+                                    sch.periodDisplay,
+                                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Colors.white),
                                   ),
-                                ],
-                              ),
+                                ),
+                                Text(
+                                  '${sch.startTime} - ${sch.endTime}',
+                                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: AppColors.blue900),
+                                ),
+                              ],
                             ),
+                            const SizedBox(height: 8),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.between,
+                              children: [
+                                Text(
+                                  '🏫 Kelas ${sch.className}',
+                                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: Color(0xFF1E1B4B)),
+                                ),
+                                if (sch.room != null && sch.room!.isNotEmpty)
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2.5),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(6),
+                                      border: Border.all(color: AppColors.gray200),
+                                    ),
+                                    child: Text(
+                                      '📍 ${sch.room}',
+                                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.gray600),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                            const SizedBox(height: 2),
                             Text(
-                              '${sch.startTime} - ${sch.endTime}',
-                              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.blue700),
+                              '📚 ${sch.subjectName}',
+                              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.gray800),
                             ),
                           ],
                         ),

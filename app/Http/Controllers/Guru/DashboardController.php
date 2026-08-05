@@ -92,6 +92,62 @@ class DashboardController extends Controller
             }
         }
 
+        // Merger jadwal berurutan untuk kelas & mapel yang sama
+        $mergeSchedules = function ($schedules, $filledKeys = []) {
+            $merged = [];
+            foreach ($schedules as $sch) {
+                $classId   = $sch->class_id;
+                $subjectId = $sch->subject_id;
+                $period    = (int) $sch->period;
+                $startTime = \Carbon\Carbon::parse($sch->start_time)->format('H:i');
+                $endTime   = \Carbon\Carbon::parse($sch->end_time)->format('H:i');
+
+                $isFilled = isset($filledKeys["{$classId}_{$period}"]) || isset($filledKeys["{$classId}_{$subjectId}_{$period}"]);
+
+                $lastIdx = count($merged) - 1;
+                if ($lastIdx >= 0) {
+                    $prev = &$merged[$lastIdx];
+                    if ($prev['class_id'] == $classId 
+                        && $prev['subject_id'] == $subjectId 
+                        && $period == $prev['period_end'] + 1
+                    ) {
+                        $prev['period_end']   = $period;
+                        $prev['end_time']     = $endTime;
+                        $prev['periods'][]    = $period;
+                        $prev['period_label'] = "Jam ke-{$prev['period_start']} - {$period}";
+                        if ($isFilled) {
+                            $prev['filled_periods'][] = $period;
+                        }
+                        $prev['is_filled'] = (count($prev['filled_periods']) === count($prev['periods']));
+                        continue;
+                    }
+                }
+
+                $merged[] = [
+                    'id'             => $sch->id,
+                    'day'            => $sch->day,
+                    'class_id'       => $classId,
+                    'class_name'     => $sch->schoolClass?->name ?? '—',
+                    'subject_id'     => $subjectId,
+                    'subject_name'   => $sch->subject?->name ?? '—',
+                    'room'           => $sch->room,
+                    'period'         => $period,
+                    'period_start'   => $period,
+                    'period_end'     => $period,
+                    'period_label'   => "Jam ke-{$period}",
+                    'periods'        => [$period],
+                    'filled_periods' => $isFilled ? [$period] : [],
+                    'is_filled'      => $isFilled,
+                    'start_time'     => $startTime,
+                    'end_time'       => $endTime,
+                ];
+            }
+            return collect($merged);
+        };
+
+        $todaySchedulesMerged  = $mergeSchedules($todaySchedules, $filledJournalKeys);
+        $weeklySchedulesMerged = $weeklySchedules->map(fn($group) => $mergeSchedules($group, $filledJournalKeys));
+
         $stats = [
             'alert_kritis'   => $recentAlerts->count(),
             'total_students' => $totalStudents,
@@ -106,7 +162,9 @@ class DashboardController extends Controller
             'weeklyJournals',
             'myExtracurriculars',
             'todaySchedules',
+            'todaySchedulesMerged',
             'weeklySchedules',
+            'weeklySchedulesMerged',
             'todayDayName',
             'dayNames',
             'filledJournalKeys'

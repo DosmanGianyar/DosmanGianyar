@@ -109,6 +109,7 @@ class TeacherScheduleItem {
   final int day;
   final String dayName;
   final int period;
+  final String periodDisplay;
   final String startTime;
   final String endTime;
   final String? room;
@@ -122,6 +123,7 @@ class TeacherScheduleItem {
     required this.day,
     required this.dayName,
     required this.period,
+    required this.periodDisplay,
     required this.startTime,
     required this.endTime,
     this.room,
@@ -132,17 +134,18 @@ class TeacherScheduleItem {
   });
 
   factory TeacherScheduleItem.fromJson(Map<String, dynamic> json) => TeacherScheduleItem(
-    id:          json['id'] as int,
-    day:         json['day'] as int? ?? 1,
-    dayName:     json['day_name'] as String? ?? '—',
-    period:      json['period'] as int? ?? 1,
-    startTime:   json['start_time'] as String? ?? '',
-    endTime:     json['end_time'] as String? ?? '',
-    room:        json['room'] as String?,
-    classId:     json['class_id'] as int? ?? 0,
-    className:   json['class_name'] as String? ?? '—',
-    subjectId:   json['subject_id'] as int? ?? 0,
-    subjectName: json['subject_name'] as String? ?? '—',
+    id:            json['id'] as int,
+    day:           json['day'] as int? ?? 1,
+    dayName:       json['day_name'] as String? ?? '—',
+    period:        json['period'] as int? ?? 1,
+    periodDisplay: json['period_display'] as String? ?? 'Jam ${json['period']}',
+    startTime:     json['start_time'] as String? ?? '',
+    endTime:       json['end_time'] as String? ?? '',
+    room:          json['room'] as String?,
+    classId:       json['class_id'] as int? ?? 0,
+    className:     json['class_name'] as String? ?? '—',
+    subjectId:     json['subject_id'] as int? ?? 0,
+    subjectName:   json['subject_name'] as String? ?? '—',
   );
 }
 

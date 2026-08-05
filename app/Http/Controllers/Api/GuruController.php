@@ -116,25 +116,57 @@ class GuruController extends Controller
         $todayIso = (int) now()->dayOfWeekIso; // 1=Senin .. 7=Minggu
         $dayNames = [1 => 'Senin', 2 => 'Selasa', 3 => 'Rabu', 4 => 'Kamis', 5 => 'Jumat', 6 => 'Sabtu', 7 => 'Minggu'];
 
-        $todaySchedules = \App\Models\Schedule::where('teacher_id', $guru->id)
+        $mergeApiSchedules = function ($schedules) use ($dayNames) {
+            $merged = [];
+            foreach ($schedules as $sch) {
+                $classId   = $sch->class_id;
+                $subjectId = $sch->subject_id;
+                $period    = (int) $sch->period;
+                $startTime = Carbon::parse($sch->start_time)->format('H:i');
+                $endTime   = Carbon::parse($sch->end_time)->format('H:i');
+
+                $lastIdx = count($merged) - 1;
+                if ($lastIdx >= 0) {
+                    $prev = &$merged[$lastIdx];
+                    if ($prev['class_id'] == $classId 
+                        && $prev['subject_id'] == $subjectId 
+                        && $period == $prev['period_end'] + 1
+                    ) {
+                        $prev['period_end']     = $period;
+                        $prev['end_time']       = $endTime;
+                        $prev['period_display'] = "Jam ke-{$prev['period_start']} - {$period}";
+                        continue;
+                    }
+                }
+
+                $merged[] = [
+                    'id'             => $sch->id,
+                    'day'            => $sch->day,
+                    'day_name'       => $dayNames[$sch->day] ?? '—',
+                    'period'         => $period,
+                    'period_start'   => $period,
+                    'period_end'     => $period,
+                    'period_display' => "Jam ke-{$period}",
+                    'start_time'     => $startTime,
+                    'end_time'       => $endTime,
+                    'room'           => $sch->room,
+                    'class_id'       => $classId,
+                    'class_name'     => $sch->schoolClass?->name ?? '—',
+                    'subject_id'     => $subjectId,
+                    'subject_name'   => $sch->subject?->name ?? '—',
+                ];
+            }
+            return array_values($merged);
+        };
+
+        $rawTodaySchedules = \App\Models\Schedule::where('teacher_id', $guru->id)
             ->where('day', $todayIso)
             ->with(['schoolClass', 'subject'])
             ->orderBy('period')
             ->orderBy('start_time')
-            ->get()
-            ->map(fn($sch) => [
-                'id'           => $sch->id,
-                'day'          => $sch->day,
-                'day_name'     => $dayNames[$sch->day] ?? '—',
-                'period'       => $sch->period,
-                'start_time'   => Carbon::parse($sch->start_time)->format('H:i'),
-                'end_time'     => Carbon::parse($sch->end_time)->format('H:i'),
-                'room'         => $sch->room,
-                'class_id'     => $sch->class_id,
-                'class_name'   => $sch->schoolClass?->name ?? '—',
-                'subject_id'   => $sch->subject_id,
-                'subject_name' => $sch->subject?->name ?? '—',
-            ])->values();
+            ->get();
+
+        $todaySchedules = $mergeApiSchedules($rawTodaySchedules);
 
         $allWeekly = \App\Models\Schedule::where('teacher_id', $guru->id)
             ->with(['schoolClass', 'subject'])
@@ -144,25 +176,14 @@ class GuruController extends Controller
             ->get()
             ->groupBy('day');
 
-        $weeklySchedules = collect([1, 2, 3, 4, 5, 6])->map(function ($dNum) use ($allWeekly, $dayNames) {
+        $weeklySchedules = collect([1, 2, 3, 4, 5, 6])->map(function ($dNum) use ($allWeekly, $dayNames, $mergeApiSchedules) {
             $items = $allWeekly->get($dNum, collect());
+            $mergedItems = $mergeApiSchedules($items);
             return [
                 'day'       => $dNum,
                 'day_name'  => $dayNames[$dNum] ?? '—',
-                'count'     => $items->count(),
-                'schedules' => $items->map(fn($sch) => [
-                    'id'           => $sch->id,
-                    'day'          => $sch->day,
-                    'day_name'     => $dayNames[$sch->day] ?? '—',
-                    'period'       => $sch->period,
-                    'start_time'   => Carbon::parse($sch->start_time)->format('H:i'),
-                    'end_time'     => Carbon::parse($sch->end_time)->format('H:i'),
-                    'room'         => $sch->room,
-                    'class_id'     => $sch->class_id,
-                    'class_name'   => $sch->schoolClass?->name ?? '—',
-                    'subject_id'   => $sch->subject_id,
-                    'subject_name' => $sch->subject?->name ?? '—',
-                ])->values(),
+                'count'     => count($mergedItems),
+                'schedules' => $mergedItems,
             ];
         })->values();
 
