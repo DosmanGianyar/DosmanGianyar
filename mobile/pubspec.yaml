@@ -27,7 +27,7 @@ dependencies:
   latlong2: ^0.9.1
 
   # Kamera selfie
-  camera: ^0.10.5+9
+  camera: ^0.11.0
 
   # Un-mirror foto selfie kamera depan
   image: ^4.2.0
@@ -48,7 +48,7 @@ dependencies:
   qr_flutter: ^4.1.0
 
   # High-performance Barcode & QR Camera Scanner
-  mobile_scanner: ^5.2.3
+  mobile_scanner: ^7.0.0
 
   # Informasi versi aplikasi
   package_info_plus: ^8.0.0
