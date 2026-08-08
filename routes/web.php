@@ -134,6 +134,7 @@ Route::middleware(['auth', 'role:guru,admin'])->prefix('guru')->name('guru.')->g
     Route::prefix('attendance')->name('attendance.')->group(function () {
         Route::get('/', [GuruAttendance::class, 'index'])->name('index');
         Route::get('/rekap', [GuruAttendance::class, 'rekap'])->name('rekap');
+        Route::get('/student-detail/{student}', [GuruAttendance::class, 'studentDetailJson'])->name('student-detail');
         Route::post('/manual', [GuruAttendance::class, 'manual'])->name('manual');
         Route::get('/permits', [GuruAttendance::class, 'permits'])->name('permits');
         Route::patch('/permits/{permit}/approve', [GuruAttendance::class, 'approvePermit'])->name('permits.approve');
@@ -221,6 +222,8 @@ Route::middleware(['auth', 'role:guru,admin'])->prefix('guru')->name('guru.')->g
         Route::get('/', [GuruJournal::class, 'index'])->name('index');
         Route::get('/create', [GuruJournal::class, 'create'])->name('create');
         Route::post('/', [GuruJournal::class, 'store'])->name('store');
+        Route::get('/{journal}/edit', [GuruJournal::class, 'edit'])->name('edit');
+        Route::put('/{journal}', [GuruJournal::class, 'update'])->name('update');
         Route::get('/print', [GuruJournal::class, 'print'])->name('print');
         Route::get('/print-weekly', [GuruJournal::class, 'printWeekly'])->name('print-weekly');
         Route::get('/print-weekly-attendance', [GuruJournal::class, 'printWeeklyAttendance'])->name('print-weekly-attendance');

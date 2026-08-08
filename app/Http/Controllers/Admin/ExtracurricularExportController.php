@@ -54,21 +54,34 @@ class ExtracurricularExportController extends Controller
     /**
      * Cetak daftar anggota aktif suatu ekstrakurikuler.
      */
-    public function membersPdf(Extracurricular $extracurricular): Response
+    public function membersPdf(Extracurricular $extracurricular, Request $request): Response
     {
         @ini_set('memory_limit', '512M');
         @set_time_limit(300);
 
-        $members = ExtracurricularMember::with('user.schoolClass')
+        $query = ExtracurricularMember::with(['user.schoolClass'])
             ->where('extracurricular_id', $extracurricular->id)
-            ->where('status', 'active')
-            ->orderBy('role', 'asc')  // ketua dulu
-            ->get()
+            ->where('status', 'active');
+
+        if ($request->filled('grade')) {
+            $query->whereHas('user.schoolClass', fn ($q) => $q->where('grade', $request->grade));
+        }
+
+        if ($request->filled('class_id')) {
+            $query->whereHas('user', fn ($q) => $q->where('class_id', $request->class_id));
+        }
+
+        $members = $query->get()
             ->sortByDesc(fn ($m) => $m->role === 'ketua' ? 1 : 0);
+
+        $filterGrade = $request->grade;
+        $filterClass = $request->class_id ? \App\Models\SchoolClass::find($request->class_id)?->name : null;
 
         $pdf = Pdf::loadView('exports.extracurricular_members_pdf', [
             'extracurricular' => $extracurricular,
             'members'         => $members,
+            'filterGrade'     => $filterGrade,
+            'filterClass'     => $filterClass,
         ])->setPaper('a4', 'portrait');
 
         $filename = 'anggota-' . str($extracurricular->name)->slug() . '.pdf';
@@ -89,16 +102,22 @@ class ExtracurricularExportController extends Controller
             ->with('schoolClass')
             ->orderBy('name');
 
+        if ($request->filled('grade')) {
+            $query->whereHas('schoolClass', fn ($q) => $q->where('grade', $request->grade));
+        }
+
         if ($request->filled('class_id')) {
             $query->where('class_id', $request->class_id);
         }
 
         $students  = $query->get();
-        $className = $request->filled('class_name') ? $request->class_name : null;
+        $className = $request->filled('class_name') ? $request->class_name : ($request->filled('class_id') ? \App\Models\SchoolClass::find($request->class_id)?->name : null);
+        $gradeName = $request->filled('grade') ? 'Angkatan ' . $request->grade : null;
 
         $pdf = Pdf::loadView('exports.students_without_extracurricular_pdf', [
             'students'  => $students,
             'className' => $className,
+            'gradeName' => $gradeName,
         ])->setPaper('a4', 'portrait');
 
         return $pdf->download('siswa-tanpa-ekstra.pdf');

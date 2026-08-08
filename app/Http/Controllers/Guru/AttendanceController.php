@@ -9,7 +9,8 @@ use App\Models\Holiday;
 use App\Models\Permit;
 use App\Models\SchoolClass;
 use App\Models\User;
-use App\Services\NotificationService;
+use App\Services\StudentAttendanceDetailService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -302,5 +303,15 @@ class AttendanceController extends Controller
             }
             $current->addDay();
         }
+    }
+
+    public function studentDetailJson(Request $request, int $student): JsonResponse
+    {
+        $month = $request->integer('month', (int) now()->month);
+        $year  = $request->integer('year', (int) now()->year);
+
+        $data = StudentAttendanceDetailService::getDetail($student, $month, $year);
+
+        return response()->json($data);
     }
 }

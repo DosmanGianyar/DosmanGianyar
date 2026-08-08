@@ -3,7 +3,24 @@
 @section('page-title', 'Rekap Absensi Bulanan')
 
 @section('content')
-<div class="space-y-4">
+<div class="space-y-4" x-data="{
+    showModal: false,
+    loading: false,
+    detail: null,
+    filter: 'all',
+    fetchDetail(studentId) {
+        this.showModal = true;
+        this.loading = true;
+        this.detail = null;
+        fetch('{{ route('guru.attendance.student-detail', ':id') }}'.replace(':id', studentId) + '?month={{ $month }}&year={{ $year }}')
+            .then(res => res.json())
+            .then(data => {
+                this.detail = data;
+                this.loading = false;
+            })
+            .catch(() => { this.loading = false; });
+    }
+}">
 
 {{-- ─── Filter Bar ──────────────────────────────────────────────────────── --}}
 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
@@ -97,7 +114,10 @@
                 @foreach($studentData as $row)
                 <tr class="hover:bg-gray-50/50">
                     <td class="px-3 py-2 sticky left-0 bg-white font-medium text-gray-800 truncate max-w-[140px]">
-                        {{ $row['student']->name }}
+                        <button type="button" @click="fetchDetail({{ $row['student']->id }})"
+                            class="hover:underline text-blue-600 font-semibold cursor-pointer text-left truncate max-w-[130px]">
+                            {{ $row['student']->name }}
+                        </button>
                     </td>
                     @foreach($allDays as $day)
                     @php
@@ -140,6 +160,91 @@
 <div class="pt-1">
     <a href="{{ route('guru.attendance.index') }}"
         class="text-sm text-blue-600 font-medium hover:underline">← Kembali ke Absensi Harian</a>
+</div>
+
+{{-- ─── Modal Detail Presensi Siswa ─────────────────────────────────────── --}}
+<div x-show="showModal" x-cloak
+    @click.self="showModal = false"
+    @keydown.escape.window="showModal = false"
+    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+    <div class="bg-white rounded-2xl max-w-xl w-full max-h-[85vh] overflow-hidden flex flex-col shadow-2xl border border-gray-100" @click.stop>
+        {{-- Header --}}
+        <div class="p-4 border-b border-gray-100 flex items-start justify-between bg-gray-50">
+            <div>
+                <h3 class="text-base font-bold text-gray-800 flex items-center gap-2" x-text="detail?.student?.name || 'Detail Presensi'"></h3>
+                <p class="text-xs text-gray-500 mt-0.5" x-text="'NIS: ' + (detail?.student?.nis || '—') + ' • Kelas: ' + (detail?.student?.class_name || '—') + ' • ' + (detail?.month_name || '')"></p>
+            </div>
+            <button type="button" @click="showModal = false" class="text-gray-400 hover:text-gray-600 transition-colors p-1">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+
+        <template x-if="loading">
+            <div class="p-12 text-center text-gray-400 text-sm flex flex-col items-center gap-2">
+                <svg class="animate-spin h-6 w-6 text-blue-500" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                Memuat rincian presensi siswa...
+            </div>
+        </template>
+
+        <template x-if="!loading && detail">
+            <div class="flex-1 overflow-hidden flex flex-col">
+                {{-- Summary Cards --}}
+                <div class="p-3 bg-gray-50 border-b border-gray-100 grid grid-cols-6 gap-1.5 text-center">
+                    <div class="bg-white p-1.5 rounded-xl border border-gray-100"><p class="text-[9px] font-bold text-green-600 uppercase">Hadir</p><p class="text-sm font-extrabold text-gray-800" x-text="detail.counts.hadir"></p></div>
+                    <div class="bg-white p-1.5 rounded-xl border border-gray-100"><p class="text-[9px] font-bold text-yellow-600 uppercase">Terlambat</p><p class="text-sm font-extrabold text-gray-800" x-text="detail.counts.terlambat"></p></div>
+                    <div class="bg-white p-1.5 rounded-xl border border-gray-100"><p class="text-[9px] font-bold text-blue-600 uppercase">Izin</p><p class="text-sm font-extrabold text-gray-800" x-text="detail.counts.izin"></p></div>
+                    <div class="bg-white p-1.5 rounded-xl border border-gray-100"><p class="text-[9px] font-bold text-purple-600 uppercase">Sakit</p><p class="text-sm font-extrabold text-gray-800" x-text="detail.counts.sakit"></p></div>
+                    <div class="bg-white p-1.5 rounded-xl border border-gray-100"><p class="text-[9px] font-bold text-teal-600 uppercase">Dispensasi</p><p class="text-sm font-extrabold text-gray-800" x-text="detail.counts.dispensasi"></p></div>
+                    <div class="bg-white p-1.5 rounded-xl border border-gray-100"><p class="text-[9px] font-bold text-red-600 uppercase">Alpa</p><p class="text-sm font-extrabold text-gray-800" x-text="detail.counts.alpa"></p></div>
+                </div>
+
+                {{-- Filter Tabs --}}
+                <div class="px-4 pt-2.5 flex gap-2 border-b border-gray-100 bg-white">
+                    <button type="button" @click="filter = 'all'" :class="filter === 'all' ? 'border-blue-600 text-blue-600 font-bold' : 'border-transparent text-gray-500'" class="pb-2 text-xs border-b-2">Semua</button>
+                    <button type="button" @click="filter = 'alpa'" :class="filter === 'alpa' ? 'border-red-600 text-red-600 font-bold' : 'border-transparent text-gray-500'" class="pb-2 text-xs border-b-2">🔴 Alpa (<span x-text="detail.counts.alpa"></span>)</button>
+                    <button type="button" @click="filter = 'izin_sakit'" :class="filter === 'izin_sakit' ? 'border-blue-600 text-blue-600 font-bold' : 'border-transparent text-gray-500'" class="pb-2 text-xs border-b-2">🔵 Izin / Sakit</button>
+                </div>
+
+                {{-- Logs --}}
+                <div class="p-4 overflow-y-auto flex-1 space-y-2">
+                    <template x-for="log in detail.logs" :key="log.date">
+                        <div x-show="filter === 'all' || (filter === 'alpa' && log.status === 'alpa') || (filter === 'izin_sakit' && ['izin','sakit','dispensasi'].includes(log.status))"
+                            class="p-2.5 rounded-xl border border-gray-100 bg-gray-50 flex items-center justify-between gap-3 text-xs">
+                            <div class="flex items-center gap-2.5">
+                                <span class="w-2.5 h-2.5 rounded-full shrink-0" :class="{
+                                    'bg-green-500': log.status === 'hadir',
+                                    'bg-yellow-400': log.status === 'terlambat',
+                                    'bg-blue-400': log.status === 'izin',
+                                    'bg-purple-400': log.status === 'sakit',
+                                    'bg-teal-400': log.status === 'dispensasi',
+                                    'bg-red-500': log.status === 'alpa'
+                                }"></span>
+                                <div>
+                                    <p class="font-bold text-gray-800" x-text="log.date_formatted"></p>
+                                    <p class="text-[11px] text-gray-500 mt-0.5" x-text="log.reason || ''" x-show="log.reason"></p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2 text-right shrink-0">
+                                <template x-if="log.via_lupa_absen">
+                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-300">Lupa Absen</span>
+                                </template>
+                                <template x-if="!log.via_lupa_absen">
+                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase" :class="{
+                                        'bg-green-100 text-green-700': log.status === 'hadir',
+                                        'bg-yellow-100 text-yellow-700': log.status === 'terlambat',
+                                        'bg-blue-100 text-blue-700': log.status === 'izin',
+                                        'bg-purple-100 text-purple-700': log.status === 'sakit',
+                                        'bg-teal-100 text-teal-700': log.status === 'dispensasi',
+                                        'bg-red-100 text-red-700': log.status === 'alpa'
+                                    }" x-text="log.status"></span>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </template>
+    </div>
 </div>
 
 </div>

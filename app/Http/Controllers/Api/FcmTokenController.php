@@ -55,4 +55,23 @@ class FcmTokenController extends Controller
             'message' => 'FCM Token removed successfully.',
         ]);
     }
+
+    /**
+     * Kirim notifikasi uji coba ke perangkat user yang sedang login.
+     */
+    public function test(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        \App\Services\NotificationService::send(
+            $user->id,
+            '🔔 Uji Coba Push Notifikasi SIMS',
+            "Halo {$user->name}, Push Notifikasi SIMS di perangkat Anda telah terhubung dan berfungsi aktif! (" . now()->format('H:i:s') . " WITA)",
+            'info'
+        );
+
+        return response()->json([
+            'message' => 'Notifikasi uji coba berhasil dikirim ke perangkat Anda.',
+        ]);
+    }
 }

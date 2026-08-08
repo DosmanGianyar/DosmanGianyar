@@ -31,6 +31,7 @@ class ForgotAttendanceController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $data = $request->validate([
+            'type'   => 'required|string|in:masuk,pulang,keduanya',
             'date'   => [
                 'required', 'date',
                 'before_or_equal:today',
@@ -56,14 +57,15 @@ class ForgotAttendanceController extends Controller
             ->whereDate('date', $data['date'])
             ->first();
 
-        if ($attendance && $attendance->status !== 'alpa') {
+        if ($attendance && $attendance->status !== 'alpa' && $attendance->check_in_time && $attendance->check_out_time) {
             return back()->withErrors([
-                'date' => 'Presensi tanggal ini sudah tercatat sebagai ' . $attendance->status_label . '.',
+                'date' => 'Presensi tanggal ini sudah tercatat sebagai ' . $attendance->status_label . ' (sudah absen datang & pulang).',
             ])->withInput();
         }
 
         ForgotAttendanceRequest::create([
             'student_id' => $student->id,
+            'type'       => $data['type'] ?? 'masuk',
             'date'       => $data['date'],
             'reason'     => $data['reason'],
             'status'     => 'pending',

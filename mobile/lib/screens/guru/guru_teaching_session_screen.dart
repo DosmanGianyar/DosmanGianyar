@@ -7,7 +7,18 @@ import 'widgets/guru_widgets.dart';
 import 'guru_tp_screen.dart';
 
 class GuruTeachingSessionScreen extends StatefulWidget {
-  const GuruTeachingSessionScreen({super.key});
+  final int? initialClassId;
+  final int? initialSubjectId;
+  final int? initialPeriod;
+  final List<int>? initialPeriods;
+
+  const GuruTeachingSessionScreen({
+    super.key,
+    this.initialClassId,
+    this.initialSubjectId,
+    this.initialPeriod,
+    this.initialPeriods,
+  });
 
   @override
   State<GuruTeachingSessionScreen> createState() => _GuruTeachingSessionScreenState();
@@ -49,7 +60,13 @@ class _GuruTeachingSessionScreenState extends State<GuruTeachingSessionScreen>
       body: TabBarView(
         controller: _tabCtrl,
         children: [
-          _CreateSessionTab(onSuccess: () => _tabCtrl.animateTo(1)),
+          _CreateSessionTab(
+            initialClassId: widget.initialClassId,
+            initialSubjectId: widget.initialSubjectId,
+            initialPeriod: widget.initialPeriod,
+            initialPeriods: widget.initialPeriods,
+            onSuccess: () => _tabCtrl.animateTo(1),
+          ),
           const _HistoryTab(),
         ],
       ),
@@ -60,8 +77,19 @@ class _GuruTeachingSessionScreenState extends State<GuruTeachingSessionScreen>
 // ─── Tab: Buat Jurnal & Absensi (Terpadu) ───────────────────────────────────
 
 class _CreateSessionTab extends StatefulWidget {
+  final int? initialClassId;
+  final int? initialSubjectId;
+  final int? initialPeriod;
+  final List<int>? initialPeriods;
   final VoidCallback? onSuccess;
-  const _CreateSessionTab({this.onSuccess});
+
+  const _CreateSessionTab({
+    this.initialClassId,
+    this.initialSubjectId,
+    this.initialPeriod,
+    this.initialPeriods,
+    this.onSuccess,
+  });
 
   @override
   State<_CreateSessionTab> createState() => _CreateSessionTabState();
@@ -96,7 +124,22 @@ class _CreateSessionTabState extends State<_CreateSessionTab> {
   void initState() {
     super.initState();
     _dateCtrl.text = DateFormat('yyyy-MM-dd').format(_selectedDate);
+    if (widget.initialClassId != null) {
+      _selectedClassId = widget.initialClassId;
+    }
+    if (widget.initialSubjectId != null) {
+      _selectedSubjectId = widget.initialSubjectId;
+    }
+    if (widget.initialPeriods != null && widget.initialPeriods!.isNotEmpty) {
+      _selectedPeriods.addAll(widget.initialPeriods!);
+    } else if (widget.initialPeriod != null) {
+      _selectedPeriods.add(widget.initialPeriod!);
+    }
     _loadClasses();
+    if (_selectedClassId != null) {
+      _loadStudents(_selectedClassId!);
+      _loadOccupiedPeriods();
+    }
   }
 
   @override
@@ -111,7 +154,23 @@ class _CreateSessionTabState extends State<_CreateSessionTab> {
   Future<void> _loadClasses() async {
     try {
       final data = await GuruService.getTeachingClasses();
-      if (mounted) setState(() { _classesData = data; _loadingClasses = false; });
+      if (mounted) {
+        setState(() {
+          _classesData = data;
+          _loadingClasses = false;
+          if (_selectedClassId != null && _selectedSubjectId == null) {
+            final teachingClasses = (_classesData?['teaching_classes'] as List<dynamic>? ?? [])
+                .cast<Map<String, dynamic>>();
+            final matching = teachingClasses.firstWhere(
+              (c) => c['id'] == _selectedClassId,
+              orElse: () => {},
+            );
+            if (matching.isNotEmpty && matching['subject_id'] != null) {
+              _selectedSubjectId = matching['subject_id'] as int?;
+            }
+          }
+        });
+      }
     } catch (_) {
       if (mounted) setState(() => _loadingClasses = false);
     }
@@ -144,15 +203,24 @@ class _CreateSessionTabState extends State<_CreateSessionTab> {
   Future<void> _loadStudents(int classId) async {
     setState(() { _loadingStudents = true; _students = []; });
     try {
-      final list = await GuruService.getSessionClassStudents(classId);
+      final dateStr = DateFormat('yyyy-MM-dd').format(_selectedDate);
+      final list = await GuruService.getSessionClassStudents(classId, date: dateStr);
       if (mounted) {
         setState(() {
-          _students = list.map((s) => SessionStudentRow(
-            studentId: s.id,
-            name:      s.name,
-            nis:       s.nis,
-            status:    'hadir',
-          )).toList();
+          _students = list.map((s) {
+            final sug = s.suggestedStatus;
+            final initialStatus = (sug != null && sug != 'hadir')
+                ? (sug == 'alpa' ? 'tidak_hadir' : sug)
+                : 'hadir';
+            return SessionStudentRow(
+              studentId:          s.id,
+              name:               s.name,
+              nis:                s.nis,
+              status:             initialStatus,
+              morningStatus:      s.morningStatus,
+              morningStatusLabel: s.morningStatusLabel,
+            );
+          }).toList();
           _loadingStudents = false;
         });
       }
@@ -175,6 +243,7 @@ class _CreateSessionTabState extends State<_CreateSessionTab> {
       });
       if (_selectedClassId != null) {
         _loadOccupiedPeriods();
+        _loadStudents(_selectedClassId!);
       }
     }
   }
@@ -919,10 +988,12 @@ class _StudentAttRow extends StatelessWidget {
     ('tidak_hadir',  'A',  AppColors.red500,    AppColors.red100),
     ('izin',         'I',  AppColors.sky600,    AppColors.sky100),
     ('sakit',        'S',  AppColors.purple500, AppColors.violet100),
+    ('dispensasi',   'D',  AppColors.teal600,   AppColors.teal100),
   ];
 
   @override
   Widget build(BuildContext context) {
+    final hasMorningStatus = student.morningStatus != null && student.morningStatus != 'hadir';
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       child: Row(
@@ -931,10 +1002,39 @@ class _StudentAttRow extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(student.name,
-                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.gray800)),
-                if (student.nis != null)
-                  Text(student.nis!, style: const TextStyle(fontSize: 11, color: AppColors.gray400)),
+                Text(
+                  student.name,
+                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.gray800),
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 2),
+                Wrap(
+                  cross: WrapCrossAlignment.center,
+                  spacing: 6,
+                  runSpacing: 2,
+                  children: [
+                    if (student.nis != null)
+                      Text(student.nis!, style: const TextStyle(fontSize: 11, color: AppColors.gray400)),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+                      decoration: BoxDecoration(
+                        color: hasMorningStatus ? AppColors.amber50 : AppColors.gray100,
+                        borderRadius: BorderRadius.circular(4),
+                        border: Border.all(
+                          color: hasMorningStatus ? AppColors.amber300 : AppColors.gray200,
+                        ),
+                      ),
+                      child: Text(
+                        'Pagi: ${student.morningStatusLabel ?? (student.morningStatus != null ? student.morningStatus! : "Belum Absen Pagi")}',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: hasMorningStatus ? FontWeight.bold : FontWeight.normal,
+                          color: hasMorningStatus ? AppColors.amber800 : AppColors.gray600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),

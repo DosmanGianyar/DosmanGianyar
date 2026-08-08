@@ -41,11 +41,25 @@ class ForgotAttendanceController extends Controller
             'teacher_note' => 'nullable|string|max:255',
         ]);
 
-        // Create or update attendance as 'hadir'
-        Attendance::updateOrCreate(
-            ['user_id' => $forgotAttendance->student_id, 'date' => $forgotAttendance->date->toDateString()],
-            ['status' => 'hadir']
-        );
+        $type = $forgotAttendance->type ?: 'masuk';
+        $att = Attendance::firstOrNew([
+            'user_id' => $forgotAttendance->student_id,
+            'date'    => $forgotAttendance->date->toDateString(),
+        ]);
+
+        $att->status          = 'hadir';
+        $att->via_lupa_absen  = true;
+        $att->lupa_absen_type = $type;
+
+        if ($type === 'masuk') {
+            if (! $att->check_in_time) $att->check_in_time = '07:00:00';
+        } elseif ($type === 'pulang') {
+            if (! $att->check_out_time) $att->check_out_time = '15:30:00';
+        } else {
+            if (! $att->check_in_time) $att->check_in_time = '07:00:00';
+            if (! $att->check_out_time) $att->check_out_time = '15:30:00';
+        }
+        $att->save();
 
         $forgotAttendance->update([
             'status'       => 'approved',
@@ -57,12 +71,12 @@ class ForgotAttendanceController extends Controller
         NotificationService::send(
             userId: $forgotAttendance->student_id,
             title:  'Lupa Absen Disetujui',
-            body:   'Pengajuan lupa absen tanggal ' . $forgotAttendance->date->isoFormat('D MMMM Y') . ' telah disetujui. Presensi dicatat sebagai Hadir.',
+            body:   'Pengajuan ' . $forgotAttendance->typeLabel() . ' tanggal ' . $forgotAttendance->date->isoFormat('D MMMM Y') . ' telah disetujui. Presensi dicatat sebagai Hadir.',
             type:   'success',
             url:    route('siswa.forgot-attendance.index'),
         );
 
-        return back()->with('success', 'Pengajuan disetujui. Presensi siswa dicatat sebagai Hadir.');
+        return back()->with('success', 'Pengajuan disetujui. Presensi siswa dicatat sebagai Hadir (' . $forgotAttendance->typeLabel() . ').');
     }
 
     public function reject(Request $request, ForgotAttendanceRequest $forgotAttendance): RedirectResponse

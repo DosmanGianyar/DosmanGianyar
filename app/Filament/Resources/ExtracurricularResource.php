@@ -52,12 +52,14 @@ class ExtracurricularResource extends Resource
                 ->nullable()
                 ->columnSpanFull(),
 
-            Select::make('pembina_id')
-                ->label('Guru Pembina')
-                ->options(User::where('role', 'guru')->orderBy('name')->pluck('name', 'id'))
+            Select::make('teachers')
+                ->label('Guru Pembina (Bisa lebih dari 1)')
+                ->relationship('teachers', 'name', fn ($query) => $query->where('role', 'guru')->orderBy('name'))
+                ->multiple()
+                ->preload()
                 ->searchable()
-                ->nullable()
-                ->placeholder('— Pilih pembina —'),
+                ->placeholder('— Pilih satu atau beberapa guru pembina —')
+                ->columnSpanFull(),
 
             TextInput::make('max_members')
                 ->label('Kuota Anggota')
@@ -105,10 +107,14 @@ class ExtracurricularResource extends Resource
                     ->weight('semibold')
                     ->sortable(),
 
-                TextColumn::make('pembina.name')
-                    ->label('Pembina')
+                TextColumn::make('pembina_names')
+                    ->label('Guru Pembina')
                     ->placeholder('—')
-                    ->limit(30),
+                    ->wrap()
+                    ->searchable(query: function ($query, string $search) {
+                        $query->whereHas('teachers', fn ($q) => $q->where('name', 'like', "%{$search}%"))
+                              ->orWhereHas('pembina', fn ($q) => $q->where('name', 'like', "%{$search}%"));
+                    }),
 
                 TextColumn::make('active_members_count')
                     ->label('Anggota')

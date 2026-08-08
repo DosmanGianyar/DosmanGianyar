@@ -9,6 +9,14 @@ class CreateExtracurricular extends CreateRecord
 {
     protected static string $resource = ExtracurricularResource::class;
 
+    protected function afterCreate(): void
+    {
+        $firstTeacherId = $this->record->teachers()->first()?->id;
+        if ($firstTeacherId) {
+            $this->record->update(['pembina_id' => $firstTeacherId]);
+        }
+    }
+
     protected function getRedirectUrl(): string
     {
         return $this->getResource()::getUrl('edit', ['record' => $this->record]);

@@ -66,6 +66,16 @@ class ForgotAttendanceResource extends Resource
                     ->label('Kelas')
                     ->placeholder('—'),
 
+                TextColumn::make('type')
+                    ->label('Jenis Lupa Absen')
+                    ->badge()
+                    ->color(fn (string $state) => match($state) {
+                        'pulang'   => 'warning',
+                        'keduanya' => 'purple',
+                        default    => 'info',
+                    })
+                    ->formatStateUsing(fn (ForgotAttendanceRequest $record) => $record->typeLabel()),
+
                 TextColumn::make('date')
                     ->label('Tanggal Lupa Absen')
                     ->date('d M Y')
@@ -100,6 +110,14 @@ class ForgotAttendanceResource extends Resource
             ])
             ->defaultSort('date', 'desc')
             ->filters([
+                SelectFilter::make('type')
+                    ->label('Jenis Lupa Absen')
+                    ->options([
+                        'masuk'    => 'Lupa Absen Datang',
+                        'pulang'   => 'Lupa Absen Pulang',
+                        'keduanya' => 'Lupa Absen Datang & Pulang',
+                    ]),
+
                 SelectFilter::make('status')
                     ->label('Status')
                     ->options([
@@ -121,11 +139,25 @@ class ForgotAttendanceResource extends Resource
                             ->rows(2),
                     ])
                     ->action(function (ForgotAttendanceRequest $record, array $data): void {
-                        // Catat absensi sebagai hadir
-                        Attendance::updateOrCreate(
-                            ['user_id' => $record->student_id, 'date' => $record->date->toDateString()],
-                            ['status' => 'hadir']
-                        );
+                        $type = $record->type ?: 'masuk';
+                        $att = Attendance::firstOrNew([
+                            'user_id' => $record->student_id,
+                            'date'    => $record->date->toDateString(),
+                        ]);
+
+                        $att->status          = 'hadir';
+                        $att->via_lupa_absen  = true;
+                        $att->lupa_absen_type = $type;
+
+                        if ($type === 'masuk') {
+                            if (! $att->check_in_time) $att->check_in_time = '07:00:00';
+                        } elseif ($type === 'pulang') {
+                            if (! $att->check_out_time) $att->check_out_time = '15:30:00';
+                        } else {
+                            if (! $att->check_in_time) $att->check_in_time = '07:00:00';
+                            if (! $att->check_out_time) $att->check_out_time = '15:30:00';
+                        }
+                        $att->save();
 
                         $record->update([
                             'status'       => 'approved',
@@ -137,12 +169,12 @@ class ForgotAttendanceResource extends Resource
                         NotificationService::send(
                             userId: $record->student_id,
                             title:  'Lupa Absen Disetujui',
-                            body:   'Pengajuan lupa absen tanggal ' . $record->date->isoFormat('D MMMM Y') . ' telah disetujui. Presensi dicatat sebagai Hadir.',
+                            body:   'Pengajuan ' . $record->typeLabel() . ' tanggal ' . $record->date->isoFormat('D MMMM Y') . ' telah disetujui. Presensi dicatat sebagai Hadir.',
                             type:   'success',
                             url:    route('siswa.forgot-attendance.index'),
                         );
 
-                        Notification::make()->title('Disetujui — presensi dicatat Hadir')->success()->send();
+                        Notification::make()->title('Disetujui — presensi dicatat Hadir (' . $record->typeLabel() . ')')->success()->send();
                     }),
 
                 Action::make('reject')
@@ -187,10 +219,25 @@ class ForgotAttendanceResource extends Resource
                             $approvedCount = 0;
                             foreach ($records as $record) {
                                 if ($record->isPending()) {
-                                    Attendance::updateOrCreate(
-                                        ['user_id' => $record->student_id, 'date' => $record->date->toDateString()],
-                                        ['status' => 'hadir']
-                                    );
+                                    $type = $record->type ?: 'masuk';
+                                    $att = Attendance::firstOrNew([
+                                        'user_id' => $record->student_id,
+                                        'date'    => $record->date->toDateString(),
+                                    ]);
+
+                                    $att->status          = 'hadir';
+                                    $att->via_lupa_absen  = true;
+                                    $att->lupa_absen_type = $type;
+
+                                    if ($type === 'masuk') {
+                                        if (! $att->check_in_time) $att->check_in_time = '07:00:00';
+                                    } elseif ($type === 'pulang') {
+                                        if (! $att->check_out_time) $att->check_out_time = '15:30:00';
+                                    } else {
+                                        if (! $att->check_in_time) $att->check_in_time = '07:00:00';
+                                        if (! $att->check_out_time) $att->check_out_time = '15:30:00';
+                                    }
+                                    $att->save();
 
                                     $record->update([
                                         'status'      => 'approved',
@@ -201,7 +248,7 @@ class ForgotAttendanceResource extends Resource
                                     NotificationService::send(
                                         userId: $record->student_id,
                                         title:  'Lupa Absen Disetujui',
-                                        body:   'Pengajuan lupa absen tanggal ' . $record->date->isoFormat('D MMMM Y') . ' telah disetujui. Presensi dicatat sebagai Hadir.',
+                                        body:   'Pengajuan ' . $record->typeLabel() . ' tanggal ' . $record->date->isoFormat('D MMMM Y') . ' telah disetujui. Presensi dicatat sebagai Hadir.',
                                         type:   'success',
                                         url:    route('siswa.forgot-attendance.index'),
                                     );

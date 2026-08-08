@@ -421,6 +421,18 @@ class UserResource extends Resource
                         'pengelola' => 'Siswa Pengelola',
                     ]),
 
+                SelectFilter::make('grade')
+                    ->label('Filter Per Angkatan')
+                    ->options([
+                        'X'   => 'Angkatan / Kelas X',
+                        'XI'  => 'Angkatan / Kelas XI',
+                        'XII' => 'Angkatan / Kelas XII',
+                    ])
+                    ->query(fn (Builder $query, array $data): Builder => filled($data['value'] ?? null)
+                        ? $query->whereHas('schoolClass', fn ($q) => $q->where('grade', $data['value']))
+                        : $query
+                    ),
+
                 SelectFilter::make('class_id')
                     ->label('Filter Kelas')
                     ->relationship('schoolClass', 'name'),

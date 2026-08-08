@@ -321,6 +321,9 @@ class SimpleStudent {
   final String? className;
   final String? parentName;
   final String? parentPhone;
+  final String? morningStatus;
+  final String? morningStatusLabel;
+  final String? suggestedStatus;
 
   const SimpleStudent({
     required this.id,
@@ -329,15 +332,21 @@ class SimpleStudent {
     this.className,
     this.parentName,
     this.parentPhone,
+    this.morningStatus,
+    this.morningStatusLabel,
+    this.suggestedStatus,
   });
 
   factory SimpleStudent.fromJson(Map<String, dynamic> json) => SimpleStudent(
-    id:          json['id'] as int,
-    name:        json['name'] as String,
-    nis:         json['nis'] as String?,
-    className:   json['class_name'] as String?,
-    parentName:  json['parent_name'] as String?,
-    parentPhone: json['parent_phone'] as String?,
+    id:                 json['id'] as int,
+    name:               json['name'] as String,
+    nis:                json['nis'] as String?,
+    className:          json['class_name'] as String?,
+    parentName:         json['parent_name'] as String?,
+    parentPhone:        json['parent_phone'] as String?,
+    morningStatus:      json['morning_status'] as String?,
+    morningStatusLabel: json['morning_status_label'] as String?,
+    suggestedStatus:    json['suggested_status'] as String?,
   );
 }
 
@@ -514,6 +523,8 @@ class SessionStudentRow {
   final String? nis;
   String status;
   String? note;
+  String? morningStatus;
+  String? morningStatusLabel;
 
   SessionStudentRow({
     required this.studentId,
@@ -521,14 +532,18 @@ class SessionStudentRow {
     this.nis,
     required this.status,
     this.note,
+    this.morningStatus,
+    this.morningStatusLabel,
   });
 
   factory SessionStudentRow.fromJson(Map<String, dynamic> json) => SessionStudentRow(
-    studentId: json['student_id'] as int,
-    name:      json['name'] as String,
-    nis:       json['nis'] as String?,
-    status:    json['status'] as String? ?? 'hadir',
-    note:      json['note'] as String?,
+    studentId:          json['student_id'] as int,
+    name:               json['name'] as String,
+    nis:                json['nis'] as String?,
+    status:             json['status'] as String? ?? 'hadir',
+    note:               json['note'] as String?,
+    morningStatus:      json['morning_status'] as String?,
+    morningStatusLabel: json['morning_status_label'] as String?,
   );
 }
 

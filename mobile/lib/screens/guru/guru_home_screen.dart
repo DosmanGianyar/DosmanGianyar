@@ -1011,70 +1011,101 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
             child: data.todaySchedules.isNotEmpty
                 ? Column(
                     children: data.todaySchedules.map((sch) {
-                      return Container(
-                        margin: const EdgeInsets.only(bottom: 10),
-                        padding: const EdgeInsets.all(14),
-                        decoration: BoxDecoration(
-                          color: AppColors.blue50.withValues(alpha: 0.7),
-                          borderRadius: BorderRadius.circular(14),
-                          border: Border.all(color: AppColors.blue200, width: 1.2),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Wrap(
-                                  spacing: 6,
-                                  runSpacing: 4,
-                                  children: (sch.periods.isNotEmpty ? sch.periods : [sch.period]).map((p) => Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4.5),
-                                    decoration: BoxDecoration(
-                                      color: AppColors.blue600,
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: Text(
-                                      'Jam ke-$p',
-                                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Colors.white),
-                                    ),
-                                  )).toList(),
-                                ),
-                                Text(
-                                  '${sch.startTime} - ${sch.endTime}',
-                                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: AppColors.blue800),
-                                ),
-                              ],
+                      return InkWell(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => GuruTeachingSessionScreen(
+                                initialClassId: sch.classId,
+                                initialSubjectId: sch.subjectId,
+                                initialPeriod: sch.period,
+                                initialPeriods: sch.periods.isNotEmpty ? sch.periods : [sch.period],
+                              ),
                             ),
-                            const SizedBox(height: 8),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  '🏫 Kelas ${sch.className}',
-                                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: Color(0xFF1E1B4B)),
-                                ),
-                                if (sch.room != null && sch.room!.isNotEmpty)
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2.5),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(6),
-                                      border: Border.all(color: AppColors.gray200),
-                                    ),
-                                    child: Text(
-                                      '📍 ${sch.room}',
-                                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.gray600),
-                                    ),
+                          );
+                        },
+                        borderRadius: BorderRadius.circular(14),
+                        child: Container(
+                          margin: const EdgeInsets.only(bottom: 10),
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            color: AppColors.blue50.withValues(alpha: 0.7),
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(color: AppColors.blue200, width: 1.2),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Wrap(
+                                    spacing: 6,
+                                    runSpacing: 4,
+                                    children: (sch.periods.isNotEmpty ? sch.periods : [sch.period]).map((p) => Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4.5),
+                                      decoration: BoxDecoration(
+                                        color: AppColors.blue600,
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Text(
+                                        'Jam ke-$p',
+                                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Colors.white),
+                                      ),
+                                    )).toList(),
                                   ),
-                              ],
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              '📚 ${sch.subjectName}',
-                              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.gray800),
-                            ),
-                          ],
+                                  Text(
+                                    '${sch.startTime} - ${sch.endTime}',
+                                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: AppColors.blue800),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    '🏫 Kelas ${sch.className}',
+                                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: Color(0xFF1E1B4B)),
+                                  ),
+                                  if (sch.room != null && sch.room!.isNotEmpty)
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2.5),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(6),
+                                        border: Border.all(color: AppColors.gray200),
+                                      ),
+                                      child: Text(
+                                        '📍 ${sch.room}',
+                                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.gray600),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                              const SizedBox(height: 4),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    '📚 ${sch.subjectName}',
+                                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.gray800),
+                                  ),
+                                  const Row(
+                                    children: [
+                                      Text(
+                                        'Isi Jurnal & Absen',
+                                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.blue600),
+                                      ),
+                                      SizedBox(width: 2),
+                                      Icon(Icons.arrow_forward_ios_rounded, size: 10, color: AppColors.blue600),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       );
                     }).toList(),
@@ -1245,55 +1276,73 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
                         separatorBuilder: (_, __) => const SizedBox(height: 10),
                         itemBuilder: (_, idx) {
                           final sch = grp.schedules[idx];
-                          return Container(
-                            padding: const EdgeInsets.all(14),
-                            decoration: BoxDecoration(
-                              color: AppColors.white,
-                              borderRadius: BorderRadius.circular(14),
-                              border: Border.all(color: AppColors.gray200),
-                              boxShadow: AppShadow.sm,
-                            ),
-                            child: Row(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.blue100,
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: Column(
-                                    children: [
-                                      const Text('Jam', style: TextStyle(fontSize: 9, color: AppColors.blue700, fontWeight: FontWeight.w600)),
-                                      Text(
-                                        '${sch.period}',
-                                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: AppColors.blue800),
-                                      ),
-                                    ],
+                          return InkWell(
+                            onTap: () {
+                              Navigator.pop(ctx);
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => GuruTeachingSessionScreen(
+                                    initialClassId: sch.classId,
+                                    initialSubjectId: sch.subjectId,
+                                    initialPeriod: sch.period,
+                                    initialPeriods: sch.periods.isNotEmpty ? sch.periods : [sch.period],
                                   ),
                                 ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        sch.subjectName,
-                                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.gray800),
-                                      ),
-                                      const SizedBox(height: 2),
-                                      Text(
-                                        'Kelas ${sch.className}${sch.room != null ? ' • Ruang ${sch.room}' : ''}',
-                                        style: const TextStyle(fontSize: 12, color: AppColors.gray600),
-                                      ),
-                                      const SizedBox(height: 2),
-                                      Text(
-                                        '⏱️ ${sch.startTime} - ${sch.endTime}',
-                                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.blue600),
-                                      ),
-                                    ],
+                              );
+                            },
+                            borderRadius: BorderRadius.circular(14),
+                            child: Container(
+                              padding: const EdgeInsets.all(14),
+                              decoration: BoxDecoration(
+                                color: AppColors.white,
+                                borderRadius: BorderRadius.circular(14),
+                                border: Border.all(color: AppColors.gray200),
+                                boxShadow: AppShadow.sm,
+                              ),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.blue100,
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Column(
+                                      children: [
+                                        const Text('Jam', style: TextStyle(fontSize: 9, color: AppColors.blue700, fontWeight: FontWeight.w600)),
+                                        Text(
+                                          '${sch.period}',
+                                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: AppColors.blue800),
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              ],
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          sch.subjectName,
+                                          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.gray800),
+                                        ),
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          'Kelas ${sch.className}${sch.room != null ? ' • Ruang ${sch.room}' : ''}',
+                                          style: const TextStyle(fontSize: 12, color: AppColors.gray600),
+                                        ),
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          '⏱️ ${sch.startTime} - ${sch.endTime}',
+                                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.blue600),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: AppColors.gray400),
+                                ],
+                              ),
                             ),
                           );
                         },

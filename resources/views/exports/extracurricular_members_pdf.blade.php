@@ -2,129 +2,176 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
+<title>Daftar Anggota Ekstrakurikuler {{ $extracurricular->name }}</title>
 <style>
+  @page { size: A4 portrait; margin: 12mm 15mm 15mm 15mm; }
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: 'DejaVu Sans', Arial, sans-serif; font-size: 11px; color: #1f2937; }
+  body { font-family: 'Times New Roman', Times, serif; font-size: 11pt; color: #000; line-height: 1.3; }
 
-  .header { text-align: center; padding: 16px 0 12px; border-bottom: 2px solid #7c3aed; margin-bottom: 16px; }
-  .header .school { font-size: 13px; font-weight: bold; color: #7c3aed; letter-spacing: 0.5px; }
-  .header .title  { font-size: 16px; font-weight: bold; margin: 4px 0 2px; }
-  .header .sub    { font-size: 12px; color: #6b7280; }
+  /* ── Kop Surat Formal ────────────────────────────────────────── */
+  .kop-container { width: 100%; border-collapse: collapse; margin-bottom: 4px; }
+  .kop-container td { border: none; vertical-align: middle; }
+  .kop-logo { width: 65px; text-align: center; }
+  .kop-logo img { width: 58px; height: auto; max-height: 65px; object-fit: contain; }
+  .kop-text { text-align: center; }
+  .kop-text .l1 { font-size: 11pt; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
+  .kop-text .l2 { font-size: 11pt; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
+  .kop-text .l3 { font-size: 15pt; font-weight: bold; text-transform: uppercase; margin: 2px 0 1px; }
+  .kop-text .l4 { font-size: 8.5pt; }
+  .kop-text .l5 { font-size: 8pt; font-style: italic; }
+  .kop-line { border-bottom: 3px double #000; margin-bottom: 14px; }
 
-  .info-table { width: 100%; border-collapse: separate; border-spacing: 6px; margin-bottom: 12px; }
-  .info-box  { padding: 8px 12px; background: #f5f3ff; border-radius: 6px; border-left: 3px solid #7c3aed; }
-  .info-box .label { font-size: 9px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; }
-  .info-box .value { font-size: 12px; font-weight: bold; color: #5b21b6; margin-top: 2px; }
+  /* ── Judul Dokumen ────────────────────────────────────────────── */
+  .doc-header { text-align: center; margin-bottom: 14px; }
+  .doc-title { font-size: 12pt; font-weight: bold; text-transform: uppercase; text-decoration: underline; }
+  .doc-subtitle { font-size: 11pt; font-weight: bold; margin-top: 2px; }
+  .doc-filter { font-size: 9.5pt; font-style: italic; color: #374151; margin-top: 2px; }
 
-  .summary-card { text-align: center; padding: 8px; border-radius: 6px; background: #f5f3ff; }
-  .summary-card .count { font-size: 20px; font-weight: bold; color: #7c3aed; }
-  .summary-card .label { font-size: 10px; color: #6b7280; }
+  /* ── Info & Summary Table ─────────────────────────────────────── */
+  .meta-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 10pt; }
+  .meta-table td { padding: 4px 6px; border: none; vertical-align: top; }
+  .meta-label { width: 130px; font-weight: bold; color: #1f2937; }
+  .meta-colon { width: 10px; font-weight: bold; text-align: center; }
 
-  table.data-table { width: 100%; border-collapse: collapse; }
-  table.data-table thead tr th { background: #7c3aed; color: #fff; font-size: 10px; padding: 8px 10px; text-align: left; }
-  table.data-table tbody tr td { padding: 7px 10px; border-bottom: 1px solid #e5e7eb; font-size: 11px; }
-  table.data-table tbody tr:nth-child(even) td { background: #faf5ff; }
-  .badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 10px; font-weight: bold; }
-  .badge-ketua   { background: #fef3c7; color: #78350f; }
-  .badge-anggota { background: #ede9fe; color: #5b21b6; }
+  /* ── Data Table ───────────────────────────────────────────────── */
+  table.data-table { width: 100%; border-collapse: collapse; margin-bottom: 16px; font-size: 10pt; }
+  table.data-table th { background-color: #1e3a8a; color: #ffffff; font-weight: bold; padding: 6px 8px; border: 1px solid #1e3a8a; text-align: center; font-size: 9.5pt; }
+  table.data-table td { padding: 5px 8px; border: 1px solid #9ca3af; vertical-align: middle; }
+  table.data-table tr:nth-child(even) td { background-color: #f8fafc; }
+  .text-center { text-align: center; }
+  .text-left { text-align: left; }
+  .badge-role { display: inline-block; padding: 1px 6px; font-size: 8.5pt; font-weight: bold; border-radius: 3px; }
+  .role-ketua { background-color: #fef3c7; color: #92400e; border: 0.5px solid #f59e0b; }
+  .role-anggota { background-color: #e0e7ff; color: #3730a3; border: 0.5px solid #6366f1; }
 
-  .footer { margin-top: 24px; text-align: right; font-size: 9px; color: #9ca3af; border-top: 1px solid #e5e7eb; padding-top: 8px; }
+  /* ── Tanda Tangan Formal ──────────────────────────────────────── */
+  .ttd-table { width: 100%; border-collapse: collapse; margin-top: 24px; page-break-inside: avoid; font-size: 10.5pt; }
+  .ttd-table td { border: none; text-align: center; vertical-align: top; width: 50%; padding: 0 10px; }
+  .ttd-space { height: 55px; }
+
+  .footer-note { font-size: 8pt; color: #6b7280; text-align: right; border-top: 0.5px solid #d1d5db; padding-top: 4px; margin-top: 20px; font-style: italic; }
 </style>
 </head>
 <body>
 
-<div class="header">
-  <div class="school">SMA NEGERI 1 GIANYAR · SIMS</div>
-  <div class="title">Daftar Anggota Ekstrakurikuler</div>
-  <div class="sub">{{ $extracurricular->name }}</div>
+{{-- ── KOP SEKOLAH FORMAL ─────────────────────────────────────── --}}
+<table class="kop-container">
+  <tr>
+    <td class="kop-logo">
+      @if(file_exists(public_path('img/logo-pemprov-bali.png')))
+        <img src="{{ public_path('img/logo-pemprov-bali.png') }}" alt="Pemprov Bali">
+      @endif
+    </td>
+    <td class="kop-text">
+      <div class="l1">PEMERINTAH PROVINSI BALI</div>
+      <div class="l2">DINAS PENDIDIKAN KEPEMUDAAN DAN OLAHRAGA</div>
+      <div class="l3">SMA NEGERI 1 GIANYAR</div>
+      <div class="l4">Jln. Ratna, Tegal Tugu Gianyar, Telp : (0361) 943034</div>
+      <div class="l5">Website: https://sman1-gianyar.sch.id &nbsp;|&nbsp; E-mail: sman1.gianyar1963@gmail.com</div>
+    </td>
+    <td class="kop-logo">
+      @if(file_exists(public_path('img/logo_sekolah.png')))
+        <img src="{{ public_path('img/logo_sekolah.png') }}" alt="SMAN 1 Gianyar">
+      @endif
+    </td>
+  </tr>
+</table>
+<div class="kop-line"></div>
+
+{{-- ── JUDUL DOKUMEN ──────────────────────────────────────────── --}}
+<div class="doc-header">
+  <div class="doc-title">DAFTAR ANGGOTA EKSTRAKURIKULER</div>
+  <div class="doc-subtitle">EKSTRAKURIKULER: {{ strtoupper($extracurricular->name) }}</div>
+  @if(!empty($filterGrade) || !empty($filterClass))
+    <div class="doc-filter">
+      Filter: 
+      @if(!empty($filterGrade)) Angkatan / Kelas {{ $filterGrade }} @endif
+      @if(!empty($filterClass)) @if(!empty($filterGrade)) &bull; @endif Kelas {{ $filterClass }} @endif
+    </div>
+  @endif
 </div>
 
-<table class="info-table">
+{{-- ── METADATA DOKUMEN ───────────────────────────────────────── --}}
+<table class="meta-table">
   <tr>
-    <td style="width:33.3%;">
-      <div class="info-box">
-        <div class="label">Nama Ekstra</div>
-        <div class="value">{{ $extracurricular->name }}</div>
-      </div>
-    </td>
-    <td style="width:33.3%;">
-      <div class="info-box">
-        <div class="label">Guru Pembina</div>
-        <div class="value">{{ $extracurricular->pembina?->name ?? '—' }}</div>
-      </div>
-    </td>
-    <td style="width:33.3%;">
-      <div class="info-box">
-        <div class="label">Kuota</div>
-        <div class="value">{{ $extracurricular->max_members ?? 'Tidak Terbatas' }}</div>
-      </div>
-    </td>
+    <td class="meta-label">Nama Ekstrakurikuler</td>
+    <td class="meta-colon">:</td>
+    <td><strong>{{ $extracurricular->name }}</strong></td>
+    <td class="meta-label">Total Anggota Aktif</td>
+    <td class="meta-colon">:</td>
+    <td><strong>{{ $members->count() }} Orang</strong></td>
+  </tr>
+  <tr>
+    <td class="meta-label">Pembina Ekstrakurikuler</td>
+    <td class="meta-colon">:</td>
+    <td>{{ $extracurricular->pembina_names }}</td>
+    <td class="meta-label">Jumlah Ketua / Anggota</td>
+    <td class="meta-colon">:</td>
+    <td>{{ $members->where('role', 'ketua')->count() }} Ketua / {{ $members->where('role', 'member')->count() }} Anggota</td>
   </tr>
 </table>
 
-<table class="info-table" style="margin-bottom:16px;">
-  <tr>
-    <td style="width:33.3%;">
-      <div class="summary-card">
-        <div class="count">{{ $members->count() }}</div>
-        <div class="label">Total Anggota Aktif</div>
-      </div>
-    </td>
-    <td style="width:33.3%;">
-      <div class="summary-card">
-        <div class="count">{{ $members->where('role', 'ketua')->count() }}</div>
-        <div class="label">Ketua</div>
-      </div>
-    </td>
-    <td style="width:33.3%;">
-      <div class="summary-card">
-        <div class="count">{{ $members->where('role', 'member')->count() }}</div>
-        <div class="label">Anggota</div>
-      </div>
-    </td>
-  </tr>
-</table>
-
+{{-- ── TABEL DATA ANGGOTA ─────────────────────────────────────── --}}
 <table class="data-table">
   <thead>
     <tr>
-      <th style="width:36px">No</th>
-      <th>Nama Siswa</th>
-      <th>NIS</th>
-      <th>Kelas</th>
-      <th>Peran</th>
-      <th>Tgl. Bergabung</th>
+      <th style="width: 32px;">NO</th>
+      <th style="width: 180px;">NAMA SISWA</th>
+      <th style="width: 90px;">NISN / NIS</th>
+      <th style="width: 75px;">KELAS</th>
+      <th style="width: 75px;">ANGKATAN</th>
+      <th style="width: 80px;">PERAN</th>
+      <th style="width: 90px;">TGL. BERGABUNG</th>
     </tr>
   </thead>
   <tbody>
-    @foreach($members as $i => $member)
+    @forelse($members as $i => $member)
     <tr>
-      <td style="text-align:center">{{ $i + 1 }}</td>
-      <td>{{ $member->user?->name ?? '—' }}</td>
-      <td>{{ $member->user?->nis ?? '—' }}</td>
-      <td>{{ $member->user?->schoolClass?->name ?? '—' }}</td>
-      <td>
+      <td class="text-center">{{ $i + 1 }}</td>
+      <td><strong>{{ $member->user?->name ?? '—' }}</strong></td>
+      <td class="text-center" style="font-family: monospace;">{{ $member->user?->nisn ?? $member->user?->nis ?? '—' }}</td>
+      <td class="text-center">{{ $member->user?->schoolClass?->name ?? '—' }}</td>
+      <td class="text-center">Kelas {{ $member->user?->schoolClass?->grade ?? '—' }}</td>
+      <td class="text-center">
         @if($member->role === 'ketua')
-          <span class="badge badge-ketua">Ketua</span>
+          <span class="badge-role role-ketua">Ketua</span>
         @else
-          <span class="badge badge-anggota">Anggota</span>
+          <span class="badge-role role-anggota">Anggota</span>
         @endif
       </td>
-      <td>{{ $member->created_at?->format('d M Y') ?? '—' }}</td>
+      <td class="text-center">{{ $member->created_at?->format('d/m/Y') ?? '—' }}</td>
     </tr>
-    @endforeach
-    @if($members->isEmpty())
+    @empty
     <tr>
-      <td colspan="6" style="text-align:center; padding: 20px; color: #9ca3af;">
-        Belum ada anggota aktif
+      <td colspan="7" class="text-center" style="padding: 16px; color: #6b7280; font-style: italic;">
+        Belum ada data anggota aktif yang terdaftar.
       </td>
     </tr>
-    @endif
+    @endforelse
   </tbody>
 </table>
 
-<div class="footer">
-  Dicetak: {{ now()->locale('id')->isoFormat('D MMMM Y, HH:mm') }} · SIMS SMA Negeri 1 Gianyar
+{{-- ── TANDA TANGAN FORMAL ────────────────────────────────────── --}}
+<table class="ttd-table">
+  <tr>
+    <td>
+      Mengetahui,<br>
+      <strong>Pembina Ekstrakurikuler</strong>
+      <div class="ttd-space"></div>
+      <u><strong>{{ $extracurricular->pembina_names }}</strong></u>
+    </td>
+    <td>
+      Gianyar, {{ now()->locale('id')->isoFormat('D MMMM Y') }}<br>
+      <strong>Kepala SMAN 1 Gianyar</strong>
+      <div class="ttd-space"></div>
+      <u><strong>Surya Natha, S.Pd., M.Pd.</strong></u><br>
+      <span>NIP. 19700101 199503 1 002</span>
+    </td>
+  </tr>
+</table>
+
+<div class="footer-note">
+  Dicetak otomatis melalui SIMS (Smart Information Management System) SMA Negeri 1 Gianyar pada {{ now()->locale('id')->isoFormat('D MMMM Y HH:mm') }} WITA.
 </div>
 
 </body>

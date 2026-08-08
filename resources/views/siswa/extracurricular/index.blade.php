@@ -142,9 +142,9 @@
                         @endif
                     </div>
 
-                    @if($ekstra->pembina)
+                    @if($ekstra->pembina_names !== '—')
                     <p class="text-xs text-gray-500 mt-0.5">
-                        <span class="text-gray-400">Pembina:</span> {{ $ekstra->pembina->name }}
+                        <span class="text-gray-400">Pembina:</span> {{ $ekstra->pembina_names }}
                     </p>
                     @endif
 

@@ -69,4 +69,35 @@ class GuruTeachingSessionTest extends TestCase
         $this->assertDatabaseHas('teacher_attendances', ['teacher_id' => $guruB->id, 'class_id' => $class->id, 'period' => 4]);
         $this->assertDatabaseHas('teacher_attendances', ['teacher_id' => $guruB->id, 'class_id' => $class->id, 'period' => 5]);
     }
+
+    public function test_guru_can_get_class_students_with_morning_attendance(): void
+    {
+        $guru = User::factory()->create(['role' => 'guru']);
+        $class = SchoolClass::create(['name' => 'X IPA 2', 'grade' => 10]);
+        $siswaA = User::factory()->create(['role' => 'siswa', 'class_id' => $class->id, 'name' => 'Siswa A']);
+        $siswaB = User::factory()->create(['role' => 'siswa', 'class_id' => $class->id, 'name' => 'Siswa B']);
+
+        // Siswa A sakit pada tanggal 2026-08-08
+        \App\Models\Attendance::create([
+            'user_id' => $siswaA->id,
+            'date'    => '2026-08-08',
+            'status'  => 'sakit',
+        ]);
+
+        $headers = ['X-Device-ID' => 'test-device-123'];
+        $this->actingAs($guru);
+        $response = $this->getJson('/api/v1/guru/teaching-sessions/class-students/' . $class->id . '?date=2026-08-08', $headers);
+
+        $response->assertStatus(200);
+        $response->assertJsonFragment([
+            'id'               => $siswaA->id,
+            'morning_status'   => 'sakit',
+            'suggested_status' => 'sakit',
+        ]);
+        $response->assertJsonFragment([
+            'id'               => $siswaB->id,
+            'morning_status'   => null,
+            'suggested_status' => 'hadir',
+        ]);
+    }
 }

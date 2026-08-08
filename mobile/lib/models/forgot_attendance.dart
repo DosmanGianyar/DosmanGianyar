@@ -3,6 +3,8 @@ import '../theme/app_colors.dart';
 
 class ForgotAttendance {
   final int     id;
+  final String  type;
+  final String  typeLabel;
   final String  date;
   final String  reason;
   final String  status;
@@ -12,6 +14,8 @@ class ForgotAttendance {
 
   const ForgotAttendance({
     required this.id,
+    required this.type,
+    required this.typeLabel,
     required this.date,
     required this.reason,
     required this.status,
@@ -22,6 +26,8 @@ class ForgotAttendance {
 
   factory ForgotAttendance.fromJson(Map<String, dynamic> json) => ForgotAttendance(
     id:          json['id']           as int,
+    type:        (json['type']        as String?) ?? 'masuk',
+    typeLabel:   (json['type_label']   as String?) ?? 'Lupa Absen Pagi (Datang)',
     date:        json['date']         as String,
     reason:      json['reason']       as String,
     status:      json['status']       as String,

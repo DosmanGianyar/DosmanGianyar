@@ -461,20 +461,45 @@ function onScanSuccess(decodedText) {
                 document.getElementById(prefix + '-scanned-name').textContent = student.name + ' (' + student.class_name + ')';
             }
             updateParentInfo(student.parent_name, student.parent_phone);
-
-            if (typeof triggerSwalToast === 'function') {
-                triggerSwalToast('success', 'Siswa Ditemukan: ' + student.name + ' (' + student.class_name + ')');
-            } else {
-                alert('Siswa Ditemukan: ' + student.name + ' (' + student.class_name + ')');
-            }
+            playScanSound('success');
         } else {
+            playScanSound('error');
             document.getElementById('scannerStatus').textContent = data.message || 'Siswa tidak ditemukan.';
         }
     })
     .catch(err => {
         console.error(err);
+        playScanSound('error');
         document.getElementById('scannerStatus').textContent = 'Gagal terhubung ke server.';
     });
+}
+
+function playScanSound(type = 'success') {
+    try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = new AudioCtx();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        if (type === 'success') {
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(880, ctx.currentTime);
+            gain.gain.setValueAtTime(0.15, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
+            osc.start();
+            osc.stop(ctx.currentTime + 0.2);
+        } else {
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(300, ctx.currentTime);
+            gain.gain.setValueAtTime(0.2, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+            osc.start();
+            osc.stop(ctx.currentTime + 0.4);
+        }
+    } catch(e) {}
 }
 
 function formatWaUrl(phone) {

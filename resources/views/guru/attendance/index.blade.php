@@ -99,9 +99,15 @@
             <div class="flex-1 min-w-0">
                 <p class="font-medium text-sm text-gray-800 truncate">{{ $student->name }}</p>
                 <div class="flex items-center gap-2 mt-0.5 flex-wrap">
+                    @if($att?->via_lupa_absen)
+                    <span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-300">
+                        Lupa Absen ({{ match($att->lupa_absen_type) { 'pulang' => 'Pulang', 'keduanya' => 'Datang & Pulang', default => 'Datang' } }})
+                    </span>
+                    @else
                     <span class="px-2 py-0.5 rounded-full text-xs font-semibold {{ $statusChip['bg'] }} {{ $statusChip['text'] }}">
                         {{ ucfirst($statusChip['label']) }}
                     </span>
+                    @endif
                     <span x-show="tab === 'masuk'" class="text-xs text-gray-400">{{ $checkInTime ?? '—' }}</span>
                     <span x-show="tab === 'pulang'" class="text-xs text-gray-400" style="display:none">{{ $checkOutTime ?? '—' }}</span>
                 </div>
@@ -231,9 +237,15 @@
                         </template>
                     </td>
                     <td class="px-4 py-3">
+                        @if($att?->via_lupa_absen)
+                        <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-300">
+                            Lupa Absen ({{ match($att->lupa_absen_type) { 'pulang' => 'Pulang', 'keduanya' => 'Datang & Pulang', default => 'Datang' } }})
+                        </span>
+                        @else
                         <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold {{ $statusChip['bg'] }} {{ $statusChip['text'] }}">
                             {{ ucfirst($statusChip['label']) }}
                         </span>
+                        @endif
                     </td>
                     <td class="px-4 py-3 text-right">
                         <div class="flex items-center justify-end gap-2">

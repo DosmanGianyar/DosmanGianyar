@@ -209,7 +209,7 @@ class GuruTeachingSessionController extends Controller
             'note'       => 'nullable|string|max:255',
             'attendances'=> 'required|array|min:1',
             'attendances.*.student_id' => 'required|exists:users,id',
-            'attendances.*.status'     => 'required|in:hadir,tidak_hadir,izin,sakit',
+            'attendances.*.status'     => 'required|in:hadir,tidak_hadir,izin,sakit,dispensasi,alpa',
         ]);
 
         $teacher = Auth::user();
@@ -329,8 +329,8 @@ class GuruTeachingSessionController extends Controller
         return response()->json($this->formatSession($session, withStudents: true));
     }
 
-    // GET /api/v1/guru/teaching-sessions/class-students/{classId}
-    public function classStudents(int $classId): JsonResponse
+    // GET /api/v1/guru/teaching-sessions/class-students/{classId}?date=
+    public function classStudents(Request $request, int $classId): JsonResponse
     {
         $teacher = Auth::user();
 
@@ -343,12 +343,42 @@ class GuruTeachingSessionController extends Controller
             return response()->json(['message' => 'Akses ditolak.'], 403);
         }
 
+        $date = $request->input('date', today()->toDateString());
+
         $students = User::where('role', 'siswa')
             ->where('class_id', $classId)
             ->orderBy('name')
             ->get(['id', 'name', 'nis']);
 
-        return response()->json($students);
+        $studentIds  = $students->pluck('id')->toArray();
+        $attendances = \App\Models\Attendance::whereIn('user_id', $studentIds)
+            ->whereDate('date', $date)
+            ->get()
+            ->keyBy('user_id');
+
+        $result = $students->map(function ($s) use ($attendances) {
+            $att = $attendances->get($s->id);
+            $morningStatus = $att?->status;
+
+            $suggestedStatus = match ($morningStatus) {
+                'sakit'      => 'sakit',
+                'izin'       => 'izin',
+                'dispensasi' => 'dispensasi',
+                'alpa'       => 'tidak_hadir',
+                default      => 'hadir',
+            };
+
+            return [
+                'id'                   => $s->id,
+                'name'                 => $s->name,
+                'nis'                  => $s->nis,
+                'morning_status'       => $morningStatus,
+                'morning_status_label' => $morningStatus ? ucfirst($morningStatus) : 'Belum Absen Pagi',
+                'suggested_status'     => $suggestedStatus,
+            ];
+        });
+
+        return response()->json($result);
     }
 
     // GET /api/v1/guru/teaching-sessions/export?class_id=&month=&year=

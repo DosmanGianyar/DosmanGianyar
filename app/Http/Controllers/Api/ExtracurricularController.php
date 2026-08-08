@@ -23,7 +23,7 @@ class ExtracurricularController extends Controller
         /** @var \App\Models\User $user */
         $user    = $request->user();
         $extras  = Extracurricular::active()
-            ->with('pembina:id,name')
+            ->with(['pembina:id,name', 'teachers:id,name'])
             ->withCount('activeMembers')
             ->orderBy('name')
             ->get();
@@ -40,7 +40,7 @@ class ExtracurricularController extends Controller
                 'name'                => $e->name,
                 'description'         => $e->description,
                 'logo_url'            => $e->logo ? Storage::disk('public')->url($e->logo) : null,
-                'pembina_name'        => $e->pembina?->name,
+                'pembina_name'        => $e->pembina_names,
                 'active_members'      => $e->active_members_count,
                 'max_members'         => $e->max_members,
                 'is_full'             => $e->isFull(),
@@ -58,7 +58,7 @@ class ExtracurricularController extends Controller
         /** @var \App\Models\User $user */
         $user = $request->user();
 
-        $members = ExtracurricularMember::with('extracurricular.pembina:id,name')
+        $members = ExtracurricularMember::with(['extracurricular.pembina:id,name', 'extracurricular.teachers:id,name'])
             ->where('user_id', $user->id)
             ->get();
 
@@ -68,7 +68,7 @@ class ExtracurricularController extends Controller
                 'name'           => $m->extracurricular->name,
                 'description'    => $m->extracurricular->description,
                 'logo_url'       => $m->extracurricular->logo ? Storage::disk('public')->url($m->extracurricular->logo) : null,
-                'pembina_name'   => $m->extracurricular->pembina?->name,
+                'pembina_name'   => $m->extracurricular?->pembina_names,
                 'my_role'        => $m->role,
                 'my_status'      => $m->status,
                 'role_label'     => $m->roleLabel(),
@@ -314,7 +314,7 @@ class ExtracurricularController extends Controller
             ->where('status', 'active')
             ->exists();
 
-        $isPembina = $extra->pembina_id === $user->id;
+        $isPembina = $extra->isTeacherPembina($user->id);
         $isAdmin   = $user->role === 'admin';
 
         if (!$isKetua && !$isPembina && !$isAdmin) {

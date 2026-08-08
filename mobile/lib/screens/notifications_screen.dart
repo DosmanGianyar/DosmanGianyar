@@ -4,6 +4,7 @@ import '../models/notification_item.dart';
 import '../providers/notification_provider.dart';
 import '../widgets/image_viewer_dialog.dart';
 import '../theme/app_colors.dart';
+import '../services/api_client.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -32,12 +33,41 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         foregroundColor: Colors.white,
         elevation: 0,
         actions: [
+          IconButton(
+            tooltip: 'Uji Coba Notifikasi',
+            icon: const Icon(Icons.notifications_active_rounded, size: 20),
+            onPressed: () async {
+              try {
+                final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
+                final NotificationProvider provider = context.read<NotificationProvider>();
+                await ApiClient.post('/fcm-token/test');
+                await provider.fetchAll();
+                messenger.showSnackBar(
+                  const SnackBar(
+                    content: Text('⚡ Notifikasi uji coba dikirim! Silakan periksa notifikasi.'),
+                    backgroundColor: AppColors.blue600,
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+              } catch (e) {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Gagal mengirim notifikasi: ${ApiClient.extractError(e)}'),
+                      backgroundColor: AppColors.red500,
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                }
+              }
+            },
+          ),
           Consumer<NotificationProvider>(
             builder: (_, prov, __) {
               if (prov.unreadCount == 0) return const SizedBox.shrink();
               return TextButton(
                 onPressed: () => prov.markAllRead(),
-                child: const Text('Tandai Semua Dibaca',
+                child: const Text('Tandai Dibaca',
                   style: TextStyle(color: AppColors.blue200, fontSize: 12)),
               );
             },

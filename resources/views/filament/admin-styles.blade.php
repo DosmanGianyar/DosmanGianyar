@@ -144,12 +144,30 @@
     border: 1px solid rgba(255, 255, 255, 0.07) !important;
     border-radius: 1rem !important;
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3) !important;
-    overflow: hidden;
+    overflow: visible !important;
+    min-height: 380px !important;
 }
 
 .fi-ta-header-ctn {
     background: #0f1d33 !important;
     border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+    border-top-left-radius: 1rem !important;
+    border-top-right-radius: 1rem !important;
+    overflow: visible !important;
+}
+
+.fi-ta-content-ctn,
+.fi-ta-content {
+    border-bottom-left-radius: 1rem !important;
+    border-bottom-right-radius: 1rem !important;
+    overflow-x: auto !important;
+}
+
+.fi-dropdown-panel,
+.fi-popover,
+.fi-ta-filters-dropdown,
+[data-filament-dropdown-panel] {
+    z-index: 99 !important;
 }
 
 /* ─── Section / Form Panels ──────────────────────────────────── */

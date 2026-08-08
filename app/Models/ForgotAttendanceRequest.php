@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class ForgotAttendanceRequest extends Model
 {
     protected $fillable = [
-        'student_id', 'date', 'reason', 'status',
+        'student_id', 'type', 'date', 'reason', 'status',
         'reviewed_by', 'reviewed_at', 'teacher_note',
     ];
 
@@ -30,6 +30,24 @@ class ForgotAttendanceRequest extends Model
     public function isPending(): bool  { return $this->status === 'pending'; }
     public function isApproved(): bool { return $this->status === 'approved'; }
     public function isRejected(): bool { return $this->status === 'rejected'; }
+
+    public function typeLabel(): string
+    {
+        return match($this->type) {
+            'pulang'   => 'Lupa Absen Pulang',
+            'keduanya' => 'Lupa Absen Datang & Pulang',
+            default    => 'Lupa Absen Datang',
+        };
+    }
+
+    public function typeBadgeClass(): string
+    {
+        return match($this->type) {
+            'pulang'   => 'bg-amber-100 text-amber-800 border-amber-200',
+            'keduanya' => 'bg-purple-100 text-purple-800 border-purple-200',
+            default    => 'bg-blue-100 text-blue-800 border-blue-200',
+        };
+    }
 
     public function statusLabel(): string
     {

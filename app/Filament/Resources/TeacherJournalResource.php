@@ -8,6 +8,11 @@ use App\Models\TeacherJournal;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
@@ -29,7 +34,52 @@ class TeacherJournalResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        return $schema->components([]);
+        return $schema->components([
+            Select::make('class_id')
+                ->label('Kelas')
+                ->relationship('schoolClass', 'name')
+                ->required(),
+
+            Select::make('subject_id')
+                ->label('Mata Pelajaran')
+                ->relationship('subject', 'name')
+                ->nullable(),
+
+            Select::make('tp_id')
+                ->label('Tujuan Pembelajaran (TP)')
+                ->relationship('tp', 'description')
+                ->getOptionLabelFromRecordUsing(fn ($record) => ($record->code ? "[{$record->code}] " : '') . $record->description)
+                ->nullable(),
+
+            DatePicker::make('date')
+                ->label('Tanggal')
+                ->required(),
+
+            TextInput::make('period')
+                ->label('Jam Ke-')
+                ->numeric()
+                ->nullable(),
+
+            TextInput::make('period_end')
+                ->label('Jam Sampai')
+                ->numeric()
+                ->nullable(),
+
+            Textarea::make('material')
+                ->label('Materi')
+                ->required()
+                ->rows(3),
+
+            Textarea::make('activity')
+                ->label('Aktivitas Pembelajaran')
+                ->required()
+                ->rows(3),
+
+            Textarea::make('notes')
+                ->label('Catatan Tambahan')
+                ->nullable()
+                ->rows(2),
+        ]);
     }
 
     public static function table(Table $table): Table
@@ -109,6 +159,7 @@ class TeacherJournalResource extends Resource
                     ->relationship('schoolClass', 'name'),
             ])
             ->recordActions([
+                EditAction::make()->iconButton(),
                 DeleteAction::make()->iconButton(),
             ])
             ->toolbarActions([

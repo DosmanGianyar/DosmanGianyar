@@ -48,9 +48,14 @@
                 <p class="font-semibold text-gray-800 text-sm">{{ $req->student->name }}</p>
                 <p class="text-xs text-gray-400">NIS: {{ $req->student->nis ?? '—' }}</p>
             </div>
-            <span class="text-[11px] font-semibold px-2.5 py-1 rounded-full shrink-0 {{ $req->statusBadgeClass() }}">
-                {{ $req->statusLabel() }}
-            </span>
+            <div class="flex items-center gap-1.5 shrink-0">
+                <span class="text-[11px] font-semibold px-2.5 py-1 rounded-full border {{ $req->typeBadgeClass() }}">
+                    {{ $req->typeLabel() }}
+                </span>
+                <span class="text-[11px] font-semibold px-2.5 py-1 rounded-full {{ $req->statusBadgeClass() }}">
+                    {{ $req->statusLabel() }}
+                </span>
+            </div>
         </div>
 
         {{-- Detail pengajuan --}}

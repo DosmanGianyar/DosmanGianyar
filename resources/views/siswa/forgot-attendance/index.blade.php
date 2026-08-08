@@ -51,6 +51,11 @@
 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
     <div class="flex items-start justify-between gap-2 mb-2">
         <div>
+            <div class="flex items-center gap-2 mb-1">
+                <span class="text-[10px] font-semibold px-2 py-0.5 rounded-md border {{ $req->typeBadgeClass() }}">
+                    {{ $req->typeLabel() }}
+                </span>
+            </div>
             <p class="text-sm font-semibold text-gray-800">
                 {{ $req->date->isoFormat('dddd, D MMMM Y') }}
             </p>

@@ -42,7 +42,7 @@
 .ad-stat-value.sakit      { color: rgb(192,132,252); }
 .ad-stat-value.alpa       { color: rgb(248,113,113); }
 .ad-stat-value.dispensasi { color: rgb(45,212,191); }
-.ad-table-wrap { background: #0f1d33; border: 1px solid rgba(255,255,255,0.07); border-radius: 1rem; overflow: auto; box-shadow: 0 4px 24px rgba(0,0,0,0.3); }
+.ad-table-wrap { background: #0f1d33; border: 1px solid rgba(255,255,255,0.07); border-radius: 1rem; overflow: auto; box-shadow: 0 4px 24px rgba(0,0,0,0.3); min-height: 380px; }
 .ad-table { width: 100%; border-collapse: collapse; font-size: 0.8125rem; min-width: 500px; }
 .ad-table thead tr { border-bottom: 1px solid rgba(255,255,255,0.08); }
 .ad-table th { padding: 0.7rem 1rem; text-align: left; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: rgba(255,255,255,0.35); white-space: nowrap; }
@@ -59,6 +59,7 @@
     font-size: 0.78rem; font-weight: 700; letter-spacing: 0.01em;
 }
 .ad-badge.hadir      { background: rgba(34,197,94,0.15);  color: rgb(74,222,128); }
+.ad-badge.lupa-absen  { background: rgba(245,158,11,0.22); color: rgb(251,191,36); border: 1px solid rgba(245,158,11,0.4); }
 .ad-badge.terlambat  { background: rgba(234,179,8,0.15);  color: rgb(250,204,21); }
 .ad-badge.izin       { background: rgba(59,130,246,0.15); color: rgb(96,165,250); }
 .ad-badge.sakit      { background: rgba(168,85,247,0.15); color: rgb(192,132,252); }
@@ -202,9 +203,22 @@
             @foreach ($rows as $i => $row)
             <tr>
                 <td style="color:rgba(255,255,255,0.2);font-size:0.72rem;text-align:right">{{ $i + 1 }}</td>
-                <td class="name">{{ $row['name'] }}</td>
+                <td class="name">
+                    <button type="button" wire:click="openStudentDetail({{ $row['student_id'] }})"
+                        class="hover:underline text-amber-300 font-semibold cursor-pointer text-left transition-colors">
+                        {{ $row['name'] }}
+                    </button>
+                </td>
                 <td class="nis">{{ $row['nis'] }}</td>
-                <td><span class="ad-badge {{ $row['status'] }}">{{ $statusLabel[$row['status']] ?? ucfirst($row['status']) }}</span></td>
+                <td>
+                    @if(!empty($row['via_lupa_absen']))
+                        <span class="ad-badge lupa-absen" title="Disetujui via Pengajuan Lupa Absen">
+                            Lupa Absen ({{ match($row['lupa_absen_type']) { 'pulang' => 'Pulang', 'keduanya' => 'Datang & Pulang', default => 'Datang' } }})
+                        </span>
+                    @else
+                        <span class="ad-badge {{ $row['status'] }}">{{ $statusLabel[$row['status']] ?? ucfirst($row['status']) }}</span>
+                    @endif
+                </td>
                 <td class="time">
                     <span x-show="tab === 'masuk'">{{ $row['check_in'] ?? '—' }}</span>
                     <span x-show="tab === 'pulang'" style="display:none">{{ $row['check_out'] ?? '—' }}</span>
@@ -274,12 +288,143 @@
 {{-- Legend --}}
 <div class="ad-legend">
     <span><span class="ad-badge hadir">Hadir</span></span>
+    <span><span class="ad-badge lupa-absen">Lupa Absen</span></span>
     <span><span class="ad-badge terlambat">Terlambat</span></span>
     <span><span class="ad-badge izin">Izin</span></span>
     <span><span class="ad-badge sakit">Sakit</span></span>
     <span><span class="ad-badge alpa">Alpa</span></span>
     <span><span class="ad-badge dispensasi">Dispensasi</span></span>
-    <span style="margin-left:auto;opacity:0.5;font-size:0.72rem">Alpa = belum scan / ajuan belum disetujui</span>
+    <span style="margin-left:auto;opacity:0.5;font-size:0.72rem">*Klik nama siswa untuk melihat rincian tanggal alpa/izin/sakit</span>
+</div>
+@endif
+
+{{-- Student Detail Modal --}}
+@if($showDetailModal && $studentDetailData)
+<div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs" x-data="{ filter: 'all' }">
+    <div class="bg-[#0f1d33] border border-white/10 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
+        {{-- Header --}}
+        <div class="p-5 border-b border-white/10 flex items-start justify-between bg-[#0d1628]">
+            <div>
+                <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                    <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                    </svg>
+                    {{ $studentDetailData['student']['name'] }}
+                </h3>
+                <p class="text-xs text-white/50 mt-1">
+                    NIS: {{ $studentDetailData['student']['nis'] }} • Kelas: {{ $studentDetailData['student']['class_name'] }} • Periode {{ $studentDetailData['month_name'] }}
+                </p>
+            </div>
+            <button type="button" wire:click="closeStudentDetail" class="text-white/60 hover:text-white transition-colors p-1">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+
+        {{-- Summary Cards --}}
+        <div class="p-4 bg-[#0b1220] border-b border-white/5 grid grid-cols-6 gap-2 text-center">
+            <div class="bg-white/5 p-2 rounded-xl border border-white/5">
+                <p class="text-[10px] font-bold text-green-400 uppercase">Hadir</p>
+                <p class="text-base font-extrabold text-white mt-0.5">{{ $studentDetailData['counts']['hadir'] }}</p>
+            </div>
+            <div class="bg-white/5 p-2 rounded-xl border border-white/5">
+                <p class="text-[10px] font-bold text-yellow-400 uppercase">Terlambat</p>
+                <p class="text-base font-extrabold text-white mt-0.5">{{ $studentDetailData['counts']['terlambat'] }}</p>
+            </div>
+            <div class="bg-white/5 p-2 rounded-xl border border-white/5">
+                <p class="text-[10px] font-bold text-blue-400 uppercase">Izin</p>
+                <p class="text-base font-extrabold text-white mt-0.5">{{ $studentDetailData['counts']['izin'] }}</p>
+            </div>
+            <div class="bg-white/5 p-2 rounded-xl border border-white/5">
+                <p class="text-[10px] font-bold text-purple-400 uppercase">Sakit</p>
+                <p class="text-base font-extrabold text-white mt-0.5">{{ $studentDetailData['counts']['sakit'] }}</p>
+            </div>
+            <div class="bg-white/5 p-2 rounded-xl border border-white/5">
+                <p class="text-[10px] font-bold text-teal-400 uppercase">Dispensasi</p>
+                <p class="text-base font-extrabold text-white mt-0.5">{{ $studentDetailData['counts']['dispensasi'] }}</p>
+            </div>
+            <div class="bg-white/5 p-2 rounded-xl border border-white/5">
+                <p class="text-[10px] font-bold text-red-400 uppercase">Alpa</p>
+                <p class="text-base font-extrabold text-white mt-0.5">{{ $studentDetailData['counts']['alpa'] }}</p>
+            </div>
+        </div>
+
+        {{-- Filter Tabs --}}
+        <div class="px-5 pt-3 flex gap-2 border-b border-white/5">
+            <button type="button" @click="filter = 'all'" :class="filter === 'all' ? 'border-amber-400 text-amber-300 font-bold' : 'border-transparent text-white/50'" class="pb-2 text-xs border-b-2 transition-colors">
+                Semua Hari ({{ count($studentDetailData['logs']) }})
+            </button>
+            <button type="button" @click="filter = 'alpa'" :class="filter === 'alpa' ? 'border-red-400 text-red-300 font-bold' : 'border-transparent text-white/50'" class="pb-2 text-xs border-b-2 transition-colors">
+                🔴 Alpa ({{ $studentDetailData['counts']['alpa'] }})
+            </button>
+            <button type="button" @click="filter = 'izin_sakit'" :class="filter === 'izin_sakit' ? 'border-blue-400 text-blue-300 font-bold' : 'border-transparent text-white/50'" class="pb-2 text-xs border-b-2 transition-colors">
+                🔵 Izin / Sakit / Disp ({{ $studentDetailData['counts']['izin'] + $studentDetailData['counts']['sakit'] + $studentDetailData['counts']['dispensasi'] }})
+            </button>
+            <button type="button" @click="filter = 'terlambat'" :class="filter === 'terlambat' ? 'border-yellow-400 text-yellow-300 font-bold' : 'border-transparent text-white/50'" class="pb-2 text-xs border-b-2 transition-colors">
+                🟡 Terlambat ({{ $studentDetailData['counts']['terlambat'] }})
+            </button>
+        </div>
+
+        {{-- Timeline Log Table --}}
+        <div class="p-5 overflow-y-auto flex-1 space-y-2">
+            @forelse($studentDetailData['logs'] as $log)
+                <div x-show="filter === 'all' || (filter === 'alpa' && '{{ $log['status'] }}' === 'alpa') || (filter === 'izin_sakit' && ['izin','sakit','dispensasi'].includes('{{ $log['status'] }}')) || (filter === 'terlambat' && '{{ $log['status'] }}' === 'terlambat')"
+                    class="p-3 rounded-xl border border-white/5 bg-white/5 flex items-center justify-between gap-3 text-xs">
+                    <div class="flex items-center gap-3">
+                        <span class="w-2.5 h-2.5 rounded-full shrink-0
+                            {{ match($log['status']) {
+                                'hadir' => 'bg-green-400',
+                                'terlambat' => 'bg-yellow-400',
+                                'izin' => 'bg-blue-400',
+                                'sakit' => 'bg-purple-400',
+                                'dispensasi' => 'bg-teal-400',
+                                'alpa' => 'bg-red-500',
+                                default => 'bg-gray-500'
+                            } }}"></span>
+                        <div>
+                            <p class="font-bold text-white">{{ $log['date_formatted'] }}</p>
+                            @if($log['reason'])
+                                <p class="text-[11px] text-white/60 mt-0.5">{{ $log['reason'] }}</p>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 text-right shrink-0">
+                        @if($log['via_lupa_absen'])
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                                Lupa Absen
+                            </span>
+                        @else
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold
+                                {{ match($log['status']) {
+                                    'hadir' => 'bg-green-500/20 text-green-300',
+                                    'terlambat' => 'bg-yellow-500/20 text-yellow-300',
+                                    'izin' => 'bg-blue-500/20 text-blue-300',
+                                    'sakit' => 'bg-purple-500/20 text-purple-300',
+                                    'dispensasi' => 'bg-teal-500/20 text-teal-300',
+                                    'alpa' => 'bg-red-500/20 text-red-300',
+                                    default => 'bg-gray-500/20 text-gray-300'
+                                } }}">
+                                {{ ucfirst($log['status']) }}
+                            </span>
+                        @endif
+                        <span class="font-mono text-[11px] text-white/50">
+                            {{ $log['check_in'] ?? '—' }} / {{ $log['check_out'] ?? '—' }}
+                        </span>
+                    </div>
+                </div>
+            @empty
+                <p class="text-center text-xs text-white/40 py-6">Tidak ada catatan presensi untuk filter ini.</p>
+            @endforelse
+        </div>
+
+        {{-- Footer --}}
+        <div class="p-3 border-t border-white/10 bg-[#0d1628] text-right">
+            <button type="button" wire:click="closeStudentDetail" class="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-semibold transition-colors">
+                Tutup
+            </button>
+        </div>
+    </div>
 </div>
 @endif
 

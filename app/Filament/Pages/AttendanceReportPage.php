@@ -25,10 +25,28 @@ class AttendanceReportPage extends Page
     public int $month;
     public int $year;
 
+    public bool $showDetailModal = false;
+    public ?int $selectedStudentId = null;
+    public ?array $studentDetailData = null;
+
     public function mount(): void
     {
         $this->month = (int) now()->month;
         $this->year  = (int) now()->year;
+    }
+
+    public function openStudentDetail(int $studentId): void
+    {
+        $this->selectedStudentId = $studentId;
+        $this->studentDetailData = \App\Services\StudentAttendanceDetailService::getDetail($studentId, $this->month, $this->year);
+        $this->showDetailModal   = true;
+    }
+
+    public function closeStudentDetail(): void
+    {
+        $this->showDetailModal   = false;
+        $this->selectedStudentId = null;
+        $this->studentDetailData = null;
     }
 
     public function getClasses(): \Illuminate\Support\Collection
@@ -101,6 +119,7 @@ class AttendanceReportPage extends Page
             $pct     = $workingDays > 0 ? round($present / $workingDays * 100, 1) : 0;
 
             $rows[] = [
+                'id'         => $student->id,
                 'name'       => $student->name,
                 'nis'        => $student->nis ?? '—',
                 'class'      => $student->schoolClass?->name ?? '—',

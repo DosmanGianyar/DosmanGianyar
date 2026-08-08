@@ -47,6 +47,42 @@
             @enderror
         </div>
 
+        {{-- Jenis Lupa Absen --}}
+        <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1.5">
+                Jenis Lupa Absen <span class="text-red-500">*</span>
+            </label>
+            <div class="grid grid-cols-1 gap-2">
+                <label class="flex items-center gap-2.5 p-3 rounded-xl border border-gray-200 cursor-pointer hover:border-amber-400 transition-colors">
+                    <input type="radio" name="type" value="masuk" {{ old('type', 'masuk') === 'masuk' ? 'checked' : '' }}
+                        class="w-4 h-4 text-amber-600 focus:ring-amber-500">
+                    <div>
+                        <p class="text-xs font-bold text-gray-800">🟢 Lupa Absen Pagi (Datang)</p>
+                        <p class="text-[11px] text-gray-500">Tidak sempat scan pada jam masuk pagi</p>
+                    </div>
+                </label>
+                <label class="flex items-center gap-2.5 p-3 rounded-xl border border-gray-200 cursor-pointer hover:border-amber-400 transition-colors">
+                    <input type="radio" name="type" value="pulang" {{ old('type') === 'pulang' ? 'checked' : '' }}
+                        class="w-4 h-4 text-amber-600 focus:ring-amber-500">
+                    <div>
+                        <p class="text-xs font-bold text-gray-800">🟠 Lupa Absen Sore (Pulang)</p>
+                        <p class="text-[11px] text-gray-500">Sudah absen datang pagi, tetapi tidak sempat scan pulang sore</p>
+                    </div>
+                </label>
+                <label class="flex items-center gap-2.5 p-3 rounded-xl border border-gray-200 cursor-pointer hover:border-amber-400 transition-colors">
+                    <input type="radio" name="type" value="keduanya" {{ old('type') === 'keduanya' ? 'checked' : '' }}
+                        class="w-4 h-4 text-amber-600 focus:ring-amber-500">
+                    <div>
+                        <p class="text-xs font-bold text-gray-800">🟣 Lupa Absen Pagi & Sore</p>
+                        <p class="text-[11px] text-gray-500">Lupa scan pada jam datang pagi dan jam pulang sore</p>
+                    </div>
+                </label>
+            </div>
+            @error('type')
+            <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
+            @enderror
+        </div>
+
         {{-- Alasan --}}
         <div>
             <label class="block text-xs font-semibold text-gray-600 mb-1.5">

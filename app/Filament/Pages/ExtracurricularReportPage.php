@@ -99,6 +99,18 @@ class ExtracurricularReportPage extends Page implements HasTable
                         }
                     }),
 
+                SelectFilter::make('grade')
+                    ->label('Filter Per Angkatan')
+                    ->options([
+                        'X'   => 'Angkatan / Kelas X',
+                        'XI'  => 'Angkatan / Kelas XI',
+                        'XII' => 'Angkatan / Kelas XII',
+                    ])
+                    ->query(fn (Builder $query, array $data): Builder => filled($data['value'] ?? null)
+                        ? $query->whereHas('schoolClass', fn ($q) => $q->where('grade', $data['value']))
+                        : $query
+                    ),
+
                 SelectFilter::make('class_id')
                     ->label('Kelas')
                     ->relationship('schoolClass', 'name')
@@ -116,9 +128,24 @@ class ExtracurricularReportPage extends Page implements HasTable
                             ->options(Extracurricular::orderBy('name')->pluck('name', 'id'))
                             ->searchable()
                             ->required(),
+                        \Filament\Forms\Components\Select::make('grade')
+                            ->label('Angkatan (Opsional)')
+                            ->options([
+                                'X'   => 'Angkatan X',
+                                'XI'  => 'Angkatan XI',
+                                'XII' => 'Angkatan XII',
+                            ]),
+                        \Filament\Forms\Components\Select::make('class_id')
+                            ->label('Kelas (Opsional)')
+                            ->options(SchoolClass::orderBy('name')->pluck('name', 'id'))
+                            ->searchable(),
                     ])
                     ->action(function (array $data) {
-                        $url = route('admin.extracurricular.members.pdf', $data['extracurricular_id']);
+                        $params = array_filter([
+                            'grade'    => $data['grade'] ?? null,
+                            'class_id' => $data['class_id'] ?? null,
+                        ]);
+                        $url = route('admin.extracurricular.members.pdf', array_merge([$data['extracurricular_id']], $params));
                         return redirect()->away($url);
                     }),
 
@@ -129,12 +156,14 @@ class ExtracurricularReportPage extends Page implements HasTable
                     ->url(function () {
                         $filters = $this->tableFilters ?? [];
                         $classId = $filters['class_id']['value'] ?? null;
+                        $grade   = $filters['grade']['value'] ?? null;
                         $className = null;
                         if ($classId) {
                             $className = SchoolClass::find($classId)?->name;
                         }
                         return route('admin.extracurricular.no-ekstra.pdf', array_filter([
                             'class_id'   => $classId,
+                            'grade'      => $grade,
                             'class_name' => $className,
                         ]));
                     })

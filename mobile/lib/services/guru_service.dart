@@ -247,8 +247,11 @@ class GuruService {
     return TeachingSession.fromJson(body);
   }
 
-  static Future<List<SimpleStudent>> getSessionClassStudents(int classId) async {
-    final body = await ApiClient.getList('/guru/teaching-sessions/class-students/$classId');
+  static Future<List<SimpleStudent>> getSessionClassStudents(int classId, {String? date}) async {
+    final body = await ApiClient.getList(
+      '/guru/teaching-sessions/class-students/$classId',
+      params: {if (date != null) 'date': date},
+    );
     return body.map((e) => SimpleStudent.fromJson(e as Map<String, dynamic>)).toList();
   }
 

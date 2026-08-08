@@ -11,16 +11,18 @@ class Attendance extends Model
     protected $fillable = [
         'user_id', 'date', 'check_in_time', 'check_out_time',
         'latitude', 'longitude', 'photo', 'check_out_photo',
-        'status', 'device_info', 'is_fake_gps',
+        'status', 'via_lupa_absen', 'lupa_absen_type',
+        'device_info', 'is_fake_gps',
     ];
 
     protected function casts(): array
     {
         return [
-            'date'         => 'date',
-            'is_fake_gps'  => 'boolean',
-            'latitude'     => 'decimal:7',
-            'longitude'    => 'decimal:7',
+            'date'           => 'date',
+            'is_fake_gps'    => 'boolean',
+            'via_lupa_absen' => 'boolean',
+            'latitude'       => 'decimal:7',
+            'longitude'      => 'decimal:7',
         ];
     }
 

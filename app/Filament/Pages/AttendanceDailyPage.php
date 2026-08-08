@@ -27,9 +27,28 @@ class AttendanceDailyPage extends Page
     public ?int    $classId = null;
     public string  $date;
 
+    public bool $showDetailModal = false;
+    public ?int $selectedStudentId = null;
+    public ?array $studentDetailData = null;
+
     public function mount(): void
     {
         $this->date = now()->toDateString();
+    }
+
+    public function openStudentDetail(int $studentId): void
+    {
+        $d = \Carbon\Carbon::parse($this->date);
+        $this->selectedStudentId = $studentId;
+        $this->studentDetailData = \App\Services\StudentAttendanceDetailService::getDetail($studentId, $d->month, $d->year);
+        $this->showDetailModal   = true;
+    }
+
+    public function closeStudentDetail(): void
+    {
+        $this->showDetailModal   = false;
+        $this->selectedStudentId = null;
+        $this->studentDetailData = null;
     }
 
     public function getClasses(): \Illuminate\Support\Collection
@@ -98,14 +117,17 @@ class AttendanceDailyPage extends Page
             }
 
             $rows[] = [
-                'attendance_id' => $att?->id,
-                'name'          => $student->name,
-                'nis'           => $student->nis ?? '—',
-                'status'        => $status,
-                'check_in'      => $checkIn,
-                'check_out'     => $checkOut,
-                'photo_in_url'  => $att?->photo_url,
-                'photo_out_url' => $att?->check_out_photo_url,
+                'attendance_id'   => $att?->id,
+                'student_id'      => $student->id,
+                'name'            => $student->name,
+                'nis'             => $student->nis ?? '—',
+                'status'          => $status,
+                'via_lupa_absen'  => (bool) $att?->via_lupa_absen,
+                'lupa_absen_type' => $att?->lupa_absen_type,
+                'check_in'        => $checkIn,
+                'check_out'       => $checkOut,
+                'photo_in_url'    => $att?->photo_url,
+                'photo_out_url'   => $att?->check_out_photo_url,
             ];
         }
 

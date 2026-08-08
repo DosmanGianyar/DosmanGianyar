@@ -49,7 +49,13 @@
                                     👨‍🏫 {{ $teacher->name }}
                                 </span>
                             @empty
-                                <span class="text-xs text-gray-400 italic">Belum ada pembina</span>
+                                @if($extra->pembina)
+                                    <span class="inline-block px-2.5 py-1 bg-indigo-50 text-indigo-700 font-semibold rounded-lg text-xs mr-1 mb-1 border border-indigo-100">
+                                        👨‍🏫 {{ $extra->pembina->name }}
+                                    </span>
+                                @else
+                                    <span class="text-xs text-gray-400 italic">Belum ada pembina</span>
+                                @endif
                             @endforelse
                         </td>
                         <td class="p-3.5 space-y-1">

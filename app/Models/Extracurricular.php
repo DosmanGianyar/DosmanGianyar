@@ -32,6 +32,20 @@ class Extracurricular extends Model
         return $this->belongsTo(User::class, 'pembina_id');
     }
 
+    public function getPembinaNamesAttribute(): string
+    {
+        $names = $this->teachers->pluck('name');
+        if ($names->isEmpty() && $this->pembina) {
+            $names = collect([$this->pembina->name]);
+        }
+        return $names->isNotEmpty() ? $names->join(', ') : '—';
+    }
+
+    public function isTeacherPembina(int $teacherId): bool
+    {
+        return $this->pembina_id === $teacherId || $this->teachers->contains('id', $teacherId);
+    }
+
     public function members(): HasMany
     {
         return $this->hasMany(ExtracurricularMember::class, 'extracurricular_id');

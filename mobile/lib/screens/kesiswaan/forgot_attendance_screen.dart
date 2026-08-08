@@ -134,6 +134,7 @@ class _CreateSheet extends StatefulWidget {
 
 class _CreateSheetState extends State<_CreateSheet> {
   DateTime?       _date;
+  String          _type = 'masuk';
   final _reasonCtrl = TextEditingController();
   bool _isSaving    = false;
 
@@ -158,6 +159,7 @@ class _CreateSheetState extends State<_CreateSheet> {
     setState(() => _isSaving = true);
     try {
       await ApiClient.post('/forgot-attendance', data: {
+        'type':   _type,
         'date':   '${_date!.year}-${_date!.month.toString().padLeft(2,'0')}-${_date!.day.toString().padLeft(2,'0')}',
         'reason': _reasonCtrl.text.trim(),
       });
@@ -186,70 +188,86 @@ class _CreateSheetState extends State<_CreateSheet> {
         borderRadius: BorderRadius.all(Radius.circular(20)),
       ),
       padding: EdgeInsets.fromLTRB(20, 20, 20, 20 + bottom + safeBot),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Center(child: Container(
-            width: 40, height: 4,
-            decoration: BoxDecoration(color: AppColors.gray200, borderRadius: BorderRadius.circular(2)),
-          )),
-          const SizedBox(height: 16),
-          const Text('Ajukan Lupa Absen',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.gray800)),
-          const SizedBox(height: 4),
-          const Text('Berlaku untuk 30 hari ke belakang. Perlu persetujuan wali kelas.',
-            style: TextStyle(fontSize: 11, color: AppColors.gray400)),
-          const SizedBox(height: 16),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Center(child: Container(
+              width: 40, height: 4,
+              decoration: BoxDecoration(color: AppColors.gray200, borderRadius: BorderRadius.circular(2)),
+            )),
+            const SizedBox(height: 16),
+            const Text('Ajukan Lupa Absen',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.gray800)),
+            const SizedBox(height: 4),
+            const Text('Berlaku untuk 30 hari ke belakang. Perlu persetujuan wali kelas.',
+              style: TextStyle(fontSize: 11, color: AppColors.gray400)),
+            const SizedBox(height: 16),
 
-          // Date picker
-          const Text('Tanggal Tidak Absen',
-            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppColors.gray600)),
-          const SizedBox(height: 6),
-          GestureDetector(
-            onTap: _pickDate,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 13),
-              decoration: BoxDecoration(
-                color: AppColors.gray50,
-                borderRadius: AppRadius.input,
-                border: Border.all(color: AppColors.gray200),
-              ),
-              child: Row(children: [
-                const Icon(Icons.calendar_today_rounded, size: 16, color: AppColors.amber500),
-                const SizedBox(width: 8),
-                Text(
-                  _date != null ? _fmtDate(_date!) : 'Pilih tanggal...',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: _date != null ? AppColors.gray700 : AppColors.gray400,
-                  ),
+            // Jenis Lupa Absen
+            const Text('Jenis Lupa Absen',
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppColors.gray600)),
+            const SizedBox(height: 6),
+            Column(
+              children: [
+                _buildTypeTile('masuk', '🟢 Lupa Absen Pagi (Datang)', 'Lupa scan pada jam masuk pagi'),
+                const SizedBox(height: 6),
+                _buildTypeTile('pulang', '🟠 Lupa Absen Sore (Pulang)', 'Lupa scan pada jam pulang sore'),
+                const SizedBox(height: 6),
+                _buildTypeTile('keduanya', '🟣 Lupa Absen Pagi & Sore', 'Lupa scan pada jam pagi dan sore'),
+              ],
+            ),
+            const SizedBox(height: 14),
+
+            // Date picker
+            const Text('Tanggal Tidak Absen',
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppColors.gray600)),
+            const SizedBox(height: 6),
+            GestureDetector(
+              onTap: _pickDate,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 13),
+                decoration: BoxDecoration(
+                  color: AppColors.gray50,
+                  borderRadius: AppRadius.input,
+                  border: Border.all(color: AppColors.gray200),
                 ),
-              ]),
+                child: Row(children: [
+                  const Icon(Icons.calendar_today_rounded, size: 16, color: AppColors.amber500),
+                  const SizedBox(width: 8),
+                  Text(
+                    _date != null ? _fmtDate(_date!) : 'Pilih tanggal...',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: _date != null ? AppColors.gray700 : AppColors.gray400,
+                    ),
+                  ),
+                ]),
+              ),
             ),
-          ),
-          const SizedBox(height: 14),
+            const SizedBox(height: 14),
 
-          // Reason
-          const Text('Alasan', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppColors.gray600)),
-          const SizedBox(height: 6),
-          TextField(
-            controller: _reasonCtrl,
-            maxLines: 3,
-            maxLength: 500,
-            style: const TextStyle(fontSize: 13, color: AppColors.gray700),
-            decoration: InputDecoration(
-              hintText: 'Contoh: Sakit tidak bisa mengakses aplikasi...',
-              hintStyle: const TextStyle(color: AppColors.gray400, fontSize: 12),
-              filled: true, fillColor: AppColors.gray50,
-              counterStyle: const TextStyle(fontSize: 10),
-              contentPadding: const EdgeInsets.all(12),
-              border: OutlineInputBorder(borderRadius: AppRadius.input, borderSide: const BorderSide(color: AppColors.gray200)),
-              enabledBorder: OutlineInputBorder(borderRadius: AppRadius.input, borderSide: const BorderSide(color: AppColors.gray200)),
-              focusedBorder: OutlineInputBorder(borderRadius: AppRadius.input, borderSide: const BorderSide(color: AppColors.amber500, width: 2)),
+            // Reason
+            const Text('Alasan', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppColors.gray600)),
+            const SizedBox(height: 6),
+            TextField(
+              controller: _reasonCtrl,
+              maxLines: 3,
+              maxLength: 500,
+              style: const TextStyle(fontSize: 13, color: AppColors.gray700),
+              decoration: InputDecoration(
+                hintText: 'Contoh: Handphone mati saat jam pulang...',
+                hintStyle: const TextStyle(color: AppColors.gray400, fontSize: 12),
+                filled: true, fillColor: AppColors.gray50,
+                counterStyle: const TextStyle(fontSize: 10),
+                contentPadding: const EdgeInsets.all(12),
+                border: OutlineInputBorder(borderRadius: AppRadius.input, borderSide: const BorderSide(color: AppColors.gray200)),
+                enabledBorder: OutlineInputBorder(borderRadius: AppRadius.input, borderSide: const BorderSide(color: AppColors.gray200)),
+                focusedBorder: OutlineInputBorder(borderRadius: AppRadius.input, borderSide: const BorderSide(color: AppColors.amber500, width: 2)),
+              ),
             ),
-          ),
-          const SizedBox(height: 16),
+            const SizedBox(height: 16),
 
           FilledButton(
             onPressed: _isSaving ? null : _submit,
@@ -264,6 +282,42 @@ class _CreateSheetState extends State<_CreateSheet> {
                 : const Text('Kirim Pengajuan', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
           ),
         ],
+      ),
+    ));
+  }
+
+  Widget _buildTypeTile(String val, String title, String subtitle) {
+    final isSel = _type == val;
+    return GestureDetector(
+      onTap: () => setState(() => _type = val),
+      child: Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: isSel ? AppColors.amber50 : AppColors.gray50,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: isSel ? AppColors.amber500 : AppColors.gray200, width: isSel ? 1.5 : 1),
+        ),
+        child: Row(
+          children: [
+            Radio<String>(
+              value: val,
+              groupValue: _type,
+              onChanged: (v) { if (v != null) setState(() => _type = v); },
+              activeColor: AppColors.amber500,
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.gray800)),
+                  Text(subtitle, style: const TextStyle(fontSize: 10, color: AppColors.gray500)),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -303,8 +357,17 @@ class _ItemCard extends StatelessWidget {
         Row(children: [
           const Icon(Icons.schedule_rounded, size: 16, color: AppColors.amber500),
           const SizedBox(width: 6),
-          Expanded(child: Text(_fmtDate(item.date),
-            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.gray800))),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(_fmtDate(item.date),
+                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.gray800)),
+                Text(item.typeLabel,
+                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: AppColors.amber600)),
+              ],
+            ),
+          ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
             decoration: BoxDecoration(color: item.statusBg, borderRadius: BorderRadius.circular(20)),

@@ -159,6 +159,112 @@ class JournalController extends Controller
         }
     }
 
+    public function edit(TeacherJournal $journal): View
+    {
+        abort_unless($journal->teacher_id === Auth::id(), 403, 'Akses ditolak.');
+
+        $teacher  = Auth::user();
+        $classes  = SchoolClass::orderBy('name')->get();
+        $subjects = Subject::orderBy('name')->get();
+
+        $mySubjectIds = $teacher->subjects()->pluck('subjects.id')->toArray();
+
+        $tps = TujuanPembelajaran::where(function ($q) use ($teacher, $mySubjectIds) {
+                $q->where('teacher_id', $teacher->id);
+                if (count($mySubjectIds)) {
+                    $q->orWhereIn('subject_id', $mySubjectIds);
+                }
+            })
+            ->where('is_active', true)
+            ->with('subject:id,name')
+            ->orderBy('subject_id')
+            ->orderByDesc('id')
+            ->get();
+
+        $journal->load(['absences.student:id,name,nis']);
+
+        $students = User::where('role', 'siswa')
+            ->where('class_id', $journal->class_id)
+            ->orderBy('name')
+            ->get(['id', 'name', 'nis']);
+
+        $existingAbsences = $journal->absences->keyBy('student_id');
+
+        return view('guru.journal.edit', compact('journal', 'classes', 'subjects', 'tps', 'students', 'existingAbsences'));
+    }
+
+    public function update(Request $request, TeacherJournal $journal): RedirectResponse
+    {
+        abort_unless($journal->teacher_id === Auth::id(), 403, 'Akses ditolak.');
+
+        $request->validate([
+            'class_id'                     => 'required|exists:classes,id',
+            'subject_id'                   => 'nullable|exists:subjects,id',
+            'date'                         => 'required|date',
+            'period'                       => 'nullable|integer|min:1|max:12',
+            'period_end'                   => 'nullable|integer|min:1|max:12|gte:period',
+            'tp_id'                        => 'nullable|exists:tujuan_pembelajaran,id',
+            'material'                     => 'required|string|max:1000',
+            'activity'                     => 'required|string|max:1000',
+            'notes'                        => 'nullable|string|max:500',
+            'absent_students'              => 'nullable|array',
+            'absent_students.*.student_id' => 'required|exists:users,id',
+            'absent_students.*.status'     => 'required|string|in:tidak_hadir,izin,sakit,dispensasi,alpa',
+        ]);
+
+        $teacher = Auth::user();
+
+        $lo = null;
+        if ($request->filled('tp_id')) {
+            $mySubjectIds = $teacher->subjects()->pluck('subjects.id')->toArray();
+            $tp = TujuanPembelajaran::where(function ($q) use ($teacher, $mySubjectIds) {
+                    $q->where('teacher_id', $teacher->id);
+                    if (count($mySubjectIds)) {
+                        $q->orWhereIn('subject_id', $mySubjectIds);
+                    }
+                })
+                ->find($request->tp_id);
+            if ($tp) {
+                $lo = ($tp->code ? "[{$tp->code}] " : '') . $tp->description;
+            }
+        }
+
+        DB::beginTransaction();
+        try {
+            $journal->update([
+                'class_id'            => $request->class_id,
+                'subject_id'          => $request->subject_id ?: null,
+                'tp_id'               => $request->tp_id ?: null,
+                'date'                => $request->date,
+                'period'              => $request->period ?: null,
+                'period_end'          => $request->period_end ?: null,
+                'learning_objectives' => $lo,
+                'material'            => $request->material,
+                'activity'            => $request->activity,
+                'notes'               => $request->notes ?: null,
+            ]);
+
+            $journal->absences()->delete();
+
+            foreach ($request->input('absent_students', []) as $abs) {
+                if (!empty($abs['student_id']) && !empty($abs['status'])) {
+                    TeacherJournalAbsence::create([
+                        'journal_id' => $journal->id,
+                        'student_id' => $abs['student_id'],
+                        'status'     => $abs['status'],
+                    ]);
+                }
+            }
+
+            DB::commit();
+            return redirect()->route('guru.journal.index')
+                ->with('success', 'Jurnal mengajar berhasil diperbarui.');
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return back()->with('error', 'Gagal memperbarui jurnal: ' . $e->getMessage())->withInput();
+        }
+    }
+
     public function print(Request $request): View
     {
         $teacher = $request->filled('teacher_id')
