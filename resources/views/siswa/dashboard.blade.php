@@ -161,28 +161,31 @@
 </div>
 @endif
 
-{{-- [SISTEM POIN DISABLED] — untuk mengaktifkan kembali: ganti @if(false) menjadi @if(true) pada dua blok di bawah --}}
-
-@if(false) {{-- SISTEM POIN: Ringkasan Poin --}}
-{{-- ─── Ringkasan Poin ──────────────────────────────────────────────── --}}
-<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-4">
-    <h3 class="text-sm font-semibold text-gray-700 mb-3">Ringkasan Poin</h3>
+{{-- ─── Ringkasan Catatan Siswa & Kedisiplinan ──────────────────────────────── --}}
+<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3">
+    <div class="flex items-center justify-between mb-3">
+        <h3 class="text-sm font-bold text-gray-800 flex items-center gap-2">
+            <span>📋</span> Catatan Siswa & Kedisiplinan
+        </h3>
+        <a href="{{ route('siswa.conduct.index') }}" class="text-xs font-semibold text-blue-600 hover:underline">
+            Detail Catatan →
+        </a>
+    </div>
     <div class="grid grid-cols-3 gap-2 text-center">
-        <div class="bg-blue-50 rounded-xl py-3">
-            <p class="text-xl font-bold text-blue-700">{{ $pointSummary['total'] }}</p>
-            <p class="text-xs text-gray-500 mt-0.5">Total Poin</p>
+        <div class="bg-blue-50/80 border border-blue-100 rounded-xl py-2.5 px-1">
+            <p class="text-lg font-black text-blue-700">{{ $pointSummary['total'] }}</p>
+            <p class="text-[11px] font-semibold text-gray-500 mt-0.5">Total Catatan</p>
         </div>
-        <div class="bg-green-50 rounded-xl py-3">
-            <p class="text-xl font-bold text-green-700">+{{ $pointSummary['prestasi'] }}</p>
-            <p class="text-xs text-gray-500 mt-0.5">Prestasi</p>
+        <div class="bg-emerald-50/80 border border-emerald-100 rounded-xl py-2.5 px-1">
+            <p class="text-lg font-black text-emerald-700">+{{ $pointSummary['prestasi'] }}</p>
+            <p class="text-[11px] font-semibold text-emerald-800 mt-0.5">Catatan Positif</p>
         </div>
-        <div class="bg-red-50 rounded-xl py-3">
-            <p class="text-xl font-bold text-red-700">-{{ $pointSummary['pelanggaran'] }}</p>
-            <p class="text-xs text-gray-500 mt-0.5">Catatan Negatif</p>
+        <div class="bg-rose-50/80 border border-rose-100 rounded-xl py-2.5 px-1">
+            <p class="text-lg font-black text-rose-700">{{ $pointSummary['pelanggaran'] }}</p>
+            <p class="text-[11px] font-semibold text-rose-800 mt-0.5">Catatan Negatif</p>
         </div>
     </div>
 </div>
-@endif
 
 {{-- ─── Kalender Kehadiran Bulanan ──────────────────────────────── --}}
 @php
@@ -259,19 +262,18 @@
     </div>
 </div>
 
-@if(false) {{-- SISTEM POIN: Riwayat Poin Terbaru --}}
-{{-- ─── Riwayat Poin Terbaru ────────────────────────────────────────── --}}
-<div class="bg-white rounded-2xl shadow-sm border border-gray-100 mb-4 overflow-hidden">
+{{-- ─── Riwayat Catatan Terbaru ────────────────────────────────────────── --}}
+<div class="bg-white rounded-2xl shadow-sm border border-gray-100 mb-3 overflow-hidden">
     <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100">
-        <h3 class="text-sm font-semibold text-gray-700">Riwayat Poin</h3>
-        <a href="{{ route('siswa.conduct.index') }}" class="text-xs text-blue-600">Lihat Semua</a>
+        <h3 class="text-sm font-bold text-gray-800">Riwayat Catatan Terbaru</h3>
+        <a href="{{ route('siswa.conduct.index') }}" class="text-xs font-semibold text-blue-600 hover:underline">Lihat Semua</a>
     </div>
     <div class="divide-y divide-gray-50">
         @forelse($recentPoints as $point)
         <div class="flex items-center gap-3 px-4 py-3">
             <div class="w-9 h-9 rounded-full shrink-0 flex items-center justify-center
-                {{ $point['type'] === 'prestasi' ? 'bg-green-100' : 'bg-red-100' }}">
-                <svg class="w-4 h-4 {{ $point['type'] === 'prestasi' ? 'text-green-600' : 'text-red-600' }}"
+                {{ $point['type'] === 'prestasi' ? 'bg-emerald-100' : 'bg-rose-100' }}">
+                <svg class="w-4 h-4 {{ $point['type'] === 'prestasi' ? 'text-emerald-600' : 'text-rose-600' }}"
                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     @if($point['type'] === 'prestasi')
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -286,16 +288,15 @@
                 <p class="text-sm font-medium text-gray-800 truncate">{{ $point['desc'] }}</p>
                 <p class="text-xs text-gray-400">{{ \Carbon\Carbon::parse($point['date'])->isoFormat('D MMM Y') }}</p>
             </div>
-            <span class="text-sm font-bold {{ str_starts_with($point['point'], '+') ? 'text-green-600' : 'text-red-600' }}">
+            <span class="text-xs font-bold px-2 py-0.5 rounded-md {{ $point['type'] === 'prestasi' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200' }}">
                 {{ $point['point'] }}
             </span>
         </div>
         @empty
-        <div class="px-4 py-6 text-center text-sm text-gray-400">Belum ada riwayat poin</div>
+        <div class="px-4 py-6 text-center text-sm text-gray-400">Belum ada riwayat catatan siswa</div>
         @endforelse
     </div>
 </div>
-@endif
 
 
 {{-- ─── Notifikasi Quick-Link (if unread) ───────────────────────────── --}}

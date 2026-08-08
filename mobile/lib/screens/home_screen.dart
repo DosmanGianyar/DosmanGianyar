@@ -7,7 +7,9 @@ import '../providers/notification_provider.dart';
 import '../models/attendance.dart';
 import '../models/announcement.dart';
 import '../models/user.dart';
-import '../theme/app_colors.dart';
+import '../models/conduct_log.dart';
+import '../services/api_client.dart';
+import 'kesiswaan/conduct_screen.dart';
 import 'login_screen.dart';
 import 'notifications_screen.dart';
 import 'attendance/attendance_screen.dart';
@@ -491,6 +493,10 @@ class _DashboardBody extends StatelessWidget {
             const SizedBox(height: 8),
             _NotifBanner(count: notifProv.unreadCount, onTap: onNotifTap),
           ],
+
+          // ── Catatan Siswa & Kedisiplinan ─────────────────────────
+          const SizedBox(height: 8),
+          const _ConductDashboardCard(),
 
           // ── Pengumuman ───────────────────────────────────────────
           const SizedBox(height: 8),
@@ -1524,6 +1530,221 @@ class _NavItem extends StatelessWidget {
               )),
           ],
         ),
+      ),
+    );
+  }
+}
+
+// ─── Conduct Dashboard Card ───────────────────────────────────────────────────
+
+class _ConductDashboardCard extends StatefulWidget {
+  const _ConductDashboardCard();
+
+  @override
+  State<_ConductDashboardCard> createState() => _ConductDashboardCardState();
+}
+
+class _ConductDashboardCardState extends State<_ConductDashboardCard> {
+  ConductSummary? _summary;
+  List<ConductLog> _recentLogs = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadConduct();
+  }
+
+  Future<void> _loadConduct() async {
+    try {
+      final body = await ApiClient.get('/conduct');
+      if (mounted) {
+        setState(() {
+          _summary = ConductSummary.fromJson(body['summary'] as Map<String, dynamic>);
+          final allLogs = (body['logs'] as List)
+              .map((e) => ConductLog.fromJson(e as Map<String, dynamic>))
+              .toList();
+          _recentLogs = allLogs.take(2).toList();
+          _isLoading = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.slate200),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          )
+        ],
+      ),
+      padding: const EdgeInsets.all(14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Row(
+                children: [
+                  Text('📋 ', style: TextStyle(fontSize: 14)),
+                  Text(
+                    'Catatan Siswa & Kedisiplinan',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.slate800,
+                    ),
+                  ),
+                ],
+              ),
+              InkWell(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const ConductScreen()),
+                  );
+                },
+                child: const Text(
+                  'Lihat Detail →',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.blue600,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          if (_isLoading)
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 12),
+              child: Center(child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))),
+            )
+          else ...[
+            Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                    decoration: BoxDecoration(
+                      color: AppColors.emerald50,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: AppColors.emerald100),
+                    ),
+                    child: Column(
+                      children: [
+                        Text(
+                          '+${_summary?.prestasiCount ?? 0}',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w900,
+                            color: AppColors.emerald700,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        const Text(
+                          'Catatan Positif',
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.emerald800,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                    decoration: BoxDecoration(
+                      color: AppColors.red50,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: AppColors.red100),
+                    ),
+                    child: Column(
+                      children: [
+                        Text(
+                          '${_summary?.pelanggaranCount ?? 0}',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w900,
+                            color: AppColors.red700,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        const Text(
+                          'Catatan Negatif',
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.red800,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            if (_recentLogs.isNotEmpty) ...[
+              const SizedBox(height: 10),
+              const Divider(height: 1, color: AppColors.slate100),
+              const SizedBox(height: 8),
+              ..._recentLogs.map((log) => Padding(
+                padding: const EdgeInsets.only(bottom: 6),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 6,
+                      height: 6,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: log.typeColor,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        log.categoryName,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.slate700,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      log.date,
+                      style: const TextStyle(
+                        fontSize: 10,
+                        color: AppColors.slate400,
+                      ),
+                    ),
+                  ],
+                ),
+              )),
+            ],
+          ],
+        ],
       ),
     );
   }
