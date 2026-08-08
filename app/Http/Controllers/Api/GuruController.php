@@ -56,12 +56,31 @@ class GuruController extends Controller
                 'photo_url' => $g->photo_url,
             ]);
 
+        $dayNames = ['', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+        $piketSchedule = \App\Models\Schedule::with(['teacher', 'subject', 'schoolClass'])
+            ->whereIn('day', [1, 2, 3, 4, 5, 6])
+            ->orderBy('day')
+            ->orderBy('period')
+            ->get()
+            ->groupBy('day')
+            ->map(fn($items, $day) => [
+                'day' => (int) $day,
+                'day_name' => $dayNames[$day] ?? '—',
+                'sessions' => $items->map(fn($s) => [
+                    'teacher_name' => $s->teacher?->name ?? '—',
+                    'subject' => $s->subject?->name ?? 'Mapel',
+                    'class_name' => $s->schoolClass?->name ?? 'Kelas',
+                    'period' => $s->period,
+                ])->values()
+            ])->values();
+
         return response()->json([
             'status' => 'success',
             'data' => [
                 'wali_kelas' => $waliKelas,
                 'extracurriculars' => $extracurriculars,
                 'gurus' => $gurus,
+                'piket_schedule' => $piketSchedule,
             ]
         ]);
     }

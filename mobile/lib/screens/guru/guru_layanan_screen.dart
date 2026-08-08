@@ -18,11 +18,12 @@ class _GuruLayananScreenState extends State<GuruLayananScreen> with SingleTicker
   List<dynamic> _waliKelas = [];
   List<dynamic> _extracurriculars = [];
   List<dynamic> _gurus = [];
+  List<dynamic> _piketSchedule = [];
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
     _loadData();
   }
 
@@ -37,6 +38,7 @@ class _GuruLayananScreenState extends State<GuruLayananScreen> with SingleTicker
             _waliKelas = d['wali_kelas'] ?? [];
             _extracurriculars = d['extracurriculars'] ?? [];
             _gurus = d['gurus'] ?? [];
+            _piketSchedule = d['piket_schedule'] ?? [];
             _isLoading = false;
           });
         }
@@ -73,12 +75,14 @@ class _GuruLayananScreenState extends State<GuruLayananScreen> with SingleTicker
           controller: _tabController,
           indicatorColor: Colors.amber,
           indicatorWeight: 3,
+          isScrollable: true,
           labelColor: Colors.white,
           unselectedLabelColor: Colors.white70,
           labelStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
           tabs: const [
             Tab(text: '🏫 Wali Kelas'),
             Tab(text: '📌 Pembina Ekstra'),
+            Tab(text: '🛡️ Piket & Jadwal'),
             Tab(text: '👨‍🏫 Semua Guru'),
           ],
         ),
@@ -96,7 +100,7 @@ class _GuruLayananScreenState extends State<GuruLayananScreen> with SingleTicker
                 SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Direktori Informasi Publik Sekolah (Read-Only)',
+                    'Direktori Informasi Sekolah Senin - Sabtu (Read-Only)',
                     style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.blue800),
                   ),
                 ),
@@ -148,6 +152,7 @@ class _GuruLayananScreenState extends State<GuruLayananScreen> with SingleTicker
                         children: [
                           _buildWaliKelasList(),
                           _buildExtracurricularsList(),
+                          _buildPiketScheduleList(),
                           _buildGurusList(),
                         ],
                       ),
@@ -279,6 +284,98 @@ class _GuruLayananScreenState extends State<GuruLayananScreen> with SingleTicker
                   ],
                 ),
               ],
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildPiketScheduleList() {
+    if (_piketSchedule.isEmpty) {
+      return const Center(child: Text('Belum ada jadwal mengajar/piket tercatat (Senin - Sabtu)', style: TextStyle(fontSize: 12, color: AppColors.gray400)));
+    }
+
+    return ListView.separated(
+      padding: const EdgeInsets.all(16),
+      itemCount: _piketSchedule.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 14),
+      itemBuilder: (_, i) {
+        final dayData = _piketSchedule[i];
+        final dayName = dayData['day_name'] ?? '—';
+        final sessions = (dayData['sessions'] as List? ?? []).where((s) {
+          final tName = (s['teacher_name'] ?? '').toString().toLowerCase();
+          final sub = (s['subject'] ?? '').toString().toLowerCase();
+          final cls = (s['class_name'] ?? '').toString().toLowerCase();
+          return tName.contains(_searchQuery) || sub.contains(_searchQuery) || cls.contains(_searchQuery);
+        }).toList();
+
+        return Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: AppColors.gray200),
+          ),
+          padding: const EdgeInsets.all(14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    '🗓️ Hari $dayName',
+                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.gray900),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: AppColors.blue50,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      '${sessions.length} Sesi',
+                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.blue700),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              if (sessions.isEmpty)
+                const Text('Tidak ada jadwal sesuai pencarian', style: TextStyle(fontSize: 11, color: AppColors.gray400))
+              else
+                ...sessions.take(6).map((s) => Padding(
+                  padding: const EdgeInsets.only(bottom: 6),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: AppColors.gray100,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          'Jam ${s['period']}',
+                          style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.gray700),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          '${s['teacher_name']} (${s['subject']})',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.gray800),
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${s['class_name']}',
+                        style: const TextStyle(fontSize: 11, color: AppColors.blue600, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                )),
             ],
           ),
         );
