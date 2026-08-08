@@ -67,6 +67,14 @@ class PasswordResetRequestResource extends Resource
                         default     => $state,
                     }),
 
+                TextColumn::make('user.schoolClass.name')
+                    ->label('Kelas')
+                    ->placeholder('—')
+                    ->badge()
+                    ->color('info')
+                    ->sortable()
+                    ->searchable(),
+
                 TextColumn::make('identifier')
                     ->label('NISN / NIP')
                     ->fontFamily('mono')
@@ -117,6 +125,26 @@ class PasswordResetRequestResource extends Resource
                         'rejected' => 'Ditolak',
                     ])
                     ->default('pending'),
+
+                SelectFilter::make('grade')
+                    ->label('Filter Per Angkatan')
+                    ->options([
+                        'X'   => 'Angkatan X',
+                        'XI'  => 'Angkatan XI',
+                        'XII' => 'Angkatan XII',
+                    ])
+                    ->query(fn ($query, array $data) => filled($data['value'] ?? null)
+                        ? $query->whereHas('user.schoolClass', fn ($q) => $q->where('grade', $data['value']))
+                        : $query
+                    ),
+
+                SelectFilter::make('class_id')
+                    ->label('Filter Kelas')
+                    ->options(\App\Models\SchoolClass::orderBy('name')->pluck('name', 'id'))
+                    ->query(fn ($query, array $data) => filled($data['value'] ?? null)
+                        ? $query->whereHas('user', fn ($q) => $q->where('class_id', $data['value']))
+                        : $query
+                    ),
             ])
             ->actions([
                 Action::make('approve')
