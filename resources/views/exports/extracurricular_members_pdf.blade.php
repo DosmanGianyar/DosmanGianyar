@@ -152,20 +152,23 @@
 </table>
 
 {{-- ── TANDA TANGAN FORMAL ────────────────────────────────────── --}}
+@php
+    $singlePembina = $extracurricular->teachers->first() ?? $extracurricular->pembina;
+    $singlePembinaName = $singlePembina?->name ?? trim(explode(',', $extracurricular->pembina_names)[0] ?? '—');
+    $singlePembinaNip  = $singlePembina?->nip ? "NIP. " . $singlePembina->nip : null;
+@endphp
+
 <table class="ttd-table">
   <tr>
-    <td>
-      Mengetahui,<br>
+    <td style="width: 50%;"></td>
+    <td style="width: 50%; text-align: center;">
+      Gianyar, {{ now()->locale('id')->isoFormat('D MMMM Y') }}<br>
       <strong>Pembina Ekstrakurikuler</strong>
       <div class="ttd-space"></div>
-      <u><strong>{{ $extracurricular->pembina_names }}</strong></u>
-    </td>
-    <td>
-      Gianyar, {{ now()->locale('id')->isoFormat('D MMMM Y') }}<br>
-      <strong>Kepala SMAN 1 Gianyar</strong>
-      <div class="ttd-space"></div>
-      <u><strong>Surya Natha, S.Pd., M.Pd.</strong></u><br>
-      <span>NIP. 19700101 199503 1 002</span>
+      <u><strong>{{ $singlePembinaName }}</strong></u>
+      @if($singlePembinaNip)
+        <br><span>{{ $singlePembinaNip }}</span>
+      @endif
     </td>
   </tr>
 </table>

@@ -988,7 +988,7 @@ class _StudentAttRow extends StatelessWidget {
     ('tidak_hadir',  'A',  AppColors.red500,    AppColors.red100),
     ('izin',         'I',  AppColors.sky600,    AppColors.sky100),
     ('sakit',        'S',  AppColors.purple500, AppColors.violet100),
-    ('dispensasi',   'D',  AppColors.teal600,   AppColors.teal100),
+    ('dispensasi',   'D',  AppColors.teal600,   Color(0xFFCCFBF1)),
   ];
 
   @override
@@ -1009,7 +1009,7 @@ class _StudentAttRow extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Wrap(
-                  cross: WrapCrossAlignment.center,
+                  crossAxisAlignment: WrapCrossAlignment.center,
                   spacing: 6,
                   runSpacing: 2,
                   children: [
@@ -1021,7 +1021,7 @@ class _StudentAttRow extends StatelessWidget {
                         color: hasMorningStatus ? AppColors.amber50 : AppColors.gray100,
                         borderRadius: BorderRadius.circular(4),
                         border: Border.all(
-                          color: hasMorningStatus ? AppColors.amber300 : AppColors.gray200,
+                          color: hasMorningStatus ? const Color(0xFFFCD34D) : AppColors.gray200,
                         ),
                       ),
                       child: Text(
@@ -1039,7 +1039,7 @@ class _StudentAttRow extends StatelessWidget {
             ),
           ),
           Row(
-            children: _statuses.map(((String, String, Color, Color) s) {
+            children: _statuses.map<Widget>((s) {
               final (status, label, color, bg) = s;
               final selected = student.status == status;
               return Padding(
