@@ -27,13 +27,13 @@ class ExecutiveOverviewWidget extends BaseWidget
         $pctHadir = $totalSiswa > 0 ? round(($hadirCount / $totalSiswa) * 100, 1) : 0;
 
         $pelanggaranMonth = ConductLog::where('type', 'pelanggaran')
-            ->whereMonth('date', now()->month)
-            ->whereYear('date', now()->year)
+            ->whereMonth('created_at', now()->month)
+            ->whereYear('created_at', now()->year)
             ->count();
 
         $prestasiMonth = ConductLog::where('type', 'prestasi')
-            ->whereMonth('date', now()->month)
-            ->whereYear('date', now()->year)
+            ->whereMonth('created_at', now()->month)
+            ->whereYear('created_at', now()->year)
             ->count();
 
         return [

@@ -14,8 +14,8 @@ class ConductChartWidget extends ChartWidget
     {
         $logs = ConductLog::with('category')
             ->where('type', 'pelanggaran')
-            ->whereMonth('date', now()->month)
-            ->whereYear('date', now()->year)
+            ->whereMonth('created_at', now()->month)
+            ->whereYear('created_at', now()->year)
             ->get();
 
         $grouped = $logs->groupBy(fn ($log) => $log->category?->name ?? 'Lain-lain');
