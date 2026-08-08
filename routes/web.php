@@ -26,6 +26,7 @@ use App\Http\Controllers\Guru\BkController as GuruBk;
 use App\Http\Controllers\Guru\GradeController as GuruGrade;
 use App\Http\Controllers\Guru\TpController as GuruTp;
 use App\Http\Controllers\Guru\JournalController as GuruJournal;
+use App\Http\Controllers\Guru\LayananController as GuruLayanan;
 use App\Http\Controllers\Siswa\AnnouncementController as SiswaAnnouncement;
 use App\Http\Controllers\Siswa\VotingController as SiswaVoting;
 use App\Http\Controllers\Siswa\VotingManageController as SiswaVotingManage;
@@ -125,6 +126,7 @@ Route::post('/logout', [LoginController::class, 'logout'])
 // ─── Guru ─────────────────────────────────────────────────────────────────────
 Route::middleware(['auth', 'role:guru,admin'])->prefix('guru')->name('guru.')->group(function () {
     Route::get('/dashboard', [GuruDashboard::class, 'index'])->name('dashboard');
+    Route::get('/layanan', [GuruLayanan::class, 'index'])->name('layanan.index');
     Route::get('/profile', [GuruProfile::class, 'show'])->name('profile');
     Route::put('/profile', [GuruProfile::class, 'update'])->name('profile.update');
     Route::put('/profile/password', [GuruProfile::class, 'updatePassword'])->name('profile.password');

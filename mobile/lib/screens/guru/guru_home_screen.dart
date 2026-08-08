@@ -16,6 +16,7 @@ import 'guru_permit_screen.dart';
 import 'guru_sarpras_screen.dart';
 import 'guru_teaching_session_screen.dart';
 import 'guru_tp_screen.dart';
+import 'guru_layanan_screen.dart';
 
 class GuruHomeScreen extends StatefulWidget {
   const GuruHomeScreen({super.key});
@@ -725,6 +726,14 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
         'color': const Color(0xFF4F46E5),
         'bg': const Color(0xFFEEF2FF),
         'onTap': () => Navigator.push(context, MaterialPageRoute(builder: (_) => const GuruSarprasScreen())),
+      },
+      {
+        'title': 'Layanan & Direktori',
+        'subtitle': 'Wali Kelas, Ekstra, Piket',
+        'icon': Icons.business_center_rounded,
+        'color': AppColors.indigo600,
+        'bg': const Color(0xFFE0E7FF),
+        'onTap': () => Navigator.push(context, MaterialPageRoute(builder: (_) => const GuruLayananScreen())),
       },
     ];
 

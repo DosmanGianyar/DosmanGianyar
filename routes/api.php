@@ -137,6 +137,7 @@ Route::prefix('v1')->group(function () {
 
             // Guru
             Route::get('/guru/dashboard',                                 [GuruController::class, 'dashboard']);
+            Route::get('/guru/layanan',                                   [GuruController::class, 'layanan']);
             Route::get('/guru/classes',                                   [GuruController::class, 'classes']);
             Route::get('/guru/attendance/daily',                          [GuruController::class, 'attendanceDaily']);
             Route::get('/guru/attendance/rekap',                          [GuruController::class, 'attendanceRekap']);

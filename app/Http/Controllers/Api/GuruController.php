@@ -19,6 +19,53 @@ use Illuminate\Support\Facades\Storage;
 
 class GuruController extends Controller
 {
+    public function layanan(): JsonResponse
+    {
+        $waliKelas = SchoolClass::with('homeroomTeacher')
+            ->orderBy('name')
+            ->get()
+            ->map(fn($c) => [
+                'id' => $c->id,
+                'class_name' => $c->name,
+                'grade' => $c->grade,
+                'homeroom_teacher' => $c->homeroomTeacher?->name ?? 'Belum Ditentukan',
+                'nip' => $c->homeroomTeacher?->nip ?? '—',
+                'phone' => $c->homeroomTeacher?->phone,
+                'photo_url' => $c->homeroomTeacher?->photo_url,
+            ]);
+
+        $extracurriculars = \App\Models\Extracurricular::with(['teachers', 'pembina'])
+            ->orderBy('name')
+            ->get()
+            ->map(fn($e) => [
+                'id' => $e->id,
+                'name' => $e->name,
+                'pembina_names' => $e->pembina_names,
+                'contact_person' => $e->contact_person,
+            ]);
+
+        $gurus = User::where('role', 'guru')
+            ->orderBy('name')
+            ->get()
+            ->map(fn($g) => [
+                'id' => $g->id,
+                'name' => $g->name,
+                'nip' => $g->nip ?? '—',
+                'subject' => $g->subject ?? 'Guru Pengajar',
+                'phone' => $g->phone,
+                'photo_url' => $g->photo_url,
+            ]);
+
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'wali_kelas' => $waliKelas,
+                'extracurriculars' => $extracurriculars,
+                'gurus' => $gurus,
+            ]
+        ]);
+    }
+
     // ─── Dashboard ────────────────────────────────────────────────────────────
 
     public function dashboard(): JsonResponse
