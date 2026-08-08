@@ -7,6 +7,7 @@ import '../providers/notification_provider.dart';
 import '../models/attendance.dart';
 import '../models/announcement.dart';
 import '../models/user.dart';
+import '../theme/app_colors.dart';
 import '../models/conduct_log.dart';
 import '../services/api_client.dart';
 import 'kesiswaan/conduct_screen.dart';
@@ -1581,7 +1582,7 @@ class _ConductDashboardCardState extends State<_ConductDashboardCard> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.slate200),
+        border: Border.all(color: AppColors.gray200),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.02),
@@ -1605,7 +1606,7 @@ class _ConductDashboardCardState extends State<_ConductDashboardCard> {
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.slate800,
+                      color: AppColors.gray800,
                     ),
                   ),
                 ],
@@ -1661,7 +1662,7 @@ class _ConductDashboardCardState extends State<_ConductDashboardCard> {
                           style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.w600,
-                            color: AppColors.emerald800,
+                            color: AppColors.emerald900,
                           ),
                         ),
                       ],
@@ -1693,7 +1694,7 @@ class _ConductDashboardCardState extends State<_ConductDashboardCard> {
                           style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.w600,
-                            color: AppColors.red800,
+                            color: AppColors.red700,
                           ),
                         ),
                       ],
@@ -1704,7 +1705,7 @@ class _ConductDashboardCardState extends State<_ConductDashboardCard> {
             ),
             if (_recentLogs.isNotEmpty) ...[
               const SizedBox(height: 10),
-              const Divider(height: 1, color: AppColors.slate100),
+              const Divider(height: 1, color: AppColors.gray100),
               const SizedBox(height: 8),
               ..._recentLogs.map((log) => Padding(
                 padding: const EdgeInsets.only(bottom: 6),
@@ -1727,7 +1728,7 @@ class _ConductDashboardCardState extends State<_ConductDashboardCard> {
                         style: const TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
-                          color: AppColors.slate700,
+                          color: AppColors.gray700,
                         ),
                       ),
                     ),
@@ -1736,7 +1737,7 @@ class _ConductDashboardCardState extends State<_ConductDashboardCard> {
                       log.date,
                       style: const TextStyle(
                         fontSize: 10,
-                        color: AppColors.slate400,
+                        color: AppColors.gray400,
                       ),
                     ),
                   ],
