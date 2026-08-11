@@ -215,9 +215,16 @@ class ExportController extends Controller
                 ->waitUntilNetworkIdle()
                 ->pdf();
         } catch (\Throwable $e) {
-            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadHTML($html)
-                ->setPaper('a4', 'landscape')
-                ->output();
+            $options = new \Dompdf\Options();
+            $options->set('isRemoteEnabled', true);
+            $options->set('isHtml5ParserEnabled', true);
+
+            $dompdf = new \Dompdf\Dompdf($options);
+            $dompdf->loadHtml($html);
+            $dompdf->setPaper('a4', 'landscape');
+            $dompdf->render();
+
+            $pdf = $dompdf->output();
         }
 
         $filename = 'rekap_absensi_' . $data['className'] . '_' . $data['month'] . '.pdf';
