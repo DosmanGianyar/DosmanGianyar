@@ -456,9 +456,9 @@
     <span style="margin-left:auto;opacity:0.6">*Klik nama siswa untuk melihat rincian tanggal alpa/izin/sakit</span>
 </div>
 
-{{-- Student Detail Modal --}}
-{{-- Student Detail Modal --}}
+{{-- Studen{{-- Student Detail Modal --}}
 @if($showDetailModal && $studentDetailData)
+<template x-teleport="body">
 <div style="position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;display:flex;align-items:center;justify-content:center;padding:1rem;background:rgba(0,0,0,0.8);backdrop-filter:blur(4px)" x-data="{ filter: 'all' }">
     <div style="background:#0f1d33;border:1px solid rgba(255,255,255,0.15);border-radius:1rem;max-width:42rem;width:100%;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 25px 50px -12px rgba(0,0,0,0.5)">
         {{-- Header --}}
@@ -578,9 +578,11 @@
         </div>
     </div>
 </div>
+</template>
 @endif
 
 {{-- Modal Web Preview Rekap Grid PDF Admin --}}
+<template x-teleport="body">
 <div x-show="showGridPreviewModal" x-cloak
     @keydown.escape.window="showGridPreviewModal = false"
     style="position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;display:flex;align-items:center;justify-content:center;padding:1rem;background:rgba(0,0,0,0.8);backdrop-filter:blur(4px)">
@@ -623,13 +625,12 @@
                 style="width:100%;height:100%;background:#fff;border-radius:0.75rem;border:1px solid rgba(255,255,255,0.1);box-shadow:0 4px 6px -1px rgba(0,0,0,0.1)"></iframe>
             @else
             <div style="display:flex;align-items:center;justify-content:center;height:100%;color:rgba(255,255,255,0.4);font-size:0.875rem">
-                Pilih kelas terlebih dahulu untuk melihat pratinjau.
+                Pilih kelas terlebih dahulu untuk meilihat pratinjau.
             </div>
-            @endif
         </div>
     </div>
 </div>
+</template>
 
-</div>
 <x-filament-actions::modals />
 </x-filament-panels::page>
