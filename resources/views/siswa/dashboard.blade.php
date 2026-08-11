@@ -5,15 +5,35 @@
 
 @section('content')
 
-{{-- ─── Sapaan & Hero Header (Fixed Solid Gradient & High Contrast) ─────── --}}
+{{-- ─── 1. Card Notifikasi (Paling Atas Halaman) ─────────────────────── --}}
+@if($unreadNotifications > 0)
+<a href="{{ route('siswa.notifications.index') }}"
+    class="flex items-center gap-3 bg-blue-50 border border-blue-100 rounded-2xl px-4 py-3 mb-3.5 shadow-xs hover:border-blue-300 transition-all">
+    <div class="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center shrink-0">
+        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+        </svg>
+    </div>
+    <div class="flex-1">
+        <p class="text-sm font-bold text-blue-900">
+            {{ $unreadNotifications }} notifikasi belum dibaca
+        </p>
+        <p class="text-xs text-blue-600">Klik untuk melihat detail notifikasi</p>
+    </div>
+    <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+    </svg>
+</a>
+@endif
+
+{{-- ─── 2. Sapaan & Hero Header ───────────────────────────────────────── --}}
 <div class="relative rounded-2xl p-4 mb-3.5 text-white shadow-lg overflow-hidden"
      style="background: linear-gradient(135deg, #0a3880 0%, #1565c0 50%, #1d4ed8 100%); border: 1px solid rgba(255,255,255,0.2);">
     
-    {{-- Background Accent Circle (Soft Decorative) --}}
     <div style="position: absolute; right: -20px; bottom: -20px; width: 140px; height: 140px; border-radius: 50%; background: rgba(255,255,255,0.06); pointer-events: none;"></div>
 
     <div class="relative z-10 flex flex-col gap-3">
-        {{-- Baris Atas: Tanggal & Rekap --}}
         <div class="flex items-center justify-between gap-2">
             <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-xs font-bold text-white border border-white/30 shadow-2xs">
                 📅 {{ now()->isoFormat('dddd, D MMMM Y') }}
@@ -23,7 +43,6 @@
             </span>
         </div>
 
-        {{-- Sapaan Nama --}}
         <div>
             <h2 class="text-xl sm:text-2xl font-black tracking-tight leading-tight text-white drop-shadow-xs">
                 Selamat {{ match(true) { now()->hour < 11 => 'Pagi', now()->hour < 15 => 'Siang', now()->hour < 18 => 'Sore', default => 'Malam' } }}, {{ $siswa->name }}! 👋
@@ -37,7 +56,6 @@
             </p>
         </div>
 
-        {{-- Indicator Badges Rekap --}}
         <div class="grid grid-cols-5 gap-1.5 pt-1 text-center font-black text-xs">
             <div class="bg-yellow-400/25 border border-yellow-300/40 rounded-lg p-1.5 text-yellow-200">
                 <span class="block text-[10px] opacity-90 font-bold uppercase">Terlambat</span>
@@ -63,10 +81,36 @@
     </div>
 </div>
 
-{{-- ─── Kartu Pelajar Digital ───────────────────────────────────────── --}}
+{{-- ─── 3. Kartu Pelajar Digital ───────────────────────────────────────── --}}
 @include('siswa.partials.student-card-digital')
 
-{{-- ─── Card Absen Masuk ────────────────────────────────────────────── --}}
+{{-- ─── 4. Card SIPINTER (Diantara Kartu Siswa & Kalender Kehadiran) ────── --}}
+<div onclick="window.location='{{ route('siswa.conduct.index') }}'" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3.5 cursor-pointer hover:border-emerald-300 hover:shadow-md transition-all">
+    <div class="flex items-center justify-between mb-3">
+        <h3 class="text-sm font-bold text-gray-800 flex items-center gap-2">
+            <span class="p-1 bg-emerald-100 text-emerald-700 rounded-lg text-xs">🛡️</span> SIPINTER (Pendidikan Karakter)
+        </h3>
+        <span class="text-xs font-semibold text-blue-600">
+            Detail Catatan →
+        </span>
+    </div>
+    <div class="grid grid-cols-3 gap-2 text-center">
+        <div class="bg-blue-50/80 border border-blue-100 rounded-xl py-2.5 px-1">
+            <p class="text-lg font-black text-blue-700">{{ $pointSummary['total'] }}</p>
+            <p class="text-[11px] font-semibold text-gray-500 mt-0.5">Total Catatan</p>
+        </div>
+        <div class="bg-emerald-50/80 border border-emerald-100 rounded-xl py-2.5 px-1">
+            <p class="text-lg font-black text-emerald-700">+{{ $pointSummary['prestasi'] }}</p>
+            <p class="text-[11px] font-semibold text-emerald-800 mt-0.5">Catatan Positif</p>
+        </div>
+        <div class="bg-rose-50/80 border border-rose-100 rounded-xl py-2.5 px-1">
+            <p class="text-lg font-black text-rose-700">{{ $pointSummary['pelanggaran'] }}</p>
+            <p class="text-[11px] font-semibold text-rose-800 mt-0.5">Catatan Negatif</p>
+        </div>
+    </div>
+</div>
+
+{{-- ─── 5. Bukti Presensi (Di Atas Kalender Kehadiran) ────────────────── --}}
 @php
     $statusIcon = match($todayStatus['status']) {
         'Hadir'         => ['bg' => 'bg-green-500',  'icon' => 'M5 13l4 4L19 7'],
@@ -75,8 +119,6 @@
         'Alpa'          => ['bg' => 'bg-red-500',    'icon' => 'M6 18L18 6M6 6l12 12'],
         default         => ['bg' => 'bg-gray-400',   'icon' => 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z'],
     };
-@endphp
-@php
     $checkinDone = $todayStatus['status'] !== 'Belum Presensi';
 @endphp
 <div class="{{ $checkinDone ? 'bg-green-100 border-green-300' : 'bg-gray-100 border-gray-200' }} rounded-2xl shadow-sm border p-3 flex items-center gap-3 mb-3">
@@ -115,10 +157,9 @@
     @endif
 </div>
 
-{{-- ─── Card Absen Pulang ───────────────────────────────────────────── --}}
 @if($todayStatus['checked_in'])
 @php $checkoutDone = (bool) $todayStatus['check_out_time']; @endphp
-<div class="{{ $checkoutDone ? 'bg-emerald-100 border-emerald-300' : 'bg-gray-100 border-gray-200' }} rounded-2xl shadow-sm border p-3 flex items-center gap-3 mb-3">
+<div class="{{ $checkoutDone ? 'bg-emerald-100 border-emerald-300' : 'bg-gray-100 border-gray-200' }} rounded-2xl shadow-sm border p-3 flex items-center gap-3 mb-3.5">
     <div class="w-11 h-11 rounded-full {{ $checkoutDone ? 'bg-emerald-500' : 'bg-gray-300' }} flex items-center justify-center shrink-0">
         <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             @if($checkoutDone)
@@ -161,33 +202,7 @@
 </div>
 @endif
 
-{{-- ─── Ringkasan SIPINTER (Pendidikan Karakter) ──────────────────────────────── --}}
-<div onclick="window.location='{{ route('siswa.conduct.index') }}'" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3 cursor-pointer hover:border-emerald-300 hover:shadow-md transition-all">
-    <div class="flex items-center justify-between mb-3">
-        <h3 class="text-sm font-bold text-gray-800 flex items-center gap-2">
-            <span class="p-1 bg-emerald-100 text-emerald-700 rounded-lg text-xs">🛡️</span> SIPINTER (Pendidikan Karakter)
-        </h3>
-        <span class="text-xs font-semibold text-blue-600">
-            Detail Catatan →
-        </span>
-    </div>
-    <div class="grid grid-cols-3 gap-2 text-center">
-        <div class="bg-blue-50/80 border border-blue-100 rounded-xl py-2.5 px-1">
-            <p class="text-lg font-black text-blue-700">{{ $pointSummary['total'] }}</p>
-            <p class="text-[11px] font-semibold text-gray-500 mt-0.5">Total Catatan</p>
-        </div>
-        <div class="bg-emerald-50/80 border border-emerald-100 rounded-xl py-2.5 px-1">
-            <p class="text-lg font-black text-emerald-700">+{{ $pointSummary['prestasi'] }}</p>
-            <p class="text-[11px] font-semibold text-emerald-800 mt-0.5">Catatan Positif</p>
-        </div>
-        <div class="bg-rose-50/80 border border-rose-100 rounded-xl py-2.5 px-1">
-            <p class="text-lg font-black text-rose-700">{{ $pointSummary['pelanggaran'] }}</p>
-            <p class="text-[11px] font-semibold text-rose-800 mt-0.5">Catatan Negatif</p>
-        </div>
-    </div>
-</div>
-
-{{-- ─── Kalender Kehadiran Bulanan ──────────────────────────────── --}}
+{{-- ─── 6. Kalender Kehadiran Bulanan ──────────────────────────────── --}}
 @php
     $calNow        = \Carbon\Carbon::now();
     $calFirst      = $calNow->copy()->startOfMonth();
@@ -197,18 +212,16 @@
     $todayDate     = $calNow->toDateString();
     $hadir_set     = ['hadir', 'terlambat', 'izin', 'sakit', 'dispensasi'];
 @endphp
-<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3">
+<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3.5">
     <div class="flex items-center justify-between mb-3">
         <h3 class="text-sm font-semibold text-gray-700">Kalender Kehadiran</h3>
         <span class="text-xs text-gray-400">{{ $calNow->isoFormat('MMMM Y') }}</span>
     </div>
-    {{-- Day headers --}}
     <div class="grid grid-cols-7 gap-0.5 mb-1">
         @foreach(['Sen','Sel','Rab','Kam','Jum','Sab','Min'] as $dh)
             <div class="text-center text-[10px] font-semibold text-gray-400">{{ $dh }}</div>
         @endforeach
     </div>
-    {{-- Calendar cells --}}
     <div class="grid grid-cols-7 gap-0.5">
         @for($i = 0; $i < $startOffset; $i++)
             <div></div>
@@ -220,7 +233,6 @@
                 $isWeekend  = in_array($dow, [0, 6]);
                 $isHoliday  = isset($monthlyHolidays[$ds]);
                 $isSpecial  = isset($monthlySpecial[$ds]);
-                // Gray if: future day, normal weekend (not special school day), or holiday
                 $isGrayDay  = $isFuture = ($ds > $todayDate);
                 $isGrayDay  = $isGrayDay || ($isWeekend && ! $isSpecial) || $isHoliday;
                 $isToday    = $ds === $todayDate;
@@ -245,7 +257,6 @@
             </div>
         @endfor
     </div>
-    {{-- Legend --}}
     <div class="flex items-center gap-4 mt-3 flex-wrap">
         <div class="flex items-center gap-1.5">
             <div class="w-3 h-3 rounded-full bg-blue-500 shrink-0"></div>
@@ -262,8 +273,8 @@
     </div>
 </div>
 
-{{-- ─── Riwayat Catatan Terbaru ────────────────────────────────────────── --}}
-<div class="bg-white rounded-2xl shadow-sm border border-gray-100 mb-3 overflow-hidden">
+{{-- ─── 7. Riwayat Catatan Terbaru ──────────────────────────────────────── --}}
+<div class="bg-white rounded-2xl shadow-sm border border-gray-100 mb-3.5 overflow-hidden">
     <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100">
         <h3 class="text-sm font-bold text-gray-800">Riwayat Catatan Terbaru</h3>
         <a href="{{ route('siswa.conduct.index') }}" class="text-xs font-semibold text-blue-600 hover:underline">Lihat Semua</a>
@@ -298,30 +309,7 @@
     </div>
 </div>
 
-
-{{-- ─── Notifikasi Quick-Link (if unread) ───────────────────────────── --}}
-@if($unreadNotifications > 0)
-<a href="{{ route('siswa.notifications.index') }}"
-    class="flex items-center gap-3 bg-blue-50 border border-blue-100 rounded-2xl px-4 py-3 mb-4">
-    <div class="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center shrink-0">
-        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
-        </svg>
-    </div>
-    <div class="flex-1">
-        <p class="text-sm font-semibold text-blue-800">
-            {{ $unreadNotifications }} notifikasi belum dibaca
-        </p>
-        <p class="text-xs text-blue-500">Tap untuk melihat</p>
-    </div>
-    <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-    </svg>
-</a>
-@endif
-
-{{-- ─── Pengumuman ──────────────────────────────────────────────────── --}}
+{{-- ─── 8. Pengumuman ────────────────────────────────────────────────── --}}
 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
     <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100">
         <h3 class="text-sm font-semibold text-gray-700">Pengumuman</h3>

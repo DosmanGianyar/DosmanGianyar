@@ -454,19 +454,25 @@ class _DashboardBody extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // ── Greeting card (sama persis dengan web) ──────────────
+          // ── Banner notifikasi (paling atas jika ada yang belum dibaca) ───────
+          if (notifProv.unreadCount > 0) ...[
+            _NotifBanner(count: notifProv.unreadCount, onTap: onNotifTap),
+            const SizedBox(height: 12),
+          ],
+
+          // ── Greeting card (sapaan) ──────────────────────────────────────────
           _GreetingCard(user: user, records: records),
           const SizedBox(height: 12),
 
-          // ── Kartu Pelajar Digital (sama persis dengan web) ───────
+          // ── Kartu Pelajar Digital ───────────────────────────────────────────
           StudentIdCard(user: user),
           const SizedBox(height: 12),
 
-          // ── Kalender kehadiran bulanan ───────────────────────────
-          _MiniCalendar(records: records),
-          const SizedBox(height: 8),
+          // ── Card SIPINTER (diantara Kartu Siswa & Kalender Kehadiran) ──────
+          const _ConductDashboardCard(),
+          const SizedBox(height: 12),
 
-          // ── Card absen masuk ─────────────────────────────────────
+          // ── Bukti Presensi (di atas Kalender Kehadiran) ────────────────────
           if (attendProv.isLoadingStatus)
             const Center(
               child: Padding(
@@ -480,27 +486,21 @@ class _DashboardBody extends StatelessWidget {
             _CheckInCard(status: status, onPresensi: onCheckin),
             const SizedBox(height: 8),
 
-            // ── Card absen pulang (hanya jika sudah check-in) ──────
+            // Card Absen Pulang
             if (status.attendance?.checkInTime != null) ...[
               _CheckOutCard(status: status, onCheckout: onCheckout),
               const SizedBox(height: 8),
             ],
 
             _HistoryButton(onTap: onHistory),
+            const SizedBox(height: 12),
           ],
 
-          // ── Banner notifikasi (jika ada yang belum dibaca) ───────
-          if (notifProv.unreadCount > 0) ...[
-            const SizedBox(height: 8),
-            _NotifBanner(count: notifProv.unreadCount, onTap: onNotifTap),
-          ],
+          // ── Kalender Kehadiran Bulanan ─────────────────────────────────────
+          _MiniCalendar(records: records),
+          const SizedBox(height: 12),
 
-          // ── Catatan Siswa & Kedisiplinan ─────────────────────────
-          const SizedBox(height: 8),
-          const _ConductDashboardCard(),
-
-          // ── Pengumuman ───────────────────────────────────────────
-          const SizedBox(height: 8),
+          // ── Pengumuman ─────────────────────────────────────────────────────
           _AnnouncementSection(announcements: notifProv.announcements),
         ],
       ),
