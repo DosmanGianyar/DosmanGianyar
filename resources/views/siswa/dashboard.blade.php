@@ -162,14 +162,14 @@
 @endif
 
 {{-- ─── Ringkasan SIPINTER (Pendidikan Karakter) ──────────────────────────────── --}}
-<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3">
+<div onclick="window.location='{{ route('siswa.conduct.index') }}'" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3 cursor-pointer hover:border-emerald-300 hover:shadow-md transition-all">
     <div class="flex items-center justify-between mb-3">
         <h3 class="text-sm font-bold text-gray-800 flex items-center gap-2">
             <span class="p-1 bg-emerald-100 text-emerald-700 rounded-lg text-xs">🛡️</span> SIPINTER (Pendidikan Karakter)
         </h3>
-        <a href="{{ route('siswa.conduct.index') }}" class="text-xs font-semibold text-blue-600 hover:underline">
+        <span class="text-xs font-semibold text-blue-600">
             Detail Catatan →
-        </a>
+        </span>
     </div>
     <div class="grid grid-cols-3 gap-2 text-center">
         <div class="bg-blue-50/80 border border-blue-100 rounded-xl py-2.5 px-1">

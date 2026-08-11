@@ -304,8 +304,8 @@ class GuruService {
     int? tpId,
     List<Map<String, dynamic>>? attendances,
   }) async {
-    final body = await ApiClient.put(
-      '/guru/teaching-sessions/$id',
+    final body = await ApiClient.post(
+      '/guru/teaching-sessions/$id/update',
       data: {
         if (materi != null) 'materi': materi,
         if (aktivitas != null) 'aktivitas': aktivitas,
@@ -318,7 +318,7 @@ class GuruService {
   }
 
   static Future<String> deleteTeachingSession(int id) async {
-    final body = await ApiClient.delete('/guru/teaching-sessions/$id');
+    final body = await ApiClient.post('/guru/teaching-sessions/$id/delete');
     return body['message'] as String? ?? 'Jurnal mengajar berhasil dihapus.';
   }
 

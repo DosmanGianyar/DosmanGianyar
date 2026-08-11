@@ -1576,59 +1576,63 @@ class _ConductDashboardCardState extends State<_ConductDashboardCard> {
     }
   }
 
+  void _openDetail(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const ConductScreen()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => _openDetail(context),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.gray200),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.02),
-            blurRadius: 6,
-            offset: const Offset(0, 2),
-          )
-        ],
-      ),
-      padding: const EdgeInsets.all(14),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.gray200),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.02),
+                blurRadius: 6,
+                offset: const Offset(0, 2),
+              )
+            ],
+          ),
+          padding: const EdgeInsets.all(14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Row(
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('🛡️ ', style: TextStyle(fontSize: 14)),
-                  Text(
-                    'SIPINTER (Pendidikan Karakter)',
+                  const Row(
+                    children: [
+                      Text('🛡️ ', style: TextStyle(fontSize: 14)),
+                      Text(
+                        'SIPINTER (Pendidikan Karakter)',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.gray800,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const Text(
+                    'Lihat Detail →',
                     style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.gray800,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.blue600,
                     ),
                   ),
                 ],
               ),
-              InkWell(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const ConductScreen()),
-                  );
-                },
-                child: const Text(
-                  'Lihat Detail →',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.blue600,
-                  ),
-                ),
-              ),
-            ],
-          ),
           const SizedBox(height: 10),
           if (_isLoading)
             const Padding(
@@ -1747,6 +1751,8 @@ class _ConductDashboardCardState extends State<_ConductDashboardCard> {
           ],
         ],
       ),
-    );
-  }
+    ),
+  ),
+);
+}
 }

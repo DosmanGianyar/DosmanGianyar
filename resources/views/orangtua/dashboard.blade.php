@@ -126,12 +126,12 @@
         </div>
 
         {{-- Monthly Attendance Card --}}
-        <div>
+        <div onclick="window.location='{{ route('orangtua.attendance.history', $child->id) }}'" class="bg-white rounded-2xl p-3 border border-gray-100 shadow-sm cursor-pointer hover:border-blue-200 hover:shadow-md transition-all">
             <div class="flex items-center justify-between mb-2">
                 <p class="text-xs font-bold text-gray-700 uppercase tracking-wide">Ringkasan Absen Bulan {{ now()->isoFormat('MMMM Y') }}</p>
-                <a href="{{ route('orangtua.attendance.history', $child->id) }}" class="text-xs font-semibold text-blue-600 hover:text-blue-700 flex items-center gap-0.5">
+                <span class="text-xs font-semibold text-blue-600">
                     Lihat Detail &rarr;
-                </a>
+                </span>
             </div>
 
             <div class="grid grid-cols-3 gap-2">
