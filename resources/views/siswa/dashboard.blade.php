@@ -101,11 +101,11 @@
         </div>
         <div class="bg-emerald-50/80 border border-emerald-100 rounded-xl py-2.5 px-1">
             <p class="text-lg font-black text-emerald-700">+{{ $pointSummary['prestasi'] }}</p>
-            <p class="text-[11px] font-semibold text-emerald-800 mt-0.5">Catatan Positif</p>
+            <p class="text-[11px] font-semibold text-emerald-800 mt-0.5">Apresiasi Karakter</p>
         </div>
         <div class="bg-rose-50/80 border border-rose-100 rounded-xl py-2.5 px-1">
             <p class="text-lg font-black text-rose-700">{{ $pointSummary['pelanggaran'] }}</p>
-            <p class="text-[11px] font-semibold text-rose-800 mt-0.5">Catatan Negatif</p>
+            <p class="text-[11px] font-semibold text-rose-800 mt-0.5">Kedisiplinan Karakter</p>
         </div>
     </div>
 </div>

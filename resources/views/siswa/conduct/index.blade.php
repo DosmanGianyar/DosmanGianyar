@@ -43,7 +43,7 @@
                         <p class="text-sm font-medium text-gray-800">{{ $log->displayCategoryName() }}</p>
                         <span class="text-xs font-semibold shrink-0
                             {{ $log->isPrestasi() ? 'text-green-700' : 'text-red-700' }}">
-                            {{ $log->isPrestasi() ? 'Catatan Positif' : 'Catatan Negatif' }}
+                            {{ $log->isPrestasi() ? 'Apresiasi Karakter' : 'Kedisiplinan Karakter' }}
                         </span>
                     </div>
                     @if($log->note || ($log->description && $log->description !== $log->displayCategoryName()))
