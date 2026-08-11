@@ -465,7 +465,7 @@
         <div style="padding:1.25rem;border-bottom:1px solid rgba(255,255,255,0.1);display:flex;align-items:flex-start;justify-content:space-between;background:#0d1628">
             <div>
                 <h3 style="font-size:1.125rem;font-weight:700;color:#fff;display:flex;align-items:center;gap:0.5rem;margin:0">
-                    <svg style="width:1.25rem;height:1.25rem;color:rgb(245,158,11)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg width="20" height="20" style="width:20px;height:20px;max-width:20px;max-height:20px;flex-shrink:0;color:rgb(245,158,11)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                     </svg>
                     {{ $studentDetailData['student']['name'] }}
@@ -475,7 +475,7 @@
                 </p>
             </div>
             <button type="button" wire:click="closeStudentDetail" style="color:rgba(255,255,255,0.6);background:none;border:none;cursor:pointer;padding:0.25rem" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">
-                <svg style="width:1.5rem;height:1.5rem" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg width="24" height="24" style="width:24px;height:24px;max-width:24px;max-height:24px;flex-shrink:0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                 </svg>
             </button>
