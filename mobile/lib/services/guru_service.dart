@@ -333,7 +333,7 @@ class GuruService {
   }
 
   static Future<String> deleteTeachingSession(int id) async {
-    final body = await ApiClient.delete('/guru/teaching-sessions/$id');
+    final body = await ApiClient.post('/guru/teaching-sessions/$id/delete');
     return body['message'] as String? ?? 'Jurnal mengajar berhasil dihapus.';
   }
 
@@ -461,7 +461,7 @@ class GuruService {
   }
 
   static Future<String> deleteJournal(int id) async {
-    final body = await ApiClient.delete('/guru/journals/$id');
+    final body = await ApiClient.post('/guru/journals/$id/delete');
     return body['message'] as String;
   }
 

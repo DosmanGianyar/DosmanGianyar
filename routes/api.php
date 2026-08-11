@@ -175,8 +175,8 @@ Route::prefix('v1')->group(function () {
             Route::get('/guru/teaching-sessions/{id}',                    [GuruTeachingSessionController::class, 'show']);
             Route::post('/guru/teaching-sessions/{id}/update',            [GuruTeachingSessionController::class, 'update']);
             Route::put('/guru/teaching-sessions/{id}',                    [GuruTeachingSessionController::class, 'update']);
-            Route::post('/guru/teaching-sessions/{id}/delete',            [GuruTeachingSessionController::class, 'destroy']);
-            Route::delete('/guru/teaching-sessions/{id}',                 [GuruTeachingSessionController::class, 'destroy']);
+            Route::match(['delete', 'post'], '/guru/teaching-sessions/{id}/delete', [GuruTeachingSessionController::class, 'destroy']);
+            Route::match(['delete', 'post'], '/guru/teaching-sessions/{id}',        [GuruTeachingSessionController::class, 'destroy']);
 
             // Tujuan Pembelajaran (TP) — master data per guru
             Route::get('/guru/tp',                                        [GuruTpController::class, 'index']);
@@ -191,8 +191,8 @@ Route::prefix('v1')->group(function () {
             Route::get('/guru/journals/class-students/{classId}',         [GuruJournalController::class, 'classStudents']);
             Route::get('/guru/journals/{id}',                             [GuruJournalController::class, 'show']);
             Route::put('/guru/journals/{id}',                             [GuruJournalController::class, 'update']);
-            Route::post('/guru/journals/{id}/delete',                     [GuruJournalController::class, 'destroy']);
-            Route::delete('/guru/journals/{id}',                          [GuruJournalController::class, 'destroy']);
+            Route::match(['delete', 'post'], '/guru/journals/{id}/delete',[GuruJournalController::class, 'destroy']);
+            Route::match(['delete', 'post'], '/guru/journals/{id}',       [GuruJournalController::class, 'destroy']);
 
             // Input Nilai Guru
             Route::get('/guru/grades/classes',                    [GuruGradeApiController::class, 'classes']);
