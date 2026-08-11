@@ -387,39 +387,82 @@ class GuruTeachingSessionController extends Controller
         }
     }
 
-    // DELETE /api/v1/guru/teaching-sessions/{id}
+    // DELETE or POST /api/v1/guru/teaching-sessions/{id}/delete
     public function destroy(int $id): JsonResponse
     {
         /** @var \App\Models\User $teacher */
         $teacher = Auth::user();
 
+        // 1. Check TeacherAttendance
         $session = TeacherAttendance::find($id);
 
-        if (! $session) {
-            return response()->json(['message' => 'Jurnal mengajar tidak ditemukan.'], 404);
+        if ($session) {
+            $isOwner = (int) $session->teacher_id === (int) $teacher->id;
+            $isStaff = in_array($teacher->role, ['admin', 'piket']) || $teacher->isBk();
+
+            if (! $isOwner && ! $isStaff) {
+                return response()->json(['message' => 'Anda tidak memiliki wewenang menghapus jurnal mengajar ini.'], 403);
+            }
+
+            DB::beginTransaction();
+            try {
+                $createdMinute = $session->created_at ? $session->created_at->format('Y-m-d H:i') : null;
+
+                $siblingQuery = TeacherAttendance::where('teacher_id', $session->teacher_id)
+                    ->where('class_id', $session->class_id)
+                    ->where('subject_id', $session->subject_id)
+                    ->whereDate('date', $session->date);
+
+                if ($createdMinute) {
+                    $siblingQuery->whereRaw("DATE_FORMAT(created_at, '%Y-%m-%d %H:%i') = ?", [$createdMinute]);
+                }
+
+                $siblingSessions = $siblingQuery->get();
+                $siblingIds = $siblingSessions->pluck('id')->toArray();
+
+                if (empty($siblingIds)) {
+                    $siblingIds = [$session->id];
+                }
+
+                SessionAttendance::whereIn('teacher_attendance_id', $siblingIds)->delete();
+                TeacherAttendance::whereIn('id', $siblingIds)->delete();
+
+                DB::commit();
+
+                return response()->json([
+                    'message' => 'Jurnal mengajar berhasil dihapus.',
+                ]);
+            } catch (\Throwable $e) {
+                DB::rollBack();
+                return response()->json(['message' => 'Gagal menghapus: ' . $e->getMessage()], 500);
+            }
         }
 
-        $isOwner = (int) $session->teacher_id === (int) $teacher->id;
-        $isStaff = in_array($teacher->role, ['admin', 'piket']) || $teacher->isBk();
+        // 2. Fallback check TeacherJournal
+        $journal = TeacherJournal::find($id);
+        if ($journal) {
+            $isOwner = (int) $journal->teacher_id === (int) $teacher->id;
+            $isStaff = in_array($teacher->role, ['admin', 'piket']) || $teacher->isBk();
 
-        if (! $isOwner && ! $isStaff) {
-            return response()->json(['message' => 'Anda tidak memiliki wewenang menghapus jurnal mengajar ini.'], 403);
+            if (! $isOwner && ! $isStaff) {
+                return response()->json(['message' => 'Anda tidak memiliki wewenang menghapus jurnal ini.'], 403);
+            }
+
+            DB::beginTransaction();
+            try {
+                $journal->absences()->delete();
+                $journal->delete();
+
+                DB::commit();
+
+                return response()->json(['message' => 'Jurnal mengajar berhasil dihapus.']);
+            } catch (\Throwable $e) {
+                DB::rollBack();
+                return response()->json(['message' => 'Gagal menghapus: ' . $e->getMessage()], 500);
+            }
         }
 
-        DB::beginTransaction();
-        try {
-            SessionAttendance::where('teacher_attendance_id', $session->id)->delete();
-            $session->delete();
-
-            DB::commit();
-
-            return response()->json([
-                'message' => 'Jurnal mengajar berhasil dihapus.',
-            ]);
-        } catch (\Throwable $e) {
-            DB::rollBack();
-            return response()->json(['message' => 'Gagal menghapus: ' . $e->getMessage()], 500);
-        }
+        return response()->json(['message' => 'Jurnal mengajar tidak ditemukan.'], 404);
     }
 
     // GET /api/v1/guru/teaching-sessions/class-students/{classId}?date=
