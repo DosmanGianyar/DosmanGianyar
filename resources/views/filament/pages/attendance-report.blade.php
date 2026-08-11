@@ -457,128 +457,122 @@
 </div>
 
 {{-- Student Detail Modal --}}
+{{-- Student Detail Modal --}}
 @if($showDetailModal && $studentDetailData)
-<div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs" x-data="{ filter: 'all' }">
-    <div class="bg-[#0f1d33] border border-white/10 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
+<div style="position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;display:flex;align-items:center;justify-content:center;padding:1rem;background:rgba(0,0,0,0.8);backdrop-filter:blur(4px)" x-data="{ filter: 'all' }">
+    <div style="background:#0f1d33;border:1px solid rgba(255,255,255,0.15);border-radius:1rem;max-width:42rem;width:100%;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 25px 50px -12px rgba(0,0,0,0.5)">
         {{-- Header --}}
-        <div class="p-5 border-b border-white/10 flex items-start justify-between bg-[#0d1628]">
+        <div style="padding:1.25rem;border-bottom:1px solid rgba(255,255,255,0.1);display:flex;align-items:flex-start;justify-content:space-between;background:#0d1628">
             <div>
-                <h3 class="text-lg font-bold text-white flex items-center gap-2">
-                    <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <h3 style="font-size:1.125rem;font-weight:700;color:#fff;display:flex;align-items:center;gap:0.5rem;margin:0">
+                    <svg style="width:1.25rem;height:1.25rem;color:rgb(245,158,11)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                     </svg>
                     {{ $studentDetailData['student']['name'] }}
                 </h3>
-                <p class="text-xs text-white/50 mt-1">
-                    NIS: {{ $studentDetailData['student']['nis'] }} • Kelas: {{ $studentDetailData['student']['class_name'] }} • Periode {{ $studentDetailData['month_name'] }}
+                <p style="font-size:0.75rem;color:rgba(255,255,255,0.5);margin-top:0.25rem">
+                    NIS: {{ $studentDetailData['student']['nis'] }} &bull; Kelas: {{ $studentDetailData['student']['class_name'] }} &bull; Periode {{ $studentDetailData['month_name'] }}
                 </p>
             </div>
-            <button type="button" wire:click="closeStudentDetail" class="text-white/60 hover:text-white transition-colors p-1">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <button type="button" wire:click="closeStudentDetail" style="color:rgba(255,255,255,0.6);background:none;border:none;cursor:pointer;padding:0.25rem" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">
+                <svg style="width:1.5rem;height:1.5rem" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                 </svg>
             </button>
         </div>
 
         {{-- Summary Cards --}}
-        <div class="p-4 bg-[#0b1220] border-b border-white/5 grid grid-cols-6 gap-2 text-center">
-            <div class="bg-white/5 p-2 rounded-xl border border-white/5">
-                <p class="text-[10px] font-bold text-green-400 uppercase">Hadir</p>
-                <p class="text-base font-extrabold text-white mt-0.5">{{ $studentDetailData['counts']['hadir'] }}</p>
+        <div style="padding:1rem;background:#0b1220;border-bottom:1px solid rgba(255,255,255,0.05);display:grid;grid-template-columns:repeat(6, 1fr);gap:0.5rem;text-align:center">
+            <div style="background:rgba(255,255,255,0.05);padding:0.5rem;border-radius:0.75rem;border:1px solid rgba(255,255,255,0.05)">
+                <p style="font-size:0.65rem;font-weight:700;color:rgb(74,222,128);text-transform:uppercase;margin:0">Hadir</p>
+                <p style="font-size:1rem;font-weight:800;color:#fff;margin:0.125rem 0 0 0">{{ $studentDetailData['counts']['hadir'] }}</p>
             </div>
-            <div class="bg-white/5 p-2 rounded-xl border border-white/5">
-                <p class="text-[10px] font-bold text-yellow-400 uppercase">Terlambat</p>
-                <p class="text-base font-extrabold text-white mt-0.5">{{ $studentDetailData['counts']['terlambat'] }}</p>
+            <div style="background:rgba(255,255,255,0.05);padding:0.5rem;border-radius:0.75rem;border:1px solid rgba(255,255,255,0.05)">
+                <p style="font-size:0.65rem;font-weight:700;color:rgb(250,204,21);text-transform:uppercase;margin:0">Terlambat</p>
+                <p style="font-size:1rem;font-weight:800;color:#fff;margin:0.125rem 0 0 0">{{ $studentDetailData['counts']['terlambat'] }}</p>
             </div>
-            <div class="bg-white/5 p-2 rounded-xl border border-white/5">
-                <p class="text-[10px] font-bold text-blue-400 uppercase">Izin</p>
-                <p class="text-base font-extrabold text-white mt-0.5">{{ $studentDetailData['counts']['izin'] }}</p>
+            <div style="background:rgba(255,255,255,0.05);padding:0.5rem;border-radius:0.75rem;border:1px solid rgba(255,255,255,0.05)">
+                <p style="font-size:0.65rem;font-weight:700;color:rgb(96,165,250);text-transform:uppercase;margin:0">Izin</p>
+                <p style="font-size:1rem;font-weight:800;color:#fff;margin:0.125rem 0 0 0">{{ $studentDetailData['counts']['izin'] }}</p>
             </div>
-            <div class="bg-white/5 p-2 rounded-xl border border-white/5">
-                <p class="text-[10px] font-bold text-purple-400 uppercase">Sakit</p>
-                <p class="text-base font-extrabold text-white mt-0.5">{{ $studentDetailData['counts']['sakit'] }}</p>
+            <div style="background:rgba(255,255,255,0.05);padding:0.5rem;border-radius:0.75rem;border:1px solid rgba(255,255,255,0.05)">
+                <p style="font-size:0.65rem;font-weight:700;color:rgb(192,132,252);text-transform:uppercase;margin:0">Sakit</p>
+                <p style="font-size:1rem;font-weight:800;color:#fff;margin:0.125rem 0 0 0">{{ $studentDetailData['counts']['sakit'] }}</p>
             </div>
-            <div class="bg-white/5 p-2 rounded-xl border border-white/5">
-                <p class="text-[10px] font-bold text-teal-400 uppercase">Dispensasi</p>
-                <p class="text-base font-extrabold text-white mt-0.5">{{ $studentDetailData['counts']['dispensasi'] }}</p>
+            <div style="background:rgba(255,255,255,0.05);padding:0.5rem;border-radius:0.75rem;border:1px solid rgba(255,255,255,0.05)">
+                <p style="font-size:0.65rem;font-weight:700;color:rgb(45,212,191);text-transform:uppercase;margin:0">Dispensasi</p>
+                <p style="font-size:1rem;font-weight:800;color:#fff;margin:0.125rem 0 0 0">{{ $studentDetailData['counts']['dispensasi'] }}</p>
             </div>
-            <div class="bg-white/5 p-2 rounded-xl border border-white/5">
-                <p class="text-[10px] font-bold text-red-400 uppercase">Alpa</p>
-                <p class="text-base font-extrabold text-white mt-0.5">{{ $studentDetailData['counts']['alpa'] }}</p>
+            <div style="background:rgba(255,255,255,0.05);padding:0.5rem;border-radius:0.75rem;border:1px solid rgba(255,255,255,0.05)">
+                <p style="font-size:0.65rem;font-weight:700;color:rgb(248,113,113);text-transform:uppercase;margin:0">Alpa</p>
+                <p style="font-size:1rem;font-weight:800;color:#fff;margin:0.125rem 0 0 0">{{ $studentDetailData['counts']['alpa'] }}</p>
             </div>
         </div>
 
         {{-- Filter Tabs --}}
-        <div class="px-5 pt-3 flex gap-2 border-b border-white/5">
-            <button type="button" @click="filter = 'all'" :class="filter === 'all' ? 'border-amber-400 text-amber-300 font-bold' : 'border-transparent text-white/50'" class="pb-2 text-xs border-b-2 transition-colors">
+        <div style="padding:0.75rem 1.25rem 0 1.25rem;display:flex;gap:0.5rem;border-bottom:1px solid rgba(255,255,255,0.05)">
+            <button type="button" @click="filter = 'all'" :style="filter === 'all' ? 'border-bottom:2px solid rgb(245,158,11);color:rgb(252,211,77);font-weight:700' : 'border-bottom:2px solid transparent;color:rgba(255,255,255,0.5)'" style="padding-bottom:0.5rem;font-size:0.75rem;background:none;border-top:none;border-left:none;border-right:none;cursor:pointer">
                 Semua Hari ({{ count($studentDetailData['logs']) }})
             </button>
-            <button type="button" @click="filter = 'alpa'" :class="filter === 'alpa' ? 'border-red-400 text-red-300 font-bold' : 'border-transparent text-white/50'" class="pb-2 text-xs border-b-2 transition-colors">
+            <button type="button" @click="filter = 'alpa'" :style="filter === 'alpa' ? 'border-bottom:2px solid rgb(248,113,113);color:rgb(252,165,165);font-weight:700' : 'border-bottom:2px solid transparent;color:rgba(255,255,255,0.5)'" style="padding-bottom:0.5rem;font-size:0.75rem;background:none;border-top:none;border-left:none;border-right:none;cursor:pointer">
                 🔴 Alpa ({{ $studentDetailData['counts']['alpa'] }})
             </button>
-            <button type="button" @click="filter = 'izin_sakit'" :class="filter === 'izin_sakit' ? 'border-blue-400 text-blue-300 font-bold' : 'border-transparent text-white/50'" class="pb-2 text-xs border-b-2 transition-colors">
+            <button type="button" @click="filter = 'izin_sakit'" :style="filter === 'izin_sakit' ? 'border-bottom:2px solid rgb(96,165,250);color:rgb(147,197,253);font-weight:700' : 'border-bottom:2px solid transparent;color:rgba(255,255,255,0.5)'" style="padding-bottom:0.5rem;font-size:0.75rem;background:none;border-top:none;border-left:none;border-right:none;cursor:pointer">
                 🔵 Izin / Sakit / Disp ({{ $studentDetailData['counts']['izin'] + $studentDetailData['counts']['sakit'] + $studentDetailData['counts']['dispensasi'] }})
             </button>
-            <button type="button" @click="filter = 'terlambat'" :class="filter === 'terlambat' ? 'border-yellow-400 text-yellow-300 font-bold' : 'border-transparent text-white/50'" class="pb-2 text-xs border-b-2 transition-colors">
+            <button type="button" @click="filter = 'terlambat'" :style="filter === 'terlambat' ? 'border-bottom:2px solid rgb(250,204,21);color:rgb(253,224,71);font-weight:700' : 'border-bottom:2px solid transparent;color:rgba(255,255,255,0.5)'" style="padding-bottom:0.5rem;font-size:0.75rem;background:none;border-top:none;border-left:none;border-right:none;cursor:pointer">
                 🟡 Terlambat ({{ $studentDetailData['counts']['terlambat'] }})
             </button>
         </div>
 
-        {{-- Timeline Log Table --}}
-        <div class="p-5 overflow-y-auto flex-1 space-y-2">
+        {{-- Timeline Log List --}}
+        <div style="padding:1.25rem;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:0.5rem">
             @forelse($studentDetailData['logs'] as $log)
                 <div x-show="filter === 'all' || (filter === 'alpa' && '{{ $log['status'] }}' === 'alpa') || (filter === 'izin_sakit' && ['izin','sakit','dispensasi'].includes('{{ $log['status'] }}')) || (filter === 'terlambat' && '{{ $log['status'] }}' === 'terlambat')"
-                    class="p-3 rounded-xl border border-white/5 bg-white/5 flex items-center justify-between gap-3 text-xs">
-                    <div class="flex items-center gap-3">
-                        <span class="w-2.5 h-2.5 rounded-full shrink-0
-                            {{ match($log['status']) {
-                                'hadir' => 'bg-green-400',
-                                'terlambat' => 'bg-yellow-400',
-                                'izin' => 'bg-blue-400',
-                                'sakit' => 'bg-purple-400',
-                                'dispensasi' => 'bg-teal-400',
-                                'alpa' => 'bg-red-500',
-                                default => 'bg-gray-500'
-                            } }}"></span>
+                    style="padding:0.75rem;border-radius:0.75rem;border:1px solid rgba(255,255,255,0.05);background:rgba(255,255,255,0.04);display:flex;align-items:center;justify-content:space-between;gap:0.75rem;font-size:0.75rem">
+                    <div style="display:flex;align-items:center;gap:0.75rem">
+                        @php
+                            $dotBg = match($log['status']) {
+                                'hadir' => '#4ade80',
+                                'terlambat' => '#facc15',
+                                'izin' => '#60a5fa',
+                                'sakit' => '#c084fc',
+                                'dispensasi' => '#2dd4bf',
+                                'alpa' => '#ef4444',
+                                default => '#9ca3af'
+                            };
+                        @endphp
+                        <span style="width:0.625rem;height:0.625rem;border-radius:50%;flex-shrink:0;background:{{ $dotBg }}"></span>
                         <div>
-                            <p class="font-bold text-white">{{ $log['date_formatted'] }}</p>
+                            <p style="font-weight:700;color:#fff;margin:0">{{ $log['date_formatted'] }}</p>
                             @if($log['reason'])
-                                <p class="text-[11px] text-white/60 mt-0.5">{{ $log['reason'] }}</p>
+                                <p style="font-size:0.7rem;color:rgba(255,255,255,0.6);margin:0.125rem 0 0 0">{{ $log['reason'] }}</p>
                             @endif
                         </div>
                     </div>
-                    <div class="flex items-center gap-2 text-right shrink-0">
+                    <div style="display:flex;align-items:center;gap:0.5rem;text-align:right;flex-shrink:0">
                         @if($log['via_lupa_absen'])
-                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                            <span style="padding:0.125rem 0.5rem;border-radius:9999px;font-size:0.65rem;font-weight:700;background:rgba(245,158,11,0.2);color:rgb(253,224,71);border:1px solid rgba(245,158,11,0.3)">
                                 Lupa Absen
                             </span>
                         @else
-                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold
-                                {{ match($log['status']) {
-                                    'hadir' => 'bg-green-500/20 text-green-300',
-                                    'terlambat' => 'bg-yellow-500/20 text-yellow-300',
-                                    'izin' => 'bg-blue-500/20 text-blue-300',
-                                    'sakit' => 'bg-purple-500/20 text-purple-300',
-                                    'dispensasi' => 'bg-teal-500/20 text-teal-300',
-                                    'alpa' => 'bg-red-500/20 text-red-300',
-                                    default => 'bg-gray-500/20 text-gray-300'
-                                } }}">
+                            <span style="padding:0.125rem 0.5rem;border-radius:9999px;font-size:0.65rem;font-weight:700;background:rgba(255,255,255,0.1);color:#fff">
                                 {{ ucfirst($log['status']) }}
                             </span>
                         @endif
-                        <span class="font-mono text-[11px] text-white/50">
+                        <span style="font-family:monospace;font-size:0.7rem;color:rgba(255,255,255,0.5)">
                             {{ $log['check_in'] ?? '—' }} / {{ $log['check_out'] ?? '—' }}
                         </span>
                     </div>
                 </div>
             @empty
-                <p class="text-center text-xs text-white/40 py-6">Tidak ada catatan presensi untuk filter ini.</p>
+                <p style="text-align:center;font-size:0.75rem;color:rgba(255,255,255,0.4);padding:1.5rem 0">Tidak ada catatan presensi untuk filter ini.</p>
             @endforelse
         </div>
 
         {{-- Footer --}}
-        <div class="p-3 border-t border-white/10 bg-[#0d1628] text-right">
-            <button type="button" wire:click="closeStudentDetail" class="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-semibold transition-colors">
+        <div style="padding:0.75rem 1.25rem;border-top:1px solid rgba(255,255,255,0.1);background:#0d1628;text-align:right">
+            <button type="button" wire:click="closeStudentDetail" style="padding:0.5rem 1rem;background:rgba(255,255,255,0.1);color:#fff;border:none;border-radius:0.75rem;font-size:0.75rem;font-weight:600;cursor:pointer" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
                 Tutup
             </button>
         </div>
@@ -589,20 +583,20 @@
 {{-- Modal Web Preview Rekap Grid PDF Admin --}}
 <div x-show="showGridPreviewModal" x-cloak
     @keydown.escape.window="showGridPreviewModal = false"
-    class="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/80 backdrop-blur-xs">
-    <div class="bg-gray-900 rounded-2xl w-full max-w-6xl h-[92vh] flex flex-col shadow-2xl border border-white/10 overflow-hidden" @click.stop>
+    style="position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;display:flex;align-items:center;justify-content:center;padding:1rem;background:rgba(0,0,0,0.8);backdrop-filter:blur(4px)">
+    <div style="background:#0f1d33;border-radius:1rem;width:100%;max-width:72rem;height:92vh;display:flex;flex-direction:column;box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.1);overflow:hidden" @click.stop>
         {{-- Header Modal --}}
-        <div class="px-5 py-3.5 bg-gray-950 text-white flex items-center justify-between shrink-0 border-b border-white/10">
-            <div class="flex items-center gap-3">
-                <span class="p-1.5 bg-emerald-500/20 text-emerald-400 rounded-lg">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        <div style="padding:0.875rem 1.25rem;background:#090d16;color:#fff;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;border-bottom:1px solid rgba(255,255,255,0.1)">
+            <div style="display:flex;align-items:center;gap:0.75rem">
+                <span style="padding:0.375rem;background:rgba(16,185,129,0.2);color:rgb(52,211,153);border-radius:0.5rem">
+                    <svg style="width:1.25rem;height:1.25rem" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                 </span>
                 <div>
-                    <h3 class="text-sm font-bold text-white">Pratinjau Dokumen Cetak Rekapitulasi Absensi Siswa Bulanan (Grid 1-31)</h3>
-                    <p class="text-[11px] text-gray-400">SMA Negeri 1 Gianyar · Dokumen Resmi PDF Admin</p>
+                    <h3 style="font-size:0.875rem;font-weight:700;color:#fff;margin:0">Pratinjau Dokumen Cetak Rekapitulasi Absensi Siswa Bulanan (Grid 1-31)</h3>
+                    <p style="font-size:0.7rem;color:rgba(255,255,255,0.4);margin:0">SMA Negeri 1 Gianyar &middot; Dokumen Resmi PDF Admin</p>
                 </div>
             </div>
-            <div class="flex items-center gap-2">
+            <div style="display:flex;align-items:center;gap:0.5rem">
                 @php
                     $targetClassId = $this->classId ?: ($classes->first()?->id);
                     $gridMonthStr = sprintf('%04d-%02d', $this->year, $this->month);
@@ -610,25 +604,25 @@
                 @if ($targetClassId)
                 <a href="{{ route('admin.attendance-report.grid-pdf', ['month' => $gridMonthStr, 'class_id' => $targetClassId]) }}"
                     target="_blank"
-                    class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-colors inline-flex items-center gap-1.5 shadow-sm">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                    style="padding:0.5rem 1rem;background:#059669;color:#fff;font-size:0.75rem;font-weight:700;border-radius:0.75rem;text-decoration:none;display:inline-flex;align-items:center;gap:0.375rem">
+                    <svg style="width:1rem;height:1rem" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                     Cetak Rekap Grid (PDF)
                 </a>
                 @endif
                 <button type="button" @click="showGridPreviewModal = false"
-                    class="px-3.5 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white text-xs font-semibold rounded-xl transition-colors">
+                    style="padding:0.5rem 0.875rem;background:rgba(255,255,255,0.1);color:#fff;border:none;border-radius:0.75rem;font-size:0.75rem;font-weight:600;cursor:pointer">
                     Tutup
                 </button>
             </div>
         </div>
 
         {{-- Iframe Preview --}}
-        <div class="flex-1 bg-gray-950 p-2 sm:p-4 overflow-hidden">
+        <div style="flex:1;background:#090d16;padding:0.5rem;overflow:hidden">
             @if ($targetClassId)
             <iframe src="{{ route('admin.attendance-report.grid-preview', ['month' => $gridMonthStr, 'class_id' => $targetClassId]) }}"
-                class="w-full h-full bg-white rounded-xl border border-white/10 shadow-md"></iframe>
+                style="width:100%;height:100%;background:#fff;border-radius:0.75rem;border:1px solid rgba(255,255,255,0.1);box-shadow:0 4px 6px -1px rgba(0,0,0,0.1)"></iframe>
             @else
-            <div class="flex items-center justify-center h-full text-gray-400 text-sm">
+            <div style="display:flex;align-items:center;justify-content:center;height:100%;color:rgba(255,255,255,0.4);font-size:0.875rem">
                 Pilih kelas terlebih dahulu untuk melihat pratinjau.
             </div>
             @endif
