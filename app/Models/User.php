@@ -158,6 +158,30 @@ class User extends Authenticatable implements FilamentUser
     public function isSiswa(): bool           { return in_array($this->role, ['siswa', 'pengelola']); }
     public function isPengelola(): bool       { return $this->role === 'pengelola'; }
     public function isOrangtua(): bool        { return $this->role === 'orangtua'; }
+
+    /**
+     * Ringkasan akumulasi riwayat presensi & pengajuan siswa (Lupa Absen, Sakit, Izin, Dispensasi).
+     */
+    public function getAttendanceStatsSummary(): array
+    {
+        $studentId = $this->id;
+
+        $forgotCount    = \App\Models\ForgotAttendanceRequest::where('student_id', $studentId)->count();
+        $forgotApproved = \App\Models\ForgotAttendanceRequest::where('student_id', $studentId)->where('status', 'approved')->count();
+
+        $sakitCount      = \App\Models\Attendance::where('user_id', $studentId)->where('status', 'sakit')->count();
+        $izinCount       = \App\Models\Attendance::where('user_id', $studentId)->where('status', 'izin')->count();
+        $dispensasiCount = \App\Models\Attendance::where('user_id', $studentId)->where('status', 'dispensasi')->count();
+
+        return [
+            'lupa_absen_total'    => $forgotCount,
+            'lupa_absen_approved' => $forgotApproved,
+            'sakit'               => $sakitCount,
+            'izin'                => $izinCount,
+            'dispensasi'          => $dispensasiCount,
+        ];
+    }
+
     public function isBk(): bool
     {
         if ($this->role !== 'guru') return false;

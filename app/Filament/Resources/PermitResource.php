@@ -60,7 +60,12 @@ class PermitResource extends Resource
                     ->label('Siswa')
                     ->searchable()
                     ->sortable()
-                    ->weight('semibold'),
+                    ->weight('semibold')
+                    ->description(function (\App\Models\Permit $record) {
+                        if (! $record->student) return null;
+                        $stats = $record->student->getAttendanceStatsSummary();
+                        return "📊 Lupa Absen: {$stats['lupa_absen_total']}x (ACC: {$stats['lupa_absen_approved']}) | Sakit: {$stats['sakit']}x | Izin: {$stats['izin']}x | Dispen: {$stats['dispensasi']}x";
+                    }),
 
                 TextColumn::make('student.schoolClass.name')
                     ->label('Kelas')

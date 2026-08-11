@@ -58,6 +58,31 @@
             </div>
         </div>
 
+        {{-- Ringkasan Akumulasi Riwayat Siswa --}}
+        @if($req->student)
+        @php $stats = $req->student->getAttendanceStatsSummary(); @endphp
+        <div class="bg-indigo-50/70 border border-indigo-100 rounded-xl p-2.5 mb-3">
+            <p class="text-[11px] font-bold text-indigo-900 mb-1 flex items-center gap-1">
+                <svg class="w-3.5 h-3.5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2z"/></svg>
+                Akumulasi Riwayat Siswa Ini:
+            </p>
+            <div class="flex flex-wrap items-center gap-1.5 text-[11px]">
+                <span class="px-2 py-0.5 bg-purple-100 text-purple-800 rounded-md font-semibold" title="Total Pengajuan Lupa Absen Siswa">
+                    🟣 Lupa Absen: <strong>{{ $stats['lupa_absen_total'] }}x</strong> (ACC: {{ $stats['lupa_absen_approved'] }})
+                </span>
+                <span class="px-2 py-0.5 bg-violet-100 text-violet-800 rounded-md font-semibold">
+                    🟣 Sakit: <strong>{{ $stats['sakit'] }}x</strong>
+                </span>
+                <span class="px-2 py-0.5 bg-blue-100 text-blue-800 rounded-md font-semibold">
+                    🔵 Izin: <strong>{{ $stats['izin'] }}x</strong>
+                </span>
+                <span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded-md font-semibold">
+                    🟢 Dispen: <strong>{{ $stats['dispensasi'] }}x</strong>
+                </span>
+            </div>
+        </div>
+        @endif
+
         {{-- Detail pengajuan --}}
         <div class="bg-gray-50 rounded-xl p-3 mb-3 space-y-1.5">
             <div class="flex items-center gap-2 text-xs">

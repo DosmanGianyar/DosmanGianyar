@@ -542,6 +542,7 @@ class GuruController extends Controller
                 'status'       => $r->status,
                 'teacher_note' => $r->teacher_note,
                 'reviewed_at'  => $r->reviewed_at?->toDateTimeString(),
+                'student_stats'=> $r->student?->getAttendanceStatsSummary(),
             ]),
             'meta' => [
                 'current_page' => $paginated->currentPage(),
@@ -848,6 +849,7 @@ class GuruController extends Controller
             'status'         => $p->status,
             'rejection_note' => $p->rejection_note,
             'file_url'       => $p->file ? Storage::disk('public')->url($p->file) : null,
+            'student_stats'  => $p->student?->getAttendanceStatsSummary(),
         ];
     }
 
