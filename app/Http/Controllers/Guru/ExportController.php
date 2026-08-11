@@ -207,25 +207,16 @@ class ExportController extends Controller
 
         $html = view('exports.attendance-grid-pdf', $data)->render();
 
-        try {
-            $pdf = Browsershot::html($html)
-                ->format('A4')
-                ->landscape()
-                ->margins(8, 10, 10, 10)
-                ->waitUntilNetworkIdle()
-                ->pdf();
-        } catch (\Throwable $e) {
-            $options = new \Dompdf\Options();
-            $options->set('isRemoteEnabled', true);
-            $options->set('isHtml5ParserEnabled', true);
+        $options = new \Dompdf\Options();
+        $options->set('isRemoteEnabled', true);
+        $options->set('isHtml5ParserEnabled', true);
 
-            $dompdf = new \Dompdf\Dompdf($options);
-            $dompdf->loadHtml($html);
-            $dompdf->setPaper('a4', 'landscape');
-            $dompdf->render();
+        $dompdf = new \Dompdf\Dompdf($options);
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('a4', 'landscape');
+        $dompdf->render();
 
-            $pdf = $dompdf->output();
-        }
+        $pdf = $dompdf->output();
 
         $filename = 'rekap_absensi_' . $data['className'] . '_' . $data['month'] . '.pdf';
 

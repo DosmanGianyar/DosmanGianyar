@@ -72,18 +72,21 @@ Route::get('/offline', fn() => response(view('offline'))->header('Cache-Control'
 Route::get('/privacy-policy', fn() => view('legal.privacy-policy'))->name('privacy-policy');
 Route::get('/delete-account', fn() => view('legal.delete-account'))->name('delete-account');
 
-// ─── Admin (non-Filament) ─────────────────────────────────────────────────────
-Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/import-users', [UserImportController::class, 'showForm'])->name('users.import.form');
-    Route::post('/import-users', [UserImportController::class, 'import'])->name('users.import');
-    Route::get('/import-users/template', [UserImportController::class, 'downloadTemplate'])->name('users.import.template');
-
+// ─── Admin & Presensi Exports ────────────────────────────────────────────────
+Route::middleware(['auth', 'role:admin,admin_kesiswaan,admin_kurikulum,guru'])->prefix('admin')->name('admin.')->group(function () {
     // Laporan Presensi
     Route::get('/attendance-report/excel',        [AdminAttendanceReport::class, 'downloadExcel'])->name('attendance-report.excel');
     Route::get('/attendance-report/pdf',          [AdminAttendanceReport::class, 'downloadPdf'])->name('attendance-report.pdf');
     Route::get('/attendance-report/grid-preview', [\App\Http\Controllers\Guru\ExportController::class, 'attendanceGridPreview'])->name('attendance-report.grid-preview');
     Route::get('/attendance-report/grid-pdf',     [\App\Http\Controllers\Guru\ExportController::class, 'attendanceGridPdf'])->name('attendance-report.grid-pdf');
     Route::get('/attendance-report/grid-excel',   [\App\Http\Controllers\Guru\ExportController::class, 'attendanceGridExcel'])->name('attendance-report.grid-excel');
+});
+
+// ─── Admin (non-Filament) ─────────────────────────────────────────────────────
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/import-users', [UserImportController::class, 'showForm'])->name('users.import.form');
+    Route::post('/import-users', [UserImportController::class, 'import'])->name('users.import');
+    Route::get('/import-users/template', [UserImportController::class, 'downloadTemplate'])->name('users.import.template');
 
     // Download Kartu Pelajar
     Route::get('/student-card/{user}/download', [StudentCardController::class, 'download'])->name('student-card.download');

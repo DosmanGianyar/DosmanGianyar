@@ -59,25 +59,16 @@ class AttendanceReportController extends Controller
             'total'       => count($rows),
         ])->render();
 
-        try {
-            $pdf = Browsershot::html($html)
-                ->format('A4')
-                ->landscape()
-                ->margins(10, 12, 12, 12)
-                ->waitUntilNetworkIdle()
-                ->pdf();
-        } catch (\Throwable $e) {
-            $options = new \Dompdf\Options();
-            $options->set('isRemoteEnabled', true);
-            $options->set('isHtml5ParserEnabled', true);
+        $options = new \Dompdf\Options();
+        $options->set('isRemoteEnabled', true);
+        $options->set('isHtml5ParserEnabled', true);
 
-            $dompdf = new \Dompdf\Dompdf($options);
-            $dompdf->loadHtml($html);
-            $dompdf->setPaper('a4', 'landscape');
-            $dompdf->render();
+        $dompdf = new \Dompdf\Dompdf($options);
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('a4', 'landscape');
+        $dompdf->render();
 
-            $pdf = $dompdf->output();
-        }
+        $pdf = $dompdf->output();
 
         return response($pdf, 200, [
             'Content-Type'        => 'application/pdf',
