@@ -47,7 +47,8 @@ class ConductLog extends Model
         }
 
         if (!empty($this->note) && preg_match('/^\[(.*?)\]\s*(.*)$/s', $this->note, $matches)) {
-            return $matches[1];
+            $t = trim($matches[1]);
+            return ucfirst($t);
         }
 
         if ($this->description) {
@@ -58,7 +59,7 @@ class ConductLog extends Model
             return 'Lomba: ' . $this->lomba_name;
         }
 
-        return $this->isPrestasi() ? 'Catatan Positif' : 'Catatan Negatif';
+        return $this->isPrestasi() ? 'Catatan Apresiasi' : 'Catatan Kedisiplinan';
     }
 
     public function getParsedDescriptionAttribute(): ?string

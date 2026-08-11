@@ -197,9 +197,9 @@ class _LogCard extends StatelessWidget {
             Text('Oleh: ${log.teacherName}',
               style: const TextStyle(fontSize: 11, color: AppColors.gray400)),
           ],
-          if (log.note != null && log.note!.isNotEmpty) ...[
+          if ((log.displayNoteBody ?? log.note) != null && (log.displayNoteBody ?? log.note)!.isNotEmpty) ...[
             const SizedBox(height: 6),
-            Text(log.note!,
+            Text(log.displayNoteBody ?? log.note!,
               style: const TextStyle(fontSize: 12, color: AppColors.gray600),
               maxLines: 2, overflow: TextOverflow.ellipsis),
           ],

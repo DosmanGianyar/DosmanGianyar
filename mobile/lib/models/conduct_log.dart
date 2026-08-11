@@ -58,8 +58,28 @@ class ConductLog {
 
   String get displayCategoryName {
     if (categoryName.startsWith('__sistem__')) {
-      return isCatatanPositif ? 'Apresiasi Karakter' : 'Kedisiplinan Karakter';
+      if (note != null && note!.isNotEmpty) {
+        final reg = RegExp(r'^\[(.*?)\]\s*(.*)$');
+        final match = reg.firstMatch(note!);
+        if (match != null && match.group(1) != null && match.group(1)!.trim().isNotEmpty) {
+          final t = match.group(1)!.trim();
+          return t.substring(0, 1).toUpperCase() + t.substring(1);
+        }
+      }
+      return isCatatanPositif ? 'Catatan Apresiasi' : 'Catatan Kedisiplinan';
     }
     return categoryName;
+  }
+
+  String? get displayNoteBody {
+    if (note != null && note!.isNotEmpty) {
+      final reg = RegExp(r'^\[(.*?)\]\s*(.*)$');
+      final match = reg.firstMatch(note!);
+      if (match != null && match.group(2) != null && match.group(2)!.trim().isNotEmpty) {
+        return match.group(2)!.trim();
+      }
+      return note;
+    }
+    return null;
   }
 }

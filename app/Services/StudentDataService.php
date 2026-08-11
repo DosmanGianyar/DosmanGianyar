@@ -110,15 +110,9 @@ class StudentDataService
                 'pelanggaran_count' => $pelanggaranCount,
             ],
             'logs' => $logs->map(function ($log) {
-                $rawName = $log->category?->name;
-                $categoryName = ($rawName && !str_starts_with($rawName, '__sistem__'))
-                    ? $rawName
-                    : ($log->description 
-                        ?? ($log->lomba_name ? 'Lomba: ' . $log->lomba_name : null)
-                        ?? $log->note 
-                        ?? ($type === 'prestasi' ? 'Apresiasi Karakter' : 'Kedisiplinan Karakter'));
-
-                $note = $log->note ?: ($log->description ?: null);
+                $type = $log->category?->type ?? $log->type ?? 'pelanggaran';
+                $categoryName = $log->displayCategoryName();
+                $note = $log->parsed_description ?: ($log->note ?: ($log->description ?: null));
 
                 return [
                     'id'            => $log->id,
