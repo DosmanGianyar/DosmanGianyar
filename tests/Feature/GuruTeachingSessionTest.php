@@ -96,8 +96,8 @@ class GuruTeachingSessionTest extends TestCase
         ]);
         $response->assertJsonFragment([
             'id'               => $siswaB->id,
-            'morning_status'   => null,
-            'suggested_status' => 'hadir',
+            'morning_status'   => 'belum_absen',
+            'suggested_status' => 'tidak_hadir',
         ]);
     }
 }

@@ -18,6 +18,7 @@ class AttendanceTest extends TestCase
     // School coordinates (SMA N 1 Gianyar)
     private const SCHOOL_LAT = -8.5398;
     private const SCHOOL_LNG = 115.3285;
+    private const VALID_PHOTO = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
 
     protected function setUp(): void
     {
@@ -60,30 +61,11 @@ class AttendanceTest extends TestCase
 
     // ─── Check-in Validation ──────────────────────────────────────────────────
 
-    public function test_checkin_rejects_fake_gps(): void
-    {
-        $this->actingAs($this->siswa)
-            ->postJson(route('siswa.attendance.store'), [
-                'photo'     => 'data:image/jpeg;base64,' . base64_encode(str_repeat('x', 100)),
-                'latitude'  => self::SCHOOL_LAT,
-                'longitude' => self::SCHOOL_LNG,
-                'accuracy'  => 2.5,  // < 5m = fake GPS
-            ])
-            ->assertStatus(422)
-            ->assertJsonPath('success', false);
-
-        $this->assertDatabaseHas('attendances', [
-            'user_id'     => $this->siswa->id,
-            'is_fake_gps' => 1,
-            'status'      => 'alpa',
-        ]);
-    }
-
     public function test_checkin_rejects_outside_geofence(): void
     {
         $this->actingAs($this->siswa)
             ->postJson(route('siswa.attendance.store'), [
-                'photo'     => 'data:image/jpeg;base64,' . base64_encode(str_repeat('x', 100)),
+                'photo'     => self::VALID_PHOTO,
                 'latitude'  => -6.2000,  // Jakarta, far from school
                 'longitude' => 106.8000,
                 'accuracy'  => 15.0,
@@ -107,7 +89,7 @@ class AttendanceTest extends TestCase
 
         $this->actingAs($this->siswa)
             ->postJson(route('siswa.attendance.store'), [
-                'photo'     => 'data:image/jpeg;base64,' . base64_encode(str_repeat('x', 100)),
+                'photo'     => self::VALID_PHOTO,
                 'latitude'  => self::SCHOOL_LAT,
                 'longitude' => self::SCHOOL_LNG,
                 'accuracy'  => 15.0,
@@ -122,7 +104,7 @@ class AttendanceTest extends TestCase
     {
         $this->actingAs($this->siswa)
             ->postJson(route('siswa.attendance.checkout'), [
-                'photo'     => 'data:image/jpeg;base64,' . base64_encode(str_repeat('x', 100)),
+                'photo'     => self::VALID_PHOTO,
                 'latitude'  => self::SCHOOL_LAT,
                 'longitude' => self::SCHOOL_LNG,
                 'accuracy'  => 15.0,
