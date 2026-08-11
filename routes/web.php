@@ -248,6 +248,7 @@ Route::middleware(['auth', 'role:guru,admin'])->prefix('guru')->name('guru.')->g
         Route::get('/attendance', [GuruExport::class, 'attendanceForm'])->name('attendance.form');
         Route::get('/attendance/excel', [GuruExport::class, 'attendanceExcel'])->name('attendance.excel');
         Route::get('/attendance/pdf', [GuruExport::class, 'attendancePdf'])->name('attendance.pdf');
+        Route::get('/attendance/grid-preview', [GuruExport::class, 'attendanceGridPreview'])->name('attendance.grid-preview');
         Route::get('/attendance/grid-pdf', [GuruExport::class, 'attendanceGridPdf'])->name('attendance.grid-pdf');
         Route::get('/attendance/grid-excel', [GuruExport::class, 'attendanceGridExcel'])->name('attendance.grid-excel');
         Route::get('/conduct', [GuruExport::class, 'conductForm'])->name('conduct.form');

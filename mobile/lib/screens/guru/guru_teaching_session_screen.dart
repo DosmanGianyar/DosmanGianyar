@@ -209,10 +209,21 @@ class _CreateSessionTabState extends State<_CreateSessionTab> {
       if (mounted) {
         setState(() {
           _students = list.map((s) {
-            final sug = s.suggestedStatus;
-            final initialStatus = (sug != null)
-                ? (sug == 'alpa' ? 'tidak_hadir' : sug)
-                : 'tidak_hadir';
+            final mStatus = s.morningStatus;
+            String initialStatus;
+            if (mStatus == 'hadir' || mStatus == 'terlambat' || mStatus == 'lupa_absen') {
+              initialStatus = 'hadir';
+            } else if (mStatus == 'sakit') {
+              initialStatus = 'sakit';
+            } else if (mStatus == 'izin') {
+              initialStatus = 'izin';
+            } else if (mStatus == 'dispensasi') {
+              initialStatus = 'dispensasi';
+            } else {
+              // 'belum_absen', 'alpa', or null -> Default to Alpha / tidak_hadir
+              initialStatus = 'tidak_hadir';
+            }
+
             return SessionStudentRow(
               studentId:          s.id,
               name:               s.name,

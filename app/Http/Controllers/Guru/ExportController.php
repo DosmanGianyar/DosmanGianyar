@@ -128,7 +128,7 @@ class ExportController extends Controller
         );
     }
 
-    public function attendanceGridPdf(Request $request): Response
+    private function getAttendanceGridData(Request $request): array
     {
         $request->validate([
             'month'    => 'required|date_format:Y-m',
@@ -141,13 +141,20 @@ class ExportController extends Controller
         $start        = Carbon::parse("$year-$mon-01");
         $daysInMonth  = $start->daysInMonth;
 
+        $schoolClass = SchoolClass::with('homeroomTeacher')->find($request->class_id);
+        $className   = $schoolClass?->name ?? '—';
+        $homeroom    = $schoolClass?->homeroomTeacher ?? auth()->user();
+
+        $headmaster  = User::where(function($q) {
+            $q->where('role', 'admin')->orWhere('name', 'like', '%Sutrisna%');
+        })->first();
+
         $students = User::where('role', 'siswa')
             ->where('class_id', $request->class_id)
             ->with('schoolClass')
             ->orderBy('name')
             ->get();
 
-        // Build grid: $grid[$studentId][$dayNumber] = status|null
         $records = Attendance::whereHas('student', fn($q) => $q->where('class_id', $request->class_id))
             ->whereYear('date', $year)
             ->whereMonth('date', $mon)
@@ -159,26 +166,46 @@ class ExportController extends Controller
         foreach ($students as $student) {
             $dayMap = $records->get($student->id, collect());
             for ($d = 1; $d <= $daysInMonth; $d++) {
-                $grid[$student->id][$d] = $dayMap->get($d)?->status ?? null;
+                $att = $dayMap->get($d);
+                $grid[$student->id][$d] = [
+                    'status'         => $att?->status,
+                    'via_lupa_absen' => (bool) ($att?->via_lupa_absen ?? false),
+                ];
             }
         }
 
-        $className = SchoolClass::find($request->class_id)?->name;
-        $filename  = 'rekap_absensi_' . $className . '_' . $request->month . '.pdf';
+        return [
+            'students'       => $students,
+            'grid'           => $grid,
+            'month'          => $request->month,
+            'className'      => $className,
+            'homeroomName'   => $homeroom?->name ?? '—',
+            'homeroomNip'    => $homeroom?->nip ? 'NIP. ' . $homeroom->nip : 'NIP. —',
+            'headmasterName' => $headmaster?->name ?? 'I Wayan Sutrisna, S.Pd., M.Pd.',
+            'headmasterNip'  => $headmaster?->nip ?? '19710415 199703 1 007',
+        ];
+    }
 
-        $html = view('exports.attendance-grid-pdf', [
-            'students'  => $students,
-            'grid'      => $grid,
-            'month'     => $request->month,
-            'className' => $className,
-        ])->render();
+    public function attendanceGridPreview(Request $request): View
+    {
+        $data = $this->getAttendanceGridData($request);
+        return view('exports.attendance-grid-pdf', $data);
+    }
+
+    public function attendanceGridPdf(Request $request): Response
+    {
+        $data = $this->getAttendanceGridData($request);
+
+        $html = view('exports.attendance-grid-pdf', $data)->render();
 
         $pdf = Browsershot::html($html)
             ->format('A4')
             ->landscape()
-            ->margins(15, 12, 12, 12)
+            ->margins(8, 10, 10, 10)
             ->waitUntilNetworkIdle()
             ->pdf();
+
+        $filename = 'rekap_absensi_' . $data['className'] . '_' . $request->month . '.pdf';
 
         return response($pdf, 200, [
             'Content-Type'        => 'application/pdf',

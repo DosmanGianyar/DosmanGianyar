@@ -3,191 +3,249 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="https://cdn.tailwindcss.com"></script>
+<title>Rekapitulasi Absensi Siswa Bulanan</title>
 <style>
-    @page { size: A4 landscape; margin: 10mm 12mm 12mm 12mm; }
-    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    @page { size: A4 landscape; margin: 8mm 10mm 10mm 10mm; }
+    body { font-family: 'Times New Roman', Times, serif; font-size: 8px; color: #000; margin: 0; padding: 0; background: #fff; }
+    
+    .kop-container { text-align: center; border-bottom: 3px double #000; padding-bottom: 4px; margin-bottom: 8px; position: relative; }
+    .kop-logo-left { position: absolute; left: 10px; top: 2px; width: 52px; height: 52px; object-fit: contain; }
+    .kop-logo-right { position: absolute; right: 10px; top: 2px; width: 52px; height: 52px; object-fit: contain; }
+    .kop-text { text-align: center; line-height: 1.25; }
+    .kop-text .l1 { font-size: 11px; font-weight: bold; text-transform: uppercase; }
+    .kop-text .l2 { font-size: 11px; font-weight: bold; text-transform: uppercase; }
+    .kop-text .l3 { font-size: 15px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
+    .kop-text .l4 { font-size: 8.5px; font-style: italic; }
+    .kop-text .l5 { font-size: 8px; }
 
-    /* Status colors */
-    .st-H { background-color: #86efac !important; }
-    .st-T { background-color: #fcd34d !important; }
-    .st-A { background-color: #fca5a5 !important; }
-    .st-I { background-color: #93c5fd !important; }
-    .st-S { background-color: #c4b5fd !important; }
-    .st-D { background-color: #6ee7b7 !important; }
-    .st-W { background-color: #e2e8f0 !important; }
+    .title-box { text-align: center; margin-bottom: 10px; }
+    .title-main { font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; text-decoration: underline; }
+    .title-sub { font-size: 9.5px; font-weight: bold; margin-top: 2px; }
 
-    table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    .meta-table { width: 100%; margin-bottom: 6px; font-size: 9px; font-weight: bold; border-collapse: collapse; }
+    .meta-table td { padding: 1px 0; }
 
-    thead tr:first-child th {
-        background-color: #1e40af !important;
-        color: #ffffff;
-        font-size: 8px; font-weight: 700;
-        padding: 4px 2px;
-        border: 0.5px solid #1e3a8a;
-    }
-    thead tr:last-child th {
-        background-color: #1d4ed8 !important;
-        color: #bfdbfe;
-        font-size: 6.5px; font-weight: 700;
-        padding: 2px 0;
-        border: 0.5px solid #1e3a8a;
-        text-align: center;
-    }
-    thead tr:last-child th.wknd {
-        background-color: #64748b !important;
-        color: #e2e8f0;
-    }
-    tbody td {
-        border: 0.5px solid #e2e8f0;
-        height: 14px; line-height: 14px;
-        text-align: center; font-size: 6.5px;
-        overflow: hidden; padding: 0;
-    }
-    tbody td.cell-info { padding: 0 3px; text-align: left; color: #374151; }
-    tbody td.cell-center { text-align: center; }
-    tbody tr:nth-child(even) td.cell-info { background-color: #f8fafc !important; }
-    .hdr-col { background-color: #dcfce7 !important; color: #166534; font-weight: 700; }
-    .alp-col { background-color: #fee2e2 !important; color: #991b1b; font-weight: 700; }
+    table.grid-table { width: 100%; border-collapse: collapse; table-layout: fixed; font-family: Arial, Helvetica, sans-serif; font-size: 7px; }
+    table.grid-table th, table.grid-table td { border: 0.5px solid #000; text-align: center; vertical-align: middle; padding: 1px 0; height: 16px; }
+    table.grid-table th { background-color: #f3f4f6; font-weight: bold; }
+    
+    /* Badges */
+    .bg-hadir { background-color: #22c55e !important; color: #ffffff !important; font-weight: bold; } /* Hijau */
+    .bg-terlambat { background-color: #eab308 !important; color: #ffffff !important; font-weight: bold; } /* Kuning */
+    .bg-lupa { background-color: #a855f7 !important; color: #ffffff !important; font-weight: bold; } /* Ungu */
+    .bg-sakit { background-color: #c084fc !important; color: #ffffff !important; font-weight: bold; } /* Violet */
+    .bg-izin { background-color: #60a5fa !important; color: #ffffff !important; font-weight: bold; } /* Biru */
+    .bg-dispensasi { background-color: #14b8a6 !important; color: #ffffff !important; font-weight: bold; } /* Teal */
+    .bg-alpa { background-color: #ef4444 !important; color: #ffffff !important; font-weight: bold; } /* Merah */
+    .bg-libur { background-color: #e5e7eb !important; color: #9ca3af !important; } /* Abu Libur */
+    .bg-future { background-color: #fafafa !important; color: #d1d5db !important; } /* Belum Berjalan */
+
+    .summary-col { font-weight: bold; font-size: 7.5px; }
+
+    .notes-section { margin-top: 8px; font-size: 7.5px; line-height: 1.4; font-family: Arial, sans-serif; }
+    
+    .signature-container { margin-top: 15px; width: 100%; font-size: 9.5px; font-family: 'Times New Roman', Times, serif; }
+    .signature-table { width: 100%; border-collapse: collapse; }
+    .signature-table td { width: 50%; vertical-align: top; text-align: center; border: none; }
 </style>
 </head>
-<body class="bg-white text-gray-800" style="font-family: Arial, sans-serif; font-size: 7px;">
+<body>
 
-{{-- ── KOP SURAT ─────────────────────────────────────────────────────────── --}}
-<div style="text-align:center; padding-bottom:7px; margin-bottom:6px; border-bottom:4px double #000000;">
-    <div style="display:inline-flex; align-items:center; gap:14px;">
-        <img src="{{ public_path('img/logo-pemprov-bali.png') }}" style="width:58px; height:58px; object-fit:contain; flex-shrink:0;">
-        <div style="text-align:center; line-height:1.45;">
-            <div style="font-size:11px; font-weight:bold; font-family:'Times New Roman',serif;">PEMERINTAH PROVINSI BALI</div>
-            <div style="font-size:11px; font-weight:bold; font-family:'Times New Roman',serif;">DINAS PENDIDIKAN KEPEMUDAAN DAN OLAHRAGA</div>
-            <div style="font-size:15px; font-weight:bold; font-family:'Times New Roman',serif;">SMA NEGERI 1 GIANYAR</div>
-            <div style="font-size:8.5px; font-weight:bold; font-family:'Times New Roman',serif;">Jln. Ratna, Tegal Tugu Gianyar, Telp : (0361) 943034</div>
-            <div style="font-size:7.5px;">Website: <span style="text-decoration:underline;">https://sman1-gianyar.sch.id</span> &nbsp; E-mail: <span style="text-decoration:underline;">sman1.gianyar1963@gmail.com</span></div>
-            <div style="font-size:8px; font-weight:bold; margin-top:1px;">NPSN : 50102079</div>
-        </div>
-        <img src="{{ public_path('img/logo_sekolah.png') }}" style="width:58px; height:58px; object-fit:contain; flex-shrink:0;">
-    </div>
-</div>
-
-{{-- ── Judul Laporan ─────────────────────────────────────────────────────── --}}
 @php
     use Carbon\Carbon;
-    $start       = Carbon::parse($month . '-01');
-    $daysInMonth = $start->daysInMonth;
-    $dateColW    = round(172 / $daysInMonth, 2);
+    $start        = Carbon::parse($month . '-01');
+    $daysInMonth  = $start->daysInMonth;
+    $today        = now();
+    $monthName    = $start->isoFormat('MMMM');
+    $yearNum      = $start->year;
+
+    // Indonesian short day names: 1(Mon)->Sn, 2(Tue)->Sl, 3(Wed)->Rb, 4(Thu)->Km, 5(Fri)->Jm, 6(Sat)->Sb, 7(Sun)->Mg
+    $shortDays = [1 => 'Sn', 2 => 'Sl', 3 => 'Rb', 4 => 'Km', 5 => 'Jm', 6 => 'Sb', 7 => 'Mg'];
 @endphp
 
-<div style="text-align:center; font-size:10px; font-weight:bold; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:2px; color:#111827;">
-    Rekap Absensi Siswa
-</div>
-<div style="text-align:center; font-size:7.5px; color:#6b7280; margin-bottom:5px;">
-    Kelas: <strong style="color:#111827;">{{ $className }}</strong>
-    &nbsp;&middot;&nbsp;
-    Periode: <strong style="color:#111827;">{{ $start->isoFormat('MMMM Y') }}</strong>
-    &nbsp;&middot;&nbsp;
-    Jumlah Siswa: <strong style="color:#111827;">{{ $students->count() }}</strong>
+{{-- ── KOP SURAT ─────────────────────────────────────────────────────────── --}}
+<div class="kop-container">
+    @if(file_exists(public_path('img/logo-pemprov-bali.png')))
+        <img class="kop-logo-left" src="{{ public_path('img/logo-pemprov-bali.png') }}" alt="Logo Bali">
+    @endif
+    <div class="kop-text">
+        <div class="l1">PEMERINTAH PROVINSI BALI</div>
+        <div class="l2">DINAS PENDIDIKAN, KEPEMUDAAN, DAN OLAHRAGA</div>
+        <div class="l3">SMA NEGERI 1 GIANYAR</div>
+        <div class="l4">Jl. Ratna No. 1, Gianyar, Bali 80511 | Telp: (0361) 943034 | Website: sman1-gianyar.sch.id</div>
+    </div>
+    @if(file_exists(public_path('img/logo_sekolah.png')))
+        <img class="kop-logo-right" src="{{ public_path('img/logo_sekolah.png') }}" alt="Logo SMAN1">
+    @endif
 </div>
 
-{{-- ── Tabel Grid ────────────────────────────────────────────────────────── --}}
-<table>
-    <colgroup>
-        <col style="width:5mm">
-        <col style="width:15mm">
-        <col style="width:50mm">
-        <col style="width:16mm">
-        @for($d = 1; $d <= $daysInMonth; $d++)
-            <col style="width:{{ $dateColW }}mm">
-        @endfor
-        <col style="width:8mm">
-        <col style="width:8mm">
-    </colgroup>
+{{-- ── JUDUL LAPORAN ────────────────────────────────────────────────────── --}}
+<div class="title-box">
+    <div class="title-main">REKAPITULASI ABSENSI SISWA BULANAN (TGL. 1 S/D {{ $daysInMonth }})</div>
+    <div class="title-sub">Bulan: {{ $monthName }} {{ $yearNum }}</div>
+</div>
 
+{{-- ── META INFORMATION ──────────────────────────────────────────────────── --}}
+<table class="meta-table">
+    <tr>
+        <td style="text-align:left;">Kelas: {{ $className }}</td>
+        <td style="text-align:right;">Guru / Wali Kelas: {{ $homeroomName ?? '—' }}</td>
+    </tr>
+</table>
+
+{{-- ── TABEL PRESENSI GRID ────────────────────────────────────────────────── --}}
+<table class="grid-table">
     <thead>
         <tr>
-            <th style="text-align:left; padding-left:3px;" rowspan="2">No</th>
-            <th style="text-align:left; padding-left:3px;" rowspan="2">Kelas</th>
-            <th style="text-align:left; padding-left:3px;" rowspan="2">Nama Siswa</th>
-            <th style="text-align:center;" rowspan="2">NISN / NIS</th>
-            <th style="text-align:center; font-size:9px; letter-spacing:0.3px;" colspan="{{ $daysInMonth }}">
-                {{ $start->isoFormat('MMMM Y') }}
-            </th>
-            <th style="text-align:center; background-color:#064e3b !important; font-size:6.5px;" rowspan="2">Hdr</th>
-            <th style="text-align:center; background-color:#7f1d1d !important; font-size:6.5px;" rowspan="2">Alp</th>
+            <th style="width: 18px;" rowspan="2">No</th>
+            <th style="width: 45px;" rowspan="2">NIS</th>
+            <th style="text-align: left; padding-left: 4px;" rowspan="2">Nama Siswa</th>
+            <th colspan="{{ $daysInMonth }}">Tanggal (Bulan {{ $monthName }} {{ $yearNum }})</th>
+            <th style="width: 110px;" colspan="5">Rekap Ketidakberhadiran</th>
+            <th style="width: 44px;" colspan="2">Detail</th>
         </tr>
         <tr>
             @for($d = 1; $d <= $daysInMonth; $d++)
-            @php $isWknd = $start->copy()->setDay($d)->isWeekend(); @endphp
-            <th class="{{ $isWknd ? 'wknd' : '' }}">{{ $d }}</th>
+                @php
+                    $curDate = $start->copy()->setDay($d);
+                    $dayIso  = $curDate->dayOfWeekIso;
+                    $dayName = $shortDays[$dayIso] ?? '';
+                    $isWknd  = $curDate->isWeekend();
+                @endphp
+                <th style="{{ $isWknd ? 'background-color: #e5e7eb; color: #6b7280;' : '' }}">
+                    {{ $dayName }}<br><span style="font-size: 6.5px;">{{ $d }}</span>
+                </th>
             @endfor
+            <th style="width: 22px; background-color: #f3e8ff; color: #7e22ce;">S</th>
+            <th style="width: 22px; background-color: #dbeafe; color: #1e40af;">I</th>
+            <th style="width: 22px; background-color: #fee2e2; color: #991b1b;">A</th>
+            <th style="width: 22px; background-color: #ccfbf1; color: #0f766e;">D</th>
+            <th style="width: 22px; background-color: #f3f4f6; color: #4b5563;">L</th>
+            <th style="width: 22px; background-color: #fef3c7; color: #92400e;">T</th>
+            <th style="width: 22px; background-color: #f3e8ff; color: #6b21a8;">Lp</th>
         </tr>
     </thead>
-
     <tbody>
-        @foreach($students as $i => $student)
-        @php
-            $dayMap     = $grid[$student->id] ?? [];
-            $hadirCount = 0;
-            $alpaCount  = 0;
-            for ($d = 1; $d <= $daysInMonth; $d++) {
-                $s = $dayMap[$d] ?? null;
-                if (in_array($s, ['hadir','terlambat'])) $hadirCount++;
-                if ($s === 'alpa') $alpaCount++;
-            }
-        @endphp
-        <tr>
-            <td class="cell-info cell-center">{{ $i + 1 }}</td>
-            <td class="cell-info" style="font-size:6px;">{{ $student->schoolClass?->name ?? '' }}</td>
-            <td class="cell-info">{{ $student->name }}</td>
-            <td class="cell-info cell-center" style="font-size:6px;">{{ $student->nis ?? '—' }}</td>
-
-            @for($d = 1; $d <= $daysInMonth; $d++)
+        @foreach($students as $idx => $student)
             @php
-                $status = $dayMap[$d] ?? null;
-                $isWknd = $start->copy()->setDay($d)->isWeekend();
-                $cls = $isWknd ? 'st-W' : match($status) {
-                    'hadir'      => 'st-H',
-                    'terlambat'  => 'st-T',
-                    'alpa'       => 'st-A',
-                    'izin'       => 'st-I',
-                    'sakit'      => 'st-S',
-                    'dispensasi' => 'st-D',
-                    default      => '',
-                };
+                $studentGrid = $grid[$student->id] ?? [];
+                $sakitCount = 0;
+                $izinCount = 0;
+                $alpaCount = 0;
+                $dispensasiCount = 0;
+                $liburCount = 0;
+                $terlambatCount = 0;
+                $lupaCount = 0;
             @endphp
-            <td class="{{ $cls }}"></td>
-            @endfor
+            <tr>
+                <td>{{ $idx + 1 }}</td>
+                <td style="font-size: 6.5px;">{{ $student->nis ?? '—' }}</td>
+                <td style="text-align: left; padding-left: 4px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                    {{ $student->name }}
+                </td>
 
-            <td class="hdr-col" style="text-align:center; font-size:7px;">{{ $hadirCount }}</td>
-            <td class="alp-col" style="text-align:center; font-size:7px;">{{ $alpaCount ?: '—' }}</td>
-        </tr>
+                @for($d = 1; $d <= $daysInMonth; $d++)
+                    @php
+                        $curDate = $start->copy()->setDay($d);
+                        $dateStr = $curDate->toDateString();
+                        $isWeekend = $curDate->isWeekend();
+                        $isFuture  = $curDate->gt($today);
+                        
+                        $attInfo = $studentGrid[$d] ?? null;
+                        $status  = is_array($attInfo) ? ($attInfo['status'] ?? null) : $attInfo;
+                        $viaLupa = is_array($attInfo) ? ($attInfo['via_lupa_absen'] ?? false) : false;
+
+                        $badgeClass = '';
+                        $char = '';
+
+                        if ($isFuture) {
+                            $badgeClass = 'bg-future';
+                            $char = '-';
+                        } elseif ($isWeekend) {
+                            $badgeClass = 'bg-libur';
+                            $char = 'L';
+                            $liburCount++;
+                        } elseif ($status === 'hadir') {
+                            if ($viaLupa) {
+                                $badgeClass = 'bg-lupa';
+                                $char = 'H';
+                                $lupaCount++;
+                            } else {
+                                $badgeClass = 'bg-hadir';
+                                $char = 'H';
+                            }
+                        } elseif ($status === 'terlambat') {
+                            $badgeClass = 'bg-terlambat';
+                            $char = 'H';
+                            $terlambatCount++;
+                        } elseif ($status === 'sakit') {
+                            $badgeClass = 'bg-sakit';
+                            $char = 'S';
+                            $sakitCount++;
+                        } elseif ($status === 'izin') {
+                            $badgeClass = 'bg-izin';
+                            $char = 'I';
+                            $izinCount++;
+                        } elseif ($status === 'dispensasi') {
+                            $badgeClass = 'bg-dispensasi';
+                            $char = 'D';
+                            $dispensasiCount++;
+                        } else {
+                            // Belum Absen Pagi / Alpa untuk tanggal yang sudah berlalu atau hari ini
+                            $badgeClass = 'bg-alpa';
+                            $char = 'A';
+                            $alpaCount++;
+                        }
+                    @endphp
+                    <td class="{{ $badgeClass }}">{{ $char }}</td>
+                @endfor
+
+                <td class="summary-col" style="color: #7e22ce;">{{ $sakitCount ?: '-' }}</td>
+                <td class="summary-col" style="color: #1e40af;">{{ $izinCount ?: '-' }}</td>
+                <td class="summary-col" style="color: #dc2626;">{{ $alpaCount ?: '-' }}</td>
+                <td class="summary-col" style="color: #0f766e;">{{ $dispensasiCount ?: '-' }}</td>
+                <td class="summary-col" style="color: #4b5563;">{{ $liburCount ?: '-' }}</td>
+                <td class="summary-col" style="color: #b45309;">{{ $terlambatCount ?: '-' }}</td>
+                <td class="summary-col" style="color: #6b21a8;">{{ $lupaCount ?: '-' }}</td>
+            </tr>
         @endforeach
     </tbody>
 </table>
 
-{{-- ── Keterangan ────────────────────────────────────────────────────────── --}}
-<div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:6px; font-size:7px;">
-    <span style="font-weight:bold; color:#374151;">Keterangan:</span>
-    @foreach([
-        ['Hadir',        '#86efac'],
-        ['Terlambat',    '#fcd34d'],
-        ['Alpa',         '#fca5a5'],
-        ['Izin',         '#93c5fd'],
-        ['Sakit',        '#c4b5fd'],
-        ['Dispensasi',   '#6ee7b7'],
-        ['Libur/Minggu', '#e2e8f0'],
-    ] as [$label, $color])
-    <span style="display:flex; align-items:center; gap:3px;">
-        <span style="display:inline-block; width:10px; height:10px; background:{{ $color }}; border:0.5px solid #d1d5db; border-radius:2px;"></span>
-        <span style="color:#374151;">{{ $label }}</span>
-    </span>
-    @endforeach
-    <span style="color:#9ca3af; margin-left:4px;">Hdr = Total Hadir &nbsp;&middot;&nbsp; Alp = Total Alpa</span>
+{{-- ── KETERANGAN & CATATAN ──────────────────────────────────────────────── --}}
+<div class="notes-section">
+    <div><strong>* Keterangan Status:</strong> H = Hadir, S = Sakit, I = Izin, A = Alpa / Tanpa Keterangan, D = Dispensasi, L = Libur Sekolah / Hari Minggu.</div>
+    <div><strong>* Indikator Warna Badge:</strong> 
+        <span style="color:#16a34a; font-weight:bold;">[H] Hijau</span> = Hadir Tepat Waktu | 
+        <span style="color:#ca8a04; font-weight:bold;">[H] Kuning</span> = Terlambat | 
+        <span style="color:#9333ea; font-weight:bold;">[H] Ungu</span> = Lupa Absen / Klaim | 
+        <span style="color:#dc2626; font-weight:bold;">[A] Merah</span> = Alpa / Belum Absen.
+    </div>
+    <div style="font-style: italic; color: #4b5563; margin-top: 2px;">
+        * Perhitungan Alpa (A) hanya dihitung untuk hari sekolah yang sudah berlalu (tanggal 1 s/d {{ $today->isoFormat('D MMMM Y') }}). Tanggal yang belum berjalan ditandai dengan (-) dan tidak dihitung Alpa.
+    </div>
 </div>
 
-{{-- ── Footer ────────────────────────────────────────────────────────────── --}}
-<div style="display:flex; justify-content:space-between; margin-top:5px; padding-top:4px; border-top:0.5px solid #e5e7eb; font-size:6.5px; color:#9ca3af;">
-    <span>Dicetak: {{ now()->isoFormat('D MMMM Y, HH:mm') }} WIB</span>
-    <span>SIMS — SMA Negeri 1 Gianyar</span>
+{{-- ── TANDA TANGAN (TTD) ───────────────────────────────────────────────── --}}
+<div class="signature-container">
+    <table class="signature-table">
+        <tr>
+            <td style="text-align: center;">
+                Mengetahui,<br>
+                <strong>Kepala SMAN 1 Gianyar</strong>
+                <br><br><br><br><br>
+                <strong><u>{{ $headmasterName ?? 'I Wayan Sutrisna, S.Pd., M.Pd.' }}</u></strong><br>
+                NIP. {{ $headmasterNip ?? '19710415 199703 1 007' }}
+            </td>
+            <td style="text-align: center;">
+                Gianyar, {{ $today->isoFormat('D MMMM Y') }}<br>
+                <strong>Guru Pengajar / Wali Kelas</strong>
+                <br><br><br><br><br>
+                <strong><u>{{ $homeroomName ?? '—' }}</u></strong><br>
+                NIP. {{ $homeroomNip ?? '—' }}
+            </td>
+        </tr>
+    </table>
 </div>
 
 </body>
