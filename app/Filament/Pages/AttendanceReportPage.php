@@ -24,6 +24,7 @@ class AttendanceReportPage extends Page
     public ?int $classId = null;
     public int $month;
     public int $year;
+    public string $activeTab = 'grid';
 
     public bool $showDetailModal = false;
     public ?int $selectedStudentId = null;

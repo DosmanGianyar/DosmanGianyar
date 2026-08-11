@@ -490,7 +490,7 @@
         </div>
     </div>
     @endif
-@endif
+@elseif ($activeTab === 'summary')
 
 {{-- Summary cards --}}
 <div class="ar-stats">
@@ -587,6 +587,7 @@
     <span><span class="ar-badge dispensasi">D</span> Dispensasi</span>
     <span style="margin-left:auto;opacity:0.6">*Klik nama siswa untuk melihat rincian tanggal alpa/izin/sakit</span>
 </div>
+@endif
 
 {{-- Student Detail Modal --}}
 @if($showDetailModal && $studentDetailData)
