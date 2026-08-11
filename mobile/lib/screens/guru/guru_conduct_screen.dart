@@ -604,7 +604,7 @@ class _StudentConductDetailSheetState extends State<_StudentConductDetailSheet> 
                           const Icon(Icons.warning_amber_rounded, size: 12, color: Colors.redAccent),
                           const SizedBox(width: 4),
                           Text(
-                            'Negatif: ${s.pelanggaranCount}',
+                            'Kedisiplinan: ${s.pelanggaranCount}',
                             style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white),
                           ),
                         ],
@@ -624,7 +624,7 @@ class _StudentConductDetailSheetState extends State<_StudentConductDetailSheet> 
                           const Icon(Icons.emoji_events_rounded, size: 12, color: Colors.greenAccent),
                           const SizedBox(width: 4),
                           Text(
-                            'Positif: ${s.prestasiCount}',
+                            'Apresiasi: ${s.prestasiCount}',
                             style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white),
                           ),
                         ],
@@ -665,9 +665,9 @@ class _StudentConductDetailSheetState extends State<_StudentConductDetailSheet> 
               children: [
                 _buildFilterChip('Semua Catatan', 'all'),
                 const SizedBox(width: 8),
-                _buildFilterChip('Hanya Negatif', 'pelanggaran'),
+                _buildFilterChip('Kedisiplinan Karakter', 'pelanggaran'),
                 const SizedBox(width: 8),
-                _buildFilterChip('Hanya Positif', 'prestasi'),
+                _buildFilterChip('Apresiasi Karakter', 'prestasi'),
               ],
             ),
           ),

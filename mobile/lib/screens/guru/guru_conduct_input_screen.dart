@@ -295,12 +295,12 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
             items: const [
               DropdownMenuItem(
                 value: 'positif',
-                child: Text('🟢 Catatan Positif (Perilaku Baik / Apresiasi)',
+                child: Text('🟢 Apresiasi Karakter (Perilaku Baik)',
                     style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.emerald700)),
               ),
               DropdownMenuItem(
                 value: 'negatif',
-                child: Text('🔴 Catatan Negatif (Pelanggaran / Ketidakdisiplinan)',
+                child: Text('🔴 Kedisiplinan Karakter (Pelanggaran / Tata Tertib)',
                     style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.red700)),
               ),
             ],
@@ -329,7 +329,7 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
             controller: _descriptionCtrl,
             hint: isPositif
                 ? 'Ceritakan kebaikan atau perilaku positif yang dilakukan siswa secara bebas...'
-                : 'Ceritakan kejadian atau catatan negatif yang dilakukan siswa secara bebas...',
+                : 'Ceritakan kejadian atau catatan kedisiplinan yang dilakukan siswa secara bebas...',
             maxLines: 4,
           ),
           const SizedBox(height: 24),
@@ -346,7 +346,7 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
               label: Text(
                 _submitting
                     ? 'Menyimpan...'
-                    : (isPositif ? 'Simpan Catatan Positif' : 'Simpan Catatan Negatif'),
+                    : (isPositif ? 'Simpan Apresiasi Karakter' : 'Simpan Kedisiplinan Karakter'),
                 style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
               ),
               style: ElevatedButton.styleFrom(
@@ -373,9 +373,9 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
         child: Row(children: [
           _filterChip('Semua',       null),
           const SizedBox(width: 8),
-          _filterChip('Catatan Negatif', 'pelanggaran'),
+          _filterChip('Kedisiplinan Karakter', 'pelanggaran'),
           const SizedBox(width: 8),
-          _filterChip('Catatan Positif', 'prestasi'),
+          _filterChip('Apresiasi Karakter', 'prestasi'),
         ]),
       ),
       const Divider(height: 1),

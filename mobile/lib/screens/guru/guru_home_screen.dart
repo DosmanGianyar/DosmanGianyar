@@ -15,7 +15,6 @@ import 'guru_input_nilai_screen.dart';
 import 'guru_permit_screen.dart';
 import 'guru_sarpras_screen.dart';
 import 'guru_teaching_session_screen.dart';
-import 'guru_tp_screen.dart';
 import 'guru_layanan_screen.dart';
 
 class GuruHomeScreen extends StatefulWidget {
@@ -686,14 +685,6 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
         'color': AppColors.blue600,
         'bg': AppColors.blue50,
         'onTap': () => Navigator.push(context, MaterialPageRoute(builder: (_) => const GuruTeachingSessionScreen())),
-      },
-      {
-        'title': 'Tujuan Pembelajaran',
-        'subtitle': 'Kelola & Share TP',
-        'icon': Icons.checklist_rounded,
-        'color': const Color(0xFF9333EA),
-        'bg': const Color(0xFFF3E8FF),
-        'onTap': () => Navigator.push(context, MaterialPageRoute(builder: (_) => const GuruTpScreen())),
       },
       {
         'title': 'Input Nilai',
