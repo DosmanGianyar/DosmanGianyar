@@ -16,3 +16,7 @@ Schedule::command('voting:close-expired')->everyMinute();
 
 // Daily database backup at 02:00 WIB (19:00 UTC), keep last 7
 Schedule::command('db:backup --keep=7')->dailyAt('19:00');
+
+// Pengingat Presensi Masuk (07:05 WITA) & Pulang (14:00 WITA)
+Schedule::command('attendance:send-reminders checkin')->dailyAt('07:05')->timezone('Asia/Makassar');
+Schedule::command('attendance:send-reminders checkout')->dailyAt('14:00')->timezone('Asia/Makassar');
