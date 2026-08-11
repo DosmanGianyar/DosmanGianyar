@@ -9,6 +9,14 @@ use Illuminate\Support\Facades\Log;
 class FcmService
 {
     /**
+     * Send Push Notification to single user ID.
+     */
+    public static function sendToUser(int $userId, string $title, string $body, array $data = []): bool
+    {
+        return static::sendToUsers([$userId], $title, $body, $data);
+    }
+
+    /**
      * Send Push Notification to specific user IDs.
      */
     public static function sendToUsers(array $userIds, string $title, string $body, array $data = []): bool
