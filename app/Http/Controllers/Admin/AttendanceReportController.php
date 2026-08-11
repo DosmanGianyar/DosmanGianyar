@@ -56,12 +56,18 @@ class AttendanceReportController extends Controller
             'total'       => count($rows),
         ])->render();
 
-        $pdf = Browsershot::html($html)
-            ->format('A4')
-            ->landscape()
-            ->margins(10, 12, 12, 12)
-            ->waitUntilNetworkIdle()
-            ->pdf();
+        try {
+            $pdf = Browsershot::html($html)
+                ->format('A4')
+                ->landscape()
+                ->margins(10, 12, 12, 12)
+                ->waitUntilNetworkIdle()
+                ->pdf();
+        } catch (\Throwable $e) {
+            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadHTML($html)
+                ->setPaper('a4', 'landscape')
+                ->output();
+        }
 
         return response($pdf, 200, [
             'Content-Type'        => 'application/pdf',
