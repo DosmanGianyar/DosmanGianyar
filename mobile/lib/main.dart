@@ -18,8 +18,19 @@ import 'screens/force_update_screen.dart';
 import 'services/version_service.dart';
 import 'theme/app_colors.dart';
 
+import 'package:firebase_core/firebase_core.dart';
+import 'services/push_notification_service.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Inisialisasi Firebase & Notifikasi Push
+  try {
+    await Firebase.initializeApp();
+    await PushNotificationService.initialize();
+  } catch (e) {
+    debugPrint('[main] Firebase init error: $e');
+  }
 
   // Paksa orientasi portrait & aktifkan Edge-to-Edge modern
   await SystemChrome.setPreferredOrientations([

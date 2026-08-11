@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "29043381559",
+    "project_id": "simak-dosman",
+    "storage_bucket": "simak-dosman.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:29043381559:android:fa0a37caf49c5f52beb6b2",
+        "android_client_info": {
+          "package_name": "com.sman1gianyar.sims_mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDDIFp4XBQ63OBBPnBG7n8RJ7Mknhh37YY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

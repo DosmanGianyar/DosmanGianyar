@@ -63,6 +63,7 @@ class AuthProvider extends ChangeNotifier {
     try {
       _user  = await AuthService.login(loginInput, password);
       _state = AuthState.authenticated;
+      PushNotificationService.registerToken();
       return true;
     } catch (e) {
       _error = ApiClient.extractError(e);
