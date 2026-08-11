@@ -61,20 +61,19 @@ class DeviceService {
       desiredAccuracy: LocationAccuracy.best,
     );
 
-    // ── Deteksi #1: Platform melaporkan mock location (Android 18+) ─────────
+    // ── Deteksi #1: Platform melaporkan mock location (Android Native API) ─────────
     if (position.isMocked) {
-      throw MockLocationException(
+      throw const MockLocationException(
         'Fake GPS terdeteksi (isMocked=true). '
         'Matikan aplikasi pemalsuan lokasi lalu coba lagi.',
       );
     }
 
-    // ── Deteksi #2: Akurasi terlalu sempurna — indikasi mock location ────────
-    // GPS nyata di smartphone jarang lebih akurat dari 5 meter.
-    if (position.accuracy < AppConfig.minGpsAccuracy) {
-      throw MockLocationException(
-        'Akurasi GPS mencurigakan (${position.accuracy.toStringAsFixed(1)}m). '
-        'Pastikan Developer Options → Mock Location dimatikan.',
+    // ── Deteksi #2: Sinyal GPS terlalu lemah / tidak akurat (> 100m) ─────────
+    if (position.accuracy > 100.0) {
+      throw LocationServiceException(
+        'Sinyal GPS lemah (akurasi ${position.accuracy.toStringAsFixed(0)}m). '
+        'Bawa HP ke area terbuka.',
       );
     }
 

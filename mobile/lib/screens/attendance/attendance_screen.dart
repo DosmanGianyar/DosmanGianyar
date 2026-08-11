@@ -102,11 +102,9 @@ class _AttendanceScreenState extends State<AttendanceScreen>
     });
 
     try {
-      // Fetch shift data and GPS in parallel
-      final (activeShift, position) = await (
-        AttendanceService.getActiveShift(),
-        DeviceService.getVerifiedPosition(),
-      ).wait;
+      // Fetch shift data and GPS
+      final activeShift = await AttendanceService.getActiveShift();
+      final position    = await DeviceService.getVerifiedPosition();
 
       final distance = AttendanceService.distanceTo(
         activeShift.location.lat,
