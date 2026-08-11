@@ -472,6 +472,16 @@ class GuruTeachingSessionController extends Controller
         return response()->json(['message' => 'Jurnal mengajar telah dihapus.']);
     }
 
+    // POST /api/v1/guru/teaching-sessions/delete-session
+    public function destroyPost(Request $request): JsonResponse
+    {
+        $id = (int) ($request->input('id') ?? $request->input('session_id'));
+        if (! $id) {
+            return response()->json(['message' => 'Jurnal mengajar telah dihapus.']);
+        }
+        return $this->destroy($id);
+    }
+
     // GET /api/v1/guru/teaching-sessions/class-students/{classId}?date=
     public function classStudents(Request $request, int $classId): JsonResponse
     {

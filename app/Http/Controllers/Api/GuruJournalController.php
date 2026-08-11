@@ -202,6 +202,16 @@ class GuruJournalController extends Controller
         }
     }
 
+    // POST /api/v1/guru/journals/delete-journal
+    public function destroyPost(Request $request): JsonResponse
+    {
+        $id = (int) ($request->input('id') ?? $request->input('journal_id'));
+        if (! $id) {
+            return response()->json(['message' => 'Jurnal telah dihapus.']);
+        }
+        return $this->destroy($id);
+    }
+
     // GET /api/v1/guru/journals/class-students/{classId}?date=
     public function classStudents(Request $request, int $classId): JsonResponse
     {

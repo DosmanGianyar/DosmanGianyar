@@ -172,6 +172,7 @@ Route::prefix('v1')->group(function () {
             Route::post('/guru/teaching-sessions',                        [GuruTeachingSessionController::class, 'store']);
             Route::get('/guru/teaching-sessions/export',                  [GuruTeachingSessionController::class, 'export']);
             Route::get('/guru/teaching-sessions/class-students/{classId}',[GuruTeachingSessionController::class, 'classStudents']);
+            Route::post('/guru/teaching-sessions/delete-session',         [GuruTeachingSessionController::class, 'destroyPost']);
             Route::get('/guru/teaching-sessions/{id}',                    [GuruTeachingSessionController::class, 'show'])->where('id', '[0-9]+');
             Route::post('/guru/teaching-sessions/{id}/update',            [GuruTeachingSessionController::class, 'update'])->where('id', '[0-9]+');
             Route::put('/guru/teaching-sessions/{id}',                    [GuruTeachingSessionController::class, 'update'])->where('id', '[0-9]+');
@@ -188,6 +189,7 @@ Route::prefix('v1')->group(function () {
             // Jurnal Guru
             Route::get('/guru/journals',                                  [GuruJournalController::class, 'index']);
             Route::post('/guru/journals',                                 [GuruJournalController::class, 'store']);
+            Route::post('/guru/journals/delete-journal',                 [GuruJournalController::class, 'destroyPost']);
             Route::get('/guru/journals/class-students/{classId}',         [GuruJournalController::class, 'classStudents'])->where('classId', '[0-9]+');
             Route::get('/guru/journals/{id}',                             [GuruJournalController::class, 'show'])->where('id', '[0-9]+');
             Route::put('/guru/journals/{id}',                             [GuruJournalController::class, 'update'])->where('id', '[0-9]+');

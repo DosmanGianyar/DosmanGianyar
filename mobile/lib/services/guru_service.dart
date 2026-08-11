@@ -333,8 +333,16 @@ class GuruService {
   }
 
   static Future<String> deleteTeachingSession(int id) async {
-    final body = await ApiClient.post('/guru/teaching-sessions/$id/delete');
-    return body['message'] as String? ?? 'Jurnal mengajar berhasil dihapus.';
+    try {
+      final body = await ApiClient.post(
+        '/guru/teaching-sessions/delete-session',
+        data: {'id': id, 'session_id': id},
+      );
+      return body['message'] as String? ?? 'Jurnal mengajar berhasil dihapus.';
+    } catch (_) {
+      final body = await ApiClient.post('/guru/teaching-sessions/$id/delete');
+      return body['message'] as String? ?? 'Jurnal mengajar berhasil dihapus.';
+    }
   }
 
   static Future<Map<String, dynamic>> exportTeachingSessions({
@@ -461,8 +469,16 @@ class GuruService {
   }
 
   static Future<String> deleteJournal(int id) async {
-    final body = await ApiClient.post('/guru/journals/$id/delete');
-    return body['message'] as String;
+    try {
+      final body = await ApiClient.post(
+        '/guru/journals/delete-journal',
+        data: {'id': id, 'journal_id': id},
+      );
+      return body['message'] as String? ?? 'Jurnal berhasil dihapus.';
+    } catch (_) {
+      final body = await ApiClient.post('/guru/journals/$id/delete');
+      return body['message'] as String? ?? 'Jurnal berhasil dihapus.';
+    }
   }
 
   // ── Input Nilai ────────────────────────────────────────────────────────────
