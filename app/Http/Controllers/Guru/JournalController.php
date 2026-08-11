@@ -553,23 +553,50 @@ class JournalController extends Controller
         $result = $students->map(function ($s) use ($attendances) {
             $att = $attendances->get($s->id);
             $morningStatus = $att?->status;
+            $isViaLupaAbsen = (bool) ($att?->via_lupa_absen ?? false);
 
-            // Map morning status to suggested journal absence status
-            $suggestedStatus = match ($morningStatus) {
-                'sakit'      => 'sakit',
-                'izin'       => 'izin',
-                'dispensasi' => 'dispensasi',
-                'alpa'       => 'alpa',
-                default      => 'hadir',
+            if ($isViaLupaAbsen || $morningStatus === 'lupa_absen') {
+                $effectiveMorningStatus = 'lupa_absen';
+                $morningStatusLabel = 'Lupa Absen';
+            } elseif ($morningStatus === 'terlambat') {
+                $effectiveMorningStatus = 'terlambat';
+                $morningStatusLabel = 'Terlambat';
+            } elseif ($morningStatus === 'hadir') {
+                $effectiveMorningStatus = 'hadir';
+                $morningStatusLabel = 'Hadir';
+            } elseif ($morningStatus === 'sakit') {
+                $effectiveMorningStatus = 'sakit';
+                $morningStatusLabel = 'Sakit';
+            } elseif ($morningStatus === 'izin') {
+                $effectiveMorningStatus = 'izin';
+                $morningStatusLabel = 'Izin';
+            } elseif ($morningStatus === 'dispensasi') {
+                $effectiveMorningStatus = 'dispensasi';
+                $morningStatusLabel = 'Dispensasi';
+            } elseif ($morningStatus === 'alpa') {
+                $effectiveMorningStatus = 'alpa';
+                $morningStatusLabel = 'Alpa';
+            } else {
+                $effectiveMorningStatus = 'belum_absen';
+                $morningStatusLabel = 'Belum Absen Pagi';
+            }
+
+            $suggestedStatus = match ($effectiveMorningStatus) {
+                'sakit'               => 'sakit',
+                'izin'                => 'izin',
+                'dispensasi'          => 'dispensasi',
+                'alpa', 'belum_absen' => 'alpa',
+                default               => 'hadir',
             };
 
             return [
                 'id'                   => $s->id,
                 'name'                 => $s->name,
                 'nis'                  => $s->nis,
-                'morning_status'       => $morningStatus,
-                'morning_status_label' => $morningStatus ? ucfirst($morningStatus) : 'Belum Absen Pagi',
+                'morning_status'       => $effectiveMorningStatus,
+                'morning_status_label' => $morningStatusLabel,
                 'suggested_status'     => $suggestedStatus,
+                'via_lupa_absen'       => $isViaLupaAbsen,
             ];
         });
 

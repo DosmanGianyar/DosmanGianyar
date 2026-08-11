@@ -96,7 +96,7 @@ class _GuruConductScreenState extends State<GuruConductScreen> {
     return Scaffold(
       backgroundColor: AppColors.slate100,
       appBar: AppBar(
-        title: const Text('Catatan Perilaku Siswa'),
+        title: const Text('SIPINTER (Pendidikan Karakter)'),
         actions: [
           IconButton(
             icon: const Icon(Icons.add_rounded),
@@ -241,7 +241,7 @@ class _GuruConductScreenState extends State<GuruConductScreen> {
                         Row(
                           children: [
                             const Text(
-                              'Catatan Negatif',
+                              'Kedisiplinan Karakter',
                               style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.gray600),
                             ),
                             if (isNegatifActive) ...[
@@ -256,7 +256,7 @@ class _GuruConductScreenState extends State<GuruConductScreen> {
                           style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AppColors.red500),
                         ),
                         Text(
-                          isNegatifActive ? 'Aktif (Klik utk reset)' : 'Klik filter negatif',
+                          isNegatifActive ? 'Aktif (Klik utk reset)' : 'Klik filter kedisiplinan',
                           style: TextStyle(fontSize: 10, color: isNegatifActive ? AppColors.red500 : AppColors.gray400),
                         ),
                       ],
@@ -294,7 +294,7 @@ class _GuruConductScreenState extends State<GuruConductScreen> {
                         Row(
                           children: [
                             const Text(
-                              'Catatan Positif',
+                              'Apresiasi Karakter',
                               style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.gray600),
                             ),
                             if (isPositifActive) ...[
@@ -309,7 +309,7 @@ class _GuruConductScreenState extends State<GuruConductScreen> {
                           style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AppColors.green600),
                         ),
                         Text(
-                          isPositifActive ? 'Aktif (Klik utk reset)' : 'Klik filter positif',
+                          isPositifActive ? 'Aktif (Klik utk reset)' : 'Klik filter apresiasi',
                           style: TextStyle(fontSize: 10, color: isPositifActive ? AppColors.green600 : AppColors.gray400),
                         ),
                       ],
@@ -323,10 +323,10 @@ class _GuruConductScreenState extends State<GuruConductScreen> {
         if (_filterType != 'all') ...[
           const SizedBox(height: 10),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(
               color: _filterType == 'pelanggaran' ? AppColors.red50 : AppColors.green50,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(8),
               border: Border.all(
                 color: _filterType == 'pelanggaran' ? AppColors.red100 : AppColors.green100,
               ),
@@ -334,7 +334,7 @@ class _GuruConductScreenState extends State<GuruConductScreen> {
             child: Row(
               children: [
                 Icon(
-                  _filterType == 'pelanggaran' ? Icons.warning_amber_rounded : Icons.emoji_events_rounded,
+                  _filterType == 'pelanggaran' ? Icons.filter_alt_rounded : Icons.filter_alt_rounded,
                   size: 14,
                   color: _filterType == 'pelanggaran' ? AppColors.red500 : AppColors.green600,
                 ),
@@ -342,8 +342,8 @@ class _GuruConductScreenState extends State<GuruConductScreen> {
                 Expanded(
                   child: Text(
                     _filterType == 'pelanggaran'
-                        ? 'Menampilkan hanya Catatan Negatif (${_filtered.length} siswa)'
-                        : 'Menampilkan hanya Catatan Positif (${_filtered.length} siswa)',
+                        ? 'Menampilkan hanya Kedisiplinan Karakter (${_filtered.length} siswa)'
+                        : 'Menampilkan hanya Apresiasi Karakter (${_filtered.length} siswa)',
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.bold,

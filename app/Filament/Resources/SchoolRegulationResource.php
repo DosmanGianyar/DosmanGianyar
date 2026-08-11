@@ -26,13 +26,13 @@ class SchoolRegulationResource extends Resource
     protected static ?string $model = SchoolRegulation::class;
 
     protected static string|\BackedEnum|null $navigationIcon  = 'heroicon-o-scale';
-    protected static string|\UnitEnum|null   $navigationGroup = 'Kedisiplinan & Tata Tertib';
+    protected static string|\UnitEnum|null   $navigationGroup = 'SIPINTER (Pendidikan Karakter)';
     protected static ?string $navigationLabel   = 'Tata Tertib Sekolah';
     protected static ?string $modelLabel        = 'Peraturan';
     protected static ?string $pluralModelLabel  = 'Tata Tertib Sekolah';
     protected static ?int    $navigationSort    = 20;
 
-    public static function canAccess(): bool { return AdminAccess::can('Kedisiplinan & Tata Tertib'); }
+    public static function canAccess(): bool { return AdminAccess::can('SIPINTER (Pendidikan Karakter)') || AdminAccess::can('Kedisiplinan & Tata Tertib'); }
 
     public static function form(Schema $schema): Schema
     {

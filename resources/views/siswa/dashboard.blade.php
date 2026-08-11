@@ -161,11 +161,11 @@
 </div>
 @endif
 
-{{-- ─── Ringkasan Catatan Siswa & Kedisiplinan ──────────────────────────────── --}}
+{{-- ─── Ringkasan SIPINTER (Pendidikan Karakter) ──────────────────────────────── --}}
 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3">
     <div class="flex items-center justify-between mb-3">
         <h3 class="text-sm font-bold text-gray-800 flex items-center gap-2">
-            <span>📋</span> Catatan Siswa & Kedisiplinan
+            <span class="p-1 bg-emerald-100 text-emerald-700 rounded-lg text-xs">🛡️</span> SIPINTER (Pendidikan Karakter)
         </h3>
         <a href="{{ route('siswa.conduct.index') }}" class="text-xs font-semibold text-blue-600 hover:underline">
             Detail Catatan →

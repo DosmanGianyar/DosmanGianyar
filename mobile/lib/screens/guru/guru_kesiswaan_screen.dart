@@ -32,11 +32,11 @@ class GuruKesiswaanScreen extends StatelessWidget {
           const SizedBox(height: 16),
           _buildMenuCard(
             context,
-            icon: Icons.gavel_rounded,
-            label: 'Catatan Perilaku Siswa',
-            subtitle: 'Catatan positif dan negatif siswa',
-            color: AppColors.orange600,
-            bg: AppColors.orange50,
+            icon: Icons.shield_rounded,
+            label: 'SIPINTER (Pendidikan Karakter)',
+            subtitle: 'Apresiasi & catatan kedisiplinan siswa',
+            color: AppColors.emerald600,
+            bg: AppColors.emerald50,
             onTap: classes.isNotEmpty
                 ? () => Navigator.push(
                     context,

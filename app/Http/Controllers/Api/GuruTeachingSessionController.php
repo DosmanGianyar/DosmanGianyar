@@ -329,6 +329,86 @@ class GuruTeachingSessionController extends Controller
         return response()->json($this->formatSession($session, withStudents: true));
     }
 
+    // PUT /api/v1/guru/teaching-sessions/{id}
+    public function update(Request $request, int $id): JsonResponse
+    {
+        $teacher = Auth::user();
+        $session = TeacherAttendance::where('teacher_id', $teacher->id)->findOrFail($id);
+
+        $validated = $request->validate([
+            'materi'                   => 'nullable|string|max:255',
+            'aktivitas'                => 'nullable|string',
+            'catatan'                  => 'nullable|string',
+            'note'                     => 'nullable|string',
+            'tp_id'                    => 'nullable|integer|exists:tujuan_pembelajaran,id',
+            'attendances'              => 'nullable|array',
+            'attendances.*.student_id' => 'required_with:attendances|integer|exists:users,id',
+            'attendances.*.status'     => 'required_with:attendances|string|in:hadir,sakit,izin,dispensasi,tidak_hadir,alpa',
+            'attendances.*.note'       => 'nullable|string',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $session->update([
+                'materi'    => $validated['materi'] ?? $session->materi,
+                'aktivitas' => $validated['aktivitas'] ?? $session->aktivitas,
+                'catatan'   => $validated['catatan'] ?? $validated['note'] ?? $session->catatan,
+                'tp_id'     => $validated['tp_id'] ?? $session->tp_id,
+            ]);
+
+            if (isset($validated['attendances']) && is_array($validated['attendances'])) {
+                foreach ($validated['attendances'] as $att) {
+                    $status = $att['status'] === 'alpa' ? 'tidak_hadir' : $att['status'];
+                    SessionAttendance::updateOrCreate(
+                        [
+                            'teacher_attendance_id' => $session->id,
+                            'student_id'            => $att['student_id'],
+                        ],
+                        [
+                            'status' => $status,
+                            'note'   => $att['note'] ?? null,
+                        ]
+                    );
+                }
+            }
+
+            DB::commit();
+
+            $updatedSession = TeacherAttendance::with(['schoolClass:id,name', 'subject:id,name', 'sessionAttendances.student:id,name,nis'])
+                ->find($session->id);
+
+            return response()->json([
+                'message' => 'Jurnal & absensi mengajar berhasil diperbarui.',
+                'data'    => $this->formatSession($updatedSession, withStudents: true),
+            ]);
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return response()->json(['message' => 'Gagal memperbarui: ' . $e->getMessage()], 500);
+        }
+    }
+
+    // DELETE /api/v1/guru/teaching-sessions/{id}
+    public function destroy(int $id): JsonResponse
+    {
+        $teacher = Auth::user();
+        $session = TeacherAttendance::where('teacher_id', $teacher->id)->findOrFail($id);
+
+        DB::beginTransaction();
+        try {
+            SessionAttendance::where('teacher_attendance_id', $session->id)->delete();
+            $session->delete();
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Jurnal mengajar berhasil dihapus.',
+            ]);
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return response()->json(['message' => 'Gagal menghapus: ' . $e->getMessage()], 500);
+        }
+    }
+
     // GET /api/v1/guru/teaching-sessions/class-students/{classId}?date=
     public function classStudents(Request $request, int $classId): JsonResponse
     {
@@ -359,22 +439,50 @@ class GuruTeachingSessionController extends Controller
         $result = $students->map(function ($s) use ($attendances) {
             $att = $attendances->get($s->id);
             $morningStatus = $att?->status;
+            $isViaLupaAbsen = (bool) ($att?->via_lupa_absen ?? false);
 
-            $suggestedStatus = match ($morningStatus) {
-                'sakit'      => 'sakit',
-                'izin'       => 'izin',
-                'dispensasi' => 'dispensasi',
-                'alpa'       => 'tidak_hadir',
-                default      => 'hadir',
+            if ($isViaLupaAbsen || $morningStatus === 'lupa_absen') {
+                $effectiveMorningStatus = 'lupa_absen';
+                $morningStatusLabel = 'Lupa Absen';
+            } elseif ($morningStatus === 'terlambat') {
+                $effectiveMorningStatus = 'terlambat';
+                $morningStatusLabel = 'Terlambat';
+            } elseif ($morningStatus === 'hadir') {
+                $effectiveMorningStatus = 'hadir';
+                $morningStatusLabel = 'Hadir';
+            } elseif ($morningStatus === 'sakit') {
+                $effectiveMorningStatus = 'sakit';
+                $morningStatusLabel = 'Sakit';
+            } elseif ($morningStatus === 'izin') {
+                $effectiveMorningStatus = 'izin';
+                $morningStatusLabel = 'Izin';
+            } elseif ($morningStatus === 'dispensasi') {
+                $effectiveMorningStatus = 'dispensasi';
+                $morningStatusLabel = 'Dispensasi';
+            } elseif ($morningStatus === 'alpa') {
+                $effectiveMorningStatus = 'alpa';
+                $morningStatusLabel = 'Alpa';
+            } else {
+                $effectiveMorningStatus = 'belum_absen';
+                $morningStatusLabel = 'Belum Absen Pagi';
+            }
+
+            $suggestedStatus = match ($effectiveMorningStatus) {
+                'sakit'               => 'sakit',
+                'izin'                => 'izin',
+                'dispensasi'          => 'dispensasi',
+                'alpa', 'belum_absen' => 'tidak_hadir',
+                default               => 'hadir',
             };
 
             return [
                 'id'                   => $s->id,
                 'name'                 => $s->name,
                 'nis'                  => $s->nis,
-                'morning_status'       => $morningStatus,
-                'morning_status_label' => $morningStatus ? ucfirst($morningStatus) : 'Belum Absen Pagi',
+                'morning_status'       => $effectiveMorningStatus,
+                'morning_status_label' => $morningStatusLabel,
                 'suggested_status'     => $suggestedStatus,
+                'via_lupa_absen'       => $isViaLupaAbsen,
             ];
         });
 

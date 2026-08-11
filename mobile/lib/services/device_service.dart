@@ -1,7 +1,6 @@
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
-import '../config/app_config.dart';
 
 /// Layanan untuk mendapatkan device ID yang stabil dan memverifikasi GPS asli.
 class DeviceService {

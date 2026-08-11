@@ -296,6 +296,32 @@ class GuruService {
     return body['message'] as String;
   }
 
+  static Future<String> updateTeachingSession(
+    int id, {
+    String? materi,
+    String? aktivitas,
+    String? catatan,
+    int? tpId,
+    List<Map<String, dynamic>>? attendances,
+  }) async {
+    final body = await ApiClient.put(
+      '/guru/teaching-sessions/$id',
+      data: {
+        if (materi != null) 'materi': materi,
+        if (aktivitas != null) 'aktivitas': aktivitas,
+        if (catatan != null) 'catatan': catatan,
+        if (tpId != null) 'tp_id': tpId,
+        if (attendances != null) 'attendances': attendances,
+      },
+    );
+    return body['message'] as String? ?? 'Jurnal mengajar berhasil diperbarui.';
+  }
+
+  static Future<String> deleteTeachingSession(int id) async {
+    final body = await ApiClient.delete('/guru/teaching-sessions/$id');
+    return body['message'] as String? ?? 'Jurnal mengajar berhasil dihapus.';
+  }
+
   static Future<Map<String, dynamic>> exportTeachingSessions({
     required int classId, required int month, required int year,
   }) async {

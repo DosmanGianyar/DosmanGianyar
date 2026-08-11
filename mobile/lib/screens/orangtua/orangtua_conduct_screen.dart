@@ -43,7 +43,7 @@ class _OrangtuaConductScreenState extends State<OrangtuaConductScreen> {
     return Scaffold(
       backgroundColor: AppColors.slate100,
       appBar: AppBar(
-        title: Text('Catatan Perilaku — ${widget.studentName}',
+        title: Text('SIPINTER — ${widget.studentName}',
           style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 15)),
         backgroundColor: const Color(0xFF0F2460),
         foregroundColor: Colors.white,
@@ -95,12 +95,12 @@ class _SummaryCards extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       child: Row(children: [
         Expanded(child: _CountCard(
-          label: 'Catatan Positif', count: summary.prestasiCount,
+          label: 'Apresiasi Karakter', count: summary.prestasiCount,
           color: AppColors.emerald600, bg: AppColors.emerald50, icon: Icons.thumb_up_rounded,
         )),
         const SizedBox(width: 12),
         Expanded(child: _CountCard(
-          label: 'Catatan Negatif', count: summary.pelanggaranCount,
+          label: 'Kedisiplinan Karakter', count: summary.pelanggaranCount,
           color: AppColors.red500, bg: AppColors.red50, icon: Icons.thumb_down_rounded,
         )),
       ]),
@@ -164,7 +164,7 @@ class _LogCard extends StatelessWidget {
         const SizedBox(width: 12),
         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            Expanded(child: Text(log.categoryName,
+            Expanded(child: Text(log.displayCategoryName,
               style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.gray800))),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),

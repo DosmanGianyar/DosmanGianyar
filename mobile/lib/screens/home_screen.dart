@@ -1600,9 +1600,9 @@ class _ConductDashboardCardState extends State<_ConductDashboardCard> {
             children: [
               const Row(
                 children: [
-                  Text('📋 ', style: TextStyle(fontSize: 14)),
+                  Text('🛡️ ', style: TextStyle(fontSize: 14)),
                   Text(
-                    'Catatan Siswa & Kedisiplinan',
+                    'SIPINTER (Pendidikan Karakter)',
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.bold,
@@ -1658,7 +1658,7 @@ class _ConductDashboardCardState extends State<_ConductDashboardCard> {
                         ),
                         const SizedBox(height: 2),
                         const Text(
-                          'Catatan Positif',
+                          'Apresiasi Karakter',
                           style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.w600,
@@ -1690,7 +1690,7 @@ class _ConductDashboardCardState extends State<_ConductDashboardCard> {
                         ),
                         const SizedBox(height: 2),
                         const Text(
-                          'Catatan Negatif',
+                          'Kedisiplinan Karakter',
                           style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.w600,
@@ -1722,7 +1722,7 @@ class _ConductDashboardCardState extends State<_ConductDashboardCard> {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        log.categoryName,
+                        log.displayCategoryName,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(

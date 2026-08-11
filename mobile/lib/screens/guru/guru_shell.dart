@@ -401,11 +401,11 @@ class _GuruServicesTab extends StatelessWidget {
           const SizedBox(height: 16),
 
           _buildHubCard(
-            title: 'Catatan Kedisiplinan Siswa',
-            subtitle: 'Catat poin pelanggaran & prestasi siswa',
-            icon: Icons.warning_amber_rounded,
-            color: AppColors.orange600,
-            bg: AppColors.orange50,
+            title: 'SIPINTER (Pendidikan Karakter)',
+            subtitle: 'Catat apresiasi karakter & kedisiplinan siswa',
+            icon: Icons.shield_rounded,
+            color: AppColors.emerald600,
+            bg: AppColors.emerald50,
             onTap: () => onNavigate(GuruConductScreen(classes: classes)),
           ),
           const SizedBox(height: 12),

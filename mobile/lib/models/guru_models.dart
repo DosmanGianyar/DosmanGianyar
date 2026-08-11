@@ -324,6 +324,7 @@ class SimpleStudent {
   final String? morningStatus;
   final String? morningStatusLabel;
   final String? suggestedStatus;
+  final bool    viaLupaAbsen;
 
   const SimpleStudent({
     required this.id,
@@ -335,6 +336,7 @@ class SimpleStudent {
     this.morningStatus,
     this.morningStatusLabel,
     this.suggestedStatus,
+    this.viaLupaAbsen = false,
   });
 
   factory SimpleStudent.fromJson(Map<String, dynamic> json) => SimpleStudent(
@@ -347,6 +349,7 @@ class SimpleStudent {
     morningStatus:      json['morning_status'] as String?,
     morningStatusLabel: json['morning_status_label'] as String?,
     suggestedStatus:    json['suggested_status'] as String?,
+    viaLupaAbsen:       json['via_lupa_absen'] as bool? ?? false,
   );
 }
 
@@ -436,7 +439,7 @@ class ConductHistoryItem {
     if (lombaName != null && lombaName!.isNotEmpty) {
       return 'Lomba: $lombaName';
     }
-    return type == 'pelanggaran' ? 'Catatan Negatif' : 'Catatan Positif';
+    return type == 'pelanggaran' ? 'Kedisiplinan Karakter' : 'Apresiasi Karakter';
   }
 
   String? get displayDescription {
@@ -466,6 +469,10 @@ class TeachingSession {
   final String? periodDisplay;
   final String? startTime;
   final String? endTime;
+  final String? materi;
+  final String? aktivitas;
+  final String? catatan;
+  final int?    tpId;
   final int     total;
   final int     hadir;
   final int     alpha;
@@ -483,6 +490,10 @@ class TeachingSession {
     this.periodDisplay,
     this.startTime,
     this.endTime,
+    this.materi,
+    this.aktivitas,
+    this.catatan,
+    this.tpId,
     required this.total,
     required this.hadir,
     required this.alpha,
@@ -501,6 +512,10 @@ class TeachingSession {
     periodDisplay: json['period_display'] as String?,
     startTime:     json['start_time'] as String?,
     endTime:       json['end_time'] as String?,
+    materi:        json['materi'] as String?,
+    aktivitas:     json['aktivitas'] as String?,
+    catatan:       json['catatan'] as String? ?? json['note'] as String?,
+    tpId:          json['tp_id'] as int?,
     total:         json['total'] as int? ?? 0,
     hadir:         json['hadir'] as int? ?? 0,
     alpha:         json['alpha'] as int? ?? 0,
@@ -525,6 +540,7 @@ class SessionStudentRow {
   String? note;
   String? morningStatus;
   String? morningStatusLabel;
+  bool viaLupaAbsen;
 
   SessionStudentRow({
     required this.studentId,
@@ -534,6 +550,7 @@ class SessionStudentRow {
     this.note,
     this.morningStatus,
     this.morningStatusLabel,
+    this.viaLupaAbsen = false,
   });
 
   factory SessionStudentRow.fromJson(Map<String, dynamic> json) => SessionStudentRow(
@@ -544,6 +561,7 @@ class SessionStudentRow {
     note:               json['note'] as String?,
     morningStatus:      json['morning_status'] as String?,
     morningStatusLabel: json['morning_status_label'] as String?,
+    viaLupaAbsen:       json['via_lupa_absen'] as bool? ?? false,
   );
 }
 

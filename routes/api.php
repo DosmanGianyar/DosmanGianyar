@@ -173,6 +173,8 @@ Route::prefix('v1')->group(function () {
             Route::get('/guru/teaching-sessions/export',                  [GuruTeachingSessionController::class, 'export']);
             Route::get('/guru/teaching-sessions/class-students/{classId}',[GuruTeachingSessionController::class, 'classStudents']);
             Route::get('/guru/teaching-sessions/{id}',                    [GuruTeachingSessionController::class, 'show']);
+            Route::put('/guru/teaching-sessions/{id}',                    [GuruTeachingSessionController::class, 'update']);
+            Route::delete('/guru/teaching-sessions/{id}',                 [GuruTeachingSessionController::class, 'destroy']);
 
             // Tujuan Pembelajaran (TP) — master data per guru
             Route::get('/guru/tp',                                        [GuruTpController::class, 'index']);

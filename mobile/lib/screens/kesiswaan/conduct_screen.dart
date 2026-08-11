@@ -44,7 +44,7 @@ class _ConductScreenState extends State<ConductScreen> {
     return Scaffold(
       backgroundColor: AppColors.slate100,
       appBar: AppBar(
-        title: const Text('Catatan Perilaku',
+        title: const Text('SIPINTER (Pendidikan Karakter)',
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 16)),
         backgroundColor: const Color(0xFF0F2460),
         foregroundColor: Colors.white,
@@ -98,7 +98,7 @@ class _SummaryCards extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       child: Row(children: [
         Expanded(child: _CountCard(
-          label: 'Catatan Positif',
+          label: 'Apresiasi Karakter',
           count: summary.prestasiCount,
           color: AppColors.emerald600,
           bg: AppColors.emerald50,
@@ -106,7 +106,7 @@ class _SummaryCards extends StatelessWidget {
         )),
         const SizedBox(width: 12),
         Expanded(child: _CountCard(
-          label: 'Catatan Negatif',
+          label: 'Kedisiplinan Karakter',
           count: summary.pelanggaranCount,
           color: AppColors.red500,
           bg: AppColors.red50,
@@ -180,7 +180,7 @@ class _LogCard extends StatelessWidget {
         const SizedBox(width: 12),
         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            Expanded(child: Text(log.categoryName,
+            Expanded(child: Text(log.displayCategoryName,
               style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.gray800))),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),

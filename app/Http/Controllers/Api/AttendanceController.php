@@ -98,17 +98,6 @@ class AttendanceController extends Controller
             ], 422);
         }
 
-        // Anti Fake GPS — akurasi sempurna (< 5m) indikasi mock location
-        if ((float) $request->accuracy < 5) {
-            Attendance::updateOrCreate(
-                ['user_id' => $user->id, 'date' => today()],
-                ['status' => 'alpa', 'is_fake_gps' => true, 'device_info' => $request->userAgent()]
-            );
-            return response()->json([
-                'message' => 'Terdeteksi Mock Location / Fake GPS. Presensi ditolak dan dicatat.',
-                'code'    => 'FAKE_GPS_DETECTED',
-            ], 422);
-        }
 
         // Validasi Geofence (Haversine)
         if (! GeofenceService::isInsideZone((float) $request->latitude, (float) $request->longitude, $location)) {

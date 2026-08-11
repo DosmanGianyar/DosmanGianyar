@@ -10,7 +10,7 @@ class AdminAccess
      */
     private const SCOPES = [
         'admin'           => null,
-        'admin_kesiswaan' => ['Kesiswaan', 'Presensi Siswa', 'Kedisiplinan & Tata Tertib', 'Prestasi & Ekskul', 'Kesiswaan & Layanan'],
+        'admin_kesiswaan' => ['Kesiswaan', 'Presensi Siswa', 'Kedisiplinan & Tata Tertib', 'SIPINTER (Pendidikan Karakter)', 'Prestasi & Ekskul', 'Kesiswaan & Layanan'],
         'admin_kurikulum' => ['Kurikulum'],
         'admin_sarpras'   => ['Sarpras'],
         'admin_humas'     => ['Humas'],

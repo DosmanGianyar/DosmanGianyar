@@ -282,11 +282,11 @@ class _MenuGrid extends StatelessWidget {
         ),
         const SizedBox(height: 10),
         _MenuTile(
-          icon: Icons.assignment_rounded,
+          icon: Icons.shield_rounded,
           iconBg: AppColors.emerald50,
           iconColor: AppColors.emerald600,
-          title: 'Catatan Perilaku',
-          subtitle: 'Catatan positif & negatif dari guru',
+          title: 'SIPINTER (Pendidikan Karakter)',
+          subtitle: 'Apresiasi & catatan kedisiplinan anak',
           onTap: () => Navigator.push(context, MaterialPageRoute(
             builder: (_) => OrangtuaConductScreen(studentId: child.id, studentName: child.name),
           )),

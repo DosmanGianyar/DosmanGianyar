@@ -1,6 +1,6 @@
 @extends('layouts.orangtua')
-@section('title', 'Catatan Perilaku')
-@section('page-title', 'Catatan Perilaku')
+@section('title', 'SIPINTER — Pendidikan Karakter Anak')
+@section('page-title', 'SIPINTER (Pendidikan Karakter)')
 
 @section('content')
 <div class="space-y-4">

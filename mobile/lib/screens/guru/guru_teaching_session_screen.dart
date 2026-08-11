@@ -209,9 +209,9 @@ class _CreateSessionTabState extends State<_CreateSessionTab> {
         setState(() {
           _students = list.map((s) {
             final sug = s.suggestedStatus;
-            final initialStatus = (sug != null && sug != 'hadir')
+            final initialStatus = (sug != null)
                 ? (sug == 'alpa' ? 'tidak_hadir' : sug)
-                : 'hadir';
+                : 'tidak_hadir';
             return SessionStudentRow(
               studentId:          s.id,
               name:               s.name,
@@ -219,6 +219,7 @@ class _CreateSessionTabState extends State<_CreateSessionTab> {
               status:             initialStatus,
               morningStatus:      s.morningStatus,
               morningStatusLabel: s.morningStatusLabel,
+              viaLupaAbsen:       s.viaLupaAbsen,
             );
           }).toList();
           _loadingStudents = false;
@@ -895,8 +896,61 @@ class _HistoryTabState extends State<_HistoryTab> {
           if (i == _sessions.length) {
             return const Center(child: Padding(padding: EdgeInsets.all(12), child: CircularProgressIndicator()));
           }
-          return _SessionCard(session: _sessions[i]);
+          return _SessionCard(
+            session: _sessions[i],
+            onEdit: () => _openEditBottomSheet(_sessions[i]),
+            onDelete: () => _confirmDeleteSession(_sessions[i]),
+          );
         },
+      ),
+    );
+  }
+
+  Future<void> _confirmDeleteSession(TeachingSession session) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Hapus Jurnal Mengajar'),
+        content: Text('Apakah Anda yakin ingin menghapus jurnal mengajar ${session.className} (${session.displayPeriodLabel})? Data absensi sesi ini akan dihapus.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Batal'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.red500),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Hapus', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      try {
+        final msg = await GuruService.deleteTeachingSession(session.id);
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(msg), backgroundColor: AppColors.emerald600),
+        );
+        _load(reset: true);
+      } catch (e) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Gagal menghapus: $e'), backgroundColor: AppColors.red500),
+        );
+      }
+    }
+  }
+
+  void _openEditBottomSheet(TeachingSession session) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => _EditSessionBottomSheet(
+        sessionId: session.id,
+        onSuccess: () => _load(reset: true),
       ),
     );
   }
@@ -906,7 +960,14 @@ class _HistoryTabState extends State<_HistoryTab> {
 
 class _SessionCard extends StatelessWidget {
   final TeachingSession session;
-  const _SessionCard({required this.session});
+  final VoidCallback onEdit;
+  final VoidCallback onDelete;
+
+  const _SessionCard({
+    required this.session,
+    required this.onEdit,
+    required this.onDelete,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -944,6 +1005,21 @@ class _SessionCard extends StatelessWidget {
                   style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.gray800),
                   overflow: TextOverflow.ellipsis,
                 ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.edit_outlined, size: 18, color: AppColors.blue600),
+                tooltip: 'Edit Jurnal',
+                constraints: const BoxConstraints(),
+                padding: const EdgeInsets.all(4),
+                onPressed: onEdit,
+              ),
+              const SizedBox(width: 4),
+              IconButton(
+                icon: const Icon(Icons.delete_outline_rounded, size: 18, color: AppColors.red500),
+                tooltip: 'Hapus Jurnal',
+                constraints: const BoxConstraints(),
+                padding: const EdgeInsets.all(4),
+                onPressed: onDelete,
               ),
             ],
           ),
@@ -993,7 +1069,38 @@ class _StudentAttRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hasMorningStatus = student.morningStatus != null && student.morningStatus != 'hadir';
+    final isLupaAbsen = student.viaLupaAbsen || student.morningStatus == 'lupa_absen';
+    final isTerlambat = student.morningStatus == 'terlambat';
+    final isBelumAbsen = student.morningStatus == null || student.morningStatus == 'belum_absen';
+    final isHadirPagi = student.morningStatus == 'hadir';
+
+    Color pillBg = AppColors.gray100;
+    Color pillBorder = AppColors.gray200;
+    Color pillText = AppColors.gray600;
+    String pillLabel = 'Pagi: ${student.morningStatusLabel ?? (isBelumAbsen ? "Belum Absen Pagi" : student.morningStatus!)}';
+
+    if (isLupaAbsen) {
+      pillBg = const Color(0xFFF3E8FF);
+      pillBorder = const Color(0xFFC084FC);
+      pillText = const Color(0xFF7E22CE);
+      pillLabel = 'Pagi: Lupa Absen';
+    } else if (isTerlambat) {
+      pillBg = const Color(0xFFFEF3C7);
+      pillBorder = const Color(0xFFFCD34D);
+      pillText = const Color(0xFFB45309);
+      pillLabel = 'Pagi: Terlambat';
+    } else if (isBelumAbsen) {
+      pillBg = const Color(0xFFFEF2F2);
+      pillBorder = const Color(0xFFFCA5A5);
+      pillText = const Color(0xFFDC2626);
+      pillLabel = 'Pagi: Belum Absen Pagi';
+    } else if (isHadirPagi) {
+      pillBg = const Color(0xFFD1FAE5);
+      pillBorder = const Color(0xFF6EE7B7);
+      pillText = const Color(0xFF047857);
+      pillLabel = 'Pagi: Hadir';
+    }
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       child: Row(
@@ -1018,18 +1125,16 @@ class _StudentAttRow extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
                       decoration: BoxDecoration(
-                        color: hasMorningStatus ? AppColors.amber50 : AppColors.gray100,
+                        color: pillBg,
                         borderRadius: BorderRadius.circular(4),
-                        border: Border.all(
-                          color: hasMorningStatus ? const Color(0xFFFCD34D) : AppColors.gray200,
-                        ),
+                        border: Border.all(color: pillBorder),
                       ),
                       child: Text(
-                        'Pagi: ${student.morningStatusLabel ?? (student.morningStatus != null ? student.morningStatus! : "Belum Absen Pagi")}',
+                        pillLabel,
                         style: TextStyle(
                           fontSize: 10,
-                          fontWeight: hasMorningStatus ? FontWeight.bold : FontWeight.normal,
-                          color: hasMorningStatus ? AppColors.amber800 : AppColors.gray600,
+                          fontWeight: FontWeight.w600,
+                          color: pillText,
                         ),
                       ),
                     ),
@@ -1040,8 +1145,20 @@ class _StudentAttRow extends StatelessWidget {
           ),
           Row(
             children: _statuses.map<Widget>((s) {
-              final (status, label, color, bg) = s;
+              final (status, label, defaultColor, _) = s;
               final selected = student.status == status;
+
+              Color activeColor = defaultColor;
+              if (status == 'hadir') {
+                if (isLupaAbsen) {
+                  activeColor = const Color(0xFF8B5CF6); // Ungu / Purple
+                } else if (isTerlambat) {
+                  activeColor = const Color(0xFFF59E0B); // Kuning / Amber
+                } else {
+                  activeColor = AppColors.green600; // Hijau / Green
+                }
+              }
+
               return Padding(
                 padding: const EdgeInsets.only(left: 4),
                 child: GestureDetector(
@@ -1049,9 +1166,9 @@ class _StudentAttRow extends StatelessWidget {
                   child: Container(
                     width: 30, height: 30,
                     decoration: BoxDecoration(
-                      color: selected ? color : AppColors.gray50,
+                      color: selected ? activeColor : AppColors.gray50,
                       borderRadius: BorderRadius.circular(6),
-                      border: Border.all(color: selected ? color : AppColors.gray200),
+                      border: Border.all(color: selected ? activeColor : AppColors.gray200),
                     ),
                     child: Center(
                       child: Text(
@@ -1231,6 +1348,245 @@ class _MonthYearPicker extends StatelessWidget {
             const Icon(Icons.expand_more_rounded, size: 16, color: AppColors.blue600),
           ],
         ),
+      ),
+    );
+  }
+}
+
+// ─── Edit Session Bottom Sheet ────────────────────────────────────────────────
+
+class _EditSessionBottomSheet extends StatefulWidget {
+  final int sessionId;
+  final VoidCallback onSuccess;
+
+  const _EditSessionBottomSheet({
+    required this.sessionId,
+    required this.onSuccess,
+  });
+
+  @override
+  State<_EditSessionBottomSheet> createState() => _EditSessionBottomSheetState();
+}
+
+class _EditSessionBottomSheetState extends State<_EditSessionBottomSheet> {
+  bool _loading = true;
+  bool _saving = false;
+  String? _error;
+
+  TeachingSession? _session;
+  final _materiCtrl = TextEditingController();
+  final _aktivCtrl  = TextEditingController();
+  final _notesCtrl  = TextEditingController();
+  List<SessionStudentRow> _students = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSessionDetail();
+  }
+
+  @override
+  void dispose() {
+    _materiCtrl.dispose();
+    _aktivCtrl.dispose();
+    _notesCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadSessionDetail() async {
+    try {
+      final session = await GuruService.getTeachingSession(widget.sessionId);
+      if (!mounted) return;
+      setState(() {
+        _session = session;
+        _materiCtrl.text = session.materi ?? '';
+        _aktivCtrl.text  = session.aktivitas ?? '';
+        _notesCtrl.text  = session.catatan ?? '';
+        _students = session.students.map((att) => SessionStudentRow(
+          studentId: att.studentId,
+          name: att.name,
+          nis: att.nis,
+          status: att.status,
+          note: att.note,
+          morningStatus: att.morningStatus,
+          morningStatusLabel: att.morningStatusLabel,
+          viaLupaAbsen: att.viaLupaAbsen,
+        )).toList();
+        _loading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _error = e.toString();
+        _loading = false;
+      });
+    }
+  }
+
+  Future<void> _save() async {
+    setState(() => _saving = true);
+    try {
+      final attendancesPayload = _students.map((s) => {
+        'student_id': s.studentId,
+        'status': s.status,
+        if (s.note != null) 'note': s.note,
+      }).toList();
+
+      final msg = await GuruService.updateTeachingSession(
+        widget.sessionId,
+        materi: _materiCtrl.text.trim(),
+        aktivitas: _aktivCtrl.text.trim(),
+        catatan: _notesCtrl.text.trim(),
+        attendances: attendancesPayload,
+      );
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(msg), backgroundColor: AppColors.emerald600),
+      );
+      Navigator.of(context).pop();
+      widget.onSuccess();
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Gagal menyimpan: $e'), backgroundColor: AppColors.red500),
+      );
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+    return Container(
+      height: MediaQuery.of(context).size.height * 0.85,
+      padding: EdgeInsets.only(bottom: bottomInset),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            decoration: const BoxDecoration(
+              border: Border(bottom: BorderSide(color: AppColors.gray200)),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.edit_note_rounded, color: AppColors.blue600, size: 24),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    _session != null
+                        ? 'Edit Jurnal - ${_session!.className} (${_session!.displayPeriodLabel})'
+                        : 'Edit Jurnal Mengajar',
+                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.gray800),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close_rounded, color: AppColors.gray500),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: _loading
+                ? const Center(child: CircularProgressIndicator())
+                : _error != null
+                    ? Center(child: Text('Gagal memuat data: $_error'))
+                    : SingleChildScrollView(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('Materi Pembelajaran', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.gray700)),
+                            const SizedBox(height: 6),
+                            TextField(
+                              controller: _materiCtrl,
+                              decoration: const InputDecoration(
+                                hintText: 'Materi yang diajarkan',
+                                border: OutlineInputBorder(),
+                                contentPadding: EdgeInsets.all(10),
+                              ),
+                            ),
+                            const SizedBox(height: 14),
+                            const Text('Aktivitas Pembelajaran', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.gray700)),
+                            const SizedBox(height: 6),
+                            TextField(
+                              controller: _aktivCtrl,
+                              maxLines: 2,
+                              decoration: const InputDecoration(
+                                hintText: 'Aktivitas siswa',
+                                border: OutlineInputBorder(),
+                                contentPadding: EdgeInsets.all(10),
+                              ),
+                            ),
+                            const SizedBox(height: 14),
+                            const Text('Catatan Tambahan', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.gray700)),
+                            const SizedBox(height: 6),
+                            TextField(
+                              controller: _notesCtrl,
+                              maxLines: 2,
+                              decoration: const InputDecoration(
+                                hintText: 'Catatan guru',
+                                border: OutlineInputBorder(),
+                                contentPadding: EdgeInsets.all(10),
+                              ),
+                            ),
+                            const SizedBox(height: 18),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text('Absensi Siswa', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.gray800)),
+                                Text('${_students.length} Siswa', style: const TextStyle(fontSize: 12, color: AppColors.gray500)),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            ListView.separated(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: _students.length,
+                              separatorBuilder: (_, __) => const Divider(height: 1),
+                              itemBuilder: (_, i) {
+                                final st = _students[i];
+                                return _StudentAttRow(
+                                  student: st,
+                                  onStatusChanged: (newStatus) {
+                                    setState(() => st.status = newStatus);
+                                  },
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+          ),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              border: Border(top: BorderSide(color: AppColors.gray200)),
+            ),
+            child: SizedBox(
+              width: double.infinity,
+              height: 44,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.blue600,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                ),
+                onPressed: _saving || _loading ? null : _save,
+                child: _saving
+                    ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                    : const Text('Simpan Perubahan', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

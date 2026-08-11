@@ -54,5 +54,12 @@ class ConductLog {
   Color get typeColor => isCatatanPositif ? AppColors.emerald600 : AppColors.red500;
   Color get typeBg    => isCatatanPositif ? AppColors.emerald50  : AppColors.red50;
   Color get typeIconColor => isCatatanPositif ? AppColors.emerald600 : AppColors.red500;
-  String get typeLabel => isCatatanPositif ? 'Catatan Positif' : 'Catatan Negatif';
+  String get typeLabel => isCatatanPositif ? 'Apresiasi Karakter' : 'Kedisiplinan Karakter';
+
+  String get displayCategoryName {
+    if (categoryName.startsWith('__sistem__')) {
+      return isCatatanPositif ? 'Apresiasi Karakter' : 'Kedisiplinan Karakter';
+    }
+    return categoryName;
+  }
 }

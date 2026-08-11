@@ -1,6 +1,6 @@
 @extends('layouts.guru')
-@section('title', 'Rekap Catatan Perilaku')
-@section('page-title', 'Rekap Catatan Perilaku')
+@section('title', 'SIPINTER — Rekap Pendidikan Karakter')
+@section('page-title', 'SIPINTER (Pendidikan Karakter Siswa)')
 
 @section('content')
 <div class="space-y-4">
