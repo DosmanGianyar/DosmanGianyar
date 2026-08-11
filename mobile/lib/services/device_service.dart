@@ -1,31 +1,24 @@
-import 'package:device_info_plus/device_info_plus.dart';
+import 'dart:io';
 import 'package:flutter/foundation.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:geolocator/geolocator.dart';
 
-/// Layanan untuk mendapatkan device ID yang stabil dan memverifikasi GPS asli.
 class DeviceService {
-  DeviceService._();
+  // ─── Device ID & Info ───────────────────────────────────────────────────────
 
-  static final _deviceInfo = DeviceInfoPlugin();
-
-  // ─── Device ID ───────────────────────────────────────────────────────────
-
-  /// Mengembalikan ID unik perangkat:
-  ///   Android → ANDROID_ID (stabil per app signature)
-  ///   iOS     → identifierForVendor (stabil per vendor)
+  /// Mengambil Device ID unik perangkat (Android ID / iOS Identifier).
   static Future<String> getDeviceId() async {
+    final deviceInfo = DeviceInfoPlugin();
     try {
-      if (defaultTargetPlatform == TargetPlatform.android) {
-        final info = await _deviceInfo.androidInfo;
-        return info.id; // ANDROID_ID — 64-bit hex string
-      }
-
-      if (defaultTargetPlatform == TargetPlatform.iOS) {
-        final info = await _deviceInfo.iosInfo;
-        return info.identifierForVendor ?? 'ios-unknown';
+      if (Platform.isAndroid) {
+        final androidInfo = await deviceInfo.androidInfo;
+        return androidInfo.id; // Unique Android Hardware/OS ID
+      } else if (Platform.isIOS) {
+        final iosInfo = await deviceInfo.iosInfo;
+        return iosInfo.identifierForVendor ?? 'ios-unknown';
       }
     } catch (_) {
-      // Fallback jika plugin gagal
+      return 'unknown-device';
     }
     return 'unknown-${defaultTargetPlatform.name}';
   }
@@ -33,12 +26,13 @@ class DeviceService {
   // ─── GPS Verification ────────────────────────────────────────────────────
 
   /// Meminta izin lokasi lalu mengembalikan posisi yang sudah diverifikasi.
-  /// Melempar [MockLocationException] jika terdeteksi Fake GPS.
+  /// Memiliki fallback otomatis 3 Tahap (High Accuracy Fused -> Last Known -> Medium Accuracy)
+  /// agar tidak stuck / error "GPS tidak ditemukan" di Android.
   static Future<Position> getVerifiedPosition() async {
     // Pastikan location service aktif
     final serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      throw const LocationServiceException('GPS tidak aktif. Aktifkan lokasi di pengaturan.');
+      throw const LocationServiceException('Layanan lokasi (GPS) belum aktif. Silakan aktifkan GPS di HP Anda.');
     }
 
     // Minta izin
@@ -48,17 +42,47 @@ class DeviceService {
     }
     if (permission == LocationPermission.deniedForever) {
       throw const LocationPermissionDeniedForeverException(
-        'Izin lokasi diblokir permanen. Buka pengaturan untuk mengaktifkan.',
+        'Izin lokasi diblokir permanen. Buka Pengaturan HP -> Izin Aplikasi -> SIMS -> Lokasi untuk mengaktifkan.',
       );
     }
     if (permission == LocationPermission.denied) {
-      throw const LocationPermissionException('Izin lokasi ditolak.');
+      throw const LocationPermissionException('Izin lokasi ditolak oleh pengguna.');
     }
 
-    // Ambil posisi dengan akurasi terbaik
-    final position = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.best,
-    );
+    Position? position;
+
+    // Tahap 1: Coba ambil posisi presisi tinggi dengan Fused Location (Timeout 6 detik)
+    try {
+      position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+        timeLimit: const Duration(seconds: 6),
+      );
+    } catch (_) {
+      // Jika getCurrentPosition timeout / error, lanjut ke fallback Tahap 2
+    }
+
+    // Tahap 2: Jika belum dapat, ambil Last Known Position (Posisi terakhir yang tersimpan di sistem HP)
+    if (position == null) {
+      try {
+        position = await Geolocator.getLastKnownPosition();
+      } catch (_) {}
+    }
+
+    // Tahap 3: Jika masih null, coba sekali lagi dengan mode medium accuracy (Timeout 5 detik)
+    if (position == null) {
+      try {
+        position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.medium,
+          timeLimit: const Duration(seconds: 5),
+        );
+      } catch (_) {}
+    }
+
+    if (position == null) {
+      throw const LocationServiceException(
+        'Lokasi GPS tidak ditemukan. Pastikan Anda berada di luar ruangan / dekat jendela dan GPS HP aktif.',
+      );
+    }
 
     // ── Deteksi #1: Platform melaporkan mock location (Android Native API) ─────────
     if (position.isMocked) {
@@ -68,11 +92,11 @@ class DeviceService {
       );
     }
 
-    // ── Deteksi #2: Sinyal GPS terlalu lemah / tidak akurat (> 100m) ─────────
-    if (position.accuracy > 100.0) {
+    // ── Deteksi #2: Sinyal GPS terlalu lemah / tidak akurat (> 200m) ─────────
+    if (position.accuracy > 200.0) {
       throw LocationServiceException(
-        'Sinyal GPS lemah (akurasi ${position.accuracy.toStringAsFixed(0)}m). '
-        'Bawa HP ke area terbuka.',
+        'Sinyal GPS kurang akurat (${position.accuracy.toStringAsFixed(0)}m). '
+        'Bawa HP ke area yang tidak terhalang atap tebal.',
       );
     }
 
