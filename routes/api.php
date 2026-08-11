@@ -172,27 +172,28 @@ Route::prefix('v1')->group(function () {
             Route::post('/guru/teaching-sessions',                        [GuruTeachingSessionController::class, 'store']);
             Route::get('/guru/teaching-sessions/export',                  [GuruTeachingSessionController::class, 'export']);
             Route::get('/guru/teaching-sessions/class-students/{classId}',[GuruTeachingSessionController::class, 'classStudents']);
-            Route::get('/guru/teaching-sessions/{id}',                    [GuruTeachingSessionController::class, 'show']);
-            Route::post('/guru/teaching-sessions/{id}/update',            [GuruTeachingSessionController::class, 'update']);
-            Route::put('/guru/teaching-sessions/{id}',                    [GuruTeachingSessionController::class, 'update']);
-            Route::match(['delete', 'post'], '/guru/teaching-sessions/{id}/delete', [GuruTeachingSessionController::class, 'destroy']);
-            Route::match(['delete', 'post'], '/guru/teaching-sessions/{id}',        [GuruTeachingSessionController::class, 'destroy']);
+            Route::get('/guru/teaching-sessions/{id}',                    [GuruTeachingSessionController::class, 'show'])->where('id', '[0-9]+');
+            Route::post('/guru/teaching-sessions/{id}/update',            [GuruTeachingSessionController::class, 'update'])->where('id', '[0-9]+');
+            Route::put('/guru/teaching-sessions/{id}',                    [GuruTeachingSessionController::class, 'update'])->where('id', '[0-9]+');
+            Route::match(['delete', 'post'], '/guru/teaching-sessions/{id}/delete', [GuruTeachingSessionController::class, 'destroy'])->where('id', '[0-9]+');
+            Route::match(['delete', 'post'], '/guru/teaching-sessions/{id}',        [GuruTeachingSessionController::class, 'destroy'])->where('id', '[0-9]+');
 
             // Tujuan Pembelajaran (TP) — master data per guru
             Route::get('/guru/tp',                                        [GuruTpController::class, 'index']);
             Route::post('/guru/tp',                                       [GuruTpController::class, 'store']);
-            Route::put('/guru/tp/{id}',                                   [GuruTpController::class, 'update']);
-            Route::patch('/guru/tp/{id}/toggle',                          [GuruTpController::class, 'toggle']);
-            Route::delete('/guru/tp/{id}',                                [GuruTpController::class, 'destroy']);
+            Route::put('/guru/tp/{id}',                                   [GuruTpController::class, 'update'])->where('id', '[0-9]+');
+            Route::patch('/guru/tp/{id}/toggle',                          [GuruTpController::class, 'toggle'])->where('id', '[0-9]+');
+            Route::delete('/guru/tp/{id}',                                [GuruTpController::class, 'destroy'])->where('id', '[0-9]+');
 
             // Jurnal Guru
             Route::get('/guru/journals',                                  [GuruJournalController::class, 'index']);
             Route::post('/guru/journals',                                 [GuruJournalController::class, 'store']);
-            Route::get('/guru/journals/class-students/{classId}',         [GuruJournalController::class, 'classStudents']);
-            Route::get('/guru/journals/{id}',                             [GuruJournalController::class, 'show']);
-            Route::put('/guru/journals/{id}',                             [GuruJournalController::class, 'update']);
-            Route::match(['delete', 'post'], '/guru/journals/{id}/delete',[GuruJournalController::class, 'destroy']);
-            Route::match(['delete', 'post'], '/guru/journals/{id}',       [GuruJournalController::class, 'destroy']);
+            Route::get('/guru/journals/class-students/{classId}',         [GuruJournalController::class, 'classStudents'])->where('classId', '[0-9]+');
+            Route::get('/guru/journals/{id}',                             [GuruJournalController::class, 'show'])->where('id', '[0-9]+');
+            Route::put('/guru/journals/{id}',                             [GuruJournalController::class, 'update'])->where('id', '[0-9]+');
+            Route::post('/guru/journals/{id}/update',                     [GuruJournalController::class, 'update'])->where('id', '[0-9]+');
+            Route::match(['delete', 'post'], '/guru/journals/{id}/delete',[GuruJournalController::class, 'destroy'])->where('id', '[0-9]+');
+            Route::match(['delete', 'post'], '/guru/journals/{id}',       [GuruJournalController::class, 'destroy'])->where('id', '[0-9]+');
 
             // Input Nilai Guru
             Route::get('/guru/grades/classes',                    [GuruGradeApiController::class, 'classes']);
