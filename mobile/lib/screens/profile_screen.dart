@@ -10,6 +10,7 @@ import '../services/api_client.dart';
 import '../theme/app_colors.dart';
 import '../widgets/image_viewer_dialog.dart';
 import 'login_screen.dart';
+import 'siswa_profile_edit_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -385,6 +386,35 @@ class _IdentityCard extends StatelessWidget {
                       Expanded(child: _InfoBox(label: 'No. HP', value: user?.phone ?? '—')),
                     ],
                   ),
+                  if (user?.role.startsWith('siswa') == true) ...[
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton.icon(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const SiswaProfileEditScreen()),
+                          );
+                        },
+                        icon: Icon(
+                          user?.canEditProfile == true ? Icons.edit_note_rounded : Icons.lock_outline_rounded,
+                          size: 18,
+                        ),
+                        label: Text(
+                          user?.canEditProfile == true
+                              ? 'Lengkapi / Edit Data Profil'
+                              : 'Lihat Detail Profil (Read-Only)',
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: AppColors.blue600,
+                          side: const BorderSide(color: AppColors.blue600),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        ),
+                      ),
+                    ),
+                  ],
                 ],
               ],
             ),

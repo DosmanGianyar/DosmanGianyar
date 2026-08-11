@@ -21,25 +21,57 @@ class ProfileController extends Controller
         $siswa = Auth::user();
         $siswa->load('schoolClass');
 
+        $canEditProfile = \App\Models\AppSetting::canStudentEditProfile();
+
         $qrContent = url('/biodata/' . $siswa->qr_token);
         $options   = new QROptions(['outputType' => 'svg']);
         $qrSvg     = (new QRCode($options))->render($qrContent);
 
-        return view('siswa.profile', compact('siswa', 'qrSvg'));
+        return view('siswa.profile', compact('siswa', 'qrSvg', 'canEditProfile'));
     }
 
     public function update(Request $request): RedirectResponse
     {
-        $request->validate([
-            'phone'   => 'nullable|string|max:20',
-            'address' => 'nullable|string|max:255',
+        if (! \App\Models\AppSetting::canStudentEditProfile()) {
+            return back()->with('error', 'Pengisian & pembaruan data profil siswa sedang dikunci oleh pihak sekolah.');
+        }
+
+        $validated = $request->validate([
+            'phone'       => 'nullable|string|max:50',
+            'address'     => 'nullable|string|max:255',
+            'hobbies'     => 'nullable|string|max:255',
+            'aspirations' => 'nullable|string|max:255',
+            'rt_rw'       => 'nullable|string|max:50',
+            'kelurahan'   => 'nullable|string|max:100',
+            'kecamatan'   => 'nullable|string|max:100',
+            'kabupaten'   => 'nullable|string|max:100',
+            'residence_status' => 'nullable|string|max:50',
+            'transportation'   => 'nullable|string|max:50',
+            'distance_km'      => 'nullable|numeric|min:0|max:500',
+            'travel_time_minutes' => 'nullable|integer|min:0|max:1440',
+            'father_name'      => 'nullable|string|max:255',
+            'father_phone'     => 'nullable|string|max:50',
+            'father_job'       => 'nullable|string|max:100',
+            'mother_name'      => 'nullable|string|max:255',
+            'mother_phone'     => 'nullable|string|max:50',
+            'mother_job'       => 'nullable|string|max:100',
+            'guardian_name'    => 'nullable|string|max:255',
+            'guardian_phone'   => 'nullable|string|max:50',
+            'guardian_job'     => 'nullable|string|max:100',
+            'emergency_contact_name'     => 'nullable|string|max:255',
+            'emergency_contact_phone'    => 'nullable|string|max:50',
+            'emergency_contact_relation' => 'nullable|string|max:100',
+            'blood_type'       => 'nullable|string|max:10',
+            'medical_history'  => 'nullable|string',
+            'height_cm'        => 'nullable|integer|min:30|max:250',
+            'weight_kg'        => 'nullable|integer|min:10|max:300',
         ]);
 
         /** @var \App\Models\User $user */
         $user = Auth::user();
-        $user->update($request->only('phone', 'address'));
+        $user->update($validated);
 
-        return back()->with('success', 'Profil berhasil diperbarui.');
+        return back()->with('success', 'Data profil berhasil diperbarui.');
     }
 
     public function updatePassword(Request $request): RedirectResponse

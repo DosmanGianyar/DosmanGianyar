@@ -42,4 +42,9 @@ class AppSetting extends Model
     {
         return (bool) static::get('is_evoting_active', true);
     }
+
+    public static function canStudentEditProfile(): bool
+    {
+        return (bool) static::get('allow_student_profile_edit', true);
+    }
 }

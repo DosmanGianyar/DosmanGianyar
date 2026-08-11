@@ -61,6 +61,33 @@ class User {
   final String? parentName;
   final String? parentPhone;
   final String? angkatan;
+  final bool canEditProfile;
+  final String? hobbies;
+  final String? aspirations;
+  final String? rtRw;
+  final String? kelurahan;
+  final String? kecamatan;
+  final String? kabupaten;
+  final String? residenceStatus;
+  final String? transportation;
+  final double? distanceKm;
+  final int?    travelTimeMinutes;
+  final String? fatherName;
+  final String? fatherPhone;
+  final String? fatherJob;
+  final String? motherName;
+  final String? motherPhone;
+  final String? motherJob;
+  final String? guardianName;
+  final String? guardianPhone;
+  final String? guardianJob;
+  final String? emergencyContactName;
+  final String? emergencyContactPhone;
+  final String? emergencyContactRelation;
+  final String? bloodType;
+  final String? medicalHistory;
+  final int?    heightCm;
+  final int?    weightKg;
   final List<ChildSummary> children;
 
   const User({
@@ -81,6 +108,7 @@ class User {
     required this.deviceBound,
     this.mustChangePassword = false,
     this.isBk = false,
+    this.canEditProfile = true,
     this.phone,
     this.address,
     this.birthDate,
@@ -88,6 +116,32 @@ class User {
     this.parentName,
     this.parentPhone,
     this.angkatan,
+    this.hobbies,
+    this.aspirations,
+    this.rtRw,
+    this.kelurahan,
+    this.kecamatan,
+    this.kabupaten,
+    this.residenceStatus,
+    this.transportation,
+    this.distanceKm,
+    this.travelTimeMinutes,
+    this.fatherName,
+    this.fatherPhone,
+    this.fatherJob,
+    this.motherName,
+    this.motherPhone,
+    this.motherJob,
+    this.guardianName,
+    this.guardianPhone,
+    this.guardianJob,
+    this.emergencyContactName,
+    this.emergencyContactPhone,
+    this.emergencyContactRelation,
+    this.bloodType,
+    this.medicalHistory,
+    this.heightCm,
+    this.weightKg,
     this.children = const [],
   });
 
@@ -117,6 +171,7 @@ class User {
       deviceBound:       json['device_bound'] as bool? ?? false,
       mustChangePassword: json['must_change_password'] as bool? ?? false,
       isBk:              json['is_bk'] as bool? ?? false,
+      canEditProfile:    json['can_edit_profile'] as bool? ?? true,
       phone:             json['phone'] as String?,
       address:           json['address'] as String?,
       birthDate:         json['birth_date'] as String?,
@@ -124,6 +179,32 @@ class User {
       parentName:        json['parent_name'] as String?,
       parentPhone:       json['parent_phone'] as String?,
       angkatan:          json['angkatan'] as String?,
+      hobbies:           json['hobbies'] as String?,
+      aspirations:       json['aspirations'] as String?,
+      rtRw:              json['rt_rw'] as String?,
+      kelurahan:         json['kelurahan'] as String?,
+      kecamatan:         json['kecamatan'] as String?,
+      kabupaten:         json['kabupaten'] as String?,
+      residenceStatus:   json['residence_status'] as String?,
+      transportation:     json['transportation'] as String?,
+      distanceKm:        (json['distance_km'] as num?)?.toDouble(),
+      travelTimeMinutes: json['travel_time_minutes'] as int?,
+      fatherName:        json['father_name'] as String?,
+      fatherPhone:       json['father_phone'] as String?,
+      fatherJob:         json['father_job'] as String?,
+      motherName:        json['mother_name'] as String?,
+      motherPhone:       json['mother_phone'] as String?,
+      motherJob:         json['mother_job'] as String?,
+      guardianName:      json['guardian_name'] as String?,
+      guardianPhone:     json['guardian_phone'] as String?,
+      guardianJob:       json['guardian_job'] as String?,
+      emergencyContactName:     json['emergency_contact_name'] as String?,
+      emergencyContactPhone:    json['emergency_contact_phone'] as String?,
+      emergencyContactRelation: json['emergency_contact_relation'] as String?,
+      bloodType:         json['blood_type'] as String?,
+      medicalHistory:    json['medical_history'] as String?,
+      heightCm:          json['height_cm'] as int?,
+      weightKg:          json['weight_kg'] as int?,
       children:          (json['children'] as List<dynamic>? ?? [])
                              .map((e) => ChildSummary.fromJson(e as Map<String, dynamic>))
                              .toList(),

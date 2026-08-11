@@ -242,6 +242,7 @@ class AuthController extends Controller
             'device_bound' => $user->hasDeviceLocked(),
             'must_change_password' => (bool) $user->must_change_password,
             'is_bk'        => $user->role === 'guru' ? $user->isBk() : false,
+            'can_edit_profile'   => $user->isSiswa() ? \App\Models\AppSetting::canStudentEditProfile() : true,
             'phone'        => $user->phone,
             'address'      => $user->address,
             'birth_date'   => $user->birth_date?->toDateString(),
@@ -249,25 +250,84 @@ class AuthController extends Controller
             'parent_name'  => $user->parent_name,
             'parent_phone' => $user->parent_phone,
             'angkatan'     => $user->angkatan,
+            'hobbies'      => $user->hobbies,
+            'aspirations'  => $user->aspirations,
+            'rt_rw'        => $user->rt_rw,
+            'kelurahan'    => $user->kelurahan,
+            'kecamatan'    => $user->kecamatan,
+            'kabupaten'    => $user->kabupaten,
+            'residence_status'   => $user->residence_status,
+            'transportation'     => $user->transportation,
+            'distance_km'        => $user->distance_km,
+            'travel_time_minutes' => $user->travel_time_minutes,
+            'father_name'        => $user->father_name,
+            'father_phone'       => $user->father_phone,
+            'father_job'         => $user->father_job,
+            'mother_name'        => $user->mother_name,
+            'mother_phone'       => $user->mother_phone,
+            'mother_job'         => $user->mother_job,
+            'guardian_name'      => $user->guardian_name,
+            'guardian_phone'     => $user->guardian_phone,
+            'guardian_job'       => $user->guardian_job,
+            'emergency_contact_name'     => $user->emergency_contact_name,
+            'emergency_contact_phone'    => $user->emergency_contact_phone,
+            'emergency_contact_relation' => $user->emergency_contact_relation,
+            'blood_type'         => $user->blood_type,
+            'medical_history'    => $user->medical_history,
+            'height_cm'          => $user->height_cm,
+            'weight_kg'          => $user->weight_kg,
             'children'     => $children,
         ];
     }
 
-    /** Update profil (phone, address). */
+    /** Update profil. */
     public function updateProfile(Request $request): JsonResponse
     {
-        $request->validate([
-            'phone'   => 'nullable|string|max:20',
-            'address' => 'nullable|string|max:255',
-        ]);
-
         /** @var User $user */
         $user = $request->user();
-        $user->update($request->only('phone', 'address'));
+
+        if ($user->isSiswa() && ! \App\Models\AppSetting::canStudentEditProfile()) {
+            return response()->json([
+                'message' => 'Pengisian & pembaruan data profil siswa sedang dikunci oleh pihak sekolah.',
+            ], 403);
+        }
+
+        $validated = $request->validate([
+            'phone'       => 'nullable|string|max:50',
+            'address'     => 'nullable|string|max:255',
+            'hobbies'     => 'nullable|string|max:255',
+            'aspirations' => 'nullable|string|max:255',
+            'rt_rw'       => 'nullable|string|max:50',
+            'kelurahan'   => 'nullable|string|max:100',
+            'kecamatan'   => 'nullable|string|max:100',
+            'kabupaten'   => 'nullable|string|max:100',
+            'residence_status' => 'nullable|string|max:50',
+            'transportation'   => 'nullable|string|max:50',
+            'distance_km'      => 'nullable|numeric|min:0|max:500',
+            'travel_time_minutes' => 'nullable|integer|min:0|max:1440',
+            'father_name'      => 'nullable|string|max:255',
+            'father_phone'     => 'nullable|string|max:50',
+            'father_job'       => 'nullable|string|max:100',
+            'mother_name'      => 'nullable|string|max:255',
+            'mother_phone'     => 'nullable|string|max:50',
+            'mother_job'       => 'nullable|string|max:100',
+            'guardian_name'    => 'nullable|string|max:255',
+            'guardian_phone'   => 'nullable|string|max:50',
+            'guardian_job'     => 'nullable|string|max:100',
+            'emergency_contact_name'     => 'nullable|string|max:255',
+            'emergency_contact_phone'    => 'nullable|string|max:50',
+            'emergency_contact_relation' => 'nullable|string|max:100',
+            'blood_type'       => 'nullable|string|max:10',
+            'medical_history'  => 'nullable|string',
+            'height_cm'        => 'nullable|integer|min:30|max:250',
+            'weight_kg'        => 'nullable|integer|min:10|max:300',
+        ]);
+
+        $user->update($validated);
 
         return response()->json([
             'message' => 'Profil berhasil diperbarui.',
-            'user'    => $this->userPayload($user),
+            'user'    => $this->userPayload($user->fresh()),
         ]);
     }
 

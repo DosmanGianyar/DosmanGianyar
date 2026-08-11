@@ -23,6 +23,13 @@ class User extends Authenticatable implements FilamentUser
         'nis', 'nisn', 'gender', 'class_id', 'parent_name', 'parent_phone', 'birth_date', 'address',
         'nip', 'subject',
         'device_id', 'device_locked_at', 'qr_code_token',
+        'hobbies', 'aspirations', 'rt_rw', 'kelurahan', 'kecamatan', 'kabupaten',
+        'residence_status', 'transportation', 'distance_km', 'travel_time_minutes',
+        'father_name', 'father_phone', 'father_job',
+        'mother_name', 'mother_phone', 'mother_job',
+        'guardian_name', 'guardian_phone', 'guardian_job',
+        'emergency_contact_name', 'emergency_contact_phone', 'emergency_contact_relation',
+        'blood_type', 'medical_history', 'height_cm', 'weight_kg',
     ];
 
     protected $hidden = ['password', 'remember_token'];
@@ -35,6 +42,10 @@ class User extends Authenticatable implements FilamentUser
             'device_locked_at'      => 'datetime',
             'password'              => 'hashed',
             'must_change_password'  => 'boolean',
+            'distance_km'           => 'float',
+            'travel_time_minutes'   => 'integer',
+            'height_cm'             => 'integer',
+            'weight_kg'             => 'integer',
         ];
     }
 
