@@ -198,32 +198,10 @@ class ExportController extends Controller
         return view('exports.attendance-grid-pdf', $data);
     }
 
-    public function attendanceGridPdf(Request $request): Response
+    public function attendanceGridPdf(Request $request)
     {
-        ini_set('memory_limit', '512M');
-        set_time_limit(120);
-
         $data = $this->getAttendanceGridData($request);
-
-        $html = view('exports.attendance-grid-pdf', $data)->render();
-
-        $options = new \Dompdf\Options();
-        $options->set('isRemoteEnabled', true);
-        $options->set('isHtml5ParserEnabled', true);
-
-        $dompdf = new \Dompdf\Dompdf($options);
-        $dompdf->loadHtml($html);
-        $dompdf->setPaper('a4', 'landscape');
-        $dompdf->render();
-
-        $pdf = $dompdf->output();
-
-        $filename = 'rekap_absensi_' . $data['className'] . '_' . $data['month'] . '.pdf';
-
-        return response($pdf, 200, [
-            'Content-Type'        => 'application/pdf',
-            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
-        ]);
+        return view('exports.attendance-grid-pdf', $data);
     }
 
     // ─── Absensi Guru ─────────────────────────────────────────────────────────

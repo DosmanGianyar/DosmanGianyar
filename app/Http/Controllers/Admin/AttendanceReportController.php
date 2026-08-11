@@ -49,7 +49,7 @@ class AttendanceReportController extends Controller
 
         $avgPct = count($rows) > 0 ? round(collect($rows)->avg('pct'), 1) : 0;
 
-        $html = view('exports.admin-attendance-summary-pdf', [
+        return view('exports.admin-attendance-summary-pdf', [
             'rows'        => $rows,
             'monthName'   => $monthName,
             'workingDays' => $workingDays,
@@ -57,22 +57,6 @@ class AttendanceReportController extends Controller
             'className'   => $className,
             'avgPct'      => $avgPct,
             'total'       => count($rows),
-        ])->render();
-
-        $options = new \Dompdf\Options();
-        $options->set('isRemoteEnabled', true);
-        $options->set('isHtml5ParserEnabled', true);
-
-        $dompdf = new \Dompdf\Dompdf($options);
-        $dompdf->loadHtml($html);
-        $dompdf->setPaper('a4', 'landscape');
-        $dompdf->render();
-
-        $pdf = $dompdf->output();
-
-        return response($pdf, 200, [
-            'Content-Type'        => 'application/pdf',
-            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
         ]);
     }
 

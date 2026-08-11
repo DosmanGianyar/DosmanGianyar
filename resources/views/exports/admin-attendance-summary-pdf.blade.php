@@ -51,14 +51,33 @@
     .pct-high { color:#16a34a; font-weight:700; }
     .pct-mid  { color:#d97706; font-weight:700; }
     .pct-low  { color:#dc2626; font-weight:700; }
+    @media print {
+        .no-print { display: none !important; }
+        body { padding: 0; }
+    }
 </style>
 </head>
-<body class="bg-white text-gray-800" style="font-family: Arial, sans-serif; font-size: 8px;">
+<body class="bg-white text-gray-800" style="font-family: Arial, sans-serif; font-size: 8px; margin: 0;">
+
+<div class="no-print" style="position:sticky;top:0;z-index:9999;background:#0f1d33;padding:0.75rem 1.5rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.1);margin-bottom:1rem;color:#fff;font-family:system-ui,-apple-system,sans-serif">
+    <div style="display:flex;align-items:center;gap:0.75rem">
+        <span style="font-weight:700;font-size:0.9rem">📄 Pratinjau Dokumen Ringkasan Presensi (Summary)</span>
+        <span style="font-size:0.75rem;color:rgba(255,255,255,0.6)">(Dokumen resmi siap cetak / simpan ke PDF)</span>
+    </div>
+    <div style="display:flex;gap:0.5rem">
+        <button type="button" onclick="window.print()" style="padding:0.5rem 1.25rem;background:#10b981;color:#fff;font-size:0.8rem;font-weight:700;border:none;border-radius:0.5rem;cursor:pointer">
+            🖨️ Cetak / Simpan ke PDF (A4)
+        </button>
+        <button type="button" onclick="window.close()" style="padding:0.5rem 1rem;background:rgba(255,255,255,0.15);color:#fff;font-size:0.8rem;font-weight:600;border:none;border-radius:0.5rem;cursor:pointer">
+            Tutup
+        </button>
+    </div>
+</div>
 
 {{-- ── KOP SURAT ─────────────────────────────────────────────────────────── --}}
 <div style="text-align:center; padding-bottom:7px; margin-bottom:8px; border-bottom:4px double #000000;">
     <div style="display:inline-flex; align-items:center; gap:14px;">
-        <img src="{{ public_path('img/logo-pemprov-bali.png') }}" style="width:58px; height:58px; object-fit:contain; flex-shrink:0;">
+        <img src="{{ asset('img/logo-pemprov-bali.png') }}" style="width:58px; height:58px; object-fit:contain; flex-shrink:0;">
         <div style="text-align:center; line-height:1.45;">
             <div style="font-size:11px; font-weight:bold; font-family:'Times New Roman',serif;">PEMERINTAH PROVINSI BALI</div>
             <div style="font-size:11px; font-weight:bold; font-family:'Times New Roman',serif;">DINAS PENDIDIKAN KEPEMUDAAN DAN OLAHRAGA</div>
@@ -67,7 +86,7 @@
             <div style="font-size:7.5px;">Website: <span style="text-decoration:underline;">https://sman1-gianyar.sch.id</span> &nbsp; E-mail: <span style="text-decoration:underline;">sman1.gianyar1963@gmail.com</span></div>
             <div style="font-size:8px; font-weight:bold; margin-top:1px;">NPSN : 50102079</div>
         </div>
-        <img src="{{ public_path('img/logo_sekolah.png') }}" style="width:58px; height:58px; object-fit:contain; flex-shrink:0;">
+        <img src="{{ asset('img/logo_sekolah.png') }}" style="width:58px; height:58px; object-fit:contain; flex-shrink:0;">
     </div>
 </div>
 

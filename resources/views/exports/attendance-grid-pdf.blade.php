@@ -7,6 +7,10 @@
 <style>
     @page { size: A4 landscape; margin: 8mm 10mm 10mm 10mm; }
     body { font-family: 'Times New Roman', Times, serif; font-size: 8px; color: #000; margin: 0; padding: 0; background: #fff; }
+    @media print {
+        .no-print { display: none !important; }
+        body { padding: 0; }
+    }
     
     .kop-container { text-align: center; border-bottom: 3px double #000; padding-bottom: 4px; margin-bottom: 8px; position: relative; }
     .kop-logo-left { position: absolute; left: 10px; top: 2px; width: 52px; height: 52px; object-fit: contain; }
@@ -50,6 +54,21 @@
 </style>
 </head>
 <body>
+
+<div class="no-print" style="position:sticky;top:0;z-index:9999;background:#0f1d33;padding:0.75rem 1.5rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.1);margin-bottom:1rem;color:#fff;font-family:system-ui,-apple-system,sans-serif">
+    <div style="display:flex;align-items:center;gap:0.75rem">
+        <span style="font-weight:700;font-size:0.9rem">📄 Pratinjau Dokumen Cetak Presensi</span>
+        <span style="font-size:0.75rem;color:rgba(255,255,255,0.6)">(Dokumen resmi siap cetak / simpan ke PDF)</span>
+    </div>
+    <div style="display:flex;gap:0.5rem">
+        <button type="button" onclick="window.print()" style="padding:0.5rem 1.25rem;background:#10b981;color:#fff;font-size:0.8rem;font-weight:700;border:none;border-radius:0.5rem;cursor:pointer">
+            🖨️ Cetak / Simpan ke PDF (A4)
+        </button>
+        <button type="button" onclick="window.close()" style="padding:0.5rem 1rem;background:rgba(255,255,255,0.15);color:#fff;font-size:0.8rem;font-weight:600;border:none;border-radius:0.5rem;cursor:pointer">
+            Tutup
+        </button>
+    </div>
+</div>
 
 @php
     use Carbon\Carbon;
