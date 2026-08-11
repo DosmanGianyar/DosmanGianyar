@@ -396,6 +396,13 @@ class GuruTeachingSessionController extends Controller
         // 1. Check TeacherAttendance
         $session = TeacherAttendance::find($id);
 
+        if (! $session) {
+            $sessAtt = SessionAttendance::find($id);
+            if ($sessAtt && $sessAtt->teacher_attendance_id) {
+                $session = TeacherAttendance::find($sessAtt->teacher_attendance_id);
+            }
+        }
+
         if ($session) {
             $isOwner = (int) $session->teacher_id === (int) $teacher->id;
             $isStaff = in_array($teacher->role, ['admin', 'piket']) || $teacher->isBk();

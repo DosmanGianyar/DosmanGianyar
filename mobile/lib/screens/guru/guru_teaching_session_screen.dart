@@ -936,8 +936,9 @@ class _HistoryTabState extends State<_HistoryTab> {
         _load(reset: true);
       } catch (e) {
         if (!mounted) return;
+        final errMsg = ApiClient.extractErrorMessage(e);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Gagal menghapus: $e'), backgroundColor: AppColors.red500),
+          SnackBar(content: Text('Gagal menghapus: $errMsg'), backgroundColor: AppColors.red500),
         );
       }
     }

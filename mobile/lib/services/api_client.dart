@@ -54,6 +54,16 @@ class ApiClient {
     return dio;
   }
 
+  static String extractErrorMessage(dynamic error) {
+    if (error is DioException && error.response?.data != null) {
+      final data = error.response!.data;
+      if (data is Map && data['message'] != null) {
+        return data['message'].toString();
+      }
+    }
+    return error.toString().replaceAll('Exception: ', '');
+  }
+
   // ─── Public methods ──────────────────────────────────────────────────────
 
   static Future<Map<String, dynamic>> get(
