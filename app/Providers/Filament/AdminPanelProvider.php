@@ -90,6 +90,22 @@ class AdminPanelProvider extends PanelProvider
                 fn (): string => Blade::render("@include('filament.admin-styles')")
             )
             ->renderHook(
+                PanelsRenderHook::SIDEBAR_NAV_END,
+                fn (): string => Blade::render('
+                    <div class="px-4 py-3 my-2 border-t border-slate-700/60">
+                        <form method="POST" action="{{ route("filament.admin.auth.logout") }}">
+                            @csrf
+                            <button type="submit" class="w-full flex items-center gap-3 px-3.5 py-2.5 text-xs font-bold text-rose-400 hover:text-white bg-rose-500/10 hover:bg-rose-600/80 border border-rose-500/20 hover:border-rose-500 rounded-xl transition-all group shadow-xs">
+                                <svg class="w-4 h-4 text-rose-400 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                </svg>
+                                <span>Keluar / Logout Admin</span>
+                            </button>
+                        </form>
+                    </div>
+                ')
+            )
+            ->renderHook(
                 PanelsRenderHook::BODY_END,
                 fn (): string => Blade::render("@include('filament.sweetalert') @include('components.image-lightbox')")
             );
