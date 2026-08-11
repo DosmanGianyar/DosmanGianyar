@@ -241,6 +241,8 @@ class User {
 
   String get displayId => nis ?? nisn ?? nip ?? email;
 
+  bool get isSiswa => role.startsWith('siswa');
+
   String get roleLabel => switch (role) {
     'siswa'           => 'Siswa',
     'siswa_pengelola' => 'Siswa Pengelola',

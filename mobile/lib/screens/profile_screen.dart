@@ -386,7 +386,7 @@ class _IdentityCard extends StatelessWidget {
                       Expanded(child: _InfoBox(label: 'No. HP', value: user?.phone ?? '—')),
                     ],
                   ),
-                  if (user?.role.startsWith('siswa') == true) ...[
+                  if (user?.isSiswa == true) ...[
                     const SizedBox(height: 12),
                     SizedBox(
                       width: double.infinity,
