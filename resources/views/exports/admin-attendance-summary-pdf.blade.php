@@ -74,10 +74,22 @@
     </div>
 </div>
 
+@php
+    $logoBaliPath = public_path('img/logo-pemprov-bali.png');
+    $logoBaliData = file_exists($logoBaliPath) 
+        ? 'data:image/png;base64,' . base64_encode(file_get_contents($logoBaliPath)) 
+        : asset('img/logo-pemprov-bali.png');
+
+    $logoSekolahPath = public_path('img/logo_sekolah.png');
+    $logoSekolahData = file_exists($logoSekolahPath) 
+        ? 'data:image/png;base64,' . base64_encode(file_get_contents($logoSekolahPath)) 
+        : asset('img/logo_sekolah.png');
+@endphp
+
 {{-- ── KOP SURAT ─────────────────────────────────────────────────────────── --}}
 <div style="text-align:center; padding-bottom:7px; margin-bottom:8px; border-bottom:4px double #000000;">
     <div style="display:inline-flex; align-items:center; gap:14px;">
-        <img src="{{ asset('img/logo-pemprov-bali.png') }}" style="width:58px; height:58px; object-fit:contain; flex-shrink:0;">
+        <img src="{{ $logoBaliData }}" style="width:58px; height:58px; object-fit:contain; flex-shrink:0;">
         <div style="text-align:center; line-height:1.45;">
             <div style="font-size:11px; font-weight:bold; font-family:'Times New Roman',serif;">PEMERINTAH PROVINSI BALI</div>
             <div style="font-size:11px; font-weight:bold; font-family:'Times New Roman',serif;">DINAS PENDIDIKAN KEPEMUDAAN DAN OLAHRAGA</div>
@@ -86,7 +98,7 @@
             <div style="font-size:7.5px;">Website: <span style="text-decoration:underline;">https://sman1-gianyar.sch.id</span> &nbsp; E-mail: <span style="text-decoration:underline;">sman1.gianyar1963@gmail.com</span></div>
             <div style="font-size:8px; font-weight:bold; margin-top:1px;">NPSN : 50102079</div>
         </div>
-        <img src="{{ asset('img/logo_sekolah.png') }}" style="width:58px; height:58px; object-fit:contain; flex-shrink:0;">
+        <img src="{{ $logoSekolahData }}" style="width:58px; height:58px; object-fit:contain; flex-shrink:0;">
     </div>
 </div>
 

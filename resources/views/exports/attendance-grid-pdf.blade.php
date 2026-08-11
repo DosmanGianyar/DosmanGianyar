@@ -80,22 +80,28 @@
 
     // Indonesian short day names: 1(Mon)->Sn, 2(Tue)->Sl, 3(Wed)->Rb, 4(Thu)->Km, 5(Fri)->Jm, 6(Sat)->Sb, 7(Sun)->Mg
     $shortDays = [1 => 'Sn', 2 => 'Sl', 3 => 'Rb', 4 => 'Km', 5 => 'Jm', 6 => 'Sb', 7 => 'Mg'];
+
+    $logoBaliPath = public_path('img/logo-pemprov-bali.png');
+    $logoBaliData = file_exists($logoBaliPath) 
+        ? 'data:image/png;base64,' . base64_encode(file_get_contents($logoBaliPath)) 
+        : asset('img/logo-pemprov-bali.png');
+
+    $logoSekolahPath = public_path('img/logo_sekolah.png');
+    $logoSekolahData = file_exists($logoSekolahPath) 
+        ? 'data:image/png;base64,' . base64_encode(file_get_contents($logoSekolahPath)) 
+        : asset('img/logo_sekolah.png');
 @endphp
 
 {{-- ── KOP SURAT ─────────────────────────────────────────────────────────── --}}
 <div class="kop-container">
-    @if(file_exists(public_path('img/logo-pemprov-bali.png')))
-        <img class="kop-logo-left" src="{{ public_path('img/logo-pemprov-bali.png') }}" alt="Logo Bali">
-    @endif
+    <img class="kop-logo-left" src="{{ $logoBaliData }}" alt="Logo Pemprov Bali">
     <div class="kop-text">
         <div class="l1">PEMERINTAH PROVINSI BALI</div>
         <div class="l2">DINAS PENDIDIKAN, KEPEMUDAAN, DAN OLAHRAGA</div>
         <div class="l3">SMA NEGERI 1 GIANYAR</div>
         <div class="l4">Jl. Ratna No. 1, Gianyar, Bali 80511 | Telp: (0361) 943034 | Website: sman1-gianyar.sch.id</div>
     </div>
-    @if(file_exists(public_path('img/logo_sekolah.png')))
-        <img class="kop-logo-right" src="{{ public_path('img/logo_sekolah.png') }}" alt="Logo SMAN1">
-    @endif
+    <img class="kop-logo-right" src="{{ $logoSekolahData }}" alt="Logo SMAN 1 Gianyar">
 </div>
 
 {{-- ── JUDUL LAPORAN ────────────────────────────────────────────────────── --}}
@@ -116,9 +122,9 @@
 <table class="grid-table">
     <thead>
         <tr>
-            <th style="width: 18px;" rowspan="2">No</th>
-            <th style="width: 45px;" rowspan="2">NIS</th>
-            <th style="text-align: left; padding-left: 4px;" rowspan="2">Nama Siswa</th>
+            <th style="width: 16px;" rowspan="2">No</th>
+            <th style="width: 40px;" rowspan="2">NIS</th>
+            <th style="width: 145px; text-align: left; padding-left: 4px;" rowspan="2">Nama Siswa</th>
             <th colspan="{{ $daysInMonth }}">Tanggal (Bulan {{ $monthName }} {{ $yearNum }})</th>
             <th style="width: 110px;" colspan="5">Rekap Ketidakberhadiran</th>
             <th style="width: 44px;" colspan="2">Detail</th>
@@ -159,7 +165,7 @@
             <tr>
                 <td>{{ $idx + 1 }}</td>
                 <td style="font-size: 6.5px;">{{ $student->nis ?? '—' }}</td>
-                <td style="text-align: left; padding-left: 4px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                <td style="text-align: left; padding: 1px 4px; font-weight: 600; font-size: 6.5px; line-height: 1.15; word-break: break-word; white-space: normal;">
                     {{ $student->name }}
                 </td>
 
@@ -187,7 +193,7 @@
                         } elseif ($status === 'hadir') {
                             if ($viaLupa) {
                                 $badgeClass = 'bg-lupa';
-                                $char = 'H';
+                                $char = 'Lp';
                                 $lupaCount++;
                             } else {
                                 $badgeClass = 'bg-hadir';
@@ -216,7 +222,7 @@
                             $alpaCount++;
                         }
                     @endphp
-                    <td class="{{ $badgeClass }}">{{ $char }}</td>
+                    <td class="{{ $badgeClass }}" style="{{ $char === 'Lp' ? 'font-size: 5.5px;' : '' }}">{{ $char }}</td>
                 @endfor
 
                 <td class="summary-col" style="color: #7e22ce;">{{ $sakitCount ?: '-' }}</td>
@@ -233,11 +239,11 @@
 
 {{-- ── KETERANGAN & CATATAN ──────────────────────────────────────────────── --}}
 <div class="notes-section">
-    <div><strong>* Keterangan Status:</strong> H = Hadir, S = Sakit, I = Izin, A = Alpa / Tanpa Keterangan, D = Dispensasi, L = Libur Sekolah / Hari Minggu.</div>
+    <div><strong>* Keterangan Status:</strong> H = Hadir, S = Sakit, I = Izin, A = Alpa / Tanpa Keterangan, D = Dispensasi, L = Libur Sekolah / Hari Minggu, Lp = Lupa Absen.</div>
     <div><strong>* Indikator Warna Badge:</strong> 
         <span style="color:#16a34a; font-weight:bold;">[H] Hijau</span> = Hadir Tepat Waktu | 
         <span style="color:#ca8a04; font-weight:bold;">[H] Kuning</span> = Terlambat | 
-        <span style="color:#9333ea; font-weight:bold;">[H] Ungu</span> = Lupa Absen / Klaim | 
+        <span style="color:#9333ea; font-weight:bold;">[Lp] Ungu</span> = Lupa Absen | 
         <span style="color:#dc2626; font-weight:bold;">[A] Merah</span> = Alpa / Belum Absen.
     </div>
     <div style="font-style: italic; color: #4b5563; margin-top: 2px;">
@@ -249,14 +255,14 @@
 <div class="signature-container">
     <table class="signature-table">
         <tr>
-            <td style="text-align: center;">
+            <td style="text-align: center; width: 50%;">
                 Mengetahui,<br>
                 <strong>Kepala SMAN 1 Gianyar</strong>
                 <br><br><br><br><br>
                 <strong><u>{{ $headmasterName ?? 'I Wayan Sutrisna, S.Pd., M.Pd.' }}</u></strong><br>
                 NIP. {{ $headmasterNip ?? '19710415 199703 1 007' }}
             </td>
-            <td style="text-align: center;">
+            <td style="text-align: center; width: 50%;">
                 Gianyar, {{ $today->isoFormat('D MMMM Y') }}<br>
                 <strong>Guru Pengajar / Wali Kelas</strong>
                 <br><br><br><br><br>
