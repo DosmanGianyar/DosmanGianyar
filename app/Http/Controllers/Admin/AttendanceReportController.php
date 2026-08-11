@@ -34,6 +34,9 @@ class AttendanceReportController extends Controller
 
     public function downloadPdf(Request $request)
     {
+        ini_set('memory_limit', '512M');
+        set_time_limit(120);
+
         $classId     = $request->integer('class_id') ?: null;
         $month       = max(1, min(12, $request->integer('month', now()->month)));
         $year        = $request->integer('year', now()->year);

@@ -200,6 +200,9 @@ class ExportController extends Controller
 
     public function attendanceGridPdf(Request $request): Response
     {
+        ini_set('memory_limit', '512M');
+        set_time_limit(120);
+
         $data = $this->getAttendanceGridData($request);
 
         $html = view('exports.attendance-grid-pdf', $data)->render();

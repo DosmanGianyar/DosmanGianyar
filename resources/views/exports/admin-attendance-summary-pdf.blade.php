@@ -2,7 +2,6 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<script src="https://cdn.tailwindcss.com"></script>
 <style>
     @page { size: A4 landscape; margin: 10mm 12mm 12mm 12mm; }
     body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }

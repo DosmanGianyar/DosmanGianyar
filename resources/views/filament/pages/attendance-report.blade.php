@@ -270,6 +270,96 @@
     </div>
 </div>
 
+{{-- Tab Navigation --}}
+<div style="display:flex;gap:0.5rem;margin-bottom:1.25rem;border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:0.75rem">
+    <button type="button" wire:click="$set('activeTab', 'grid')"
+        style="padding:0.5rem 1rem;font-size:0.8rem;font-weight:700;border-radius:0.5rem;cursor:pointer;transition:all 0.15s;border:none;{{ $activeTab === 'grid' ? 'background:rgb(245,158,11);color:#000;' : 'background:#0f1d33;color:rgba(255,255,255,0.7);' }}">
+        📅 Rekap Grid Tanggal (1 s/d 31)
+    </button>
+    <button type="button" wire:click="$set('activeTab', 'summary')"
+        style="padding:0.5rem 1rem;font-size:0.8rem;font-weight:700;border-radius:0.5rem;cursor:pointer;transition:all 0.15s;border:none;{{ $activeTab === 'summary' ? 'background:rgb(245,158,11);color:#000;' : 'background:#0f1d33;color:rgba(255,255,255,0.7);' }}">
+        📊 Ringkasan Total Bulanan
+    </button>
+</div>
+
+@if ($activeTab === 'grid')
+    @php $gridData = $this->getGridReportData(); @endphp
+    @if (!empty($gridData) && count($gridData['students']) > 0)
+    <div style="background:#0f1d33;border:1px solid rgba(255,255,255,0.07);border-radius:1rem;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.3);margin-bottom:1.5rem">
+        <div style="padding:1rem 1.25rem;border-bottom:1px solid rgba(255,255,255,0.08);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem">
+            <div>
+                <h3 style="font-size:0.95rem;font-weight:700;color:rgba(255,255,255,0.9)">
+                    Rekapitulasi Absensi Grid Tanggal 1 s/d {{ $gridData['daysInMonth'] }} — Kelas {{ $gridData['className'] }}
+                </h3>
+                <p style="font-size:0.75rem;color:rgba(255,255,255,0.4)">Periode {{ $monthName }} &middot; Wali Kelas: {{ $gridData['homeroomName'] }}</p>
+            </div>
+            <div style="display:flex;gap:0.4rem;align-items:center;font-size:0.72rem;color:rgba(255,255,255,0.6);flex-wrap:wrap">
+                <span style="padding:0.2rem 0.5rem;border-radius:0.25rem;background:#064e3b;color:#a7f3d0;border:1px solid #047857;font-weight:700">H = Hadir</span>
+                <span style="padding:0.2rem 0.5rem;border-radius:0.25rem;background:#713f12;color:#fef08a;border:1px solid #a16207;font-weight:700">T = Terlambat</span>
+                <span style="padding:0.2rem 0.5rem;border-radius:0.25rem;background:#581c87;color:#f3e8ff;border:1px solid #7e22ce;font-weight:700">Lp = Lupa Absen</span>
+                <span style="padding:0.2rem 0.5rem;border-radius:0.25rem;background:#4c1d95;color:#ddd6fe;border:1px solid #6d28d9;font-weight:700">S = Sakit</span>
+                <span style="padding:0.2rem 0.5rem;border-radius:0.25rem;background:#1e3a8a;color:#bfdbfe;border:1px solid #1d4ed8;font-weight:700">I = Izin</span>
+                <span style="padding:0.2rem 0.5rem;border-radius:0.25rem;background:#134e4a;color:#99f6e4;border:1px solid #0f766e;font-weight:700">D = Dispen</span>
+                <span style="padding:0.2rem 0.5rem;border-radius:0.25rem;background:#7f1d1d;color:#fecaca;border:1px solid #b91c1c;font-weight:700">A = Alpa</span>
+            </div>
+        </div>
+        <div style="overflow-x:auto">
+            <table class="ar-table" style="min-width:1100px">
+                <thead>
+                    <tr>
+                        <th style="width:2.2rem">#</th>
+                        <th style="min-width:180px">Nama Siswa</th>
+                        <th style="width:70px">NIS</th>
+                        @for ($d = 1; $d <= $gridData['daysInMonth']; $d++)
+                            <th class="c" style="width:26px;padding:0.4rem 0.2rem;font-size:0.65rem;border-left:1px solid rgba(255,255,255,0.05)">{{ $d }}</th>
+                        @endfor
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($gridData['students'] as $idx => $st)
+                    <tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+                        <td style="color:rgba(255,255,255,0.25);font-size:0.72rem;text-align:right">{{ $idx + 1 }}</td>
+                        <td style="font-weight:600;color:rgba(255,255,255,0.9)">
+                            <button type="button" wire:click="openStudentDetail({{ $st->id }})" class="hover:underline text-amber-300 font-semibold text-left cursor-pointer">
+                                {{ $st->name }}
+                            </button>
+                        </td>
+                        <td style="color:rgba(255,255,255,0.4);font-size:0.72rem;font-family:monospace">{{ $st->nis ?? '—' }}</td>
+                        @for ($d = 1; $d <= $gridData['daysInMonth']; $d++)
+                            @php
+                                $cell = $gridData['grid'][$st->id][$d] ?? ['status' => null, 'via_lupa_absen' => false];
+                                $status = strtolower($cell['status'] ?? '');
+                                $isLupa  = $cell['via_lupa_absen'];
+                            @endphp
+                            <td class="c" style="padding:0.35rem 0.1rem;border-left:1px solid rgba(255,255,255,0.04);text-align:center">
+                                @if ($isLupa)
+                                    <span class="ar-badge" style="background:#581c87;color:#f3e8ff;border:1px solid #7e22ce;font-size:0.65rem;padding:0.1rem 0.25rem" title="Hadir via Lupa Absen">Lp</span>
+                                @elseif ($status === 'hadir')
+                                    <span class="ar-badge hadir" style="font-size:0.65rem;padding:0.1rem 0.3rem">H</span>
+                                @elseif ($status === 'terlambat')
+                                    <span class="ar-badge terlambat" style="font-size:0.65rem;padding:0.1rem 0.3rem">T</span>
+                                @elseif ($status === 'sakit')
+                                    <span class="ar-badge sakit" style="font-size:0.65rem;padding:0.1rem 0.3rem">S</span>
+                                @elseif ($status === 'izin')
+                                    <span class="ar-badge izin" style="font-size:0.65rem;padding:0.1rem 0.3rem">I</span>
+                                @elseif ($status === 'dispensasi')
+                                    <span class="ar-badge dispensasi" style="font-size:0.65rem;padding:0.1rem 0.3rem">D</span>
+                                @elseif ($status === 'alpa')
+                                    <span class="ar-badge alpa" style="font-size:0.65rem;padding:0.1rem 0.3rem">A</span>
+                                @else
+                                    <span style="color:rgba(255,255,255,0.15)">·</span>
+                                @endif
+                            </td>
+                        @endfor
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
+    @endif
+@endif
+
 {{-- Summary cards --}}
 <div class="ar-stats">
     <div class="ar-stat-card">

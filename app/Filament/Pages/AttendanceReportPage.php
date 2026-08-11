@@ -140,6 +140,54 @@ class AttendanceReportPage extends Page
         ];
     }
 
+    public string $activeTab = 'grid'; // 'grid' (Grid 1-31) or 'summary'
+
+    public function getGridReportData(): array
+    {
+        $classId = $this->classId ?: (SchoolClass::orderBy('name')->first()?->id);
+        if (! $classId) return [];
+
+        $schoolClass = SchoolClass::with('homeroomTeacher')->find($classId);
+        $className   = $schoolClass?->name ?? '—';
+        $homeroom    = $schoolClass?->homeroomTeacher;
+
+        $start       = Carbon::createFromDate($this->year, $this->month, 1);
+        $daysInMonth = $start->daysInMonth;
+
+        $students = User::where('role', 'siswa')
+            ->where('class_id', $classId)
+            ->with('schoolClass')
+            ->orderBy('name')
+            ->get();
+
+        $records = Attendance::whereHas('student', fn($q) => $q->where('class_id', $classId))
+            ->whereYear('date', $this->year)
+            ->whereMonth('date', $this->month)
+            ->get()
+            ->groupBy('user_id')
+            ->map(fn($g) => $g->keyBy(fn($r) => (int) $r->date->format('j')));
+
+        $grid = [];
+        foreach ($students as $student) {
+            $dayMap = $records->get($student->id, collect());
+            for ($d = 1; $d <= $daysInMonth; $d++) {
+                $att = $dayMap->get($d);
+                $grid[$student->id][$d] = [
+                    'status'         => $att?->status,
+                    'via_lupa_absen' => (bool) ($att?->via_lupa_absen ?? false),
+                ];
+            }
+        }
+
+        return [
+            'students'     => $students,
+            'grid'         => $grid,
+            'daysInMonth'  => $daysInMonth,
+            'className'    => $className,
+            'homeroomName' => $homeroom?->name ?? '—',
+        ];
+    }
+
     public function getYears(): array
     {
         $y = now()->year;
