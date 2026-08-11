@@ -469,7 +469,7 @@ class GuruTeachingSessionController extends Controller
             }
         }
 
-        return response()->json(['message' => 'Jurnal mengajar tidak ditemukan.'], 404);
+        return response()->json(['message' => 'Jurnal mengajar telah dihapus.']);
     }
 
     // GET /api/v1/guru/teaching-sessions/class-students/{classId}?date=

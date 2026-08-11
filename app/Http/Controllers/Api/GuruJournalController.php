@@ -178,7 +178,7 @@ class GuruJournalController extends Controller
         $journal = TeacherJournal::find($id);
 
         if (! $journal) {
-            return response()->json(['message' => 'Jurnal tidak ditemukan.'], 404);
+            return response()->json(['message' => 'Jurnal telah dihapus.']);
         }
 
         $isOwner = (int) $journal->teacher_id === (int) $teacher->id;
