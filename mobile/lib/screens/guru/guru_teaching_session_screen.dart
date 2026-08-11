@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../models/guru_models.dart';
+import '../../services/api_client.dart';
 import '../../services/guru_service.dart';
 import '../../theme/app_colors.dart';
 import 'widgets/guru_widgets.dart';
