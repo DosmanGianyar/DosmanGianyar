@@ -170,7 +170,7 @@ class PermitResource extends Resource
                         // Sync absensi
                         $current = $record->start_date->copy();
                         while ($current->lte($record->end_date)) {
-                            if ($current->isWeekday()) {
+                            if (! $current->isSunday()) {
                                 Attendance::updateOrCreate(
                                     ['user_id' => $record->student_id, 'date' => $current->toDateString()],
                                     ['status' => $record->type, 'check_in_time' => null]
@@ -251,7 +251,7 @@ class PermitResource extends Resource
                                     // Sync absensi
                                     $current = $record->start_date->copy();
                                     while ($current->lte($record->end_date)) {
-                                        if ($current->isWeekday()) {
+                                        if (! $current->isSunday()) {
                                             Attendance::updateOrCreate(
                                                 ['user_id' => $record->student_id, 'date' => $current->toDateString()],
                                                 ['status' => $record->type, 'check_in_time' => null]

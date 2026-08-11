@@ -145,7 +145,7 @@
                     $curDate = $start->copy()->setDay($d);
                     $dayIso  = $curDate->dayOfWeekIso;
                     $dayName = $shortDays[$dayIso] ?? '';
-                    $isWknd  = $curDate->isWeekend();
+                    $isWknd  = $curDate->isSunday();
                 @endphp
                 <th style="{{ $isWknd ? 'background-color: #e5e7eb; color: #6b7280;' : '' }}">
                     {{ $dayName }}<br><span style="font-size: 7.5px; font-weight: bold;">{{ $d }}</span>
@@ -183,7 +183,7 @@
                     @php
                         $curDate = $start->copy()->setDay($d);
                         $dateStr = $curDate->toDateString();
-                        $isWeekend = $curDate->isWeekend();
+                        $isWeekend = $curDate->isSunday();
                         $isFuture  = $curDate->gt($today);
                         
                         $attInfo = $studentGrid[$d] ?? null;

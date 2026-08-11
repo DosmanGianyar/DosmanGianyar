@@ -867,7 +867,7 @@ class GuruController extends Controller
     {
         $current = $permit->start_date->copy();
         while ($current->lte($permit->end_date)) {
-            if ($current->isWeekday()) {
+            if (! $current->isSunday()) {
                 Attendance::updateOrCreate(
                     ['user_id' => $permit->student_id, 'date' => $current->toDateString()],
                     ['status' => $permit->type, 'check_in_time' => null]
