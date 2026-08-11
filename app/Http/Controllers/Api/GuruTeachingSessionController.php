@@ -390,8 +390,21 @@ class GuruTeachingSessionController extends Controller
     // DELETE /api/v1/guru/teaching-sessions/{id}
     public function destroy(int $id): JsonResponse
     {
+        /** @var \App\Models\User $teacher */
         $teacher = Auth::user();
-        $session = TeacherAttendance::where('teacher_id', $teacher->id)->findOrFail($id);
+
+        $session = TeacherAttendance::find($id);
+
+        if (! $session) {
+            return response()->json(['message' => 'Jurnal mengajar tidak ditemukan.'], 404);
+        }
+
+        $isOwner = (int) $session->teacher_id === (int) $teacher->id;
+        $isStaff = in_array($teacher->role, ['admin', 'piket']) || $teacher->isBk();
+
+        if (! $isOwner && ! $isStaff) {
+            return response()->json(['message' => 'Anda tidak memiliki wewenang menghapus jurnal mengajar ini.'], 403);
+        }
 
         DB::beginTransaction();
         try {

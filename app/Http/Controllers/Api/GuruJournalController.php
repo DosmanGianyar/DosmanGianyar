@@ -172,9 +172,34 @@ class GuruJournalController extends Controller
     // DELETE /api/v1/guru/journals/{id}
     public function destroy(int $id): JsonResponse
     {
+        /** @var \App\Models\User $teacher */
         $teacher = Auth::user();
-        TeacherJournal::where('teacher_id', $teacher->id)->findOrFail($id)->delete();
-        return response()->json(['message' => 'Jurnal dihapus.']);
+
+        $journal = TeacherJournal::find($id);
+
+        if (! $journal) {
+            return response()->json(['message' => 'Jurnal tidak ditemukan.'], 404);
+        }
+
+        $isOwner = (int) $journal->teacher_id === (int) $teacher->id;
+        $isStaff = in_array($teacher->role, ['admin', 'piket']) || $teacher->isBk();
+
+        if (! $isOwner && ! $isStaff) {
+            return response()->json(['message' => 'Anda tidak memiliki wewenang menghapus jurnal ini.'], 403);
+        }
+
+        DB::beginTransaction();
+        try {
+            $journal->absences()->delete();
+            $journal->delete();
+
+            DB::commit();
+
+            return response()->json(['message' => 'Jurnal berhasil dihapus.']);
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return response()->json(['message' => 'Gagal menghapus jurnal: ' . $e->getMessage()], 500);
+        }
     }
 
     // GET /api/v1/guru/journals/class-students/{classId}?date=

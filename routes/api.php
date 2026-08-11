@@ -173,10 +173,10 @@ Route::prefix('v1')->group(function () {
             Route::get('/guru/teaching-sessions/export',                  [GuruTeachingSessionController::class, 'export']);
             Route::get('/guru/teaching-sessions/class-students/{classId}',[GuruTeachingSessionController::class, 'classStudents']);
             Route::get('/guru/teaching-sessions/{id}',                    [GuruTeachingSessionController::class, 'show']);
-            Route::match(['put', 'post'], '/guru/teaching-sessions/{id}/update', [GuruTeachingSessionController::class, 'update']);
-            Route::match(['put', 'post'], '/guru/teaching-sessions/{id}',        [GuruTeachingSessionController::class, 'update']);
-            Route::match(['delete', 'post'], '/guru/teaching-sessions/{id}/delete', [GuruTeachingSessionController::class, 'destroy']);
-            Route::match(['delete', 'post'], '/guru/teaching-sessions/{id}',     [GuruTeachingSessionController::class, 'destroy']);
+            Route::post('/guru/teaching-sessions/{id}/update',            [GuruTeachingSessionController::class, 'update']);
+            Route::put('/guru/teaching-sessions/{id}',                    [GuruTeachingSessionController::class, 'update']);
+            Route::post('/guru/teaching-sessions/{id}/delete',            [GuruTeachingSessionController::class, 'destroy']);
+            Route::delete('/guru/teaching-sessions/{id}',                 [GuruTeachingSessionController::class, 'destroy']);
 
             // Tujuan Pembelajaran (TP) — master data per guru
             Route::get('/guru/tp',                                        [GuruTpController::class, 'index']);
@@ -191,6 +191,7 @@ Route::prefix('v1')->group(function () {
             Route::get('/guru/journals/class-students/{classId}',         [GuruJournalController::class, 'classStudents']);
             Route::get('/guru/journals/{id}',                             [GuruJournalController::class, 'show']);
             Route::put('/guru/journals/{id}',                             [GuruJournalController::class, 'update']);
+            Route::post('/guru/journals/{id}/delete',                     [GuruJournalController::class, 'destroy']);
             Route::delete('/guru/journals/{id}',                          [GuruJournalController::class, 'destroy']);
 
             // Input Nilai Guru
