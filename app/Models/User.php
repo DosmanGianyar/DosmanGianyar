@@ -118,11 +118,26 @@ class User extends Authenticatable implements FilamentUser
     }
 
     // ─── Filament ────────────────────────────────────────────────────────────
+    public function isPembinaEkstra(): bool
+    {
+        return Extracurricular::where('pembina_id', $this->id)
+            ->orWhereHas('teachers', fn ($q) => $q->where('users.id', $this->id))
+            ->exists();
+    }
+
     public function canAccessPanel(Panel $panel): bool
     {
-        return in_array($this->role, [
+        if (in_array($this->role, [
             'admin', 'admin_kesiswaan', 'admin_kurikulum', 'admin_sarpras', 'admin_humas',
-        ]);
+        ])) {
+            return true;
+        }
+
+        if ($this->role === 'guru' && $this->isPembinaEkstra()) {
+            return true;
+        }
+
+        return false;
     }
 
     // ─── Role Helpers ────────────────────────────────────────────────────────

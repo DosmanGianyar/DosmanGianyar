@@ -22,6 +22,8 @@ use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 use Filament\Tables\Table;
 
 class ExtracurricularResource extends Resource
@@ -35,7 +37,14 @@ class ExtracurricularResource extends Resource
     protected static ?string                 $pluralModelLabel = 'Ekstrakurikuler';
     protected static ?int                    $navigationSort  = 10;
 
-    public static function canAccess(): bool { return AdminAccess::can('Prestasi & Ekskul'); }
+    public static function canAccess(): bool
+    {
+        if (AdminAccess::can('Prestasi & Ekskul')) {
+            return true;
+        }
+        $user = Auth::user();
+        return (bool) ($user?->isGuru() && $user->isPembinaEkstra());
+    }
 
     public static function form(Schema $schema): Schema
     {
@@ -188,6 +197,21 @@ class ExtracurricularResource extends Resource
             RelationManagers\MembersRelationManager::class,
             RelationManagers\SessionsRelationManager::class,
         ];
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+        $user  = Auth::user();
+
+        if ($user?->isGuru() && ! AdminAccess::can('Prestasi & Ekskul')) {
+            $query->where(function ($q) use ($user) {
+                $q->where('pembina_id', $user->id)
+                  ->orWhereHas('teachers', fn ($t) => $t->where('users.id', $user->id));
+            });
+        }
+
+        return $query;
     }
 
     public static function getPages(): array

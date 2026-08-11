@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ExtracurricularMemberResource\Pages;
+use App\Models\Extracurricular;
 use App\Models\ExtracurricularMember;
 use App\Services\NotificationService;
 use Filament\Actions\Action as TableAction;
@@ -15,6 +16,7 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 
@@ -29,7 +31,14 @@ class ExtracurricularMemberResource extends Resource
     protected static ?string                 $pluralModelLabel     = 'Persetujuan Anggota Ekstra';
     protected static ?int                    $navigationSort       = 11;
 
-    public static function canAccess(): bool { return AdminAccess::can('Prestasi & Ekskul'); }
+    public static function canAccess(): bool
+    {
+        if (AdminAccess::can('Prestasi & Ekskul')) {
+            return true;
+        }
+        $user = Auth::user();
+        return (bool) ($user?->isGuru() && $user->isPembinaEkstra());
+    }
 
     public static function canCreate(): bool
     {
@@ -315,6 +324,21 @@ class ExtracurricularMemberResource extends Resource
                 ]),
             ])
             ->defaultSort('created_at', 'desc');
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+        $user  = Auth::user();
+
+        if ($user?->isGuru() && ! AdminAccess::can('Prestasi & Ekskul')) {
+            $myExtraIds = Extracurricular::where('pembina_id', $user->id)
+                ->orWhereHas('teachers', fn ($q) => $q->where('users.id', $user->id))
+                ->pluck('id');
+            $query->whereIn('extracurricular_id', $myExtraIds);
+        }
+
+        return $query;
     }
 
     public static function getPages(): array
