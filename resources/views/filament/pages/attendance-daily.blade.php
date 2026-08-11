@@ -306,17 +306,17 @@
         <div class="p-5 border-b border-white/10 flex items-start justify-between bg-[#0d1628]">
             <div>
                 <h3 class="text-lg font-bold text-white flex items-center gap-2">
-                    <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 text-amber-400 shrink-0" style="width:20px !important;height:20px !important;min-width:20px !important;min-height:20px !important;max-width:20px !important;max-height:20px !important;flex-shrink:0 !important;display:inline-block !important;color:#f59e0b" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                     </svg>
-                    {{ $studentDetailData['student']['name'] }}
+                    <span>{{ $studentDetailData['student']['name'] }}</span>
                 </h3>
                 <p class="text-xs text-white/50 mt-1">
                     NIS: {{ $studentDetailData['student']['nis'] }} • Kelas: {{ $studentDetailData['student']['class_name'] }} • Periode {{ $studentDetailData['month_name'] }}
                 </p>
             </div>
             <button type="button" wire:click="closeStudentDetail" class="text-white/60 hover:text-white transition-colors p-1">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-6 h-6 shrink-0" style="width:24px !important;height:24px !important;min-width:24px !important;min-height:24px !important;max-width:24px !important;max-height:24px !important;flex-shrink:0 !important;display:inline-block !important" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                 </svg>
             </button>

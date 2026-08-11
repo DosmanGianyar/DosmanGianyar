@@ -165,6 +165,138 @@
     align-items: center;
 }
 .ar-legend span { display: flex; align-items: center; gap: 0.35rem; }
+
+/* Student Detail Modal Custom Styles */
+.ar-modal-overlay {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 999999 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 1rem !important;
+    background: rgba(0, 0, 0, 0.8) !important;
+    backdrop-filter: blur(4px) !important;
+}
+.ar-modal-card {
+    background: #0f1d33 !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    border-radius: 1rem !important;
+    max-width: 42rem !important;
+    width: 100% !important;
+    max-height: 90vh !important;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
+}
+.ar-modal-header {
+    padding: 1.25rem !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    display: flex !important;
+    align-items: flex-start !important;
+    justify-content: space-between !important;
+    background: #0d1628 !important;
+}
+.ar-modal-title {
+    font-size: 1.125rem !important;
+    font-weight: 700 !important;
+    color: #ffffff !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    margin: 0 !important;
+    line-height: 1.4 !important;
+}
+.ar-modal-icon {
+    width: 20px !important;
+    height: 20px !important;
+    min-width: 20px !important;
+    min-height: 20px !important;
+    max-width: 20px !important;
+    max-height: 20px !important;
+    flex-shrink: 0 !important;
+    display: inline-block !important;
+    color: #f59e0b !important;
+}
+.ar-modal-close-icon {
+    width: 24px !important;
+    height: 24px !important;
+    min-width: 24px !important;
+    min-height: 24px !important;
+    max-width: 24px !important;
+    max-height: 24px !important;
+    flex-shrink: 0 !important;
+    display: inline-block !important;
+}
+.ar-modal-subtitle {
+    font-size: 0.75rem !important;
+    color: rgba(255, 255, 255, 0.5) !important;
+    margin-top: 0.25rem !important;
+    margin-bottom: 0 !important;
+}
+.ar-modal-summary-grid {
+    padding: 1rem !important;
+    background: #0b1220 !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+    display: grid !important;
+    grid-template-columns: repeat(6, 1fr) !important;
+    gap: 0.5rem !important;
+    text-align: center !important;
+}
+.ar-modal-summary-card {
+    background: rgba(255, 255, 255, 0.05) !important;
+    padding: 0.5rem !important;
+    border-radius: 0.75rem !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+.ar-modal-tabs {
+    padding: 0.75rem 1.25rem 0 1.25rem !important;
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 0.5rem !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+.ar-modal-tab-btn {
+    padding-bottom: 0.5rem !important;
+    font-size: 0.75rem !important;
+    background: none !important;
+    border-top: none !important;
+    border-left: none !important;
+    border-right: none !important;
+    cursor: pointer !important;
+    transition: all 0.15s ease !important;
+}
+.ar-modal-body {
+    padding: 1.25rem !important;
+    overflow-y: auto !important;
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.5rem !important;
+}
+.ar-modal-log-item {
+    padding: 0.75rem !important;
+    border-radius: 0.75rem !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    background: rgba(255, 255, 255, 0.04) !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 0.75rem !important;
+    font-size: 0.75rem !important;
+}
+.ar-modal-footer {
+    padding: 0.75rem 1.25rem !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+    background: #0d1628 !important;
+    text-align: right !important;
+}
 </style>
 
 @php
@@ -456,80 +588,79 @@
     <span style="margin-left:auto;opacity:0.6">*Klik nama siswa untuk melihat rincian tanggal alpa/izin/sakit</span>
 </div>
 
-{{-- Studen{{-- Student Detail Modal --}}
+{{-- Student Detail Modal --}}
 @if($showDetailModal && $studentDetailData)
-<template x-teleport="body">
-<div style="position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;display:flex;align-items:center;justify-content:center;padding:1rem;background:rgba(0,0,0,0.8);backdrop-filter:blur(4px)" x-data="{ filter: 'all' }">
-    <div style="background:#0f1d33;border:1px solid rgba(255,255,255,0.15);border-radius:1rem;max-width:42rem;width:100%;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 25px 50px -12px rgba(0,0,0,0.5)">
+<div class="ar-modal-overlay" x-data="{ filter: 'all' }">
+    <div class="ar-modal-card">
         {{-- Header --}}
-        <div style="padding:1.25rem;border-bottom:1px solid rgba(255,255,255,0.1);display:flex;align-items:flex-start;justify-content:space-between;background:#0d1628">
+        <div class="ar-modal-header">
             <div>
-                <h3 style="font-size:1.125rem;font-weight:700;color:#fff;display:flex;align-items:center;gap:0.5rem;margin:0">
-                    <svg width="20" height="20" style="width:20px;height:20px;max-width:20px;max-height:20px;flex-shrink:0;color:rgb(245,158,11)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <h3 class="ar-modal-title">
+                    <svg class="ar-modal-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                     </svg>
-                    {{ $studentDetailData['student']['name'] }}
+                    <span>{{ $studentDetailData['student']['name'] }}</span>
                 </h3>
-                <p style="font-size:0.75rem;color:rgba(255,255,255,0.5);margin-top:0.25rem">
+                <p class="ar-modal-subtitle">
                     NIS: {{ $studentDetailData['student']['nis'] }} &bull; Kelas: {{ $studentDetailData['student']['class_name'] }} &bull; Periode {{ $studentDetailData['month_name'] }}
                 </p>
             </div>
             <button type="button" wire:click="closeStudentDetail" style="color:rgba(255,255,255,0.6);background:none;border:none;cursor:pointer;padding:0.25rem" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">
-                <svg width="24" height="24" style="width:24px;height:24px;max-width:24px;max-height:24px;flex-shrink:0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="ar-modal-close-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                 </svg>
             </button>
         </div>
 
         {{-- Summary Cards --}}
-        <div style="padding:1rem;background:#0b1220;border-bottom:1px solid rgba(255,255,255,0.05);display:grid;grid-template-columns:repeat(6, 1fr);gap:0.5rem;text-align:center">
-            <div style="background:rgba(255,255,255,0.05);padding:0.5rem;border-radius:0.75rem;border:1px solid rgba(255,255,255,0.05)">
+        <div class="ar-modal-summary-grid">
+            <div class="ar-modal-summary-card">
                 <p style="font-size:0.65rem;font-weight:700;color:rgb(74,222,128);text-transform:uppercase;margin:0">Hadir</p>
                 <p style="font-size:1rem;font-weight:800;color:#fff;margin:0.125rem 0 0 0">{{ $studentDetailData['counts']['hadir'] }}</p>
             </div>
-            <div style="background:rgba(255,255,255,0.05);padding:0.5rem;border-radius:0.75rem;border:1px solid rgba(255,255,255,0.05)">
+            <div class="ar-modal-summary-card">
                 <p style="font-size:0.65rem;font-weight:700;color:rgb(250,204,21);text-transform:uppercase;margin:0">Terlambat</p>
                 <p style="font-size:1rem;font-weight:800;color:#fff;margin:0.125rem 0 0 0">{{ $studentDetailData['counts']['terlambat'] }}</p>
             </div>
-            <div style="background:rgba(255,255,255,0.05);padding:0.5rem;border-radius:0.75rem;border:1px solid rgba(255,255,255,0.05)">
+            <div class="ar-modal-summary-card">
                 <p style="font-size:0.65rem;font-weight:700;color:rgb(96,165,250);text-transform:uppercase;margin:0">Izin</p>
                 <p style="font-size:1rem;font-weight:800;color:#fff;margin:0.125rem 0 0 0">{{ $studentDetailData['counts']['izin'] }}</p>
             </div>
-            <div style="background:rgba(255,255,255,0.05);padding:0.5rem;border-radius:0.75rem;border:1px solid rgba(255,255,255,0.05)">
+            <div class="ar-modal-summary-card">
                 <p style="font-size:0.65rem;font-weight:700;color:rgb(192,132,252);text-transform:uppercase;margin:0">Sakit</p>
                 <p style="font-size:1rem;font-weight:800;color:#fff;margin:0.125rem 0 0 0">{{ $studentDetailData['counts']['sakit'] }}</p>
             </div>
-            <div style="background:rgba(255,255,255,0.05);padding:0.5rem;border-radius:0.75rem;border:1px solid rgba(255,255,255,0.05)">
+            <div class="ar-modal-summary-card">
                 <p style="font-size:0.65rem;font-weight:700;color:rgb(45,212,191);text-transform:uppercase;margin:0">Dispensasi</p>
                 <p style="font-size:1rem;font-weight:800;color:#fff;margin:0.125rem 0 0 0">{{ $studentDetailData['counts']['dispensasi'] }}</p>
             </div>
-            <div style="background:rgba(255,255,255,0.05);padding:0.5rem;border-radius:0.75rem;border:1px solid rgba(255,255,255,0.05)">
+            <div class="ar-modal-summary-card">
                 <p style="font-size:0.65rem;font-weight:700;color:rgb(248,113,113);text-transform:uppercase;margin:0">Alpa</p>
                 <p style="font-size:1rem;font-weight:800;color:#fff;margin:0.125rem 0 0 0">{{ $studentDetailData['counts']['alpa'] }}</p>
             </div>
         </div>
 
         {{-- Filter Tabs --}}
-        <div style="padding:0.75rem 1.25rem 0 1.25rem;display:flex;gap:0.5rem;border-bottom:1px solid rgba(255,255,255,0.05)">
-            <button type="button" @click="filter = 'all'" :style="filter === 'all' ? 'border-bottom:2px solid rgb(245,158,11);color:rgb(252,211,77);font-weight:700' : 'border-bottom:2px solid transparent;color:rgba(255,255,255,0.5)'" style="padding-bottom:0.5rem;font-size:0.75rem;background:none;border-top:none;border-left:none;border-right:none;cursor:pointer">
+        <div class="ar-modal-tabs">
+            <button type="button" class="ar-modal-tab-btn" @click="filter = 'all'" :style="filter === 'all' ? 'border-bottom:2px solid rgb(245,158,11);color:rgb(252,211,77);font-weight:700' : 'border-bottom:2px solid transparent;color:rgba(255,255,255,0.5)'">
                 Semua Hari ({{ count($studentDetailData['logs']) }})
             </button>
-            <button type="button" @click="filter = 'alpa'" :style="filter === 'alpa' ? 'border-bottom:2px solid rgb(248,113,113);color:rgb(252,165,165);font-weight:700' : 'border-bottom:2px solid transparent;color:rgba(255,255,255,0.5)'" style="padding-bottom:0.5rem;font-size:0.75rem;background:none;border-top:none;border-left:none;border-right:none;cursor:pointer">
+            <button type="button" class="ar-modal-tab-btn" @click="filter = 'alpa'" :style="filter === 'alpa' ? 'border-bottom:2px solid rgb(248,113,113);color:rgb(252,165,165);font-weight:700' : 'border-bottom:2px solid transparent;color:rgba(255,255,255,0.5)'">
                 🔴 Alpa ({{ $studentDetailData['counts']['alpa'] }})
             </button>
-            <button type="button" @click="filter = 'izin_sakit'" :style="filter === 'izin_sakit' ? 'border-bottom:2px solid rgb(96,165,250);color:rgb(147,197,253);font-weight:700' : 'border-bottom:2px solid transparent;color:rgba(255,255,255,0.5)'" style="padding-bottom:0.5rem;font-size:0.75rem;background:none;border-top:none;border-left:none;border-right:none;cursor:pointer">
+            <button type="button" class="ar-modal-tab-btn" @click="filter = 'izin_sakit'" :style="filter === 'izin_sakit' ? 'border-bottom:2px solid rgb(96,165,250);color:rgb(147,197,253);font-weight:700' : 'border-bottom:2px solid transparent;color:rgba(255,255,255,0.5)'">
                 🔵 Izin / Sakit / Disp ({{ $studentDetailData['counts']['izin'] + $studentDetailData['counts']['sakit'] + $studentDetailData['counts']['dispensasi'] }})
             </button>
-            <button type="button" @click="filter = 'terlambat'" :style="filter === 'terlambat' ? 'border-bottom:2px solid rgb(250,204,21);color:rgb(253,224,71);font-weight:700' : 'border-bottom:2px solid transparent;color:rgba(255,255,255,0.5)'" style="padding-bottom:0.5rem;font-size:0.75rem;background:none;border-top:none;border-left:none;border-right:none;cursor:pointer">
+            <button type="button" class="ar-modal-tab-btn" @click="filter = 'terlambat'" :style="filter === 'terlambat' ? 'border-bottom:2px solid rgb(250,204,21);color:rgb(253,224,71);font-weight:700' : 'border-bottom:2px solid transparent;color:rgba(255,255,255,0.5)'">
                 🟡 Terlambat ({{ $studentDetailData['counts']['terlambat'] }})
             </button>
         </div>
 
         {{-- Timeline Log List --}}
-        <div style="padding:1.25rem;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:0.5rem">
+        <div class="ar-modal-body">
             @forelse($studentDetailData['logs'] as $log)
                 <div x-show="filter === 'all' || (filter === 'alpa' && '{{ $log['status'] }}' === 'alpa') || (filter === 'izin_sakit' && ['izin','sakit','dispensasi'].includes('{{ $log['status'] }}')) || (filter === 'terlambat' && '{{ $log['status'] }}' === 'terlambat')"
-                    style="padding:0.75rem;border-radius:0.75rem;border:1px solid rgba(255,255,255,0.05);background:rgba(255,255,255,0.04);display:flex;align-items:center;justify-content:space-between;gap:0.75rem;font-size:0.75rem">
+                    class="ar-modal-log-item">
                     <div style="display:flex;align-items:center;gap:0.75rem">
                         @php
                             $dotBg = match($log['status']) {
@@ -571,18 +702,16 @@
         </div>
 
         {{-- Footer --}}
-        <div style="padding:0.75rem 1.25rem;border-top:1px solid rgba(255,255,255,0.1);background:#0d1628;text-align:right">
+        <div class="ar-modal-footer">
             <button type="button" wire:click="closeStudentDetail" style="padding:0.5rem 1rem;background:rgba(255,255,255,0.1);color:#fff;border:none;border-radius:0.75rem;font-size:0.75rem;font-weight:600;cursor:pointer" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
                 Tutup
             </button>
         </div>
     </div>
 </div>
-</template>
 @endif
 
 {{-- Modal Web Preview Rekap Grid PDF Admin --}}
-<template x-teleport="body">
 <div x-show="showGridPreviewModal" x-cloak
     @keydown.escape.window="showGridPreviewModal = false"
     style="position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;display:flex;align-items:center;justify-content:center;padding:1rem;background:rgba(0,0,0,0.8);backdrop-filter:blur(4px)">
@@ -591,7 +720,7 @@
         <div style="padding:0.875rem 1.25rem;background:#090d16;color:#fff;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;border-bottom:1px solid rgba(255,255,255,0.1)">
             <div style="display:flex;align-items:center;gap:0.75rem">
                 <span style="padding:0.375rem;background:rgba(16,185,129,0.2);color:rgb(52,211,153);border-radius:0.5rem">
-                    <svg style="width:1.25rem;height:1.25rem" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    <svg class="w-5 h-5 shrink-0" style="width:20px !important;height:20px !important;min-width:20px !important;min-height:20px !important;max-width:20px !important;max-height:20px !important;flex-shrink:0 !important;display:inline-block !important" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                 </span>
                 <div>
                     <h3 style="font-size:0.875rem;font-weight:700;color:#fff;margin:0">Pratinjau Dokumen Cetak Rekapitulasi Absensi Siswa Bulanan (Grid 1-31)</h3>
@@ -607,7 +736,7 @@
                 <a href="{{ route('admin.attendance-report.grid-pdf', ['month' => $gridMonthStr, 'class_id' => $targetClassId]) }}"
                     target="_blank"
                     style="padding:0.5rem 1rem;background:#059669;color:#fff;font-size:0.75rem;font-weight:700;border-radius:0.75rem;text-decoration:none;display:inline-flex;align-items:center;gap:0.375rem">
-                    <svg style="width:1rem;height:1rem" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                    <svg class="w-4 h-4 shrink-0" style="width:16px !important;height:16px !important;min-width:16px !important;min-height:16px !important;max-width:16px !important;max-height:16px !important;flex-shrink:0 !important;display:inline-block !important" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                     Cetak Rekap Grid (PDF)
                 </a>
                 @endif
@@ -627,10 +756,10 @@
             <div style="display:flex;align-items:center;justify-content:center;height:100%;color:rgba(255,255,255,0.4);font-size:0.875rem">
                 Pilih kelas terlebih dahulu untuk meilihat pratinjau.
             </div>
+            @endif
         </div>
     </div>
 </div>
-</template>
 
 <x-filament-actions::modals />
 </x-filament-panels::page>
