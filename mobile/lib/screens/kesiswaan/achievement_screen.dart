@@ -56,7 +56,7 @@ class _AchievementScreenState extends State<AchievementScreen> {
     return Scaffold(
       backgroundColor: AppColors.slate100,
       appBar: AppBar(
-        title: const Text('Prestasi',
+        title: const Text('Kurasi Prestasi Siswa',
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 16)),
         backgroundColor: const Color(0xFF0F2460),
         foregroundColor: Colors.white,
@@ -121,9 +121,9 @@ class _StatsBar extends StatelessWidget {
         border: Border.all(color: AppColors.gray100), boxShadow: AppShadow.sm,
       ),
       child: Row(children: [
-        _StatCell(count: stats.pending,  label: 'Menunggu', color: AppColors.amber500),
+        _StatCell(count: stats.pending,  label: 'Menunggu Kurasi', color: AppColors.amber500),
         _Divider(),
-        _StatCell(count: stats.approved, label: 'Disetujui', color: AppColors.green500),
+        _StatCell(count: stats.approved, label: 'Lolos Kurasi', color: AppColors.green500),
         _Divider(),
         _StatCell(count: stats.rejected, label: 'Ditolak',  color: AppColors.red500),
       ]),
@@ -137,7 +137,7 @@ class _StatCell extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Expanded(child: Column(children: [
     Text('$count', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: color)),
-    Text(label, style: const TextStyle(fontSize: 11, color: AppColors.gray400)),
+    Text(label, style: const TextStyle(fontSize: 10, color: AppColors.gray400), textAlign: TextAlign.center),
   ]));
 }
 
@@ -191,16 +191,21 @@ class _AchievementCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
             decoration: BoxDecoration(color: item.statusBg, borderRadius: BorderRadius.circular(20)),
-            child: Text(item.statusLabel,
+            child: Text(item.curationStatusLabel,
               style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: item.statusColor)),
           ),
         ]),
         const SizedBox(height: 8),
         Text(item.title,
           style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.gray800)),
-        if (item.categoryName != null) ...[
+        if (item.organizer != null && item.organizer!.isNotEmpty) ...[
           const SizedBox(height: 2),
-          Text(item.categoryName!,
+          Text('Penyelenggara: ${item.organizer}',
+            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: AppColors.blue600)),
+        ],
+        if (item.fieldCategoryLabel != null) ...[
+          const SizedBox(height: 2),
+          Text('Rumpun: ${item.fieldCategoryLabel}',
             style: const TextStyle(fontSize: 11, color: AppColors.gray400)),
         ],
         const SizedBox(height: 4),
@@ -216,17 +221,18 @@ class _AchievementCard extends StatelessWidget {
             style: const TextStyle(fontSize: 12, color: AppColors.gray500),
             maxLines: 2, overflow: TextOverflow.ellipsis),
         ],
-        if (item.rejectionReason != null && item.rejectionReason!.isNotEmpty) ...[
+        if (item.curationNote != null && item.curationNote!.isNotEmpty) ...[
           const SizedBox(height: 6),
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: AppColors.red50, borderRadius: BorderRadius.circular(8)),
+              color: item.isRevision ? AppColors.amber50 : AppColors.red50,
+              borderRadius: BorderRadius.circular(8)),
             child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              const Icon(Icons.info_outline_rounded, size: 13, color: AppColors.red500),
+              Icon(Icons.info_outline_rounded, size: 13, color: item.isRevision ? AppColors.amber600 : AppColors.red500),
               const SizedBox(width: 6),
-              Expanded(child: Text(item.rejectionReason!,
-                style: const TextStyle(fontSize: 11, color: AppColors.red500))),
+              Expanded(child: Text('Catatan Kurator: ${item.curationNote}',
+                style: TextStyle(fontSize: 11, color: item.isRevision ? AppColors.amber700 : AppColors.red500))),
             ]),
           ),
         ],
@@ -246,25 +252,41 @@ class _CreateSheet extends StatefulWidget {
 }
 
 class _CreateSheetState extends State<_CreateSheet> {
-  final _titleCtrl = TextEditingController();
-  final _rankCtrl  = TextEditingController();
-  final _descCtrl  = TextEditingController();
+  final _titleCtrl            = TextEditingController();
+  final _eventNameCtrl        = TextEditingController();
+  final _organizerCtrl        = TextEditingController();
+  final _rankCtrl             = TextEditingController();
+  final _descCtrl             = TextEditingController();
+  final _eventUrlCtrl         = TextEditingController();
 
-  List<AchievementCategory> _categories = [];
-  int?      _categoryId;
-  String?   _level;
-  DateTime? _date;
-  XFile?    _photo;
-  XFile?    _certificate;
-  bool      _isSaving      = false;
-  bool      _loadingCats   = true;
+  int?                     _categoryId;
+  String                   _fieldCategory     = 'akademik';
+  String                   _participationType = 'individu';
+  String?                  _level;
+  DateTime?                _date;
+  XFile?                   _photo;
+  XFile?                   _certificate;
+  XFile?                   _assignmentLetter;
+  List<AchievementCategory> _categories      = [];
+  bool                     _loadingCats       = true;
+  bool                     _isSaving          = false;
 
-  static const _levels = [
-    ('sekolah', 'Sekolah'),
-    ('kabupaten', 'Kabupaten/Kota'),
-    ('provinsi', 'Provinsi'),
-    ('nasional', 'Nasional'),
+  final List<(String, String)> _levels = const [
+    ('sekolah',       'Sekolah'),
+    ('kabupaten',     'Kabupaten/Kota'),
+    ('provinsi',      'Provinsi'),
+    ('nasional',      'Nasional'),
     ('internasional', 'Internasional'),
+  ];
+
+  final List<(String, String)> _fieldCategories = const [
+    ('sains_riset',  'Sains & Riset'),
+    ('olahraga',     'Olahraga'),
+    ('seni_budaya',  'Seni & Budaya'),
+    ('bahasa_debat', 'Bahasa & Debat'),
+    ('keagamaan',    'Keagamaan'),
+    ('akademik',     'Akademik'),
+    ('lainnya',      'Lainnya'),
   ];
 
   @override
@@ -276,23 +298,23 @@ class _CreateSheetState extends State<_CreateSheet> {
   @override
   void dispose() {
     _titleCtrl.dispose();
+    _eventNameCtrl.dispose();
+    _organizerCtrl.dispose();
     _rankCtrl.dispose();
     _descCtrl.dispose();
+    _eventUrlCtrl.dispose();
     super.dispose();
   }
 
   Future<void> _loadCategories() async {
     try {
-      final body = await ApiClient.get('/achievement-categories');
-      if (!mounted) return;
-      setState(() {
-        _categories = (body['categories'] as List)
-            .map((e) => AchievementCategory.fromJson(e as Map<String, dynamic>))
-            .toList();
-        _loadingCats = false;
-      });
+      final body = await ApiClient.get('/achievements/categories');
+      final list = (body['categories'] as List)
+          .map((e) => AchievementCategory.fromJson(e as Map<String, dynamic>))
+          .toList();
+      setState(() { _categories = list; _loadingCats = false; });
     } catch (_) {
-      if (mounted) setState(() => _loadingCats = false);
+      setState(() => _loadingCats = false);
     }
   }
 
@@ -308,18 +330,16 @@ class _CreateSheetState extends State<_CreateSheet> {
     if (picked != null && mounted) setState(() => _date = picked);
   }
 
-  Future<void> _pickPhoto({bool isCertificate = false}) async {
-    // image_picker menggunakan Android Photo Picker bawaan sistem (Android 13+)
-    // atau document picker (≤12) — keduanya tidak memerlukan runtime permission.
+  Future<void> _pickFile({required int type}) async {
+    // type: 0 = photo, 1 = certificate, 2 = assignmentLetter
     final picker = ImagePicker();
-    final file   = await picker.pickImage(
-      source:       ImageSource.gallery,
-      imageQuality: 85,
-    );
+    final file   = await picker.pickImage(source: ImageSource.gallery, imageQuality: 85);
 
     if (file != null && mounted) {
       setState(() {
-        if (isCertificate) _certificate = file; else _photo = file;
+        if (type == 0) _photo = file;
+        else if (type == 1) _certificate = file;
+        else if (type == 2) _assignmentLetter = file;
       });
     }
   }
@@ -329,21 +349,28 @@ class _CreateSheetState extends State<_CreateSheet> {
     if (_categoryId == null)              { _showSnack('Pilih kategori prestasi.'); return; }
     if (_level == null)                   { _showSnack('Pilih tingkat prestasi.'); return; }
     if (_date == null)                    { _showSnack('Pilih tanggal prestasi.'); return; }
-    if (_photo == null)                   { _showSnack('Foto kegiatan wajib dipilih.'); return; }
+    if (_photo == null)                   { _showSnack('Foto kegiatan/penyerahan piala wajib diunggah.'); return; }
 
     setState(() => _isSaving = true);
     try {
       final dateStr = '${_date!.year}-${_date!.month.toString().padLeft(2,'0')}-${_date!.day.toString().padLeft(2,'0')}';
       final formData = FormData.fromMap({
-        'title':            _titleCtrl.text.trim(),
-        'category_id':      _categoryId.toString(),
-        'level':            _level!,
-        'achievement_date': dateStr,
+        'title':              _titleCtrl.text.trim(),
+        'event_name':         _eventNameCtrl.text.trim().isNotEmpty ? _eventNameCtrl.text.trim() : _titleCtrl.text.trim(),
+        'organizer':          _organizerCtrl.text.trim(),
+        'category_id':        _categoryId.toString(),
+        'field_category':     _fieldCategory,
+        'participation_type': _participationType,
+        'level':              _level!,
+        'achievement_date':   dateStr,
         if (_rankCtrl.text.trim().isNotEmpty) 'rank': _rankCtrl.text.trim(),
         if (_descCtrl.text.trim().isNotEmpty) 'description': _descCtrl.text.trim(),
+        if (_eventUrlCtrl.text.trim().isNotEmpty) 'event_url': _eventUrlCtrl.text.trim(),
         'photo': await MultipartFile.fromFile(_photo!.path, filename: 'photo.jpg'),
         if (_certificate != null)
           'certificate': await MultipartFile.fromFile(_certificate!.path, filename: 'certificate.jpg'),
+        if (_assignmentLetter != null)
+          'assignment_letter': await MultipartFile.fromFile(_assignmentLetter!.path, filename: 'assignment_letter.jpg'),
       });
 
       await ApiClient.postForm('/achievements', formData);
@@ -364,7 +391,7 @@ class _CreateSheetState extends State<_CreateSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final bottom = MediaQuery.of(context).viewInsets.bottom;
+    final bottom  = MediaQuery.of(context).viewInsets.bottom;
     final safeBot = MediaQuery.of(context).padding.bottom;
     return Container(
       margin: const EdgeInsets.fromLTRB(12, 0, 12, 12),
@@ -373,7 +400,7 @@ class _CreateSheetState extends State<_CreateSheet> {
         borderRadius: BorderRadius.all(Radius.circular(20)),
       ),
       child: DraggableScrollableSheet(
-        initialChildSize: 0.9,
+        initialChildSize: 0.92,
         minChildSize: 0.5,
         maxChildSize: 0.95,
         expand: false,
@@ -387,27 +414,74 @@ class _CreateSheetState extends State<_CreateSheet> {
                 color: AppColors.gray200, borderRadius: BorderRadius.circular(2)),
             )),
             const SizedBox(height: 16),
-            const Text('Laporkan Prestasi',
+            const Text('Laporkan Berkas Prestasi (Kurasi)',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.gray800)),
             const SizedBox(height: 4),
-            const Text('Prestasi perlu diverifikasi oleh admin.',
+            const Text('Lengkapi berkas dan metadata agar lolos Kurasi Puspresnas/Sekolah.',
               style: TextStyle(fontSize: 11, color: AppColors.gray400)),
             const SizedBox(height: 20),
 
-            // Judul
-            _Label('Judul Prestasi *'),
+            // Judul Prestasi
+            _Label('Judul Capaian / Prestasi *'),
             const SizedBox(height: 6),
-            _InputField(controller: _titleCtrl, hint: 'Contoh: Juara 1 Lomba Matematika...'),
+            _InputField(controller: _titleCtrl, hint: 'Contoh: Juara 1 OSN Matematika Tingkat Provinsi...'),
+            const SizedBox(height: 14),
+
+            // Penyelenggara Lomba
+            _Label('Penyelenggara Lomba / Ajang'),
+            const SizedBox(height: 6),
+            _InputField(controller: _organizerCtrl, hint: 'Contoh: Kemendikbudristek, UNUD, KONI Bali...'),
+            const SizedBox(height: 14),
+
+            // Rumpun Bidang & Keikutsertaan
+            Row(children: [
+              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                _Label('Rumpun Bidang *'),
+                const SizedBox(height: 6),
+                DropdownButtonFormField<String>(
+                  initialValue: _fieldCategory,
+                  items: _fieldCategories.map((fc) => DropdownMenuItem(
+                    value: fc.$1, child: Text(fc.$2, style: const TextStyle(fontSize: 12)),
+                  )).toList(),
+                  onChanged: (v) => setState(() => _fieldCategory = v ?? 'akademik'),
+                  decoration: const InputDecoration(
+                    filled: true, fillColor: AppColors.gray50,
+                    contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                    border: OutlineInputBorder(borderRadius: AppRadius.input, borderSide: BorderSide(color: AppColors.gray200)),
+                    enabledBorder: OutlineInputBorder(borderRadius: AppRadius.input, borderSide: BorderSide(color: AppColors.gray200)),
+                  ),
+                ),
+              ])),
+              const SizedBox(width: 10),
+              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                const _Label('Keikutsertaan *'),
+                const SizedBox(height: 6),
+                DropdownButtonFormField<String>(
+                  initialValue: _participationType,
+                  items: const [
+                    DropdownMenuItem(value: 'individu', child: Text('Individu', style: TextStyle(fontSize: 12))),
+                    DropdownMenuItem(value: 'beregu', child: Text('Beregu (Tim)', style: TextStyle(fontSize: 12))),
+                  ],
+                  onChanged: (v) => setState(() => _participationType = v ?? 'individu'),
+                  decoration: const InputDecoration(
+                    filled: true, fillColor: AppColors.gray50,
+                    contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                    border: OutlineInputBorder(borderRadius: AppRadius.input, borderSide: BorderSide(color: AppColors.gray200)),
+                    enabledBorder: OutlineInputBorder(borderRadius: AppRadius.input, borderSide: BorderSide(color: AppColors.gray200)),
+                  ),
+                ),
+              ])),
+            ]),
             const SizedBox(height: 14),
 
             // Kategori
-            _Label('Kategori *'),
+            const _Label('Kategori Lomba *'),
             const SizedBox(height: 6),
             if (_loadingCats)
               const Center(child: SizedBox(height: 36, width: 36, child: CircularProgressIndicator(strokeWidth: 2)))
             else
               DropdownButtonFormField<int>(
-                value: _categoryId,
+                initialValue: _categoryId,
                 hint: const Text('Pilih kategori', style: TextStyle(fontSize: 13, color: AppColors.gray400)),
                 items: _categories.map((c) => DropdownMenuItem(
                   value: c.id,
@@ -451,13 +525,13 @@ class _CreateSheetState extends State<_CreateSheet> {
             // Peringkat + Tanggal
             Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                _Label('Peringkat'),
+                _Label('Peringkat / Juara'),
                 const SizedBox(height: 6),
                 _InputField(controller: _rankCtrl, hint: 'Juara 1, Medali Emas...'),
               ])),
               const SizedBox(width: 10),
               Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                _Label('Tanggal *'),
+                _Label('Tanggal Lomba *'),
                 const SizedBox(height: 6),
                 GestureDetector(
                   onTap: _pickDate,
@@ -487,41 +561,39 @@ class _CreateSheetState extends State<_CreateSheet> {
             ]),
             const SizedBox(height: 14),
 
-            // Deskripsi
-            _Label('Deskripsi'),
+            // Link Website Pengumuman Resmi
+            _Label('Link Web Pengumuman Resmi (opsional)'),
             const SizedBox(height: 6),
-            TextField(
-              controller: _descCtrl, maxLines: 3, maxLength: 1000,
-              style: const TextStyle(fontSize: 13, color: AppColors.gray700),
-              decoration: InputDecoration(
-                hintText: 'Ceritakan lebih lanjut tentang prestasi ini...',
-                hintStyle: const TextStyle(color: AppColors.gray400, fontSize: 12),
-                filled: true, fillColor: AppColors.gray50,
-                counterStyle: const TextStyle(fontSize: 10),
-                contentPadding: const EdgeInsets.all(12),
-                border: OutlineInputBorder(borderRadius: AppRadius.input, borderSide: const BorderSide(color: AppColors.gray200)),
-                enabledBorder: OutlineInputBorder(borderRadius: AppRadius.input, borderSide: const BorderSide(color: AppColors.gray200)),
-              ),
-            ),
+            _InputField(controller: _eventUrlCtrl, hint: 'https://puspresnas.kemdikbud.go.id/...'),
             const SizedBox(height: 14),
 
-            // Foto kegiatan
-            _Label('Foto Kegiatan *'),
+            // Foto kegiatan / Piala
+            _Label('Foto Kegiatan / Penyerahan Piala *'),
             const SizedBox(height: 6),
             _ImagePickerTile(
               file: _photo,
-              label: 'Pilih foto kegiatan',
-              onTap: () => _pickPhoto(),
+              label: 'Upload foto kegiatan (Wajib)',
+              onTap: () => _pickFile(type: 0),
             ),
             const SizedBox(height: 14),
 
             // Sertifikat
-            _Label('Sertifikat (opsional)'),
+            _Label('Sertifikat / Piagam Juara (opsional)'),
             const SizedBox(height: 6),
             _ImagePickerTile(
               file: _certificate,
-              label: 'Pilih scan sertifikat',
-              onTap: () => _pickPhoto(isCertificate: true),
+              label: 'Upload scan sertifikat',
+              onTap: () => _pickFile(type: 1),
+            ),
+            const SizedBox(height: 14),
+
+            // Surat Tugas / Rekomendasi
+            _Label('Surat Tugas / Rekomendasi Sekolah (opsional)'),
+            const SizedBox(height: 6),
+            _ImagePickerTile(
+              file: _assignmentLetter,
+              label: 'Upload Surat Tugas Sekolah',
+              onTap: () => _pickFile(type: 2),
             ),
             const SizedBox(height: 20),
 
@@ -535,7 +607,7 @@ class _CreateSheetState extends State<_CreateSheet> {
               child: _isSaving
                   ? const SizedBox(width: 18, height: 18,
                       child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                  : const Text('Kirim Laporan Prestasi',
+                  : const Text('Kirim Berkas Kurasi',
                       style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
             ),
           ],

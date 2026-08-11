@@ -9,8 +9,11 @@ class StudentAchievement extends Model
 {
     protected $fillable = [
         'student_id', 'category_id', 'title', 'description',
+        'event_name', 'organizer', 'field_category', 'participation_type',
         'achievement_date', 'level', 'rank', 'photo', 'certificate',
-        'status', 'verified_by', 'verified_at', 'rejection_reason',
+        'event_url', 'assignment_letter',
+        'status', 'curation_status', 'curation_note',
+        'verified_by', 'verified_at', 'rejection_reason',
     ];
 
     protected $casts = [
@@ -45,6 +48,57 @@ class StudentAchievement extends Model
         };
     }
 
+    public function fieldCategoryLabel(): string
+    {
+        return match ($this->field_category) {
+            'sains_riset'   => 'Sains & Riset',
+            'olahraga'      => 'Olahraga',
+            'seni_budaya'   => 'Seni & Budaya',
+            'bahasa_debat'  => 'Bahasa & Debat',
+            'keagamaan'     => 'Keagamaan',
+            'akademik'      => 'Akademik',
+            default         => 'Lainnya',
+        };
+    }
+
+    public function participationTypeLabel(): string
+    {
+        return match ($this->participation_type) {
+            'beregu' => 'Beregu (Kelompok)',
+            default  => 'Perorangan (Individu)',
+        };
+    }
+
+    public function curationStatusLabel(): string
+    {
+        return match ($this->curation_status) {
+            'curated'  => 'Lolos Kurasi',
+            'revision' => 'Perlu Revisi Berkas',
+            'rejected' => 'Tidak Layak Kurasi',
+            default    => 'Menunggu Kurasi',
+        };
+    }
+
+    public function curationStatusColor(): string
+    {
+        return match ($this->curation_status) {
+            'curated'  => 'success',
+            'revision' => 'warning',
+            'rejected' => 'danger',
+            default    => 'info',
+        };
+    }
+
+    public function curationStatusBadgeClass(): string
+    {
+        return match ($this->curation_status) {
+            'curated'  => 'bg-emerald-100 text-emerald-800 border border-emerald-300',
+            'revision' => 'bg-amber-100 text-amber-800 border border-amber-300',
+            'rejected' => 'bg-rose-100 text-rose-800 border border-rose-300',
+            default    => 'bg-blue-100 text-blue-800 border border-blue-300',
+        };
+    }
+
     public function levelColor(): string
     {
         return match ($this->level) {
@@ -71,29 +125,17 @@ class StudentAchievement extends Model
 
     public function statusLabel(): string
     {
-        return match ($this->status) {
-            'approved' => 'Disetujui',
-            'rejected' => 'Ditolak',
-            default    => 'Menunggu',
-        };
+        return $this->curationStatusLabel();
     }
 
     public function statusColor(): string
     {
-        return match ($this->status) {
-            'approved' => 'success',
-            'rejected' => 'danger',
-            default    => 'warning',
-        };
+        return $this->curationStatusColor();
     }
 
     public function statusBadgeClass(): string
     {
-        return match ($this->status) {
-            'approved' => 'bg-green-100 text-green-700',
-            'rejected' => 'bg-red-100 text-red-700',
-            default    => 'bg-yellow-100 text-yellow-700',
-        };
+        return $this->curationStatusBadgeClass();
     }
 
     public function photoUrl(): ?string
@@ -104,5 +146,10 @@ class StudentAchievement extends Model
     public function certificateUrl(): ?string
     {
         return $this->certificate ? asset('storage/' . $this->certificate) : null;
+    }
+
+    public function assignmentLetterUrl(): ?string
+    {
+        return $this->assignment_letter ? asset('storage/' . $this->assignment_letter) : null;
     }
 }

@@ -23,9 +23,9 @@ class StudentAchievementResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon       = 'heroicon-o-trophy';
     protected static string|\UnitEnum|null   $navigationGroup      = 'Prestasi & Ekskul';
-    protected static ?string                 $navigationLabel      = 'Laporan Prestasi';
+    protected static ?string                 $navigationLabel      = 'Kurasi Prestasi';
     protected static ?string                 $modelLabel           = 'Prestasi Siswa';
-    protected static ?string                 $pluralModelLabel     = 'Laporan Prestasi';
+    protected static ?string                 $pluralModelLabel     = 'Kurasi Prestasi Siswa';
 
     public static function canAccess(): bool { return AdminAccess::can('Prestasi & Ekskul'); }
 
@@ -46,7 +46,7 @@ class StudentAchievementResource extends Resource
                 TextColumn::make('student.name')
                     ->label('Siswa')
                     ->searchable()
-                    ->limit(25),
+                    ->limit(20),
 
                 TextColumn::make('student.schoolClass.name')
                     ->label('Kelas')
@@ -55,13 +55,19 @@ class StudentAchievementResource extends Resource
                 TextColumn::make('title')
                     ->label('Judul Prestasi')
                     ->searchable()
-                    ->limit(35),
+                    ->limit(25),
 
-                TextColumn::make('category.name')
-                    ->label('Kategori')
+                TextColumn::make('organizer')
+                    ->label('Penyelenggara')
+                    ->searchable()
+                    ->placeholder('—')
+                    ->limit(20),
+
+                TextColumn::make('field_category')
+                    ->label('Rumpun')
                     ->badge()
                     ->color('info')
-                    ->placeholder('—'),
+                    ->formatStateUsing(fn (StudentAchievement $record): string => $record->fieldCategoryLabel()),
 
                 TextColumn::make('level')
                     ->label('Tingkat')
@@ -79,26 +85,39 @@ class StudentAchievementResource extends Resource
                 TextColumn::make('rank')
                     ->label('Peringkat')
                     ->placeholder('—')
-                    ->limit(20),
+                    ->limit(15),
+
+                TextColumn::make('curation_status')
+                    ->label('Status Kurasi')
+                    ->badge()
+                    ->color(fn (StudentAchievement $record): string => $record->curationStatusColor())
+                    ->formatStateUsing(fn (StudentAchievement $record): string => $record->curationStatusLabel()),
 
                 TextColumn::make('achievement_date')
                     ->label('Tanggal')
                     ->date('d M Y')
                     ->sortable(),
-
-                TextColumn::make('status')
-                    ->label('Status')
-                    ->badge()
-                    ->color(fn (StudentAchievement $record): string => $record->statusColor())
-                    ->formatStateUsing(fn (StudentAchievement $record): string => $record->statusLabel()),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
-                SelectFilter::make('status')
+                SelectFilter::make('curation_status')
+                    ->label('Status Kurasi')
                     ->options([
-                        'pending'  => 'Menunggu',
-                        'approved' => 'Disetujui',
-                        'rejected' => 'Ditolak',
+                        'pending'  => 'Menunggu Kurasi',
+                        'curated'  => 'Lolos Kurasi',
+                        'revision' => 'Perlu Revisi',
+                        'rejected' => 'Tidak Layak',
+                    ]),
+                SelectFilter::make('field_category')
+                    ->label('Rumpun Bidang')
+                    ->options([
+                        'sains_riset'  => 'Sains & Riset',
+                        'olahraga'     => 'Olahraga',
+                        'seni_budaya'  => 'Seni & Budaya',
+                        'bahasa_debat' => 'Bahasa & Debat',
+                        'keagamaan'    => 'Keagamaan',
+                        'akademik'     => 'Akademik',
+                        'lainnya'      => 'Lainnya',
                     ]),
                 SelectFilter::make('level')
                     ->options([
@@ -112,43 +131,66 @@ class StudentAchievementResource extends Resource
             ->actions([
                 ViewAction::make(),
 
-                Action::make('approve')
-                    ->label('Setujui')
-                    ->icon('heroicon-o-check-circle')
+                Action::make('curate')
+                    ->label('Lolos Kurasi')
+                    ->icon('heroicon-o-check-badge')
                     ->color('success')
-                    ->visible(fn (StudentAchievement $record): bool => $record->status === 'pending')
                     ->requiresConfirmation()
-                    ->modalHeading('Setujui Prestasi')
-                    ->modalDescription('Prestasi ini akan disetujui dan masuk ke laporan sekolah.')
+                    ->modalHeading('Loloskan Kurasi Prestasi')
+                    ->modalDescription('Prestasi ini akan disahkan sebagai Lolos Kurasi Standar Puspresnas/SIMT.')
                     ->action(function (StudentAchievement $record): void {
                         $record->update([
-                            'status'      => 'approved',
-                            'verified_by' => auth()->id(),
-                            'verified_at' => now(),
-                            'rejection_reason' => null,
+                            'curation_status' => 'curated',
+                            'status'          => 'approved',
+                            'curation_note'   => null,
+                            'verified_by'     => auth()->id(),
+                            'verified_at'     => now(),
                         ]);
-                        Notification::make()->title('Prestasi disetujui')->success()->send();
+                        Notification::make()->title('Prestasi Lolos Kurasi')->success()->send();
+                    }),
+
+                Action::make('revision')
+                    ->label('Perlu Revisi')
+                    ->icon('heroicon-o-arrow-path')
+                    ->color('warning')
+                    ->form([
+                        Textarea::make('curation_note')
+                            ->label('Catatan Revisi untuk Siswa')
+                            ->placeholder('Jelaskan berkas yang perlu diperbaiki (contoh: Upload ulang Surat Tugas / Sertifikat buram)')
+                            ->required()
+                            ->rows(3),
+                    ])
+                    ->action(function (StudentAchievement $record, array $data): void {
+                        $record->update([
+                            'curation_status' => 'revision',
+                            'curation_note'   => $data['curation_note'],
+                            'verified_by'     => auth()->id(),
+                            'verified_at'     => now(),
+                        ]);
+                        Notification::make()->title('Diminta Revisi Berkas')->warning()->send();
                     }),
 
                 Action::make('reject')
                     ->label('Tolak')
                     ->icon('heroicon-o-x-circle')
                     ->color('danger')
-                    ->visible(fn (StudentAchievement $record): bool => $record->status === 'pending')
                     ->form([
-                        Textarea::make('rejection_reason')
-                            ->label('Alasan Penolakan')
+                        Textarea::make('curation_note')
+                            ->label('Alasan Tidak Layak Kurasi')
+                            ->placeholder('Jelaskan alasan penolakan kurasi (contoh: Lomba tidak resmi / komersial tanpa seleksi)')
                             ->required()
                             ->rows(3),
                     ])
                     ->action(function (StudentAchievement $record, array $data): void {
                         $record->update([
+                            'curation_status'  => 'rejected',
                             'status'           => 'rejected',
-                            'rejection_reason' => $data['rejection_reason'],
+                            'curation_note'    => $data['curation_note'],
+                            'rejection_reason' => $data['curation_note'],
                             'verified_by'      => auth()->id(),
                             'verified_at'      => now(),
                         ]);
-                        Notification::make()->title('Prestasi ditolak')->danger()->send();
+                        Notification::make()->title('Prestasi Ditolak / Tidak Layak')->danger()->send();
                     }),
             ])
             ->bulkActions([BulkActionGroup::make([DeleteBulkAction::make()])]);
