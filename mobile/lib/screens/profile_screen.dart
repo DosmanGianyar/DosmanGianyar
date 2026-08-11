@@ -782,7 +782,7 @@ class _StudentIdCardState extends State<StudentIdCard> {
         LayoutBuilder(
           builder: (context, constraints) {
             final cardWidth  = constraints.maxWidth;
-            final cardHeight = cardWidth / 1.585;
+            final cardHeight = cardWidth / 1.48;
 
             return SizedBox(
               height: cardHeight,
@@ -793,7 +793,7 @@ class _StudentIdCardState extends State<StudentIdCard> {
                   alignment: Alignment.center,
                   child: SizedBox(
                     width: 350,
-                    height: 220,
+                    height: 236,
                     child: AnimatedSwitcher(
                       duration: const Duration(milliseconds: 350),
                       switchInCurve:  Curves.easeOut,
