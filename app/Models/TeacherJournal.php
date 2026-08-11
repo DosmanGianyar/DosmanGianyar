@@ -38,4 +38,38 @@ class TeacherJournal extends Model
     {
         return $this->hasMany(TeacherJournalAbsence::class, 'journal_id');
     }
+
+    protected static function booted(): void
+    {
+        static::deleting(function (TeacherJournal $journal) {
+            // 1. Delete absences
+            try {
+                $journal->absences()->delete();
+            } catch (\Throwable $e) {}
+
+            // 2. Cascade delete matching TeacherAttendance and SessionAttendance
+            $dateStr = $journal->date ? $journal->date->format('Y-m-d') : null;
+            if ($dateStr && $journal->class_id) {
+                $pStart = (int) ($journal->period ?? 1);
+                $pEnd   = (int) ($journal->period_end ?? $pStart);
+
+                $teacherAtts = TeacherAttendance::where('class_id', $journal->class_id)
+                    ->whereDate('date', $dateStr)
+                    ->where(function ($q) use ($pStart, $pEnd) {
+                        $q->whereBetween('period', [$pStart, $pEnd]);
+                    })
+                    ->get();
+
+                foreach ($teacherAtts as $att) {
+                    $att->sessionAttendances()->delete();
+                    $att->deleteQuietly();
+                }
+
+                SessionAttendance::where('class_id', $journal->class_id)
+                    ->whereDate('date', $dateStr)
+                    ->whereBetween('period', [$pStart, $pEnd])
+                    ->delete();
+            }
+        });
+    }
 }

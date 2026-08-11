@@ -51,4 +51,30 @@ class TeacherAttendance extends Model
             default       => ucfirst($this->status),
         };
     }
+
+    protected static function booted(): void
+    {
+        static::deleting(function (TeacherAttendance $attendance) {
+            // 1. Delete child session attendances (student attendance)
+            try {
+                $attendance->sessionAttendances()->delete();
+            } catch (\Throwable $e) {}
+
+            // 2. Cascade delete matching TeacherJournal if exists
+            $dateStr = $attendance->date ? $attendance->date->format('Y-m-d') : null;
+            if ($dateStr && $attendance->class_id) {
+                $p = (int) ($attendance->period ?? 1);
+                TeacherJournal::where('class_id', $attendance->class_id)
+                    ->whereDate('date', $dateStr)
+                    ->where(function ($q) use ($p) {
+                        $q->where('period', $p)
+                          ->orWhere(function ($q2) use ($p) {
+                              $q2->where('period', '<=', $p)
+                                 ->where('period_end', '>=', $p);
+                          });
+                    })
+                    ->deleteQuietly();
+            }
+        });
+    }
 }
