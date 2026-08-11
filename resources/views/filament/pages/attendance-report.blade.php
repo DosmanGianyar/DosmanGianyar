@@ -1,4 +1,5 @@
 <x-filament-panels::page>
+<div x-data="{ showGridPreviewModal: false }">
 <style>
 .ar-filter-bar {
     background: #0f1d33;
@@ -220,16 +221,42 @@
             'month'    => $this->month,
             'year'     => $this->year,
         ]));
+        $targetClassId = $this->classId ?: ($classes->first()?->id);
+        $gridMonthStr  = sprintf('%04d-%02d', $this->year, $this->month);
     @endphp
-    <div style="margin-left:auto;display:flex;gap:0.625rem;align-items:flex-end">
+    <div style="margin-left:auto;display:flex;flex-wrap:wrap;gap:0.625rem;align-items:flex-end">
+        {{-- Preview Cetak Laporan Grid (PDF) --}}
+        <button type="button"
+            @click="showGridPreviewModal = true"
+            style="display:inline-flex;align-items:center;gap:0.4rem;padding:0.5rem 1rem;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.35);border-radius:0.5rem;color:rgb(52,211,153);font-size:0.8rem;font-weight:700;cursor:pointer;transition:background 0.15s"
+            onmouseover="this.style.background='rgba(16,185,129,0.25)'" onmouseout="this.style.background='rgba(16,185,129,0.15)'">
+            <svg style="width:1rem;height:1rem;flex-shrink:0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+            </svg>
+            👁️ Preview Rekap Grid (PDF)
+        </button>
+
+        @if ($targetClassId)
+        <a href="{{ route('admin.attendance-report.grid-pdf', ['month' => $gridMonthStr, 'class_id' => $targetClassId]) }}"
+            target="_blank"
+            style="display:inline-flex;align-items:center;gap:0.4rem;padding:0.5rem 1rem;background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.35);border-radius:0.5rem;color:rgb(96,165,250);font-size:0.8rem;font-weight:700;text-decoration:none;transition:background 0.15s"
+            onmouseover="this.style.background='rgba(59,130,246,0.25)'" onmouseout="this.style.background='rgba(59,130,246,0.15)'">
+            <svg style="width:1rem;height:1rem;flex-shrink:0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+            </svg>
+            Cetak Rekap Grid (PDF)
+        </a>
+        @endif
+
         <a href="{{ route('admin.attendance-report.excel') . '?' . $dlParams }}"
            target="_blank"
            style="display:inline-flex;align-items:center;gap:0.4rem;padding:0.5rem 1rem;background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.3);border-radius:0.5rem;color:rgb(74,222,128);font-size:0.8rem;font-weight:600;text-decoration:none;transition:background 0.15s"
            onmouseover="this.style.background='rgba(34,197,94,0.2)'" onmouseout="this.style.background='rgba(34,197,94,0.12)'">
             <svg style="width:1rem;height:1rem;flex-shrink:0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 01-2-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
             </svg>
-            Excel
+            Summary Excel
         </a>
         <a href="{{ route('admin.attendance-report.pdf') . '?' . $dlParams }}"
            target="_blank"
@@ -238,7 +265,7 @@
             <svg style="width:1rem;height:1rem;flex-shrink:0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
             </svg>
-            PDF
+            Summary PDF
         </a>
     </div>
 </div>
@@ -469,5 +496,56 @@
 </div>
 @endif
 
+{{-- Modal Web Preview Rekap Grid PDF Admin --}}
+<div x-show="showGridPreviewModal" x-cloak
+    @keydown.escape.window="showGridPreviewModal = false"
+    class="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/80 backdrop-blur-xs">
+    <div class="bg-gray-900 rounded-2xl w-full max-w-6xl h-[92vh] flex flex-col shadow-2xl border border-white/10 overflow-hidden" @click.stop>
+        {{-- Header Modal --}}
+        <div class="px-5 py-3.5 bg-gray-950 text-white flex items-center justify-between shrink-0 border-b border-white/10">
+            <div class="flex items-center gap-3">
+                <span class="p-1.5 bg-emerald-500/20 text-emerald-400 rounded-lg">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                </span>
+                <div>
+                    <h3 class="text-sm font-bold text-white">Pratinjau Dokumen Cetak Rekapitulasi Absensi Siswa Bulanan (Grid 1-31)</h3>
+                    <p class="text-[11px] text-gray-400">SMA Negeri 1 Gianyar · Dokumen Resmi PDF Admin</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                @php
+                    $targetClassId = $this->classId ?: ($classes->first()?->id);
+                    $gridMonthStr = sprintf('%04d-%02d', $this->year, $this->month);
+                @endphp
+                @if ($targetClassId)
+                <a href="{{ route('admin.attendance-report.grid-pdf', ['month' => $gridMonthStr, 'class_id' => $targetClassId]) }}"
+                    target="_blank"
+                    class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-colors inline-flex items-center gap-1.5 shadow-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                    Cetak Rekap Grid (PDF)
+                </a>
+                @endif
+                <button type="button" @click="showGridPreviewModal = false"
+                    class="px-3.5 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white text-xs font-semibold rounded-xl transition-colors">
+                    Tutup
+                </button>
+            </div>
+        </div>
+
+        {{-- Iframe Preview --}}
+        <div class="flex-1 bg-gray-950 p-2 sm:p-4 overflow-hidden">
+            @if ($targetClassId)
+            <iframe src="{{ route('admin.attendance-report.grid-preview', ['month' => $gridMonthStr, 'class_id' => $targetClassId]) }}"
+                class="w-full h-full bg-white rounded-xl border border-white/10 shadow-md"></iframe>
+            @else
+            <div class="flex items-center justify-center h-full text-gray-400 text-sm">
+                Pilih kelas terlebih dahulu untuk melihat pratinjau.
+            </div>
+            @endif
+        </div>
+    </div>
+</div>
+
+</div>
 <x-filament-actions::modals />
 </x-filament-panels::page>

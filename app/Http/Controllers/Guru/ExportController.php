@@ -130,16 +130,22 @@ class ExportController extends Controller
 
     private function getAttendanceGridData(Request $request): array
     {
-        $request->validate([
-            'month'    => 'required|date_format:Y-m',
-            'class_id' => 'required|exists:classes,id',
-        ]);
+        $classId = (int) $request->input('class_id');
+        abort_unless($classId > 0, 422, 'Kelas wajib dipilih.');
 
-        $this->authorizeClassAccess((int) $request->class_id);
+        $this->authorizeClassAccess($classId);
 
-        [$year, $mon] = explode('-', $request->month);
-        $start        = Carbon::parse("$year-$mon-01");
-        $daysInMonth  = $start->daysInMonth;
+        $monthInput = $request->input('month');
+        if (is_numeric($monthInput)) {
+            $year = (int) $request->input('year', date('Y'));
+            $mon  = sprintf('%02d', (int) $monthInput);
+        } else {
+            [$year, $mon] = explode('-', $monthInput);
+        }
+        $formattedMonth = "{$year}-{$mon}";
+
+        $start       = Carbon::parse("{$year}-{$mon}-01");
+        $daysInMonth = $start->daysInMonth;
 
         $schoolClass = SchoolClass::with('homeroomTeacher')->find($request->class_id);
         $className   = $schoolClass?->name ?? '—';
@@ -177,7 +183,7 @@ class ExportController extends Controller
         return [
             'students'       => $students,
             'grid'           => $grid,
-            'month'          => $request->month,
+            'month'          => $formattedMonth,
             'className'      => $className,
             'homeroomName'   => $homeroom?->name ?? '—',
             'homeroomNip'    => $homeroom?->nip ? 'NIP. ' . $homeroom->nip : 'NIP. —',
@@ -205,7 +211,7 @@ class ExportController extends Controller
             ->waitUntilNetworkIdle()
             ->pdf();
 
-        $filename = 'rekap_absensi_' . $data['className'] . '_' . $request->month . '.pdf';
+        $filename = 'rekap_absensi_' . $data['className'] . '_' . $data['month'] . '.pdf';
 
         return response($pdf, 200, [
             'Content-Type'        => 'application/pdf',

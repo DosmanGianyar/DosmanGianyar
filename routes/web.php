@@ -79,8 +79,11 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/import-users/template', [UserImportController::class, 'downloadTemplate'])->name('users.import.template');
 
     // Laporan Presensi
-    Route::get('/attendance-report/excel', [AdminAttendanceReport::class, 'downloadExcel'])->name('attendance-report.excel');
-    Route::get('/attendance-report/pdf',   [AdminAttendanceReport::class, 'downloadPdf'])->name('attendance-report.pdf');
+    Route::get('/attendance-report/excel',        [AdminAttendanceReport::class, 'downloadExcel'])->name('attendance-report.excel');
+    Route::get('/attendance-report/pdf',          [AdminAttendanceReport::class, 'downloadPdf'])->name('attendance-report.pdf');
+    Route::get('/attendance-report/grid-preview', [\App\Http\Controllers\Guru\ExportController::class, 'attendanceGridPreview'])->name('attendance-report.grid-preview');
+    Route::get('/attendance-report/grid-pdf',     [\App\Http\Controllers\Guru\ExportController::class, 'attendanceGridPdf'])->name('attendance-report.grid-pdf');
+    Route::get('/attendance-report/grid-excel',   [\App\Http\Controllers\Guru\ExportController::class, 'attendanceGridExcel'])->name('attendance-report.grid-excel');
 
     // Download Kartu Pelajar
     Route::get('/student-card/{user}/download', [StudentCardController::class, 'download'])->name('student-card.download');
