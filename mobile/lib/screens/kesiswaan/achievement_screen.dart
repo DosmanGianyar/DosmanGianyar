@@ -422,21 +422,23 @@ class _CreateSheetState extends State<_CreateSheet> {
             const SizedBox(height: 20),
 
             // Judul Prestasi
-            _Label('Judul Capaian / Prestasi *'),
+            const _Label('Judul Capaian / Prestasi *',
+              subText: 'Contoh: Juara 1 OSN Matematika Tingkat Provinsi Bali 2026'),
             const SizedBox(height: 6),
-            _InputField(controller: _titleCtrl, hint: 'Contoh: Juara 1 OSN Matematika Tingkat Provinsi...'),
+            _InputField(controller: _titleCtrl, hint: 'Tulis nama prestasi lengkap...'),
             const SizedBox(height: 14),
 
             // Penyelenggara Lomba
-            _Label('Penyelenggara Lomba / Ajang'),
+            const _Label('Penyelenggara Lomba / Ajang *',
+              subText: 'Contoh: Kemendikbudristek, Universitas Udayana, KONI Bali, BRIN'),
             const SizedBox(height: 6),
-            _InputField(controller: _organizerCtrl, hint: 'Contoh: Kemendikbudristek, UNUD, KONI Bali...'),
+            _InputField(controller: _organizerCtrl, hint: 'Ketik lembaga penyelenggara...'),
             const SizedBox(height: 14),
 
             // Rumpun Bidang & Keikutsertaan
             Row(children: [
               Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                _Label('Rumpun Bidang *'),
+                const _Label('Rumpun Bidang *', subText: 'Pilih rumpun lomba'),
                 const SizedBox(height: 6),
                 DropdownButtonFormField<String>(
                   initialValue: _fieldCategory,
@@ -454,7 +456,7 @@ class _CreateSheetState extends State<_CreateSheet> {
               ])),
               const SizedBox(width: 10),
               Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                const _Label('Keikutsertaan *'),
+                const _Label('Keikutsertaan *', subText: 'Individu / Tim'),
                 const SizedBox(height: 6),
                 DropdownButtonFormField<String>(
                   initialValue: _participationType,
@@ -475,7 +477,7 @@ class _CreateSheetState extends State<_CreateSheet> {
             const SizedBox(height: 14),
 
             // Kategori
-            const _Label('Kategori Lomba *'),
+            const _Label('Kategori Lomba *', subText: 'Pilih jenis kompetisi'),
             const SizedBox(height: 6),
             if (_loadingCats)
               const Center(child: SizedBox(height: 36, width: 36, child: CircularProgressIndicator(strokeWidth: 2)))
@@ -488,17 +490,17 @@ class _CreateSheetState extends State<_CreateSheet> {
                   child: Text(c.name, style: const TextStyle(fontSize: 13)),
                 )).toList(),
                 onChanged: (v) => setState(() => _categoryId = v),
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   filled: true, fillColor: AppColors.gray50,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                  border: OutlineInputBorder(borderRadius: AppRadius.input, borderSide: const BorderSide(color: AppColors.gray200)),
-                  enabledBorder: OutlineInputBorder(borderRadius: AppRadius.input, borderSide: const BorderSide(color: AppColors.gray200)),
+                  contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                  border: OutlineInputBorder(borderRadius: AppRadius.input, borderSide: BorderSide(color: AppColors.gray200)),
+                  enabledBorder: OutlineInputBorder(borderRadius: AppRadius.input, borderSide: BorderSide(color: AppColors.gray200)),
                 ),
               ),
             const SizedBox(height: 14),
 
             // Tingkat
-            _Label('Tingkat Prestasi *'),
+            const _Label('Tingkat Prestasi *', subText: 'Pilih cakupan wilayah perlombaan'),
             const SizedBox(height: 8),
             Wrap(spacing: 8, runSpacing: 8, children: _levels.map(((String val, String lbl) pair) {
               final selected = _level == pair.$1;
@@ -525,13 +527,13 @@ class _CreateSheetState extends State<_CreateSheet> {
             // Peringkat + Tanggal
             Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                _Label('Peringkat / Juara'),
+                const _Label('Peringkat / Juara', subText: 'Juara 1 / Emas'),
                 const SizedBox(height: 6),
-                _InputField(controller: _rankCtrl, hint: 'Juara 1, Medali Emas...'),
+                _InputField(controller: _rankCtrl, hint: 'Contoh: Juara 1'),
               ])),
               const SizedBox(width: 10),
               Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                _Label('Tanggal Lomba *'),
+                const _Label('Tanggal Lomba *', subText: 'Tanggal penyerahan'),
                 const SizedBox(height: 6),
                 GestureDetector(
                   onTap: _pickDate,
@@ -562,37 +564,41 @@ class _CreateSheetState extends State<_CreateSheet> {
             const SizedBox(height: 14),
 
             // Link Website Pengumuman Resmi
-            _Label('Link Web Pengumuman Resmi (opsional)'),
+            const _Label('Link Web Pengumuman Resmi (opsional)',
+              subText: 'Contoh: https://puspresnas.kemdikbud.go.id/pengumuman-osn'),
             const SizedBox(height: 6),
-            _InputField(controller: _eventUrlCtrl, hint: 'https://puspresnas.kemdikbud.go.id/...'),
+            _InputField(controller: _eventUrlCtrl, hint: 'Paste tautan URL pengumuman...'),
             const SizedBox(height: 14),
 
             // Foto kegiatan / Piala
-            _Label('Foto Kegiatan / Penyerahan Piala *'),
+            const _Label('Foto Kegiatan / Penyerahan Piala *',
+              subText: 'Wajib! Foto fisik penyerahan piala / di panggung juara'),
             const SizedBox(height: 6),
             _ImagePickerTile(
               file: _photo,
-              label: 'Upload foto kegiatan (Wajib)',
+              label: 'Pilih foto kegiatan (Wajib)',
               onTap: () => _pickFile(type: 0),
             ),
             const SizedBox(height: 14),
 
             // Sertifikat
-            _Label('Sertifikat / Piagam Juara (opsional)'),
+            const _Label('Sertifikat / Piagam Juara (opsional)',
+              subText: 'Scan/foto piagam resmi yang mencantumkan nama & NISN'),
             const SizedBox(height: 6),
             _ImagePickerTile(
               file: _certificate,
-              label: 'Upload scan sertifikat',
+              label: 'Pilih file scan sertifikat',
               onTap: () => _pickFile(type: 1),
             ),
             const SizedBox(height: 14),
 
             // Surat Tugas / Rekomendasi
-            _Label('Surat Tugas / Rekomendasi Sekolah (opsional)'),
+            const _Label('Surat Tugas / Rekomendasi Sekolah (opsional)',
+              subText: 'Upload Surat Tugas dari SMAN 1 Gianyar jika ada'),
             const SizedBox(height: 6),
             _ImagePickerTile(
               file: _assignmentLetter,
-              label: 'Upload Surat Tugas Sekolah',
+              label: 'Pilih file Surat Tugas Sekolah',
               onTap: () => _pickFile(type: 2),
             ),
             const SizedBox(height: 20),
@@ -620,11 +626,27 @@ class _CreateSheetState extends State<_CreateSheet> {
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 class _Label extends StatelessWidget {
-  final String text;
-  const _Label(this.text);
+  final String  text;
+  final String? subText;
+  const _Label(this.text, {this.subText});
+
   @override
-  Widget build(BuildContext context) => Text(text,
-    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppColors.gray600));
+  Widget build(BuildContext context) {
+    if (subText == null) {
+      return Text(text,
+        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.gray700));
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(text,
+          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.gray700)),
+        const SizedBox(height: 2),
+        Text(subText!,
+          style: const TextStyle(fontSize: 11, color: AppColors.gray400, fontStyle: FontStyle.italic)),
+      ],
+    );
+  }
 }
 
 class _InputField extends StatelessWidget {
