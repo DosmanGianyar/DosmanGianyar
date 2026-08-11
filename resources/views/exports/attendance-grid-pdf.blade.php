@@ -6,8 +6,18 @@
 <title>Rekapitulasi Absensi Siswa Bulanan</title>
 <style>
     @page { size: A4 landscape; margin: 8mm 10mm 10mm 10mm; }
-    body { font-family: 'Times New Roman', Times, serif; font-size: 8px; color: #000; margin: 0; padding: 0; background: #fff; }
+    * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+    }
+    body { font-family: 'Times New Roman', Times, serif; font-size: 9.5px; color: #000; margin: 0; padding: 0; background: #fff; }
     @media print {
+        * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            color-adjust: exact !important;
+        }
         .no-print { display: none !important; }
         body { padding: 0; }
     }
@@ -16,39 +26,39 @@
     .kop-logo-left { position: absolute; left: 10px; top: 2px; width: 52px; height: 52px; object-fit: contain; }
     .kop-logo-right { position: absolute; right: 10px; top: 2px; width: 52px; height: 52px; object-fit: contain; }
     .kop-text { text-align: center; line-height: 1.25; }
-    .kop-text .l1 { font-size: 11px; font-weight: bold; text-transform: uppercase; }
-    .kop-text .l2 { font-size: 11px; font-weight: bold; text-transform: uppercase; }
-    .kop-text .l3 { font-size: 15px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
-    .kop-text .l4 { font-size: 8.5px; font-style: italic; }
-    .kop-text .l5 { font-size: 8px; }
+    .kop-text .l1 { font-size: 11.5px; font-weight: bold; text-transform: uppercase; }
+    .kop-text .l2 { font-size: 11.5px; font-weight: bold; text-transform: uppercase; }
+    .kop-text .l3 { font-size: 15.5px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
+    .kop-text .l4 { font-size: 9px; font-style: italic; }
+    .kop-text .l5 { font-size: 8.5px; }
 
     .title-box { text-align: center; margin-bottom: 10px; }
-    .title-main { font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; text-decoration: underline; }
-    .title-sub { font-size: 9.5px; font-weight: bold; margin-top: 2px; }
+    .title-main { font-size: 12.5px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; text-decoration: underline; }
+    .title-sub { font-size: 10px; font-weight: bold; margin-top: 2px; }
 
-    .meta-table { width: 100%; margin-bottom: 6px; font-size: 9px; font-weight: bold; border-collapse: collapse; }
+    .meta-table { width: 100%; margin-bottom: 6px; font-size: 9.5px; font-weight: bold; border-collapse: collapse; }
     .meta-table td { padding: 1px 0; }
 
-    table.grid-table { width: 100%; border-collapse: collapse; table-layout: fixed; font-family: Arial, Helvetica, sans-serif; font-size: 7px; }
-    table.grid-table th, table.grid-table td { border: 0.5px solid #000; text-align: center; vertical-align: middle; padding: 1px 0; height: 16px; }
-    table.grid-table th { background-color: #f3f4f6; font-weight: bold; }
+    table.grid-table { width: 100%; border-collapse: collapse; table-layout: fixed; font-family: Arial, Helvetica, sans-serif; font-size: 8px; }
+    table.grid-table th, table.grid-table td { border: 0.75px solid #000; text-align: center; vertical-align: middle; padding: 1px 0; height: 17px; }
+    table.grid-table th { background-color: #f1f5f9 !important; font-weight: bold; font-size: 8.5px; }
     
-    /* Badges */
-    .bg-hadir { background-color: #22c55e !important; color: #ffffff !important; font-weight: bold; } /* Hijau */
-    .bg-terlambat { background-color: #eab308 !important; color: #ffffff !important; font-weight: bold; } /* Kuning */
-    .bg-lupa { background-color: #a855f7 !important; color: #ffffff !important; font-weight: bold; } /* Ungu */
-    .bg-sakit { background-color: #c084fc !important; color: #ffffff !important; font-weight: bold; } /* Violet */
-    .bg-izin { background-color: #60a5fa !important; color: #ffffff !important; font-weight: bold; } /* Biru */
-    .bg-dispensasi { background-color: #14b8a6 !important; color: #ffffff !important; font-weight: bold; } /* Teal */
-    .bg-alpa { background-color: #ef4444 !important; color: #ffffff !important; font-weight: bold; } /* Merah */
-    .bg-libur { background-color: #e5e7eb !important; color: #9ca3af !important; } /* Abu Libur */
-    .bg-future { background-color: #fafafa !important; color: #d1d5db !important; } /* Belum Berjalan */
+    /* Badges / Presensi Cells */
+    .bg-hadir { background-color: #16a34a !important; color: #ffffff !important; font-weight: 800; } /* Hijau */
+    .bg-terlambat { background-color: #eab308 !important; color: #000000 !important; font-weight: 800; } /* Kuning */
+    .bg-lupa { background-color: #9333ea !important; color: #ffffff !important; font-weight: 800; } /* Ungu */
+    .bg-sakit { background-color: #a855f7 !important; color: #ffffff !important; font-weight: 800; } /* Violet */
+    .bg-izin { background-color: #2563eb !important; color: #ffffff !important; font-weight: 800; } /* Biru */
+    .bg-dispensasi { background-color: #0d9488 !important; color: #ffffff !important; font-weight: 800; } /* Teal */
+    .bg-alpa { background-color: #dc2626 !important; color: #ffffff !important; font-weight: 800; } /* Merah */
+    .bg-libur { background-color: #e2e8f0 !important; color: #475569 !important; font-weight: bold; } /* Abu Libur */
+    .bg-future { background-color: #f8fafc !important; color: #cbd5e1 !important; } /* Belum Berjalan */
 
-    .summary-col { font-weight: bold; font-size: 7.5px; }
+    .summary-col { font-weight: 800; font-size: 8.5px; }
 
-    .notes-section { margin-top: 8px; font-size: 7.5px; line-height: 1.4; font-family: Arial, sans-serif; }
+    .notes-section { margin-top: 10px; font-size: 8.5px; line-height: 1.4; font-family: Arial, sans-serif; }
     
-    .signature-container { margin-top: 15px; width: 100%; font-size: 9.5px; font-family: 'Times New Roman', Times, serif; }
+    .signature-container { margin-top: 15px; width: 100%; font-size: 10px; font-family: 'Times New Roman', Times, serif; }
     .signature-table { width: 100%; border-collapse: collapse; }
     .signature-table td { width: 50%; vertical-align: top; text-align: center; border: none; }
 </style>
@@ -138,7 +148,7 @@
                     $isWknd  = $curDate->isWeekend();
                 @endphp
                 <th style="{{ $isWknd ? 'background-color: #e5e7eb; color: #6b7280;' : '' }}">
-                    {{ $dayName }}<br><span style="font-size: 6.5px;">{{ $d }}</span>
+                    {{ $dayName }}<br><span style="font-size: 7.5px; font-weight: bold;">{{ $d }}</span>
                 </th>
             @endfor
             <th style="width: 22px; background-color: #f3e8ff; color: #7e22ce;">S</th>
@@ -163,9 +173,9 @@
                 $lupaCount = 0;
             @endphp
             <tr>
-                <td>{{ $idx + 1 }}</td>
-                <td style="font-size: 6.5px;">{{ $student->nis ?? '—' }}</td>
-                <td style="text-align: left; padding: 1px 4px; font-weight: 600; font-size: 6.5px; line-height: 1.15; word-break: break-word; white-space: normal;">
+                <td style="font-weight: 600; font-size: 8px;">{{ $idx + 1 }}</td>
+                <td style="font-size: 7.5px; font-weight: 600;">{{ $student->nis ?? '—' }}</td>
+                <td style="text-align: left; padding: 1px 4px; font-weight: 700; font-size: 7.5px; line-height: 1.2; word-break: break-word; white-space: normal;">
                     {{ $student->name }}
                 </td>
 
@@ -222,7 +232,7 @@
                             $alpaCount++;
                         }
                     @endphp
-                    <td class="{{ $badgeClass }}" style="{{ $char === 'Lp' ? 'font-size: 5.5px;' : '' }}">{{ $char }}</td>
+                    <td class="{{ $badgeClass }}" style="{{ $char === 'Lp' ? 'font-size: 7px; font-weight: 800;' : 'font-size: 8.5px; font-weight: 800;' }}">{{ $char }}</td>
                 @endfor
 
                 <td class="summary-col" style="color: #7e22ce;">{{ $sakitCount ?: '-' }}</td>

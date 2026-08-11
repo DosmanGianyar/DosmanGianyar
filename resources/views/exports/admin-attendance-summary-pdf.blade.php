@@ -4,60 +4,70 @@
 <meta charset="UTF-8">
 <style>
     @page { size: A4 landscape; margin: 10mm 12mm 12mm 12mm; }
-    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+    }
+    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; color-adjust: exact; font-family: Arial, sans-serif; font-size: 9.5px; margin: 0; }
 
     table { width: 100%; border-collapse: collapse; }
 
     thead th {
         background-color: #1e40af !important;
-        color: #ffffff;
-        font-size: 8px;
+        color: #ffffff !important;
+        font-size: 9px;
         font-weight: 700;
         padding: 5px 7px;
-        border: 0.5px solid #1e3a8a;
+        border: 0.75px solid #1e3a8a;
         text-align: left;
     }
     thead th.c { text-align: center; }
 
     tbody td {
-        padding: 4.5px 7px;
-        border: 0.5px solid #e2e8f0;
-        font-size: 8.5px;
+        padding: 5px 7px;
+        border: 0.75px solid #cbd5e1;
+        font-size: 9.5px;
         vertical-align: middle;
-        color: #1f2937;
+        color: #0f172a;
     }
     tbody td.c { text-align: center; }
     tbody tr:nth-child(even) td { background-color: #f8fafc !important; }
 
     .class-sep td {
         background-color: #eff6ff !important;
-        border-top: 1px solid #bfdbfe;
-        border-bottom: 1px solid #bfdbfe;
+        border-top: 1px solid #93c5fd;
+        border-bottom: 1px solid #93c5fd;
         color: #1d4ed8;
         font-weight: 700;
-        font-size: 7.5px;
+        font-size: 8.5px;
         letter-spacing: 0.05em;
         text-transform: uppercase;
-        padding: 3px 7px;
+        padding: 4px 7px;
     }
 
-    .b-h { background:#dcfce7; color:#166534; font-weight:700; padding:1px 5px; border-radius:3px; font-size:8px; }
-    .b-t { background:#fef9c3; color:#854d0e; font-weight:700; padding:1px 5px; border-radius:3px; font-size:8px; }
-    .b-i { background:#dbeafe; color:#1e40af; font-weight:700; padding:1px 5px; border-radius:3px; font-size:8px; }
-    .b-s { background:#f3e8ff; color:#6b21a8; font-weight:700; padding:1px 5px; border-radius:3px; font-size:8px; }
-    .b-a { background:#fee2e2; color:#991b1b; font-weight:700; padding:1px 5px; border-radius:3px; font-size:8px; }
-    .b-d { background:#ccfbf1; color:#065f46; font-weight:700; padding:1px 5px; border-radius:3px; font-size:8px; }
+    .b-h { background:#dcfce7 !important; color:#15803d !important; font-weight:800; padding:2px 6px; border-radius:3px; font-size:9px; }
+    .b-t { background:#fef9c3 !important; color:#854d0e !important; font-weight:800; padding:2px 6px; border-radius:3px; font-size:9px; }
+    .b-i { background:#dbeafe !important; color:#1d4ed8 !important; font-weight:800; padding:2px 6px; border-radius:3px; font-size:9px; }
+    .b-s { background:#f3e8ff !important; color:#7e22ce !important; font-weight:800; padding:2px 6px; border-radius:3px; font-size:9px; }
+    .b-a { background:#fee2e2 !important; color:#b91c1c !important; font-weight:800; padding:2px 6px; border-radius:3px; font-size:9px; }
+    .b-d { background:#ccfbf1 !important; color:#0f766e !important; font-weight:800; padding:2px 6px; border-radius:3px; font-size:9px; }
 
-    .pct-high { color:#16a34a; font-weight:700; }
-    .pct-mid  { color:#d97706; font-weight:700; }
-    .pct-low  { color:#dc2626; font-weight:700; }
+    .pct-high { color:#15803d; font-weight:800; }
+    .pct-mid  { color:#b45309; font-weight:800; }
+    .pct-low  { color:#b91c1c; font-weight:800; }
     @media print {
+        * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            color-adjust: exact !important;
+        }
         .no-print { display: none !important; }
         body { padding: 0; }
     }
 </style>
 </head>
-<body class="bg-white text-gray-800" style="font-family: Arial, sans-serif; font-size: 8px; margin: 0;">
+<body class="bg-white text-gray-800" style="font-family: Arial, sans-serif; font-size: 9.5px; margin: 0;">
 
 <div class="no-print" style="position:sticky;top:0;z-index:9999;background:#0f1d33;padding:0.75rem 1.5rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.1);margin-bottom:1rem;color:#fff;font-family:system-ui,-apple-system,sans-serif">
     <div style="display:flex;align-items:center;gap:0.75rem">
