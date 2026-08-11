@@ -185,8 +185,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
               onChangePhoto: _changePhoto,
             ),
             const SizedBox(height: 12),
-            if (user?.role != 'guru' && user?.role != 'orangtua') ...[
-              StudentIdCard(user: user),
+            if (user != null && user.isSiswa) ...[
+              _ExtendedProfileSummaryCard(user: user),
               const SizedBox(height: 12),
             ],
             if (user?.parentName != null || user?.parentPhone != null) ...[
@@ -1289,6 +1289,176 @@ class _ProfileInput extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _ExtendedProfileSummaryCard extends StatelessWidget {
+  final User user;
+  const _ExtendedProfileSummaryCard({required this.user});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // 1. Domisili & Transportasi
+        _SectionSummaryCard(
+          title: 'Domisili & Transportasi',
+          icon: Icons.home_outlined,
+          color: AppColors.blue600,
+          children: [
+            Row(children: [
+              Expanded(child: _InfoBox(label: 'Alamat Jalan', value: user.address ?? '—')),
+              const SizedBox(width: 8),
+              Expanded(child: _InfoBox(label: 'RT / RW', value: user.rtRw ?? '—')),
+            ]),
+            const SizedBox(height: 8),
+            Row(children: [
+              Expanded(child: _InfoBox(label: 'Kelurahan / Desa', value: user.kelurahan ?? '—')),
+              const SizedBox(width: 8),
+              Expanded(child: _InfoBox(label: 'Kecamatan', value: user.kecamatan ?? '—')),
+            ]),
+            const SizedBox(height: 8),
+            Row(children: [
+              Expanded(child: _InfoBox(label: 'Kabupaten / Kota', value: user.kabupaten ?? '—')),
+              const SizedBox(width: 8),
+              Expanded(child: _InfoBox(label: 'Status Tinggal', value: _residenceLabel(user.residenceStatus))),
+            ]),
+            const SizedBox(height: 8),
+            Row(children: [
+              Expanded(child: _InfoBox(label: 'Transportasi', value: _transLabel(user.transportation))),
+              const SizedBox(width: 8),
+              Expanded(child: _InfoBox(label: 'Jarak & Tempuh', value: user.distanceKm != null ? '${user.distanceKm} km (${user.travelTimeMinutes ?? '—'} mnt)' : '—')),
+            ]),
+          ],
+        ),
+        const SizedBox(height: 12),
+
+        // 2. Orang Tua & Darurat
+        _SectionSummaryCard(
+          title: 'Orang Tua & Kontak Darurat',
+          icon: Icons.family_restroom_outlined,
+          color: AppColors.emerald600,
+          children: [
+            Row(children: [
+              Expanded(child: _InfoBox(label: 'Ayah Kandung', value: user.fatherName != null ? '${user.fatherName} (${user.fatherPhone ?? '—'})' : '—')),
+              const SizedBox(width: 8),
+              Expanded(child: _InfoBox(label: 'Pekerjaan Ayah', value: user.fatherJob ?? '—')),
+            ]),
+            const SizedBox(height: 8),
+            Row(children: [
+              Expanded(child: _InfoBox(label: 'Ibu Kandung', value: user.motherName != null ? '${user.motherName} (${user.motherPhone ?? '—'})' : '—')),
+              const SizedBox(width: 8),
+              Expanded(child: _InfoBox(label: 'Pekerjaan Ibu', value: user.motherJob ?? '—')),
+            ]),
+            if (user.guardianName != null && user.guardianName!.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Row(children: [
+                Expanded(child: _InfoBox(label: 'Wali', value: '${user.guardianName} (${user.guardianPhone ?? '—'})')),
+                const SizedBox(width: 8),
+                Expanded(child: _InfoBox(label: 'Pekerjaan Wali', value: user.guardianJob ?? '—')),
+              ]),
+            ],
+            const SizedBox(height: 8),
+            Row(children: [
+              Expanded(child: _InfoBox(label: 'Kontak Darurat', value: user.emergencyContactName != null ? '${user.emergencyContactName} (${user.emergencyContactPhone ?? '—'})' : '—')),
+              const SizedBox(width: 8),
+              Expanded(child: _InfoBox(label: 'Hubungan', value: user.emergencyContactRelation ?? '—')),
+            ]),
+          ],
+        ),
+        const SizedBox(height: 12),
+
+        // 3. Kesehatan & Fisik (UKS)
+        _SectionSummaryCard(
+          title: 'Kesehatan & Fisik (UKS)',
+          icon: Icons.health_and_safety_outlined,
+          color: Colors.red.shade700,
+          children: [
+            Row(children: [
+              Expanded(child: _InfoBox(label: 'Golongan Darah', value: user.bloodType != null ? 'Gol. Darah ${user.bloodType}' : '—')),
+              const SizedBox(width: 8),
+              Expanded(child: _InfoBox(label: 'Tinggi & Berat', value: user.heightCm != null ? '${user.heightCm} cm / ${user.weightKg ?? '—'} kg' : '—')),
+            ]),
+            const SizedBox(height: 8),
+            _InfoBox(label: 'Riwayat Penyakit / Alergi', value: user.medicalHistory ?? 'Tidak Ada'),
+          ],
+        ),
+        const SizedBox(height: 12),
+
+        // 4. Minat & Cita-Cita
+        _SectionSummaryCard(
+          title: 'Minat & Cita-Cita',
+          icon: Icons.star_outline_rounded,
+          color: Colors.amber.shade800,
+          children: [
+            Row(children: [
+              Expanded(child: _InfoBox(label: 'Hobi / Minat', value: user.hobbies ?? '—')),
+              const SizedBox(width: 8),
+              Expanded(child: _InfoBox(label: 'Cita-Cita', value: user.aspirations ?? '—')),
+            ]),
+          ],
+        ),
+      ],
+    );
+  }
+
+  static String _residenceLabel(String? val) => switch (val) {
+    'bersama_orangtua' => 'Bersama Orang Tua',
+    'wali'             => 'Bersama Wali',
+    'kost'             => 'Kost / Kontrak',
+    'asrama'           => 'Asrama',
+    _                  => '—',
+  };
+
+  static String _transLabel(String? val) => switch (val) {
+    'sepeda_motor' => 'Sepeda Motor',
+    'diantar'      => 'Diantar Ortu/Wali',
+    'sepeda'       => 'Sepeda',
+    'jalan_kaki'   => 'Jalan Kaki',
+    'umum'         => 'Angkutan Umum',
+    _              => '—',
+  };
+}
+
+class _SectionSummaryCard extends StatelessWidget {
+  final String title;
+  final IconData icon;
+  final Color color;
+  final List<Widget> children;
+
+  const _SectionSummaryCard({
+    required this.title,
+    required this.icon,
+    required this.color,
+    required this.children,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: AppShadow.sm,
+        border: Border.all(color: AppColors.gray100),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, size: 18, color: color),
+              const SizedBox(width: 8),
+              Text(title, style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: color)),
+            ],
+          ),
+          const SizedBox(height: 10),
+          ...children,
+        ],
+      ),
     );
   }
 }

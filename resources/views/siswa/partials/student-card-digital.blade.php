@@ -66,8 +66,8 @@
                     </div>
 
                     {{-- Foto Siswa 3x4 --}}
-                    <div style="flex-shrink: 0; margin-right: 3.5%; display: flex; align-items: flex-start;">
-                        <div style="width: 17.5cqw; max-width: 74px; aspect-ratio: 3/4; border: 1.5px solid #1565c0; background: #dce8f8; border-radius: 6px; overflow: hidden; box-shadow: 0 2px 8px rgba(21,101,192,0.2);">
+                    <div style="flex-shrink: 0; margin-right: 3.5%; display: flex; flex-direction: column; align-items: center;">
+                        <div style="width: 17.5cqw; max-width: 74px; aspect-ratio: 3/4; border: 1.5px solid #1565c0; background: #dce8f8; border-radius: 6px; overflow: hidden; box-shadow: 0 2px 8px rgba(21,101,192,0.2); position: relative;">
                             @if($siswa->photo)
                                 <img src="{{ $siswa->photo_url }}" style="width: 100%; height: 100%; object-fit: cover; object-position: top; display: block;">
                             @else
@@ -79,6 +79,11 @@
                                 </div>
                             @endif
                         </div>
+                        @if($siswa->blood_type)
+                            <div style="margin-top: 2px; background: #fee2e2; border: 0.5px solid #f87171; color: #991b1b; font-size: clamp(4.5px, 1.4cqw, 7px); font-weight: 800; padding: 0.5px 3px; border-radius: 3px; text-align: center; white-space: nowrap;">
+                                Goldar: {{ $siswa->blood_type }}
+                            </div>
+                        @endif
                     </div>
 
                     {{-- Data Siswa Detail --}}

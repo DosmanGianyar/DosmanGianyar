@@ -93,10 +93,7 @@
                 <p class="text-[10px] text-gray-400 font-medium uppercase tracking-wide">No. HP</p>
                 <p class="text-sm font-bold text-gray-800 mt-0.5">{{ $siswa->phone ?? '—' }}</p>
             </div>
-        </div>
     </div>
-
-    @include('siswa.partials.student-card-digital')
 
     {{-- ─── Data Orang Tua ──────────────────────────────────────────── --}}
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
