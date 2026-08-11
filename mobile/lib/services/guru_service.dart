@@ -45,11 +45,16 @@ class GuruService {
 
   static Future<({List<GuruPermit> data, PaginatedMeta meta})> getPermits({
     String status = 'pending',
+    int? classId,
     int page = 1,
   }) async {
     final body = await ApiClient.get(
       '/guru/permits',
-      params: {'status': status, 'page': page},
+      params: {
+        'status': status,
+        if (classId != null) 'class_id': classId,
+        'page': page,
+      },
     );
     return (
       data: (body['data'] as List<dynamic>)
@@ -76,11 +81,16 @@ class GuruService {
 
   static Future<({List<GuruForgotAttendance> data, PaginatedMeta meta})> getForgotAttendance({
     String status = 'pending',
+    int? classId,
     int page = 1,
   }) async {
     final body = await ApiClient.get(
       '/guru/forgot-attendance',
-      params: {'status': status, 'page': page},
+      params: {
+        'status': status,
+        if (classId != null) 'class_id': classId,
+        'page': page,
+      },
     );
     return (
       data: (body['data'] as List<dynamic>)
@@ -107,11 +117,16 @@ class GuruService {
 
   static Future<({List<GuruEarlyCheckout> data, PaginatedMeta meta})> getEarlyCheckouts({
     String status = 'pending',
+    int? classId,
     int page = 1,
   }) async {
     final body = await ApiClient.get(
       '/guru/early-checkouts',
-      params: {'status': status, 'page': page},
+      params: {
+        'status': status,
+        if (classId != null) 'class_id': classId,
+        'page': page,
+      },
     );
     return (
       data: (body['data'] as List<dynamic>)

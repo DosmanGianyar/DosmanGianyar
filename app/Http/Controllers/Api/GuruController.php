@@ -439,20 +439,21 @@ class GuruController extends Controller
     public function permits(Request $request): JsonResponse
     {
         /** @var \App\Models\User $guru */
-        $guru   = Auth::user();
+        $guru    = Auth::user();
         $guru->load('homeroomClass');
-        $status = $request->input('status', 'pending');
-        $page   = (int) $request->input('page', 1);
+        $status  = $request->input('status', 'pending');
+        $classId = $request->input('class_id');
+        $page    = (int) $request->input('page', 1);
 
         $query = Permit::with('student.schoolClass')
             ->when($status !== 'all', fn($q) => $q->where('status', $status))
             ->when(
-                ! $guru->isBk() && $guru->role !== 'admin' && $guru->homeroomClass,
-                fn($q) => $q->whereHas('student', fn($s) => $s->where('class_id', $guru->homeroomClass->id))
-            )
-            ->when(
-                ! $guru->isBk() && $guru->role !== 'admin' && ! $guru->homeroomClass,
-                fn($q) => $q->whereIn('status', ['approved', 'rejected'])
+                $classId !== null && $classId !== 'all' && is_numeric($classId),
+                fn($q) => $q->whereHas('student', fn($s) => $s->where('class_id', (int) $classId)),
+                fn($q) => $q->when(
+                    $classId === null && $guru->homeroomClass,
+                    fn($q2) => $q2->whereHas('student', fn($s) => $s->where('class_id', $guru->homeroomClass->id))
+                )
             )
             ->latest();
 
@@ -511,20 +512,21 @@ class GuruController extends Controller
     public function forgotAttendance(Request $request): JsonResponse
     {
         /** @var \App\Models\User $guru */
-        $guru  = Auth::user();
+        $guru    = Auth::user();
         $guru->load('homeroomClass');
-        $status = $request->input('status', 'pending');
-        $page   = (int) $request->input('page', 1);
+        $status  = $request->input('status', 'pending');
+        $classId = $request->input('class_id');
+        $page    = (int) $request->input('page', 1);
 
         $query = ForgotAttendanceRequest::with('student.schoolClass')
             ->when($status !== 'all', fn($q) => $q->where('status', $status))
             ->when(
-                ! $guru->isBk() && $guru->role !== 'admin' && $guru->homeroomClass,
-                fn($q) => $q->whereHas('student', fn($s) => $s->where('class_id', $guru->homeroomClass->id))
-            )
-            ->when(
-                ! $guru->isBk() && $guru->role !== 'admin' && ! $guru->homeroomClass,
-                fn($q) => $q->whereIn('status', ['approved', 'rejected'])
+                $classId !== null && $classId !== 'all' && is_numeric($classId),
+                fn($q) => $q->whereHas('student', fn($s) => $s->where('class_id', (int) $classId)),
+                fn($q) => $q->when(
+                    $classId === null && $guru->homeroomClass,
+                    fn($q2) => $q2->whereHas('student', fn($s) => $s->where('class_id', $guru->homeroomClass->id))
+                )
             )
             ->latest();
 
@@ -600,11 +602,23 @@ class GuruController extends Controller
 
     public function earlyCheckouts(Request $request): JsonResponse
     {
-        $status = $request->input('status', 'pending');
-        $page   = (int) $request->input('page', 1);
+        /** @var \App\Models\User $guru */
+        $guru    = Auth::user();
+        $guru->load('homeroomClass');
+        $status  = $request->input('status', 'pending');
+        $classId = $request->input('class_id');
+        $page    = (int) $request->input('page', 1);
 
         $query = EarlyCheckoutRequest::with('student.schoolClass')
             ->when($status !== 'all', fn($q) => $q->where('status', $status))
+            ->when(
+                $classId !== null && $classId !== 'all' && is_numeric($classId),
+                fn($q) => $q->whereHas('student', fn($s) => $s->where('class_id', (int) $classId)),
+                fn($q) => $q->when(
+                    $classId === null && $guru->homeroomClass,
+                    fn($q2) => $q2->whereHas('student', fn($s) => $s->where('class_id', $guru->homeroomClass->id))
+                )
+            )
             ->orderByDesc('date')
             ->orderBy('requested_time');
 
@@ -840,21 +854,11 @@ class GuruController extends Controller
     private function authorizePermitAction(Permit $permit): void
     {
         if (! $permit->isPending()) abort(403, 'Pengajuan ini sudah diproses.');
-        $guru = Auth::user();
-        if ($guru->role === 'admin' || $guru->isBk()) return;
-        $homeroomClass = $guru->homeroomClass;
-        if (! $homeroomClass) abort(403, 'Anda tidak berwenang menyetujui izin ini.');
-        if ($permit->student->class_id !== $homeroomClass->id) abort(403, 'Siswa bukan anggota kelas wali Anda.');
     }
 
     private function authorizeForgotAttendance(ForgotAttendanceRequest $req): void
     {
         if (! $req->isPending()) abort(403, 'Pengajuan ini sudah diproses.');
-        $guru = Auth::user();
-        if ($guru->role === 'admin' || $guru->isBk()) return;
-        $homeroomClass = $guru->homeroomClass;
-        if (! $homeroomClass) abort(403, 'Anda tidak berwenang.');
-        if ($req->student->class_id !== $homeroomClass->id) abort(403, 'Siswa bukan anggota kelas wali Anda.');
     }
 
     private function syncPermitAttendance(Permit $permit): void
