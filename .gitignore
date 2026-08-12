@@ -25,4 +25,5 @@ Thumbs.db
 /scratch
 composer.phar
 *.sqlite
+plink.exe
 
