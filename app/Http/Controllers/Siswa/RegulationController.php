@@ -27,11 +27,13 @@ class RegulationController extends Controller
             });
         }
 
-        $regulations = $query->get()->groupBy('category');
-        $categories  = SchoolRegulation::categories();
-        $pdfUrl      = asset('tatatertib/Scan TataTertib SIswa.pdf');
+        $allRegulations = SchoolRegulation::active()->ordered()->get();
+        $regulations    = $query->get()->groupBy('category');
+        $categories     = SchoolRegulation::categories();
+        $pdfUrl         = asset('tatatertib/Scan TataTertib SIswa.pdf');
 
         return view('siswa.tata-tertib.index', compact(
+            'allRegulations',
             'regulations',
             'categories',
             'selectedCategory',
@@ -40,3 +42,4 @@ class RegulationController extends Controller
         ));
     }
 }
+
