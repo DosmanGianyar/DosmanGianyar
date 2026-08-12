@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('school_regulations', function (Blueprint $table) {
             $table->id();
-            $table->enum('category', ['kehadiran', 'berpakaian', 'perilaku', 'larangan']);
+            $table->string('category', 50);
             $table->string('title', 200);
             $table->text('content');
             $table->unsignedSmallInteger('sort_order')->default(0);
