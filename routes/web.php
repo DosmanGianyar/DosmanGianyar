@@ -275,6 +275,7 @@ Route::middleware(['auth', 'role:guru,admin'])->prefix('guru')->name('guru.')->g
 Route::middleware(['auth', 'role:siswa,pengelola', 'force.password.change'])->prefix('siswa')->name('siswa.')->group(function () {
     Route::get('/dashboard', [SiswaDashboard::class, 'index'])->name('dashboard');
     Route::get('/kesiswaan', [SiswaKesiswaan::class, 'index'])->name('kesiswaan');
+    Route::get('/tata-tertib', [\App\Http\Controllers\Siswa\RegulationController::class, 'index'])->name('tata-tertib');
     Route::get('/kurikulum', [SiswaKurikulum::class, 'index'])->name('kurikulum');
     Route::get('/kurikulum/rapor', [SiswaKurikulum::class, 'rapor'])->name('kurikulum.rapor');
     Route::get('/kurikulum/absensi-guru', [SiswaTeacherAttendance::class, 'index'])->name('teacher-attendance.index');

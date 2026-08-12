@@ -34,21 +34,29 @@ class SchoolRegulation extends Model
     public function categoryLabel(): string
     {
         return match($this->category) {
-            'kehadiran'  => 'Kehadiran & Keterlambatan',
-            'berpakaian' => 'Tata Cara Berpakaian',
-            'perilaku'   => 'Tata Perilaku',
-            'larangan'   => 'Larangan',
-            default      => ucfirst($this->category),
+            'kehadiran'       => 'Kehadiran & Keterlambatan',
+            'kbm'             => 'Kegiatan Belajar Mengajar & Waktu Belajar',
+            'kerapian'        => 'Tata Tertib Kerapian Peserta Didik',
+            'berpakaian'      => 'Tata Cara Berpakaian & Seragam',
+            'ekstrakurikuler'  => 'Kegiatan Ekstrakurikuler',
+            'hak_kewajiban'   => 'Hak & Kewajiban Peserta Didik',
+            'perilaku'        => 'Tata Perilaku & Upacara Bendera',
+            'larangan'        => 'Larangan Peserta Didik',
+            default           => ucfirst($this->category),
         };
     }
 
     public static function categories(): array
     {
         return [
-            'kehadiran'  => 'Kehadiran & Keterlambatan',
-            'berpakaian' => 'Tata Cara Berpakaian',
-            'perilaku'   => 'Tata Perilaku',
-            'larangan'   => 'Larangan',
+            'kehadiran'       => 'Kehadiran & Keterlambatan',
+            'kbm'             => 'Kegiatan Belajar Mengajar & Waktu Belajar',
+            'kerapian'        => 'Tata Tertib Kerapian Peserta Didik',
+            'berpakaian'      => 'Tata Cara Berpakaian & Seragam',
+            'ekstrakurikuler'  => 'Kegiatan Ekstrakurikuler',
+            'hak_kewajiban'   => 'Hak & Kewajiban Peserta Didik',
+            'perilaku'        => 'Tata Perilaku & Upacara Bendera',
+            'larangan'        => 'Larangan Peserta Didik',
         ];
     }
 }
