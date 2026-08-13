@@ -142,6 +142,18 @@ class AchievementReportPage extends Page implements HasTable
                     ->color('info')
                     ->formatStateUsing(fn (StudentAchievement $record): string => $record->fieldCategoryLabel()),
 
+                TextColumn::make('participation_type')
+                    ->label('Jenis')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'beregu' => 'purple',
+                        default  => 'gray',
+                    })
+                    ->formatStateUsing(fn (StudentAchievement $record): string => match ($record->participation_type) {
+                        'beregu' => 'Beregu',
+                        default  => 'Perorangan',
+                    }),
+
                 TextColumn::make('level')
                     ->label('Tingkat')
                     ->badge()
@@ -175,6 +187,13 @@ class AchievementReportPage extends Page implements HasTable
             ])
             ->defaultSort('achievement_date', 'desc')
             ->filters([
+                SelectFilter::make('participation_type')
+                    ->label('Jenis Partisipasi')
+                    ->options([
+                        'individu' => 'Perorangan (Individu)',
+                        'beregu'   => 'Beregu (Kelompok)',
+                    ]),
+
                 SelectFilter::make('level')
                     ->label('Tingkat Kejuaraan')
                     ->options([
