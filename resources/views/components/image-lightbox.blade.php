@@ -63,23 +63,46 @@
             }
         });
 
-        // Delegate click for any <img> in document
+        // Delegate click for any <img> in document (excluding UI elements like topbar, user menu, avatars, buttons, etc.)
         document.addEventListener('click', function(e) {
             const target = e.target;
-            if (target && target.tagName === 'IMG' && target.id !== 'sims-image-lightbox-img') {
-                const src = target.currentSrc || target.src || target.getAttribute('src');
-                if (src && !src.includes('data:image/svg') && !src.includes('favicon') && target.width > 20 && target.height > 20) {
-                    target.style.cursor = 'pointer';
-                    openSimsLightbox(src);
-                }
+            if (!target || target.tagName !== 'IMG' || target.id === 'sims-image-lightbox-img') return;
+
+            // Exclude topbar, sidebar, user menus, avatars, logos, interactive buttons
+            if (
+                target.closest('.fi-topbar') ||
+                target.closest('.fi-sidebar') ||
+                target.closest('.fi-user-menu') ||
+                target.closest('.fi-avatar') ||
+                target.closest('.fi-user-avatar') ||
+                target.closest('[data-no-lightbox]') ||
+                target.closest('.no-lightbox') ||
+                target.closest('button') ||
+                target.closest('[role="button"]') ||
+                target.classList.contains('fi-avatar') ||
+                target.classList.contains('fi-user-avatar') ||
+                target.classList.contains('no-lightbox')
+            ) {
+                return;
+            }
+
+            const src = target.currentSrc || target.src || target.getAttribute('src');
+            if (!src || src.includes('data:image/svg') || src.includes('favicon') || src.includes('ui-avatars.com')) return;
+
+            // Only open lightbox for content images with width & height > 60px
+            if (target.width > 60 && target.height > 60) {
+                openSimsLightbox(src);
             }
         });
 
-        // Add cursor pointer & hover glow to all images automatically
+        // Add hover cursor styling only for valid content images
         const style = document.createElement('style');
         style.innerHTML = `
-            img:not(#sims-image-lightbox-img):hover {
-                cursor: pointer !important;
+            .fi-topbar img, .fi-sidebar img, .fi-user-menu img, .fi-avatar, .fi-user-avatar, .no-lightbox, button img {
+                cursor: default !important;
+                filter: none !important;
+            }
+            img:not(#sims-image-lightbox-img):not(.fi-avatar):not(.fi-user-avatar):not(.no-lightbox):hover {
                 filter: brightness(0.95);
                 transition: filter 0.15s ease-in-out;
             }
