@@ -15,6 +15,7 @@ class PermitController extends Controller
     public function index(): View
     {
         $permits = Permit::where('student_id', Auth::id())
+            ->with('approvedBy')
             ->latest()
             ->paginate(10);
 

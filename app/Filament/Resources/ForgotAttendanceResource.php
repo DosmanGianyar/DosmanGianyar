@@ -64,7 +64,7 @@ class ForgotAttendanceResource extends Resource
                     ->description(function (ForgotAttendanceRequest $record) {
                         if (! $record->student) return null;
                         $stats = $record->student->getAttendanceStatsSummary();
-                        return "📊 Lupa Absen: {$stats['lupa_absen_total']}x (ACC: {$stats['lupa_absen_approved']}) | Sakit: {$stats['sakit']}x | Izin: {$stats['izin']}x | Dispen: {$stats['dispensasi']}x";
+                        return "Lupa: {$stats['lupa_absen_total']}x (ACC:{$stats['lupa_absen_approved']}) | S: {$stats['sakit']}x | I: {$stats['izin']}x | D: {$stats['dispensasi']}x";
                     }),
 
                 TextColumn::make('student.schoolClass.name')
@@ -88,7 +88,7 @@ class ForgotAttendanceResource extends Resource
 
                 TextColumn::make('reason')
                     ->label('Alasan')
-                    ->limit(40)
+                    ->limit(25)
                     ->tooltip(fn (ForgotAttendanceRequest $record) => $record->reason),
 
                 TextColumn::make('status')
@@ -104,8 +104,7 @@ class ForgotAttendanceResource extends Resource
 
                 TextColumn::make('reviewer.name')
                     ->label('Diproses Oleh')
-                    ->placeholder('—')
-                    ->toggleable(),
+                    ->placeholder('—'),
 
                 TextColumn::make('created_at')
                     ->label('Diajukan')

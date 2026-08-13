@@ -212,7 +212,7 @@ class AttendanceController extends Controller
         $guru   = Auth::user();
         $status = $request->input('status', 'pending');
 
-        $permits = Permit::with('student.schoolClass')
+        $permits = Permit::with(['student.schoolClass', 'approvedBy'])
             ->when($status !== 'all', fn($q) => $q->where('status', $status))
             ->when(
                 ! $guru->isBk() && $guru->role !== 'admin' && $guru->homeroomClass,

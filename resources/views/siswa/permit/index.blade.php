@@ -43,7 +43,7 @@
         </div>
 
         {{-- Alasan --}}
-        <p class="text-sm text-gray-700 leading-snug">{{ $permit->reason }}</p>
+        <p class="text-sm text-gray-700 leading-snug line-clamp-2" title="{{ $permit->reason }}">{{ $permit->reason }}</p>
 
         {{-- Catatan penolakan --}}
         @if($permit->rejection_note)
@@ -53,6 +53,15 @@
                         d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
                 <span>{{ $permit->rejection_note }}</span>
+            </div>
+        @endif
+
+        @if($permit->approvedBy)
+            <div class="mt-2 flex items-center gap-1.5 text-xs text-gray-500 bg-gray-50 border border-gray-100 px-2.5 py-1 rounded-lg w-fit">
+                <svg class="w-3.5 h-3.5 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                </svg>
+                <span>{{ $permit->status === 'approved' ? 'Disetujui oleh:' : ($permit->status === 'rejected' ? 'Ditolak oleh:' : 'Diproses oleh:') }} <strong class="text-gray-700 font-semibold">{{ $permit->approvedBy->name }}</strong></span>
             </div>
         @endif
 

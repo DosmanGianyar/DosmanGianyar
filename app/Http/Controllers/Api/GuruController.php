@@ -445,7 +445,7 @@ class GuruController extends Controller
         $classId = $request->input('class_id');
         $page    = (int) $request->input('page', 1);
 
-        $query = Permit::with('student.schoolClass')
+        $query = Permit::with(['student.schoolClass', 'approvedBy'])
             ->when($status !== 'all', fn($q) => $q->where('status', $status))
             ->when(
                 $classId !== null && $classId !== 'all' && is_numeric($classId),
@@ -846,8 +846,9 @@ class GuruController extends Controller
             'start_date'     => $p->start_date?->toDateString(),
             'end_date'       => $p->end_date?->toDateString(),
             'reason'         => $p->reason,
-            'status'         => $p->status,
-            'rejection_note' => $p->rejection_note,
+            'status'           => $p->status,
+            'approved_by_name' => $p->approvedBy?->name,
+            'rejection_note'   => $p->rejection_note,
             'file_url'       => $p->file ? Storage::disk('public')->url($p->file) : null,
             'student_stats'  => $p->student?->getAttendanceStatsSummary(),
         ];

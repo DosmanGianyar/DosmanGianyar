@@ -27,6 +27,11 @@ class Dispensation extends Model
         return $this->belongsTo(User::class, 'approved_by');
     }
 
+    public function approvedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'approved_by');
+    }
+
     public function students(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'dispensation_students', 'dispensation_id', 'student_id');

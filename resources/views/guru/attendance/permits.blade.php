@@ -79,7 +79,7 @@
         </div>
         @endif
 
-        <p class="text-sm text-gray-600 mb-3">{{ $permit->reason }}</p>
+        <p class="text-sm text-gray-600 mb-3 line-clamp-2" title="{{ $permit->reason }}">{{ $permit->reason }}</p>
 
         @if($permit->file)
         <div class="mb-3">
@@ -100,8 +100,17 @@
         </div>
         @endif
 
+        @if($permit->approvedBy)
+        <div class="mt-2.5 flex items-center gap-1.5 text-xs text-gray-600 bg-gray-50 border border-gray-100 px-3 py-1.5 rounded-xl w-fit">
+            <svg class="w-3.5 h-3.5 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+            </svg>
+            <span>{{ $permit->status === 'approved' ? 'Disetujui oleh:' : ($permit->status === 'rejected' ? 'Ditolak oleh:' : 'Diproses oleh:') }} <strong class="text-gray-800 font-semibold">{{ $permit->approvedBy->name }}</strong></span>
+        </div>
+        @endif
+
         @if($permit->status === 'pending')
-        <div class="flex gap-2 mt-1">
+        <div class="flex gap-2 mt-3">
             <form action="{{ route('guru.attendance.permits.approve', $permit) }}" method="POST" class="flex-1">
                 @csrf @method('PATCH')
                 <button type="submit"

@@ -14,20 +14,22 @@ class PermitController extends Controller
     public function index(): JsonResponse
     {
         $permits = Permit::where('student_id', Auth::id())
+            ->with('approvedBy')
             ->latest()
             ->get()
             ->map(fn($p) => [
-                'id'             => $p->id,
-                'type'           => $p->type,
-                'type_label'     => $p->typeLabel(),
-                'start_date'     => $p->start_date->toDateString(),
-                'end_date'       => $p->end_date->toDateString(),
-                'reason'         => $p->reason,
-                'status'         => $p->status,
-                'status_label'   => $this->statusLabel($p->status),
-                'rejection_note' => $p->rejection_note,
-                'file_url'       => $p->file ? Storage::disk('public')->url($p->file) : null,
-                'created_at'     => $p->created_at->toIso8601String(),
+                'id'               => $p->id,
+                'type'             => $p->type,
+                'type_label'       => $p->typeLabel(),
+                'start_date'       => $p->start_date->toDateString(),
+                'end_date'         => $p->end_date->toDateString(),
+                'reason'           => $p->reason,
+                'status'           => $p->status,
+                'status_label'     => $this->statusLabel($p->status),
+                'approved_by_name' => $p->approvedBy?->name,
+                'rejection_note'   => $p->rejection_note,
+                'file_url'         => $p->file ? Storage::disk('public')->url($p->file) : null,
+                'created_at'       => $p->created_at->toIso8601String(),
             ]);
 
         return response()->json(['permits' => $permits]);
