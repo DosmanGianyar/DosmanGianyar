@@ -433,7 +433,11 @@ html, body {
                     @endif
                 </td>
                 <td class="hdr-text-td">
-                    <div class="hdr-balinese">᭞ᬏᬲ᭄ᬏᬫ᭄ᬅ᭞ᬦᭂᬕᭂᬭᬶ᭞᭑᭞ᬕ᭄ᬬᬜᬃ᭞</div>
+                    @if(!empty($aksaraBaliBase64))
+                        <img src="{{ $aksaraBaliBase64 }}" style="height: 6.5pt; width: auto; display: block; margin-bottom: 0.5pt;" alt="Aksara Bali">
+                    @else
+                        <div class="hdr-balinese">᭞ᬏᬲ᭄ᬏᬫ᭄ᬅ᭞ᬦᭂᬕᭂᬭᬶ᭞᭑᭞ᬕ᭄ᬬᬜᬃ᭞</div>
+                    @endif
                     <div class="hdr-title">SMA Negeri 1 Gianyar</div>
                     <div class="hdr-sub">Jl. Ratna No.1, Gianyar, Bali 80511 · Telp. (0361) 943443</div>
                 </td>
@@ -556,7 +560,11 @@ html, body {
                     @endif
                 </td>
                 <td class="back-title-td">
-                    <div class="hdr-balinese">᭞ᬏᬲ᭄ᬏᬫ᭄ᬅ᭞ᬦᭂᬕᭂᬭᬶ᭞᭑᭞ᬕ᭄ᬬᬜᬃ᭞</div>
+                    @if(!empty($aksaraBaliBase64))
+                        <img src="{{ $aksaraBaliBase64 }}" style="height: 6pt; width: auto; display: block; margin-bottom: 0.5pt;" alt="Aksara Bali">
+                    @else
+                        <div class="hdr-balinese">᭞ᬏᬲ᭄ᬏᬫ᭄ᬅ᭞ᬦᭂᬕᭂᬭᬶ᭞᭑᭞ᬕ᭄ᬬᬜᬃ᭞</div>
+                    @endif
                     <div class="back-hdr-title">SMA NEGERI 1 GIANYAR</div>
                 </td>
                 <td class="back-npsn-td">NPSN 50102079</td>
