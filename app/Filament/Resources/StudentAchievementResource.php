@@ -46,6 +46,7 @@ class StudentAchievementResource extends Resource
     public static function infolist(Schema $schema): Schema
     {
         return $schema->components([
+            // Card 1: Status Kurasi
             Section::make('Status Kurasi & Verifikasi')
                 ->icon('heroicon-o-check-badge')
                 ->schema([
@@ -57,6 +58,8 @@ class StudentAchievementResource extends Resource
 
                     TextEntry::make('verifier.name')
                         ->label('Diverifikasi Oleh')
+                        ->weight('bold')
+                        ->color('info')
                         ->placeholder('—'),
 
                     TextEntry::make('verified_at')
@@ -72,32 +75,50 @@ class StudentAchievementResource extends Resource
                 ->columns(3)
                 ->columnSpanFull(),
 
-            Section::make('Informasi Siswa & Detail Kejuaraan')
-                ->icon('heroicon-o-trophy')
+            // Card 2: Identitas Siswa
+            Section::make('Identitas Siswa')
+                ->icon('heroicon-o-user-circle')
                 ->schema([
                     TextEntry::make('student.name')
                         ->label('Nama Siswa')
-                        ->weight('bold'),
+                        ->weight('bold')
+                        ->color('primary')
+                        ->icon('heroicon-o-user'),
 
                     TextEntry::make('student.schoolClass.name')
                         ->label('Kelas')
+                        ->badge()
+                        ->color('info')
                         ->placeholder('—'),
 
                     TextEntry::make('achievement_date')
                         ->label('Tanggal Prestasi')
-                        ->date('d F Y'),
+                        ->date('d F Y')
+                        ->icon('heroicon-o-calendar')
+                        ->weight('semibold'),
+                ])
+                ->columns(3)
+                ->columnSpanFull(),
 
+            // Card 3: Detail Kejuaraan & Lomba
+            Section::make('Detail Kejuaraan & Lomba')
+                ->icon('heroicon-o-trophy')
+                ->schema([
                     TextEntry::make('title')
                         ->label('Judul Prestasi / Kejuaraan')
                         ->weight('bold')
+                        ->color('warning')
+                        ->icon('heroicon-o-sparkles')
                         ->columnSpanFull(),
 
                     TextEntry::make('event_name')
                         ->label('Nama Lomba / Event')
+                        ->icon('heroicon-o-flag')
                         ->placeholder('—'),
 
                     TextEntry::make('organizer')
                         ->label('Penyelenggara')
+                        ->icon('heroicon-o-building-office')
                         ->placeholder('—'),
 
                     TextEntry::make('field_category')
@@ -121,30 +142,42 @@ class StudentAchievementResource extends Resource
 
                     TextEntry::make('rank')
                         ->label('Peringkat / Juara')
-                        ->weight('medium')
+                        ->badge()
+                        ->color('warning')
                         ->placeholder('—'),
 
                     TextEntry::make('participation_type')
                         ->label('Jenis Partisipasi')
+                        ->badge()
+                        ->color('gray')
                         ->formatStateUsing(fn (StudentAchievement $record): string => $record->participationTypeLabel()),
 
                     TextEntry::make('event_url')
                         ->label('URL Event / Berita')
                         ->url(fn ($state) => $state)
                         ->openUrlInNewTab()
-                        ->placeholder('—')
-                        ->columnSpanFull(),
-
-                    TextEntry::make('description')
-                        ->label('Deskripsi Prestasi')
+                        ->icon('heroicon-o-arrow-top-right-on-square')
+                        ->color('primary')
                         ->placeholder('—')
                         ->columnSpanFull(),
                 ])
                 ->columns(3)
                 ->columnSpanFull(),
 
-            Section::make('Berkas & Lampiran')
+            // Card 4: Deskripsi Prestasi
+            Section::make('Deskripsi Prestasi')
                 ->icon('heroicon-o-document-text')
+                ->schema([
+                    TextEntry::make('description')
+                        ->label('Deskripsi Lengkap')
+                        ->placeholder('Tidak ada deskripsi tambahan')
+                        ->columnSpanFull(),
+                ])
+                ->columnSpanFull(),
+
+            // Card 5: Berkas & Lampiran
+            Section::make('Berkas & Lampiran Dokumentasi')
+                ->icon('heroicon-o-paper-clip')
                 ->schema([
                     TextEntry::make('certificate')
                         ->label('Sertifikat / Piagam')
