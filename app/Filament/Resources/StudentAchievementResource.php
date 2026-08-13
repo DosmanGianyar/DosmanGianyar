@@ -12,6 +12,7 @@ use Filament\Actions\ViewAction;
 use Filament\Forms\Components\Textarea;
 use Filament\Infolists\Components\ImageEntry;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Components\ViewEntry;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use App\Filament\Support\AdminAccess;
@@ -88,7 +89,18 @@ class StudentAchievementResource extends Resource
                 ->columns(3)
                 ->columnSpanFull(),
 
-            // Card 2: Identitas & Profil Data Diri Siswa
+            // Card 2: Foto Profil & Anggota Tim Siswa
+            Section::make('Foto Profil & Data Anggota Siswa')
+                ->icon('heroicon-o-user-group')
+                ->schema([
+                    ViewEntry::make('team_members_view')
+                        ->hiddenLabel()
+                        ->view('filament.components.team-members-list')
+                        ->columnSpanFull(),
+                ])
+                ->columnSpanFull(),
+
+            // Card 3: Identitas & Profil Data Diri Siswa
             Section::make('Identitas & Profil Data Diri Siswa')
                 ->icon('heroicon-o-user-circle')
                 ->schema([
