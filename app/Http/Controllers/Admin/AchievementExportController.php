@@ -17,9 +17,14 @@ class AchievementExportController extends Controller
     public function pdf(Request $request)
     {
         $query = StudentAchievement::query()
-            ->where('curation_status', 'curated')
             ->with(['student.schoolClass', 'verifier'])
             ->orderBy('achievement_date', 'desc');
+
+        if ($request->filled('curation_status')) {
+            $query->where('curation_status', $request->curation_status);
+        } else {
+            $query->whereIn('curation_status', ['curated', 'not_curatable']);
+        }
 
         if ($request->filled('level')) {
             $query->where('level', $request->level);
@@ -42,14 +47,17 @@ class AchievementExportController extends Controller
         $selectedClass = $request->filled('class_id') ? SchoolClass::find($request->class_id)?->name : null;
         $selectedLevel = $request->filled('level') ? (new StudentAchievement(['level' => $request->level]))->levelLabel() : null;
         $selectedCategory = $request->filled('field_category') ? (new StudentAchievement(['field_category' => $request->field_category]))->fieldCategoryLabel() : null;
+        $selectedCuration = $request->filled('curation_status') ? (new StudentAchievement(['curation_status' => $request->curation_status]))->curationStatusLabel() : null;
 
         $stats = [
-            'total'         => $achievements->count(),
-            'internasional' => $achievements->where('level', 'internasional')->count(),
-            'nasional'      => $achievements->where('level', 'nasional')->count(),
-            'provinsi'      => $achievements->where('level', 'provinsi')->count(),
-            'kabupaten'     => $achievements->where('level', 'kabupaten')->count(),
-            'sekolah'       => $achievements->where('level', 'sekolah')->count(),
+            'total'           => $achievements->count(),
+            'curated'         => $achievements->where('curation_status', 'curated')->count(),
+            'not_curatable'   => $achievements->where('curation_status', 'not_curatable')->count(),
+            'internasional'   => $achievements->where('level', 'internasional')->count(),
+            'nasional'        => $achievements->where('level', 'nasional')->count(),
+            'provinsi'        => $achievements->where('level', 'provinsi')->count(),
+            'kabupaten'       => $achievements->where('level', 'kabupaten')->count(),
+            'sekolah'         => $achievements->where('level', 'sekolah')->count(),
             'unique_students' => $achievements->pluck('student_id')->unique()->count(),
         ];
 
@@ -59,6 +67,7 @@ class AchievementExportController extends Controller
             'selectedClass'    => $selectedClass,
             'selectedLevel'    => $selectedLevel,
             'selectedCategory' => $selectedCategory,
+            'selectedCuration' => $selectedCuration,
             'year'             => $request->year,
         ])->setPaper('a4', 'landscape');
 
@@ -73,9 +82,14 @@ class AchievementExportController extends Controller
     public function excel(Request $request)
     {
         $query = StudentAchievement::query()
-            ->where('curation_status', 'curated')
             ->with(['student.schoolClass'])
             ->orderBy('achievement_date', 'desc');
+
+        if ($request->filled('curation_status')) {
+            $query->where('curation_status', $request->curation_status);
+        } else {
+            $query->whereIn('curation_status', ['curated', 'not_curatable']);
+        }
 
         if ($request->filled('level')) {
             $query->where('level', $request->level);

@@ -85,10 +85,11 @@
 {{-- ── JUDUL DOKUMEN ──────────────────────────────────────────── --}}
 <div class="doc-header">
   <div class="doc-title">REKAPITULASI PRESTASI & KEJUARAAN SISWA</div>
-  <div class="doc-subtitle">STATUS: LOLOS KURASI / DISETUJUI</div>
-  @if(!empty($selectedClass) || !empty($selectedLevel) || !empty($selectedCategory) || !empty($year))
+  <div class="doc-subtitle">STATUS: PRESTASI DIAKUI SEKOLAH (KURASI RESMI & INTERNAL)</div>
+  @if(!empty($selectedClass) || !empty($selectedLevel) || !empty($selectedCategory) || !empty($selectedCuration) || !empty($year))
     <div class="doc-filter">
       Kriteria Filter: 
+      @if(!empty($selectedCuration)) Status {{ $selectedCuration }} &bull; @endif
       @if(!empty($selectedLevel)) Tingkat {{ $selectedLevel }} &bull; @endif
       @if(!empty($selectedCategory)) Rumpun {{ $selectedCategory }} &bull; @endif
       @if(!empty($selectedClass)) Kelas {{ $selectedClass }} &bull; @endif
@@ -105,6 +106,14 @@
       <div class="stats-lbl">Total Prestasi</div>
     </td>
     <td>
+      <div class="stats-val" style="color:#15803d;">{{ $stats['curated'] }}</div>
+      <div class="stats-lbl">Kurasi Resmi</div>
+    </td>
+    <td>
+      <div class="stats-val" style="color:#0369a1;">{{ $stats['not_curatable'] }}</div>
+      <div class="stats-lbl">Catatan Internal</div>
+    </td>
+    <td>
       <div class="stats-val" style="color:#991b1b;">{{ $stats['internasional'] }}</div>
       <div class="stats-lbl">Internasional</div>
     </td>
@@ -115,10 +124,6 @@
     <td>
       <div class="stats-val" style="color:#92400e;">{{ $stats['provinsi'] }}</div>
       <div class="stats-lbl">Provinsi</div>
-    </td>
-    <td>
-      <div class="stats-val" style="color:#075985;">{{ $stats['kabupaten'] }}</div>
-      <div class="stats-lbl">Kabupaten/Kota</div>
     </td>
     <td>
       <div class="stats-val">{{ $stats['unique_students'] }}</div>
@@ -132,14 +137,15 @@
   <thead>
     <tr>
       <th style="width: 25px;">No</th>
-      <th style="width: 140px;">Nama Siswa</th>
-      <th style="width: 60px;">Kelas</th>
-      <th style="width: 170px;">Judul Prestasi / Kejuaraan</th>
-      <th style="width: 120px;">Event / Penyelenggara</th>
-      <th style="width: 90px;">Rumpun</th>
-      <th style="width: 80px;">Tingkat</th>
-      <th style="width: 75px;">Peringkat</th>
-      <th style="width: 70px;">Tanggal</th>
+      <th style="width: 130px;">Nama Siswa</th>
+      <th style="width: 55px;">Kelas</th>
+      <th style="width: 160px;">Judul Prestasi / Kejuaraan</th>
+      <th style="width: 110px;">Event / Penyelenggara</th>
+      <th style="width: 80px;">Rumpun</th>
+      <th style="width: 75px;">Tingkat</th>
+      <th style="width: 70px;">Peringkat</th>
+      <th style="width: 90px;">Status Kurasi</th>
+      <th style="width: 65px;">Tanggal</th>
     </tr>
   </thead>
   <tbody>
@@ -165,11 +171,16 @@
           </span>
         </td>
         <td class="text-center"><strong>{{ $item->rank ?? '—' }}</strong></td>
+        <td class="text-center">
+          <span class="badge" style="{{ $item->curation_status === 'curated' ? 'background-color:#dcfce7; color:#166534;' : 'background-color:#e0f2fe; color:#075985;' }}">
+            {{ $item->curationStatusLabel() }}
+          </span>
+        </td>
         <td class="text-center">{{ $item->achievement_date ? $item->achievement_date->format('d/m/Y') : '—' }}</td>
       </tr>
     @empty
       <tr>
-        <td colspan="9" class="text-center" style="padding: 15px; color: #6b7280;">
+        <td colspan="10" class="text-center" style="padding: 15px; color: #6b7280;">
           Tidak ada data prestasi siswa yang memenuhi kriteria filter.
         </td>
       </tr>

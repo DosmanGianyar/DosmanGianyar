@@ -72,30 +72,33 @@ class StudentAchievement extends Model
     public function curationStatusLabel(): string
     {
         return match ($this->curation_status) {
-            'curated'  => 'Lolos Kurasi',
-            'revision' => 'Perlu Revisi Berkas',
-            'rejected' => 'Tidak Layak Kurasi',
-            default    => 'Menunggu Kurasi',
+            'curated'       => 'Lolos Kurasi Resmi',
+            'not_curatable' => 'Prestasi Internal (Tidak Dikurasi)',
+            'revision'      => 'Perlu Revisi Berkas',
+            'rejected'      => 'Tidak Layak',
+            default         => 'Pengajuan Kurasi',
         };
     }
 
     public function curationStatusColor(): string
     {
         return match ($this->curation_status) {
-            'curated'  => 'success',
-            'revision' => 'warning',
-            'rejected' => 'danger',
-            default    => 'info',
+            'curated'       => 'success',
+            'not_curatable' => 'info',
+            'revision'      => 'warning',
+            'rejected'      => 'danger',
+            default         => 'gray',
         };
     }
 
     public function curationStatusBadgeClass(): string
     {
         return match ($this->curation_status) {
-            'curated'  => 'bg-emerald-100 text-emerald-800 border border-emerald-300',
-            'revision' => 'bg-amber-100 text-amber-800 border border-amber-300',
-            'rejected' => 'bg-rose-100 text-rose-800 border border-rose-300',
-            default    => 'bg-blue-100 text-blue-800 border border-blue-300',
+            'curated'       => 'bg-emerald-100 text-emerald-800 border border-emerald-300',
+            'not_curatable' => 'bg-blue-100 text-blue-800 border border-blue-300',
+            'revision'      => 'bg-amber-100 text-amber-800 border border-amber-300',
+            'rejected'      => 'bg-rose-100 text-rose-800 border border-rose-300',
+            default         => 'bg-gray-100 text-gray-800 border border-gray-300',
         };
     }
 

@@ -388,10 +388,11 @@ class StudentAchievementResource extends Resource
                 SelectFilter::make('curation_status')
                     ->label('Status Kurasi')
                     ->options([
-                        'pending'  => 'Menunggu Kurasi',
-                        'curated'  => 'Lolos Kurasi',
-                        'revision' => 'Perlu Revisi',
-                        'rejected' => 'Tidak Layak',
+                        'pending'       => 'Pengajuan Kurasi (Menunggu)',
+                        'curated'       => 'Lolos Kurasi Resmi',
+                        'not_curatable' => 'Prestasi Internal (Tidak Dikurasi)',
+                        'revision'      => 'Perlu Revisi Berkas',
+                        'rejected'      => 'Tidak Layak',
                     ]),
                 SelectFilter::make('field_category')
                     ->label('Rumpun Bidang')
@@ -428,14 +429,14 @@ class StudentAchievementResource extends Resource
                     ->openUrlInNewTab(),
 
                 Action::make('curate')
-                    ->label('Lolos Kurasi')
-                    ->tooltip('Sahkan Lolos Kurasi')
+                    ->label('Lolos Kurasi Resmi')
+                    ->tooltip('Sahkan Lolos Kurasi Resmi (SIMT/Puspresnas)')
                     ->icon('heroicon-o-check-badge')
                     ->color('success')
                     ->iconButton()
                     ->requiresConfirmation()
-                    ->modalHeading('Loloskan Kurasi Prestasi')
-                    ->modalDescription('Prestasi ini akan disahkan sebagai Lolos Kurasi Standar Puspresnas/SIMT.')
+                    ->modalHeading('Loloskan Kurasi Resmi')
+                    ->modalDescription('Prestasi ini akan disahkan sebagai Lolos Kurasi Resmi Standar Puspresnas/SIMT.')
                     ->action(function (StudentAchievement $record): void {
                         $record->update([
                             'curation_status' => 'curated',
@@ -444,7 +445,27 @@ class StudentAchievementResource extends Resource
                             'verified_by'     => auth()->id(),
                             'verified_at'     => now(),
                         ]);
-                        Notification::make()->title('Prestasi Lolos Kurasi')->success()->send();
+                        Notification::make()->title('Prestasi Lolos Kurasi Resmi')->success()->send();
+                    }),
+
+                Action::make('not_curatable')
+                    ->label('Prestasi Internal')
+                    ->tooltip('Tandai sebagai Prestasi Internal Sekolah (Tidak Dikurasi)')
+                    ->icon('heroicon-o-bookmark')
+                    ->color('info')
+                    ->iconButton()
+                    ->requiresConfirmation()
+                    ->modalHeading('Tandai Prestasi Internal Sekolah')
+                    ->modalDescription('Prestasi ini akan tetap dicatat & diakui sebagai Prestasi Siswa Sekolah, tetapi ditandai TIDAK masuk kurasi resmi Puspresnas/SIMT.')
+                    ->action(function (StudentAchievement $record): void {
+                        $record->update([
+                            'curation_status' => 'not_curatable',
+                            'status'          => 'approved',
+                            'curation_note'   => 'Dicatat sebagai Prestasi Catatan Internal Sekolah',
+                            'verified_by'     => auth()->id(),
+                            'verified_at'     => now(),
+                        ]);
+                        Notification::make()->title('Prestasi Diakui sebagai Catatan Internal Sekolah')->info()->send();
                     }),
 
                 Action::make('revision')

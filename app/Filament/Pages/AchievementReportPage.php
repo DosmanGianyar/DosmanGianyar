@@ -48,10 +48,11 @@ class AchievementReportPage extends Page implements HasTable
                 ->icon('heroicon-o-printer')
                 ->color('danger')
                 ->url(fn (): string => route('admin.achievement-report.pdf', [
-                    'level'          => $this->tableFilters['level']['value'] ?? null,
-                    'field_category' => $this->tableFilters['field_category']['value'] ?? null,
-                    'class_id'       => $this->tableFilters['class_id']['value'] ?? null,
-                    'year'           => $this->tableFilters['year']['value'] ?? null,
+                    'curation_status' => $this->tableFilters['curation_status']['value'] ?? null,
+                    'level'           => $this->tableFilters['level']['value'] ?? null,
+                    'field_category'  => $this->tableFilters['field_category']['value'] ?? null,
+                    'class_id'        => $this->tableFilters['class_id']['value'] ?? null,
+                    'year'            => $this->tableFilters['year']['value'] ?? null,
                 ]))
                 ->openUrlInNewTab(),
 
@@ -60,10 +61,11 @@ class AchievementReportPage extends Page implements HasTable
                 ->icon('heroicon-o-arrow-down-tray')
                 ->color('success')
                 ->url(fn (): string => route('admin.achievement-report.excel', [
-                    'level'          => $this->tableFilters['level']['value'] ?? null,
-                    'field_category' => $this->tableFilters['field_category']['value'] ?? null,
-                    'class_id'       => $this->tableFilters['class_id']['value'] ?? null,
-                    'year'           => $this->tableFilters['year']['value'] ?? null,
+                    'curation_status' => $this->tableFilters['curation_status']['value'] ?? null,
+                    'level'           => $this->tableFilters['level']['value'] ?? null,
+                    'field_category'  => $this->tableFilters['field_category']['value'] ?? null,
+                    'class_id'        => $this->tableFilters['class_id']['value'] ?? null,
+                    'year'            => $this->tableFilters['year']['value'] ?? null,
                 ]))
                 ->openUrlInNewTab(),
         ];
@@ -74,7 +76,7 @@ class AchievementReportPage extends Page implements HasTable
         return $table
             ->query(
                 StudentAchievement::query()
-                    ->where('curation_status', 'curated')
+                    ->whereIn('curation_status', ['curated', 'not_curatable'])
                     ->with(['student.schoolClass'])
             )
             ->columns([
@@ -173,6 +175,12 @@ class AchievementReportPage extends Page implements HasTable
                     ->color('warning')
                     ->placeholder('—'),
 
+                TextColumn::make('curation_status')
+                    ->label('Status Kurasi')
+                    ->badge()
+                    ->color(fn (StudentAchievement $record): string => $record->curationStatusColor())
+                    ->formatStateUsing(fn (StudentAchievement $record): string => $record->curationStatusLabel()),
+
                 TextColumn::make('achievement_date')
                     ->label('Tanggal')
                     ->date('d M Y')
@@ -187,6 +195,13 @@ class AchievementReportPage extends Page implements HasTable
             ])
             ->defaultSort('achievement_date', 'desc')
             ->filters([
+                SelectFilter::make('curation_status')
+                    ->label('Status Kurasi')
+                    ->options([
+                        'curated'       => 'Hanya Lolos Kurasi Resmi',
+                        'not_curatable' => 'Hanya Prestasi Internal (Tidak Dikurasi)',
+                    ]),
+
                 SelectFilter::make('participation_type')
                     ->label('Jenis Partisipasi')
                     ->options([
