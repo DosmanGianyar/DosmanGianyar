@@ -36,15 +36,25 @@
             </div>
         </div>
 
-        {{-- Logout Button --}}
-        <form method="POST" action="{{ route('filament.admin.auth.logout') }}" style="margin: 0; padding: 0; flex-shrink: 0;">
-            @csrf
-            <button type="submit" title="Keluar / Logout Admin" class="sims-logout-btn">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+        <div style="display: flex; items-center; gap: 0.375rem; flex-shrink: 0;">
+            {{-- Ubah Password Button --}}
+            <a href="{{ url('/admin/profile') }}" title="Ubah Password & Profil Admin" class="sims-logout-btn" style="text-decoration: none;">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 1.125rem; height: 1.125rem;">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 0121 9z" />
                 </svg>
-                <span>Keluar</span>
-            </button>
-        </form>
+                <span>Password</span>
+            </a>
+
+            {{-- Logout Button --}}
+            <form method="POST" action="{{ route('filament.admin.auth.logout') }}" style="margin: 0; padding: 0;">
+                @csrf
+                <button type="submit" title="Keluar / Logout Admin" class="sims-logout-btn">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                    <span>Keluar</span>
+                </button>
+            </form>
+        </div>
     </div>
 </div>
