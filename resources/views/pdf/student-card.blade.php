@@ -50,33 +50,33 @@ html, body {
 }
 
 .hdr-logo-td {
-    width: 36pt;
+    width: 42pt;
     text-align: center;
-    vertical-align: middle;
-    padding-left: 7pt;
-    padding-top: 4pt;
+    vertical-align: bottom;
+    padding-left: 6pt;
+    padding-bottom: 0pt;
 }
 
 .hdr-logo-circle {
-    width: 24pt;
-    height: 24pt;
+    width: 30pt;
+    height: 30pt;
     background: #ffffff;
     border-radius: 50%;
     text-align: center;
     vertical-align: middle;
-    margin: 0 auto;
+    margin: 4pt auto 0 auto;
 }
 
 .hdr-logo-img {
-    width: 20pt;
-    height: 20pt;
-    margin-top: 2pt;
+    width: 25pt;
+    height: 25pt;
+    margin-top: 2.5pt;
 }
 
 .hdr-text-td {
     vertical-align: middle;
-    padding-left: 4pt;
-    padding-top: 4pt;
+    padding-left: 3pt;
+    padding-top: 2pt;
 }
 
 .hdr-title {
@@ -94,11 +94,11 @@ html, body {
 }
 
 .hdr-badge-td {
-    width: 46pt;
+    width: 44pt;
     text-align: right;
     vertical-align: middle;
-    padding-right: 7pt;
-    padding-top: 4pt;
+    padding-right: 6pt;
+    padding-top: 2pt;
 }
 
 .hdr-badge-box {
