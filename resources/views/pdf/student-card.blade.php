@@ -434,7 +434,7 @@ html, body {
                 </td>
                 <td class="hdr-text-td">
                     @if(!empty($aksaraBaliBase64))
-                        <img src="{{ $aksaraBaliBase64 }}" style="height: 6.5pt; width: auto; display: block; margin-bottom: 0.5pt;" alt="Aksara Bali">
+                        <img src="{{ $aksaraBaliBase64 }}" style="height: 6pt; width: auto; display: block; margin-bottom: 2.5pt;" alt="Aksara Bali">
                     @else
                         <div class="hdr-balinese">᭞ᬏᬲ᭄ᬏᬫ᭄ᬅ᭞ᬦᭂᬕᭂᬭᬶ᭞᭑᭞ᬕ᭄ᬬᬜᬃ᭞</div>
                     @endif
@@ -560,11 +560,6 @@ html, body {
                     @endif
                 </td>
                 <td class="back-title-td">
-                    @if(!empty($aksaraBaliBase64))
-                        <img src="{{ $aksaraBaliBase64 }}" style="height: 6pt; width: auto; display: block; margin-bottom: 0.5pt;" alt="Aksara Bali">
-                    @else
-                        <div class="hdr-balinese">᭞ᬏᬲ᭄ᬏᬫ᭄ᬅ᭞ᬦᭂᬕᭂᬭᬶ᭞᭑᭞ᬕ᭄ᬬᬜᬃ᭞</div>
-                    @endif
                     <div class="back-hdr-title">SMA NEGERI 1 GIANYAR</div>
                 </td>
                 <td class="back-npsn-td">NPSN 50102079</td>

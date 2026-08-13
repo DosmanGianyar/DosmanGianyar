@@ -916,7 +916,7 @@ class _IdFront extends StatelessWidget {
                     style: TextStyle(
                       color: Color(0xFFBFDBFE), fontSize: 8.5, fontWeight: FontWeight.normal,
                       height: 1.0)),
-                  const SizedBox(height: 1),
+                  const SizedBox(height: 3),
                   const Text('SMA NEGERI 1 GIANYAR',
                     style: TextStyle(
                       color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.w800,
@@ -1120,17 +1120,9 @@ class _IdBack extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 6),
-              const Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text('᭞ᬏᬲ᭄ᬏᬫ᭄ᬅ᭞ᬦᭂᬕᭂᬭᬶ᭞᭑᭞ᬕ᭄ᬬᬜᬃ᭞',
-                    style: TextStyle(color: Colors.white70, fontSize: 7, height: 1.0)),
-                  Text('SMA NEGERI 1 GIANYAR',
-                    style: TextStyle(
-                      color: Colors.white, fontSize: 9.5, fontWeight: FontWeight.w700, letterSpacing: 0.4, height: 1.1)),
-                ],
-              ),
+              const Text('SMA NEGERI 1 GIANYAR',
+                style: TextStyle(
+                  color: Colors.white, fontSize: 9.5, fontWeight: FontWeight.w700, letterSpacing: 0.4)),
               const Spacer(),
               const Text('NPSN 50102079',
                 style: TextStyle(color: Colors.white60, fontSize: 7.5)),
