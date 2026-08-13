@@ -39,21 +39,21 @@ html, body {
 /* Header Box */
 .header-box {
     position: absolute;
-    top: 0; left: 0; width: 242.56pt; height: 36pt;
+    top: 0; left: 0; width: 242.56pt; height: 38pt;
     background: #0a3880;
 }
 
 .hdr-table {
     width: 100%;
-    height: 36pt;
+    height: 38pt;
     border-collapse: collapse;
 }
 
 .hdr-logo-td {
-    width: 34pt;
+    width: 36pt;
     text-align: center;
     vertical-align: middle;
-    padding-left: 6pt;
+    padding-left: 7pt;
 }
 
 .hdr-logo-circle {
@@ -88,14 +88,14 @@ html, body {
 .hdr-sub {
     font-size: 3.8pt;
     color: #93c5fd;
-    margin-top: 1pt;
+    margin-top: 1.5pt;
 }
 
 .hdr-badge-td {
-    width: 44pt;
+    width: 46pt;
     text-align: right;
     vertical-align: middle;
-    padding-right: 6pt;
+    padding-right: 7pt;
 }
 
 .hdr-badge-box {
@@ -114,22 +114,22 @@ html, body {
 /* Gold strip */
 .gold-strip {
     position: absolute;
-    top: 36pt; left: 0; width: 242.56pt; height: 2.5pt;
+    top: 38pt; left: 0; width: 242.56pt; height: 2.5pt;
     background: #b45309;
 }
 
 /* Body Box */
 .body-box {
     position: absolute;
-    top: 38.5pt; left: 0; width: 242.56pt; height: 110.5pt;
-    padding: 4pt 6pt;
+    top: 40.5pt; left: 0; width: 242.56pt; height: 108.5pt;
+    padding: 3pt 6pt;
 }
 
 .watermark-img {
     position: absolute;
-    right: 15pt; top: 15pt;
+    right: 12pt; top: 10pt;
     width: 65pt; height: 65pt;
-    opacity: 0.04;
+    opacity: 0.08;
 }
 
 .body-table {
@@ -199,7 +199,7 @@ html, body {
 
 .details-table td {
     font-size: 4.5pt;
-    padding: 0.4pt 0;
+    padding: 0.3pt 0;
     vertical-align: top;
     line-height: 1.2;
 }
@@ -230,6 +230,7 @@ html, body {
     vertical-align: bottom;
     text-align: center;
     width: 85pt;
+    border: none !important;
 }
 
 .sig-date { font-size: 3.8pt; color: #374151; }
@@ -239,12 +240,19 @@ html, body {
     height: 20pt;
     text-align: center;
     margin: -2pt 0 -2pt 0;
+    border: none !important;
+    outline: none !important;
+    background: transparent !important;
 }
 
 .sig-img {
     height: 24pt;
     width: auto;
     max-width: 85pt;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
 }
 
 .sig-name {
@@ -272,20 +280,20 @@ html, body {
 /* Back Card */
 .back-header-box {
     position: absolute;
-    top: 0; left: 0; width: 242.56pt; height: 16pt;
+    top: 0; left: 0; width: 242.56pt; height: 18pt;
     background: #0a3880;
     z-index: 10;
 }
 
 .back-hdr-table {
-    width: 100%; height: 16pt; border-collapse: collapse; padding: 0 4pt;
+    width: 100%; height: 18pt; border-collapse: collapse; padding: 0 4pt;
 }
 
-.back-logo-td { width: 16pt; text-align: center; vertical-align: middle; }
-.back-logo-circle { width: 12pt; height: 12pt; background: #ffffff; border-radius: 50%; text-align: center; }
-.back-logo-img { width: 10pt; height: 10pt; margin-top: 1pt; }
+.back-logo-td { width: 18pt; text-align: center; vertical-align: middle; }
+.back-logo-circle { width: 13pt; height: 13pt; background: #ffffff; border-radius: 50%; text-align: center; margin: 0 auto; }
+.back-logo-img { width: 11pt; height: 11pt; margin-top: 1pt; }
 .back-title-td { vertical-align: middle; color: #ffffff; font-size: 5pt; font-weight: bold; padding-left: 3pt; }
-.back-npsn-td { vertical-align: middle; text-align: right; color: rgba(255, 255, 255, 0.7); font-size: 3.8pt; padding-right: 4pt; }
+.back-npsn-td { vertical-align: middle; text-align: right; color: rgba(255, 255, 255, 0.7); font-size: 3.8pt; padding-right: 6pt; }
 
 .back-watermark-img {
     position: absolute;
@@ -295,13 +303,13 @@ html, body {
     margin-top: -40pt;
     width: 80pt;
     height: 80pt;
-    opacity: 0.04;
+    opacity: 0.08;
     z-index: 1;
 }
 
 .back-body-box {
     position: absolute;
-    top: 16pt; left: 0; width: 242.56pt; height: 127pt;
+    top: 18pt; left: 0; width: 242.56pt; height: 125pt;
     text-align: center; vertical-align: middle; padding-top: 8pt;
     z-index: 5;
 }
