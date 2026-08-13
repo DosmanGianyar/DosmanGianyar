@@ -15,9 +15,8 @@ html, body {
     height: 153.07pt;
     margin: 0;
     padding: 0;
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
     background: #ffffff;
-    color: #1f2937;
 }
 
 .card {
@@ -26,29 +25,40 @@ html, body {
     height: 153.07pt;
     overflow: hidden;
     background: #f8f7f4;
+}
+
+.card-front {
     page-break-after: always;
 }
 
-/* ══════════════════════════════════════════════════════════
-   HEADER (DEPAN)
-══════════════════════════════════════════════════════════ */
-.front-header-table {
-    width: 100%;
-    height: 38pt;
+.card-back {
+    page-break-after: avoid;
+    background: #ffffff;
+}
+
+/* Header Box */
+.header-box {
+    position: absolute;
+    top: 0; left: 0; width: 242.56pt; height: 34pt;
     background: #0a3880;
+}
+
+.hdr-table {
+    width: 100%;
+    height: 34pt;
     border-collapse: collapse;
 }
 
 .hdr-logo-td {
-    width: 32pt;
+    width: 30pt;
     text-align: center;
     vertical-align: middle;
-    padding-left: 6pt;
+    padding-left: 5pt;
 }
 
 .hdr-logo-circle {
-    width: 26pt;
-    height: 26pt;
+    width: 22pt;
+    height: 22pt;
     background: #ffffff;
     border-radius: 50%;
     text-align: center;
@@ -57,232 +67,188 @@ html, body {
 }
 
 .hdr-logo-img {
-    width: 22pt;
-    height: 22pt;
+    width: 18pt;
+    height: 18pt;
     margin-top: 2pt;
 }
 
 .hdr-text-td {
     vertical-align: middle;
-    padding-left: 4pt;
+    padding-left: 3pt;
 }
 
 .hdr-title {
-    font-size: 8.5pt;
+    font-size: 8pt;
     font-weight: bold;
     color: #ffffff;
-    letter-spacing: 0.04em;
     text-transform: uppercase;
     line-height: 1.1;
 }
 
 .hdr-sub {
-    font-size: 4pt;
+    font-size: 3.8pt;
     color: #93c5fd;
     margin-top: 1pt;
-    line-height: 1.2;
 }
 
 .hdr-badge-td {
-    width: 48pt;
+    width: 44pt;
     text-align: right;
     vertical-align: middle;
-    padding-right: 6pt;
+    padding-right: 5pt;
 }
 
 .hdr-badge-box {
-    border: 0.75pt solid rgba(255, 255, 255, 0.4);
-    border-radius: 3pt;
+    border: 0.5pt solid rgba(255, 255, 255, 0.4);
+    border-radius: 2.5pt;
     background: rgba(255, 255, 255, 0.18);
-    padding: 2pt 4pt;
-    text-align: center;
-}
-
-.hdr-badge-text {
-    font-size: 4.5pt;
+    padding: 1.5pt 3pt;
+    font-size: 4pt;
     font-weight: bold;
     color: #ffffff;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    line-height: 1.2;
+    letter-spacing: 0.06em;
+    text-align: center;
+    line-height: 1.15;
 }
 
+/* Gold strip */
 .gold-strip {
-    height: 3pt;
+    position: absolute;
+    top: 34pt; left: 0; width: 242.56pt; height: 2.5pt;
     background: #b45309;
 }
 
-/* ══════════════════════════════════════════════════════════
-   BODY (DEPAN)
-══════════════════════════════════════════════════════════ */
-.front-body {
-    position: relative;
-    padding: 5pt 6pt 4pt 6pt;
-    height: 104pt;
+/* Body Box */
+.body-box {
+    position: absolute;
+    top: 36.5pt; left: 0; width: 242.56pt; height: 112.5pt;
+    padding: 4pt 5pt;
 }
 
-.watermark-bg {
+.watermark-img {
     position: absolute;
-    right: 4pt;
-    top: 50%;
-    margin-top: -30pt;
-    width: 60pt;
-    height: 60pt;
+    right: 5pt; top: 15pt;
+    width: 55pt; height: 55pt;
     opacity: 0.04;
 }
 
-.body-layout-table {
+.body-table {
     width: 100%;
     border-collapse: collapse;
 }
 
 .photo-td {
-    width: 52pt;
+    width: 50pt;
     vertical-align: top;
 }
 
-.photo-box {
-    width: 48pt;
-    height: 64pt;
+.photo-frame {
+    width: 44pt;
+    height: 58pt;
     border: 1pt solid #1565c0;
-    border-radius: 4pt;
+    border-radius: 3pt;
     overflow: hidden;
     background: #dce8f8;
     text-align: center;
 }
 
-.photo-img {
-    width: 48pt;
-    height: 64pt;
+.student-photo {
+    width: 44pt;
+    height: 58pt;
 }
 
-.avatar-placeholder {
-    font-size: 14pt;
+.initials-box {
+    font-size: 13pt;
     font-weight: bold;
     color: #1565c0;
-    line-height: 64pt;
-    text-align: center;
+    line-height: 58pt;
 }
 
-.blood-badge {
-    margin-top: 3pt;
+.blood-tag {
+    margin-top: 2pt;
     background: #fee2e2;
     border: 0.5pt solid #f87171;
     color: #991b1b;
-    font-size: 4.5pt;
+    font-size: 4pt;
     font-weight: bold;
-    padding: 1pt 2pt;
+    padding: 1pt;
     border-radius: 2pt;
     text-align: center;
-    width: 48pt;
+    width: 44pt;
 }
 
-.details-td {
+.info-td {
     vertical-align: top;
-    padding-left: 6pt;
+    padding-left: 5pt;
 }
 
-.card-heading {
-    font-size: 6.5pt;
+.kp-heading {
+    font-size: 6pt;
     font-weight: bold;
     color: #0a3880;
     letter-spacing: 0.1em;
     text-transform: uppercase;
     text-decoration: underline;
-    margin-bottom: 2pt;
+    margin-bottom: 1.5pt;
 }
 
-.info-table {
+.details-table {
     width: 100%;
     border-collapse: collapse;
 }
 
-.info-table td {
-    font-size: 4.8pt;
-    padding: 0.5pt 0;
+.details-table td {
+    font-size: 4.5pt;
+    padding: 0.4pt 0;
     vertical-align: top;
-    line-height: 1.25;
+    line-height: 1.2;
 }
 
-.lbl {
-    width: 42pt;
-    color: #4b5563;
-    font-weight: 600;
-}
+.lbl { width: 38pt; color: #4b5563; font-weight: bold; }
+.col { width: 5pt; color: #6b7280; }
+.val { color: #111827; font-weight: bold; }
+.val-name { color: #0a3880; font-weight: 900; font-size: 5.2pt; text-transform: uppercase; }
+.val-gold { color: #92400e; font-weight: bold; }
 
-.col {
-    width: 6pt;
-    color: #6b7280;
-}
-
-.val {
-    color: #111827;
-    font-weight: 700;
-}
-
-.val-name {
-    color: #0a3880;
-    font-weight: 900;
-    font-size: 5.5pt;
-    text-transform: uppercase;
-    letter-spacing: 0.02em;
-}
-
-.val-highlight {
-    color: #92400e;
-    font-weight: 800;
-}
-
-/* ══════════════════════════════════════════════════════════
-   FOOTER (DEPAN — TTD & STEMPEL KEPSEK)
-══════════════════════════════════════════════════════════ */
-.footer-table {
+/* Signature Table */
+.sig-table {
     width: 100%;
     margin-top: 1pt;
     border-collapse: collapse;
 }
 
-.footer-validity-td {
+.validity-td {
     vertical-align: bottom;
-    font-size: 4pt;
+    font-size: 3.6pt;
     color: #6b7280;
     font-style: italic;
-    line-height: 1.2;
+    line-height: 1.15;
     padding-bottom: 1pt;
 }
 
-.footer-sig-td {
+.sig-td {
     vertical-align: bottom;
     text-align: center;
-    width: 85pt;
+    width: 82pt;
 }
 
-.sig-date {
-    font-size: 4.2pt;
-    color: #374151;
-}
+.sig-date { font-size: 3.8pt; color: #374151; }
+.sig-title { font-size: 3.8pt; font-weight: bold; color: #374151; }
 
-.sig-role {
-    font-size: 4.2pt;
-    font-weight: 600;
-    color: #374151;
-    margin-bottom: 1pt;
-}
-
-.sig-image-wrap {
-    height: 22pt;
+.sig-img-container {
+    height: 18pt;
     text-align: center;
-    margin: -2pt 0 -2pt 0;
+    margin: -1pt 0 -1pt 0;
 }
 
-.sig-image {
-    height: 24pt;
+.sig-img {
+    height: 20pt;
     width: auto;
-    max-width: 80pt;
+    max-width: 75pt;
 }
 
 .sig-name {
-    font-size: 4.8pt;
+    font-size: 4.2pt;
     font-weight: bold;
     color: #111827;
     text-decoration: underline;
@@ -290,99 +256,66 @@ html, body {
 }
 
 .sig-nip {
-    font-size: 4pt;
+    font-size: 3.5pt;
     font-weight: bold;
     color: #4b5563;
     white-space: nowrap;
-    margin-top: 0.5pt;
 }
 
+/* Bottom Strip */
 .bottom-strip {
-    height: 5pt;
+    position: absolute;
+    bottom: 0; left: 0; width: 242.56pt; height: 4pt;
     background: #0a3880;
 }
 
-/* ══════════════════════════════════════════════════════════
-   HALAMAN BELAKANG
-══════════════════════════════════════════════════════════ */
-.card-back {
-    background: #ffffff;
-    page-break-after: auto;
-}
-
-.back-header-table {
-    width: 100%;
-    height: 18pt;
+/* Back Card */
+.back-header-box {
+    position: absolute;
+    top: 0; left: 0; width: 242.56pt; height: 16pt;
     background: #0a3880;
-    border-collapse: collapse;
-    padding: 0 6pt;
 }
 
-.back-header-td {
-    vertical-align: middle;
-    color: #ffffff;
-    font-size: 5.5pt;
-    font-weight: bold;
-    letter-spacing: 0.05em;
-    padding-left: 6pt;
+.back-hdr-table {
+    width: 100%; height: 16pt; border-collapse: collapse; padding: 0 4pt;
 }
 
-.back-npsn-td {
-    vertical-align: middle;
-    text-align: right;
-    color: rgba(255, 255, 255, 0.7);
-    font-size: 4.2pt;
-    padding-right: 6pt;
+.back-logo-td { width: 16pt; text-align: center; vertical-align: middle; }
+.back-logo-circle { width: 12pt; height: 12pt; background: #ffffff; border-radius: 50%; text-align: center; }
+.back-logo-img { width: 10pt; height: 10pt; margin-top: 1pt; }
+.back-title-td { vertical-align: middle; color: #ffffff; font-size: 5pt; font-weight: bold; padding-left: 3pt; }
+.back-npsn-td { vertical-align: middle; text-align: right; color: rgba(255, 255, 255, 0.7); font-size: 3.8pt; padding-right: 4pt; }
+
+.back-body-box {
+    position: absolute;
+    top: 16pt; left: 0; width: 242.56pt; height: 127pt;
+    text-align: center; vertical-align: middle; padding-top: 8pt;
 }
 
-.back-body-center {
-    height: 124pt;
-    text-align: center;
-    vertical-align: middle;
-    padding: 6pt;
-}
-
-.qr-container {
+.qr-frame {
     display: inline-block;
-    padding: 3pt;
-    border: 0.75pt solid #e5e7eb;
-    border-radius: 4pt;
+    padding: 2.5pt;
+    border: 0.5pt solid #e5e7eb;
+    border-radius: 3pt;
     background: #ffffff;
 }
 
-.qr-img {
-    width: 50pt;
-    height: 50pt;
-}
-
-.qr-hint {
-    font-size: 4.2pt;
-    color: #9ca3af;
-    margin-top: 3pt;
-}
-
-.back-student-name {
-    font-size: 7.5pt;
-    font-weight: bold;
-    color: #111827;
-    margin-top: 4pt;
-}
-
-.back-student-details {
-    font-size: 5pt;
-    color: #6b7280;
-    margin-top: 1.5pt;
-}
+.qr-code { width: 44pt; height: 44pt; }
+.qr-text { font-size: 3.8pt; color: #9ca3af; margin-top: 2.5pt; }
+.divider-line { width: 80pt; height: 0.5pt; background: #e5e7eb; margin: 3pt auto; }
+.back-name-text { font-size: 6.8pt; font-weight: bold; color: #111827; margin-top: 2pt; }
+.back-sub-text { font-size: 4.2pt; color: #6b7280; margin-top: 1pt; line-height: 1.25; }
 
 .back-footer-bar {
-    height: 11pt;
+    position: absolute;
+    bottom: 0; left: 0; width: 242.56pt; height: 10pt;
     background: #b45309;
     text-align: center;
-    line-height: 11pt;
+    line-height: 10pt;
     color: #ffffff;
-    font-size: 5pt;
+    font-size: 4.5pt;
     font-weight: bold;
-    letter-spacing: 0.15em;
+    letter-spacing: 0.12em;
 }
 </style>
 </head>
@@ -391,59 +324,61 @@ html, body {
 {{-- ═══════════════════════════════════════════ --}}
 {{-- HALAMAN 1 — DEPAN KARTU                    --}}
 {{-- ═══════════════════════════════════════════ --}}
-<div class="card">
+<div class="card card-front">
 
-    {{-- Header --}}
-    <table class="front-header-table">
-        <tr>
-            <td class="hdr-logo-td">
-                @if($logoBase64)
-                <div class="hdr-logo-circle">
-                    <img src="{{ $logoBase64 }}" class="hdr-logo-img" alt="Logo">
-                </div>
-                @endif
-            </td>
-            <td class="hdr-text-td">
-                <div class="hdr-title">SMA Negeri 1 Gianyar</div>
-                <div class="hdr-sub">Jl. Ratna No.1, Gianyar, Bali 80511 · Telp. (0361) 943443</div>
-            </td>
-            <td class="hdr-badge-td">
-                <div class="hdr-badge-box">
-                    <div class="hdr-badge-text">KARTU<br>PELAJAR</div>
-                </div>
-            </td>
-        </tr>
-    </table>
+    <!-- Header -->
+    <div class="header-box">
+        <table class="hdr-table">
+            <tr>
+                <td class="hdr-logo-td">
+                    @if($logoBase64)
+                    <div class="hdr-logo-circle">
+                        <img src="{{ $logoBase64 }}" class="hdr-logo-img" alt="Logo">
+                    </div>
+                    @endif
+                </td>
+                <td class="hdr-text-td">
+                    <div class="hdr-title">SMA Negeri 1 Gianyar</div>
+                    <div class="hdr-sub">Jl. Ratna No.1, Gianyar, Bali 80511 · Telp. (0361) 943443</div>
+                </td>
+                <td class="hdr-badge-td">
+                    <div class="hdr-badge-box">
+                        KARTU<br>PELAJAR
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
 
+    <!-- Gold Strip -->
     <div class="gold-strip"></div>
 
-    {{-- Body --}}
-    <div class="front-body">
+    <!-- Body -->
+    <div class="body-box">
         @if($logoBase64)
-        <img src="{{ $logoBase64 }}" class="watermark-bg" alt="">
+        <img src="{{ $logoBase64 }}" class="watermark-img" alt="">
         @endif
 
-        <table class="body-layout-table">
+        <table class="body-table">
             <tr>
-                {{-- Left: Photo --}}
+                <!-- Left: Photo -->
                 <td class="photo-td">
-                    <div class="photo-box">
+                    <div class="photo-frame">
                         @if($photoBase64)
-                            <img src="{{ $photoBase64 }}" class="photo-img" alt="{{ $siswa->name }}">
+                            <img src="{{ $photoBase64 }}" class="student-photo" alt="{{ $siswa->name }}">
                         @else
-                            <div class="avatar-placeholder">{{ $siswa->initials }}</div>
+                            <div class="initials-box">{{ $siswa->initials }}</div>
                         @endif
                     </div>
                     @if($siswa->blood_type)
-                        <div class="blood-badge">Goldar: {{ strtoupper($siswa->blood_type) }}</div>
+                        <div class="blood-tag">Goldar: {{ strtoupper($siswa->blood_type) }}</div>
                     @endif
                 </td>
 
-                {{-- Right: Details & Signature --}}
-                <td class="details-td">
-                    <div class="card-heading">KARTU PELAJAR</div>
-                    
-                    <table class="info-table">
+                <!-- Right: Details & Signature -->
+                <td class="info-td">
+                    <div class="kp-heading">KARTU PELAJAR</div>
+                    <table class="details-table">
                         <tr>
                             <td class="lbl">Nama</td>
                             <td class="col">:</td>
@@ -463,7 +398,7 @@ html, body {
                         <tr>
                             <td class="lbl">Angkatan</td>
                             <td class="col">:</td>
-                            <td class="val-highlight">{{ $siswa->angkatan }}</td>
+                            <td class="val-gold">{{ $siswa->angkatan }}</td>
                         </tr>
                         @endif
                         <tr>
@@ -480,23 +415,20 @@ html, body {
                         @endif
                     </table>
 
-                    {{-- Footer TTD & Masa Berlaku --}}
-                    <table class="footer-table">
+                    <!-- Signature Table -->
+                    <table class="sig-table">
                         <tr>
-                            <td class="footer-validity-td">
+                            <td class="validity-td">
                                 Berlaku selama menjadi<br>siswa SMAN 1 Gianyar
                             </td>
-                            <td class="footer-sig-td">
+                            <td class="sig-td">
                                 <div class="sig-date">Gianyar, 13 Juli 2026</div>
-                                <div class="sig-role">Kepala Sekolah,</div>
-                                
-                                {{-- Official TTD & Stempel Image --}}
-                                <div class="sig-image-wrap">
+                                <div class="sig-title">Kepala Sekolah,</div>
+                                <div class="sig-img-container">
                                     @if($ttdBase64)
-                                        <img src="{{ $ttdBase64 }}" class="sig-image" alt="TTD & Stempel">
+                                        <img src="{{ $ttdBase64 }}" class="sig-img" alt="TTD & Stempel">
                                     @endif
                                 </div>
-
                                 <div class="sig-name">I Wayan Sudra Astra, S.Pd., M.Pd.</div>
                                 <div class="sig-nip">NIP. 19710415 199703 1 007</div>
                             </td>
@@ -507,6 +439,7 @@ html, body {
         </table>
     </div>
 
+    <!-- Bottom Strip -->
     <div class="bottom-strip"></div>
 </div>
 
@@ -515,27 +448,39 @@ html, body {
 {{-- ═══════════════════════════════════════════ --}}
 <div class="card card-back">
 
-    <table class="back-header-table">
-        <tr>
-            <td class="back-header-td">SMA NEGERI 1 GIANYAR</td>
-            <td class="back-npsn-td">NPSN 50102079</td>
-        </tr>
-    </table>
+    <!-- Header -->
+    <div class="back-header-box">
+        <table class="back-hdr-table">
+            <tr>
+                <td class="back-logo-td">
+                    @if($logoBase64)
+                    <div class="back-logo-circle">
+                        <img src="{{ $logoBase64 }}" class="back-logo-img" alt="Logo">
+                    </div>
+                    @endif
+                </td>
+                <td class="back-title-td">SMA NEGERI 1 GIANYAR</td>
+                <td class="back-npsn-td">NPSN 50102079</td>
+            </tr>
+        </table>
+    </div>
 
-    <div class="back-body-center">
-        <div class="qr-container">
-            <img src="{{ $qrPng }}" class="qr-img" alt="QR Code">
+    <!-- Body -->
+    <div class="back-body-box">
+        <div class="qr-frame">
+            <img src="{{ $qrPng }}" class="qr-code" alt="QR Code">
         </div>
-        <div class="qr-hint">Scan untuk verifikasi identitas resmi siswa</div>
-
-        <div class="back-student-name">{{ $siswa->name }}</div>
-        <div class="back-student-details">
+        <div class="qr-text">Scan untuk verifikasi identitas resmi siswa</div>
+        <div class="divider-line"></div>
+        <div class="back-name-text">{{ $siswa->name }}</div>
+        <div class="back-sub-text">
             NIS: {{ $siswa->nis ?? '—' }} @if($siswa->nisn) · NISN: {{ $siswa->nisn }} @endif
             <br>
             Kelas {{ $siswa->schoolClass?->name ?? '—' }} @if($siswa->angkatan) · {{ $siswa->angkatan }} @endif
         </div>
     </div>
 
+    <!-- Footer Bar -->
     <div class="back-footer-bar">
         SISWA {{ $siswa->angkatan ? '· ' . strtoupper($siswa->angkatan) : '' }}
     </div>
