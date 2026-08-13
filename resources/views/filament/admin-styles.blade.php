@@ -214,47 +214,53 @@
 .sims-sidebar-footer-container {
     padding: 0.75rem 0.875rem !important;
     border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
-    background: rgba(4, 7, 16, 0.8) !important;
+    background: rgba(4, 7, 16, 0.85) !important;
 }
 
 .sims-sidebar-user-card {
     display: flex !important;
+    flex-direction: column !important;
+    gap: 0.625rem !important;
+    padding: 0.75rem !important;
+    border-radius: 0.875rem !important;
+    background: rgba(15, 29, 51, 0.95) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4) !important;
+}
+
+.sims-user-profile-header {
+    display: flex !important;
     align-items: center !important;
-    justify-content: space-between !important;
-    gap: 0.75rem !important;
-    padding: 0.625rem 0.75rem !important;
-    border-radius: 0.75rem !important;
-    background: rgba(15, 29, 51, 0.85) !important;
-    border: 1px solid rgba(255, 255, 255, 0.08) !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+    gap: 0.625rem !important;
+    width: 100% !important;
 }
 
 .sims-user-avatar {
-    width: 2rem !important;
-    height: 2rem !important;
-    min-width: 2rem !important;
-    min-height: 2rem !important;
-    border-radius: 0.5rem !important;
-    background: rgba(245, 158, 11, 0.15) !important;
-    border: 1px solid rgba(245, 158, 11, 0.3) !important;
+    width: 2.25rem !important;
+    height: 2.25rem !important;
+    min-width: 2.25rem !important;
+    min-height: 2.25rem !important;
+    border-radius: 0.625rem !important;
+    background: rgba(245, 158, 11, 0.2) !important;
+    border: 1px solid rgba(245, 158, 11, 0.4) !important;
     color: #fbbf24 !important;
-    font-weight: 700 !important;
-    font-size: 0.82rem !important;
+    font-weight: 800 !important;
+    font-size: 0.9rem !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
     flex-shrink: 0 !important;
 }
 
-.sims-user-info {
+.sims-user-details {
     flex: 1 1 0% !important;
     min-width: 0 !important;
 }
 
 .sims-user-name {
-    font-size: 0.82rem !important;
-    font-weight: 600 !important;
-    color: #e2e8f0 !important;
+    font-size: 0.85rem !important;
+    font-weight: 700 !important;
+    color: #f1f5f9 !important;
     white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
@@ -265,12 +271,12 @@
 .sims-role-badge {
     display: inline-flex !important;
     align-items: center !important;
-    padding: 0.1rem 0.4rem !important;
+    padding: 0.125rem 0.4rem !important;
     font-size: 0.65rem !important;
     font-weight: 700 !important;
     border-radius: 0.375rem !important;
     border: 1px solid transparent !important;
-    margin-top: 0.2rem !important;
+    margin-top: 0.25rem !important;
 }
 
 .sims-role-admin {
@@ -303,20 +309,46 @@
     border-color: rgba(6, 182, 212, 0.35) !important;
 }
 
-.sims-logout-btn {
+.sims-user-actions-bar {
     display: flex !important;
     align-items: center !important;
+    gap: 0.5rem !important;
+    width: 100% !important;
+}
+
+.sims-profile-btn,
+.sims-logout-btn {
+    flex: 1 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
     gap: 0.375rem !important;
-    padding: 0.375rem 0.625rem !important;
+    padding: 0.4rem 0.5rem !important;
     border-radius: 0.5rem !important;
-    font-size: 0.75rem !important;
+    font-size: 0.725rem !important;
     font-weight: 700 !important;
+    text-decoration: none !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    box-sizing: border-box !important;
+}
+
+.sims-profile-btn {
+    color: #38bdf8 !important;
+    background: rgba(56, 189, 248, 0.12) !important;
+    border: 1px solid rgba(56, 189, 248, 0.3) !important;
+}
+
+.sims-profile-btn:hover {
+    background: #0284c7 !important;
+    color: #ffffff !important;
+    border-color: #38bdf8 !important;
+}
+
+.sims-logout-btn {
     color: #f87171 !important;
     background: rgba(239, 68, 68, 0.12) !important;
     border: 1px solid rgba(239, 68, 68, 0.3) !important;
-    cursor: pointer !important;
-    transition: all 0.2s ease !important;
-    flex-shrink: 0 !important;
 }
 
 .sims-logout-btn:hover {
@@ -325,12 +357,22 @@
     border-color: #ef4444 !important;
 }
 
+.sims-profile-btn svg,
 .sims-logout-btn svg {
-    width: 1rem !important;
-    height: 1rem !important;
-    min-width: 1rem !important;
-    min-height: 1rem !important;
+    width: 0.875rem !important;
+    height: 0.875rem !important;
     flex-shrink: 0 !important;
+}
+
+.sims-logout-form {
+    flex: 1 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: flex !important;
+}
+
+.sims-logout-form button {
+    width: 100% !important;
 }
 
 /* ─── Data Siswa: tombol aksi grid 2x2 ───────────────────────── */
