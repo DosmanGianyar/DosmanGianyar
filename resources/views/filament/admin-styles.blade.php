@@ -202,6 +202,7 @@
     min-height: 0 !important;
     overflow-x: hidden !important;
     overflow-y: auto !important;
+    padding-bottom: 1rem !important;
     scrollbar-width: none !important;
 }
 .fi-sidebar-nav::-webkit-scrollbar {
