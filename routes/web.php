@@ -16,6 +16,7 @@ use App\Http\Controllers\Siswa\PermitController;
 use App\Http\Controllers\Siswa\ProfileController as SiswaProfile;
 use App\Http\Controllers\Siswa\SarprasController as SiswaSarpras;
 use App\Http\Controllers\Admin\AttendanceReportController as AdminAttendanceReport;
+use App\Http\Controllers\Admin\AchievementExportController as AdminAchievementExport;
 use App\Http\Controllers\Admin\ScanEventController;
 use App\Http\Controllers\Admin\StudentCardController;
 use App\Http\Controllers\Admin\UserImportController;
@@ -80,6 +81,10 @@ Route::middleware(['auth', 'role:admin,admin_kesiswaan,admin_kurikulum,guru'])->
     Route::get('/attendance-report/grid-preview', [\App\Http\Controllers\Guru\ExportController::class, 'attendanceGridPreview'])->name('attendance-report.grid-preview');
     Route::get('/attendance-report/grid-pdf',     [\App\Http\Controllers\Guru\ExportController::class, 'attendanceGridPdf'])->name('attendance-report.grid-pdf');
     Route::get('/attendance-report/grid-excel',   [\App\Http\Controllers\Guru\ExportController::class, 'attendanceGridExcel'])->name('attendance-report.grid-excel');
+
+    // Laporan Rekap Prestasi
+    Route::get('/achievement-report/pdf',   [AdminAchievementExport::class, 'pdf'])->name('achievement-report.pdf');
+    Route::get('/achievement-report/excel', [AdminAchievementExport::class, 'excel'])->name('achievement-report.excel');
 });
 
 // ─── Admin (non-Filament) ─────────────────────────────────────────────────────
