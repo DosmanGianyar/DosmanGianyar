@@ -36,11 +36,23 @@ class ExecutiveOverviewWidget extends BaseWidget
             ->whereYear('created_at', now()->year)
             ->count();
 
+        $pendingAchievements   = \App\Models\StudentAchievement::where('curation_status', 'pending')->count();
+        $pendingPermits        = \App\Models\Permit::where('status', 'pending')->count();
+        $pendingEarlyCheckouts = \App\Models\EarlyCheckoutRequest::where('status', 'pending')->count();
+        $pendingForgotAtts     = \App\Models\ForgotAttendanceRequest::where('status', 'pending')->count();
+
+        $totalPending = $pendingAchievements + $pendingPermits + $pendingEarlyCheckouts + $pendingForgotAtts;
+
         return [
             Stat::make('Tingkat Kehadiran Hari Ini', $pctHadir . '%')
                 ->description("{$hadirCount} Siswa Hadir ({$terlambatCount} Terlambat) • {$alpaCount} Alpa")
                 ->descriptionIcon('heroicon-m-chart-bar')
                 ->color($pctHadir >= 95 ? 'success' : ($pctHadir >= 85 ? 'warning' : 'danger')),
+
+            Stat::make('Pengajuan Menunggu Persetujuan', "{$totalPending} Berkas")
+                ->description("{$pendingAchievements} Kurasi • {$pendingPermits} Izin • " . ($pendingEarlyCheckouts + $pendingForgotAtts) . " Dispen/Lupa Absen")
+                ->descriptionIcon('heroicon-m-clock')
+                ->color($totalPending > 0 ? 'warning' : 'success'),
 
             Stat::make('Total Siswa & Pengelola', number_format($totalSiswa))
                 ->description("{$totalGuru} Guru & Tenaga Pendidik")
