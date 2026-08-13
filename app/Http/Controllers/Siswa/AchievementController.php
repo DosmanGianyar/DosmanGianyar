@@ -34,27 +34,43 @@ class AchievementController extends Controller
     public function create(): View
     {
         $categories = AchievementCategory::orderBy('name')->pluck('name', 'id');
-        return view('siswa.achievement.create', compact('categories'));
+        $students   = \App\Models\User::whereIn('role', ['siswa', 'pengelola'])
+            ->where('id', '!=', Auth::id())
+            ->with('schoolClass')
+            ->orderBy('name')
+            ->get(['id', 'name', 'nisn', 'class_id']);
+
+        return view('siswa.achievement.create', compact('categories', 'students'));
     }
 
     public function store(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'title'            => 'required|string|max:200',
-            'category_id'      => 'required|exists:achievement_categories,id',
-            'level'            => 'required|in:sekolah,kabupaten,provinsi,nasional,internasional',
-            'rank'             => 'nullable|string|max:50',
-            'achievement_date' => 'required|date|before_or_equal:today',
-            'description'      => 'nullable|string|max:1000',
-            'photo'            => 'required|image|max:5120',
-            'certificate'      => 'nullable|image|max:5120',
+            'title'              => 'required|string|max:200',
+            'event_name'         => 'nullable|string|max:200',
+            'organizer'          => 'nullable|string|max:200',
+            'category_id'        => 'required|exists:achievement_categories,id',
+            'field_category'     => 'nullable|string|in:sains_riset,olahraga,seni_budaya,bahasa_debat,keagamaan,akademik,lainnya',
+            'level'              => 'required|in:sekolah,kabupaten,provinsi,nasional,internasional',
+            'rank'               => 'nullable|string|max:50',
+            'participation_type' => 'required|in:individu,beregu',
+            'team_member_ids'    => 'nullable|array',
+            'team_member_ids.*'  => 'exists:users,id',
+            'achievement_date'   => 'required|date|before_or_equal:today',
+            'description'        => 'nullable|string|max:1000',
+            'photo'              => 'required|image|max:5120',
+            'certificate'        => 'nullable|image|max:5120',
         ]);
 
         /** @var \App\Models\User $siswa */
         $siswa = Auth::user();
 
-        $data['student_id'] = $siswa->id;
-        $data['status']     = 'pending';
+        $teamMemberIds = $data['team_member_ids'] ?? [];
+        unset($data['team_member_ids']);
+
+        $data['student_id']      = $siswa->id;
+        $data['status']          = 'pending';
+        $data['curation_status'] = 'pending';
 
         $data['photo'] = ImageService::store(
             $request->file('photo'),
@@ -72,8 +88,20 @@ class AchievementController extends Controller
 
         StudentAchievement::create($data);
 
+        // Jika beregu dan ada anggota tim yang dipilih, buatkan record otomatis untuk setiap anggota tim
+        if (($data['participation_type'] ?? 'individu') === 'beregu' && ! empty($teamMemberIds)) {
+            foreach ($teamMemberIds as $memberId) {
+                if ((int) $memberId === (int) $siswa->id) {
+                    continue;
+                }
+                $memberData = $data;
+                $memberData['student_id'] = $memberId;
+                StudentAchievement::create($memberData);
+            }
+        }
+
         return redirect()->route('siswa.achievements.index')
-            ->with('success', 'Prestasi berhasil dilaporkan dan sedang menunggu verifikasi.');
+            ->with('success', 'Prestasi berhasil dilaporkan dan otomatis didaftarkan ke seluruh anggota tim!');
     }
 
     public function show(StudentAchievement $achievement): View

@@ -3,16 +3,31 @@
 @section('page-title', 'Laporkan Prestasi')
 
 @section('content')
-<div class="max-w-lg mx-auto">
+<div class="max-w-lg mx-auto" x-data="{
+    participationType: '{{ old('participation_type', 'individu') }}',
+    studentSearch: '',
+    selectedMembers: [],
+    toggleMember(id, name) {
+        let idx = this.selectedMembers.findIndex(m => m.id === id);
+        if (idx > -1) {
+            this.selectedMembers.splice(idx, 1);
+        } else {
+            this.selectedMembers.push({ id: id, name: name });
+        }
+    },
+    isMemberSelected(id) {
+        return this.selectedMembers.some(m => m.id === id);
+    }
+}">
     <form action="{{ route('siswa.achievements.store') }}" method="POST" enctype="multipart/form-data"
         class="space-y-4">
         @csrf
 
         {{-- Judul --}}
         <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-1">Judul Prestasi <span class="text-red-500">*</span></label>
+            <label class="block text-sm font-semibold text-gray-700 mb-1">Judul Prestasi / Kejuaraan <span class="text-red-500">*</span></label>
             <input type="text" name="title" value="{{ old('title') }}" required maxlength="200"
-                placeholder="Contoh: Juara 1 Olimpiade Matematika Provinsi Bali"
+                placeholder="Contoh: Juara 1 Lomba Debat Bahasa Inggris"
                 class="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm @error('title') border-red-400 @enderror">
             @error('title') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
         </div>
@@ -28,6 +43,81 @@
                 @endforeach
             </select>
             @error('category_id') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+        </div>
+
+        {{-- Jenis Partisipasi --}}
+        <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-1.5">Jenis Lomba / Partisipasi <span class="text-red-500">*</span></label>
+            <div class="grid grid-cols-2 gap-3">
+                <label class="flex items-center gap-2 p-3 border rounded-xl cursor-pointer transition-all"
+                    :class="participationType === 'individu' ? 'border-blue-600 bg-blue-50/50 text-blue-800 font-semibold' : 'border-gray-200 text-gray-700'">
+                    <input type="radio" name="participation_type" value="individu" x-model="participationType" class="text-blue-600 focus:ring-blue-500">
+                    <div>
+                        <span class="text-sm block">Perorangan</span>
+                        <span class="text-[11px] text-gray-500 font-normal block leading-tight">Lomba Individu</span>
+                    </div>
+                </label>
+
+                <label class="flex items-center gap-2 p-3 border rounded-xl cursor-pointer transition-all"
+                    :class="participationType === 'beregu' ? 'border-purple-600 bg-purple-50/50 text-purple-800 font-semibold' : 'border-gray-200 text-gray-700'">
+                    <input type="radio" name="participation_type" value="beregu" x-model="participationType" class="text-purple-600 focus:ring-purple-500">
+                    <div>
+                        <span class="text-sm block">Beregu / Tim</span>
+                        <span class="text-[11px] text-gray-500 font-normal block leading-tight">Lomba Kelompok</span>
+                    </div>
+                </label>
+            </div>
+            @error('participation_type') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+        </div>
+
+        {{-- Pilihan Anggota Tim (Jika Beregu) --}}
+        <div x-show="participationType === 'beregu'" x-transition class="p-3.5 border border-purple-200 bg-purple-50/30 rounded-2xl space-y-3">
+            <div>
+                <label class="block text-xs font-bold text-purple-900 uppercase tracking-wider mb-1">
+                    👥 Pilih Anggota Tim (Siswa Lain)
+                </label>
+                <p class="text-xs text-purple-700 leading-snug">
+                    Pilih teman se-tim kamu. Data prestasi akan <strong>otomatis didaftarkan</strong> ke akun seluruh anggota tim yang dipilih.
+                </p>
+            </div>
+
+            {{-- Ringkasan Anggota Terpilih --}}
+            <div x-show="selectedMembers.length > 0" class="flex flex-wrap gap-1.5 pt-1">
+                <template x-for="m in selectedMembers" :key="m.id">
+                    <span class="inline-flex items-center gap-1 bg-purple-600 text-white text-xs font-semibold px-2.5 py-1 rounded-lg">
+                        <span x-text="m.name"></span>
+                        <button type="button" @click="toggleMember(m.id, m.name)" class="hover:text-purple-200 ml-0.5">
+                            &times;
+                        </button>
+                        <input type="hidden" name="team_member_ids[]" :value="m.id">
+                    </span>
+                </template>
+            </div>
+
+            {{-- Input Pencarian Siswa --}}
+            <div>
+                <input type="text" x-model="studentSearch" placeholder="Cari nama teman atau kelas..."
+                    class="w-full border border-purple-300 rounded-xl px-3 py-2 text-xs bg-white focus:ring-purple-500 focus:border-purple-500">
+            </div>
+
+            {{-- Daftar Siswa --}}
+            <div class="max-h-48 overflow-y-auto border border-purple-200 rounded-xl bg-white divide-y divide-gray-100">
+                @foreach($students as $s)
+                    <div x-show="!studentSearch || '{{ strtolower($s->name . ' ' . ($s->schoolClass?->name ?? '')) }}'.includes(studentSearch.toLowerCase())"
+                        @click="toggleMember({{ $s->id }}, '{{ addslashes($s->name) }}')"
+                        class="flex items-center justify-between p-2.5 cursor-pointer hover:bg-purple-50 transition-colors text-xs"
+                        :class="isMemberSelected({{ $s->id }}) ? 'bg-purple-50/80 font-semibold' : ''">
+                        <div class="flex items-center gap-2">
+                            <input type="checkbox" :checked="isMemberSelected({{ $s->id }})" class="rounded text-purple-600 focus:ring-purple-500">
+                            <div>
+                                <p class="text-gray-800 font-medium leading-tight">{{ $s->name }}</p>
+                                <p class="text-[10px] text-gray-500">{{ $s->schoolClass?->name ?? '—' }} @if($s->nisn) · {{ $s->nisn }} @endif</p>
+                            </div>
+                        </div>
+                        <span x-show="isMemberSelected({{ $s->id }})" class="text-[10px] text-purple-700 font-bold bg-purple-200/60 px-1.5 py-0.5 rounded">Terpilih</span>
+                    </div>
+                @endforeach
+            </div>
         </div>
 
         {{-- Tingkat & Peringkat --}}
@@ -113,7 +203,7 @@
         </div>
 
         <button type="submit"
-            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3.5 rounded-2xl text-base transition-colors">
+            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3.5 rounded-2xl text-base transition-colors shadow-sm">
             Kirim Laporan Prestasi
         </button>
 

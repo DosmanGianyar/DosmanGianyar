@@ -38,6 +38,8 @@ class AchievementController extends Controller
             'level'              => 'required|in:sekolah,kabupaten,provinsi,nasional,internasional',
             'rank'               => 'nullable|string|max:50',
             'participation_type' => 'nullable|in:individu,beregu',
+            'team_member_ids'    => 'nullable|array',
+            'team_member_ids.*'  => 'exists:users,id',
             'achievement_date'   => 'required|date|before_or_equal:today',
             'description'        => 'nullable|string|max:1000',
             'event_url'          => 'nullable|string|max:500',
@@ -48,6 +50,9 @@ class AchievementController extends Controller
 
         /** @var \App\Models\User $siswa */
         $siswa = Auth::user();
+
+        $teamMemberIds = $data['team_member_ids'] ?? [];
+        unset($data['team_member_ids']);
 
         $data['student_id']      = $siswa->id;
         $data['status']          = 'pending';
@@ -80,8 +85,19 @@ class AchievementController extends Controller
         $achievement = StudentAchievement::create($data);
         $achievement->load('category');
 
+        if (($data['participation_type'] ?? 'individu') === 'beregu' && ! empty($teamMemberIds)) {
+            foreach ($teamMemberIds as $memberId) {
+                if ((int) $memberId === (int) $siswa->id) {
+                    continue;
+                }
+                $memberData = $data;
+                $memberData['student_id'] = $memberId;
+                StudentAchievement::create($memberData);
+            }
+        }
+
         return response()->json([
-            'message'     => 'Laporan prestasi berhasil dikirim dan sedang dalam proses kurasi admin.',
+            'message'     => 'Laporan prestasi berhasil dikirim dan otomatis didaftarkan ke seluruh anggota tim.',
             'achievement' => StudentDataService::formatAchievement($achievement),
         ], 201);
     }
