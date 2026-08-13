@@ -3,6 +3,7 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Pages\Auth\Login;
+use App\Filament\Support\AdminAccess;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -44,6 +45,7 @@ class AdminPanelProvider extends PanelProvider
                     ->group('Kurikulum')
                     ->icon('heroicon-o-user-group')
                     ->url(fn () => route('admin.guru-wali.index'))
+                    ->visible(fn () => AdminAccess::can('Kurikulum'))
                     ->sort(20),
             ])
             ->navigationGroups([
