@@ -459,10 +459,15 @@ html, body {
             
             @php
             $verifyUrl = url('/verifikasi/kartu-pelajar/' . ($siswa->nis ?? $siswa->id));
-            $qrKepsekSvg = (new \chillerlan\QRCode\QRCode(new \chillerlan\QRCode\QROptions(['outputType' => 'svg', 'scale' => 2])))->render($verifyUrl);
+            $qrKepsekPng = (new \chillerlan\QRCode\QRCode(new \chillerlan\QRCode\QROptions([
+                'outputType'   => 'png',
+                'outputBase64' => true,
+                'scale'        => 4,
+                'quietzoneSize'=> 1,
+            ])))->render($verifyUrl);
             @endphp
             <div style="width: 6.5mm; height: 6.5mm; margin: 0.5mm auto; background: white; border: 0.5pt solid #cbd5e1; padding: 0.5pt;">
-                <img src="{{ $qrKepsekSvg }}" style="width: 100%; height: 100%; object-fit: contain;">
+                <img src="{{ $qrKepsekPng }}" style="width: 100%; height: 100%; object-fit: contain;">
             </div>
 
             <div style="font-size: 3.8pt; font-weight: bold; color: #111827; text-decoration: underline; white-space: nowrap;">I Wayan Sudra Astra, S.Pd., M.Pd.</div>

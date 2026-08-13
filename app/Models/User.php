@@ -302,8 +302,11 @@ class User extends Authenticatable implements FilamentUser
 
     public function getInitialsAttribute(): string
     {
-        $words = explode(' ', $this->name);
-        return strtoupper(implode('', array_map(fn($w) => $w[0], array_slice($words, 0, 2))));
+        $words = array_values(array_filter(explode(' ', trim($this->name ?? ''))));
+        if (empty($words)) {
+            return 'S';
+        }
+        return strtoupper(implode('', array_map(fn($w) => mb_substr($w, 0, 1), array_slice($words, 0, 2))));
     }
 
     public function getAngkatanAttribute(): ?string
