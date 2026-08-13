@@ -209,6 +209,129 @@
     width: 0 !important;
 }
 
+/* ─── Sidebar Footer / User Profile Card ─────────────────────── */
+.sims-sidebar-footer-container {
+    padding: 0.75rem 0.875rem !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+    background: rgba(4, 7, 16, 0.8) !important;
+}
+
+.sims-sidebar-user-card {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 0.75rem !important;
+    padding: 0.625rem 0.75rem !important;
+    border-radius: 0.75rem !important;
+    background: rgba(15, 29, 51, 0.85) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+}
+
+.sims-user-avatar {
+    width: 2rem !important;
+    height: 2rem !important;
+    min-width: 2rem !important;
+    min-height: 2rem !important;
+    border-radius: 0.5rem !important;
+    background: rgba(245, 158, 11, 0.15) !important;
+    border: 1px solid rgba(245, 158, 11, 0.3) !important;
+    color: #fbbf24 !important;
+    font-weight: 700 !important;
+    font-size: 0.82rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+}
+
+.sims-user-info {
+    flex: 1 1 0% !important;
+    min-width: 0 !important;
+}
+
+.sims-user-name {
+    font-size: 0.82rem !important;
+    font-weight: 600 !important;
+    color: #e2e8f0 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    line-height: 1.2 !important;
+    margin: 0 !important;
+}
+
+.sims-role-badge {
+    display: inline-flex !important;
+    align-items: center !important;
+    padding: 0.1rem 0.4rem !important;
+    font-size: 0.65rem !important;
+    font-weight: 700 !important;
+    border-radius: 0.375rem !important;
+    border: 1px solid transparent !important;
+    margin-top: 0.2rem !important;
+}
+
+.sims-role-admin {
+    background: rgba(245, 158, 11, 0.2) !important;
+    color: #fcd34d !important;
+    border-color: rgba(245, 158, 11, 0.35) !important;
+}
+
+.sims-role-kesiswaan {
+    background: rgba(16, 185, 129, 0.2) !important;
+    color: #6ee7b7 !important;
+    border-color: rgba(16, 185, 129, 0.35) !important;
+}
+
+.sims-role-kurikulum {
+    background: rgba(99, 102, 241, 0.2) !important;
+    color: #a5b4fc !important;
+    border-color: rgba(99, 102, 241, 0.35) !important;
+}
+
+.sims-role-sarpras {
+    background: rgba(168, 85, 247, 0.2) !important;
+    color: #d8b4fe !important;
+    border-color: rgba(168, 85, 247, 0.35) !important;
+}
+
+.sims-role-humas {
+    background: rgba(6, 182, 212, 0.2) !important;
+    color: #67e8f9 !important;
+    border-color: rgba(6, 182, 212, 0.35) !important;
+}
+
+.sims-logout-btn {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.375rem !important;
+    padding: 0.375rem 0.625rem !important;
+    border-radius: 0.5rem !important;
+    font-size: 0.75rem !important;
+    font-weight: 700 !important;
+    color: #f87171 !important;
+    background: rgba(239, 68, 68, 0.12) !important;
+    border: 1px solid rgba(239, 68, 68, 0.3) !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    flex-shrink: 0 !important;
+}
+
+.sims-logout-btn:hover {
+    background: #dc2626 !important;
+    color: #ffffff !important;
+    border-color: #ef4444 !important;
+}
+
+.sims-logout-btn svg {
+    width: 1rem !important;
+    height: 1rem !important;
+    min-width: 1rem !important;
+    min-height: 1rem !important;
+    flex-shrink: 0 !important;
+}
+
 /* ─── Data Siswa: tombol aksi grid 2x2 ───────────────────────── */
 /* Di-scope lewat class di <body> (lihat script di bawah), bukan lewat
    request()->routeIs() -- ketahuan tidak konsisten di dalam render hook
