@@ -295,22 +295,31 @@ html, body {
 .back-title-td { vertical-align: middle; color: #ffffff; font-size: 5pt; font-weight: bold; padding-left: 3pt; }
 .back-npsn-td { vertical-align: middle; text-align: right; color: rgba(255, 255, 255, 0.7); font-size: 3.8pt; padding-right: 6pt; }
 
-.back-watermark-img {
+/* Flanking Logos on Left & Right of QR Code */
+.back-logo-flank-left {
     position: absolute;
-    left: 50%;
-    top: 50%;
-    margin-left: -40pt;
-    margin-top: -40pt;
-    width: 80pt;
-    height: 80pt;
-    opacity: 0.08;
+    left: 15pt;
+    top: 30pt;
+    width: 48pt;
+    height: 48pt;
+    opacity: 0.12;
+    z-index: 1;
+}
+
+.back-logo-flank-right {
+    position: absolute;
+    right: 15pt;
+    top: 30pt;
+    width: 48pt;
+    height: 48pt;
+    opacity: 0.12;
     z-index: 1;
 }
 
 .back-body-box {
     position: absolute;
     top: 18pt; left: 0; width: 242.56pt; height: 125pt;
-    text-align: center; vertical-align: middle; padding-top: 8pt;
+    text-align: center; vertical-align: middle; padding-top: 6pt;
     z-index: 5;
 }
 
@@ -323,10 +332,21 @@ html, body {
 }
 
 .qr-code { width: 44pt; height: 44pt; }
-.qr-text { font-size: 3.8pt; color: #9ca3af; margin-top: 2.5pt; }
-.divider-line { width: 80pt; height: 0.5pt; background: #e5e7eb; margin: 3pt auto; }
-.back-name-text { font-size: 6.8pt; font-weight: bold; color: #111827; margin-top: 2pt; }
-.back-sub-text { font-size: 4.2pt; color: #6b7280; margin-top: 1pt; line-height: 1.25; }
+.qr-text { font-size: 3.8pt; color: #9ca3af; margin-top: 2pt; }
+.divider-line { width: 80pt; height: 0.5pt; background: #e5e7eb; margin: 2.5pt auto; }
+.back-name-text { font-size: 6.8pt; font-weight: bold; color: #111827; margin-top: 1pt; }
+.back-sub-text { font-size: 4.2pt; color: #6b7280; margin-top: 1pt; line-height: 1.2; }
+
+/* Slogan Sekolah Widya Wahana Bhakti */
+.back-slogan-text {
+    font-size: 7.5pt;
+    font-weight: 900;
+    color: #0a3880;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-top: 4pt;
+    font-style: italic;
+}
 
 .back-footer-bar {
     position: absolute;
@@ -488,9 +508,10 @@ html, body {
         </table>
     </div>
 
-    <!-- Watermark Belakang -->
+    <!-- Flanking Watermark Logos (Left & Right of QR Code) -->
     @if($logoBase64)
-    <img src="{{ $logoBase64 }}" class="back-watermark-img" alt="">
+    <img src="{{ $logoBase64 }}" class="back-logo-flank-left" alt="">
+    <img src="{{ $logoBase64 }}" class="back-logo-flank-right" alt="">
     @endif
 
     <!-- Body -->
@@ -506,6 +527,9 @@ html, body {
             <br>
             Kelas {{ $siswa->schoolClass?->name ?? '—' }} @if($siswa->angkatan) · {{ $siswa->angkatan }} @endif
         </div>
+
+        <!-- Slogan Sekolah Widya Wahana Bhakti -->
+        <div class="back-slogan-text">" WIDYA WAHANA BHAKTI "</div>
     </div>
 
     <!-- Footer Bar -->
