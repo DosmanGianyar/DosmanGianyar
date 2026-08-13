@@ -10,7 +10,8 @@ class StudentCardVerificationController extends Controller
     public function verify(string $identifier): View
     {
         $siswa = User::where(function ($q) use ($identifier) {
-                $q->where('nis', $identifier);
+                $q->where('qr_code_token', $identifier);
+                $q->orWhere('nis', $identifier);
                 $q->orWhere('nisn', $identifier);
                 if (is_numeric($identifier)) {
                     $q->orWhere('id', (int) $identifier);

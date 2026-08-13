@@ -17,9 +17,9 @@ class StudentCardController extends Controller
 
         $user->load('schoolClass');
 
-        // QR sebagai PNG base64 (dompdf tidak render SVG base64 dengan baik)
-        $qrToken   = $user->qr_code_token ?? $user->qr_token ?? $user->nisn ?? $user->id;
-        $qrContent = url('/biodata/' . $qrToken);
+        // QR sebagai PNG base64 publik tanpa login menggunakan UUID token unguessable
+        $qrToken   = $user->qr_token;
+        $qrContent = url('/verifikasi/kartu-pelajar/' . $qrToken);
         $qrOptions = new QROptions([
             'outputType'   => 'png',
             'outputBase64' => true,

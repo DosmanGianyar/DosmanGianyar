@@ -29,8 +29,11 @@ class ScanEventController extends Controller
 
         $identifier = trim($request->identifier);
 
-        // Ekstrak NIS dari URL biodata jika input berupa URL
-        if (str_contains($identifier, '/biodata/')) {
+        // Ekstrak token dari URL jika input berupa URL
+        if (str_contains($identifier, '/verifikasi/kartu-pelajar/')) {
+            preg_match('#/verifikasi/kartu-pelajar/([^/?#]+)#', $identifier, $m);
+            $identifier = $m[1] ?? $identifier;
+        } elseif (str_contains($identifier, '/biodata/')) {
             preg_match('#/biodata/([^/?#]+)#', $identifier, $m);
             $identifier = $m[1] ?? $identifier;
         }
