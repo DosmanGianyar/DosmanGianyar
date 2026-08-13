@@ -276,14 +276,9 @@ body {
     @endif
 </div>
 
-{{-- ─── Tanda Tangan Ganda ────────────────────────────────────────── --}}
+{{-- ─── Tanda Tangan ────────────────────────────────────────── --}}
 <div class="ttd-wrap">
-    <div class="ttd-box">
-        <div class="ttd-lokasi">&nbsp;</div>
-        <div class="ttd-jabatan">Mengetahui,<br>Kepala SMAN 1 Gianyar</div>
-        <div class="ttd-nama">I Wayan Sudra Astra, S.Pd., M.Pd.</div>
-        <div class="ttd-nip">NIP. 19710415 199703 1 007</div>
-    </div>
+    <div class="ttd-box">&nbsp;</div>
 
     <div class="ttd-box">
         <div class="ttd-lokasi">Gianyar, {{ now()->isoFormat('D MMMM Y') }}</div>

@@ -261,17 +261,11 @@
     </div>
 </div>
 
-{{-- ── TANDA TANGAN (TTD) ───────────────────────────────────────────────── --}}
+{{-- ── TANDA TANGAN (TTD WALI KELAS) ────────────────────────────────── --}}
 <div class="signature-container">
     <table class="signature-table">
         <tr>
-            <td style="text-align: center; width: 50%;">
-                Mengetahui,<br>
-                <strong>Kepala SMAN 1 Gianyar</strong>
-                <br><br><br><br><br>
-                <strong><u>{{ $headmasterName ?? 'I Wayan Sutrisna, S.Pd., M.Pd.' }}</u></strong><br>
-                NIP. {{ $headmasterNip ?? '19710415 199703 1 007' }}
-            </td>
+            <td style="width: 50%;"></td>
             <td style="text-align: center; width: 50%;">
                 Gianyar, {{ $today->isoFormat('D MMMM Y') }}<br>
                 <strong>Guru Pengajar / Wali Kelas</strong>
