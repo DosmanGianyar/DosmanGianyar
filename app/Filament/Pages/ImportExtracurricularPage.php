@@ -23,7 +23,7 @@ class ImportExtracurricularPage extends Page
 
     public static function canAccess(): bool
     {
-        return auth()->user()?->role === 'admin' || auth()->user()?->role === 'superadmin';
+        return \App\Filament\Support\AdminAccess::can('Prestasi & Ekskul');
     }
 
     protected string $view = 'filament.pages.import-extracurricular';

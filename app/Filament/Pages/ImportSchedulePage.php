@@ -24,7 +24,7 @@ class ImportSchedulePage extends Page
 
     public static function canAccess(): bool
     {
-        return auth()->user()?->role === 'admin' || auth()->user()?->role === 'pengelola';
+        return \App\Filament\Support\AdminAccess::can('Kurikulum');
     }
 
     protected string $view = 'filament.pages.import-schedule';
