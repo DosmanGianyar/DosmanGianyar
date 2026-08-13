@@ -357,7 +357,13 @@ body.sims-users-actions-grid .fi-ta-actions > * {
 (function () {
     function applySimsUsersActionsGrid() {
         if (!document.body) return;
-        if (window.location.pathname.indexOf('/admin/users') !== -1) {
+        var p = window.location.pathname;
+        if (
+            p.indexOf('/admin/users') !== -1 ||
+            p.indexOf('/admin/student-achievements') !== -1 ||
+            p.indexOf('/admin/extracurriculars') !== -1 ||
+            p.indexOf('/admin/extracurricular-members') !== -1
+        ) {
             document.body.classList.add('sims-users-actions-grid');
         } else {
             document.body.classList.remove('sims-users-actions-grid');
@@ -365,6 +371,13 @@ body.sims-users-actions-grid .fi-ta-actions > * {
     }
     document.addEventListener('DOMContentLoaded', applySimsUsersActionsGrid);
     document.addEventListener('livewire:navigated', applySimsUsersActionsGrid);
+    document.addEventListener('livewire:initialized', applySimsUsersActionsGrid);
+    if (window.Livewire) {
+        window.Livewire.hook('commit', function (ref) {
+            if (ref && ref.respond) ref.respond(applySimsUsersActionsGrid);
+        });
+    }
     applySimsUsersActionsGrid();
+    setInterval(applySimsUsersActionsGrid, 500);
 })();
 </script>

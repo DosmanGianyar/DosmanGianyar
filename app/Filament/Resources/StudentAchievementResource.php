@@ -77,12 +77,12 @@ class StudentAchievementResource extends Resource
                 ->columns(3)
                 ->columnSpanFull(),
 
-            // Card 2: Identitas Siswa
-            Section::make('Identitas Siswa')
+            // Card 2: Identitas & Profil Data Diri Siswa
+            Section::make('Identitas & Profil Data Diri Siswa')
                 ->icon('heroicon-o-user-circle')
                 ->schema([
                     TextEntry::make('student.name')
-                        ->label('Nama Siswa')
+                        ->label('Nama Lengkap Siswa')
                         ->weight('bold')
                         ->color('primary')
                         ->icon('heroicon-o-user')
@@ -90,10 +90,36 @@ class StudentAchievementResource extends Resource
                         ->openUrlInNewTab()
                         ->tooltip('Klik untuk membuka profil lengkap siswa'),
 
+                    TextEntry::make('student.nisn')
+                        ->label('NISN')
+                        ->fontFamily('mono')
+                        ->placeholder('—'),
+
+                    TextEntry::make('student.nis')
+                        ->label('NIS')
+                        ->fontFamily('mono')
+                        ->placeholder('—'),
+
                     TextEntry::make('student.schoolClass.name')
                         ->label('Kelas')
                         ->badge()
                         ->color('info')
+                        ->placeholder('—'),
+
+                    TextEntry::make('student.gender')
+                        ->label('Jenis Kelamin')
+                        ->formatStateUsing(fn ($state) => match ($state) {
+                            'L' => 'Laki-laki',
+                            'P' => 'Perempuan',
+                            default => '—',
+                        })
+                        ->placeholder('—'),
+
+                    TextEntry::make('student.blood_type')
+                        ->label('Golongan Darah')
+                        ->badge()
+                        ->color('danger')
+                        ->formatStateUsing(fn ($state) => filled($state) ? 'Gol. ' . strtoupper($state) : '—')
                         ->placeholder('—'),
 
                     TextEntry::make('student.phone')
@@ -112,6 +138,10 @@ class StudentAchievementResource extends Resource
                         ->openUrlInNewTab()
                         ->tooltip('Klik untuk chat WhatsApp siswa'),
 
+                    TextEntry::make('student.parent_name')
+                        ->label('Nama Orang Tua / Wali')
+                        ->placeholder('—'),
+
                     TextEntry::make('student.parent_phone')
                         ->label('No. HP Orang Tua / Wali')
                         ->icon('heroicon-o-phone')
@@ -126,6 +156,23 @@ class StudentAchievementResource extends Resource
                         })
                         ->openUrlInNewTab()
                         ->tooltip('Klik untuk chat WhatsApp Orang Tua'),
+
+                    TextEntry::make('student_address_formatted')
+                        ->label('Alamat Tempat Tinggal Siswa')
+                        ->formatStateUsing(function (StudentAchievement $record): string {
+                            $s = $record->student;
+                            if (! $s) return '—';
+                            $parts = array_filter([
+                                $s->address,
+                                $s->rt_rw ? 'RT/RW ' . $s->rt_rw : null,
+                                $s->kelurahan ? 'Kel. ' . $s->kelurahan : null,
+                                $s->kecamatan ? 'Kec. ' . $s->kecamatan : null,
+                                $s->kabupaten ? 'Kab. ' . $s->kabupaten : null,
+                            ]);
+                            return count($parts) > 0 ? implode(', ', $parts) : '—';
+                        })
+                        ->icon('heroicon-o-map-pin')
+                        ->columnSpanFull(),
 
                     TextEntry::make('achievement_date')
                         ->label('Tanggal Prestasi')
