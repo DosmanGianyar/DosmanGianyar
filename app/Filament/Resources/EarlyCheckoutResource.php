@@ -115,8 +115,10 @@ class EarlyCheckoutResource extends Resource
             ->recordActions([
                 Action::make('approve')
                     ->label('Setujui')
+                    ->tooltip('Setujui Pengajuan')
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
+                    ->iconButton()
                     ->visible(fn (EarlyCheckoutRequest $record) => $record->isPending())
                     ->form([
                         Textarea::make('reviewer_note')
@@ -153,8 +155,10 @@ class EarlyCheckoutResource extends Resource
 
                 Action::make('reject')
                     ->label('Tolak')
+                    ->tooltip('Tolak Pengajuan')
                     ->icon('heroicon-o-x-circle')
                     ->color('danger')
+                    ->iconButton()
                     ->visible(fn (EarlyCheckoutRequest $record) => $record->isPending())
                     ->form([
                         Textarea::make('reviewer_note')

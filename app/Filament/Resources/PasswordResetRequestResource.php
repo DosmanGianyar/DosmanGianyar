@@ -149,8 +149,10 @@ class PasswordResetRequestResource extends Resource
             ->actions([
                 Action::make('approve')
                     ->label('Reset Password')
+                    ->tooltip('Reset Password (Setujui)')
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
+                    ->iconButton()
                     ->visible(fn (PasswordResetRequest $record) => $record->status === 'pending')
                     ->requiresConfirmation()
                     ->modalHeading('Reset Password')
@@ -171,8 +173,10 @@ class PasswordResetRequestResource extends Resource
 
                 Action::make('reject')
                     ->label('Tolak')
+                    ->tooltip('Tolak Permintaan')
                     ->icon('heroicon-o-x-circle')
                     ->color('danger')
+                    ->iconButton()
                     ->visible(fn (PasswordResetRequest $record) => $record->status === 'pending')
                     ->requiresConfirmation()
                     ->modalHeading('Tolak Permintaan')

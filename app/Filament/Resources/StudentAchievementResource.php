@@ -9,9 +9,13 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\Textarea;
+use Filament\Infolists\Components\ImageEntry;
+use Filament\Infolists\Components\TextEntry;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use App\Filament\Support\AdminAccess;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -39,6 +43,129 @@ class StudentAchievementResource extends Resource
         return $schema->components([]);
     }
 
+    public static function infolist(Schema $schema): Schema
+    {
+        return $schema->components([
+            Section::make('Informasi Siswa & Prestasi')
+                ->schema([
+                    TextEntry::make('student.name')
+                        ->label('Nama Siswa')
+                        ->weight('bold'),
+
+                    TextEntry::make('student.schoolClass.name')
+                        ->label('Kelas')
+                        ->placeholder('—'),
+
+                    TextEntry::make('title')
+                        ->label('Judul Prestasi / Kejuaraan')
+                        ->weight('semibold')
+                        ->columnSpan(2),
+
+                    TextEntry::make('event_name')
+                        ->label('Nama Lomba / Event')
+                        ->placeholder('—'),
+
+                    TextEntry::make('organizer')
+                        ->label('Penyelenggara')
+                        ->placeholder('—'),
+
+                    TextEntry::make('field_category')
+                        ->label('Rumpun Bidang')
+                        ->badge()
+                        ->color('info')
+                        ->formatStateUsing(fn (StudentAchievement $record): string => $record->fieldCategoryLabel()),
+
+                    TextEntry::make('level')
+                        ->label('Tingkat Kejuaraan')
+                        ->badge()
+                        ->color(fn (string $state): string => match ($state) {
+                            'sekolah'       => 'gray',
+                            'kabupaten'     => 'info',
+                            'provinsi'      => 'warning',
+                            'nasional'      => 'success',
+                            'internasional' => 'danger',
+                            default         => 'gray',
+                        })
+                        ->formatStateUsing(fn (StudentAchievement $record): string => $record->levelLabel()),
+
+                    TextEntry::make('rank')
+                        ->label('Peringkat / Juara')
+                        ->placeholder('—'),
+
+                    TextEntry::make('participation_type')
+                        ->label('Jenis Partisipasi')
+                        ->formatStateUsing(fn (StudentAchievement $record): string => $record->participationTypeLabel()),
+
+                    TextEntry::make('achievement_date')
+                        ->label('Tanggal Prestasi')
+                        ->date('d MMMM Y'),
+
+                    TextEntry::make('event_url')
+                        ->label('URL Event / Berita')
+                        ->url(fn ($state) => $state)
+                        ->openUrlInNewTab()
+                        ->placeholder('—'),
+
+                    TextEntry::make('description')
+                        ->label('Deskripsi Prestasi')
+                        ->placeholder('—')
+                        ->columnSpanFull(),
+                ])
+                ->columns(3),
+
+            Section::make('Status Kurasi & Verifikasi')
+                ->schema([
+                    TextEntry::make('curation_status')
+                        ->label('Status Kurasi')
+                        ->badge()
+                        ->color(fn (StudentAchievement $record): string => $record->curationStatusColor())
+                        ->formatStateUsing(fn (StudentAchievement $record): string => $record->curationStatusLabel()),
+
+                    TextEntry::make('verifier.name')
+                        ->label('Diverifikasi Oleh')
+                        ->placeholder('—'),
+
+                    TextEntry::make('verified_at')
+                        ->label('Waktu Verifikasi')
+                        ->dateTime('d MMMM Y, HH:mm')
+                        ->placeholder('—'),
+
+                    TextEntry::make('curation_note')
+                        ->label('Catatan Kurasi / Alasan Revisi')
+                        ->placeholder('Tidak ada catatan')
+                        ->columnSpanFull(),
+                ])
+                ->columns(3),
+
+            Section::make('Berkas & Lampiran')
+                ->schema([
+                    TextEntry::make('certificate')
+                        ->label('Sertifikat / Piagam')
+                        ->formatStateUsing(fn ($state) => $state ? '📄 Lihat File Sertifikat' : 'Tidak ada berkas')
+                        ->url(fn (StudentAchievement $record): ?string => $record->certificateUrl())
+                        ->openUrlInNewTab()
+                        ->color('primary')
+                        ->visible(fn (StudentAchievement $record): bool => ! empty($record->certificate)),
+
+                    TextEntry::make('assignment_letter')
+                        ->label('Surat Tugas')
+                        ->formatStateUsing(fn ($state) => $state ? '📑 Lihat Surat Tugas' : 'Tidak ada berkas')
+                        ->url(fn (StudentAchievement $record): ?string => $record->assignmentLetterUrl())
+                        ->openUrlInNewTab()
+                        ->color('primary')
+                        ->visible(fn (StudentAchievement $record): bool => ! empty($record->assignment_letter)),
+
+                    ImageEntry::make('photo')
+                        ->label('Foto Dokumentasi / Penyerahan')
+                        ->disk('public')
+                        ->imageWidth(300)
+                        ->columnSpanFull()
+                        ->visible(fn (StudentAchievement $record): bool => ! empty($record->photo)),
+                ])
+                ->columns(2),
+        ]);
+    }
+
     public static function table(Table $table): Table
     {
         return $table
@@ -46,7 +173,7 @@ class StudentAchievementResource extends Resource
                 TextColumn::make('student.name')
                     ->label('Siswa')
                     ->searchable()
-                    ->limit(20),
+                    ->limit(16),
 
                 TextColumn::make('student.schoolClass.name')
                     ->label('Kelas')
@@ -55,13 +182,14 @@ class StudentAchievementResource extends Resource
                 TextColumn::make('title')
                     ->label('Judul Prestasi')
                     ->searchable()
-                    ->limit(25),
+                    ->limit(20)
+                    ->wrap(),
 
                 TextColumn::make('organizer')
                     ->label('Penyelenggara')
                     ->searchable()
                     ->placeholder('—')
-                    ->limit(20),
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('field_category')
                     ->label('Rumpun')
@@ -85,10 +213,10 @@ class StudentAchievementResource extends Resource
                 TextColumn::make('rank')
                     ->label('Peringkat')
                     ->placeholder('—')
-                    ->limit(15),
+                    ->limit(12),
 
                 TextColumn::make('curation_status')
-                    ->label('Status Kurasi')
+                    ->label('Status')
                     ->badge()
                     ->color(fn (StudentAchievement $record): string => $record->curationStatusColor())
                     ->formatStateUsing(fn (StudentAchievement $record): string => $record->curationStatusLabel()),
@@ -129,12 +257,16 @@ class StudentAchievementResource extends Resource
                     ]),
             ])
             ->actions([
-                ViewAction::make(),
+                ViewAction::make()
+                    ->iconButton()
+                    ->tooltip('Lihat Detail Prestasi'),
 
                 Action::make('curate')
                     ->label('Lolos Kurasi')
+                    ->tooltip('Sahkan Lolos Kurasi')
                     ->icon('heroicon-o-check-badge')
                     ->color('success')
+                    ->iconButton()
                     ->requiresConfirmation()
                     ->modalHeading('Loloskan Kurasi Prestasi')
                     ->modalDescription('Prestasi ini akan disahkan sebagai Lolos Kurasi Standar Puspresnas/SIMT.')
@@ -151,8 +283,10 @@ class StudentAchievementResource extends Resource
 
                 Action::make('revision')
                     ->label('Perlu Revisi')
+                    ->tooltip('Minta Revisi Berkas')
                     ->icon('heroicon-o-arrow-path')
                     ->color('warning')
+                    ->iconButton()
                     ->form([
                         Textarea::make('curation_note')
                             ->label('Catatan Revisi untuk Siswa')
@@ -172,8 +306,10 @@ class StudentAchievementResource extends Resource
 
                 Action::make('reject')
                     ->label('Tolak')
+                    ->tooltip('Tolak / Tidak Layak Kurasi')
                     ->icon('heroicon-o-x-circle')
                     ->color('danger')
+                    ->iconButton()
                     ->form([
                         Textarea::make('curation_note')
                             ->label('Alasan Tidak Layak Kurasi')

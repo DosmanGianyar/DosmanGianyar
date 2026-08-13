@@ -72,7 +72,7 @@ class ForgotAttendanceResource extends Resource
                     ->placeholder('—'),
 
                 TextColumn::make('type')
-                    ->label('Jenis Lupa Absen')
+                    ->label('Jenis')
                     ->badge()
                     ->color(fn (string $state) => match($state) {
                         'pulang'   => 'warning',
@@ -82,13 +82,14 @@ class ForgotAttendanceResource extends Resource
                     ->formatStateUsing(fn (ForgotAttendanceRequest $record) => $record->typeLabel()),
 
                 TextColumn::make('date')
-                    ->label('Tanggal Lupa Absen')
+                    ->label('Tanggal')
                     ->date('d/m/Y')
                     ->sortable(),
 
                 TextColumn::make('reason')
                     ->label('Alasan')
-                    ->limit(25)
+                    ->limit(20)
+                    ->wrap()
                     ->tooltip(fn (ForgotAttendanceRequest $record) => $record->reason),
 
                 TextColumn::make('status')
@@ -104,7 +105,8 @@ class ForgotAttendanceResource extends Resource
 
                 TextColumn::make('reviewer.name')
                     ->label('Diproses Oleh')
-                    ->placeholder('—'),
+                    ->placeholder('—')
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('created_at')
                     ->label('Diajukan')
@@ -134,8 +136,10 @@ class ForgotAttendanceResource extends Resource
             ->recordActions([
                 Action::make('approve')
                     ->label('Setujui')
+                    ->tooltip('Setujui Pengajuan')
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
+                    ->iconButton()
                     ->visible(fn (ForgotAttendanceRequest $record) => $record->isPending())
                     ->form([
                         Textarea::make('teacher_note')
@@ -183,8 +187,10 @@ class ForgotAttendanceResource extends Resource
 
                 Action::make('reject')
                     ->label('Tolak')
+                    ->tooltip('Tolak Pengajuan')
                     ->icon('heroicon-o-x-circle')
                     ->color('danger')
+                    ->iconButton()
                     ->visible(fn (ForgotAttendanceRequest $record) => $record->isPending())
                     ->form([
                         Textarea::make('teacher_note')

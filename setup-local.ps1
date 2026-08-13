@@ -12,19 +12,17 @@ Set-Location $rootDir
 # 1. Cek / Cari PHP
 $phpCmd = "php"
 if (-not (Get-Command php -ErrorAction SilentlyContinue)) {
-    # Cari di tempat instalasi umum (Laragon / XAMPP / Herd)
     $possiblePhp = @(
-        (Get-ChildItem -Path "C:\laragon\bin\php" -Filter "php.exe" -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1).FullName,
         "C:\xampp\php\php.exe",
         "$env:USERPROFILE\.config\herd-lite\bin\php.exe"
     ) | Where-Object { $_ -and (Test-Path $_) }
 
     if ($possiblePhp.Count -gt 0) {
-        $phpCmd = $possiblePhp[0]
+        $phpCmd = [string]$possiblePhp[0]
         Write-Host "[+] Ditemukan PHP di: $phpCmd" -ForegroundColor Green
     } else {
-        Write-Host "[!] PERINGATAN: PHP tidak ditemukan di system PATH maupun folder standar (Laragon/XAMPP)." -ForegroundColor Yellow
-        Write-Host "    Silakan install PHP 8.2+ (atau Laragon/XAMPP) dan tambahkan ke Environment Variables PATH." -ForegroundColor Yellow
+        Write-Host "[!] PERINGATAN: PHP tidak ditemukan di system PATH maupun folder standar." -ForegroundColor Yellow
+        Write-Host "    Silakan install PHP 8.2+ dan tambahkan ke Environment Variables PATH." -ForegroundColor Yellow
     }
 } else {
     Write-Host "[+] PHP terdeteksi di System PATH." -ForegroundColor Green
@@ -35,23 +33,37 @@ $composerCmd = "composer"
 if (-not (Get-Command composer -ErrorAction SilentlyContinue)) {
     $possibleComposer = @(
         "$rootDir\composer.phar",
-        "C:\laragon\bin\composer\composer.bat",
         "C:\xampp\php\composer.bat",
         "C:\ProgramData\ComposerSetup\bin\composer.bat"
     ) | Where-Object { $_ -and (Test-Path $_) }
 
     if ($possibleComposer.Count -gt 0) {
-        $composerCmd = $possibleComposer[0]
+        $composerCmd = [string]$possibleComposer[0]
         Write-Host "[+] Ditemukan Composer di: $composerCmd" -ForegroundColor Green
     }
+} else {
+    Write-Host "[+] Composer terdeteksi di System PATH." -ForegroundColor Green
 }
 
 # 3. Cek Node & npm
 $nodeCmd = "node"
 $npmCmd = "npm"
 if (-not (Get-Command node -ErrorAction SilentlyContinue)) {
-    Write-Host "[!] PERINGATAN: Node.js / npm tidak ditemukan di system PATH." -ForegroundColor Yellow
-    Write-Host "    Silakan install Node.js (v20+) dari https://nodejs.org/" -ForegroundColor Yellow
+    $possibleNode = @(
+        "C:\Users\iputu\nodejs\node.exe",
+        "C:\Program Files\nodejs\node.exe"
+    ) | Where-Object { $_ -and (Test-Path $_) }
+
+    if ($possibleNode.Count -gt 0) {
+        $nodeCmd = [string]$possibleNode[0]
+        $npmCmd = Join-Path (Split-Path $nodeCmd) "npm.cmd"
+        Write-Host "[+] Ditemukan Node.js di: $nodeCmd" -ForegroundColor Green
+    } else {
+        Write-Host "[!] PERINGATAN: Node.js / npm tidak ditemukan di system PATH." -ForegroundColor Yellow
+        Write-Host "    Silakan install Node.js (v20+) dari https://nodejs.org/" -ForegroundColor Yellow
+    }
+} else {
+    Write-Host "[+] Node.js terdeteksi di System PATH." -ForegroundColor Green
 }
 
 # 4. Pastikan file .env tersedia
@@ -72,11 +84,11 @@ if (-not (Test-Path $sqliteDb)) {
 }
 
 # 6. Eksekusi setup Laravel jika PHP tersedia
-if (Get-Command $phpCmd -ErrorAction SilentlyContinue -or (Test-Path $phpCmd)) {
+if ((Test-Path $phpCmd) -or (Get-Command $phpCmd -ErrorAction SilentlyContinue)) {
     Write-Host "`n[*] Menjalankan perintah setup Laravel..." -ForegroundColor Cyan
 
     # Composer Install
-    if (Get-Command $composerCmd -ErrorAction SilentlyContinue -or (Test-Path $composerCmd)) {
+    if ((Test-Path $composerCmd) -or (Get-Command $composerCmd -ErrorAction SilentlyContinue)) {
         Write-Host "[*] Memasang dependensi PHP (composer install)..." -ForegroundColor Cyan
         & $composerCmd install --no-interaction --prefer-dist
     }
@@ -98,7 +110,7 @@ if (Get-Command $phpCmd -ErrorAction SilentlyContinue -or (Test-Path $phpCmd)) {
 }
 
 # 7. Eksekusi setup Node / npm jika npm tersedia
-if (Get-Command $npmCmd -ErrorAction SilentlyContinue -or (Test-Path $npmCmd)) {
+if ((Test-Path $npmCmd) -or (Get-Command $npmCmd -ErrorAction SilentlyContinue)) {
     Write-Host "`n[*] Memasang dependensi Node (npm install)..." -ForegroundColor Cyan
     & $npmCmd install
 }

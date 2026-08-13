@@ -11,7 +11,9 @@ return new class extends Migration
     {
         // Modify category column to VARCHAR(50) to support all regulation categories
         if (Schema::hasTable('school_regulations')) {
-            DB::statement("ALTER TABLE school_regulations MODIFY category VARCHAR(50) NOT NULL");
+            if (DB::getDriverName() !== 'sqlite') {
+                DB::statement("ALTER TABLE school_regulations MODIFY category VARCHAR(50) NOT NULL");
+            }
         }
     }
 
