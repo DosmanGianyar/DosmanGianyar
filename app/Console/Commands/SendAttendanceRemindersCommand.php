@@ -58,9 +58,7 @@ class SendAttendanceRemindersCommand extends Command
         $todayStr = $today->toDateString();
 
         // Ambil semua siswa aktif
-        $students = User::where(function ($q) {
-            $q->where('role', 'siswa')->orWhere('role', 'like', 'siswa%');
-        })->where('status', 'aktif')->get();
+        $students = User::whereIn('role', ['siswa', 'pengelola'])->get();
 
         // Filter ID siswa yang sudah ada izin/sakit/dispensasi yang disetujui hari ini
         $permittedUserIds = Permit::where('status', 'approved')
