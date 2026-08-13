@@ -62,22 +62,9 @@
                 <svg class="w-3.5 h-3.5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2z"/></svg>
                 Akumulasi Riwayat Siswa Ini:
             </p>
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5 text-[11px]">
-                <span class="px-2 py-1 bg-purple-100/80 text-purple-900 border border-purple-200/80 rounded-lg font-semibold flex items-center justify-between" title="Total Lupa Absen">
-                    <span>Lupa:</span>
-                    <span><strong>{{ $stats['lupa_absen_total'] }}x</strong> <span class="text-[10px] text-purple-700 font-normal">(ACC:{{ $stats['lupa_absen_approved'] }})</span></span>
-                </span>
-                <span class="px-2 py-1 bg-violet-100/80 text-violet-900 border border-violet-200/80 rounded-lg font-semibold flex items-center justify-between" title="Total Sakit">
-                    <span>Sakit:</span>
-                    <strong>{{ $stats['sakit'] }}x</strong>
-                </span>
-                <span class="px-2 py-1 bg-sky-100/80 text-sky-900 border border-sky-200/80 rounded-lg font-semibold flex items-center justify-between" title="Total Izin">
-                    <span>Izin:</span>
-                    <strong>{{ $stats['izin'] }}x</strong>
-                </span>
-                <span class="px-2 py-1 bg-emerald-100/80 text-emerald-900 border border-emerald-200/80 rounded-lg font-semibold flex items-center justify-between" title="Total Dispensasi">
-                    <span>Dispen:</span>
-                    <strong>{{ $stats['dispensasi'] }}x</strong>
+            <div class="text-[11px]">
+                <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-purple-100/90 text-purple-900 border border-purple-200 rounded-lg font-semibold" title="Total Pengajuan Lupa Absen Siswa">
+                    <span>📊 Lupa Absen: <strong>{{ $stats['lupa_absen_total'] }}x</strong> <span class="text-[10px] text-purple-700 font-normal">(ACC: {{ $stats['lupa_absen_approved'] }})</span></span>
                 </span>
             </div>
         </div>

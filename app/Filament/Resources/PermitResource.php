@@ -61,7 +61,11 @@ class PermitResource extends Resource
                     ->searchable()
                     ->sortable()
                     ->weight('semibold')
-                    ->description(fn (Permit $record) => $record->student?->getAttendanceStatsBadgesHtml()),
+                    ->description(function (Permit $record) {
+                        if (! $record->student) return null;
+                        $stats = $record->student->getAttendanceStatsSummary();
+                        return "📊 Lupa Absen: {$stats['lupa_absen_total']}x (ACC: {$stats['lupa_absen_approved']})";
+                    }),
 
                 TextColumn::make('student.schoolClass.name')
                     ->label('Kelas')
