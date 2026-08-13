@@ -39,26 +39,26 @@ html, body {
 /* Header Box */
 .header-box {
     position: absolute;
-    top: 0; left: 0; width: 242.56pt; height: 34pt;
+    top: 0; left: 0; width: 242.56pt; height: 36pt;
     background: #0a3880;
 }
 
 .hdr-table {
     width: 100%;
-    height: 34pt;
+    height: 36pt;
     border-collapse: collapse;
 }
 
 .hdr-logo-td {
-    width: 30pt;
+    width: 34pt;
     text-align: center;
     vertical-align: middle;
-    padding-left: 5pt;
+    padding-left: 6pt;
 }
 
 .hdr-logo-circle {
-    width: 22pt;
-    height: 22pt;
+    width: 24pt;
+    height: 24pt;
     background: #ffffff;
     border-radius: 50%;
     text-align: center;
@@ -67,18 +67,18 @@ html, body {
 }
 
 .hdr-logo-img {
-    width: 18pt;
-    height: 18pt;
+    width: 20pt;
+    height: 20pt;
     margin-top: 2pt;
 }
 
 .hdr-text-td {
     vertical-align: middle;
-    padding-left: 3pt;
+    padding-left: 4pt;
 }
 
 .hdr-title {
-    font-size: 8pt;
+    font-size: 8.5pt;
     font-weight: bold;
     color: #ffffff;
     text-transform: uppercase;
@@ -95,7 +95,7 @@ html, body {
     width: 44pt;
     text-align: right;
     vertical-align: middle;
-    padding-right: 5pt;
+    padding-right: 6pt;
 }
 
 .hdr-badge-box {
@@ -114,21 +114,21 @@ html, body {
 /* Gold strip */
 .gold-strip {
     position: absolute;
-    top: 34pt; left: 0; width: 242.56pt; height: 2.5pt;
+    top: 36pt; left: 0; width: 242.56pt; height: 2.5pt;
     background: #b45309;
 }
 
 /* Body Box */
 .body-box {
     position: absolute;
-    top: 36.5pt; left: 0; width: 242.56pt; height: 112.5pt;
-    padding: 4pt 5pt;
+    top: 38.5pt; left: 0; width: 242.56pt; height: 110.5pt;
+    padding: 4pt 6pt;
 }
 
 .watermark-img {
     position: absolute;
-    right: 5pt; top: 15pt;
-    width: 55pt; height: 55pt;
+    right: 15pt; top: 15pt;
+    width: 65pt; height: 65pt;
     opacity: 0.04;
 }
 
@@ -229,22 +229,22 @@ html, body {
 .sig-td {
     vertical-align: bottom;
     text-align: center;
-    width: 82pt;
+    width: 85pt;
 }
 
 .sig-date { font-size: 3.8pt; color: #374151; }
 .sig-title { font-size: 3.8pt; font-weight: bold; color: #374151; }
 
 .sig-img-container {
-    height: 18pt;
+    height: 20pt;
     text-align: center;
-    margin: -1pt 0 -1pt 0;
+    margin: -2pt 0 -2pt 0;
 }
 
 .sig-img {
-    height: 20pt;
+    height: 24pt;
     width: auto;
-    max-width: 75pt;
+    max-width: 85pt;
 }
 
 .sig-name {
@@ -274,6 +274,7 @@ html, body {
     position: absolute;
     top: 0; left: 0; width: 242.56pt; height: 16pt;
     background: #0a3880;
+    z-index: 10;
 }
 
 .back-hdr-table {
@@ -286,10 +287,23 @@ html, body {
 .back-title-td { vertical-align: middle; color: #ffffff; font-size: 5pt; font-weight: bold; padding-left: 3pt; }
 .back-npsn-td { vertical-align: middle; text-align: right; color: rgba(255, 255, 255, 0.7); font-size: 3.8pt; padding-right: 4pt; }
 
+.back-watermark-img {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    margin-left: -40pt;
+    margin-top: -40pt;
+    width: 80pt;
+    height: 80pt;
+    opacity: 0.04;
+    z-index: 1;
+}
+
 .back-body-box {
     position: absolute;
     top: 16pt; left: 0; width: 242.56pt; height: 127pt;
     text-align: center; vertical-align: middle; padding-top: 8pt;
+    z-index: 5;
 }
 
 .qr-frame {
@@ -316,6 +330,7 @@ html, body {
     font-size: 4.5pt;
     font-weight: bold;
     letter-spacing: 0.12em;
+    z-index: 10;
 }
 </style>
 </head>
@@ -464,6 +479,11 @@ html, body {
             </tr>
         </table>
     </div>
+
+    <!-- Watermark Belakang -->
+    @if($logoBase64)
+    <img src="{{ $logoBase64 }}" class="back-watermark-img" alt="">
+    @endif
 
     <!-- Body -->
     <div class="back-body-box">
