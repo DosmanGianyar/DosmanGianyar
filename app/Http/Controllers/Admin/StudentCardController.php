@@ -31,6 +31,9 @@ class StudentCardController extends Controller
         // Logo sekolah sebagai base64
         $logoBase64 = $this->toBase64(public_path('img/logo_sekolah.png'), 'png');
 
+        // Stempel & TTD Kepsek sebagai base64
+        $ttdBase64  = $this->toBase64(public_path('img/ttd_kepsek.png'), 'png');
+
         // Foto siswa sebagai base64
         $photoBase64 = null;
         if ($user->photo) {
@@ -44,6 +47,7 @@ class StudentCardController extends Controller
             'siswa'       => $user,
             'qrPng'       => $qrPng,
             'logoBase64'  => $logoBase64,
+            'ttdBase64'   => $ttdBase64,
             'photoBase64' => $photoBase64,
         ])->setPaper([0, 0, 242.56, 153.07]); // 85.6mm × 54mm in points
 
