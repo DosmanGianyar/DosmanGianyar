@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\AchievementCategory;
 use App\Models\StudentAchievement;
+use App\Models\User;
 use App\Services\ImageService;
 use App\Services\StudentDataService;
 use Illuminate\Http\JsonResponse;
@@ -13,6 +14,32 @@ use Illuminate\Support\Facades\Auth;
 
 class AchievementController extends Controller
 {
+    public function searchStudents(Request $request): JsonResponse
+    {
+        $q = trim($request->get('q', ''));
+        $query = User::whereIn('role', ['siswa', 'pengelola'])
+            ->where('id', '!=', Auth::id())
+            ->with('schoolClass');
+
+        if ($q !== '') {
+            $query->where(function ($sub) use ($q) {
+                $sub->where('name', 'like', "%{$q}%")
+                    ->orWhere('nisn', 'like', "%{$q}%")
+                    ->orWhereHas('schoolClass', fn ($c) => $c->where('name', 'like', "%{$q}%"));
+            });
+        }
+
+        $students = $query->orderBy('name')->limit(30)->get(['id', 'name', 'nisn', 'class_id']);
+
+        return response()->json([
+            'students' => $students->map(fn ($s) => [
+                'id'         => $s->id,
+                'name'       => $s->name,
+                'nisn'       => $s->nisn,
+                'class_name' => $s->schoolClass?->name ?? '—',
+            ]),
+        ]);
+    }
     public function categories(): JsonResponse
     {
         $cats = AchievementCategory::orderBy('name')->get(['id', 'name']);

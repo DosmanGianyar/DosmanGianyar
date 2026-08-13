@@ -112,7 +112,13 @@ abstract final class AppColors {
   static const blue500    = Color(0xFF3B82F6); // text-blue-500
   static const blue800    = Color(0xFF1E40AF); // text-blue-800 · banner notif
 
+  static const purple50   = Color(0xFFFAF5FF);
+  static const purple100  = Color(0xFFF3E8FF);
+  static const purple200  = Color(0xFFE9D5FF);
+  static const purple300  = Color(0xFFD8B4FE);
   static const purple500  = Color(0xFFA855F7); // sakit
+  static const purple700  = Color(0xFF7E22CE);
+  static const purple900  = Color(0xFF581C87);
   static const teal500    = Color(0xFF14B8A6);  // dispensasi
 
   // ─── Violet (Prasarana) ──────────────────────────────────────────────────

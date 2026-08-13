@@ -268,6 +268,7 @@ class _CreateSheetState extends State<_CreateSheet> {
   XFile?                   _certificate;
   XFile?                   _assignmentLetter;
   List<AchievementCategory> _categories      = [];
+  List<Map<String, dynamic>> _selectedTeamMembers = [];
   bool                     _loadingCats       = true;
   bool                     _isSaving          = false;
 
@@ -344,6 +345,122 @@ class _CreateSheetState extends State<_CreateSheet> {
     }
   }
 
+  Future<void> _openTeamMemberPicker() async {
+    final searchCtrl = TextEditingController();
+    List<Map<String, dynamic>> searchResults = [];
+    bool isLoading = false;
+
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setModalState) {
+          Future<void> performSearch(String q) async {
+            setModalState(() => isLoading = true);
+            try {
+              final body = await ApiClient.get('/students/search', params: {'q': q});
+              final list = List<Map<String, dynamic>>.from(body['students'] ?? []);
+              setModalState(() {
+                searchResults = list;
+                isLoading = false;
+              });
+            } catch (_) {
+              setModalState(() => isLoading = false);
+            }
+          }
+
+          if (searchResults.isEmpty && !isLoading && searchCtrl.text.isEmpty) {
+            performSearch('');
+          }
+
+          return Container(
+            height: MediaQuery.of(context).size.height * 0.7,
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            ),
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 40, height: 4,
+                    decoration: BoxDecoration(color: AppColors.gray200, borderRadius: BorderRadius.circular(2)),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                const Text('Pilih Anggota Tim',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.gray800)),
+                const SizedBox(height: 4),
+                const Text('Cari nama atau kelas teman se-tim kamu',
+                    style: TextStyle(fontSize: 11, color: AppColors.gray400)),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: searchCtrl,
+                  onChanged: (val) => performSearch(val),
+                  decoration: InputDecoration(
+                    hintText: 'Cari nama teman...',
+                    hintStyle: const TextStyle(fontSize: 12, color: AppColors.gray400),
+                    prefixIcon: const Icon(Icons.search_rounded, size: 18, color: AppColors.gray400),
+                    filled: true,
+                    fillColor: AppColors.gray50,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.gray200)),
+                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.gray200)),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Expanded(
+                  child: isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : searchResults.isEmpty
+                          ? const Center(child: Text('Tidak ada siswa ditemukan', style: TextStyle(fontSize: 12, color: AppColors.gray400)))
+                          : ListView.builder(
+                              itemCount: searchResults.length,
+                              itemBuilder: (context, index) {
+                                final s = searchResults[index];
+                                final isSelected = _selectedTeamMembers.any((m) => m['id'] == s['id']);
+                                return CheckboxListTile(
+                                  value: isSelected,
+                                  title: Text(s['name'] ?? '', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                                  subtitle: Text('${s['class_name'] ?? ''} · NISN: ${s['nisn'] ?? '-'}',
+                                      style: const TextStyle(fontSize: 11, color: AppColors.gray400)),
+                                  activeColor: AppColors.purple700,
+                                  onChanged: (bool? checked) {
+                                    setState(() {
+                                      if (checked == true) {
+                                        if (!_selectedTeamMembers.any((m) => m['id'] == s['id'])) {
+                                          _selectedTeamMembers.add(s);
+                                        }
+                                      } else {
+                                        _selectedTeamMembers.removeWhere((m) => m['id'] == s['id']);
+                                      }
+                                    });
+                                    setModalState(() {});
+                                  },
+                                );
+                              },
+                            ),
+                ),
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.purple700,
+                    minimumSize: const Size.fromHeight(44),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  child: Text('Selesai (${_selectedTeamMembers.length} Terpilih)', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.white)),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
   Future<void> _submit() async {
     if (_titleCtrl.text.trim().isEmpty)   { _showSnack('Judul prestasi tidak boleh kosong.'); return; }
     if (_categoryId == null)              { _showSnack('Pilih kategori prestasi.'); return; }
@@ -354,7 +471,7 @@ class _CreateSheetState extends State<_CreateSheet> {
     setState(() => _isSaving = true);
     try {
       final dateStr = '${_date!.year}-${_date!.month.toString().padLeft(2,'0')}-${_date!.day.toString().padLeft(2,'0')}';
-      final formData = FormData.fromMap({
+      final Map<String, dynamic> formMap = {
         'title':              _titleCtrl.text.trim(),
         'event_name':         _eventNameCtrl.text.trim().isNotEmpty ? _eventNameCtrl.text.trim() : _titleCtrl.text.trim(),
         'organizer':          _organizerCtrl.text.trim(),
@@ -371,7 +488,14 @@ class _CreateSheetState extends State<_CreateSheet> {
           'certificate': await MultipartFile.fromFile(_certificate!.path, filename: 'certificate.jpg'),
         if (_assignmentLetter != null)
           'assignment_letter': await MultipartFile.fromFile(_assignmentLetter!.path, filename: 'assignment_letter.jpg'),
-      });
+      };
+
+      final formData = FormData.fromMap(formMap);
+      if (_participationType == 'beregu' && _selectedTeamMembers.isNotEmpty) {
+        for (var i = 0; i < _selectedTeamMembers.length; i++) {
+          formData.fields.add(MapEntry('team_member_ids[$i]', _selectedTeamMembers[i]['id'].toString()));
+        }
+      }
 
       await ApiClient.postForm('/achievements', formData);
       widget.onCreated();
@@ -474,6 +598,58 @@ class _CreateSheetState extends State<_CreateSheet> {
                 ),
               ])),
             ]),
+            if (_participationType == 'beregu') ...[
+              const SizedBox(height: 10),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppColors.purple50,
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: AppColors.purple200),
+                ),
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  const Row(children: [
+                    Icon(Icons.group_outlined, size: 16, color: AppColors.purple700),
+                    SizedBox(width: 6),
+                    Text('Anggota Tim (Siswa Lain)',
+                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.purple900)),
+                  ]),
+                  const SizedBox(height: 4),
+                  const Text('Pilih teman se-tim kamu agar data prestasi otomatis terdaftar di akun mereka.',
+                      style: TextStyle(fontSize: 10.5, color: AppColors.purple700)),
+                  const SizedBox(height: 10),
+                  if (_selectedTeamMembers.isNotEmpty) ...[
+                    Wrap(
+                      spacing: 6, runSpacing: 6,
+                      children: _selectedTeamMembers.map((m) => Chip(
+                        label: Text(m['name'] ?? '', style: const TextStyle(fontSize: 11, color: Colors.white, fontWeight: FontWeight.w600)),
+                        backgroundColor: AppColors.purple700,
+                        deleteIcon: const Icon(Icons.close_rounded, size: 14, color: Colors.white),
+                        onDeleted: () => setState(() => _selectedTeamMembers.removeWhere((item) => item['id'] == m['id'])),
+                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      )).toList(),
+                    ),
+                    const SizedBox(height: 10),
+                  ],
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: _openTeamMemberPicker,
+                      icon: const Icon(Icons.person_add_alt_1_rounded, size: 16, color: AppColors.purple700),
+                      label: Text(_selectedTeamMembers.isEmpty ? 'Cari & Tambah Anggota Tim' : 'Tambah Anggota Lain',
+                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.purple700)),
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: AppColors.purple300),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        backgroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                      ),
+                    ),
+                  ),
+                ]),
+              ),
+            ],
             const SizedBox(height: 14),
 
             // Kategori

@@ -114,6 +114,7 @@ Route::prefix('v1')->group(function () {
             Route::get('/achievement-categories', [AchievementController::class, 'categories']);
             Route::get('/achievements',            [AchievementController::class, 'index']);
             Route::post('/achievements',           [AchievementController::class, 'store']);
+            Route::get('/students/search',         [AchievementController::class, 'searchStudents']);
 
             // Nilai / Rapor
             Route::get('/grades',         [GradeController::class, 'index']);
