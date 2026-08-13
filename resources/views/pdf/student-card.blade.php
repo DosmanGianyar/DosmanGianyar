@@ -80,7 +80,7 @@ html, body {
 }
 
 .hdr-balinese {
-    font-size: 5.5pt;
+    font-size: 8.5pt;
     color: #93c5fd;
     margin-bottom: 0pt;
     line-height: 1.1;
@@ -97,7 +97,7 @@ html, body {
 .hdr-sub {
     font-size: 3.8pt;
     color: #93c5fd;
-    margin-top: 1pt;
+    margin-top: 1.5pt;
 }
 
 .hdr-badge-td {
@@ -287,71 +287,68 @@ html, body {
     background: #0a3880;
 }
 
-/* Back Card Header (Identical Logo Positioning) */
+/* Sleek Back Card Header */
 .back-header-box {
     position: absolute;
-    top: 0; left: 0; width: 242.56pt; height: 38pt;
+    top: 0; left: 0; width: 242.56pt; height: 20pt;
     background: #0a3880;
     z-index: 10;
 }
 
 .back-hdr-table {
-    width: 100%; height: 38pt; border-collapse: collapse;
+    width: 100%; height: 20pt; border-collapse: collapse;
 }
 
 .back-logo-td {
-    width: 42pt;
+    width: 22pt;
     text-align: center;
-    vertical-align: bottom;
-    padding-left: 6pt;
-    padding-bottom: 0pt;
+    vertical-align: middle;
+    padding-left: 5pt;
 }
 
 .back-logo-circle {
-    width: 30pt;
-    height: 30pt;
+    width: 14pt;
+    height: 14pt;
     background: #ffffff;
     border-radius: 50%;
     text-align: center;
     vertical-align: middle;
-    margin: 4pt auto 0 auto;
+    margin: 0 auto;
 }
 
 .back-logo-img {
-    width: 25pt;
-    height: 25pt;
-    margin-top: 2.5pt;
+    width: 12pt;
+    height: 12pt;
+    margin-top: 1pt;
 }
 
 .back-title-td {
     vertical-align: middle;
     color: #ffffff;
-    padding-left: 3pt;
-    padding-top: 1pt;
+    padding-left: 4pt;
 }
 
 .back-hdr-title {
-    font-size: 8.5pt;
+    font-size: 6.5pt;
     font-weight: bold;
     color: #ffffff;
     text-transform: uppercase;
-    line-height: 1.1;
+    letter-spacing: 0.05em;
 }
 
 .back-npsn-td {
     vertical-align: middle;
     text-align: right;
-    color: rgba(255, 255, 255, 0.8);
+    color: rgba(255, 255, 255, 0.75);
     font-size: 4pt;
     padding-right: 6pt;
-    padding-top: 2pt;
 }
 
 /* Flanking Logos on Left & Right of QR Code */
 .back-logo-flank-left {
     position: absolute;
     left: 15pt;
-    top: 48pt;
+    top: 32pt;
     width: 48pt;
     height: 48pt;
     opacity: 0.12;
@@ -361,7 +358,7 @@ html, body {
 .back-logo-flank-right {
     position: absolute;
     right: 15pt;
-    top: 48pt;
+    top: 32pt;
     width: 48pt;
     height: 48pt;
     opacity: 0.12;
@@ -370,8 +367,8 @@ html, body {
 
 .back-body-box {
     position: absolute;
-    top: 38pt; left: 0; width: 242.56pt; height: 105pt;
-    text-align: center; vertical-align: middle; padding-top: 4pt;
+    top: 20pt; left: 0; width: 242.56pt; height: 123pt;
+    text-align: center; vertical-align: middle; padding-top: 8pt;
     z-index: 5;
 }
 
@@ -434,7 +431,7 @@ html, body {
                 </td>
                 <td class="hdr-text-td">
                     @if(!empty($aksaraBaliBase64))
-                        <img src="{{ $aksaraBaliBase64 }}" style="height: 6pt; width: auto; display: block; margin-bottom: 2.5pt;" alt="Aksara Bali">
+                        <img src="{{ $aksaraBaliBase64 }}" style="height: 10pt; width: auto; display: block; margin-bottom: 2pt;" alt="Aksara Bali">
                     @else
                         <div class="hdr-balinese">᭞ᬏᬲ᭄ᬏᬫ᭄ᬅ᭞ᬦᭂᬕᭂᬭᬶ᭞᭑᭞ᬕ᭄ᬬᬜᬃ᭞</div>
                     @endif

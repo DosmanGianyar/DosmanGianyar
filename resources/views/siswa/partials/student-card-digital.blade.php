@@ -38,7 +38,7 @@
                     </div>
 
                     <div style="flex: 1; min-width: 0; line-height: 1.15;">
-                        <p class="font-balinese" style="color: rgba(255,255,255,0.85); font-size: clamp(6.5px, 2.1cqw, 10px); margin: 0 0 2px 0; line-height: 1;">
+                        <p class="font-balinese" style="color: rgba(255,255,255,0.9); font-size: clamp(8.5px, 2.7cqw, 13.5px); margin: 0 0 1px 0; line-height: 1.1;">
                             ᭞ᬏᬲ᭄ᬏᬫ᭄ᬅ᭞ᬦᭂᬕᭂᬭᬶ᭞᭑᭞ᬕ᭄ᬬᬜᬃ᭞
                         </p>
                         <p style="font-weight: 800; color: #ffffff; text-transform: uppercase; letter-spacing: 0.04em; font-size: clamp(10px, 3.2cqw, 15.5px); margin: 0; font-family: 'Oswald', system-ui, sans-serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">

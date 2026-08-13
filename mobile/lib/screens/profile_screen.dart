@@ -914,9 +914,9 @@ class _IdFront extends StatelessWidget {
                 children: [
                   const Text('᭞ᬏᬲ᭄ᬏᬫ᭄ᬅ᭞ᬦᭂᬕᭂᬭᬶ᭞᭑᭞ᬕ᭄ᬬᬜᬃ᭞',
                     style: TextStyle(
-                      color: Color(0xFFBFDBFE), fontSize: 8.5, fontWeight: FontWeight.normal,
-                      height: 1.0)),
-                  const SizedBox(height: 3),
+                      color: Color(0xFFBFDBFE), fontSize: 11.0, fontWeight: FontWeight.normal,
+                      height: 1.1)),
+                  const SizedBox(height: 2),
                   const Text('SMA NEGERI 1 GIANYAR',
                     style: TextStyle(
                       color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.w800,
