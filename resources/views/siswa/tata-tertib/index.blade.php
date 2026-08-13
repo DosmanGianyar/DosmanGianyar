@@ -44,7 +44,7 @@
             <div>
                 <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight">Intisari Tata Tertib Peserta Didik</h1>
                 <p class="text-blue-100 text-xs md:text-sm mt-1 leading-relaxed max-w-2xl">
-                    Salinan sah dan utuh sesuai dengan Keputusan Kepala SMA Negeri 1 Gianyar. Dilengkapi pengesahan MPK, OSIS, Komite Sekolah & Kepala Sekolah.
+                    Salinan sah dan utuh sesuai dengan Keputusan Kepala SMA Negeri 1 Gianyar.
                 </p>
             </div>
 
@@ -65,7 +65,6 @@
                         <option value="sec-i" class="text-slate-800">I. Larangan Peserta Didik</option>
                         <option value="sec-j" class="text-slate-800">J. Upacara Bendera</option>
                         <option value="sec-k" class="text-slate-800">K. Ketentuan Lain</option>
-                        <option value="sec-pengesahan" class="text-slate-800">✍️ Lembar Pengesahan</option>
                     </select>
 
                     {{-- Search Input --}}
@@ -375,48 +374,6 @@
                     <li>Intisari tata tertib ini, merupakan kutipan dari tata tertib SMA Negeri 1 Gianyar yang ditetapkan berdasarkan keputusan kepala sekolah nomor B.10.400.3/1861/SMAN 1 GIANYAR/DISDIK</li>
                     <li>Foto contoh kerapian pada poin D dan E terlampir.</li>
                 </ol>
-            </section>
-
-            {{-- SIGNATURES / LEMBAR PENGESAHAN --}}
-            <section id="sec-pengesahan" class="pt-8 border-t border-slate-300 space-y-8">
-                <div class="grid grid-cols-2 gap-8 text-center text-xs md:text-sm">
-                    <div class="space-y-16">
-                        <p class="font-semibold text-slate-900">Ketua MPK</p>
-                        <div>
-                            <p class="font-bold text-slate-900 underline">I Gd Nesta Chandra Adyatma</p>
-                            <p class="text-slate-600">NIS. 15057</p>
-                        </div>
-                    </div>
-
-                    <div class="space-y-16">
-                        <p class="font-semibold text-slate-900">Ketua OSIS</p>
-                        <div>
-                            <p class="font-bold text-slate-900 underline">Putu Bhaskara Jaya Warnawa</p>
-                            <p class="text-slate-600">NIS. 15175</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="pt-4 text-center space-y-6">
-                    <p class="font-semibold text-slate-900 uppercase tracking-wider text-xs">Mengetahui,</p>
-                    
-                    <div class="grid grid-cols-2 gap-8 text-center text-xs md:text-sm">
-                        <div class="space-y-16">
-                            <p class="font-semibold text-slate-900">Ketua Komite</p>
-                            <div>
-                                <p class="font-bold text-slate-900 underline">Ir. Pande Nyoman Yoharsana</p>
-                            </div>
-                        </div>
-
-                        <div class="space-y-16">
-                            <p class="font-semibold text-slate-900">Kepala SMA Negeri 1 Gianyar</p>
-                            <div>
-                                <p class="font-bold text-slate-900 underline">I Wayan Sudiarta, S.Pd., M.Pd</p>
-                                <p class="text-slate-600">NIP. 19740415 199703 1 007</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </section>
 
         </div>
