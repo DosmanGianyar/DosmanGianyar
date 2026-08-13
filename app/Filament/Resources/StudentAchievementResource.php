@@ -46,7 +46,34 @@ class StudentAchievementResource extends Resource
     public static function infolist(Schema $schema): Schema
     {
         return $schema->components([
-            Section::make('Informasi Siswa & Prestasi')
+            Section::make('Status Kurasi & Verifikasi')
+                ->icon('heroicon-o-check-badge')
+                ->schema([
+                    TextEntry::make('curation_status')
+                        ->label('Status Kurasi')
+                        ->badge()
+                        ->color(fn (StudentAchievement $record): string => $record->curationStatusColor())
+                        ->formatStateUsing(fn (StudentAchievement $record): string => $record->curationStatusLabel()),
+
+                    TextEntry::make('verifier.name')
+                        ->label('Diverifikasi Oleh')
+                        ->placeholder('—'),
+
+                    TextEntry::make('verified_at')
+                        ->label('Waktu Verifikasi')
+                        ->dateTime('d F Y, H:i')
+                        ->placeholder('—'),
+
+                    TextEntry::make('curation_note')
+                        ->label('Catatan Kurasi / Alasan Revisi')
+                        ->placeholder('Tidak ada catatan')
+                        ->columnSpanFull(),
+                ])
+                ->columns(3)
+                ->columnSpanFull(),
+
+            Section::make('Informasi Siswa & Detail Kejuaraan')
+                ->icon('heroicon-o-trophy')
                 ->schema([
                     TextEntry::make('student.name')
                         ->label('Nama Siswa')
@@ -56,10 +83,14 @@ class StudentAchievementResource extends Resource
                         ->label('Kelas')
                         ->placeholder('—'),
 
+                    TextEntry::make('achievement_date')
+                        ->label('Tanggal Prestasi')
+                        ->date('d F Y'),
+
                     TextEntry::make('title')
                         ->label('Judul Prestasi / Kejuaraan')
-                        ->weight('semibold')
-                        ->columnSpan(2),
+                        ->weight('bold')
+                        ->columnSpanFull(),
 
                     TextEntry::make('event_name')
                         ->label('Nama Lomba / Event')
@@ -90,54 +121,30 @@ class StudentAchievementResource extends Resource
 
                     TextEntry::make('rank')
                         ->label('Peringkat / Juara')
+                        ->weight('medium')
                         ->placeholder('—'),
 
                     TextEntry::make('participation_type')
                         ->label('Jenis Partisipasi')
                         ->formatStateUsing(fn (StudentAchievement $record): string => $record->participationTypeLabel()),
 
-                    TextEntry::make('achievement_date')
-                        ->label('Tanggal Prestasi')
-                        ->date('d MMMM Y'),
-
                     TextEntry::make('event_url')
                         ->label('URL Event / Berita')
                         ->url(fn ($state) => $state)
                         ->openUrlInNewTab()
-                        ->placeholder('—'),
+                        ->placeholder('—')
+                        ->columnSpanFull(),
 
                     TextEntry::make('description')
                         ->label('Deskripsi Prestasi')
                         ->placeholder('—')
                         ->columnSpanFull(),
                 ])
-                ->columns(3),
-
-            Section::make('Status Kurasi & Verifikasi')
-                ->schema([
-                    TextEntry::make('curation_status')
-                        ->label('Status Kurasi')
-                        ->badge()
-                        ->color(fn (StudentAchievement $record): string => $record->curationStatusColor())
-                        ->formatStateUsing(fn (StudentAchievement $record): string => $record->curationStatusLabel()),
-
-                    TextEntry::make('verifier.name')
-                        ->label('Diverifikasi Oleh')
-                        ->placeholder('—'),
-
-                    TextEntry::make('verified_at')
-                        ->label('Waktu Verifikasi')
-                        ->dateTime('d MMMM Y, HH:mm')
-                        ->placeholder('—'),
-
-                    TextEntry::make('curation_note')
-                        ->label('Catatan Kurasi / Alasan Revisi')
-                        ->placeholder('Tidak ada catatan')
-                        ->columnSpanFull(),
-                ])
-                ->columns(3),
+                ->columns(3)
+                ->columnSpanFull(),
 
             Section::make('Berkas & Lampiran')
+                ->icon('heroicon-o-document-text')
                 ->schema([
                     TextEntry::make('certificate')
                         ->label('Sertifikat / Piagam')
@@ -158,11 +165,12 @@ class StudentAchievementResource extends Resource
                     ImageEntry::make('photo')
                         ->label('Foto Dokumentasi / Penyerahan')
                         ->disk('public')
-                        ->imageWidth(300)
+                        ->imageWidth(400)
                         ->columnSpanFull()
                         ->visible(fn (StudentAchievement $record): bool => ! empty($record->photo)),
                 ])
-                ->columns(2),
+                ->columns(2)
+                ->columnSpanFull(),
         ]);
     }
 
