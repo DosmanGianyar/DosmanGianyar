@@ -182,6 +182,28 @@ class User extends Authenticatable implements FilamentUser
         ];
     }
 
+    public function getAttendanceStatsBadgesHtml(): \Illuminate\Support\HtmlString
+    {
+        $stats = $this->getAttendanceStatsSummary();
+
+        $html = '<div class="grid grid-cols-2 gap-1 text-[10px] mt-1 max-w-[240px] font-sans">
+            <span class="inline-flex items-center justify-between px-1.5 py-0.5 rounded bg-purple-50 text-purple-700 border border-purple-200/60 font-semibold" title="Total Lupa Absen">
+                <span>Lupa:</span> <span class="ml-1 font-bold">' . $stats['lupa_absen_total'] . 'x <span class="text-[9px] text-purple-500 font-normal">(ACC:' . $stats['lupa_absen_approved'] . ')</span></span>
+            </span>
+            <span class="inline-flex items-center justify-between px-1.5 py-0.5 rounded bg-violet-50 text-violet-700 border border-violet-200/60 font-semibold" title="Total Sakit">
+                <span>Sakit:</span> <span class="ml-1 font-bold">' . $stats['sakit'] . 'x</span>
+            </span>
+            <span class="inline-flex items-center justify-between px-1.5 py-0.5 rounded bg-sky-50 text-sky-700 border border-sky-200/60 font-semibold" title="Total Izin">
+                <span>Izin:</span> <span class="ml-1 font-bold">' . $stats['izin'] . 'x</span>
+            </span>
+            <span class="inline-flex items-center justify-between px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200/60 font-semibold" title="Total Dispensasi">
+                <span>Dispen:</span> <span class="ml-1 font-bold">' . $stats['dispensasi'] . 'x</span>
+            </span>
+        </div>';
+
+        return new \Illuminate\Support\HtmlString($html);
+    }
+
     public function isBk(): bool
     {
         if ($this->role !== 'guru') return false;

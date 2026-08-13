@@ -61,11 +61,7 @@ class ForgotAttendanceResource extends Resource
                     ->searchable()
                     ->sortable()
                     ->weight('semibold')
-                    ->description(function (ForgotAttendanceRequest $record) {
-                        if (! $record->student) return null;
-                        $stats = $record->student->getAttendanceStatsSummary();
-                        return "Lupa: {$stats['lupa_absen_total']}x (ACC:{$stats['lupa_absen_approved']}) | S: {$stats['sakit']}x | I: {$stats['izin']}x | D: {$stats['dispensasi']}x";
-                    }),
+                    ->description(fn (ForgotAttendanceRequest $record) => $record->student?->getAttendanceStatsBadgesHtml()),
 
                 TextColumn::make('student.schoolClass.name')
                     ->label('Kelas')
