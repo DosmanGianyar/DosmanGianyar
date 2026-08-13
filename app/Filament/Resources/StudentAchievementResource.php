@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\StudentAchievementResource\Pages;
+use App\Filament\Resources\UserResource;
 use App\Models\StudentAchievement;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
@@ -20,6 +21,7 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class StudentAchievementResource extends Resource
 {
@@ -83,13 +85,47 @@ class StudentAchievementResource extends Resource
                         ->label('Nama Siswa')
                         ->weight('bold')
                         ->color('primary')
-                        ->icon('heroicon-o-user'),
+                        ->icon('heroicon-o-user')
+                        ->url(fn (StudentAchievement $record): ?string => $record->student_id ? UserResource::getUrl('view', ['record' => $record->student_id]) : null)
+                        ->openUrlInNewTab()
+                        ->tooltip('Klik untuk membuka profil lengkap siswa'),
 
                     TextEntry::make('student.schoolClass.name')
                         ->label('Kelas')
                         ->badge()
                         ->color('info')
                         ->placeholder('—'),
+
+                    TextEntry::make('student.phone')
+                        ->label('No. HP Siswa')
+                        ->icon('heroicon-o-phone')
+                        ->color('success')
+                        ->weight('bold')
+                        ->formatStateUsing(fn (?string $state) => filled($state) ? $state : 'Belum diisi')
+                        ->url(function (StudentAchievement $record): ?string {
+                            $phone = $record->student?->phone;
+                            if (blank($phone)) return null;
+                            $clean = preg_replace('/[^0-9]/', '', $phone);
+                            if (str_starts_with($clean, '0')) $clean = '62' . substr($clean, 1);
+                            return 'https://wa.me/' . $clean;
+                        })
+                        ->openUrlInNewTab()
+                        ->tooltip('Klik untuk chat WhatsApp siswa'),
+
+                    TextEntry::make('student.parent_phone')
+                        ->label('No. HP Orang Tua / Wali')
+                        ->icon('heroicon-o-phone')
+                        ->color('info')
+                        ->formatStateUsing(fn (?string $state) => filled($state) ? $state : 'Belum diisi')
+                        ->url(function (StudentAchievement $record): ?string {
+                            $phone = $record->student?->parent_phone;
+                            if (blank($phone)) return null;
+                            $clean = preg_replace('/[^0-9]/', '', $phone);
+                            if (str_starts_with($clean, '0')) $clean = '62' . substr($clean, 1);
+                            return 'https://wa.me/' . $clean;
+                        })
+                        ->openUrlInNewTab()
+                        ->tooltip('Klik untuk chat WhatsApp Orang Tua'),
 
                     TextEntry::make('achievement_date')
                         ->label('Tanggal Prestasi')
@@ -213,12 +249,45 @@ class StudentAchievementResource extends Resource
             ->columns([
                 TextColumn::make('student.name')
                     ->label('Siswa')
-                    ->searchable()
-                    ->limit(16),
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        return $query->whereHas('student', fn (Builder $q) => $q->where('name', 'like', "%{$search}%")->orWhere('nisn', 'like', "%{$search}%")->orWhere('nis', 'like', "%{$search}%"));
+                    })
+                    ->icon('heroicon-o-user')
+                    ->color('primary')
+                    ->weight('semibold')
+                    ->url(fn (StudentAchievement $record): ?string => $record->student_id ? UserResource::getUrl('view', ['record' => $record->student_id]) : null)
+                    ->openUrlInNewTab()
+                    ->tooltip('Klik untuk lihat profil siswa')
+                    ->limit(18),
 
                 TextColumn::make('student.schoolClass.name')
                     ->label('Kelas')
                     ->placeholder('—'),
+
+                TextColumn::make('student.phone')
+                    ->label('No. HP Siswa')
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        return $query->whereHas('student', fn (Builder $q) => $q->where('phone', 'like', "%{$search}%")->orWhere('parent_phone', 'like', "%{$search}%"));
+                    })
+                    ->icon('heroicon-o-chat-bubble-left-ellipsis')
+                    ->color('success')
+                    ->weight('medium')
+                    ->formatStateUsing(function (StudentAchievement $record): string {
+                        $phone = $record->student?->phone;
+                        if (filled($phone)) return $phone;
+                        $parentPhone = $record->student?->parent_phone;
+                        if (filled($parentPhone)) return $parentPhone . ' (Ortu)';
+                        return '—';
+                    })
+                    ->url(function (StudentAchievement $record): ?string {
+                        $phone = $record->student?->phone ?: $record->student?->parent_phone;
+                        if (blank($phone)) return null;
+                        $clean = preg_replace('/[^0-9]/', '', $phone);
+                        if (str_starts_with($clean, '0')) $clean = '62' . substr($clean, 1);
+                        return 'https://wa.me/' . $clean;
+                    })
+                    ->openUrlInNewTab()
+                    ->tooltip('Klik untuk chat WhatsApp'),
 
                 TextColumn::make('title')
                     ->label('Judul Prestasi')
@@ -301,6 +370,15 @@ class StudentAchievementResource extends Resource
                 ViewAction::make()
                     ->iconButton()
                     ->tooltip('Lihat Detail Prestasi'),
+
+                Action::make('student_profile')
+                    ->label('Profil Siswa')
+                    ->tooltip('Buka Profil Lengkap Siswa')
+                    ->icon('heroicon-o-user-circle')
+                    ->color('info')
+                    ->iconButton()
+                    ->url(fn (StudentAchievement $record): ?string => $record->student_id ? UserResource::getUrl('view', ['record' => $record->student_id]) : null)
+                    ->openUrlInNewTab(),
 
                 Action::make('curate')
                     ->label('Lolos Kurasi')
