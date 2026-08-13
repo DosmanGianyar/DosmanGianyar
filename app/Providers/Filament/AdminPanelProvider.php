@@ -34,6 +34,13 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->login(Login::class)
             ->profile(\App\Filament\Pages\Auth\EditProfile::class)
+            ->userMenuItems([
+                \Filament\Navigation\MenuItem::make()
+                    ->label('Panduan Presentasi Fitur')
+                    ->url(fn (): string => \App\Filament\Pages\SystemOverviewPage::getUrl())
+                    ->icon('heroicon-o-presentation-chart-bar')
+                    ->visible(fn (): bool => auth()->user()?->role === 'admin'),
+            ])
             ->colors([
                 'primary' => Color::Amber,
             ])

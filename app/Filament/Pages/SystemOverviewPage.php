@@ -13,11 +13,11 @@ class SystemOverviewPage extends Page
     protected static ?int                    $navigationSort  = 1;
 
     /**
-     * Kunci hak akses navigasi sidebar & akses halaman HANYA untuk Super Admin (role === 'admin').
+     * Sembunyikan halaman dari sidebar navigasi (Hanya diakses melalui User Profile Dropdown Top-Right).
      */
     public static function shouldRegisterNavigation(): bool
     {
-        return auth()->user()?->role === 'admin';
+        return false;
     }
 
     public static function canAccess(): bool
