@@ -912,12 +912,17 @@ class _IdFront extends StatelessWidget {
               Expanded(child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('SMA NEGERI 1 GIANYAR',
+                  const Text('᭞ᬏᬲ᭄ᬏᬫ᭄ᬅ᭞ᬦᭂᬕᭂᬭᬶ᭞᭑᭞ᬕ᭄ᬬᬜᬃ᭞',
+                    style: TextStyle(
+                      color: Color(0xFFBFDBFE), fontSize: 8.5, fontWeight: FontWeight.normal,
+                      height: 1.0)),
+                  const SizedBox(height: 1),
+                  const Text('SMA NEGERI 1 GIANYAR',
                     style: TextStyle(
                       color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.w800,
                       letterSpacing: 0.3, height: 1.1)),
-                  SizedBox(height: 2),
-                  Text('Jl. Ratna No.1, Gianyar, Bali 80511 · Telp. (0361) 943443',
+                  const SizedBox(height: 2),
+                  const Text('Jl. Ratna No.1, Gianyar, Bali 80511 · Telp. (0361) 943443',
                     style: TextStyle(color: Color(0xFFBFDBFE), fontSize: 7.5, height: 1.3)),
                 ],
               )),
@@ -1115,9 +1120,17 @@ class _IdBack extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 6),
-              const Text('SMA NEGERI 1 GIANYAR',
-                style: TextStyle(
-                  color: Colors.white, fontSize: 9.5, fontWeight: FontWeight.w700, letterSpacing: 0.4)),
+              const Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text('᭞ᬏᬲ᭄ᬏᬫ᭄ᬅ᭞ᬦᭂᬕᭂᬭᬶ᭞᭑᭞ᬕ᭄ᬬᬜᬃ᭞',
+                    style: TextStyle(color: Colors.white70, fontSize: 7, height: 1.0)),
+                  Text('SMA NEGERI 1 GIANYAR',
+                    style: TextStyle(
+                      color: Colors.white, fontSize: 9.5, fontWeight: FontWeight.w700, letterSpacing: 0.4, height: 1.1)),
+                ],
+              ),
               const Spacer(),
               const Text('NPSN 50102079',
                 style: TextStyle(color: Colors.white60, fontSize: 7.5)),

@@ -38,6 +38,9 @@
                     </div>
 
                     <div style="flex: 1; min-width: 0; line-height: 1.15;">
+                        <p class="font-balinese" style="color: rgba(255,255,255,0.85); font-size: clamp(6.5px, 2.1cqw, 10px); margin: 0; line-height: 1;">
+                            ᭞ᬏᬲ᭄ᬏᬫ᭄ᬅ᭞ᬦᭂᬕᭂᬭᬶ᭞᭑᭞ᬕ᭄ᬬᬜᬃ᭞
+                        </p>
                         <p style="font-weight: 800; color: #ffffff; text-transform: uppercase; letter-spacing: 0.04em; font-size: clamp(10px, 3.2cqw, 15.5px); margin: 0; font-family: 'Oswald', system-ui, sans-serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                             SMA Negeri 1 Gianyar
                         </p>
@@ -164,9 +167,14 @@
                     <div style="width: 10px; height: 10px; border-radius: 50%; background: #ffffff; flex-shrink: 0; overflow: hidden; display: flex; align-items: center; justify-content: center;">
                         <img src="{{ asset('img/logo_sekolah.png') }}" style="width: 100%; height: 100%; object-fit: contain; display: block;">
                     </div>
-                    <p style="font-weight: 800; color: #ffffff; font-size: clamp(5px, 1.6vw, 9px); text-transform: uppercase; letter-spacing: 0.05em; margin: 0;">
-                        SMA NEGERI 1 GIANYAR
-                    </p>
+                    <div style="display: flex; flex-direction: column; min-width: 0;">
+                        <span class="font-balinese" style="color: rgba(255,255,255,0.75); font-size: clamp(4.5px, 1.4vw, 7.5px); line-height: 1;">
+                            ᭞ᬏᬲ᭄ᬏᬫ᭄ᬅ᭞ᬦᭂᬕᭂᬭᬶ᭞᭑᭞ᬕ᭄ᬬᬜᬃ᭞
+                        </span>
+                        <p style="font-weight: 800; color: #ffffff; font-size: clamp(5px, 1.6vw, 9px); text-transform: uppercase; letter-spacing: 0.05em; margin: 0; line-height: 1.1;">
+                            SMA NEGERI 1 GIANYAR
+                        </p>
+                    </div>
                     <p style="color: rgba(255,255,255,0.7); font-size: clamp(3.5px, 1.2vw, 7px); margin-left: auto; margin-top: 0; margin-bottom: 0;">
                         NPSN 50102079
                     </p>
