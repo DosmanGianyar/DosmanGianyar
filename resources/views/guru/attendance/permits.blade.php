@@ -33,11 +33,9 @@
                     <p class="text-xs text-gray-400">{{ $permit->student->schoolClass?->name }}</p>
                 </div>
                 <span class="text-xs text-gray-400 shrink-0 text-right">
-                    {{ $permit->start_date->isoFormat('D MMM') }}
+                    {{ $permit->start_date->format('d/m/Y') }}
                     @if(!$permit->start_date->isSameDay($permit->end_date))
-                        —<br>{{ $permit->end_date->isoFormat('D MMM Y') }}
-                    @else
-                        {{ $permit->start_date->isoFormat('Y') }}
+                        —<br>{{ $permit->end_date->format('d/m/Y') }}
                     @endif
                 </span>
             </div>

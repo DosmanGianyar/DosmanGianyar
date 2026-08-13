@@ -85,8 +85,8 @@ class PermitResource extends Resource
 
                 TextColumn::make('start_date')
                     ->label('Tanggal')
-                    ->formatStateUsing(fn (Permit $record) => $record->start_date->isoFormat('D MMM Y') .
-                        ($record->start_date->eq($record->end_date) ? '' : ' – ' . $record->end_date->isoFormat('D MMM Y')))
+                    ->formatStateUsing(fn (Permit $record) => $record->start_date->format('d/m/Y') .
+                        ($record->start_date->eq($record->end_date) ? '' : ' – ' . $record->end_date->format('d/m/Y')))
                     ->sortable(),
 
                 TextColumn::make('reason')

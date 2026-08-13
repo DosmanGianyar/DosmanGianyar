@@ -83,7 +83,7 @@ class ForgotAttendanceResource extends Resource
 
                 TextColumn::make('date')
                     ->label('Tanggal Lupa Absen')
-                    ->date('d M Y')
+                    ->date('d/m/Y')
                     ->sortable(),
 
                 TextColumn::make('reason')

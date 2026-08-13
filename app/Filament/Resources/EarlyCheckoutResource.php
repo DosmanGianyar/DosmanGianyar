@@ -67,7 +67,7 @@ class EarlyCheckoutResource extends Resource
 
                 TextColumn::make('date')
                     ->label('Tanggal')
-                    ->date('d M Y')
+                    ->date('d/m/Y')
                     ->sortable(),
 
                 TextColumn::make('requested_time')
