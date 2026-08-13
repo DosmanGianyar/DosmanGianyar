@@ -288,28 +288,28 @@ html, body {
     background: #0a3880;
 }
 
-/* Sleek Back Card Header */
+/* Sleek Back Card Header (Perfectly Vertical Centered) */
 .back-header-box {
     position: absolute;
-    top: 0; left: 0; width: 242.56pt; height: 20pt;
+    top: 0; left: 0; width: 242.56pt; height: 24pt;
     background: #0a3880;
     z-index: 10;
 }
 
 .back-hdr-table {
-    width: 100%; height: 20pt; border-collapse: collapse;
+    width: 100%; height: 24pt; border-collapse: collapse;
 }
 
 .back-logo-td {
-    width: 22pt;
+    width: 26pt;
     text-align: center;
     vertical-align: middle;
-    padding-left: 5pt;
+    padding-left: 6pt;
 }
 
 .back-logo-circle {
-    width: 14pt;
-    height: 14pt;
+    width: 16pt;
+    height: 16pt;
     background: #ffffff;
     border-radius: 50%;
     text-align: center;
@@ -318,9 +318,9 @@ html, body {
 }
 
 .back-logo-img {
-    width: 12pt;
-    height: 12pt;
-    margin-top: 1pt;
+    width: 13pt;
+    height: 13pt;
+    margin-top: 1.5pt;
 }
 
 .back-title-td {
@@ -330,26 +330,28 @@ html, body {
 }
 
 .back-hdr-title {
-    font-size: 6.5pt;
+    font-size: 7.5pt;
     font-weight: bold;
     color: #ffffff;
     text-transform: uppercase;
     letter-spacing: 0.05em;
+    line-height: 24pt;
 }
 
 .back-npsn-td {
     vertical-align: middle;
     text-align: right;
-    color: rgba(255, 255, 255, 0.75);
-    font-size: 4pt;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 4.5pt;
     padding-right: 6pt;
+    line-height: 24pt;
 }
 
 /* Flanking Logos on Left & Right of QR Code */
 .back-logo-flank-left {
     position: absolute;
     left: 15pt;
-    top: 32pt;
+    top: 36pt;
     width: 48pt;
     height: 48pt;
     opacity: 0.12;
@@ -359,7 +361,7 @@ html, body {
 .back-logo-flank-right {
     position: absolute;
     right: 15pt;
-    top: 32pt;
+    top: 36pt;
     width: 48pt;
     height: 48pt;
     opacity: 0.12;
@@ -368,8 +370,8 @@ html, body {
 
 .back-body-box {
     position: absolute;
-    top: 20pt; left: 0; width: 242.56pt; height: 123pt;
-    text-align: center; vertical-align: middle; padding-top: 8pt;
+    top: 24pt; left: 0; width: 242.56pt; height: 119pt;
+    text-align: center; vertical-align: middle; padding-top: 6pt;
     z-index: 5;
 }
 
