@@ -67,7 +67,7 @@ class StudentCardController extends Controller
         }
 
         $text = '᭞ᬏᬲ᭄ᬏᬫ᭄ᬅ᭞ᬦᭂᬕᭂᬭᬶ᭞᭑᭞ᬕ᭄ᬬᬜᬃ᭞';
-        $fontSize = 38;
+        $fontSize = 32;
 
         $bbox = @imagettfbbox($fontSize, 0, $fontPath, $text);
         if (!$bbox) return null;

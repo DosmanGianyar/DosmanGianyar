@@ -39,44 +39,44 @@ html, body {
 /* Header Box */
 .header-box {
     position: absolute;
-    top: 0; left: 0; width: 242.56pt; height: 38pt;
+    top: 0; left: 0; width: 242.56pt; height: 40pt;
     background: #0a3880;
 }
 
 .hdr-table {
     width: 100%;
-    height: 38pt;
+    height: 40pt;
     border-collapse: collapse;
 }
 
 .hdr-logo-td {
-    width: 42pt;
+    width: 44pt;
     text-align: center;
-    vertical-align: bottom;
+    vertical-align: middle;
     padding-left: 6pt;
-    padding-bottom: 0pt;
 }
 
 .hdr-logo-circle {
-    width: 30pt;
-    height: 30pt;
+    width: 32pt;
+    height: 32pt;
     background: #ffffff;
     border-radius: 50%;
     text-align: center;
     vertical-align: middle;
-    margin: 4pt auto 0 auto;
+    margin: 0 auto;
 }
 
 .hdr-logo-img {
-    width: 25pt;
-    height: 25pt;
+    width: 27pt;
+    height: 27pt;
     margin-top: 2.5pt;
 }
 
 .hdr-text-td {
     vertical-align: middle;
-    padding-left: 3pt;
-    padding-top: 1pt;
+    padding-left: 4pt;
+    padding-top: 2pt;
+    padding-bottom: 1pt;
 }
 
 .hdr-balinese {
@@ -92,12 +92,13 @@ html, body {
     color: #ffffff;
     text-transform: uppercase;
     line-height: 1.1;
+    margin-bottom: 1.5pt;
 }
 
 .hdr-sub {
     font-size: 3.8pt;
     color: #93c5fd;
-    margin-top: 1.5pt;
+    line-height: 1.1;
 }
 
 .hdr-badge-td {
@@ -124,15 +125,15 @@ html, body {
 /* Gold strip */
 .gold-strip {
     position: absolute;
-    top: 38pt; left: 0; width: 242.56pt; height: 2.5pt;
+    top: 40pt; left: 0; width: 242.56pt; height: 2.5pt;
     background: #b45309;
 }
 
 /* Body Box */
 .body-box {
     position: absolute;
-    top: 40.5pt; left: 0; width: 242.56pt; height: 108.5pt;
-    padding: 3pt 6pt;
+    top: 42.5pt; left: 0; width: 242.56pt; height: 106.5pt;
+    padding: 2.5pt 6pt;
 }
 
 .watermark-img {
@@ -431,7 +432,7 @@ html, body {
                 </td>
                 <td class="hdr-text-td">
                     @if(!empty($aksaraBaliBase64))
-                        <img src="{{ $aksaraBaliBase64 }}" style="height: 10pt; width: auto; display: block; margin-bottom: 2pt;" alt="Aksara Bali">
+                        <img src="{{ $aksaraBaliBase64 }}" style="height: 7.5pt; width: auto; display: block; margin-top: 1pt; margin-bottom: 2pt;" alt="Aksara Bali">
                     @else
                         <div class="hdr-balinese">᭞ᬏᬲ᭄ᬏᬫ᭄ᬅ᭞ᬦᭂᬕᭂᬭᬶ᭞᭑᭞ᬕ᭄ᬬᬜᬃ᭞</div>
                     @endif
