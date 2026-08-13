@@ -54,6 +54,7 @@ html, body {
     text-align: center;
     vertical-align: middle;
     padding-left: 7pt;
+    padding-top: 4pt;
 }
 
 .hdr-logo-circle {
@@ -75,6 +76,7 @@ html, body {
 .hdr-text-td {
     vertical-align: middle;
     padding-left: 4pt;
+    padding-top: 4pt;
 }
 
 .hdr-title {
@@ -96,6 +98,7 @@ html, body {
     text-align: right;
     vertical-align: middle;
     padding-right: 7pt;
+    padding-top: 4pt;
 }
 
 .hdr-badge-box {
