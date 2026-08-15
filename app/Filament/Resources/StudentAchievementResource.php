@@ -395,6 +395,12 @@ class StudentAchievementResource extends Resource
                     ->placeholder('—')
                     ->limit(12),
 
+                TextColumn::make('is_curation')
+                    ->label('Tipe Pengajuan')
+                    ->badge()
+                    ->color(fn (bool $state): string => $state ? 'warning' : 'gray')
+                    ->formatStateUsing(fn (bool $state): string => $state ? '🎖️ Kurasi' : '🏆 Regular'),
+
                 TextColumn::make('curation_status')
                     ->label('Status')
                     ->badge()
@@ -408,6 +414,12 @@ class StudentAchievementResource extends Resource
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
+                SelectFilter::make('is_curation')
+                    ->label('Tipe Pengajuan')
+                    ->options([
+                        '1' => '🎖️ Pengajuan Kurasi Kemendikdasmen',
+                        '0' => '🏆 Prestasi Internal Sekolah',
+                    ]),
                 SelectFilter::make('curation_status')
                     ->label('Status Kurasi')
                     ->options([

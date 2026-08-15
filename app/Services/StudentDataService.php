@@ -167,6 +167,7 @@ class StudentDataService
             'description'           => $a->description,
             'event_url'             => $a->event_url,
             'status'                => $a->status,
+            'is_curation'           => (bool) $a->is_curation,
             'curation_status'       => $a->curation_status,
             'curation_status_label' => $a->curationStatusLabel(),
             'curation_note'         => $a->curation_note,

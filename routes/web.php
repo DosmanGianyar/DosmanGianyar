@@ -367,6 +367,7 @@ Route::middleware(['auth', 'role:siswa,pengelola', 'force.password.change'])->pr
         Route::get('/report', [SiswaAchievement::class, 'report'])->name('report');
         Route::get('/create', [SiswaAchievement::class, 'create'])->name('create');
         Route::post('/', [SiswaAchievement::class, 'store'])->name('store');
+        Route::get('/download-example/{key}', [SiswaAchievement::class, 'downloadExample'])->name('download-example');
         Route::get('/verify', [SiswaAchievementVerify::class, 'index'])->name('verify');
         Route::patch('/{achievement}/approve', [SiswaAchievementVerify::class, 'approve'])->name('approve');
         Route::patch('/{achievement}/reject', [SiswaAchievementVerify::class, 'reject'])->name('reject');

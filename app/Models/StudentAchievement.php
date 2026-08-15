@@ -14,11 +14,20 @@ class StudentAchievement extends Model
         'event_url', 'assignment_letter',
         'status', 'curation_status', 'curation_note',
         'verified_by', 'verified_at', 'rejection_reason',
+        'is_curation',
+        'doc_standard_checklist', 'doc_standard_file', 'doc_standard_url',
+        'selection_level', 'selection_level_file', 'selection_level_url',
+        'frequency_consistency', 'frequency_consistency_file', 'frequency_consistency_url',
+        'infrastructure_type', 'infrastructure_file',
+        'reward_types', 'reward_certificate_file', 'reward_photo_file', 'reward_recap_file',
     ];
 
     protected $casts = [
-        'achievement_date' => 'date',
-        'verified_at'      => 'datetime',
+        'achievement_date'       => 'date',
+        'verified_at'            => 'datetime',
+        'is_curation'            => 'boolean',
+        'doc_standard_checklist' => 'array',
+        'reward_types'           => 'array',
     ];
 
     public function student(): BelongsTo

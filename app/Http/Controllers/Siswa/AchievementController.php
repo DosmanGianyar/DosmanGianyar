@@ -45,22 +45,51 @@ class AchievementController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        $data = $request->validate([
+        $rules = [
+            'is_curation'        => 'nullable|boolean',
             'title'              => 'required|string|max:200',
             'event_name'         => 'nullable|string|max:200',
             'organizer'          => 'nullable|string|max:200',
+            'field_category'     => 'nullable|string|max:50',
             'category_id'        => 'required|exists:achievement_categories,id',
-            'field_category'     => 'nullable|string|in:sains_riset,olahraga,seni_budaya,bahasa_debat,keagamaan,akademik,lainnya',
             'level'              => 'required|in:sekolah,kabupaten,provinsi,nasional,internasional',
             'rank'               => 'nullable|string|max:50',
-            'participation_type' => 'required|in:individu,beregu',
+            'participation_type' => 'nullable|in:individu,beregu',
             'team_member_ids'    => 'nullable|array',
             'team_member_ids.*'  => 'exists:users,id',
             'achievement_date'   => 'required|date|before_or_equal:today',
             'description'        => 'nullable|string|max:1000',
             'photo'              => 'required|image|max:5120',
-            'certificate'        => 'nullable|image|max:5120',
-        ]);
+            'certificate'        => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:10240',
+        ];
+
+        if ($request->boolean('is_curation')) {
+            $rules = array_merge($rules, [
+                'doc_standard_checklist'      => 'nullable|array',
+                'doc_standard_checklist.*'    => 'string',
+                'doc_standard_file'           => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:10240',
+                'doc_standard_url'            => 'nullable|url|max:500',
+
+                'selection_level'             => 'nullable|in:3_tingkat,2_tingkat,1_tingkat',
+                'selection_level_file'        => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:10240',
+                'selection_level_url'         => 'nullable|url|max:500',
+
+                'frequency_consistency'       => 'nullable|in:berturut_gt3,berturut_3,berturut_2,tidak_berturut',
+                'frequency_consistency_file'  => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png,zip|max:20480',
+                'frequency_consistency_url'   => 'nullable|url|max:500',
+
+                'infrastructure_type'         => 'nullable|in:utama_pendukung,utama,pendukung',
+                'infrastructure_file'         => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:10240',
+
+                'reward_types'                => 'nullable|array',
+                'reward_types.*'              => 'string',
+                'reward_certificate_file'     => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
+                'reward_photo_file'           => 'nullable|file|mimes:jpg,jpeg,png|max:10240',
+                'reward_recap_file'           => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:10240',
+            ]);
+        }
+
+        $data = $request->validate($rules);
 
         /** @var \App\Models\User $siswa */
         $siswa = Auth::user();
@@ -68,22 +97,50 @@ class AchievementController extends Controller
         $teamMemberIds = $data['team_member_ids'] ?? [];
         unset($data['team_member_ids']);
 
-        $data['student_id']      = $siswa->id;
-        $data['status']          = 'pending';
-        $data['curation_status'] = 'pending';
+        $data['student_id']     = $siswa->id;
+        $data['status']         = 'pending';
+        $data['curation_status']= $request->boolean('is_curation') ? 'pending' : 'curated';
+        $data['is_curation']    = $request->boolean('is_curation');
 
+        // Photo kegiatan wajib
         $data['photo'] = ImageService::store(
             $request->file('photo'),
             'achievements/photos/' . $siswa->id,
             1280, 80
         );
 
+        // Certificate
         if ($request->hasFile('certificate')) {
-            $data['certificate'] = ImageService::store(
-                $request->file('certificate'),
-                'achievements/certificates/' . $siswa->id,
-                1600, 85
-            );
+            $file = $request->file('certificate');
+            if (str_starts_with($file->getMimeType(), 'image/')) {
+                $data['certificate'] = ImageService::store($file, 'achievements/certificates/' . $siswa->id, 1600, 85);
+            } else {
+                $data['certificate'] = $file->store('achievements/certificates/' . $siswa->id, 'public');
+            }
+        }
+
+        // Berkas Kurasi (jika mode kurasi aktif)
+        if ($request->boolean('is_curation')) {
+            $curationFileFields = [
+                'doc_standard_file'          => 'curations/doc_standards/' . $siswa->id,
+                'selection_level_file'       => 'curations/selection_levels/' . $siswa->id,
+                'frequency_consistency_file' => 'curations/frequencies/' . $siswa->id,
+                'infrastructure_file'        => 'curations/infrastructures/' . $siswa->id,
+                'reward_certificate_file'    => 'curations/rewards/certificates/' . $siswa->id,
+                'reward_photo_file'          => 'curations/rewards/photos/' . $siswa->id,
+                'reward_recap_file'          => 'curations/rewards/recaps/' . $siswa->id,
+            ];
+
+            foreach ($curationFileFields as $field => $path) {
+                if ($request->hasFile($field)) {
+                    $file = $request->file($field);
+                    if (str_starts_with($file->getMimeType(), 'image/')) {
+                        $data[$field] = ImageService::store($file, $path, 1600, 85);
+                    } else {
+                        $data[$field] = $file->store($path, 'public');
+                    }
+                }
+            }
         }
 
         StudentAchievement::create($data);
@@ -100,8 +157,40 @@ class AchievementController extends Controller
             }
         }
 
+        $msg = $request->boolean('is_curation')
+            ? 'Prestasi & Berkas Kurasi Kemendikdasmen berhasil diajukan dan sedang dalam proses peninjauan.'
+            : 'Prestasi berhasil dilaporkan ke sekolah.';
+
         return redirect()->route('siswa.achievements.index')
-            ->with('success', 'Prestasi berhasil dilaporkan dan otomatis didaftarkan ke seluruh anggota tim!');
+            ->with('success', $msg);
+    }
+
+    /**
+     * Download contoh berkas panduan & sampel kurasi untuk siswa.
+     */
+    public function downloadExample(string $key)
+    {
+        $files = [
+            'panduan_lengkap' => 'kurasi/Persyaratan Pengisian Kurasi.pdf',
+            'poin1'           => 'kurasi/1. Dokumen Standar Penyelenggaraan Cabang Ajang Kompetensi Talenta/Panduan PORSENIJAR.pdf',
+            'poin2'           => 'kurasi/2. Tingkatan Seleksi Ajang Kompetensi Talenta/Panduan PORSENIJAR.pdf',
+            'poin3'           => 'kurasi/3. Konsistensi Frekuensi Penyelenggaraan Cabang Ajang Kompetensi Talenta/Contoh konsistensi frekuensi penyelenggaran cabang ajang kompetensi talenta.docx',
+            'poin4'           => 'kurasi/4. Sarana Prasarana Ajang Kompetensi Talenta/Foto Saat Lomba.png',
+            'poin5_piagam'    => 'kurasi/5. Penghargaan dan Apresiasi yang disediakan oleh penyelenggara Ajang Kompetensi Talenta/Piagam juara II Porsenijar 2025 - 48_Ni Made Selsa Sanjiwani.pdf',
+            'poin5_rekap'     => 'kurasi/5. Penghargaan dan Apresiasi yang disediakan oleh penyelenggara Ajang Kompetensi Talenta/Rekap Pemenang.pdf',
+        ];
+
+        if (!isset($files[$key])) {
+            abort(404, 'Contoh berkas tidak ditemukan.');
+        }
+
+        $filePath = public_path($files[$key]);
+
+        if (!file_exists($filePath)) {
+            abort(404, 'File tidak ditemukan di server.');
+        }
+
+        return response()->download($filePath);
     }
 
     public function show(StudentAchievement $achievement): View

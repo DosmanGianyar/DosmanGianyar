@@ -56,7 +56,8 @@ class AchievementController extends Controller
 
     public function store(Request $request): JsonResponse
     {
-        $data = $request->validate([
+        $rules = [
+            'is_curation'        => 'nullable|boolean',
             'title'              => 'required|string|max:200',
             'event_name'         => 'nullable|string|max:200',
             'organizer'          => 'nullable|string|max:200',
@@ -73,7 +74,35 @@ class AchievementController extends Controller
             'photo'              => 'required|image|max:5120',
             'certificate'        => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:10240',
             'assignment_letter'  => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:10240',
-        ]);
+        ];
+
+        if ($request->boolean('is_curation')) {
+            $rules = array_merge($rules, [
+                'doc_standard_checklist'      => 'nullable|array',
+                'doc_standard_checklist.*'    => 'string',
+                'doc_standard_file'           => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:10240',
+                'doc_standard_url'            => 'nullable|url|max:500',
+
+                'selection_level'             => 'nullable|in:3_tingkat,2_tingkat,1_tingkat',
+                'selection_level_file'        => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:10240',
+                'selection_level_url'         => 'nullable|url|max:500',
+
+                'frequency_consistency'       => 'nullable|in:berturut_gt3,berturut_3,berturut_2,tidak_berturut',
+                'frequency_consistency_file'  => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png,zip|max:20480',
+                'frequency_consistency_url'   => 'nullable|url|max:500',
+
+                'infrastructure_type'         => 'nullable|in:utama_pendukung,utama,pendukung',
+                'infrastructure_file'         => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:10240',
+
+                'reward_types'                => 'nullable|array',
+                'reward_types.*'              => 'string',
+                'reward_certificate_file'     => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
+                'reward_photo_file'           => 'nullable|file|mimes:jpg,jpeg,png|max:10240',
+                'reward_recap_file'           => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:10240',
+            ]);
+        }
+
+        $data = $request->validate($rules);
 
         /** @var \App\Models\User $siswa */
         $siswa = Auth::user();
@@ -83,7 +112,8 @@ class AchievementController extends Controller
 
         $data['student_id']      = $siswa->id;
         $data['status']          = 'pending';
-        $data['curation_status'] = 'pending';
+        $data['curation_status'] = $request->boolean('is_curation') ? 'pending' : 'curated';
+        $data['is_curation']    = $request->boolean('is_curation');
 
         $data['photo'] = ImageService::store(
             $request->file('photo'),
@@ -109,6 +139,29 @@ class AchievementController extends Controller
             }
         }
 
+        if ($request->boolean('is_curation')) {
+            $curationFileFields = [
+                'doc_standard_file'          => 'curations/doc_standards/' . $siswa->id,
+                'selection_level_file'       => 'curations/selection_levels/' . $siswa->id,
+                'frequency_consistency_file' => 'curations/frequencies/' . $siswa->id,
+                'infrastructure_file'        => 'curations/infrastructures/' . $siswa->id,
+                'reward_certificate_file'    => 'curations/rewards/certificates/' . $siswa->id,
+                'reward_photo_file'          => 'curations/rewards/photos/' . $siswa->id,
+                'reward_recap_file'          => 'curations/rewards/recaps/' . $siswa->id,
+            ];
+
+            foreach ($curationFileFields as $field => $path) {
+                if ($request->hasFile($field)) {
+                    $file = $request->file($field);
+                    if (in_array(strtolower($file->getClientOriginalExtension()), ['jpg', 'jpeg', 'png'])) {
+                        $data[$field] = ImageService::store($file, $path, 1600, 85);
+                    } else {
+                        $data[$field] = $file->store($path, 'public');
+                    }
+                }
+            }
+        }
+
         $achievement = StudentAchievement::create($data);
         $achievement->load('category');
 
@@ -124,7 +177,9 @@ class AchievementController extends Controller
         }
 
         return response()->json([
-            'message'     => 'Laporan prestasi berhasil dikirim dan otomatis didaftarkan ke seluruh anggota tim.',
+            'message'     => $request->boolean('is_curation')
+                ? 'Laporan prestasi & berkas kurasi berhasil dikirim dan sedang dalam proses verifikasi admin.'
+                : 'Laporan prestasi berhasil dikirim dan otomatis didaftarkan ke seluruh anggota tim.',
             'achievement' => StudentDataService::formatAchievement($achievement),
         ], 201);
     }
