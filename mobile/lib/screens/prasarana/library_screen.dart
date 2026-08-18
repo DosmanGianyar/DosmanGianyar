@@ -370,17 +370,6 @@ class _LibraryScreenState extends State<LibraryScreen> {
                             const SizedBox(height: 2),
                             Text('Kode: ${loan['book_code']}', style: const TextStyle(fontSize: 11, color: AppColors.slate500, fontFamily: 'monospace')),
                           ],
-                          if (loan['purpose'] != null && loan['purpose'].toString().isNotEmpty) ...[
-                            const SizedBox(height: 4),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFEEF2FF),
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: Text('Keperluan: ${loan['purpose']}', style: const TextStyle(fontSize: 10, color: AppColors.indigo700, fontWeight: FontWeight.bold)),
-                            ),
-                          ],
                           const Divider(height: 16),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -578,33 +567,7 @@ class _BorrowBookModalState extends State<_BorrowBookModal> {
               ),
               const SizedBox(height: 12),
 
-              // Keperluan
-              const Text('Keperluan Peminjaman *', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-              const SizedBox(height: 4),
-              Wrap(
-                spacing: 8,
-                children: ['BELAJAR', 'MEMBACA', 'MEMINJAM BUKU/REFERENSI', 'LAINNYA'].map((opt) {
-                  return ChoiceChip(
-                    label: Text(opt, style: const TextStyle(fontSize: 11)),
-                    selected: _purposeOption == opt,
-                    onSelected: (sel) {
-                      if (sel) setState(() => _purposeOption = opt);
-                    },
-                  );
-                }).toList(),
-              ),
-              if (_purposeOption == 'LAINNYA') ...[
-                const SizedBox(height: 8),
-                TextFormField(
-                  controller: _customPurposeController,
-                  decoration: const InputDecoration(
-                    labelText: 'Keperluan Lainnya',
-                    hintText: 'Tuliskan keperluan secara spesifik...',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-              ],
-              const SizedBox(height: 12),
+
 
               // Catatan
               TextFormField(
