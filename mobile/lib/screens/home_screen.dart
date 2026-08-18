@@ -18,6 +18,8 @@ import 'attendance/history_screen.dart';
 import 'kesiswaan/kesiswaan_screen.dart';
 import 'kurikulum/kurikulum_screen.dart';
 import 'prasarana/prasarana_screen.dart';
+import 'prasarana/library_screen.dart';
+import 'prasarana/library_visit_screen.dart';
 import 'humas/humas_screen.dart';
 import 'profile_screen.dart';
 import 'announcement_list_screen.dart';
@@ -470,6 +472,10 @@ class _DashboardBody extends StatelessWidget {
 
           // ── Card SIPINTER (diantara Kartu Siswa & Kalender Kehadiran) ──────
           const _ConductDashboardCard(),
+          const SizedBox(height: 12),
+
+          // ── Card Perpustakaan & Kunjungan Baca (Scan QR) ───────────────────
+          const _LibraryDashboardCard(),
           const SizedBox(height: 12),
 
           // ── Bukti Presensi (di atas Kalender Kehadiran) ────────────────────
@@ -1755,4 +1761,125 @@ class _ConductDashboardCardState extends State<_ConductDashboardCard> {
   ),
 );
 }
+}
+
+// ─── Dashboard Library Card (Perpustakaan & Kunjungan Baca) ───────────────────
+class _LibraryDashboardCard extends StatelessWidget {
+  const _LibraryDashboardCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF1E1B4B), Color(0xFF312E81), Color(0xFF1D4ED8)],
+        ),
+        borderRadius: AppRadius.card,
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x331E1B4B),
+            blurRadius: 10,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(Icons.menu_book_rounded, color: Color(0xFFFDE047), size: 20),
+                  ),
+                  const SizedBox(width: 10),
+                  const Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'PERPUSTAKAAN & BUKU',
+                        style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold, letterSpacing: 0.3),
+                      ),
+                      Text(
+                        'Presensi baca di tempat & pinjam buku',
+                        style: TextStyle(color: Color(0xFFDBEAFE), fontSize: 10),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFACC15),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Text(
+                  'SCAN QR',
+                  style: TextStyle(color: Color(0xFF78350F), fontSize: 9.5, fontWeight: FontWeight.w900),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Row(
+            children: [
+              Expanded(
+                child: SizedBox(
+                  height: 40,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const LibraryVisitScreen()),
+                      );
+                    },
+                    icon: const Icon(Icons.qr_code_scanner_rounded, size: 18),
+                    label: const Text('Scan QR Kunjungan', style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF2563EB),
+                      foregroundColor: Colors.white,
+                      elevation: 1,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: SizedBox(
+                  height: 40,
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const LibraryScreen()),
+                      );
+                    },
+                    icon: const Icon(Icons.auto_stories_rounded, size: 18),
+                    label: const Text('Pinjam & Kartu', style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold)),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      side: const BorderSide(color: Colors.white38),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 }
