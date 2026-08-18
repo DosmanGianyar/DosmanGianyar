@@ -31,13 +31,13 @@
         
         <!-- Top Decorative Header Bar -->
         <div class="w-full bg-gradient-to-r from-blue-900 via-indigo-800 to-blue-900 text-white py-4 px-6 rounded-2xl shadow-md flex items-center justify-between">
-            <img src="{{ asset('img/logo_bali.png') }}" alt="Logo Bali" class="h-16 w-auto object-contain">
+            <img src="{{ asset('img/logo-pemprov-bali.png') }}" alt="Logo Bali" class="h-16 w-auto object-contain">
             <div class="text-center flex-1 px-4">
                 <h2 class="text-xs uppercase tracking-widest font-semibold text-blue-200">PEMERINTAH PROVINSI BALI</h2>
                 <h1 class="text-lg font-black text-white tracking-wide">SMA NEGERI 1 GIANYAR</h1>
                 <p class="text-[11px] text-blue-100 italic">Perpustakaan Wijaya Kusuma</p>
             </div>
-            <img src="{{ asset('img/logo_dosman.png') }}" alt="Logo Dosman" class="h-16 w-auto object-contain">
+            <img src="{{ asset('img/logo_sekolah.png') }}" alt="Logo Dosman" class="h-16 w-auto object-contain">
         </div>
 
         <!-- Title Header -->
@@ -52,7 +52,7 @@
         <!-- Big QR Code Box -->
         <div class="p-6 bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-dashed border-blue-400 rounded-3xl shadow-inner flex flex-col items-center justify-center space-y-3">
             <div class="bg-white p-5 rounded-2xl shadow-md border border-gray-200">
-                {!! (new \chillerlan\QRCode\QRCode(new \chillerlan\QRCode\QROptions(['outputType' => 'svg', 'scale' => 8])))->render('SIMS_PERPUS_VISIT') !!}
+                <img src="{{ (new \chillerlan\QRCode\QRCode(new \chillerlan\QRCode\QROptions(['outputType' => 'svg', 'scale' => 8])))->render('SIMS_PERPUS_VISIT') }}" alt="QR Code" class="w-64 h-64 mx-auto object-contain">
             </div>
             <span class="font-mono text-xs font-bold text-blue-900 bg-white px-4 py-1.5 rounded-full border border-blue-200 shadow-sm">
                 KODE QR: SIMS_PERPUS_VISIT
