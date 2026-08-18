@@ -6,7 +6,7 @@
 <div class="max-w-lg mx-auto space-y-5 pb-8">
 
     {{-- Welcome Card --}}
-    <div class="bg-linear-to-br from-blue-600 via-indigo-600 to-indigo-800 rounded-3xl p-5 text-white shadow-lg shadow-indigo-200">
+    <div class="rounded-3xl p-5 text-white shadow-lg" style="background: linear-gradient(135deg, #0f2460 0%, #1a3a8f 50%, #1e3fad 100%) !important; color: #ffffff !important;">
         <div class="flex items-center justify-between">
             <div>
                 <p class="text-xs font-medium text-blue-200 uppercase tracking-wider">Portal Orang Tua</p>

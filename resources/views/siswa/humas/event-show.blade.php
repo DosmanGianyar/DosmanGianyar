@@ -8,7 +8,7 @@
 @if($event->coverPhotoUrl())
 <div class="rounded-2xl overflow-hidden mb-4 h-44 relative">
     <img src="{{ $event->coverPhotoUrl() }}" alt="{{ $event->title }}" class="w-full h-full object-cover">
-    <div class="absolute inset-0 bg-linear-to-t from-black/60 to-transparent"></div>
+    <div class="absolute inset-0" style="background: linear-gradient(to top, rgba(0, 0, 0, 0.75), transparent) !important;"></div>
     <div class="absolute bottom-0 left-0 right-0 p-4">
         <span class="text-[10px] font-bold px-2 py-0.5 rounded-full {{ $event->typeBadgeClass() }} mb-1.5 inline-block">
             {{ $event->typeLabel() }}
@@ -17,7 +17,7 @@
     </div>
 </div>
 @else
-<div class="bg-linear-to-br from-orange-500 to-rose-500 rounded-2xl p-4 mb-4 text-white">
+<div class="rounded-2xl p-4 mb-4 text-white shadow-md" style="background: linear-gradient(135deg, #ea580c 0%, #e11d48 100%) !important; color: #ffffff !important;">
     <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/20 mb-2 inline-block">
         {{ $event->typeLabel() }}
     </span>

@@ -5,7 +5,7 @@
 @section('content')
 
 {{-- ─── Header Banner ─────────────────────────────────────────────────── --}}
-<div class="bg-linear-to-br from-violet-600 to-purple-700 rounded-2xl p-4 mb-4">
+<div class="rounded-2xl p-4 mb-4 text-white shadow-md" style="background: linear-gradient(135deg, #6d28d9 0%, #5b21b6 100%) !important; color: #ffffff !important;">
     <div class="flex items-center gap-3">
         <div class="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center shrink-0">
             <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">

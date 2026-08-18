@@ -5,7 +5,7 @@
 @section('content')
 
 {{-- ─── Header Banner ────────────────────────────────────────────────── --}}
-<div class="bg-gradient-to-r from-indigo-700 via-purple-700 to-blue-800 rounded-3xl p-6 text-white shadow-lg relative overflow-hidden mb-6">
+<div class="rounded-3xl p-6 text-white shadow-lg relative overflow-hidden mb-6" style="background: linear-gradient(135deg, #0f2460 0%, #1a3a8f 50%, #1e3fad 100%) !important; color: #ffffff !important;">
     <div class="absolute -right-6 -bottom-6 w-36 h-36 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
     <div class="flex items-start justify-between gap-4 relative z-10">
         <div class="flex items-center gap-3.5">
