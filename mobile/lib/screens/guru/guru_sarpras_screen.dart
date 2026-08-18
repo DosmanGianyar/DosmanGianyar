@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../../models/guru_models.dart';
 import '../../services/guru_service.dart';
 import '../../theme/app_colors.dart';
+import '../prasarana/library_screen.dart';
+import '../prasarana/library_visit_screen.dart';
 
 class GuruSarprasScreen extends StatefulWidget {
   const GuruSarprasScreen({super.key});
@@ -116,6 +118,10 @@ class _DashboardTabState extends State<_DashboardTab> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // ─── Card Perpustakaan & Kunjungan Baca ─────────────────────────
+            const _GuruLibraryCard(),
+            const SizedBox(height: 16),
+
             const Text('Kondisi Aset',
                 style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.gray700)),
             const SizedBox(height: 10),
@@ -1350,6 +1356,108 @@ class _FilterChip extends StatelessWidget {
             color: selected ? color : AppColors.gray500,
           ),
         ),
+      ),
+    );
+  }
+}
+
+// ─── Card Perpustakaan untuk Guru ──────────────────────────────────────────────
+class _GuruLibraryCard extends StatelessWidget {
+  const _GuruLibraryCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF1D4ED8), Color(0xFF4338CA)],
+        ),
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF1D4ED8).withOpacity(0.25),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.20),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(Icons.menu_book_rounded, color: Color(0xFFFDE047), size: 20),
+              ),
+              const SizedBox(width: 10),
+              const Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('PERPUSTAKAAN & BUKU', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+                    Text('Presensi baca di tempat & pinjam buku perpustakaan', style: TextStyle(color: Color(0xFFDBEAFE), fontSize: 10)),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: SizedBox(
+                  height: 38,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const LibraryVisitScreen()),
+                      );
+                    },
+                    icon: const Icon(Icons.qr_code_scanner_rounded, size: 16),
+                    label: const Text('Scan QR Kunjungan', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF2563EB),
+                      foregroundColor: Colors.white,
+                      elevation: 1,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: SizedBox(
+                  height: 38,
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const LibraryScreen()),
+                      );
+                    },
+                    icon: const Icon(Icons.auto_stories_rounded, size: 16),
+                    label: const Text('Pinjam & Kartu', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      side: const BorderSide(color: Colors.white38),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

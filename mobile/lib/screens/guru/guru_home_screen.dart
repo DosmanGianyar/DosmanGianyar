@@ -14,6 +14,7 @@ import 'guru_qr_scanner_screen.dart';
 import 'guru_input_nilai_screen.dart';
 import 'guru_permit_screen.dart';
 import 'guru_sarpras_screen.dart';
+import '../prasarana/library_screen.dart';
 import 'guru_teaching_session_screen.dart';
 import 'guru_layanan_screen.dart';
 
@@ -717,6 +718,14 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
         'color': const Color(0xFF4F46E5),
         'bg': const Color(0xFFEEF2FF),
         'onTap': () => Navigator.push(context, MaterialPageRoute(builder: (_) => const GuruSarprasScreen())),
+      },
+      {
+        'title': 'Perpustakaan & Buku',
+        'subtitle': 'Scan QR & Pinjam',
+        'icon': Icons.menu_book_rounded,
+        'color': const Color(0xFF1D4ED8),
+        'bg': const Color(0xFFDBEAFE),
+        'onTap': () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LibraryScreen())),
       },
       {
         'title': 'Layanan & Direktori',
