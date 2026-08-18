@@ -25,17 +25,19 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   }
 
   Future<void> _triggerTestNotification() async {
+    final notifProv = context.read<NotificationProvider>();
     await PushNotificationService.showTestNotification(
       title: '🔔 Uji Coba Push Notifikasi SIMS',
-      body: 'Selamat! Spanduk & suara Push Notifikasi di HP Infinix Anda berfungsi 100%.',
+      body: 'Selamat! Spanduk, nada alert, dan pesan notifikasi di HP Infinix Anda berfungsi 100%.',
     );
     try {
       await ApiClient.post('/fcm-token/test');
     } catch (_) {}
+    await notifProv.fetchAll();
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('⚡ Push Notifikasi terkirim ke spanduk HP Anda!'),
+          content: Text('⚡ Push Notifikasi alert + nada berhasil dikirim & dibaca!'),
           backgroundColor: AppColors.green500,
           behavior: SnackBarBehavior.floating,
         ),

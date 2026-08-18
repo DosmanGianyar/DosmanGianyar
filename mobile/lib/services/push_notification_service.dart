@@ -35,13 +35,15 @@ class PushNotificationService {
 
       debugPrint('[FCM] User permission status: ${settings.authorizationStatus}');
 
-      // 3. Setup Android local notification channel
+      // 3. Setup Android local notification channel (High Alert & Sound)
       const AndroidNotificationChannel channel = AndroidNotificationChannel(
-        'sims_high_importance_channel',
-        'Notifikasi SIMS',
-        description: 'Notifikasi penting presensi, pengumuman, dan catatan siswa SMAN 1 Gianyar',
-        importance: Importance.high,
+        'sims_alert_v3_channel',
+        'Notifikasi Alert SIMS',
+        description: 'Notifikasi penting presensi, pengumuman, dan alert SMAN 1 Gianyar',
+        importance: Importance.max,
         playSound: true,
+        enableVibration: true,
+        enableLights: true,
       );
 
       const AndroidInitializationSettings initializationSettingsAndroid =
@@ -53,9 +55,13 @@ class PushNotificationService {
 
       await _localNotifications.initialize(initializationSettings);
 
-      await _localNotifications
-          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
-          ?.createNotificationChannel(channel);
+      final androidPlugin = _localNotifications
+          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+
+      if (androidPlugin != null) {
+        await androidPlugin.requestNotificationsPermission();
+        await androidPlugin.createNotificationChannel(channel);
+      }
 
       // 4. Foreground Message Listener
       FirebaseMessaging.onMessage.listen((RemoteMessage message) {
@@ -63,6 +69,7 @@ class PushNotificationService {
         AndroidNotification? android = message.notification?.android;
 
         if (notification != null && android != null && !kIsWeb) {
+          final Int64List vibrationPattern = Int64List.fromList([0, 500, 250, 500]);
           _localNotifications.show(
             notification.hashCode,
             notification.title,
@@ -74,8 +81,10 @@ class PushNotificationService {
                 channelDescription: channel.description,
                 icon: '@mipmap/ic_launcher',
                 importance: Importance.max,
-                priority: Priority.high,
+                priority: Priority.max,
                 playSound: true,
+                enableVibration: true,
+                vibrationPattern: vibrationPattern,
               ),
             ),
           );
@@ -131,18 +140,20 @@ class PushNotificationService {
     }
   }
 
-  /// Trigger a local push notification test directly on the device
+  /// Trigger a local push notification test directly on the device with full alert sound & vibration
   static Future<void> showTestNotification({
     String title = '🔔 Uji Coba Push Notifikasi SIMS',
-    String body = 'Selamat! Push Notifikasi di HP Android Anda berfungsi dengan lancar.',
+    String body = 'Selamat! Push Notifikasi dan nada alert di HP Anda telah aktif dan terbaca.',
   }) async {
     try {
       const AndroidNotificationChannel channel = AndroidNotificationChannel(
-        'sims_high_importance_channel',
-        'Notifikasi SIMS',
-        description: 'Notifikasi penting presensi, pengumuman, dan catatan siswa SMAN 1 Gianyar',
+        'sims_alert_v3_channel',
+        'Notifikasi Alert SIMS',
+        description: 'Notifikasi penting presensi, pengumuman, dan alert SMAN 1 Gianyar',
         importance: Importance.max,
         playSound: true,
+        enableVibration: true,
+        enableLights: true,
       );
 
       const AndroidInitializationSettings initializationSettingsAndroid =
@@ -159,8 +170,12 @@ class PushNotificationService {
 
       if (androidPlugin != null) {
         await androidPlugin.requestNotificationsPermission();
+        // Hapus channel lama agar Android memperbarui seting nada & alert
+        await androidPlugin.deleteNotificationChannel('sims_high_importance_channel');
         await androidPlugin.createNotificationChannel(channel);
       }
+
+      final Int64List vibrationPattern = Int64List.fromList([0, 500, 250, 500]);
 
       await _localNotifications.show(
         DateTime.now().millisecondsSinceEpoch ~/ 1000,
@@ -173,8 +188,16 @@ class PushNotificationService {
             channelDescription: channel.description,
             icon: '@mipmap/ic_launcher',
             importance: Importance.max,
-            priority: Priority.high,
+            priority: Priority.max,
             playSound: true,
+            enableVibration: true,
+            vibrationPattern: vibrationPattern,
+            styleInformation: BigTextStyleInformation(
+              body,
+              contentTitle: title,
+              htmlFormatContentTitle: true,
+              htmlFormatBigText: true,
+            ),
           ),
         ),
       );
