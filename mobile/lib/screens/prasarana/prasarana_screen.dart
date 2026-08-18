@@ -3,6 +3,7 @@ import '../../services/api_client.dart';
 import '../../theme/app_colors.dart';
 import 'library_screen.dart';
 import 'library_visit_screen.dart';
+import 'library_catalog_screen.dart';
 
 class PrasaranaScreen extends StatefulWidget {
   const PrasaranaScreen({super.key});
@@ -245,11 +246,33 @@ class _PrasaranaScreenState extends State<PrasaranaScreen> {
                             onPressed: () {
                               Navigator.push(
                                 context,
+                                MaterialPageRoute(builder: (_) => const LibraryCatalogScreen()),
+                              );
+                            },
+                            icon: const Icon(Icons.grid_view_rounded, size: 15),
+                            label: const Text('E-Katalog', style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.bold)),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.yellow600,
+                              foregroundColor: AppColors.slate900,
+                              elevation: 1,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: SizedBox(
+                          height: 38,
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
                                 MaterialPageRoute(builder: (_) => const LibraryVisitScreen()),
                               );
                             },
-                            icon: const Icon(Icons.qr_code_scanner_rounded, size: 16),
-                            label: const Text('Scan QR Kunjungan', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                            icon: const Icon(Icons.qr_code_scanner_rounded, size: 15),
+                            label: const Text('Kunjungan', style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.bold)),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF2563EB),
                               foregroundColor: Colors.white,
@@ -259,7 +282,7 @@ class _PrasaranaScreenState extends State<PrasaranaScreen> {
                           ),
                         ),
                       ),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: 6),
                       Expanded(
                         child: SizedBox(
                           height: 38,
@@ -270,8 +293,8 @@ class _PrasaranaScreenState extends State<PrasaranaScreen> {
                                 MaterialPageRoute(builder: (_) => const LibraryScreen()),
                               );
                             },
-                            icon: const Icon(Icons.auto_stories_rounded, size: 16),
-                            label: const Text('Pinjam Buku', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                            icon: const Icon(Icons.auto_stories_rounded, size: 15),
+                            label: const Text('Pinjam', style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.bold)),
                             style: OutlinedButton.styleFrom(
                               foregroundColor: Colors.white,
                               side: const BorderSide(color: Colors.white38),

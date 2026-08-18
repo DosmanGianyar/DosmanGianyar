@@ -3,6 +3,7 @@ import '../../services/api_client.dart';
 import '../../theme/app_colors.dart';
 import 'library_clearance_screen.dart';
 import 'library_visit_screen.dart';
+import 'library_catalog_screen.dart';
 
 class LibraryScreen extends StatefulWidget {
   const LibraryScreen({super.key});
@@ -72,6 +73,13 @@ class _LibraryScreenState extends State<LibraryScreen> {
         }
       });
     }
+  }
+
+  void _openCatalogScreen() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const LibraryCatalogScreen()),
+    );
   }
 
   void _openClearanceCard() {
@@ -193,9 +201,24 @@ class _LibraryScreenState extends State<LibraryScreen> {
                       children: [
                         Expanded(
                           child: ElevatedButton.icon(
+                            onPressed: _openCatalogScreen,
+                            icon: const Icon(Icons.grid_view_rounded, size: 15),
+                            label: const Text('E-Katalog', style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.bold)),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.indigo700,
+                              foregroundColor: Colors.white,
+                              elevation: 1,
+                              padding: const EdgeInsets.symmetric(vertical: 11),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: ElevatedButton.icon(
                             onPressed: _openVisitScreen,
-                            icon: const Icon(Icons.qr_code_scanner_rounded, size: 16),
-                            label: const Text('Kunjungan (Baca)', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                            icon: const Icon(Icons.qr_code_scanner_rounded, size: 15),
+                            label: const Text('Kunjungan', style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.bold)),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF2563EB),
                               foregroundColor: Colors.white,
@@ -205,12 +228,12 @@ class _LibraryScreenState extends State<LibraryScreen> {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: 6),
                         Expanded(
                           child: ElevatedButton.icon(
                             onPressed: _openClearanceCard,
-                            icon: const Icon(Icons.qr_code_rounded, size: 16),
-                            label: const Text('Kartu Bebas', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                            icon: const Icon(Icons.qr_code_rounded, size: 15),
+                            label: const Text('Kartu Bebas', style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.bold)),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFFEEF2FF),
                               foregroundColor: AppColors.indigo700,
