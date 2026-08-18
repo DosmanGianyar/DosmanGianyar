@@ -15,6 +15,8 @@ class LibraryLoan extends Model
         'phone_number',
         'book_title',
         'book_code',
+        'book_nisb',
+        'book_author',
         'borrowed_at',
         'due_at',
         'returned_at',

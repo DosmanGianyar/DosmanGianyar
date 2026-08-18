@@ -366,9 +366,22 @@ class _LibraryScreenState extends State<LibraryScreen> {
                               ),
                             ],
                           ),
-                          if (loan['book_code'] != null && loan['book_code'].toString().isNotEmpty) ...[
-                            const SizedBox(height: 2),
-                            Text('Kode: ${loan['book_code']}', style: const TextStyle(fontSize: 11, color: AppColors.slate500, fontFamily: 'monospace')),
+                          if ((loan['book_code'] != null && loan['book_code'].toString().isNotEmpty) ||
+                              (loan['book_nisb'] != null && loan['book_nisb'].toString().isNotEmpty) ||
+                              (loan['book_author'] != null && loan['book_author'].toString().isNotEmpty)) ...[
+                            const SizedBox(height: 4),
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 2,
+                              children: [
+                                if (loan['book_code'] != null && loan['book_code'].toString().isNotEmpty)
+                                  Text('Kode: ${loan['book_code']}', style: const TextStyle(fontSize: 11, color: AppColors.slate500, fontFamily: 'monospace')),
+                                if (loan['book_nisb'] != null && loan['book_nisb'].toString().isNotEmpty)
+                                  Text('NISB: ${loan['book_nisb']}', style: const TextStyle(fontSize: 11, color: AppColors.slate500, fontFamily: 'monospace')),
+                                if (loan['book_author'] != null && loan['book_author'].toString().isNotEmpty)
+                                  Text('Pengarang: ${loan['book_author']}', style: const TextStyle(fontSize: 11, color: AppColors.slate600, fontWeight: FontWeight.w500)),
+                              ],
+                            ),
                           ],
                           const Divider(height: 16),
                           Row(
@@ -408,21 +421,22 @@ class _BorrowBookModal extends StatefulWidget {
 
 class _BorrowBookModalState extends State<_BorrowBookModal> {
   final _formKey = GlobalKey<FormState>();
-  final _titleController = TextEditingController();
-  final _codeController  = TextEditingController();
-  final _customPurposeController = TextEditingController();
-  final _notesController = TextEditingController();
+  final _titleController  = TextEditingController();
+  final _codeController   = TextEditingController();
+  final _nisbController   = TextEditingController();
+  final _authorController = TextEditingController();
+  final _notesController  = TextEditingController();
 
   DateTime _borrowedAt = DateTime.now();
   DateTime _dueAt      = DateTime.now().add(const Duration(days: 7));
-  String _purposeOption = 'BELAJAR';
   bool _submitting = false;
 
   @override
   void dispose() {
     _titleController.dispose();
     _codeController.dispose();
-    _customPurposeController.dispose();
+    _nisbController.dispose();
+    _authorController.dispose();
     _notesController.dispose();
     super.dispose();
   }
@@ -437,10 +451,10 @@ class _BorrowBookModalState extends State<_BorrowBookModal> {
         data: {
           'book_title': _titleController.text.trim(),
           'book_code': _codeController.text.trim(),
+          'book_nisb': _nisbController.text.trim(),
+          'book_author': _authorController.text.trim(),
           'borrowed_at': _borrowedAt.toIso8601String().substring(0, 10),
           'due_at': _dueAt.toIso8601String().substring(0, 10),
-          'purpose_option': _purposeOption,
-          'purpose_custom': _customPurposeController.text.trim(),
           'notes': _notesController.text.trim(),
         },
       );
@@ -514,14 +528,42 @@ class _BorrowBookModalState extends State<_BorrowBookModal> {
               ),
               const SizedBox(height: 12),
 
-              // Kode Buku
+              // Pengarang Buku
               TextFormField(
-                controller: _codeController,
+                controller: _authorController,
                 decoration: const InputDecoration(
-                  labelText: 'Kode / No. Inventaris Buku (Opsional)',
-                  hintText: 'Contoh: BIB-2026-088',
+                  labelText: 'Pengarang / Penulis Buku (Opsional)',
+                  hintText: 'Contoh: Prof. Dr. Sukartha',
                   border: OutlineInputBorder(),
                 ),
+              ),
+              const SizedBox(height: 12),
+
+              // NISB / Kode Buku Row
+              Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      controller: _nisbController,
+                      decoration: const InputDecoration(
+                        labelText: 'NISB / ISBN (Opsional)',
+                        hintText: 'Contoh: 978-602-123',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: TextFormField(
+                      controller: _codeController,
+                      decoration: const InputDecoration(
+                        labelText: 'No. Inventaris (Opsional)',
+                        hintText: 'Contoh: BIB-2026-088',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 12),
 
