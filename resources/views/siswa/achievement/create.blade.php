@@ -31,7 +31,7 @@
 }">
 
     {{-- Banner Informasi Kurasi Kemendikdasmen --}}
-    <div class="bg-gradient-to-r from-blue-700 via-indigo-700 to-purple-800 rounded-3xl p-6 text-white shadow-xl relative overflow-hidden">
+    <div class="rounded-3xl p-6 text-white shadow-xl relative overflow-hidden" style="background: linear-gradient(135deg, #0f2460 0%, #1a3a8f 50%, #1e3fad 100%) !important; color: #ffffff !important;">
         <div class="absolute -right-8 -bottom-8 w-40 h-40 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
         <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 relative z-10">
             <div class="flex items-start gap-4">
