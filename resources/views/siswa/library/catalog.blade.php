@@ -50,9 +50,10 @@
     </a>
 </div>
 
-{{-- ─── Search & Filter Controls ────────────────────────────────────── --}}
-<div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-200 mb-6 space-y-4">
+{{-- ─── Search & Advanced Filter Controls ────────────────────────────── --}}
+<div class="bg-white p-4.5 rounded-2xl shadow-sm border border-gray-200 mb-6 space-y-4">
     <form method="GET" action="{{ route('siswa.library.catalog') }}" class="flex flex-col md:flex-row gap-3">
+        <!-- Search Keyword -->
         <div class="relative flex-1">
             <svg class="w-5 h-5 absolute left-3.5 top-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
@@ -61,11 +62,29 @@
                 placeholder="Cari Judul Buku, Pengarang, ISBN, atau Kode Buku..."
                 class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all">
         </div>
+
+        <!-- Filter Status Ketersediaan -->
+        <select name="status" class="px-3.5 py-2.5 bg-gray-50 border border-gray-200 text-xs font-bold rounded-xl focus:ring-2 focus:ring-indigo-500">
+            <option value="all" {{ $status === 'all' ? 'selected' : '' }}>Semua Status Stok</option>
+            <option value="available" {{ $status === 'available' ? 'selected' : '' }}>Tersedia Siap Dipinjam</option>
+            <option value="out_of_stock" {{ $status === 'out_of_stock' ? 'selected' : '' }}>Sedang Dipinjam Semua</option>
+        </select>
+
+        <!-- Sort Option -->
+        <select name="sort" class="px-3.5 py-2.5 bg-gray-50 border border-gray-200 text-xs font-bold rounded-xl focus:ring-2 focus:ring-indigo-500">
+            <option value="title_asc" {{ $sort === 'title_asc' ? 'selected' : '' }}>Judul (A - Z)</option>
+            <option value="title_desc" {{ $sort === 'title_desc' ? 'selected' : '' }}>Judul (Z - A)</option>
+            <option value="latest" {{ $sort === 'latest' ? 'selected' : '' }}>Buku Terbaru</option>
+            <option value="popular" {{ $sort === 'popular' ? 'selected' : '' }}>Paling Populer Dipinjam</option>
+        </select>
+
         <input type="hidden" name="category" value="{{ $category ?: 'all' }}">
+
         <button type="submit" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow transition">
-            Cari Buku
+            Terapkan Filter
         </button>
-        @if($search || ($category && $category !== 'all'))
+
+        @if($search || ($category && $category !== 'all') || ($status && $status !== 'all') || ($sort && $sort !== 'title_asc'))
             <a href="{{ route('siswa.library.catalog') }}" class="px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold text-xs rounded-xl transition text-center">
                 Reset Filter
             </a>
@@ -74,12 +93,12 @@
 
     {{-- Category Pills --}}
     <div class="flex items-center gap-2 overflow-x-auto pt-1 pb-1">
-        <a href="{{ route('siswa.library.catalog', ['search' => $search, 'category' => 'all']) }}"
+        <a href="{{ route('siswa.library.catalog', ['search' => $search, 'category' => 'all', 'status' => $status, 'sort' => $sort]) }}"
             class="px-3 py-1.5 text-xs font-bold rounded-lg transition-all border whitespace-nowrap {{ !$category || $category === 'all' ? 'bg-indigo-100 text-indigo-800 border-indigo-300' : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100' }}">
             Semua Kategori
         </a>
         @foreach($categories as $catKey => $catLabel)
-            <a href="{{ route('siswa.library.catalog', ['search' => $search, 'category' => $catKey]) }}"
+            <a href="{{ route('siswa.library.catalog', ['search' => $search, 'category' => $catKey, 'status' => $status, 'sort' => $sort]) }}"
                 class="px-3 py-1.5 text-xs font-bold rounded-lg transition-all border whitespace-nowrap {{ $category === $catKey ? 'bg-indigo-100 text-indigo-800 border-indigo-300' : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100' }}">
                 {{ $catLabel }}
             </a>
@@ -87,12 +106,12 @@
     </div>
 </div>
 
-{{-- ─── Grid Cards Sampul Buku ──────────────────────────────────────── --}}
-<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+{{-- ─── Grid Cards Sampul Buku (12 Items per Page) ──────────────────── --}}
+<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-6">
     @forelse($books as $book)
         <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden flex flex-col justify-between hover:shadow-md transition-all duration-300 group">
             <div class="relative bg-gray-100 aspect-[3/4] overflow-hidden">
-                <img src="{{ $book->cover_url }}" alt="{{ $book->title }}"
+                <img src="{{ $book->cover_url }}" alt="{{ $book->title }}" loading="lazy"
                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
                 
                 {{-- Category Badge --}}
@@ -155,11 +174,18 @@
             </div>
             <h3 class="font-bold text-sm text-gray-800">Tidak ada buku ditemukan</h3>
             <p class="text-xs text-gray-500 max-w-md mx-auto">
-                Coba ubah kata kunci pencarian atau pilih kategori lain untuk menemukan koleksi buku perpustakaan.
+                Coba ubah kata kunci pencarian atau pilih kategori/filter lain untuk menemukan koleksi buku perpustakaan.
             </p>
         </div>
     @endforelse
 </div>
+
+{{-- ─── Pagination Footer ────────────────────────────────────────────── --}}
+@if($books->hasPages())
+    <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-200">
+        {{ $books->links() }}
+    </div>
+@endif
 
 {{-- ─── Modal Detail & Sinopsis Buku ────────────────────────────────── --}}
 <div id="bookDetailModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4">

@@ -43,6 +43,8 @@ class LibraryController extends Controller
     {
         $search   = $request->input('search');
         $category = $request->input('category');
+        $status   = $request->input('status', 'all');
+        $sort     = $request->input('sort', 'title_asc');
 
         $query = \App\Models\LibraryBook::query();
 
@@ -59,10 +61,23 @@ class LibraryController extends Controller
             $query->where('category', $category);
         }
 
-        $books = $query->orderBy('title')->get();
+        if ($status === 'available') {
+            $query->whereRaw('total_stock - borrowed_count > 0');
+        } elseif ($status === 'out_of_stock') {
+            $query->whereRaw('total_stock - borrowed_count <= 0');
+        }
+
+        match ($sort) {
+            'title_desc' => $query->orderBy('title', 'desc'),
+            'latest'     => $query->orderBy('created_at', 'desc'),
+            'popular'    => $query->orderBy('borrowed_count', 'desc'),
+            default      => $query->orderBy('title', 'asc'),
+        };
+
+        $books = $query->paginate(12)->withQueryString();
 
         $categories = [
-            'Pelajaran' => 'Pelajaran',
+            'Pelajaran' => 'Pelajaran Utama',
             'Fiksi'     => 'Fiksi & Novel',
             'Non-Fiksi' => 'Non-Fiksi',
             'Sains'     => 'Sains & Teknologi',
@@ -72,7 +87,7 @@ class LibraryController extends Controller
             'Umum'      => 'Umum',
         ];
 
-        return view('siswa.library.catalog', compact('books', 'search', 'category', 'categories'));
+        return view('siswa.library.catalog', compact('books', 'search', 'category', 'status', 'sort', 'categories'));
     }
 
     public function visitIndex(Request $request): View

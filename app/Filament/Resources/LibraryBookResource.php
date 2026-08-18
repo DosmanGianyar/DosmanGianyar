@@ -105,8 +105,13 @@ class LibraryBookResource extends Resource
                     ->image()
                     ->directory('books/covers')
                     ->disk('public')
+                    ->imageResizeMode('cover')
+                    ->imageCropAspectRatio('3:4')
+                    ->imageResizeTargetWidth('400')
+                    ->imageResizeTargetHeight('533')
+                    ->maxSize(3072)
                     ->required()
-                    ->helperText('Unggah foto sampul depan buku (Format: JPG, PNG, WEBP)')
+                    ->helperText('Unggah foto sampul depan (Format: JPG, PNG, WEBP). Otomatis diperkecil & dioptimalkan agar ringan.')
                     ->columnSpanFull(),
 
                 Textarea::make('description')

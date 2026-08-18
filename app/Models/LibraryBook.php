@@ -52,6 +52,66 @@ class LibraryBook extends Model
         return asset('img/default-book-cover.png');
     }
 
+    protected static function booted(): void
+    {
+        static::saved(function (LibraryBook $book) {
+            if ($book->wasChanged('cover_image') && $book->cover_image) {
+                $book->optimizeCoverImage();
+            }
+        });
+    }
+
+    public function optimizeCoverImage(): void
+    {
+        if (!$this->cover_image || str_starts_with($this->cover_image, 'http')) {
+            return;
+        }
+
+        $fullPath = Storage::disk('public')->path($this->cover_image);
+
+        if (!file_exists($fullPath) || !extension_loaded('gd')) {
+            return;
+        }
+
+        $info = @getimagesize($fullPath);
+        if (!$info) return;
+
+        list($origWidth, $origHeight, $type) = $info;
+
+        $targetWidth  = 400;
+        $targetHeight = 533;
+
+        if ($origWidth <= $targetWidth && filesize($fullPath) < 150000) {
+            return;
+        }
+
+        $srcImg = match ($type) {
+            IMAGETYPE_JPEG => @imagecreatefromjpeg($fullPath),
+            IMAGETYPE_PNG  => @imagecreatefrompng($fullPath),
+            IMAGETYPE_WEBP => @imagecreatefromwebp($fullPath),
+            default        => null,
+        };
+
+        if (!$srcImg) return;
+
+        $dstImg = imagecreatetruecolor($targetWidth, $targetHeight);
+        imagealphablending($dstImg, false);
+        imagesavealpha($dstImg, true);
+
+        imagecopyresampled($dstImg, $srcImg, 0, 0, 0, 0, $targetWidth, $targetHeight, $origWidth, $origHeight);
+
+        if ($type === IMAGETYPE_PNG) {
+            imagepng($dstImg, $fullPath, 7);
+        } elseif ($type === IMAGETYPE_WEBP) {
+            imagewebp($dstImg, $fullPath, 80);
+        } else {
+            imagejpeg($dstImg, $fullPath, 80);
+        }
+
+        imagedestroy($srcImg);
+        imagedestroy($dstImg);
+    }
+
     public function recalculateBorrowedCount(): void
     {
         $count = $this->loans()
