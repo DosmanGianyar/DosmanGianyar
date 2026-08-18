@@ -5,7 +5,6 @@ import '../../providers/attendance_provider.dart';
 import '../../providers/extracurricular_provider.dart';
 import '../../services/api_client.dart';
 import '../../theme/app_colors.dart';
-import '../attendance/history_screen.dart';
 import '../extracurricular/extracurricular_screen.dart';
 import 'achievement_screen.dart';
 import 'conduct_screen.dart';
