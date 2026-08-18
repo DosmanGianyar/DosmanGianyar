@@ -163,55 +163,6 @@ class _KesiswaanScreenState extends State<KesiswaanScreen>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // ─── Rekap Absensi Bulan Ini ───────────────────────────────
-            Container(
-              decoration: BoxDecoration(
-                gradient: AppColors.primaryGradient,
-                borderRadius: AppRadius.card,
-              ),
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(children: [
-                    const Expanded(
-                      child: Text('Absensi Bulan Ini',
-                        style: TextStyle(
-                          color: Colors.white, fontWeight: FontWeight.w600, fontSize: 13)),
-                    ),
-                    GestureDetector(
-                      onTap: () => Navigator.push(context,
-                        MaterialPageRoute(builder: (_) => const HistoryScreen())),
-                      child: Row(children: const [
-                        Text('Riwayat',
-                          style: TextStyle(color: AppColors.blue200, fontSize: 11)),
-                        SizedBox(width: 2),
-                        Icon(Icons.chevron_right, color: AppColors.blue200, size: 14),
-                      ]),
-                    ),
-                  ]),
-                  const SizedBox(height: 12),
-                  GridView.count(
-                    shrinkWrap:   true,
-                    physics:      const NeverScrollableScrollPhysics(),
-                    crossAxisCount: 3,
-                    mainAxisSpacing:  8,
-                    crossAxisSpacing: 8,
-                    childAspectRatio: 1.5,
-                    children: [
-                      _RekapCell(label: 'Hadir',      count: summary['hadir']!,      color: const Color(0xFF86EFAC)),
-                      _RekapCell(label: 'Terlambat',  count: summary['terlambat']!,  color: const Color(0xFFFDE047)),
-                      _RekapCell(label: 'Alpa',       count: summary['alpa']!,       color: const Color(0xFFFCA5A5)),
-                      _RekapCell(label: 'Izin',       count: summary['izin']!,       color: const Color(0xFF7DD3FC)),
-                      _RekapCell(label: 'Sakit',      count: summary['sakit']!,      color: const Color(0xFFD8B4FE)),
-                      _RekapCell(label: 'Dispensasi', count: summary['dispensasi']!, color: const Color(0xFFFDBA74)),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 12),
-
             // ─── Tab: Presensi | Pelanggaran | Prestasi ────────────────
             Container(
               decoration: BoxDecoration(

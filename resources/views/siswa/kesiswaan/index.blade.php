@@ -5,46 +5,6 @@
 
 @section('content')
 
-{{-- ─── Rekap Absensi Bulan Ini ─────────────────────────────────────── --}}
-<div class="bg-linear-to-br from-blue-600 to-indigo-700 rounded-2xl p-4 mb-4">
-    <div class="flex items-center justify-between mb-3">
-        <p class="text-white font-semibold text-sm">Absensi Bulan Ini</p>
-        <a href="{{ route('siswa.attendance.history') }}"
-            class="text-blue-200 text-xs hover:text-white flex items-center gap-1 transition-colors">
-            Riwayat
-            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-            </svg>
-        </a>
-    </div>
-    <div class="grid grid-cols-3 gap-2">
-        <div class="bg-white/15 rounded-xl py-3 text-center">
-            <p class="text-green-300 font-bold text-2xl leading-none">{{ $absensiSummary['hadir'] }}</p>
-            <p class="text-blue-100 text-[11px] mt-1.5 font-medium">Hadir</p>
-        </div>
-        <div class="bg-white/15 rounded-xl py-3 text-center">
-            <p class="text-yellow-300 font-bold text-2xl leading-none">{{ $absensiSummary['terlambat'] }}</p>
-            <p class="text-blue-100 text-[11px] mt-1.5 font-medium">Terlambat</p>
-        </div>
-        <div class="bg-white/15 rounded-xl py-3 text-center">
-            <p class="text-red-300 font-bold text-2xl leading-none">{{ $absensiSummary['alpa'] }}</p>
-            <p class="text-blue-100 text-[11px] mt-1.5 font-medium">Alpa</p>
-        </div>
-        <div class="bg-white/15 rounded-xl py-3 text-center">
-            <p class="text-sky-300 font-bold text-2xl leading-none">{{ $absensiSummary['izin'] }}</p>
-            <p class="text-blue-100 text-[11px] mt-1.5 font-medium">Izin</p>
-        </div>
-        <div class="bg-white/15 rounded-xl py-3 text-center">
-            <p class="text-purple-300 font-bold text-2xl leading-none">{{ $absensiSummary['sakit'] }}</p>
-            <p class="text-blue-100 text-[11px] mt-1.5 font-medium">Sakit</p>
-        </div>
-        <div class="bg-white/15 rounded-xl py-3 text-center">
-            <p class="text-orange-300 font-bold text-2xl leading-none">{{ $absensiSummary['dispensasi'] }}</p>
-            <p class="text-blue-100 text-[11px] mt-1.5 font-medium">Dispensasi</p>
-        </div>
-    </div>
-</div>
-
 {{-- ─── Ringkasan Poin & Prestasi ────────────────────────────────────── --}}
 {{--
     [SISTEM POIN DISABLED] Grid 2 kolom diubah sementara menjadi 1 kolom (hanya Prestasi).

@@ -470,10 +470,6 @@ class _DashboardBody extends StatelessWidget {
           StudentIdCard(user: user),
           const SizedBox(height: 12),
 
-          // ── Akses Kilat E-Katalog Digital Perpustakaan ──────────────────────
-          const _LibraryCatalogDashboardCard(),
-          const SizedBox(height: 12),
-
           // ── Card SIPINTER (diantara Kartu Siswa & Kalender Kehadiran) ──────
           const _ConductDashboardCard(),
           const SizedBox(height: 12),
