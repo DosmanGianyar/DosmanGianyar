@@ -720,14 +720,6 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
         'onTap': () => Navigator.push(context, MaterialPageRoute(builder: (_) => const GuruSarprasScreen())),
       },
       {
-        'title': 'Perpustakaan & Buku',
-        'subtitle': 'Scan QR & Pinjam',
-        'icon': Icons.menu_book_rounded,
-        'color': const Color(0xFF1D4ED8),
-        'bg': const Color(0xFFDBEAFE),
-        'onTap': () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LibraryScreen())),
-      },
-      {
         'title': 'Layanan & Direktori',
         'subtitle': 'Wali Kelas, Ekstra, Piket',
         'icon': Icons.business_center_rounded,
