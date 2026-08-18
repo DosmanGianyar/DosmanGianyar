@@ -14,8 +14,8 @@ if (keyPropertiesFile.exists()) {
 }
 
 android {
-    namespace = "com.sman1gianyar.sims_mobile"
-    compileSdk = flutter.compileSdkVersion
+    namespace  = "com.sman1gianyar.sims_mobile"
+    compileSdk = 36
     ndkVersion = "28.2.13676358"
 
     compileOptions {
@@ -41,8 +41,8 @@ android {
 
     defaultConfig {
         applicationId = "com.sman1gianyar.sims_mobile"
-        minSdk        = flutter.minSdkVersion
-        targetSdk     = flutter.targetSdkVersion
+        minSdk        = 23
+        targetSdk     = 36
         versionCode   = flutter.versionCode
         versionName   = flutter.versionName
     }
