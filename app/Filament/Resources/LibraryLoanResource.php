@@ -198,7 +198,9 @@ class LibraryLoanResource extends Resource
             ])
             ->actions([
                 Action::make('mark_returned')
-                    ->label('Buku Telah Dikembalikan')
+                    ->label('Tandai Dikembalikan')
+                    ->iconButton()
+                    ->tooltip('Buku Telah Dikembalikan')
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
                     ->visible(fn (LibraryLoan $record): bool => $record->status !== 'returned')
@@ -220,14 +222,19 @@ class LibraryLoanResource extends Resource
 
                 Action::make('print_clearance')
                     ->label('Kartu Bebas')
+                    ->iconButton()
+                    ->tooltip('Kartu Bebas Perpustakaan')
                     ->icon('heroicon-o-document-text')
                     ->color('info')
                     ->visible(fn (LibraryLoan $record): bool => ! empty($record->student_id))
                     ->url(fn (LibraryLoan $record): string => route('admin.library.clearance-card', $record->student_id))
                     ->openUrlInNewTab(),
 
-                EditAction::make(),
-                DeleteAction::make(),
+                EditAction::make()
+                    ->iconButton(),
+
+                DeleteAction::make()
+                    ->iconButton(),
             ]);
     }
 
