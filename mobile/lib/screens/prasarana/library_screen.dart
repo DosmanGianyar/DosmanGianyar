@@ -56,7 +56,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => const _BorrowBookModal(),
+      builder: (_) => const BorrowBookModal(),
     );
 
     if (result == true) {
@@ -435,14 +435,16 @@ class _LibraryScreenState extends State<LibraryScreen> {
 }
 
 // ─── Bottom Sheet Modal Form Pinjam Buku ─────────────────────────────────────
-class _BorrowBookModal extends StatefulWidget {
-  const _BorrowBookModal();
+class BorrowBookModal extends StatefulWidget {
+  final Map<String, dynamic>? initialBook;
+
+  const BorrowBookModal({super.key, this.initialBook});
 
   @override
-  State<_BorrowBookModal> createState() => _BorrowBookModalState();
+  State<BorrowBookModal> createState() => _BorrowBookModalState();
 }
 
-class _BorrowBookModalState extends State<_BorrowBookModal> {
+class _BorrowBookModalState extends State<BorrowBookModal> {
   final _formKey = GlobalKey<FormState>();
   final _titleController  = TextEditingController();
   final _codeController   = TextEditingController();
@@ -453,6 +455,18 @@ class _BorrowBookModalState extends State<_BorrowBookModal> {
   DateTime _borrowedAt = DateTime.now();
   DateTime _dueAt      = DateTime.now().add(const Duration(days: 7));
   bool _submitting = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.initialBook != null) {
+      final b = widget.initialBook!;
+      _titleController.text  = b['title']?.toString() ?? '';
+      _authorController.text = b['author']?.toString() ?? '';
+      _codeController.text   = b['book_code']?.toString() ?? '';
+      _nisbController.text   = b['isbn']?.toString() ?? '';
+    }
+  }
 
   @override
   void dispose() {

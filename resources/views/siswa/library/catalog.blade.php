@@ -244,10 +244,14 @@
             </div>
         </div>
 
-        <div class="pt-2 flex justify-end">
-            <button type="button" onclick="closeBookDetailModal()" class="px-5 py-2 bg-gray-900 hover:bg-gray-800 text-white font-bold text-xs rounded-xl transition">
+        <div class="pt-3 border-t border-gray-100 flex items-center justify-between gap-3">
+            <button type="button" onclick="closeBookDetailModal()" class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs rounded-xl transition">
                 Tutup Detail
             </button>
+            <a id="modalBorrowBtn" href="#" class="px-5 py-2.5 font-bold text-xs rounded-xl transition flex items-center gap-2 shadow">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                <span id="modalBorrowBtnText">Pinjam Buku Ini</span>
+            </a>
         </div>
     </div>
 </div>
@@ -266,6 +270,20 @@
         document.getElementById('modalBorrowedCount').innerText = data.borrowed_count + ' Buku';
         document.getElementById('modalAvailableStock').innerText = data.available_stock + ' Buku';
         document.getElementById('modalDescription').innerText = data.description;
+
+        const borrowBtn = document.getElementById('modalBorrowBtn');
+        const borrowBtnText = document.getElementById('modalBorrowBtnText');
+        const indexUrl = "{{ route('siswa.library.index') }}";
+
+        if (parseInt(data.available_stock) > 0) {
+            borrowBtn.href = `${indexUrl}?title=${encodeURIComponent(data.title)}&code=${encodeURIComponent(data.book_code)}&isbn=${encodeURIComponent(data.isbn)}&author=${encodeURIComponent(data.author)}`;
+            borrowBtn.className = "px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl transition flex items-center gap-2 shadow cursor-pointer";
+            borrowBtnText.innerText = "Pinjam Buku Ini";
+        } else {
+            borrowBtn.href = "javascript:void(0)";
+            borrowBtn.className = "px-5 py-2.5 bg-gray-200 text-gray-400 font-bold text-xs rounded-xl transition flex items-center gap-2 cursor-not-allowed pointer-events-none border border-gray-300";
+            borrowBtnText.innerText = "Stok Habis (Dipinjam Semua)";
+        }
 
         const modal = document.getElementById('bookDetailModal');
         modal.classList.remove('hidden');

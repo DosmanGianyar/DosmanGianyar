@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../services/api_client.dart';
 import '../../theme/app_colors.dart';
+import 'library_screen.dart';
 
 class LibraryCatalogScreen extends StatefulWidget {
   const LibraryCatalogScreen({super.key});
@@ -204,14 +205,50 @@ class _LibraryCatalogScreenState extends State<LibraryCatalogScreen> {
               ),
               const SizedBox(height: 20),
 
-              ElevatedButton(
-                onPressed: () => Navigator.pop(ctx),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.slate900,
-                  minimumSize: const Size.fromHeight(44),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-                child: const Text('Tutup Detail', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
+              Row(
+                children: [
+                  Expanded(
+                    flex: 2,
+                    child: ElevatedButton.icon(
+                      onPressed: available > 0
+                          ? () {
+                              Navigator.pop(ctx);
+                              showModalBottomSheet(
+                                context: context,
+                                isScrollControlled: true,
+                                backgroundColor: Colors.transparent,
+                                builder: (_) => BorrowBookModal(initialBook: b),
+                              );
+                            }
+                          : null,
+                      icon: Icon(available > 0 ? Icons.auto_stories_rounded : Icons.block_rounded, size: 18),
+                      label: Text(
+                        available > 0 ? 'Pinjam Buku Ini' : 'Stok Habis (Dipinjam Semua)',
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.indigo600,
+                        disabledBackgroundColor: AppColors.slate300,
+                        foregroundColor: Colors.white,
+                        disabledForegroundColor: AppColors.slate500,
+                        minimumSize: const Size.fromHeight(46),
+                        elevation: available > 0 ? 2 : 0,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  OutlinedButton(
+                    onPressed: () => Navigator.pop(ctx),
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size(80, 46),
+                      foregroundColor: AppColors.slate700,
+                      side: const BorderSide(color: AppColors.slate300),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    child: const Text('Tutup', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                  ),
+                ],
               ),
             ],
           ),
