@@ -78,6 +78,7 @@ class _AchievementScreenState extends State<AchievementScreen> {
                     slivers: [
                       if (_stats != null)
                         SliverToBoxAdapter(child: _StatsBar(stats: _stats!)),
+                      const SliverToBoxAdapter(child: _CurationGuideCard()),
                       if (_items.isEmpty)
                         const SliverFillRemaining(
                           child: Center(
@@ -1118,4 +1119,201 @@ class _ErrorView extends StatelessWidget {
       TextButton(onPressed: onRetry, child: const Text('Coba Lagi')),
     ]),
   );
+}
+
+// ─── 5 Poin Kurasi Guide Card ───────────────────────────────────────────────────
+
+class _CurationGuideCard extends StatefulWidget {
+  const _CurationGuideCard();
+
+  @override
+  State<_CurationGuideCard> createState() => _CurationGuideCardState();
+}
+
+class _CurationGuideCardState extends State<_CurationGuideCard> {
+  bool _isExpanded = true;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFF1E1B4B), Color(0xFF312E81)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: const [
+          BoxShadow(color: Color(0x33312E81), blurRadius: 8, offset: Offset(0, 3)),
+        ],
+      ),
+      child: Column(
+        children: [
+          InkWell(
+            onTap: () => setState(() => _isExpanded = !_isExpanded),
+            borderRadius: BorderRadius.circular(16),
+            child: Padding(
+              padding: const EdgeInsets.all(14),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(Icons.lightbulb_rounded, color: Color(0xFFFACC15), size: 20),
+                  ),
+                  const SizedBox(width: 12),
+                  const Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('5 Syarat Lomba Bisa Dikurasi',
+                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
+                        SizedBox(height: 2),
+                        Text('Panduan resmi Pusprestnas / BPTI Kemendikdasmen',
+                          style: TextStyle(color: Color(0xFFC7D2FE), fontSize: 10.5)),
+                      ],
+                    ),
+                  ),
+                  Icon(
+                    _isExpanded ? Icons.keyboard_arrow_up_rounded : Icons.keyboard_arrow_down_rounded,
+                    color: Colors.white,
+                    size: 22,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          if (_isExpanded) ...[
+            const Divider(height: 1, color: Color(0x33C7D2FE)),
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                children: const [
+                  _PointItem(
+                    number: '1',
+                    title: 'Penyelenggara Resmi & Kredibel (P1)',
+                    canCurate: 'Diselenggarakan oleh Kementerian/Lembaga (Kemendikbud/BRIN/KONI), PTN/PTS Terakreditasi, atau Organisasi Resmi.',
+                    cannotCurate: 'Lomba komersial berbayar tanpa akreditasi, EO abal-abal, atau event tidak terdaftar.',
+                  ),
+                  SizedBox(height: 8),
+                  _PointItem(
+                    number: '2',
+                    title: 'Tahapan Seleksi Berjenjang (P2)',
+                    canCurate: 'Memiliki seleksi berjenjang terstruktur (Sekolah ➔ Kab/Kota ➔ Prov ➔ Nasional).',
+                    cannotCurate: 'Lomba instan online tanpa tahap seleksi resmi dan tanpa juri tersertifikasi.',
+                  ),
+                  SizedBox(height: 8),
+                  _PointItem(
+                    number: '3',
+                    title: 'Konsistensi Pelaksanaan Rutin (P3)',
+                    canCurate: 'Perlombaan rutin berkala setiap tahun (minimal 2-3 kali berturut-turut).',
+                    cannotCurate: 'Event sekali jalan (one-time event) yang tidak punya rekam jejak tahunan.',
+                  ),
+                  SizedBox(height: 8),
+                  _PointItem(
+                    number: '4',
+                    title: 'Sarana & Standar Infrastruktur (P4)',
+                    canCurate: 'Menggunakan arena/lab/platform resmi yang memenuhi regulasi teknis & keselamatan.',
+                    cannotCurate: 'Perlombaan informal tanpa standar keselamatan dan regulasi bidang terkait.',
+                  ),
+                  SizedBox(height: 8),
+                  _PointItem(
+                    number: '5',
+                    title: 'Keabsahan Sertifikat & SK Juara (P5)',
+                    canCurate: 'Sertifikat asli TTD pejabat/QR Code verifikasi + Surat Keputusan (SK) Juara resmi.',
+                    cannotCurate: 'Sertifikat peserta biasa, tanpa SK Pemenang resmi, atau dokumen fiktif/editan.',
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _PointItem extends StatelessWidget {
+  final String number;
+  final String title;
+  final String canCurate;
+  final String cannotCurate;
+
+  const _PointItem({
+    required this.number,
+    required this.title,
+    required this.canCurate,
+    required this.cannotCurate,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 20, height: 20,
+                decoration: const BoxDecoration(color: Color(0xFFFACC15), shape: BoxShape.circle),
+                alignment: Alignment.center,
+                child: Text(number, style: const TextStyle(color: Color(0xFF0F172A), fontWeight: FontWeight.bold, fontSize: 11)),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('✅ ', style: TextStyle(fontSize: 11)),
+              Expanded(
+                child: RichText(
+                  text: TextSpan(
+                    style: const TextStyle(fontSize: 10.5, color: Color(0xFF86EFAC)),
+                    children: [
+                      const TextSpan(text: 'BISA: ', style: TextStyle(fontWeight: FontWeight.bold)),
+                      TextSpan(text: canCurate),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('❌ ', style: TextStyle(fontSize: 11)),
+              Expanded(
+                child: RichText(
+                  text: TextSpan(
+                    style: const TextStyle(fontSize: 10.5, color: Color(0xFFFCA5A5)),
+                    children: [
+                      const TextSpan(text: 'TIDAK: ', style: TextStyle(fontWeight: FontWeight.bold)),
+                      TextSpan(text: cannotCurate),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 }

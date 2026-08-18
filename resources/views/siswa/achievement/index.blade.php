@@ -21,6 +21,57 @@
         </div>
     </div>
 
+    {{-- 5 Syarat Kurasi Guide Card --}}
+    <div x-data="{ open: true }" class="bg-gradient-to-br from-indigo-950 via-indigo-900 to-slate-900 text-white rounded-2xl p-4 shadow-sm border border-indigo-700/50">
+        <button @click="open = !open" class="w-full flex items-center justify-between text-left focus:outline-none">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl bg-yellow-400/20 text-yellow-400 flex items-center justify-center font-bold text-base shrink-0">
+                    💡
+                </div>
+                <div>
+                    <h4 class="font-bold text-sm text-white">5 Syarat Lomba Bisa Dikurasi</h4>
+                    <p class="text-xs text-indigo-200">Panduan resmi Pusprestnas / BPTI Kemendikdasmen</p>
+                </div>
+            </div>
+            <svg class="w-5 h-5 text-indigo-200 transform transition-transform duration-200" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </button>
+
+        <div x-show="open" x-collapse class="mt-3.5 space-y-2.5 pt-3 border-t border-indigo-700/50 text-xs">
+            <!-- P1 -->
+            <div class="bg-white/5 rounded-xl p-3 border border-white/10 space-y-1">
+                <p class="font-bold text-yellow-300">1. Penyelenggara Resmi & Kredibel (P1)</p>
+                <p class="text-emerald-300">✅ <strong class="text-emerald-200">BISA:</strong> Kementerian/Lembaga (Kemendikbud/BRIN/KONI), PTN/PTS Terakreditasi, atau Organisasi Resmi.</p>
+                <p class="text-red-300">❌ <strong class="text-red-200">TIDAK:</strong> Lomba komersial berbayar tanpa akreditasi, EO abal-abal, atau event tidak terdaftar.</p>
+            </div>
+            <!-- P2 -->
+            <div class="bg-white/5 rounded-xl p-3 border border-white/10 space-y-1">
+                <p class="font-bold text-yellow-300">2. Tahapan Seleksi Berjenjang (P2)</p>
+                <p class="text-emerald-300">✅ <strong class="text-emerald-200">BISA:</strong> Memiliki seleksi berjenjang terstruktur (Sekolah ➔ Kab/Kota ➔ Prov ➔ Nasional).</p>
+                <p class="text-red-300">❌ <strong class="text-red-200">TIDAK:</strong> Lomba instan online tanpa tahap seleksi resmi dan tanpa juri tersertifikasi.</p>
+            </div>
+            <!-- P3 -->
+            <div class="bg-white/5 rounded-xl p-3 border border-white/10 space-y-1">
+                <p class="font-bold text-yellow-300">3. Konsistensi Pelaksanaan Rutin (P3)</p>
+                <p class="text-emerald-300">✅ <strong class="text-emerald-200">BISA:</strong> Perlombaan rutin berkala setiap tahun (minimal 2-3 kali berturut-turut).</p>
+                <p class="text-red-300">❌ <strong class="text-red-200">TIDAK:</strong> Event sekali jalan (one-time event) yang tidak punya rekam jejak tahunan.</p>
+            </div>
+            <!-- P4 -->
+            <div class="bg-white/5 rounded-xl p-3 border border-white/10 space-y-1">
+                <p class="font-bold text-yellow-300">4. Sarana & Standar Infrastruktur (P4)</p>
+                <p class="text-emerald-300">✅ <strong class="text-emerald-200">BISA:</strong> Menggunakan arena/lab/platform resmi yang memenuhi regulasi teknis & keselamatan.</p>
+                <p class="text-red-300">❌ <strong class="text-red-200">TIDAK:</strong> Perlombaan informal tanpa standar keselamatan dan regulasi bidang terkait.</p>
+            </div>
+            <!-- P5 -->
+            <div class="bg-white/5 rounded-xl p-3 border border-white/10 space-y-1">
+                <p class="font-bold text-yellow-300">5. Keabsahan Sertifikat & SK Juara (P5)</p>
+                <p class="text-emerald-300">✅ <strong class="text-emerald-200">BISA:</strong> Sertifikat asli TTD pejabat/QR Code verifikasi + Surat Keputusan (SK) Juara resmi.</p>
+                <p class="text-red-300">❌ <strong class="text-red-200">TIDAK:</strong> Sertifikat peserta biasa, tanpa SK Pemenang resmi, atau dokumen fiktif/editan.</p>
+            </div>
+        </div>
+    </div>
+
     {{-- Action buttons --}}
     <div class="flex gap-2">
         <a href="{{ route('siswa.achievements.create') }}"
