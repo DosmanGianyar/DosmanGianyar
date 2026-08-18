@@ -52,7 +52,7 @@
         <!-- Big QR Code Box -->
         <div class="p-6 bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-dashed border-blue-400 rounded-3xl shadow-inner flex flex-col items-center justify-center space-y-3">
             <div class="bg-white p-5 rounded-2xl shadow-md border border-gray-200">
-                {!! SimpleSoftwareIO\QrCode\Facades\QrCode::size(260)->margin(1)->generate('SIMS_PERPUS_VISIT') !!}
+                {!! (new \chillerlan\QRCode\QRCode(new \chillerlan\QRCode\QROptions(['outputType' => 'svg', 'scale' => 8])))->render('SIMS_PERPUS_VISIT') !!}
             </div>
             <span class="font-mono text-xs font-bold text-blue-900 bg-white px-4 py-1.5 rounded-full border border-blue-200 shadow-sm">
                 KODE QR: SIMS_PERPUS_VISIT

@@ -65,4 +65,16 @@ class LibraryVisitTest extends TestCase
         $getResponse->assertJsonPath('success', true);
         $getResponse->assertJsonCount(1, 'data');
     }
+
+    public function test_admin_can_view_clearance_card(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin_perpustakaan']);
+        $siswa = User::factory()->create(['role' => 'siswa']);
+
+        $response = $this->actingAs($admin)->get(route('admin.library.clearance-card', $siswa->id));
+
+        $response->assertStatus(200);
+        $response->assertSee('SURAT KETERANGAN BEBAS PERPUSTAKAAN');
+        $response->assertSee($siswa->name);
+    }
 }

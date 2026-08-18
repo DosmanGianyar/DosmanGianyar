@@ -102,7 +102,7 @@
         <div class="pt-4 flex items-end justify-between text-xs">
             <div class="space-y-1 text-center">
                 <div class="w-20 h-20 bg-gray-100 rounded-xl p-1.5 border border-gray-200 mx-auto flex items-center justify-center">
-                    {!! QrCode::size(70)->generate(url("/admin/library/clearance-card/{$siswa->id}")) !!}
+                    {!! (new \chillerlan\QRCode\QRCode(new \chillerlan\QRCode\QROptions(['outputType' => 'svg', 'scale' => 2])))->render(url("/admin/library/clearance-card/{$siswa->id}")) !!}
                 </div>
                 <span class="text-[9px] font-mono text-gray-400 block">Scan Verifikasi Keabsahan</span>
             </div>

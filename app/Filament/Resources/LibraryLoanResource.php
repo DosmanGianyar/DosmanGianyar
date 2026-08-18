@@ -198,6 +198,29 @@ class LibraryLoanResource extends Resource
                     ]),
             ])
             ->header(view('filament.library-loans-header'))
+            ->headerActions([
+                Action::make('print_clearance_modal')
+                    ->label('Cetak Kartu Bebas Perpustakaan')
+                    ->icon('heroicon-o-document-check')
+                    ->color('success')
+                    ->form([
+                        Select::make('student_id')
+                            ->label('Pilih Siswa')
+                            ->options(
+                                User::where('role', 'siswa')
+                                    ->orderBy('name')
+                                    ->get()
+                                    ->mapWithKeys(fn (User $u) => [
+                                        $u->id => $u->name . ' (' . ($u->schoolClass?->name ?? '—') . ')',
+                                    ])
+                            )
+                            ->searchable()
+                            ->required(),
+                    ])
+                    ->action(function (array $data) {
+                        return redirect()->route('admin.library.clearance-card', $data['student_id']);
+                    }),
+            ])
             ->actions([
                 ActionGroup::make([
                     Action::make('mark_returned')
