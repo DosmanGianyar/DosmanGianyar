@@ -130,4 +130,56 @@ class PushNotificationService {
       debugPrint('[FCM] Failed to unregister FCM Token: $e');
     }
   }
+
+  /// Trigger a local push notification test directly on the device
+  static Future<void> showTestNotification({
+    String title = '🔔 Uji Coba Push Notifikasi SIMS',
+    String body = 'Selamat! Push Notifikasi di HP Android Anda berfungsi dengan lancar.',
+  }) async {
+    try {
+      const AndroidNotificationChannel channel = AndroidNotificationChannel(
+        'sims_high_importance_channel',
+        'Notifikasi SIMS',
+        description: 'Notifikasi penting presensi, pengumuman, dan catatan siswa SMAN 1 Gianyar',
+        importance: Importance.max,
+        playSound: true,
+      );
+
+      const AndroidInitializationSettings initializationSettingsAndroid =
+          AndroidInitializationSettings('@mipmap/ic_launcher');
+
+      const InitializationSettings initializationSettings = InitializationSettings(
+        android: initializationSettingsAndroid,
+      );
+
+      await _localNotifications.initialize(initializationSettings);
+
+      final androidPlugin = _localNotifications
+          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+
+      if (androidPlugin != null) {
+        await androidPlugin.requestNotificationsPermission();
+        await androidPlugin.createNotificationChannel(channel);
+      }
+
+      await _localNotifications.show(
+        DateTime.now().millisecondsSinceEpoch ~/ 1000,
+        title,
+        body,
+        NotificationDetails(
+          android: AndroidNotificationDetails(
+            channel.id,
+            channel.name,
+            channelDescription: channel.description,
+            icon: '@mipmap/ic_launcher',
+            importance: Importance.max,
+            priority: Priority.high,
+            playSound: true,
+          ),
+        ),
+      );
+    } catch (e) {
+      debugPrint('[FCM] Test notification error: $e');
+    }
+  }
 }
