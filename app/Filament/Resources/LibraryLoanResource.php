@@ -29,12 +29,12 @@ class LibraryLoanResource extends Resource
     protected static ?string $model = LibraryLoan::class;
 
     protected static string|\BackedEnum|null $navigationIcon  = 'heroicon-o-book-open';
-    protected static string|\UnitEnum|null   $navigationGroup = 'Sarpras';
+    protected static string|\UnitEnum|null   $navigationGroup = 'Perpustakaan';
     protected static ?string                 $navigationLabel = 'Perpustakaan (Buku)';
     protected static ?string                 $modelLabel       = 'Peminjaman Buku';
     protected static ?string                 $pluralModelLabel = 'Perpustakaan (Peminjaman Buku)';
 
-    public static function canAccess(): bool { return AdminAccess::can('Sarpras'); }
+    public static function canAccess(): bool { return AdminAccess::can('Perpustakaan'); }
 
     public static function form(Schema $schema): Schema
     {

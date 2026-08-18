@@ -12,9 +12,9 @@ class AdminAccess
         'admin'              => null,
         'admin_kesiswaan'    => ['Kesiswaan', 'Presensi Siswa', 'Kedisiplinan & Tata Tertib', 'SIPINTER (Pendidikan Karakter)', 'Prestasi & Ekskul', 'Kesiswaan & Layanan'],
         'admin_kurikulum'    => ['Kurikulum'],
-        'admin_sarpras'      => ['Sarpras'],
+        'admin_sarpras'      => ['Sarpras', 'Perpustakaan'],
         'admin_humas'        => ['Humas'],
-        'admin_perpustakaan' => ['Sarpras', 'Perpustakaan'],
+        'admin_perpustakaan' => ['Perpustakaan'],
     ];
 
     /**
