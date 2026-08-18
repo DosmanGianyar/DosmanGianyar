@@ -412,6 +412,7 @@ Route::middleware(['auth', 'role:siswa,pengelola', 'force.password.change'])->pr
     // Perpustakaan & Kartu Bebas Perpustakaan
     Route::prefix('library')->name('library.')->group(function () {
         Route::get('/', [App\Http\Controllers\Siswa\LibraryController::class, 'index'])->name('index');
+        Route::get('/catalog', [App\Http\Controllers\Siswa\LibraryController::class, 'catalog'])->name('catalog');
         Route::post('/', [App\Http\Controllers\Siswa\LibraryController::class, 'store'])->name('store');
         Route::get('/visit', [App\Http\Controllers\Siswa\LibraryController::class, 'visitIndex'])->name('visit');
         Route::post('/visit', [App\Http\Controllers\Siswa\LibraryController::class, 'storeVisit'])->name('visit.store');

@@ -139,6 +139,7 @@ Route::prefix('v1')->group(function () {
 
             // Perpustakaan Siswa
             Route::get('/siswa/library/summary',        [SiswaLibraryApiController::class, 'summary']);
+            Route::get('/siswa/library/catalog',        [SiswaLibraryApiController::class, 'catalog']);
             Route::get('/siswa/library/loans',          [SiswaLibraryApiController::class, 'loans']);
             Route::post('/siswa/library/loans',         [SiswaLibraryApiController::class, 'storeLoan']);
             Route::get('/siswa/library/visits',         [SiswaLibraryApiController::class, 'visits']);

@@ -39,6 +39,42 @@ class LibraryController extends Controller
         return view('siswa.library.index', compact('siswa', 'loans', 'activeLoans', 'returnedLoans', 'isClear'));
     }
 
+    public function catalog(Request $request): View
+    {
+        $search   = $request->input('search');
+        $category = $request->input('category');
+
+        $query = \App\Models\LibraryBook::query();
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('author', 'like', "%{$search}%")
+                  ->orWhere('isbn', 'like', "%{$search}%")
+                  ->orWhere('book_code', 'like', "%{$search}%");
+            });
+        }
+
+        if ($category && $category !== 'all') {
+            $query->where('category', $category);
+        }
+
+        $books = $query->orderBy('title')->get();
+
+        $categories = [
+            'Pelajaran' => 'Pelajaran',
+            'Fiksi'     => 'Fiksi & Novel',
+            'Non-Fiksi' => 'Non-Fiksi',
+            'Sains'     => 'Sains & Teknologi',
+            'Sejarah'   => 'Sejarah',
+            'Agama'     => 'Agama',
+            'Referensi' => 'Referensi',
+            'Umum'      => 'Umum',
+        ];
+
+        return view('siswa.library.catalog', compact('books', 'search', 'category', 'categories'));
+    }
+
     public function visitIndex(Request $request): View
     {
         /** @var \App\Models\User $siswa */

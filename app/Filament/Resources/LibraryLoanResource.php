@@ -79,6 +79,40 @@ class LibraryLoanResource extends Resource
                     ->placeholder('081234567890')
                     ->required(),
 
+                Select::make('book_id')
+                    ->label('Pilih Buku dari Katalog (Rekomendasi)')
+                    ->options(function () {
+                        return \App\Models\LibraryBook::orderBy('title')
+                            ->get()
+                            ->mapWithKeys(fn (\App\Models\LibraryBook $b) => [
+                                $b->id => "{$b->title} [Kode: {$b->book_code}] (Sisa Stok: {$b->available_stock} / Total: {$b->total_stock})"
+                            ]);
+                    })
+                    ->searchable()
+                    ->nullable()
+                    ->live()
+                    ->afterStateUpdated(function ($state, callable $set) {
+                        if ($state) {
+                            $book = \App\Models\LibraryBook::find($state);
+                            if ($book) {
+                                $set('book_title', $book->title);
+                                $set('book_code', $book->book_code);
+                                $set('book_nisb', $book->isbn);
+                                $set('book_author', $book->author);
+
+                                if ($book->available_stock <= 0) {
+                                    Notification::make()
+                                        ->warning()
+                                        ->title('Peringatan Stok Buku')
+                                        ->body("Stok buku '{$book->title}' sedang habis (semua eksemplar sedang dipinjam).")
+                                        ->send();
+                                }
+                            }
+                        }
+                    })
+                    ->helperText('Pilih dari katalog buku perpustakaan untuk mengisi otomatis judul, kode & ISBN')
+                    ->columnSpanFull(),
+
                 TextInput::make('book_title')
                     ->label('Judul Buku')
                     ->placeholder('Contoh: Matematika Peminatan Kelas XII')

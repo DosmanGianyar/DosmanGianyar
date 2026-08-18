@@ -234,6 +234,52 @@ class SiswaLibraryApiController extends Controller
     }
 
     /**
+     * GET /api/v1/siswa/library/catalog
+     */
+    public function catalog(Request $request): JsonResponse
+    {
+        $search   = $request->input('search');
+        $category = $request->input('category');
+
+        $query = \App\Models\LibraryBook::query();
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('author', 'like', "%{$search}%")
+                  ->orWhere('isbn', 'like', "%{$search}%")
+                  ->orWhere('book_code', 'like', "%{$search}%");
+            });
+        }
+
+        if ($category && $category !== 'all') {
+            $query->where('category', $category);
+        }
+
+        $books = $query->orderBy('title')->get();
+
+        return response()->json([
+            'success' => true,
+            'data'    => $books->map(fn (\App\Models\LibraryBook $b) => [
+                'id'              => $b->id,
+                'book_code'       => $b->book_code,
+                'isbn'            => $b->isbn,
+                'title'           => $b->title,
+                'author'          => $b->author,
+                'publisher'       => $b->publisher,
+                'publish_year'    => $b->publish_year,
+                'category'        => $b->category,
+                'total_stock'     => $b->total_stock,
+                'borrowed_count'  => $b->borrowed_count,
+                'available_stock' => $b->available_stock,
+                'shelf_location'  => $b->shelf_location,
+                'cover_url'       => $b->cover_url,
+                'description'     => $b->description,
+            ]),
+        ]);
+    }
+
+    /**
      * POST /api/v1/siswa/library/visits
      */
     public function storeVisit(Request $request): JsonResponse
