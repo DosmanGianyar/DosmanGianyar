@@ -37,7 +37,8 @@ class Dashboard extends BaseDashboard
                     ])
                     ->default('all')
                     ->inline()
-                    ->live(),
+                    ->live()
+                    ->columnSpanFull(),
             ]);
     }
 }

@@ -269,16 +269,24 @@
 
 /* ─── Grade Filter ToggleButtons (Mobile Segment Style) ──────── */
 .fi-fo-toggle-buttons {
-    background: rgba(4, 7, 16, 0.6) !important;
+    background: rgba(15, 29, 51, 0.85) !important;
+    backdrop-filter: blur(12px) !important;
     border-radius: 1rem !important;
     padding: 0.35rem !important;
-    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    display: inline-flex !important;
+    flex-wrap: wrap !important;
+    gap: 0.5rem !important;
+    align-items: center !important;
+    margin-bottom: 0.5rem !important;
 }
 
 .fi-fo-toggle-buttons label {
     border-radius: 0.75rem !important;
     font-weight: 700 !important;
     transition: all 0.2s ease !important;
+    padding: 0.35rem 0.85rem !important;
+    font-size: 0.825rem !important;
 }
 
 /* ─── Sidebar scroll fix ──────────────────────────────────────── */
