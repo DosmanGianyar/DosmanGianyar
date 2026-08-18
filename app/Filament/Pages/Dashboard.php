@@ -3,18 +3,18 @@
 namespace App\Filament\Pages;
 
 use Filament\Forms\Components\ToggleButtons;
-use Filament\Forms\Form;
 use Filament\Pages\Dashboard as BaseDashboard;
 use Filament\Pages\Dashboard\Concerns\HasFiltersForm;
+use Filament\Schemas\Schema;
 
 class Dashboard extends BaseDashboard
 {
     use HasFiltersForm;
 
-    public function filtersForm(Form $form): Form
+    public function filtersForm(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 ToggleButtons::make('grade')
                     ->hiddenLabel()
                     ->options([
@@ -41,4 +41,5 @@ class Dashboard extends BaseDashboard
             ]);
     }
 }
+
 
