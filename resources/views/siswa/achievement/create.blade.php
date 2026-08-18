@@ -572,7 +572,8 @@
         {{-- ─── TOMBOL SUBMIT PENGAJUAN ────────────────────────────────────────── --}}
         <div class="pt-4">
             <button type="submit"
-                class="w-full bg-gradient-to-r from-blue-700 via-indigo-700 to-purple-800 hover:from-blue-800 hover:to-purple-900 text-white font-extrabold py-4 rounded-2xl text-base shadow-xl transition transform active:scale-[0.99] flex items-center justify-center gap-2">
+                class="w-full text-white font-extrabold py-4 rounded-2xl text-base shadow-xl transition transform active:scale-[0.99] flex items-center justify-center gap-2"
+                style="background: linear-gradient(135deg, #0f2460 0%, #1a3a8f 50%, #1e3fad 100%) !important; color: #ffffff !important;">
                 <svg class="w-6 h-6 text-yellow-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>

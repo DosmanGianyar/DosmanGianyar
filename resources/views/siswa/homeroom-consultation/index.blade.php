@@ -7,7 +7,7 @@
 
     {{-- Info Guru Wali --}}
     @if($homeroomTeacher)
-    <div class="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl p-4 text-white">
+    <div class="rounded-2xl p-4 text-white shadow-md" style="background: linear-gradient(135deg, #1d4ed8 0%, #4338ca 100%) !important; color: #ffffff !important;">
         <p class="text-xs text-blue-200 mb-1">Guru Wali Anda</p>
         <div class="flex items-center gap-3">
             <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center shrink-0">
