@@ -42,7 +42,7 @@ class AdminPanelProvider extends PanelProvider
                     ->visible(fn (): bool => auth()->user()?->role === 'admin'),
             ])
             ->colors([
-                'primary' => Color::Amber,
+                'primary' => Color::Blue,
             ])
             ->darkMode(true, isForced: true)
             ->brandName('Admin Dosman')
@@ -100,6 +100,15 @@ class AdminPanelProvider extends PanelProvider
             ->renderHook(
                 PanelsRenderHook::STYLES_AFTER,
                 fn (): string => Blade::render("@include('filament.admin-styles')")
+            )
+            ->renderHook(
+                PanelsRenderHook::PAGE_START,
+                function (): string {
+                    if (request()->routeIs('filament.admin.pages.dashboard')) {
+                        return Blade::render("@include('filament.components.dashboard-hero')");
+                    }
+                    return '';
+                }
             )
             ->renderHook(
                 PanelsRenderHook::SIDEBAR_FOOTER,
