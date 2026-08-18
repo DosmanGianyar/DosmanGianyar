@@ -5,12 +5,13 @@ namespace App\Filament\Widgets;
 use App\Models\Attendance;
 use Filament\Widgets\ChartWidget;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
+use Illuminate\Support\Carbon;
 
 class AttendanceChartWidget extends ChartWidget
 {
     use InteractsWithPageFilters;
 
-    protected ?string $heading = '📈 Tren Kehadiran Siswa (7 Hari Terakhir)';
+    protected ?string $heading = '📈 Tren Kehadiran Siswa Minggu Ini (Senin – Sabtu)';
     protected static ?int $sort = 2;
 
     public static function canView(): bool
@@ -20,8 +21,9 @@ class AttendanceChartWidget extends ChartWidget
 
     protected function getData(): array
     {
-        $grade = $this->filters['grade'] ?? 'all';
-        $dates = collect(range(6, 0))->map(fn ($i) => today()->subDays($i));
+        $grade       = $this->filters['grade'] ?? 'all';
+        $startOfWeek = now()->startOfWeek(Carbon::MONDAY);
+        $dates       = collect(range(0, 5))->map(fn ($i) => $startOfWeek->copy()->addDays($i));
 
         $hadirData     = [];
         $terlambatData = [];
@@ -30,9 +32,9 @@ class AttendanceChartWidget extends ChartWidget
         $labels        = [];
 
         foreach ($dates as $date) {
-            $labels[] = $date->locale('id')->isoFormat('D MMM');
+            $labels[] = $date->locale('id')->isoFormat('dddd (D MMM)');
 
-            $dayAttQuery = Attendance::where('date', $date);
+            $dayAttQuery = Attendance::where('date', $date->toDateString());
             if ($grade !== 'all') {
                 $dayAttQuery->whereHas('student.schoolClass', fn ($q) => $q->where('grade', (string) $grade));
             }
@@ -85,5 +87,6 @@ class AttendanceChartWidget extends ChartWidget
         return 'line';
     }
 }
+
 
 
