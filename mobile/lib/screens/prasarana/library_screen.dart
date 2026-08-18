@@ -377,7 +377,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                                 if (loan['book_code'] != null && loan['book_code'].toString().isNotEmpty)
                                   Text('Kode: ${loan['book_code']}', style: const TextStyle(fontSize: 11, color: AppColors.slate500, fontFamily: 'monospace')),
                                 if (loan['book_nisb'] != null && loan['book_nisb'].toString().isNotEmpty)
-                                  Text('NISB: ${loan['book_nisb']}', style: const TextStyle(fontSize: 11, color: AppColors.slate500, fontFamily: 'monospace')),
+                                  Text('ISBN: ${loan['book_nisb']}', style: const TextStyle(fontSize: 11, color: AppColors.slate500, fontFamily: 'monospace')),
                                 if (loan['book_author'] != null && loan['book_author'].toString().isNotEmpty)
                                   Text('Pengarang: ${loan['book_author']}', style: const TextStyle(fontSize: 11, color: AppColors.slate600, fontWeight: FontWeight.w500)),
                               ],
@@ -539,15 +539,15 @@ class _BorrowBookModalState extends State<_BorrowBookModal> {
               ),
               const SizedBox(height: 12),
 
-              // NISB / Kode Buku Row
+              // ISBN / Kode Buku Row
               Row(
                 children: [
                   Expanded(
                     child: TextFormField(
                       controller: _nisbController,
                       decoration: const InputDecoration(
-                        labelText: 'NISB / ISBN (Opsional)',
-                        hintText: 'Contoh: 978-602-123',
+                        labelText: 'ISBN Buku (Opsional)',
+                        hintText: 'Contoh: 978-602-123-4567',
                         border: OutlineInputBorder(),
                       ),
                     ),
