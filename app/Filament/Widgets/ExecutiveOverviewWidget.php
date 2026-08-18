@@ -34,7 +34,7 @@ class ExecutiveOverviewWidget extends BaseWidget
 
         $todayAttQuery = Attendance::where('date', $today);
         if ($grade !== 'all') {
-            $todayAttQuery->whereHas('user.schoolClass', fn ($q) => $q->where('grade', (string) $grade));
+            $todayAttQuery->whereHas('student.schoolClass', fn ($q) => $q->where('grade', (string) $grade));
         }
         $todayAttendances = $todayAttQuery->get();
 

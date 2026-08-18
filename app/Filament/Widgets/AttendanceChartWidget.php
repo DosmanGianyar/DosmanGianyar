@@ -33,7 +33,7 @@ class AttendanceChartWidget extends ChartWidget
 
             $dayAttQuery = Attendance::where('date', $date);
             if ($grade !== 'all') {
-                $dayAttQuery->whereHas('user.schoolClass', fn ($q) => $q->where('grade', (string) $grade));
+                $dayAttQuery->whereHas('student.schoolClass', fn ($q) => $q->where('grade', (string) $grade));
             }
 
             $dayAtt = $dayAttQuery->get();
