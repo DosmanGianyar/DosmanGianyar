@@ -565,7 +565,7 @@ class _CreateSheetState extends State<_CreateSheet> {
                 const _Label('Rumpun Bidang *', subText: 'Pilih rumpun lomba'),
                 const SizedBox(height: 6),
                 DropdownButtonFormField<String>(
-                  initialValue: _fieldCategory,
+                  value: _fieldCategory,
                   items: _fieldCategories.map((fc) => DropdownMenuItem(
                     value: fc.$1, child: Text(fc.$2, style: const TextStyle(fontSize: 12)),
                   )).toList(),
@@ -583,7 +583,7 @@ class _CreateSheetState extends State<_CreateSheet> {
                 const _Label('Keikutsertaan *', subText: 'Individu / Tim'),
                 const SizedBox(height: 6),
                 DropdownButtonFormField<String>(
-                  initialValue: _participationType,
+                  value: _participationType,
                   items: const [
                     DropdownMenuItem(value: 'individu', child: Text('Individu', style: TextStyle(fontSize: 12))),
                     DropdownMenuItem(value: 'beregu', child: Text('Beregu (Tim)', style: TextStyle(fontSize: 12))),
@@ -659,7 +659,7 @@ class _CreateSheetState extends State<_CreateSheet> {
               const Center(child: SizedBox(height: 36, width: 36, child: CircularProgressIndicator(strokeWidth: 2)))
             else
               DropdownButtonFormField<int>(
-                initialValue: _categoryId,
+                value: _categoryId,
                 hint: const Text('Pilih kategori', style: TextStyle(fontSize: 13, color: AppColors.gray400)),
                 items: _categories.map((c) => DropdownMenuItem(
                   value: c.id,

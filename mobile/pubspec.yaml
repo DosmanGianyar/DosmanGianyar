@@ -48,7 +48,7 @@ dependencies:
   qr_flutter: ^4.1.0
 
   # High-performance Barcode & QR Camera Scanner
-  mobile_scanner: ^7.0.0
+  mobile_scanner: ^6.0.4
 
   # Informasi versi aplikasi
   package_info_plus: ^8.0.0
