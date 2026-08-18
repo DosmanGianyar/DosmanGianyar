@@ -197,6 +197,7 @@ class LibraryLoanResource extends Resource
                         'overdue'  => 'Terlambat',
                     ]),
             ])
+            ->header(view('filament.library-loans-header'))
             ->actions([
                 ActionGroup::make([
                     Action::make('mark_returned')
