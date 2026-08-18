@@ -172,7 +172,7 @@
                 <p>Mengetahui,<br><span class="font-bold">Kepala SMA Negeri 1 Gianyar</span></p>
                 <div>
                     <img src="{{ asset('img/ttd_kepsek.png') }}" alt="TTD Kepsek" class="h-16 w-auto mx-auto object-contain">
-                    <p class="font-bold underline text-gray-900 mt-1">Surawan, S.Pd., M.Pd.</p>
+                    <p class="font-bold underline text-gray-900 mt-1">I Wayan Sudra Astra, S.Pd., M.Pd.</p>
                     <p class="text-[10px] text-gray-500">NIP. 19680512 199103 1 009</p>
                 </div>
             </div>

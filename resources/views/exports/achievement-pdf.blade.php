@@ -195,7 +195,7 @@
       Mengetahui,<br>
       <strong>Kepala SMAN 1 Gianyar</strong>
       <div class="ttd-space"></div>
-      <strong><u>Surawan, S.Pd., M.Pd.</u></strong><br>
+      <strong><u>I Wayan Sudra Astra, S.Pd., M.Pd.</u></strong><br>
       NIP. 19680512 199103 1 008
     </td>
     <td>
