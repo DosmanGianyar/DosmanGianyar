@@ -128,7 +128,7 @@ class User extends Authenticatable implements FilamentUser
     public function canAccessPanel(Panel $panel): bool
     {
         if (in_array($this->role, [
-            'admin', 'admin_kesiswaan', 'admin_kurikulum', 'admin_sarpras', 'admin_humas',
+            'admin', 'admin_kesiswaan', 'admin_kurikulum', 'admin_sarpras', 'admin_humas', 'admin_perpustakaan',
         ])) {
             return true;
         }
