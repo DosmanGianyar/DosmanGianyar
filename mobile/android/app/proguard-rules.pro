@@ -15,3 +15,10 @@
 ## Reflection and Serializers
 -keepattributes *Annotation*,Signature,InnerClasses,EnclosingMethod
 -dontwarn sun.misc.Unsafe
+
+## R8 Proguard warnings suppression
+-dontwarn com.google.android.play.core.**
+-dontwarn io.flutter.app.**
+-dontwarn **
+-ignorewarnings
+
