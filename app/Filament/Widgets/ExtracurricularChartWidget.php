@@ -10,6 +10,11 @@ class ExtracurricularChartWidget extends ChartWidget
     protected ?string $heading = '🏆 Top 5 Ekstrakurikuler Terfavorit';
     protected static ?int $sort = 4;
 
+    public static function canView(): bool
+    {
+        return in_array(auth()->user()?->role, ['admin', 'admin_kesiswaan', 'admin_kurikulum'], true);
+    }
+
     protected function getData(): array
     {
         $topExtras = Extracurricular::withCount(['activeMembers'])

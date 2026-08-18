@@ -10,6 +10,11 @@ class AttendanceChartWidget extends ChartWidget
     protected ?string $heading = '📈 Tren Kehadiran Siswa (7 Hari Terakhir)';
     protected static ?int $sort = 2;
 
+    public static function canView(): bool
+    {
+        return in_array(auth()->user()?->role, ['admin', 'admin_kesiswaan', 'admin_kurikulum'], true);
+    }
+
     protected function getData(): array
     {
         $dates = collect(range(6, 0))->map(fn ($i) => today()->subDays($i));

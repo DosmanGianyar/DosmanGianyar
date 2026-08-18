@@ -431,6 +431,7 @@ Route::middleware(['auth', 'role:siswa,pengelola', 'force.password.change'])->pr
 Route::middleware(['auth'])->get('/admin/library/clearance-card/{user}', [App\Http\Controllers\Siswa\LibraryController::class, 'adminClearanceCard'])->name('admin.library.clearance-card');
 Route::middleware(['auth'])->get('/admin/library/visit-qr-card', fn () => view('exports.library-visit-qr-pdf'))->name('admin.library.visit-qr-card');
 Route::middleware(['auth'])->get('/admin/library/monthly-loan-report', [App\Http\Controllers\Siswa\LibraryController::class, 'adminMonthlyLoanReport'])->name('admin.library.monthly-loan-report');
+Route::middleware(['auth'])->get('/admin/library/visit-report', [App\Http\Controllers\Siswa\LibraryController::class, 'adminVisitReport'])->name('admin.library.visit-report');
 
 // ─── Orangtua ─────────────────────────────────────────────────────────────────
 Route::middleware(['auth', 'role:orangtua'])->prefix('orangtua')->name('orangtua.')->group(function () {

@@ -198,4 +198,39 @@ class LibraryController extends Controller
             'totalLoans', 'borrowedCount', 'returnedCount', 'overdueCount'
         ));
     }
+
+    public function adminVisitReport(Request $request): View
+    {
+        $month   = (int) $request->input('month', now()->month);
+        $year    = (int) $request->input('year', now()->year);
+        $classId = $request->input('class_id');
+        $purpose = $request->input('purpose');
+
+        $query = LibraryVisit::with(['student.schoolClass'])
+            ->whereYear('visited_at', $year)
+            ->whereMonth('visited_at', $month);
+
+        if ($classId) {
+            $query->whereHas('student', fn ($q) => $q->where('class_id', $classId));
+        }
+
+        if ($purpose && $purpose !== 'all') {
+            $query->where('purpose', 'like', "%{$purpose}%");
+        }
+
+        $visits = $query->orderBy('visited_at', 'asc')->get();
+
+        $totalVisits    = $visits->count();
+        $uniqueStudents = $visits->pluck('student_id')->unique()->filter()->count();
+
+        $classes       = \App\Models\SchoolClass::orderBy('name')->get();
+        $selectedClass = $classId ? \App\Models\SchoolClass::find($classId) : null;
+
+        $monthName = Carbon::createFromDate($year, $month, 1)->translatedFormat('F');
+
+        return view('exports.library-visit-report-pdf', compact(
+            'visits', 'month', 'year', 'classId', 'purpose', 'monthName',
+            'totalVisits', 'uniqueStudents', 'classes', 'selectedClass'
+        ));
+    }
 }

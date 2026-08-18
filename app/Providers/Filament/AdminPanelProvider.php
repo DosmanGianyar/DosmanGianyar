@@ -77,9 +77,11 @@ class AdminPanelProvider extends PanelProvider
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([
                 \App\Filament\Widgets\ExecutiveOverviewWidget::class,
+                \App\Filament\Widgets\LibraryStatsOverviewWidget::class,
                 \App\Filament\Widgets\AttendanceChartWidget::class,
                 \App\Filament\Widgets\ConductChartWidget::class,
                 \App\Filament\Widgets\ExtracurricularChartWidget::class,
+                \App\Filament\Widgets\LibraryVisitChartWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,

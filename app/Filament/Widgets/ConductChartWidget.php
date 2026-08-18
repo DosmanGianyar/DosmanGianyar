@@ -10,6 +10,11 @@ class ConductChartWidget extends ChartWidget
     protected ?string $heading = '📊 Distribusi Pelanggaran Siswa Bulan Ini';
     protected static ?int $sort = 3;
 
+    public static function canView(): bool
+    {
+        return in_array(auth()->user()?->role, ['admin', 'admin_kesiswaan'], true);
+    }
+
     protected function getData(): array
     {
         $logs = ConductLog::with('category')

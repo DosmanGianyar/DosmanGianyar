@@ -12,6 +12,11 @@ class ExecutiveOverviewWidget extends BaseWidget
 {
     protected static ?int $sort = 1;
 
+    public static function canView(): bool
+    {
+        return in_array(auth()->user()?->role, ['admin', 'admin_kesiswaan', 'admin_kurikulum', 'admin_sarpras', 'admin_humas'], true);
+    }
+
     protected function getStats(): array
     {
         $today = today();
