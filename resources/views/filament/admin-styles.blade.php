@@ -156,6 +156,71 @@
     box-shadow: 0 14px 35px rgba(0, 0, 0, 0.5), 0 0 25px rgba(37, 99, 235, 0.15) !important;
 }
 
+/* ─── Dashboard & Widget Icon Fixes ───────────────────────────── */
+.fi-wi-stats-overview-stat-icon-ctn,
+.fi-wi-stats-overview-stat-icon,
+.fi-wi-stats-overview-stat-description-icon {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+}
+
+.fi-wi-stats-overview-stat svg,
+.fi-wi-stats-overview-stat-icon svg {
+    width: 1.5rem !important;
+    height: 1.5rem !important;
+    max-width: 1.5rem !important;
+    max-height: 1.5rem !important;
+    display: inline-block !important;
+    flex-shrink: 0 !important;
+}
+
+.fi-wi-stats-overview-stat-description svg,
+.fi-wi-stats-overview-stat-description-icon svg,
+.fi-wi-stats-overview-stat-description-icon {
+    width: 1.125rem !important;
+    height: 1.125rem !important;
+    max-width: 1.125rem !important;
+    max-height: 1.125rem !important;
+    display: inline-block !important;
+    flex-shrink: 0 !important;
+    vertical-align: text-bottom !important;
+}
+
+/* Bright contrast colors for stat description icons and text */
+.fi-wi-stats-overview-stat-description {
+    font-weight: 600 !important;
+    opacity: 0.95 !important;
+}
+
+/* General SVG Icon rendering rules across Filament dashboard */
+.fi-sidebar-item-icon,
+.fi-sidebar-item-icon svg {
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+    max-width: 1.25rem !important;
+    max-height: 1.25rem !important;
+    flex-shrink: 0 !important;
+    display: inline-block !important;
+}
+
+.fi-btn svg,
+.fi-icon-btn svg {
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+    max-width: 1.5rem !important;
+    max-height: 1.5rem !important;
+    flex-shrink: 0 !important;
+    display: inline-block !important;
+}
+
+.fi-topbar svg {
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+    flex-shrink: 0 !important;
+}
+
 /* ─── Tables ─────────────────────────────────────────────────── */
 .fi-ta-ctn {
     background: rgba(15, 29, 51, 0.85) !important;
