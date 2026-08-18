@@ -43,17 +43,24 @@ class LibraryController extends Controller
         $siswa = Auth::user();
 
         $validated = $request->validate([
-            'book_title'   => 'required|string|max:255',
-            'book_code'    => 'nullable|string|max:100',
-            'phone_number' => 'required|string|max:30',
-            'borrowed_at'  => 'required|date',
-            'due_at'       => 'required|date|after_or_equal:borrowed_at',
-            'notes'        => 'nullable|string|max:500',
+            'book_title'     => 'required|string|max:255',
+            'book_code'      => 'nullable|string|max:100',
+            'phone_number'   => 'required|string|max:30',
+            'borrowed_at'    => 'required|date',
+            'due_at'         => 'required|date|after_or_equal:borrowed_at',
+            'purpose_option' => 'required|string|max:100',
+            'purpose_custom' => 'nullable|string|max:255',
+            'notes'          => 'nullable|string|max:500',
         ], [
-            'book_title.required'   => 'Judul buku wajib diisi.',
-            'phone_number.required' => 'No. HP peminjam wajib diisi.',
-            'due_at.after_or_equal' => 'Tanggal batas kembali harus sama atau setelah tanggal pinjam.',
+            'book_title.required'     => 'Judul buku wajib diisi.',
+            'phone_number.required'   => 'No. HP peminjam wajib diisi.',
+            'purpose_option.required' => 'Keperluan peminjaman wajib dipilih.',
+            'due_at.after_or_equal'   => 'Tanggal batas kembali harus sama atau setelah tanggal pinjam.',
         ]);
+
+        $purpose = $validated['purpose_option'] === 'LAINNYA'
+            ? ($validated['purpose_custom'] ?: 'LAINNYA')
+            : $validated['purpose_option'];
 
         LibraryLoan::create([
             'student_id'          => $siswa->id,
@@ -62,6 +69,7 @@ class LibraryController extends Controller
             'book_code'           => $validated['book_code'] ?? null,
             'borrowed_at'         => $validated['borrowed_at'],
             'due_at'              => $validated['due_at'],
+            'purpose'             => $purpose,
             'status'              => 'borrowed',
             'notes'               => $validated['notes'] ?? null,
             'created_by_user_id'  => $siswa->id,

@@ -20,6 +20,7 @@ class LibraryLoan extends Model
         'returned_at',
         'status',
         'notes',
+        'purpose',
         'created_by_user_id',
     ];
 

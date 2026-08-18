@@ -106,6 +106,11 @@ class LibraryLoanResource extends Resource
                     ->default('borrowed')
                     ->required(),
 
+                TextInput::make('purpose')
+                    ->label('Keperluan Peminjaman')
+                    ->placeholder('Contoh: BELAJAR / MEMBACA / MEMINJAM BUKU/REFERENSI')
+                    ->default('BELAJAR'),
+
                 DatePicker::make('returned_at')
                     ->label('Tanggal Dikembalikan')
                     ->nullable(),
@@ -148,6 +153,13 @@ class LibraryLoanResource extends Resource
                     ->label('Judul Buku')
                     ->searchable()
                     ->wrap(),
+
+                TextColumn::make('purpose')
+                    ->label('Keperluan')
+                    ->badge()
+                    ->color('warning')
+                    ->searchable()
+                    ->placeholder('—'),
 
                 TextColumn::make('borrowed_at')
                     ->label('Tanggal Pinjam')

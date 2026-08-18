@@ -136,6 +136,42 @@
                     </div>
                 </div>
 
+                {{-- KEPERLUAN --}}
+                <div class="bg-gray-50/80 p-3.5 rounded-2xl border border-gray-200 space-y-2">
+                    <label class="block font-bold text-gray-800 text-xs tracking-wide uppercase">KEPERLUAN <span class="text-red-500">*</span></label>
+                    <div class="space-y-2 text-xs font-semibold text-gray-700">
+                        <label class="flex items-center gap-2.5 cursor-pointer">
+                            <input type="radio" name="purpose_option" value="BELAJAR" checked
+                                onclick="document.getElementById('custom_purpose_wrapper').classList.add('hidden')"
+                                class="w-4 h-4 text-indigo-600 focus:ring-indigo-500 border-gray-300">
+                            <span>BELAJAR</span>
+                        </label>
+                        <label class="flex items-center gap-2.5 cursor-pointer">
+                            <input type="radio" name="purpose_option" value="MEMBACA"
+                                onclick="document.getElementById('custom_purpose_wrapper').classList.add('hidden')"
+                                class="w-4 h-4 text-indigo-600 focus:ring-indigo-500 border-gray-300">
+                            <span>MEMBACA</span>
+                        </label>
+                        <label class="flex items-center gap-2.5 cursor-pointer">
+                            <input type="radio" name="purpose_option" value="MEMINJAM BUKU/REFERENSI"
+                                onclick="document.getElementById('custom_purpose_wrapper').classList.add('hidden')"
+                                class="w-4 h-4 text-indigo-600 focus:ring-indigo-500 border-gray-300">
+                            <span>MEMINJAM BUKU/REFERENSI</span>
+                        </label>
+                        <label class="flex items-center gap-2.5 cursor-pointer">
+                            <input type="radio" name="purpose_option" value="LAINNYA" id="purpose_lainnya"
+                                onclick="document.getElementById('custom_purpose_wrapper').classList.remove('hidden')"
+                                class="w-4 h-4 text-indigo-600 focus:ring-indigo-500 border-gray-300">
+                            <span>LAINNYA</span>
+                        </label>
+                    </div>
+
+                    <div id="custom_purpose_wrapper" class="hidden pt-1">
+                        <input type="text" name="purpose_custom" placeholder="Tuliskan keperluan lainnya secara bebas..."
+                            class="w-full border border-gray-300 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
+                    </div>
+                </div>
+
                 <div>
                     <label class="block font-bold text-gray-700 mb-1">Catatan Tambahan <span class="text-gray-400 font-normal">(Opsional)</span></label>
                     <textarea name="notes" rows="2" placeholder="Catatan kondisi buku..."
@@ -180,9 +216,16 @@
                             <div class="flex items-start justify-between gap-3">
                                 <div>
                                     <h4 class="font-bold text-gray-900 text-sm leading-snug">{{ $loan->book_title }}</h4>
-                                    @if($loan->book_code)
-                                        <p class="text-[11px] font-mono text-gray-500 mt-0.5">Kode: {{ $loan->book_code }}</p>
-                                    @endif
+                                    <div class="flex items-center gap-2 mt-0.5">
+                                        @if($loan->book_code)
+                                            <span class="text-[11px] font-mono text-gray-500">Kode: {{ $loan->book_code }}</span>
+                                        @endif
+                                        @if($loan->purpose)
+                                            <span class="text-[10px] font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-md border border-indigo-100">
+                                                Keperluan: {{ $loan->purpose }}
+                                            </span>
+                                        @endif
+                                    </div>
                                 </div>
                                 <span class="px-2.5 py-1 rounded-full text-[10px] font-bold border shrink-0 {{ $statusBg }}">
                                     {{ $loan->statusLabel() }}
