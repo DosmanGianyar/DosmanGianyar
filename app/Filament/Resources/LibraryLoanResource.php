@@ -15,6 +15,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\EditAction;
 use Filament\Actions\DeleteAction;
 use Filament\Tables\Columns\TextColumn;
@@ -197,44 +198,53 @@ class LibraryLoanResource extends Resource
                     ]),
             ])
             ->actions([
-                Action::make('mark_returned')
-                    ->label('Tandai Dikembalikan')
-                    ->iconButton()
-                    ->tooltip('Buku Telah Dikembalikan')
-                    ->icon('heroicon-o-check-circle')
-                    ->color('success')
-                    ->visible(fn (LibraryLoan $record): bool => $record->status !== 'returned')
-                    ->requiresConfirmation()
-                    ->modalHeading('Konfirmasi Pengembalian Buku')
-                    ->modalDescription(fn (LibraryLoan $record): string => "Apakah Anda yakin buku '{$record->book_title}' yang dipinjam oleh {$record->student_name} telah dikembalikan?")
-                    ->action(function (LibraryLoan $record) {
-                        $record->update([
-                            'status'      => 'returned',
-                            'returned_at' => now(),
-                        ]);
+                ActionGroup::make([
+                    Action::make('mark_returned')
+                        ->label('Tandai Dikembalikan')
+                        ->iconButton()
+                        ->tooltip('Buku Telah Dikembalikan')
+                        ->icon('heroicon-o-check-circle')
+                        ->color('success')
+                        ->visible(fn (LibraryLoan $record): bool => $record->status !== 'returned')
+                        ->requiresConfirmation()
+                        ->modalHeading('Konfirmasi Pengembalian Buku')
+                        ->modalDescription(fn (LibraryLoan $record): string => "Apakah Anda yakin buku '{$record->book_title}' yang dipinjam oleh {$record->student_name} telah dikembalikan?")
+                        ->action(function (LibraryLoan $record) {
+                            $record->update([
+                                'status'      => 'returned',
+                                'returned_at' => now(),
+                            ]);
 
-                        Notification::make()
-                            ->title('Pengembalian Berhasil')
-                            ->body("Buku '{$record->book_title}' telah ditandai Sudah Dikembalikan.")
-                            ->success()
-                            ->send();
-                    }),
+                            Notification::make()
+                                ->title('Pengembalian Berhasil')
+                                ->body("Buku '{$record->book_title}' telah ditandai Sudah Dikembalikan.")
+                                ->success()
+                                ->send();
+                        }),
 
-                Action::make('print_clearance')
-                    ->label('Kartu Bebas')
-                    ->iconButton()
-                    ->tooltip('Kartu Bebas Perpustakaan')
-                    ->icon('heroicon-o-document-text')
-                    ->color('info')
-                    ->visible(fn (LibraryLoan $record): bool => ! empty($record->student_id))
-                    ->url(fn (LibraryLoan $record): string => route('admin.library.clearance-card', $record->student_id))
-                    ->openUrlInNewTab(),
+                    Action::make('print_clearance')
+                        ->label('Kartu Bebas')
+                        ->iconButton()
+                        ->tooltip('Kartu Bebas Perpustakaan')
+                        ->icon('heroicon-o-document-text')
+                        ->color('info')
+                        ->visible(fn (LibraryLoan $record): bool => ! empty($record->student_id))
+                        ->url(fn (LibraryLoan $record): string => route('admin.library.clearance-card', $record->student_id))
+                        ->openUrlInNewTab(),
 
-                EditAction::make()
-                    ->iconButton(),
+                    EditAction::make()
+                        ->iconButton()
+                        ->tooltip('Edit Peminjaman'),
 
-                DeleteAction::make()
-                    ->iconButton(),
+                    DeleteAction::make()
+                        ->iconButton()
+                        ->tooltip('Hapus Peminjaman'),
+                ])
+                ->dropdown(false)
+                ->extraAttributes([
+                    'style' => 'display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 4px !important; width: max-content !important;',
+                    'class' => '!grid !grid-cols-2 !gap-1',
+                ]),
             ]);
     }
 
