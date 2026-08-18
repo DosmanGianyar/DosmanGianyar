@@ -9,11 +9,12 @@ class AdminAccess
      * null = akses ke semua group (superadmin).
      */
     private const SCOPES = [
-        'admin'           => null,
-        'admin_kesiswaan' => ['Kesiswaan', 'Presensi Siswa', 'Kedisiplinan & Tata Tertib', 'SIPINTER (Pendidikan Karakter)', 'Prestasi & Ekskul', 'Kesiswaan & Layanan'],
-        'admin_kurikulum' => ['Kurikulum'],
-        'admin_sarpras'   => ['Sarpras'],
-        'admin_humas'     => ['Humas'],
+        'admin'              => null,
+        'admin_kesiswaan'    => ['Kesiswaan', 'Presensi Siswa', 'Kedisiplinan & Tata Tertib', 'SIPINTER (Pendidikan Karakter)', 'Prestasi & Ekskul', 'Kesiswaan & Layanan'],
+        'admin_kurikulum'    => ['Kurikulum'],
+        'admin_sarpras'      => ['Sarpras'],
+        'admin_humas'        => ['Humas'],
+        'admin_perpustakaan' => ['Sarpras', 'Perpustakaan'],
     ];
 
     /**

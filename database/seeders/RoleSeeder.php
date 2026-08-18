@@ -51,6 +51,12 @@ class RoleSeeder extends Seeder
                 'extra' => [],
             ],
             [
+                'role'  => 'admin_perpustakaan',
+                'email' => 'perpustakaan@sims.sch.id',
+                'name'  => 'Admin Perpustakaan',
+                'extra' => [],
+            ],
+            [
                 'role'  => 'guru',
                 'email' => 'guru@sims.sch.id',
                 'name'  => 'Budi Setiawan, S.Pd',
