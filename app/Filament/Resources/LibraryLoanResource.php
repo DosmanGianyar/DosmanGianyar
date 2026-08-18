@@ -5,22 +5,21 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\LibraryLoanResource\Pages;
 use App\Models\LibraryLoan;
 use App\Models\User;
-use App\Models\SchoolClass;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Actions\Action;
-use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Carbon;
+use App\Filament\Support\AdminAccess;
 
 class LibraryLoanResource extends Resource
 {
@@ -32,17 +31,21 @@ class LibraryLoanResource extends Resource
     protected static ?string                 $modelLabel       = 'Peminjaman Buku';
     protected static ?string                 $pluralModelLabel = 'Perpustakaan (Peminjaman Buku)';
 
-    public static function form(Form $form): Form
+    public static function canAccess(): bool { return AdminAccess::can('Sarpras'); }
+
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema->components([
+            Section::make('Informasi Peminjam & Buku')->schema([
                 Select::make('student_id')
                     ->label('Pilih Siswa (Jika Terdaftar)')
                     ->options(
                         User::where('role', 'siswa')
                             ->orderBy('name')
                             ->get()
-                            ->pluck('name_with_class', 'id')
+                            ->mapWithKeys(fn (User $u) => [
+                                $u->id => $u->name . ' (' . ($u->schoolClass?->name ?? '—') . ')',
+                            ])
                     )
                     ->searchable()
                     ->nullable()
@@ -111,7 +114,8 @@ class LibraryLoanResource extends Resource
                     ->label('Catatan / Keterangan')
                     ->placeholder('Catatan kondisi buku atau keterangan tambahan')
                     ->columnSpanFull(),
-            ]);
+            ])->columns(2),
+        ]);
     }
 
     public static function table(Table $table): Table
