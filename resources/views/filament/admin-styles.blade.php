@@ -489,10 +489,123 @@ body.sims-users-actions-grid .fi-ta-actions {
     gap: 0.25rem !important;
     width: fit-content !important;
 }
-body.sims-users-actions-grid .fi-ta-actions > * {
-    grid-column: auto !important;
-    grid-row: auto !important;
+/* ─── Dashboard Hero Banner — Explicit CSS (No Tailwind Dependency) ─── */
+.sims-dashboard-hero {
     position: relative !important;
+    overflow: hidden !important;
+    border-radius: 1.25rem !important;
+    padding: 1.5rem 1.75rem !important;
+    margin-bottom: 1.5rem !important;
+    background: linear-gradient(135deg, #0f2460 0%, #1a3a8f 50%, #1e3fad 100%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4) !important;
+    color: #ffffff !important;
+}
+
+.sims-hero-glow-1 {
+    position: absolute !important;
+    top: -4rem !important;
+    right: -4rem !important;
+    width: 16rem !important;
+    height: 16rem !important;
+    border-radius: 9999px !important;
+    background: rgba(96, 165, 250, 0.2) !important;
+    filter: blur(40px) !important;
+    pointer-events: none !important;
+}
+
+.sims-hero-glow-2 {
+    position: absolute !important;
+    bottom: -4rem !important;
+    left: -4rem !important;
+    width: 16rem !important;
+    height: 16rem !important;
+    border-radius: 9999px !important;
+    background: rgba(99, 102, 241, 0.2) !important;
+    filter: blur(40px) !important;
+    pointer-events: none !important;
+}
+
+.sims-hero-content {
+    position: relative !important;
+    z-index: 10 !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 1.25rem !important;
+}
+
+.sims-hero-text-block {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.5rem !important;
+}
+
+.sims-hero-status-tag {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    padding: 0.25rem 0.75rem !important;
+    border-radius: 9999px !important;
+    background: rgba(255, 255, 255, 0.12) !important;
+    backdrop-filter: blur(8px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.18) !important;
+    font-size: 0.75rem !important;
+    font-weight: 700 !important;
+    color: #bfdbfe !important;
+    width: fit-content !important;
+}
+
+.sims-hero-dot {
+    width: 0.5rem !important;
+    height: 0.5rem !important;
+    border-radius: 9999px !important;
+    background: #34d399 !important;
+    box-shadow: 0 0 8px #34d399 !important;
+}
+
+.sims-hero-title {
+    font-size: 1.5rem !important;
+    font-weight: 800 !important;
+    color: #ffffff !important;
+    letter-spacing: -0.02em !important;
+    margin: 0 !important;
+    line-height: 1.25 !important;
+}
+
+.sims-hero-subtitle {
+    font-size: 0.9rem !important;
+    color: #93c5fd !important;
+    font-weight: 500 !important;
+    margin: 0 !important;
+}
+
+.sims-hero-subtitle strong {
+    color: #ffffff !important;
+    font-weight: 700 !important;
+}
+
+.sims-hero-date-badge {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    padding: 0.6rem 1rem !important;
+    border-radius: 0.75rem !important;
+    background: rgba(255, 255, 255, 0.12) !important;
+    backdrop-filter: blur(8px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.18) !important;
+    font-size: 0.85rem !important;
+    font-weight: 700 !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+}
+
+.sims-hero-date-badge svg {
+    width: 1.1rem !important;
+    height: 1.1rem !important;
+    color: #93c5fd !important;
+    flex-shrink: 0 !important;
 }
 </style>
 
