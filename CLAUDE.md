@@ -57,7 +57,7 @@ Setelah perubahan berhasil dipush ke GitHub (`origin/main`), AI Agent dapat lang
 
 ### Perintah Pull & Deployment Otomatis (PowerShell):
 ```powershell
-plink -batch -hostkey "SHA256:D9SSqp9hA50fNvSPW5yZZJQ6oGEjF3OEC/ScLc5HSlU" -pw Dosman123 dosman@100.73.61.126 "echo Dosman123 | sudo -S sh -c 'cd /www/wwwroot/36.93.15.146 && git pull origin main && php artisan optimize:clear'"
+plink -batch -hostkey "SHA256:D9SSqp9hA50fNvSPW5yZZJQ6oGEjF3OEC/ScLc5HSlU" -pw Dosman123 dosman@100.73.61.126 "echo Dosman123 | sudo -S sh -c 'cd /www/wwwroot/36.93.15.146 && git pull origin main && php artisan optimize:clear && systemctl restart php-fpm-84'"
 ```
 
 ---
@@ -70,4 +70,4 @@ Jika pengguna meminta: *"push dan pull ke server"* atau *"deploy ke server"*, ik
 2. Jalankan `git add .`
 3. Jalankan `git commit -m "<pesan_commit>"`
 4. Jalankan `git push origin main`
-5. Jalankan perintah `plink.exe` di atas untuk melakukan `git pull`, `artisan migrate`, dan `artisan optimize:clear` di server `webdosman`.
+5. Jalankan perintah `plink.exe` di atas untuk melakukan `git pull`, `artisan migrate`, `artisan optimize:clear`, dan `systemctl restart php-fpm-84` di server `webdosman`.
