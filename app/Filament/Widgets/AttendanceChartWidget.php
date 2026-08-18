@@ -25,6 +25,7 @@ class AttendanceChartWidget extends ChartWidget
 
         $hadirData     = [];
         $terlambatData = [];
+        $lupaAbsenData = [];
         $alpaData      = [];
         $labels        = [];
 
@@ -38,33 +39,41 @@ class AttendanceChartWidget extends ChartWidget
 
             $dayAtt = $dayAttQuery->get();
 
-            $hadirData[]     = $dayAtt->where('status', 'hadir')->count();
-            $terlambatData[] = $dayAtt->where('status', 'terlambat')->count();
+            $hadirData[]     = $dayAtt->where('status', 'hadir')->where('via_lupa_absen', false)->count();
+            $terlambatData[] = $dayAtt->where('status', 'terlambat')->where('via_lupa_absen', false)->count();
+            $lupaAbsenData[] = $dayAtt->filter(fn ($a) => (bool)$a->via_lupa_absen || $a->status === 'lupa_absen')->count();
             $alpaData[]      = $dayAtt->where('status', 'alpa')->count();
         }
 
         return [
             'datasets' => [
                 [
-                    'label' => 'Hadir Tepat Waktu',
-                    'data'  => $hadirData,
-                    'borderColor' => '#10b981',
+                    'label'           => 'Hadir Tepat Waktu',
+                    'data'            => $hadirData,
+                    'borderColor'     => '#10b981',
                     'backgroundColor' => 'rgba(16, 185, 129, 0.15)',
-                    'fill'  => true,
+                    'fill'            => true,
                 ],
                 [
-                    'label' => 'Terlambat',
-                    'data'  => $terlambatData,
-                    'borderColor' => '#f59e0b',
+                    'label'           => 'Terlambat',
+                    'data'            => $terlambatData,
+                    'borderColor'     => '#f59e0b',
                     'backgroundColor' => 'rgba(245, 158, 11, 0.15)',
-                    'fill'  => true,
+                    'fill'            => true,
                 ],
                 [
-                    'label' => 'Alpa',
-                    'data'  => $alpaData,
-                    'borderColor' => '#ef4444',
+                    'label'           => 'Lupa Absen',
+                    'data'            => $lupaAbsenData,
+                    'borderColor'     => '#3b82f6',
+                    'backgroundColor' => 'rgba(59, 130, 246, 0.15)',
+                    'fill'            => true,
+                ],
+                [
+                    'label'           => 'Alpa',
+                    'data'            => $alpaData,
+                    'borderColor'     => '#ef4444',
                     'backgroundColor' => 'rgba(239, 68, 68, 0.15)',
-                    'fill'  => true,
+                    'fill'            => true,
                 ],
             ],
             'labels' => $labels,
@@ -76,4 +85,5 @@ class AttendanceChartWidget extends ChartWidget
         return 'line';
     }
 }
+
 
