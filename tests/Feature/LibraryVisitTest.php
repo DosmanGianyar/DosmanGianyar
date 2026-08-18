@@ -77,4 +77,26 @@ class LibraryVisitTest extends TestCase
         $response->assertSee('SURAT KETERANGAN BEBAS PERPUSTAKAAN');
         $response->assertSee($siswa->name);
     }
+
+    public function test_admin_can_view_visit_qr_card(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin_perpustakaan']);
+
+        $response = $this->actingAs($admin)->get(route('admin.library.visit-qr-card'));
+
+        $response->assertStatus(200);
+        $response->assertSee('KUNJUNGAN PERPUSTAKAAN');
+        $response->assertSee('SIMS_PERPUS_VISIT');
+    }
+
+    public function test_admin_can_download_student_card(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $siswa = User::factory()->create(['role' => 'siswa']);
+
+        $response = $this->actingAs($admin)->get(route('admin.student-card.download', $siswa->id));
+
+        $response->assertStatus(200);
+        $response->assertHeader('content-type', 'application/pdf');
+    }
 }
