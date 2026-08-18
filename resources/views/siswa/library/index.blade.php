@@ -31,6 +31,20 @@
     </div>
 </div>
 
+{{-- ─── Navigation Tabs ──────────────────────────────────────────────── --}}
+<div class="flex items-center gap-2 mb-6 border-b border-gray-200 pb-3 overflow-x-auto">
+    <a href="{{ route('siswa.library.index') }}"
+        class="px-4 py-2 text-xs font-bold rounded-xl transition-all shadow-sm border border-blue-600 bg-blue-600 text-white flex items-center gap-2 shrink-0">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+        Peminjaman Buku
+    </a>
+    <a href="{{ route('siswa.library.visit') }}"
+        class="px-4 py-2 text-xs font-bold rounded-xl transition-all bg-white text-gray-700 hover:bg-gray-50 border border-gray-200 flex items-center gap-2 shrink-0">
+        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+        Kunjungan Perpustakaan (Baca)
+    </a>
+</div>
+
 @if(session('success'))
 <div class="mb-4 bg-emerald-50 border border-emerald-200 text-emerald-800 p-4 rounded-2xl text-xs flex items-center justify-between shadow-sm">
     <div class="flex items-center gap-2">

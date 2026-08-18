@@ -413,6 +413,8 @@ Route::middleware(['auth', 'role:siswa,pengelola', 'force.password.change'])->pr
     Route::prefix('library')->name('library.')->group(function () {
         Route::get('/', [App\Http\Controllers\Siswa\LibraryController::class, 'index'])->name('index');
         Route::post('/', [App\Http\Controllers\Siswa\LibraryController::class, 'store'])->name('store');
+        Route::get('/visit', [App\Http\Controllers\Siswa\LibraryController::class, 'visitIndex'])->name('visit');
+        Route::post('/visit', [App\Http\Controllers\Siswa\LibraryController::class, 'storeVisit'])->name('visit.store');
         Route::get('/clearance-card', [App\Http\Controllers\Siswa\LibraryController::class, 'clearanceCard'])->name('clearance-card');
     });
 
@@ -427,6 +429,7 @@ Route::middleware(['auth', 'role:siswa,pengelola', 'force.password.change'])->pr
 
 // Admin Clearance Card PDF/Print Route
 Route::middleware(['auth'])->get('/admin/library/clearance-card/{user}', [App\Http\Controllers\Siswa\LibraryController::class, 'adminClearanceCard'])->name('admin.library.clearance-card');
+Route::middleware(['auth'])->get('/admin/library/visit-qr-card', fn () => view('exports.library-visit-qr-pdf'))->name('admin.library.visit-qr-card');
 
 // ─── Orangtua ─────────────────────────────────────────────────────────────────
 Route::middleware(['auth', 'role:orangtua'])->prefix('orangtua')->name('orangtua.')->group(function () {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../services/api_client.dart';
 import '../../theme/app_colors.dart';
 import 'library_clearance_screen.dart';
+import 'library_visit_screen.dart';
 
 class LibraryScreen extends StatefulWidget {
   const LibraryScreen({super.key});
@@ -77,6 +78,13 @@ class _LibraryScreenState extends State<LibraryScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => const LibraryClearanceScreen()),
+    );
+  }
+
+  void _openVisitScreen() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const LibraryVisitScreen()),
     );
   }
 
@@ -180,20 +188,39 @@ class _LibraryScreenState extends State<LibraryScreen> {
                         color: _isClear ? const Color(0xFF047857) : const Color(0xFFBE123C),
                       ),
                     ),
-                    const SizedBox(height: 10),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton.icon(
-                        onPressed: _openClearanceCard,
-                        icon: const Icon(Icons.qr_code_rounded, size: 16),
-                        label: const Text('Kartu Bebas Perpustakaan', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFEEF2FF),
-                          foregroundColor: AppColors.indigo700,
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: _openVisitScreen,
+                            icon: const Icon(Icons.qr_code_scanner_rounded, size: 16),
+                            label: const Text('Kunjungan (Baca)', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF2563EB),
+                              foregroundColor: Colors.white,
+                              elevation: 1,
+                              padding: const EdgeInsets.symmetric(vertical: 11),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            ),
+                          ),
                         ),
-                      ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: _openClearanceCard,
+                            icon: const Icon(Icons.qr_code_rounded, size: 16),
+                            label: const Text('Kartu Bebas', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFFEEF2FF),
+                              foregroundColor: AppColors.indigo700,
+                              elevation: 0,
+                              padding: const EdgeInsets.symmetric(vertical: 11),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),

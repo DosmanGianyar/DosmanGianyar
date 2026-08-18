@@ -141,6 +141,8 @@ Route::prefix('v1')->group(function () {
             Route::get('/siswa/library/summary',        [SiswaLibraryApiController::class, 'summary']);
             Route::get('/siswa/library/loans',          [SiswaLibraryApiController::class, 'loans']);
             Route::post('/siswa/library/loans',         [SiswaLibraryApiController::class, 'storeLoan']);
+            Route::get('/siswa/library/visits',         [SiswaLibraryApiController::class, 'visits']);
+            Route::post('/siswa/library/visits',        [SiswaLibraryApiController::class, 'storeVisit']);
             Route::get('/siswa/library/clearance',      [SiswaLibraryApiController::class, 'clearanceCard']);
 
             // Guru

@@ -10,6 +10,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 
+use App\Models\LibraryVisit;
+
 class SiswaLibraryApiController extends Controller
 {
     /**
@@ -199,5 +201,93 @@ class SiswaLibraryApiController extends Controller
                 'status'      => $l->status,
             ]),
         ]);
+    }
+
+    /**
+     * GET /api/v1/siswa/library/visits
+     */
+    public function visits(): JsonResponse
+    {
+        /** @var \App\Models\User $siswa */
+        $siswa = Auth::user();
+
+        $visits = LibraryVisit::where('student_id', $siswa->id)
+            ->orderBy('visited_at', 'desc')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data'    => $visits->map(fn (LibraryVisit $v) => [
+                'id'         => $v->id,
+                'visited_at' => $v->visited_at ? $v->visited_at->format('Y-m-d H:i') : null,
+                'purpose'    => $v->purpose,
+                'notes'      => $v->notes,
+                'created_at' => $v->created_at ? $v->created_at->format('Y-m-d H:i') : null,
+            ]),
+        ]);
+    }
+
+    /**
+     * POST /api/v1/siswa/library/visits
+     */
+    public function storeVisit(Request $request): JsonResponse
+    {
+        /** @var \App\Models\User $siswa */
+        $siswa = Auth::user();
+
+        try {
+            $validated = $request->validate([
+                'qr_code'        => 'required|string',
+                'visited_at'     => 'nullable|date',
+                'purpose_option' => 'nullable|string|max:100',
+                'purpose_custom' => 'nullable|string|max:255',
+                'notes'          => 'nullable|string|max:500',
+            ]);
+
+            $qrCode = trim($validated['qr_code']);
+            if (! str_contains($qrCode, 'SIMS_PERPUS_VISIT') && ! str_contains($qrCode, 'SIMS_LIBRARY_VISIT')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Kode QR tidak valid! Pastikan Anda memindai Kode QR Kunjungan Resmi Perpustakaan.',
+                ], 422);
+            }
+
+            $purposeOption = $validated['purpose_option'] ?? 'Membaca Buku Paket / Literasi';
+            $purpose = $purposeOption === 'Lainnya'
+                ? ($validated['purpose_custom'] ?: 'Lainnya')
+                : $purposeOption;
+
+            $visitedAt = ! empty($validated['visited_at']) ? Carbon::parse($validated['visited_at']) : Carbon::now();
+
+            $visit = LibraryVisit::create([
+                'student_id' => $siswa->id,
+                'visited_at' => $visitedAt,
+                'purpose'    => $purpose,
+                'notes'      => $validated['notes'] ?? null,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Kehadiran kunjungan perpustakaan berhasil dicatat!',
+                'data'    => [
+                    'id'         => $visit->id,
+                    'visited_at' => $visit->visited_at->format('Y-m-d H:i'),
+                    'purpose'    => $visit->purpose,
+                    'notes'      => $visit->notes,
+                ],
+            ], 201);
+        } catch (ValidationException $e) {
+            $firstError = collect($e->errors())->flatten()->first() ?? 'Data yang dimasukkan tidak valid.';
+            return response()->json([
+                'success' => false,
+                'message' => $firstError,
+                'errors'  => $e->errors(),
+            ], 422);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mencatat kunjungan perpustakaan: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 }

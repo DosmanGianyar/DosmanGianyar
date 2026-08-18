@@ -232,6 +232,11 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(UserDevice::class);
     }
 
+    public function libraryVisits(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(LibraryVisit::class, 'student_id');
+    }
+
     public function isDeviceRegistered(string $deviceId): bool
     {
         return $this->devices()->where('device_id', $deviceId)->exists();

@@ -11,6 +11,8 @@ use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use Carbon\Carbon;
 
+use App\Models\LibraryVisit;
+
 class LibraryController extends Controller
 {
     public function index(Request $request): View
@@ -35,6 +37,55 @@ class LibraryController extends Controller
         $isClear = $activeLoans->isEmpty();
 
         return view('siswa.library.index', compact('siswa', 'loans', 'activeLoans', 'returnedLoans', 'isClear'));
+    }
+
+    public function visitIndex(Request $request): View
+    {
+        /** @var \App\Models\User $siswa */
+        $siswa = Auth::user();
+
+        $visits = LibraryVisit::where('student_id', $siswa->id)
+            ->orderBy('visited_at', 'desc')
+            ->get();
+
+        return view('siswa.library.visit', compact('siswa', 'visits'));
+    }
+
+    public function storeVisit(Request $request): RedirectResponse
+    {
+        /** @var \App\Models\User $siswa */
+        $siswa = Auth::user();
+
+        $validated = $request->validate([
+            'qr_code'        => 'required|string',
+            'visited_at'     => 'required|date',
+            'purpose_option' => 'nullable|string|max:100',
+            'purpose_custom' => 'nullable|string|max:255',
+            'notes'          => 'nullable|string|max:500',
+        ], [
+            'qr_code.required'    => 'Kode QR Kunjungan wajib di-scan.',
+            'visited_at.required' => 'Tanggal & waktu kunjungan wajib diisi.',
+        ]);
+
+        $qrCode = trim($validated['qr_code']);
+        if (! str_contains($qrCode, 'SIMS_PERPUS_VISIT') && ! str_contains($qrCode, 'SIMS_LIBRARY_VISIT')) {
+            return back()->withInput()->with('error', 'Kode QR tidak valid! Pastikan Anda memindai Kode QR Kunjungan Resmi Perpustakaan.');
+        }
+
+        $purposeOption = $validated['purpose_option'] ?? 'Membaca Buku Paket / Literasi';
+        $purpose = $purposeOption === 'Lainnya'
+            ? ($validated['purpose_custom'] ?: 'Lainnya')
+            : $purposeOption;
+
+        LibraryVisit::create([
+            'student_id' => $siswa->id,
+            'visited_at' => $validated['visited_at'],
+            'purpose'    => $purpose,
+            'notes'      => $validated['notes'] ?? null,
+        ]);
+
+        return redirect()->route('siswa.library.visit')
+            ->with('success', 'Kehadiran kunjungan perpustakaan berhasil dicatat! Selamat membaca.');
     }
 
     public function store(Request $request): RedirectResponse
