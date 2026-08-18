@@ -117,6 +117,8 @@ class _PrasaranaScreenState extends State<PrasaranaScreen> {
                     style: TextStyle(color: Color(0xFFDDD6FE), fontSize: 11)),
                 ])),
               ]),
+            ),
+            const SizedBox(height: 12),
             // ─── CARD UTAMA E-KATALOG BUKU PERPUSTAKAAN ───────────────────
             GestureDetector(
               onTap: () {
@@ -382,9 +384,9 @@ class _PrasaranaScreenState extends State<PrasaranaScreen> {
             // ─── List Pinjaman Saya ─────────────────────────────────────────
             const _SectionHeader(title: 'Riwayat Pinjaman Saya'),
             const SizedBox(height: 8),
-            if (_loading)
-              const Center(child: Padding(padding: EdgeInsets.all(24), child: CircularProgressIndicator()))
-            else if (_loans.isEmpty)
+            if (_loading) ...[
+              const Center(child: Padding(padding: EdgeInsets.all(24), child: CircularProgressIndicator())),
+            ] else if (_loans.isEmpty) ...[
               _EmptyCard(
                 icon: Icons.swap_horiz_rounded,
                 iconColor: AppColors.violet500,
@@ -392,57 +394,59 @@ class _PrasaranaScreenState extends State<PrasaranaScreen> {
                 action: 'Pinjam Aset Sekolah',
                 actionColor: AppColors.violet600,
                 onAction: _openCatalogAndBorrowModal,
-              )
-            else
-              ..._loans.map((loan) {
-                final String status = loan['status'] ?? 'pending';
-                final Color badgeBg = matchStatusBg(status);
-                final Color badgeFg = matchStatusFg(status);
+              ),
+            ] else ...[
+              for (final loan in _loans)
+                Builder(builder: (context) {
+                  final String status = loan['status'] ?? 'pending';
+                  final Color badgeBg = matchStatusBg(status);
+                  final Color badgeFg = matchStatusFg(status);
 
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 8),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.gray200),
-                    boxShadow: AppShadow.sm,
-                  ),
-                  padding: const EdgeInsets.all(12),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 36, height: 36,
-                        decoration: BoxDecoration(color: AppColors.violet50, borderRadius: BorderRadius.circular(10)),
-                        child: const Icon(Icons.inventory_2_outlined, color: AppColors.violet600, size: 18),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(loan['asset_name'] ?? '—', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.gray900)),
-                            Text('Tgl Pinjam: ${loan['loan_date']}  ·  Kembali: ${loan['return_date']}', style: const TextStyle(fontSize: 11, color: AppColors.gray500)),
-                          ],
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppColors.gray200),
+                      boxShadow: AppShadow.sm,
+                    ),
+                    padding: const EdgeInsets.all(12),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 36, height: 36,
+                          decoration: BoxDecoration(color: AppColors.violet50, borderRadius: BorderRadius.circular(10)),
+                          child: const Icon(Icons.inventory_2_outlined, color: AppColors.violet600, size: 18),
                         ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(color: badgeBg, borderRadius: BorderRadius.circular(12)),
-                        child: Text(loan['status_label'] ?? status, style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: badgeFg)),
-                      ),
-                    ],
-                  ),
-                );
-              }),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(loan['asset_name'] ?? '—', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.gray900)),
+                              Text('Tgl Pinjam: ${loan['loan_date']}  ·  Kembali: ${loan['return_date']}', style: const TextStyle(fontSize: 11, color: AppColors.gray500)),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(color: badgeBg, borderRadius: BorderRadius.circular(12)),
+                          child: Text(loan['status_label'] ?? status, style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: badgeFg)),
+                        ),
+                      ],
+                    ),
+                  );
+                }),
+            ],
 
             const SizedBox(height: 18),
 
             // ─── List Laporan Kerusakan ────────────────────────────────────
             const _SectionHeader(title: 'Laporan Kerusakan Saya'),
             const SizedBox(height: 8),
-            if (_loading)
-              const Center(child: Padding(padding: EdgeInsets.all(24), child: CircularProgressIndicator()))
-            else if (_damageReports.isEmpty)
+            if (_loading) ...[
+              const Center(child: Padding(padding: EdgeInsets.all(24), child: CircularProgressIndicator())),
+            ] else if (_damageReports.isEmpty) ...[
               _EmptyCard(
                 icon: Icons.warning_amber_rounded,
                 iconColor: AppColors.orange500,
@@ -450,51 +454,53 @@ class _PrasaranaScreenState extends State<PrasaranaScreen> {
                 action: 'Buat Laporan Kerusakan',
                 actionColor: AppColors.orange600,
                 onAction: _openDamageReportModal,
-              )
-            else
-              ..._damageReports.map((rep) {
-                final String status = rep['status'] ?? 'pending';
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 8),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.gray200),
-                    boxShadow: AppShadow.sm,
-                  ),
-                  padding: const EdgeInsets.all(12),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 36, height: 36,
-                        decoration: BoxDecoration(color: AppColors.orange50, borderRadius: BorderRadius.circular(10)),
-                        child: const Icon(Icons.report_problem_outlined, color: AppColors.orange600, size: 18),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(rep['title'] ?? '—', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.gray900)),
-                            Text('Lokasi: ${rep['location']}  ·  ${rep['date']}', style: const TextStyle(fontSize: 11, color: AppColors.gray500)),
-                          ],
+              ),
+            ] else ...[
+              for (final rep in _damageReports)
+                Builder(builder: (context) {
+                  final String status = rep['status'] ?? 'pending';
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppColors.gray200),
+                      boxShadow: AppShadow.sm,
+                    ),
+                    padding: const EdgeInsets.all(12),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 36, height: 36,
+                          decoration: BoxDecoration(color: AppColors.orange50, borderRadius: BorderRadius.circular(10)),
+                          child: const Icon(Icons.report_problem_outlined, color: AppColors.orange600, size: 18),
                         ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: status == 'resolved' ? AppColors.emerald50 : AppColors.orange50,
-                          borderRadius: BorderRadius.circular(12),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(rep['title'] ?? '—', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.gray900)),
+                              Text('Lokasi: ${rep['location']}  ·  ${rep['date']}', style: const TextStyle(fontSize: 11, color: AppColors.gray500)),
+                            ],
+                          ),
                         ),
-                        child: Text(
-                          rep['status_label'] ?? status,
-                          style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: status == 'resolved' ? AppColors.emerald700 : AppColors.orange700),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: status == 'resolved' ? AppColors.emerald50 : AppColors.orange50,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            rep['status_label'] ?? status,
+                            style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: status == 'resolved' ? AppColors.emerald700 : AppColors.orange700),
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                );
-              }),
+                      ],
+                    ),
+                  );
+                }),
+            ],
           ],
         ),
       ),
