@@ -4,9 +4,12 @@ namespace App\Filament\Widgets;
 
 use App\Models\Attendance;
 use Filament\Widgets\ChartWidget;
+use Filament\Widgets\Concerns\InteractsWithPageFilters;
 
 class AttendanceChartWidget extends ChartWidget
 {
+    use InteractsWithPageFilters;
+
     protected ?string $heading = '📈 Tren Kehadiran Siswa (7 Hari Terakhir)';
     protected static ?int $sort = 2;
 
@@ -17,6 +20,7 @@ class AttendanceChartWidget extends ChartWidget
 
     protected function getData(): array
     {
+        $grade = $this->filters['grade'] ?? 'all';
         $dates = collect(range(6, 0))->map(fn ($i) => today()->subDays($i));
 
         $hadirData     = [];
@@ -27,7 +31,13 @@ class AttendanceChartWidget extends ChartWidget
         foreach ($dates as $date) {
             $labels[] = $date->locale('id')->isoFormat('D MMM');
 
-            $dayAtt = Attendance::where('date', $date)->get();
+            $dayAttQuery = Attendance::where('date', $date);
+            if ($grade !== 'all') {
+                $dayAttQuery->whereHas('user.schoolClass', fn ($q) => $q->where('grade', (string) $grade));
+            }
+
+            $dayAtt = $dayAttQuery->get();
+
             $hadirData[]     = $dayAtt->where('status', 'hadir')->count();
             $terlambatData[] = $dayAtt->where('status', 'terlambat')->count();
             $alpaData[]      = $dayAtt->where('status', 'alpa')->count();
@@ -66,3 +76,4 @@ class AttendanceChartWidget extends ChartWidget
         return 'line';
     }
 }
+

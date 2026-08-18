@@ -4,10 +4,13 @@ namespace App\Filament\Widgets;
 
 use App\Models\LibraryVisit;
 use Filament\Widgets\ChartWidget;
+use Filament\Widgets\Concerns\InteractsWithPageFilters;
 use Illuminate\Support\Carbon;
 
 class LibraryVisitChartWidget extends ChartWidget
 {
+    use InteractsWithPageFilters;
+
     protected ?string $heading = '📚 Grafik Kunjungan Perpustakaan';
     protected static ?int $sort = 3;
 
@@ -31,45 +34,55 @@ class LibraryVisitChartWidget extends ChartWidget
 
     protected function getData(): array
     {
+        $grade        = $this->filters['grade'] ?? 'all';
         $activeFilter = $this->filter ?? '30_days';
 
         $labels = [];
         $visitData = [];
 
+        $applyGradeFilter = function ($query) use ($grade) {
+            if ($grade !== 'all') {
+                $query->whereHas('student.schoolClass', fn ($q) => $q->where('grade', (string) $grade));
+            }
+            return $query;
+        };
+
         if ($activeFilter === '7_days') {
             $dates = collect(range(6, 0))->map(fn ($i) => today()->subDays($i));
             foreach ($dates as $date) {
                 $labels[] = $date->locale('id')->isoFormat('D MMM');
-                $visitData[] = LibraryVisit::whereDate('visited_at', $date)->count();
+                $q = LibraryVisit::whereDate('visited_at', $date);
+                $visitData[] = $applyGradeFilter($q)->count();
             }
         } elseif ($activeFilter === 'this_month') {
             $start = now()->startOfMonth();
             $end   = now();
             for ($d = $start->copy(); $d->lte($end); $d->addDay()) {
                 $labels[] = $d->locale('id')->isoFormat('D MMM');
-                $visitData[] = LibraryVisit::whereDate('visited_at', $d)->count();
+                $q = LibraryVisit::whereDate('visited_at', $d);
+                $visitData[] = $applyGradeFilter($q)->count();
             }
         } elseif ($activeFilter === 'this_year') {
             for ($m = 1; $m <= 12; $m++) {
                 $date = Carbon::createFromDate(now()->year, $m, 1);
                 $labels[] = $date->locale('id')->isoFormat('MMM');
-                $visitData[] = LibraryVisit::whereYear('visited_at', now()->year)
-                    ->whereMonth('visited_at', $m)
-                    ->count();
+                $q = LibraryVisit::whereYear('visited_at', now()->year)->whereMonth('visited_at', $m);
+                $visitData[] = $applyGradeFilter($q)->count();
             }
         } else {
             // Default 30 days
             $dates = collect(range(29, 0))->map(fn ($i) => today()->subDays($i));
             foreach ($dates as $date) {
                 $labels[] = $date->locale('id')->isoFormat('D MMM');
-                $visitData[] = LibraryVisit::whereDate('visited_at', $date)->count();
+                $q = LibraryVisit::whereDate('visited_at', $date);
+                $visitData[] = $applyGradeFilter($q)->count();
             }
         }
 
         return [
             'datasets' => [
                 [
-                    'label'           => 'Jumlah Kunjungan Siswa',
+                    'label'           => 'Jumlah Kunjungan Siswa' . ($grade !== 'all' ? " (Kelas {$grade})" : ''),
                     'data'            => $visitData,
                     'borderColor'     => '#10b981',
                     'backgroundColor' => 'rgba(16, 185, 129, 0.15)',
@@ -86,3 +99,4 @@ class LibraryVisitChartWidget extends ChartWidget
         return 'line';
     }
 }
+
