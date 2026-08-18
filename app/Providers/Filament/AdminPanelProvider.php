@@ -102,8 +102,13 @@ class AdminPanelProvider extends PanelProvider
                 fn (): string => Blade::render("@include('filament.admin-styles')")
             )
             ->renderHook(
-                PanelsRenderHook::DASHBOARD_DATA_BEFORE_WIDGETS,
-                fn (): string => Blade::render("@include('filament.components.dashboard-hero')")
+                PanelsRenderHook::PAGE_HEADER_WIDGETS_BEFORE,
+                function (): string {
+                    if (request()->routeIs('filament.admin.pages.dashboard')) {
+                        return Blade::render("@include('filament.components.dashboard-hero')");
+                    }
+                    return '';
+                }
             )
             ->renderHook(
                 PanelsRenderHook::SIDEBAR_FOOTER,
