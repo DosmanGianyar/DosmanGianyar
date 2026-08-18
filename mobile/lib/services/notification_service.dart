@@ -7,15 +7,26 @@ class NotificationService {
 
   static Future<({List<NotificationItem> items, int unreadCount})> fetchAll() async {
     final body = await ApiClient.get('/notifications');
-    final items = (body['notifications'] as List)
-        .map((e) => NotificationItem.fromJson(e as Map<String, dynamic>))
-        .toList();
-    return (items: items, unreadCount: body['unread_count'] as int);
+    final rawList = body['notifications'] as List? ?? [];
+    final items = <NotificationItem>[];
+    for (final e in rawList) {
+      if (e is Map<String, dynamic>) {
+        try {
+          items.add(NotificationItem.fromJson(e));
+        } catch (_) {}
+      }
+    }
+    final unreadCount = body['unread_count'] != null
+        ? (int.tryParse(body['unread_count'].toString()) ?? 0)
+        : 0;
+    return (items: items, unreadCount: unreadCount);
   }
 
   static Future<int> fetchUnreadCount() async {
     final body = await ApiClient.get('/notifications/unread-count');
-    return body['unread_count'] as int;
+    return body['unread_count'] != null
+        ? (int.tryParse(body['unread_count'].toString()) ?? 0)
+        : 0;
   }
 
   static Future<void> markRead(int id) async {
