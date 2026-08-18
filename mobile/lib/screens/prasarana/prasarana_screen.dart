@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../services/api_client.dart';
 import '../../theme/app_colors.dart';
+import 'library_screen.dart';
 
 class PrasaranaScreen extends StatefulWidget {
   const PrasaranaScreen({super.key});
@@ -188,6 +189,59 @@ class _PrasaranaScreenState extends State<PrasaranaScreen> {
                 ),
               ),
             ]),
+            const SizedBox(height: 10),
+
+            // Tombol Perpustakaan
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const LibraryScreen()),
+                );
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF1D4ED8), Color(0xFF4338CA)],
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                  ),
+                  borderRadius: AppRadius.card,
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF1D4ED8).withValues(alpha: 0.25),
+                      blurRadius: 8,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.20),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(Icons.menu_book_rounded, color: Color(0xFFFDE047), size: 22),
+                    ),
+                    const SizedBox(width: 12),
+                    const Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('PERPUSTAKAAN & BUKU', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+                          Text('Pinjam buku & Kartu Bebas Perpustakaan', style: TextStyle(color: Color(0xFFDBEAFE), fontSize: 10)),
+                        ],
+                      ),
+                    ),
+                    const Icon(Icons.chevron_right_rounded, color: Colors.white, size: 22),
+                  ],
+                ),
+              ),
+            ),
             const SizedBox(height: 18),
 
             // ─── List Pinjaman Saya ─────────────────────────────────────────

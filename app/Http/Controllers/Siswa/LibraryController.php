@@ -45,26 +45,27 @@ class LibraryController extends Controller
         $validated = $request->validate([
             'book_title'     => 'required|string|max:255',
             'book_code'      => 'nullable|string|max:100',
-            'phone_number'   => 'required|string|max:30',
+            'phone_number'   => 'nullable|string|max:30',
             'borrowed_at'    => 'required|date',
             'due_at'         => 'required|date|after_or_equal:borrowed_at',
-            'purpose_option' => 'required|string|max:100',
+            'purpose_option' => 'nullable|string|max:100',
             'purpose_custom' => 'nullable|string|max:255',
             'notes'          => 'nullable|string|max:500',
         ], [
-            'book_title.required'     => 'Judul buku wajib diisi.',
-            'phone_number.required'   => 'No. HP peminjam wajib diisi.',
-            'purpose_option.required' => 'Keperluan peminjaman wajib dipilih.',
-            'due_at.after_or_equal'   => 'Tanggal batas kembali harus sama atau setelah tanggal pinjam.',
+            'book_title.required'   => 'Judul buku wajib diisi.',
+            'due_at.after_or_equal' => 'Tanggal batas kembali harus sama atau setelah tanggal pinjam.',
         ]);
 
-        $purpose = $validated['purpose_option'] === 'LAINNYA'
+        $purposeOption = $validated['purpose_option'] ?? 'BELAJAR';
+        $purpose = $purposeOption === 'LAINNYA'
             ? ($validated['purpose_custom'] ?: 'LAINNYA')
-            : $validated['purpose_option'];
+            : $purposeOption;
+
+        $phoneNumber = ! empty($validated['phone_number']) ? $validated['phone_number'] : ($siswa->phone ?: '—');
 
         LibraryLoan::create([
             'student_id'          => $siswa->id,
-            'phone_number'        => $validated['phone_number'],
+            'phone_number'        => $phoneNumber,
             'book_title'          => $validated['book_title'],
             'book_code'           => $validated['book_code'] ?? null,
             'borrowed_at'         => $validated['borrowed_at'],

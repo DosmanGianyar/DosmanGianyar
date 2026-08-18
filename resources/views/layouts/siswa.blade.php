@@ -120,7 +120,7 @@
             'siswa.voting.*', 'siswa.exit-pass.*'
         );
         $isKurikulum = request()->routeIs('siswa.kurikulum', 'siswa.teacher-attendance.index', 'siswa.homeroom-consultation.*');
-        $isPrasarana = request()->routeIs('siswa.prasarana', 'siswa.sarpras.*');
+        $isPrasarana = request()->routeIs('siswa.prasarana', 'siswa.sarpras.*', 'siswa.library.*');
         $isHumas     = request()->routeIs('siswa.humas', 'siswa.announcements.*');
 
         $studentPendingCount = 0;

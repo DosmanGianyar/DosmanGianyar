@@ -30,6 +30,7 @@ use App\Http\Controllers\Api\GuruTeachingSessionController;
 use App\Http\Controllers\Api\TeacherAttendanceController;
 use App\Http\Controllers\Api\SiswaVotingApiController;
 use App\Http\Controllers\Api\SiswaSarprasApiController;
+use App\Http\Controllers\Api\SiswaLibraryApiController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -135,6 +136,12 @@ Route::prefix('v1')->group(function () {
             Route::post('/siswa/sarpras/loans',         [SiswaSarprasApiController::class, 'storeLoan']);
             Route::get('/siswa/sarpras/damage-reports', [SiswaSarprasApiController::class, 'myDamageReports']);
             Route::post('/siswa/sarpras/damage-reports',[SiswaSarprasApiController::class, 'storeDamageReport']);
+
+            // Perpustakaan Siswa
+            Route::get('/siswa/library/summary',        [SiswaLibraryApiController::class, 'summary']);
+            Route::get('/siswa/library/loans',          [SiswaLibraryApiController::class, 'loans']);
+            Route::post('/siswa/library/loans',         [SiswaLibraryApiController::class, 'storeLoan']);
+            Route::get('/siswa/library/clearance',      [SiswaLibraryApiController::class, 'clearanceCard']);
 
             // Guru
             Route::get('/guru/dashboard',                                 [GuruController::class, 'dashboard']);
