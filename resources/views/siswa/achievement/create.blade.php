@@ -191,7 +191,7 @@
                 </div>
 
                 {{-- Badges Terpilih --}}
-                <div class="flex flex-wrap gap-1.5 pt-1" x-show="selectedMembers.length > 0">
+                <div class="flex flex-wrap gap-1.5 pt-1 max-h-28 overflow-y-auto" x-show="selectedMembers.length > 0">
                     <template x-for="st in getSelectedStudentNames()" :key="st.id">
                         <span class="inline-flex items-center gap-1.5 bg-purple-700 text-white text-xs font-bold px-3 py-1 rounded-xl shadow-sm">
                             <span x-text="st.name + ' (' + st.class + ')'"></span>
@@ -204,20 +204,20 @@
                 {{-- Search Filter Input --}}
                 <div class="relative">
                     <input type="text" x-model="studentSearch" placeholder="Ketik nama teman atau kelas (contoh: XI MIPA 1)..."
-                        class="w-full border border-purple-300 rounded-xl px-3.5 py-2 text-xs bg-white focus:ring-2 focus:ring-purple-500">
+                        class="w-full border border-purple-300 rounded-xl px-3.5 py-2 text-xs bg-white text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-purple-500">
                 </div>
 
                 {{-- List Siswa Scrollable --}}
-                <div class="max-h-52 overflow-y-auto border border-purple-200 rounded-xl bg-white divide-y divide-gray-100 shadow-inner">
+                <div class="max-h-48 overflow-y-auto border border-purple-200 rounded-xl bg-white divide-y divide-gray-100 shadow-inner">
                     <template x-for="s in allStudents.filter(st => !studentSearch || (st.name + ' ' + st.class + ' ' + st.nisn).toLowerCase().includes(studentSearch.toLowerCase()))" :key="s.id">
                         <div @click="toggleMember(s)"
                             class="flex items-center justify-between p-2.5 cursor-pointer hover:bg-purple-50 transition text-xs"
-                            :class="isMemberSelected(s.id) ? 'bg-purple-100/70 font-bold text-purple-900' : 'text-gray-700'">
+                            :class="isMemberSelected(s.id) ? 'bg-purple-100/70 font-bold text-purple-900' : 'text-gray-800'">
                             <div class="flex items-center gap-2.5">
                                 <input type="checkbox" :checked="isMemberSelected(s.id)" class="rounded text-purple-600 focus:ring-purple-500">
                                 <div>
-                                    <p class="font-bold text-xs" x-text="s.name"></p>
-                                    <p class="text-[10px] text-gray-500" x-text="s.class + ' · NISN: ' + s.nisn"></p>
+                                    <p class="font-bold text-xs text-gray-900" x-text="s.name"></p>
+                                    <p class="text-[10px] text-gray-600" x-text="s.class + ' · NISN: ' + s.nisn"></p>
                                 </div>
                             </div>
                             <span x-show="isMemberSelected(s.id)" class="text-[10px] font-extrabold text-purple-700 bg-purple-200 px-2 py-0.5 rounded-md">Terpilih</span>
