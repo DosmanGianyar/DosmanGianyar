@@ -56,7 +56,7 @@ class _LibraryVisitScreenState extends State<LibraryVisitScreen> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) => _VisitFormModal(
-        initialQrCode: defaultCode ?? 'SIMS_PERPUS_VISIT',
+        initialQrCode: defaultCode ?? 'SIMAK DOSMAN',
         onSuccess: _loadVisits,
       ),
     );
@@ -109,7 +109,7 @@ class _LibraryVisitScreenState extends State<LibraryVisitScreen> {
                         children: [
                           Text('BACA DI TEMPAT', style: TextStyle(color: Color(0xFFFEF08A), fontSize: 10, fontWeight: FontWeight.bold)),
                           Text('Kunjungan Perpustakaan', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
-                          Text('Perpustakaan Wijaya Kusuma SMAN 1 Gianyar', style: TextStyle(color: Color(0xFFE0F2FE), fontSize: 11)),
+                          Text('Perpustakaan SMAN 1 Gianyar', style: TextStyle(color: Color(0xFFE0F2FE), fontSize: 11)),
                         ],
                       ),
                     ),
@@ -157,7 +157,7 @@ class _LibraryVisitScreenState extends State<LibraryVisitScreen> {
                     ),
                     const SizedBox(height: 8),
                     TextButton.icon(
-                      onPressed: () => _showVisitFormModal('SIMS_PERPUS_VISIT'),
+                      onPressed: () => _showVisitFormModal('SIMAK DOSMAN'),
                       icon: const Icon(Icons.edit_note_rounded, size: 16),
                       label: const Text('Input Manual / Test QR', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
                       style: TextButton.styleFrom(foregroundColor: AppColors.indigo700),
@@ -388,8 +388,8 @@ class _VisitFormModalState extends State<_VisitFormModal> {
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final code = _qrCodeController.text.trim();
-    if (!code.contains('SIMS_PERPUS_VISIT') && !code.contains('SIMS_LIBRARY_VISIT')) {
+    final codeUpper = _qrCodeController.text.trim().toUpperCase();
+    if (!codeUpper.contains('SIMAK DOSMAN') && !codeUpper.contains('SIMAK_DOSMAN') && !codeUpper.contains('SIMS_PERPUS_VISIT') && !codeUpper.contains('SIMS_LIBRARY_VISIT')) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Kode QR tidak valid! Pastikan memindai Kode QR Resmi Perpustakaan.'),

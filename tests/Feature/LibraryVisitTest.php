@@ -26,7 +26,7 @@ class LibraryVisitTest extends TestCase
         $siswa = User::factory()->create(['role' => 'siswa']);
 
         $response = $this->actingAs($siswa)->post(route('siswa.library.visit.store'), [
-            'qr_code'        => 'SIMS_PERPUS_VISIT',
+            'qr_code'        => 'SIMAK DOSMAN',
             'visited_at'     => now()->format('Y-m-d H:i:s'),
             'purpose_option' => 'Membaca Buku Paket / Literasi',
             'notes'          => 'Belajar Fisika Bab 2',
@@ -48,7 +48,7 @@ class LibraryVisitTest extends TestCase
         $postResponse = $this->actingAs($siswa, 'sanctum')
             ->withHeaders(['X-Device-ID' => 'test-device-123'])
             ->postJson('/api/v1/siswa/library/visits', [
-                'qr_code'        => 'SIMS_PERPUS_VISIT',
+                'qr_code'        => 'SIMAK DOSMAN',
                 'visited_at'     => now()->toIso8601String(),
                 'purpose_option' => 'Kerja Kelompok',
                 'notes'          => 'Tugas Biologi',
@@ -86,7 +86,7 @@ class LibraryVisitTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertSee('KUNJUNGAN PERPUSTAKAAN');
-        $response->assertSee('SIMS_PERPUS_VISIT');
+        $response->assertSee('SIMAK DOSMAN');
     }
 
     public function test_admin_can_download_student_card(): void

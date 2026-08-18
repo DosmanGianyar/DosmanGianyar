@@ -35,7 +35,7 @@
             <div class="text-center flex-1 px-4">
                 <h2 class="text-xs uppercase tracking-widest font-semibold text-blue-200">PEMERINTAH PROVINSI BALI</h2>
                 <h1 class="text-lg font-black text-white tracking-wide">SMA NEGERI 1 GIANYAR</h1>
-                <p class="text-[11px] text-blue-100 italic">Perpustakaan Wijaya Kusuma</p>
+                <p class="text-[11px] text-blue-100 italic">Perpustakaan</p>
             </div>
             <img src="{{ asset('img/logo_sekolah.png') }}" alt="Logo Dosman" class="h-16 w-auto object-contain">
         </div>
@@ -52,10 +52,10 @@
         <!-- Big QR Code Box -->
         <div class="p-6 bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-dashed border-blue-400 rounded-3xl shadow-inner flex flex-col items-center justify-center space-y-3">
             <div class="bg-white p-5 rounded-2xl shadow-md border border-gray-200">
-                <img src="{{ (new \chillerlan\QRCode\QRCode(new \chillerlan\QRCode\QROptions(['outputType' => 'svg', 'scale' => 8])))->render('SIMS_PERPUS_VISIT') }}" alt="QR Code" class="w-64 h-64 mx-auto object-contain">
+                <img src="{{ (new \chillerlan\QRCode\QRCode(new \chillerlan\QRCode\QROptions(['outputType' => 'svg', 'scale' => 8])))->render('SIMAK DOSMAN') }}" alt="QR Code" class="w-64 h-64 mx-auto object-contain">
             </div>
             <span class="font-mono text-xs font-bold text-blue-900 bg-white px-4 py-1.5 rounded-full border border-blue-200 shadow-sm">
-                KODE QR: SIMS_PERPUS_VISIT
+                KODE QR: SIMAK DOSMAN
             </span>
         </div>
 
@@ -76,7 +76,7 @@
         <!-- Footer Seal -->
         <div class="w-full flex items-center justify-between text-[11px] text-gray-500 pt-2 border-t border-gray-200">
             <span>SIMS SMAN 1 Gianyar &copy; {{ date('Y') }}</span>
-            <span class="font-semibold text-blue-900">Perpustakaan Wijaya Kusuma SMAN 1 Gianyar</span>
+            <span class="font-semibold text-blue-900">Perpustakaan SMAN 1 Gianyar</span>
         </div>
 
     </div>
