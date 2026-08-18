@@ -69,6 +69,7 @@ class SimsApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => OrangtuaProvider()),
       ],
       child: MaterialApp(
+        navigatorKey: PushNotificationService.navigatorKey,
         title:        AppConfig.appName,
         debugShowCheckedModeBanner: false,
         theme: ThemeData(

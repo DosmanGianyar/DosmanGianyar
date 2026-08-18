@@ -1,8 +1,10 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'api_client.dart';
+import '../screens/notifications_screen.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -13,11 +15,22 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 class PushNotificationService {
   PushNotificationService._();
 
+  static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
   static final FirebaseMessaging _messaging = FirebaseMessaging.instance;
   static final FlutterLocalNotificationsPlugin _localNotifications = FlutterLocalNotificationsPlugin();
 
   static String? _fcmToken;
   static String? get fcmToken => _fcmToken;
+
+  /// Membuka halaman Notifikasi ketika notifikasi diklik
+  static void openNotificationsPage() {
+    final state = navigatorKey.currentState;
+    if (state != null) {
+      state.push(
+        MaterialPageRoute(builder: (_) => const NotificationsScreen()),
+      );
+    }
+  }
 
   /// Inisialisasi Firebase & Channel Notifikasi Lokal.
   static Future<void> initialize() async {
@@ -53,7 +66,13 @@ class PushNotificationService {
         android: initializationSettingsAndroid,
       );
 
-      await _localNotifications.initialize(initializationSettings);
+      await _localNotifications.initialize(
+        initializationSettings,
+        onDidReceiveNotificationResponse: (NotificationResponse response) {
+          debugPrint('[FCM] Notification tapped on device: ${response.payload}');
+          openNotificationsPage();
+        },
+      );
 
       final androidPlugin = _localNotifications
           .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
@@ -88,6 +107,19 @@ class PushNotificationService {
               ),
             ),
           );
+        }
+      });
+
+      // 5. App Opened from Notification Listener
+      FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+        debugPrint('[FCM] Notification opened app from background: ${message.messageId}');
+        openNotificationsPage();
+      });
+
+      _messaging.getInitialMessage().then((RemoteMessage? message) {
+        if (message != null) {
+          debugPrint('[FCM] Initial notification opened app: ${message.messageId}');
+          openNotificationsPage();
         }
       });
 
