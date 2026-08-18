@@ -99,4 +99,18 @@ class LibraryVisitTest extends TestCase
         $response->assertStatus(200);
         $response->assertHeader('content-type', 'application/pdf');
     }
+
+    public function test_admin_can_view_monthly_loan_report(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin_perpustakaan']);
+
+        $response = $this->actingAs($admin)->get(route('admin.library.monthly-loan-report', [
+            'month' => now()->month,
+            'year'  => now()->year,
+        ]));
+
+        $response->assertStatus(200);
+        $response->assertSee('REKAPITULASI PEMINJAMAN BUKU PERPUSTAKAAN');
+        $response->assertSee('PEMERINTAH PROVINSI BALI');
+    }
 }

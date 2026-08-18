@@ -159,4 +159,43 @@ class LibraryController extends Controller
 
         return view('siswa.library.clearance_card', compact('siswa', 'activeLoans', 'isClear'));
     }
+
+    public function adminMonthlyLoanReport(Request $request): View
+    {
+        $month  = (int) $request->input('month', now()->month);
+        $year   = (int) $request->input('year', now()->year);
+        $status = $request->input('status', 'all');
+
+        $query = LibraryLoan::with(['student.schoolClass'])
+            ->whereYear('borrowed_at', $year)
+            ->whereMonth('borrowed_at', $month);
+
+        if ($status && $status !== 'all') {
+            if ($status === 'overdue') {
+                $query->where(function ($q) {
+                    $q->where('status', 'overdue')
+                      ->orWhere(function ($sub) {
+                          $sub->where('status', 'borrowed')
+                              ->where('due_at', '<', now()->toDateString());
+                      });
+                });
+            } else {
+                $query->where('status', $status);
+            }
+        }
+
+        $loans = $query->orderBy('borrowed_at', 'asc')->get();
+
+        $totalLoans     = $loans->count();
+        $borrowedCount  = $loans->where('status', 'borrowed')->count();
+        $returnedCount  = $loans->where('status', 'returned')->count();
+        $overdueCount   = $loans->filter(fn ($l) => $l->isOverdue())->count();
+
+        $monthName = Carbon::createFromDate($year, $month, 1)->translatedFormat('F');
+
+        return view('exports.library-monthly-loan-pdf', compact(
+            'loans', 'month', 'year', 'status', 'monthName',
+            'totalLoans', 'borrowedCount', 'returnedCount', 'overdueCount'
+        ));
+    }
 }

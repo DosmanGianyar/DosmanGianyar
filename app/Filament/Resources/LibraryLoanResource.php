@@ -199,6 +199,51 @@ class LibraryLoanResource extends Resource
             ])
             ->header(view('filament.library-loans-header'))
             ->headerActions([
+                Action::make('print_monthly_report')
+                    ->label('Cetak Rekap Peminjaman Bulanan')
+                    ->icon('heroicon-o-printer')
+                    ->color('warning')
+                    ->form([
+                        Select::make('month')
+                            ->label('Pilih Bulan')
+                            ->options([
+                                1  => 'Januari',
+                                2  => 'Februari',
+                                3  => 'Maret',
+                                4  => 'April',
+                                5  => 'Mei',
+                                6  => 'Juni',
+                                7  => 'Juli',
+                                8  => 'Agustus',
+                                9  => 'September',
+                                10 => 'Oktober',
+                                11 => 'November',
+                                12 => 'Desember',
+                            ])
+                            ->default(now()->month)
+                            ->required(),
+                        TextInput::make('year')
+                            ->label('Tahun')
+                            ->numeric()
+                            ->default(now()->year)
+                            ->required(),
+                        Select::make('status')
+                            ->label('Filter Status')
+                            ->options([
+                                'all'      => 'Semua Status',
+                                'borrowed' => 'Sedang Dipinjam',
+                                'returned' => 'Sudah Dikembalikan',
+                                'overdue'  => 'Terlambat',
+                            ])
+                            ->default('all'),
+                    ])
+                    ->action(function (array $data) {
+                        return redirect()->route('admin.library.monthly-loan-report', [
+                            'month'  => $data['month'],
+                            'year'   => $data['year'],
+                            'status' => $data['status'],
+                        ]);
+                    }),
                 Action::make('print_clearance_modal')
                     ->label('Cetak Kartu Bebas Perpustakaan')
                     ->icon('heroicon-o-document-check')

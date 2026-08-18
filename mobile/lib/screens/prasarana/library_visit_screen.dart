@@ -256,9 +256,7 @@ class _LibraryVisitScreenState extends State<LibraryVisitScreen> {
 // ─── Camera QR Scanner Page ──────────────────────────────────────────────────
 class _QrScannerPage extends StatefulWidget {
   final ValueChanged<String> onQrScanned;
-  const _QrScannerPage({required onQrScanned}) : _onQrScanned = onQrScanned;
-
-  final ValueChanged<String> _onQrScanned;
+  const _QrScannerPage({required this.onQrScanned});
 
   @override
   State<_QrScannerPage> createState() => _QrScannerPageState();
@@ -305,7 +303,7 @@ class _QrScannerPageState extends State<_QrScannerPage> {
                 final raw = barcode.rawValue;
                 if (raw != null && raw.isNotEmpty) {
                   _handled = true;
-                  widget._onQrScanned(raw);
+                  widget.onQrScanned(raw);
                   break;
                 }
               }
@@ -322,15 +320,15 @@ class _QrScannerPageState extends State<_QrScannerPage> {
             ),
           ),
 
-          const Positioned(
+          Positioned(
             bottom: 40,
             child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: const BoxDecoration(
                 color: Colors.black87,
                 borderRadius: BorderRadius.all(Radius.circular(20)),
               ),
-              child: Text(
+              child: const Text(
                 'Posisikan Kode QR Kunjungan di dalam kotak',
                 style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
               ),
@@ -402,13 +400,16 @@ class _VisitFormModalState extends State<_VisitFormModal> {
     setState(() => _submitting = true);
 
     try {
-      final res = await ApiClient.post('/siswa/library/visits', {
-        'qr_code': code,
-        'visited_at': _visitedAt.toIso8601String(),
-        'purpose_option': _selectedPurpose,
-        'purpose_custom': _customPurpose,
-        'notes': _notesController.text.trim(),
-      });
+      final res = await ApiClient.post(
+        '/siswa/library/visits',
+        data: {
+          'qr_code': codeUpper,
+          'visited_at': _visitedAt.toIso8601String(),
+          'purpose_option': _selectedPurpose,
+          'purpose_custom': _customPurpose,
+          'notes': _notesController.text.trim(),
+        },
+      );
 
       if (mounted) {
         Navigator.pop(context); // close modal
@@ -416,7 +417,7 @@ class _VisitFormModalState extends State<_VisitFormModal> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(res['message'] ?? 'Kunjungan perpustakaan berhasil dicatat!'),
-            backgroundColor: Colors.emerald,
+            backgroundColor: const Color(0xFF10B981),
           ),
         );
       }
