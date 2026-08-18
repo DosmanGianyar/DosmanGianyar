@@ -355,16 +355,16 @@ class _CreateSheetState extends State<_CreateSheet> {
     final file   = await picker.pickImage(source: ImageSource.gallery, imageQuality: 85);
     if (file != null && mounted) {
       setState(() {
-        if (type == 0) _photo = file;
-        else if (type == 1) _certificate = file;
-        else if (type == 2) _assignmentLetter = file;
-        else if (type == 10) _docStandardFile = file;
-        else if (type == 11) _selectionLevelFile = file;
-        else if (type == 12) _frequencyConsistencyFile = file;
-        else if (type == 13) _infrastructureFile = file;
-        else if (type == 14) _rewardCertFile = file;
-        else if (type == 15) _rewardPhotoFile = file;
-        else if (type == 16) _rewardRecapFile = file;
+        if (type == 0) { _photo = file; }
+        else if (type == 1) { _certificate = file; }
+        else if (type == 2) { _assignmentLetter = file; }
+        else if (type == 10) { _docStandardFile = file; }
+        else if (type == 11) { _selectionLevelFile = file; }
+        else if (type == 12) { _frequencyConsistencyFile = file; }
+        else if (type == 13) { _infrastructureFile = file; }
+        else if (type == 14) { _rewardCertFile = file; }
+        else if (type == 15) { _rewardPhotoFile = file; }
+        else if (type == 16) { _rewardRecapFile = file; }
       });
     }
   }
@@ -520,27 +520,37 @@ class _CreateSheetState extends State<_CreateSheet> {
         formMap['frequency_consistency'] = _frequencyConsistency;
         formMap['infrastructure_type']   = _infrastructureType;
 
-        if (_docStandardUrlCtrl.text.trim().isNotEmpty)
+        if (_docStandardUrlCtrl.text.trim().isNotEmpty) {
           formMap['doc_standard_url'] = _docStandardUrlCtrl.text.trim();
-        if (_selectionLevelUrlCtrl.text.trim().isNotEmpty)
+        }
+        if (_selectionLevelUrlCtrl.text.trim().isNotEmpty) {
           formMap['selection_level_url'] = _selectionLevelUrlCtrl.text.trim();
-        if (_frequencyConsistencyUrlCtrl.text.trim().isNotEmpty)
+        }
+        if (_frequencyConsistencyUrlCtrl.text.trim().isNotEmpty) {
           formMap['frequency_consistency_url'] = _frequencyConsistencyUrlCtrl.text.trim();
+        }
 
-        if (_docStandardFile != null)
+        if (_docStandardFile != null) {
           formMap['doc_standard_file'] = await MultipartFile.fromFile(_docStandardFile!.path, filename: 'doc_standard.jpg');
-        if (_selectionLevelFile != null)
+        }
+        if (_selectionLevelFile != null) {
           formMap['selection_level_file'] = await MultipartFile.fromFile(_selectionLevelFile!.path, filename: 'selection_level.jpg');
-        if (_frequencyConsistencyFile != null)
+        }
+        if (_frequencyConsistencyFile != null) {
           formMap['frequency_consistency_file'] = await MultipartFile.fromFile(_frequencyConsistencyFile!.path, filename: 'frequency.jpg');
-        if (_infrastructureFile != null)
+        }
+        if (_infrastructureFile != null) {
           formMap['infrastructure_file'] = await MultipartFile.fromFile(_infrastructureFile!.path, filename: 'infrastructure.jpg');
-        if (_rewardCertFile != null)
+        }
+        if (_rewardCertFile != null) {
           formMap['reward_certificate_file'] = await MultipartFile.fromFile(_rewardCertFile!.path, filename: 'reward_cert.jpg');
-        if (_rewardPhotoFile != null)
+        }
+        if (_rewardPhotoFile != null) {
           formMap['reward_photo_file'] = await MultipartFile.fromFile(_rewardPhotoFile!.path, filename: 'reward_photo.jpg');
-        if (_rewardRecapFile != null)
+        }
+        if (_rewardRecapFile != null) {
           formMap['reward_recap_file'] = await MultipartFile.fromFile(_rewardRecapFile!.path, filename: 'reward_recap.jpg');
+        }
       }
 
       final formData = FormData.fromMap(formMap);
