@@ -72,9 +72,9 @@ class AttendanceLocationResource extends Resource
                 ->numeric()
                 ->default(50)
                 ->minValue(10)
-                ->maxValue(5000)
+                ->maxValue(99999)
                 ->suffix('m')
-                ->helperText('Jarak maksimal dari titik lokasi agar presensi diterima'),
+                ->helperText('Jarak maksimal dari titik lokasi agar presensi diterima (10 s.d. 99.999 meter)'),
 
             // ─── Pengaturan khusus kelas (disembunyikan jika is_default) ────────
             Select::make('class_id')

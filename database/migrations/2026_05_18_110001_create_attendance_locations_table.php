@@ -14,7 +14,7 @@ return new class extends Migration
             $table->string('name');
             $table->decimal('latitude', 10, 8);
             $table->decimal('longitude', 11, 8);
-            $table->unsignedSmallInteger('radius_meters')->default(50);
+            $table->unsignedInteger('radius_meters')->default(50);
             $table->boolean('is_default')->default(false);
             $table->foreignId('class_id')->nullable()->constrained('classes')->nullOnDelete();
             $table->timestamp('start_at')->nullable();

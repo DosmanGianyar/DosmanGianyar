@@ -281,28 +281,127 @@ class StudentAchievementResource extends Resource
                 ])
                 ->columnSpanFull(),
 
-            // Card 5: Berkas & Lampiran
-            Section::make('Berkas & Lampiran Dokumentasi')
+            // Card 5: Rincian 5 Poin Kurasi Kemendikdasmen (SIMT / Puspresnas)
+            Section::make('Rincian Berkas 5 Poin Kurasi Kemendikdasmen (SIMT / Puspresnas)')
+                ->icon('heroicon-o-academic-cap')
+                ->visible(fn (StudentAchievement $record): bool => (bool) $record->is_curation)
+                ->schema([
+                    TextEntry::make('doc_standard_checklist')
+                        ->label('P1. Checklist Dokumen Juknis Standar')
+                        ->formatStateUsing(function ($state): string {
+                            if (empty($state) || !is_array($state)) return '—';
+                            return implode(', ', array_map(fn($item) => ucwords(str_replace('_', ' ', $item)), $state));
+                        })
+                        ->badge()
+                        ->color('info'),
+
+                    TextEntry::make('doc_standard_file')
+                        ->label('P1. File Juknis / Pedoman Lomba')
+                        ->formatStateUsing(fn ($state) => $state ? '📄 Lihat File Juknis (P1)' : '—')
+                        ->url(fn (StudentAchievement $record): ?string => $record->doc_standard_file ? (str_starts_with($record->doc_standard_file, 'kurasi/') ? asset($record->doc_standard_file) : asset('storage/' . $record->doc_standard_file)) : null)
+                        ->openUrlInNewTab()
+                        ->color('primary'),
+
+                    TextEntry::make('doc_standard_url')
+                        ->label('P1. URL Juknis / Website Resmi')
+                        ->url(fn ($state) => $state)
+                        ->openUrlInNewTab()
+                        ->placeholder('—'),
+
+                    TextEntry::make('selection_level')
+                        ->label('P2. Tingkatan Seleksi Ajang')
+                        ->badge()
+                        ->color('warning')
+                        ->formatStateUsing(fn ($state) => $state ? strtoupper(str_replace('_', ' ', $state)) : '—'),
+
+                    TextEntry::make('selection_level_file')
+                        ->label('P2. File Bukti Tahapan Seleksi')
+                        ->formatStateUsing(fn ($state) => $state ? '📄 Lihat Berkas Seleksi (P2)' : '—')
+                        ->url(fn (StudentAchievement $record): ?string => $record->selection_level_file ? (str_starts_with($record->selection_level_file, 'kurasi/') ? asset($record->selection_level_file) : asset('storage/' . $record->selection_level_file)) : null)
+                        ->openUrlInNewTab()
+                        ->color('primary'),
+
+                    TextEntry::make('frequency_consistency')
+                        ->label('P3. Konsistensi Frekuensi Penyelenggaraan')
+                        ->badge()
+                        ->color('info')
+                        ->formatStateUsing(fn ($state) => $state ? ucwords(str_replace('_', ' ', $state)) : '—'),
+
+                    TextEntry::make('frequency_consistency_file')
+                        ->label('P3. File Juknis Lintas Tahun')
+                        ->formatStateUsing(fn ($state) => $state ? '📄 Lihat File Lintas Tahun (P3)' : '—')
+                        ->url(fn (StudentAchievement $record): ?string => $record->frequency_consistency_file ? (str_starts_with($record->frequency_consistency_file, 'kurasi/') ? asset($record->frequency_consistency_file) : asset('storage/' . $record->frequency_consistency_file)) : null)
+                        ->openUrlInNewTab()
+                        ->color('primary'),
+
+                    TextEntry::make('infrastructure_type')
+                        ->label('P4. Sarana & Prasarana Ajang')
+                        ->badge()
+                        ->color('success')
+                        ->formatStateUsing(fn ($state) => $state ? ucwords(str_replace('_', ' ', $state)) : '—'),
+
+                    TextEntry::make('infrastructure_file')
+                        ->label('P4. File Dokumentasi Sarpras / Venue')
+                        ->formatStateUsing(fn ($state) => $state ? '📷 Lihat Dokumentasi Sarpras (P4)' : '—')
+                        ->url(fn (StudentAchievement $record): ?string => $record->infrastructure_file ? (str_starts_with($record->infrastructure_file, 'kurasi/') ? asset($record->infrastructure_file) : asset('storage/' . $record->infrastructure_file)) : null)
+                        ->openUrlInNewTab()
+                        ->color('primary'),
+
+                    TextEntry::make('reward_types')
+                        ->label('P5. Jenis Penghargaan & Apresiasi')
+                        ->formatStateUsing(function ($state): string {
+                            if (empty($state) || !is_array($state)) return '—';
+                            return implode(', ', array_map(fn($item) => ucwords(str_replace('_', ' ', $item)), $state));
+                        })
+                        ->badge()
+                        ->color('success'),
+
+                    TextEntry::make('reward_certificate_file')
+                        ->label('P5. Scan Piagam / Sertifikat')
+                        ->formatStateUsing(fn ($state) => $state ? '📜 Lihat Scan Piagam (P5)' : '—')
+                        ->url(fn (StudentAchievement $record): ?string => $record->reward_certificate_file ? (str_starts_with($record->reward_certificate_file, 'kurasi/') ? asset($record->reward_certificate_file) : asset('storage/' . $record->reward_certificate_file)) : null)
+                        ->openUrlInNewTab()
+                        ->color('primary'),
+
+                    TextEntry::make('reward_photo_file')
+                        ->label('P5. Foto Penyerahan Hadiah / Medali')
+                        ->formatStateUsing(fn ($state) => $state ? '📷 Lihat Foto Penyerahan (P5)' : '—')
+                        ->url(fn (StudentAchievement $record): ?string => $record->reward_photo_file ? (str_starts_with($record->reward_photo_file, 'kurasi/') ? asset($record->reward_photo_file) : asset('storage/' . $record->reward_photo_file)) : null)
+                        ->openUrlInNewTab()
+                        ->color('primary'),
+
+                    TextEntry::make('reward_recap_file')
+                        ->label('P5. SK / Rekap Pemenang Lomba')
+                        ->formatStateUsing(fn ($state) => $state ? '📄 Lihat Rekap Pemenang (P5)' : '—')
+                        ->url(fn (StudentAchievement $record): ?string => $record->reward_recap_file ? (str_starts_with($record->reward_recap_file, 'kurasi/') ? asset($record->reward_recap_file) : asset('storage/' . $record->reward_recap_file)) : null)
+                        ->openUrlInNewTab()
+                        ->color('primary'),
+                ])
+                ->columns(3)
+                ->columnSpanFull(),
+
+            // Card 6: Berkas & Lampiran
+            Section::make('Berkas & Lampiran Dokumentasi Utama')
                 ->icon('heroicon-o-paper-clip')
                 ->schema([
                     TextEntry::make('certificate')
-                        ->label('Sertifikat / Piagam')
+                        ->label('Sertifikat / Piagam Utama')
                         ->formatStateUsing(fn ($state) => $state ? '📄 Lihat File Sertifikat' : 'Tidak ada berkas')
-                        ->url(fn (StudentAchievement $record): ?string => $record->certificateUrl())
+                        ->url(fn (StudentAchievement $record): ?string => $record->certificate ? (str_starts_with($record->certificate, 'kurasi/') ? asset($record->certificate) : asset('storage/' . $record->certificate)) : null)
                         ->openUrlInNewTab()
                         ->color('primary')
                         ->visible(fn (StudentAchievement $record): bool => ! empty($record->certificate)),
 
                     TextEntry::make('assignment_letter')
-                        ->label('Surat Tugas')
+                        ->label('Surat Tugas Utama')
                         ->formatStateUsing(fn ($state) => $state ? '📑 Lihat Surat Tugas' : 'Tidak ada berkas')
-                        ->url(fn (StudentAchievement $record): ?string => $record->assignmentLetterUrl())
+                        ->url(fn (StudentAchievement $record): ?string => $record->assignment_letter ? (str_starts_with($record->assignment_letter, 'kurasi/') ? asset($record->assignment_letter) : asset('storage/' . $record->assignment_letter)) : null)
                         ->openUrlInNewTab()
                         ->color('primary')
                         ->visible(fn (StudentAchievement $record): bool => ! empty($record->assignment_letter)),
 
                     ImageEntry::make('photo')
-                        ->label('Foto Dokumentasi / Penyerahan')
+                        ->label('Foto Dokumentasi / Penyerahan Utama')
                         ->disk('public')
                         ->imageWidth(400)
                         ->columnSpanFull()

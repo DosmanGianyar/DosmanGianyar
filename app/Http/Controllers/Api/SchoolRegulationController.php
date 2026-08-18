@@ -27,6 +27,10 @@ class SchoolRegulationController extends Controller
             ])->values(),
         ])->values();
 
-        return response()->json(['regulations' => $grouped]);
+        return response()->json([
+            'pdf_url'     => asset('tatatertib/Scan TataTertib SIswa.pdf'),
+            'regulations' => $grouped,
+        ]);
     }
 }
+

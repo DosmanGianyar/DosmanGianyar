@@ -56,9 +56,9 @@ class SchoolRegulationResource extends Resource
                 ->columnSpanFull(),
 
             Textarea::make('content')
-                ->label('Isi / Penjelasan')
+                ->label('Isi / Penjelasan Dokumen (Verbatim)')
                 ->required()
-                ->rows(5)
+                ->rows(10)
                 ->columnSpanFull(),
 
             Toggle::make('is_active')
