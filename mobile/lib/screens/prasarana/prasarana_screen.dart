@@ -117,6 +117,75 @@ class _PrasaranaScreenState extends State<PrasaranaScreen> {
                     style: TextStyle(color: Color(0xFFDDD6FE), fontSize: 11)),
                 ])),
               ]),
+            // ─── CARD UTAMA E-KATALOG BUKU PERPUSTAKAAN ───────────────────
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const LibraryCatalogScreen()),
+                );
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF1E1B4B), Color(0xFF312E81), Color(0xFF4338CA)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: AppRadius.card,
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF312E81).withValues(alpha: 0.35),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: const Icon(Icons.menu_book_rounded, color: Color(0xFFFDE047), size: 24),
+                            ),
+                            const SizedBox(width: 12),
+                            const Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('E-KATALOG BUKU DIGITAL', style: TextStyle(color: Color(0xFFFEF08A), fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
+                                Text('Perpustakaan SMA 1 Gianyar', style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold)),
+                              ],
+                            ),
+                          ],
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFACC15),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: const Text('Buka →', style: TextStyle(color: Color(0xFF0F172A), fontSize: 11, fontWeight: FontWeight.w900)),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    const Text(
+                      'Jelajahi koleksi buku pelajaran, novel fiksi, sains, sejarah, dan cek ketersediaan stok rak.',
+                      style: TextStyle(color: Color(0xFFE2E8F0), fontSize: 11, height: 1.3),
+                    ),
+                  ],
+                ),
+              ),
             ),
             const SizedBox(height: 12),
 
