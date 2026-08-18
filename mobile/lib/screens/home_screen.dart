@@ -18,6 +18,8 @@ import 'attendance/history_screen.dart';
 import 'kesiswaan/kesiswaan_screen.dart';
 import 'kurikulum/kurikulum_screen.dart';
 import 'prasarana/prasarana_screen.dart';
+import 'prasarana/library_screen.dart';
+import 'prasarana/library_catalog_screen.dart';
 import 'humas/humas_screen.dart';
 import 'profile_screen.dart';
 import 'announcement_list_screen.dart';
@@ -466,6 +468,10 @@ class _DashboardBody extends StatelessWidget {
 
           // ── Kartu Pelajar Digital ───────────────────────────────────────────
           StudentIdCard(user: user),
+          const SizedBox(height: 12),
+
+          // ── Akses Kilat E-Katalog Digital Perpustakaan ──────────────────────
+          const _LibraryCatalogDashboardCard(),
           const SizedBox(height: 12),
 
           // ── Card SIPINTER (diantara Kartu Siswa & Kalender Kehadiran) ──────
@@ -1755,4 +1761,120 @@ class _ConductDashboardCardState extends State<_ConductDashboardCard> {
   ),
 );
 }
+}
+
+// ─── Library Catalog Dashboard Card ──────────────────────────────────────────
+
+class _LibraryCatalogDashboardCard extends StatelessWidget {
+  const _LibraryCatalogDashboardCard();
+
+  void _openCatalog(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const LibraryCatalogScreen()),
+    );
+  }
+
+  void _openLibrary(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const LibraryScreen()),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xFF1E1B4B), Color(0xFF312E81), Color(0xFF4338CA)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(18),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF312E81).withValues(alpha: 0.35),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Icon(Icons.menu_book_rounded, color: Color(0xFFFDE047), size: 20),
+                    ),
+                    const SizedBox(width: 8),
+                    const Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('E-KATALOG DIGITAL', style: TextStyle(color: Color(0xFFFEF08A), fontSize: 9.5, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
+                        Text('Perpustakaan SMA 1 Gianyar', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+                      ],
+                    ),
+                  ],
+                ),
+                GestureDetector(
+                  onTap: () => _openCatalog(context),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFACC15),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: const Text('Buka Katalog →', style: TextStyle(color: Color(0xFF0F172A), fontSize: 10.5, fontWeight: FontWeight.w900)),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.10),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.15)),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.search_rounded, color: Color(0xFF93C5FD), size: 18),
+                  const SizedBox(width: 8),
+                  const Expanded(
+                    child: Text(
+                      'Cari koleksi buku pelajaran, fiksi, novel, sains, & sejarah...',
+                      style: TextStyle(color: Color(0xFFE2E8F0), fontSize: 11),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () => _openLibrary(context),
+                    child: const Text(
+                      'Pinjam',
+                      style: TextStyle(color: Color(0xFF93C5FD), fontSize: 11, fontWeight: FontWeight.bold, decoration: TextDecoration.underline),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
