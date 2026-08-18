@@ -409,6 +409,13 @@ Route::middleware(['auth', 'role:siswa,pengelola', 'force.password.change'])->pr
         Route::get('/{announcement}', [SiswaAnnouncement::class, 'show'])->name('show');
     });
 
+    // Perpustakaan & Kartu Bebas Perpustakaan
+    Route::prefix('library')->name('library.')->group(function () {
+        Route::get('/', [App\Http\Controllers\Siswa\LibraryController::class, 'index'])->name('index');
+        Route::post('/', [App\Http\Controllers\Siswa\LibraryController::class, 'store'])->name('store');
+        Route::get('/clearance-card', [App\Http\Controllers\Siswa\LibraryController::class, 'clearanceCard'])->name('clearance-card');
+    });
+
     // Ekstrakurikuler
     Route::prefix('extracurricular')->name('extracurricular.')->group(function () {
         Route::get('/', [SiswaExtracurricular::class, 'index'])->name('index');
@@ -417,6 +424,9 @@ Route::middleware(['auth', 'role:siswa,pengelola', 'force.password.change'])->pr
         Route::delete('/{extracurricular}/cancel-join', [SiswaExtracurricular::class, 'cancelJoin'])->name('cancel-join');
     });
 });
+
+// Admin Clearance Card PDF/Print Route
+Route::middleware(['auth'])->get('/admin/library/clearance-card/{user}', [App\Http\Controllers\Siswa\LibraryController::class, 'adminClearanceCard'])->name('admin.library.clearance-card');
 
 // ─── Orangtua ─────────────────────────────────────────────────────────────────
 Route::middleware(['auth', 'role:orangtua'])->prefix('orangtua')->name('orangtua.')->group(function () {

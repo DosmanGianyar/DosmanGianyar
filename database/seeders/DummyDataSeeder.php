@@ -212,6 +212,37 @@ class DummyDataSeeder extends Seeder
             ]);
         }
 
+        // ── Library Loans ───────────────────────────────────────────────────
+        $libraryLoans = [
+            [
+                'student_id'   => $siswa->id,
+                'phone_number' => '081234567890',
+                'book_title'   => 'Fisika Peminatan Kelas XII SMA/MA',
+                'book_code'    => 'BIB-2026-012',
+                'borrowed_at'  => now()->subDays(5),
+                'due_at'       => now()->addDays(2),
+                'status'       => 'borrowed',
+                'notes'        => 'Kondisi buku baik dan bersih',
+            ],
+            [
+                'student_id'   => $siswa->id,
+                'phone_number' => '081234567890',
+                'book_title'   => 'Laskar Pelangi - Andrea Hirata',
+                'book_code'    => 'BIB-2025-089',
+                'borrowed_at'  => now()->subDays(20),
+                'due_at'       => now()->subDays(13),
+                'returned_at'  => now()->subDays(13),
+                'status'       => 'returned',
+                'notes'        => 'Sudah dikembalikan tepat waktu',
+            ],
+        ];
+
+        foreach ($libraryLoans as $loan) {
+            \App\Models\LibraryLoan::create(array_merge($loan, [
+                'created_by_user_id' => $siswa->id,
+            ]));
+        }
+
         $this->command->info('Dummy data berhasil dibuat:');
         $this->command->table(
             ['Data', 'Jumlah'],
@@ -219,6 +250,7 @@ class DummyDataSeeder extends Seeder
                 ['Conduct Categories', count($categories)],
                 ['Conduct Logs',       count($logs)],
                 ['Student Achievements', count($achievements)],
+                ['Library Loans',       count($libraryLoans)],
             ]
         );
     }
