@@ -202,17 +202,21 @@
     max-width: 1.25rem !important;
     max-height: 1.25rem !important;
     flex-shrink: 0 !important;
-    display: inline-block !important;
 }
 
-.fi-btn svg,
-.fi-icon-btn svg {
+.fi-btn svg:not(.fi-loading-indicator),
+.fi-icon-btn svg:not(.fi-loading-indicator) {
     width: 1.25rem !important;
     height: 1.25rem !important;
     max-width: 1.5rem !important;
     max-height: 1.5rem !important;
     flex-shrink: 0 !important;
-    display: inline-block !important;
+}
+
+/* Ensure hidden Livewire loading indicators are never forced visible by global CSS */
+.fi-loading-indicator:not([wire\:loading]),
+[wire\:loading]:not([wire\:loading\.flex]):not([wire\:loading\.block]):not([wire\:loading\.inline-block]):not([wire\:loading\.inline]) {
+    display: none !important;
 }
 
 .fi-topbar svg {
