@@ -7,13 +7,17 @@ use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithColumnFormatting;
+use Maatwebsite\Excel\Concerns\WithCustomValueBinder;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
+use PhpOffice\PhpSpreadsheet\Cell\Cell;
+use PhpOffice\PhpSpreadsheet\Cell\DataType;
+use PhpOffice\PhpSpreadsheet\Cell\DefaultValueBinder;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class GuruDataExport implements FromCollection, WithHeadings, WithMapping, WithStyles, WithColumnFormatting, ShouldAutoSize
+class GuruDataExport extends DefaultValueBinder implements FromCollection, WithHeadings, WithMapping, WithStyles, WithColumnFormatting, WithCustomValueBinder, ShouldAutoSize
 {
     public function collection(): Collection
     {
@@ -55,6 +59,20 @@ class GuruDataExport implements FromCollection, WithHeadings, WithMapping, WithS
             $user->phone ? (string) $user->phone : '',
             $subjectNames,
         ];
+    }
+
+    public function bindValue(Cell $cell, $value): bool
+    {
+        if ($value !== null && $value !== '') {
+            $column = $cell->getColumn();
+            // Force NIP (A) and No HP (F) to be explicit String data type to prevent scientific notation (1.966E+17) in Excel & Google Sheets
+            if (in_array($column, ['A', 'F'], true)) {
+                $cell->setValueExplicit((string) $value, DataType::TYPE_STRING);
+                return true;
+            }
+        }
+
+        return parent::bindValue($cell, $value);
     }
 
     public function columnFormats(): array
