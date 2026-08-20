@@ -46,7 +46,7 @@ class Holiday extends Model
      */
     public static function isOffDayFor(Carbon $date, ?int $classId): bool
     {
-        if ($date->isSunday() || $date->isSaturday()) {
+        if ($date->isSunday()) {
             return ! static::specialSchoolDayExistsFor($date, $classId);
         }
         return static::holidayExistsFor($date, $classId);
@@ -121,7 +121,7 @@ class Holiday extends Model
     public static function isSchoolDay(Carbon $date, array $holidays, array $specialDays): bool
     {
         $ds = $date->format('Y-m-d');
-        if ($date->isSunday() || $date->isSaturday()) {
+        if ($date->isSunday()) {
             return isset($specialDays[$ds]);
         }
         return ! isset($holidays[$ds]);

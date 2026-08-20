@@ -253,7 +253,7 @@
             @php
                 $ds         = $calFirst->copy()->addDays($day - 1)->toDateString();
                 $dow        = (int) \Carbon\Carbon::parse($ds)->dayOfWeek;   // 0=Sun,6=Sat
-                $isWeekend  = in_array($dow, [0, 6]);
+                $isWeekend  = ($dow === 0);                                 // Hanya Minggu yang libur rutin (6 hari sekolah: Sen-Sab)
                 $isHoliday  = isset($monthlyHolidays[$ds]);
                 $isSpecial  = isset($monthlySpecial[$ds]);
                 $isGrayDay  = $isFuture = ($ds > $todayDate);
