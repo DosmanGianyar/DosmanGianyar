@@ -366,46 +366,83 @@
 </div>
 
 @if(isset($popupAnnouncement) && $popupAnnouncement)
-{{-- ─── Modal Pop-Up Pengumuman (Auto-close 15 detik) ────────────────────── --}}
-<div id="announcement-popup-modal" class="fixed inset-0 z-50 hidden bg-black/75 backdrop-blur-xs flex items-center justify-center p-4">
-    <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh] animate-in fade-in zoom-in duration-200">
-        {{-- Header Modal --}}
-        <div class="px-4 py-3 bg-linear-to-r from-blue-900 via-indigo-900 to-blue-950 text-white flex items-center justify-between">
-            <div class="flex items-center gap-2">
-                <span class="text-lg">📢</span>
-                <span class="text-sm font-extrabold tracking-wide uppercase">Pengumuman Sekolah</span>
+{{-- ─── Modal Pop-Up Pengumuman Premium (Tinggi 80% Layar, Auto-close 15 detik) ────── --}}
+<div id="announcement-popup-modal" class="fixed inset-0 z-[9999] hidden bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 w-full h-full box-border overflow-hidden">
+    <div class="bg-white w-[92%] sm:w-[85%] max-w-xl h-[80vh] min-h-[480px] max-h-[82vh] rounded-3xl shadow-2xl overflow-hidden flex flex-col mx-auto my-auto relative border border-white/20 animate-in fade-in zoom-in-95 duration-300">
+        
+        {{-- Header Modal Gradient & Progress Bar --}}
+        <div class="relative bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 text-white p-4 sm:p-5 shrink-0 overflow-hidden">
+            {{-- Background Accent Glow --}}
+            <div class="absolute -top-12 -right-12 w-32 h-32 bg-blue-500/20 rounded-full blur-2xl pointer-events-none"></div>
+            <div class="absolute -bottom-10 -left-10 w-28 h-28 bg-indigo-500/20 rounded-full blur-xl pointer-events-none"></div>
+
+            <div class="relative z-10 flex items-center justify-between gap-3">
+                <div class="flex items-center gap-3 min-w-0">
+                    <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-white/15 backdrop-blur-md flex items-center justify-center shrink-0 border border-white/20 shadow-inner">
+                        <span class="text-xl sm:text-2xl animate-bounce">📢</span>
+                    </div>
+                    <div class="min-w-0">
+                        <span class="inline-block text-[10px] sm:text-xs font-extrabold tracking-widest uppercase text-blue-200/90">Pengumuman Sekolah</span>
+                        <h2 class="text-sm sm:text-base font-bold text-white truncate">SMAN 1 Gianyar</h2>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2 shrink-0">
+                    {{-- Timer Badge --}}
+                    <div id="announcement-timer-badge" class="bg-amber-400 text-amber-950 text-xs font-black px-2.5 py-1 rounded-full flex items-center gap-1.5 shadow-md border border-amber-300/80">
+                        <span>⏳</span>
+                        <span id="announcement-timer-count" class="font-mono">15</span>s
+                    </div>
+                    {{-- Close X --}}
+                    <button type="button" onclick="closeAnnouncementPopup()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white/80 hover:text-white flex items-center justify-center text-lg font-bold transition-all cursor-pointer">
+                        ✕
+                    </button>
+                </div>
             </div>
-            <div class="flex items-center gap-2">
-                <span id="announcement-timer-badge" class="bg-amber-400 text-amber-950 text-[11px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 shadow-xs">
-                    ⏳ <span id="announcement-timer-count">15</span>s
-                </span>
-                <button type="button" onclick="closeAnnouncementPopup()" class="text-gray-300 hover:text-white text-xl font-bold px-1.5 cursor-pointer">✕</button>
+
+            {{-- Visual Progress Bar 15 Detik --}}
+            <div class="absolute bottom-0 left-0 right-0 h-1 bg-white/10 overflow-hidden">
+                <div id="announcement-progress-bar" class="h-full bg-gradient-to-r from-amber-400 to-amber-300 w-full transition-all duration-1000 ease-linear"></div>
             </div>
         </div>
 
-        {{-- Body Modal --}}
-        <div class="p-4 overflow-y-auto space-y-3 flex-1 bg-gray-50/50">
+        {{-- Body Modal (Scrollable Content, 80% height container) --}}
+        <div class="p-4 sm:p-6 overflow-y-auto space-y-4 flex-1 bg-gradient-to-b from-slate-50 via-gray-50 to-blue-50/30">
             @if($popupAnnouncement->image)
-                <div class="rounded-xl overflow-hidden shadow-sm border border-gray-200 bg-gray-900 flex justify-center">
-                    <img src="{{ $popupAnnouncement->image_url }}" alt="{{ $popupAnnouncement->title }}" class="max-h-72 w-auto object-contain">
+                <div class="rounded-2xl overflow-hidden shadow-md border border-gray-200/80 bg-slate-950 flex justify-center items-center group">
+                    <img src="{{ $popupAnnouncement->image_url }}" alt="{{ $popupAnnouncement->title }}" class="max-h-72 w-full object-contain group-hover:scale-102 transition-transform duration-300">
                 </div>
             @endif
 
-            <h3 class="text-base font-bold text-gray-900 leading-snug">{{ $popupAnnouncement->title }}</h3>
-            <p class="text-xs text-gray-400 font-medium">Dipublikasikan: {{ $popupAnnouncement->published_at?->isoFormat('D MMMM Y, HH:mm') }} WITA</p>
+            <div class="space-y-2">
+                <div class="flex items-center gap-2 flex-wrap">
+                    @if($popupAnnouncement->is_pinned)
+                        <span class="inline-flex items-center gap-1 bg-amber-100 text-amber-900 text-[11px] font-bold px-2.5 py-0.5 rounded-full border border-amber-200">
+                            📌 Pinned
+                        </span>
+                    @endif
+                    <span class="inline-flex items-center gap-1 bg-blue-50 text-blue-700 text-[11px] font-semibold px-2.5 py-0.5 rounded-full border border-blue-100">
+                        🗓️ {{ $popupAnnouncement->published_at?->isoFormat('D MMMM Y, HH:mm') }} WITA
+                    </span>
+                </div>
 
-            <div class="text-sm text-gray-700 whitespace-pre-line leading-relaxed bg-white p-3.5 rounded-xl border border-gray-100 shadow-2xs">
+                <h3 class="text-base sm:text-lg font-extrabold text-slate-900 leading-snug tracking-tight">
+                    {{ $popupAnnouncement->title }}
+                </h3>
+            </div>
+
+            <div class="text-xs sm:text-sm text-slate-700 whitespace-pre-line leading-relaxed bg-white/90 backdrop-blur-xs p-4 rounded-2xl border border-slate-200/70 shadow-xs">
                 {!! nl2br(e($popupAnnouncement->body)) !!}
             </div>
         </div>
 
         {{-- Footer Modal --}}
-        <div class="px-4 py-3 bg-white border-t border-gray-100 flex items-center justify-between gap-2">
-            <a href="{{ route('siswa.humas.announcements.index') }}" class="text-xs font-bold text-blue-600 hover:underline flex items-center gap-1">
-                <span>Daftar Pengumuman Humas</span> →
+        <div class="px-4 py-3 sm:px-6 sm:py-4 bg-white/95 backdrop-blur-md border-t border-slate-100 flex items-center justify-between gap-3 shrink-0">
+            <a href="{{ route('siswa.humas.announcements.index') }}" class="text-xs sm:text-sm font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1 transition-colors">
+                <span>Daftar Pengumuman</span> →
             </a>
-            <button type="button" onclick="closeAnnouncementPopup()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-sm active:scale-95 transition-all cursor-pointer">
-                Mengerti & Tutup
+            <button type="button" onclick="closeAnnouncementPopup()" class="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-2xl text-xs sm:text-sm font-bold shadow-md shadow-blue-500/25 active:scale-95 transition-all cursor-pointer flex items-center gap-1.5">
+                <span>Mengerti & Tutup</span>
             </button>
         </div>
     </div>
@@ -417,6 +454,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const storageKey = 'dismissed_announcement_' + annId;
     const modal = document.getElementById('announcement-popup-modal');
     const timerCount = document.getElementById('announcement-timer-count');
+    const progressBar = document.getElementById('announcement-progress-bar');
 
     if (!modal) return;
 
@@ -424,9 +462,16 @@ document.addEventListener('DOMContentLoaded', function() {
         modal.classList.remove('hidden');
 
         let secondsLeft = 15;
+        const totalSeconds = 15;
+
         const countdownInterval = setInterval(function() {
             secondsLeft--;
             if (timerCount) timerCount.textContent = secondsLeft;
+
+            if (progressBar) {
+                const pct = (secondsLeft / totalSeconds) * 100;
+                progressBar.style.width = pct + '%';
+            }
 
             if (secondsLeft <= 0) {
                 clearInterval(countdownInterval);
