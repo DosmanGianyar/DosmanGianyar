@@ -29,7 +29,7 @@ class AnnouncementResource extends Resource
 {
     protected static ?string $model = Announcement::class;
 
-    protected static string|\BackedEnum|null $navigationIcon  = 'heroicon-o-speakerphone';
+    protected static string|\BackedEnum|null $navigationIcon  = 'heroicon-o-megaphone';
     protected static string|\UnitEnum|null   $navigationGroup = 'Humas';
     protected static ?string                 $navigationLabel = 'Pengumuman';
     protected static ?string                 $modelLabel       = 'Pengumuman';
