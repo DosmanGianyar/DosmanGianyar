@@ -42,42 +42,50 @@ class LibraryController extends Controller
         /** @var \App\Models\User $siswa */
         $siswa = Auth::user();
 
-        $validated = $request->validate([
-            'book_title'     => 'required|string|max:255',
-            'book_code'      => 'nullable|string|max:100',
-            'phone_number'   => 'nullable|string|max:30',
-            'borrowed_at'    => 'required|date',
-            'due_at'         => 'required|date|after_or_equal:borrowed_at',
-            'purpose_option' => 'nullable|string|max:100',
-            'purpose_custom' => 'nullable|string|max:255',
-            'notes'          => 'nullable|string|max:500',
-        ], [
-            'book_title.required'   => 'Judul buku wajib diisi.',
-            'due_at.after_or_equal' => 'Tanggal batas kembali harus sama atau setelah tanggal pinjam.',
-        ]);
+        try {
+            $validated = $request->validate([
+                'book_title'     => 'required|string|max:255',
+                'book_code'      => 'nullable|string|max:100',
+                'phone_number'   => 'nullable|string|max:30',
+                'borrowed_at'    => 'required|date',
+                'due_at'         => 'required|date|after_or_equal:borrowed_at',
+                'purpose_option' => 'nullable|string|max:100',
+                'purpose_custom' => 'nullable|string|max:255',
+                'notes'          => 'nullable|string|max:500',
+            ], [
+                'book_title.required'   => 'Judul buku wajib diisi.',
+                'due_at.after_or_equal' => 'Tanggal batas kembali harus sama atau setelah tanggal pinjam.',
+            ]);
 
-        $purposeOption = $validated['purpose_option'] ?? 'BELAJAR';
-        $purpose = $purposeOption === 'LAINNYA'
-            ? ($validated['purpose_custom'] ?: 'LAINNYA')
-            : $purposeOption;
+            $purposeOption = $validated['purpose_option'] ?? 'BELAJAR';
+            $purpose = $purposeOption === 'LAINNYA'
+                ? ($validated['purpose_custom'] ?: 'LAINNYA')
+                : $purposeOption;
 
-        $phoneNumber = ! empty($validated['phone_number']) ? $validated['phone_number'] : ($siswa->phone ?: '—');
+            $phoneNumber = ! empty($validated['phone_number']) ? $validated['phone_number'] : ($siswa->phone ?: '—');
 
-        LibraryLoan::create([
-            'student_id'          => $siswa->id,
-            'phone_number'        => $phoneNumber,
-            'book_title'          => $validated['book_title'],
-            'book_code'           => $validated['book_code'] ?? null,
-            'borrowed_at'         => $validated['borrowed_at'],
-            'due_at'              => $validated['due_at'],
-            'purpose'             => $purpose,
-            'status'              => 'borrowed',
-            'notes'               => $validated['notes'] ?? null,
-            'created_by_user_id'  => $siswa->id,
-        ]);
+            LibraryLoan::create([
+                'student_id'          => $siswa->id,
+                'phone_number'        => $phoneNumber,
+                'book_title'          => $validated['book_title'],
+                'book_code'           => $validated['book_code'] ?? null,
+                'borrowed_at'         => $validated['borrowed_at'],
+                'due_at'              => $validated['due_at'],
+                'purpose'             => $purpose,
+                'status'              => 'borrowed',
+                'notes'               => $validated['notes'] ?? null,
+                'created_by_user_id'  => $siswa->id,
+            ]);
 
-        return redirect()->route('siswa.library.index')
-            ->with('success', 'Peminjaman buku berhasil dicatat. Silakan serahkan buku saat pengembalian.');
+            return redirect()->route('siswa.library.index')
+                ->with('success', 'Peminjaman buku berhasil dicatat. Silakan serahkan buku saat pengembalian.');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Gagal menyimpan peminjaman buku: ' . $e->getMessage());
+        }
     }
 
     public function clearanceCard(Request $request): View

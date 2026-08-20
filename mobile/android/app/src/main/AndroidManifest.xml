@@ -21,6 +21,10 @@
     <!-- Galeri foto untuk upload prestasi: image_picker memakai Android Photo Picker
          bawaan sistem / document picker, tidak memerlukan permission penyimpanan. -->
 
+    <!-- Notifikasi (Android 13+ / API 33+) & Getar -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.VIBRATE"/>
+
     <application
         android:label="SIMS SMAN 1 Gianyar"
         android:name="${applicationName}"
@@ -29,6 +33,11 @@
         android:enableOnBackInvokedCallback="true"
         android:usesCleartextTraffic="false"
         android:requestLegacyExternalStorage="false">
+
+        <!-- Channel Notifikasi Default FCM untuk Notifikasi Prioritas Tinggi -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="sims_high_importance_channel" />
 
         <activity
             android:name=".MainActivity"

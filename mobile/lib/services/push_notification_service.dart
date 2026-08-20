@@ -40,8 +40,9 @@ class PushNotificationService {
         'sims_high_importance_channel',
         'Notifikasi SIMS',
         description: 'Notifikasi penting presensi, pengumuman, dan catatan siswa SMAN 1 Gianyar',
-        importance: Importance.high,
+        importance: Importance.max,
         playSound: true,
+        enableVibration: true,
       );
 
       const AndroidInitializationSettings initializationSettingsAndroid =
@@ -74,8 +75,9 @@ class PushNotificationService {
                 channelDescription: channel.description,
                 icon: '@mipmap/ic_launcher',
                 importance: Importance.max,
-                priority: Priority.high,
+                priority: Priority.max,
                 playSound: true,
+                enableVibration: true,
               ),
             ),
           );

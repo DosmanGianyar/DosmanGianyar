@@ -107,10 +107,13 @@ class SiswaLibraryApiController extends Controller
                 'book_code'      => 'nullable|string|max:100',
                 'phone_number'   => 'nullable|string|max:30',
                 'borrowed_at'    => 'required|date',
-                'due_at'         => 'required|date',
+                'due_at'         => 'required|date|after_or_equal:borrowed_at',
                 'purpose_option' => 'nullable|string|max:100',
                 'purpose_custom' => 'nullable|string|max:255',
                 'notes'          => 'nullable|string|max:500',
+            ], [
+                'book_title.required'   => 'Judul buku wajib diisi.',
+                'due_at.after_or_equal' => 'Tanggal batas kembali harus sama atau setelah tanggal pinjam.',
             ]);
 
             $purposeOption = $validated['purpose_option'] ?? 'BELAJAR';
@@ -119,8 +122,18 @@ class SiswaLibraryApiController extends Controller
                 : $purposeOption;
 
             $phoneNumber = ! empty($validated['phone_number']) ? $validated['phone_number'] : ($siswa->phone ?: '—');
-            $borrowedAt  = Carbon::parse($validated['borrowed_at'])->toDateString();
-            $dueAt       = Carbon::parse($validated['due_at'])->toDateString();
+
+            try {
+                $borrowedAt = Carbon::parse($validated['borrowed_at'])->toDateString();
+            } catch (\Throwable $e) {
+                $borrowedAt = now()->toDateString();
+            }
+
+            try {
+                $dueAt = Carbon::parse($validated['due_at'])->toDateString();
+            } catch (\Throwable $e) {
+                $dueAt = now()->addDays(7)->toDateString();
+            }
 
             $loan = LibraryLoan::create([
                 'student_id'         => $siswa->id,

@@ -55,9 +55,21 @@ class FcmService
         $payload = [
             'registration_ids' => array_values($tokens),
             'notification'     => [
-                'title' => $title,
-                'body'  => $body,
-                'sound' => 'default',
+                'title'              => $title,
+                'body'               => $body,
+                'sound'              => 'default',
+                'android_channel_id' => 'sims_high_importance_channel',
+                'channel_id'         => 'sims_high_importance_channel',
+            ],
+            'android' => [
+                'priority' => 'high',
+                'notification' => [
+                    'channel_id'              => 'sims_high_importance_channel',
+                    'sound'                   => 'default',
+                    'default_sound'           => true,
+                    'default_vibrate_timings' => true,
+                    'notification_priority'   => 'PRIORITY_MAX',
+                ],
             ],
             'data' => array_merge($data, [
                 'click_action' => 'FLUTTER_NOTIFICATION_CLICK',

@@ -77,7 +77,7 @@ class LibraryLoanResource extends Resource
                     ->label('No. HP / WhatsApp Peminjam')
                     ->tel()
                     ->placeholder('081234567890')
-                    ->required(),
+                    ->nullable(),
 
                 TextInput::make('book_title')
                     ->label('Judul Buku')
