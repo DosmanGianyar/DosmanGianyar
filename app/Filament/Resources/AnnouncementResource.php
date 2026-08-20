@@ -18,6 +18,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -117,7 +118,20 @@ class AnnouncementResource extends Resource
                     ->width(48)
                     ->height(48)
                     ->defaultImageUrl(asset('img/logo_sekolah.png'))
-                    ->circular(),
+                    ->square()
+                    ->extraImgAttributes(['class' => 'cursor-pointer hover:scale-110 transition-all rounded-lg shadow-xs'])
+                    ->tooltip('Klik untuk perbesar foto pengumuman')
+                    ->action(
+                        Action::make('preview_image')
+                            ->modalHeading(fn (Announcement $record): string => 'Foto Pengumuman: ' . $record->title)
+                            ->modalContent(fn (Announcement $record) => view('filament.components.image-preview-modal', [
+                                'imageUrl' => $record->image_url ?: asset('img/logo_sekolah.png'),
+                                'title'    => $record->title,
+                                'body'     => $record->body,
+                            ]))
+                            ->modalSubmitAction(false)
+                            ->modalCancelActionLabel('Tutup')
+                    ),
 
                 TextColumn::make('title')
                     ->label('Judul Pengumuman')
