@@ -113,7 +113,7 @@ class _ProfileImageCropperDialogState extends State<ProfileImageCropperDialog> {
                     ),
                     const Spacer(),
                     IconButton(
-                      icon: const Icon(Icons.close_rounded, color: Colors.gray300, size: 20),
+                      icon: const Icon(Icons.close_rounded, color: Colors.white70, size: 20),
                       onPressed: () => Navigator.pop(context, null),
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(),
@@ -144,7 +144,7 @@ class _ProfileImageCropperDialogState extends State<ProfileImageCropperDialog> {
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(color: AppColors.blue500, width: 2.5),
                           boxShadow: const [
-                            BoxShadow(color: Colors.black50, blurRadius: 20, spreadRadius: 10),
+                            BoxShadow(color: Colors.black54, blurRadius: 20, spreadRadius: 10),
                           ],
                         ),
                         clipBehavior: Clip.antiAlias,
