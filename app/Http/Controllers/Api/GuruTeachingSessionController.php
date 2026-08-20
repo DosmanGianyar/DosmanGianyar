@@ -357,16 +357,21 @@ class GuruTeachingSessionController extends Controller
             ]);
 
             if (isset($validated['attendances']) && is_array($validated['attendances'])) {
+                $dateStr = $session->date ? $session->date->format('Y-m-d') : now()->toDateString();
                 foreach ($validated['attendances'] as $att) {
-                    $status = $att['status'] === 'alpa' ? 'tidak_hadir' : $att['status'];
+                    $status = in_array($att['status'], ['alpa', 'tidak_hadir']) ? 'tidak_hadir' : $att['status'];
                     SessionAttendance::updateOrCreate(
                         [
-                            'teacher_attendance_id' => $session->id,
-                            'student_id'            => $att['student_id'],
+                            'student_id' => $att['student_id'],
+                            'date'       => $dateStr,
+                            'period'     => $session->period,
                         ],
                         [
-                            'status' => $status,
-                            'note'   => $att['note'] ?? null,
+                            'teacher_attendance_id' => $session->id,
+                            'class_id'              => $session->class_id,
+                            'subject_id'            => $session->subject_id,
+                            'status'                => in_array($status, ['hadir', 'tidak_hadir', 'izin', 'sakit']) ? $status : 'tidak_hadir',
+                            'note'                  => $att['note'] ?? null,
                         ]
                     );
                 }

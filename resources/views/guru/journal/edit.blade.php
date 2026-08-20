@@ -206,16 +206,18 @@ function loadStudents(classId) {
                         </span>
                     </div>
                     <div class="flex gap-1 shrink-0">
-                        ${['sakit','izin','dispensasi','alpa'].map(st => {
-                            const lbl = st === 'sakit' ? 'S' : st === 'izin' ? 'I' : st === 'dispensasi' ? 'D' : 'A';
-                            const active = (curSt === st || (curSt === 'tidak_hadir' && st === 'alpa'));
-                            const activeCls = st === 'alpa' ? 'bg-red-600 border-red-600 text-white' :
-                                              st === 'sakit' ? 'bg-purple-600 border-purple-600 text-white' :
-                                              st === 'dispensasi' ? 'bg-teal-600 border-teal-600 text-white' :
-                                              'bg-sky-600 border-sky-600 text-white';
-                            return `<button type="button" onclick="setAbsentStatus(${s.id}, '${st}')"
-                                class="w-7 h-7 rounded-lg text-xs font-bold border transition-colors ${active ? activeCls : 'bg-gray-50 border-gray-200 text-gray-500 hover:border-blue-300'}">
-                                ${lbl}
+                        ${[
+                            {st: 'alpa',       label: 'A', color: 'red'},
+                            {st: 'izin',        label: 'I', color: 'sky'},
+                            {st: 'sakit',       label: 'S', color: 'purple'},
+                            {st: 'dispensasi',  label: 'D', color: 'teal'}
+                        ].map(item => {
+                            const isSelected = _absentMap[s.id] === item.st || (_absentMap[s.id] === 'tidak_hadir' && item.st === 'alpa');
+                            return `<button type="button" onclick="setAbsentStatus(${s.id}, '${item.st}', this)"
+                                data-status="${item.st}"
+                                class="w-7 h-7 rounded-lg text-xs font-bold border transition-colors absent-btn
+                                    ${isSelected ? `bg-${item.color}-600 border-${item.color}-600 text-white` : `bg-gray-50 border-gray-200 text-gray-500 hover:border-${item.color}-400`}">
+                                ${item.label}
                             </button>`;
                         }).join('')}
                     </div>
@@ -227,14 +229,32 @@ function loadStudents(classId) {
         });
 }
 
-function setAbsentStatus(studentId, status) {
-    if (_absentMap[studentId] === status) {
-        delete _absentMap[studentId]; // Toggle back to Hadir
+function setAbsentStatus(studentId, status, btn) {
+    const row = btn.closest('[data-student-id]');
+    const btns = row.querySelectorAll('.absent-btn');
+    const colors = { 'alpa': 'red', 'tidak_hadir': 'red', 'izin': 'sky', 'sakit': 'purple', 'dispensasi': 'teal' };
+
+    const currentSavedStatus = _absentMap[studentId];
+    const isAlreadySelected = (currentSavedStatus === status || (status === 'alpa' && currentSavedStatus === 'tidak_hadir') || (status === 'tidak_hadir' && currentSavedStatus === 'alpa'));
+
+    if (isAlreadySelected) {
+        delete _absentMap[studentId];
+        btns.forEach(b => {
+            b.className = 'w-7 h-7 rounded-lg text-xs font-bold border transition-colors absent-btn bg-gray-50 border-gray-200 text-gray-500';
+        });
     } else {
         _absentMap[studentId] = status;
+        btns.forEach(b => {
+            const s = b.dataset.status;
+            const c = colors[s] || 'red';
+            if (s === status) {
+                b.className = `w-7 h-7 rounded-lg text-xs font-bold border transition-colors absent-btn bg-${c}-600 border-${c}-600 text-white`;
+            } else {
+                b.className = 'w-7 h-7 rounded-lg text-xs font-bold border transition-colors absent-btn bg-gray-50 border-gray-200 text-gray-500';
+            }
+        });
     }
-    const classId = document.getElementById('class-select').value;
-    loadStudents(classId);
+    renderAbsentInputs();
 }
 
 function renderAbsentInputs() {

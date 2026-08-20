@@ -153,11 +153,14 @@ class GuruJournalController extends Controller
             if ($request->has('absent_students')) {
                 $journal->absences()->delete();
                 foreach ($request->absent_students ?? [] as $abs) {
-                    TeacherJournalAbsence::create([
-                        'journal_id' => $journal->id,
-                        'student_id' => $abs['student_id'],
-                        'status'     => $abs['status'],
-                    ]);
+                    if (!empty($abs['student_id']) && !empty($abs['status'])) {
+                        $status = $abs['status'] === 'alpa' ? 'tidak_hadir' : $abs['status'];
+                        TeacherJournalAbsence::create([
+                            'journal_id' => $journal->id,
+                            'student_id' => $abs['student_id'],
+                            'status'     => $status,
+                        ]);
+                    }
                 }
             }
 
