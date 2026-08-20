@@ -86,13 +86,25 @@
                 {{-- QR Code Field --}}
                 <div>
                     <label class="block font-bold text-gray-700 mb-1">Kode QR Kunjungan <span class="text-rose-500">*</span></label>
+                    
+                    {{-- Camera Scan Action Button --}}
+                    <div class="mb-2">
+                        <button type="button" onclick="openQrScannerModal()" class="w-full py-2.5 px-4 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold rounded-xl shadow-md border border-emerald-500/20 flex items-center justify-center gap-2 text-xs transition-all active:scale-[0.98]">
+                            <svg class="w-4 h-4 text-emerald-200 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                            <span>📷 Scan QR via Kamera HP</span>
+                        </button>
+                    </div>
+
                     <div class="flex gap-2">
                         <input type="text" name="qr_code" id="qr_code_input" required
                             value="{{ old('qr_code', 'PERPUSTAKAAN DOSMAN') }}"
                             placeholder="Contoh: PERPUSTAKAAN DOSMAN"
                             class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3.5 py-2.5 font-mono text-xs focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all">
-                        <button type="button" onclick="autoFillQR()" class="px-3 py-2 bg-blue-100 hover:bg-blue-200 text-blue-800 font-bold rounded-xl shrink-0 transition">
-                            Perpus QR
+                        <button type="button" onclick="autoFillQR()" class="px-3 py-2 bg-blue-100 hover:bg-blue-200 text-blue-800 font-bold rounded-xl shrink-0 transition" title="Autofill Kode Resmi">
+                            Autofill
                         </button>
                     </div>
                     <p class="text-[10px] text-gray-400 mt-1">Kode resmi banner perpustakaan: <code class="font-bold text-blue-600">PERPUSTAKAAN DOSMAN</code></p>
@@ -198,10 +210,93 @@
 
 </div>
 
+{{-- Modal Camera QR Scanner --}}
+<div id="scanner-modal" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-sm w-full overflow-hidden shadow-2xl border border-gray-100 flex flex-col">
+        {{-- Modal Header --}}
+        <div class="p-4 bg-slate-900 text-white flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
+                </div>
+                <div>
+                    <h4 class="text-xs font-extrabold">Scan Kode QR Perpustakaan</h4>
+                    <p class="text-[10px] text-slate-300">Arahkan kamera HP ke banner QR Code Perpustakaan</p>
+                </div>
+            </div>
+            <button type="button" onclick="closeQrScannerModal()" class="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center text-sm font-bold transition">
+                ✕
+            </button>
+        </div>
+
+        {{-- Camera Viewport --}}
+        <div class="p-4 space-y-3 bg-slate-950">
+            <div id="modal-qr-reader" class="w-full rounded-2xl overflow-hidden border-2 border-emerald-500/50 bg-black min-h-[250px]"></div>
+            <div id="scanner-status" class="text-center text-xs text-emerald-400 font-semibold py-1">
+                Membuka kamera HP...
+            </div>
+        </div>
+
+        {{-- Modal Footer --}}
+        <div class="p-3 bg-gray-50 border-t border-gray-100 flex justify-end">
+            <button type="button" onclick="closeQrScannerModal()" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 text-xs font-bold rounded-xl transition">
+                Tutup Kamera
+            </button>
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script>
+    let html5QrScanner = null;
+
+    function openQrScannerModal() {
+        const modal = document.getElementById('scanner-modal');
+        const statusEl = document.getElementById('scanner-status');
+        modal.classList.remove('hidden');
+        statusEl.textContent = 'Membuka kamera HP...';
+
+        if (!html5QrScanner) {
+            html5QrScanner = new Html5Qrcode("modal-qr-reader");
+        }
+
+        const config = { fps: 10, qrbox: { width: 220, height: 220 } };
+
+        html5QrScanner.start(
+            { facingMode: "environment" },
+            config,
+            (decodedText) => {
+                statusEl.textContent = '✅ QR Code Terdeteksi: ' + decodedText;
+                document.getElementById('qr_code_input').value = decodedText;
+                
+                if (navigator.vibrate) {
+                    navigator.vibrate(100);
+                }
+
+                setTimeout(() => {
+                    closeQrScannerModal();
+                }, 600);
+            },
+            (errorMessage) => {
+                // Ignore scan frame error
+            }
+        ).catch((err) => {
+            statusEl.textContent = '⚠️ Kamera tidak dapat diakses. Pastikan izin kamera diaktifkan di browser Anda.';
+        });
+    }
+
+    function closeQrScannerModal() {
+        const modal = document.getElementById('scanner-modal');
+        modal.classList.add('hidden');
+        if (html5QrScanner) {
+            html5QrScanner.stop().catch(() => {});
+        }
+    }
+
     function autoFillQR() {
         document.getElementById('qr_code_input').value = 'PERPUSTAKAAN DOSMAN';
     }
+
     function toggleCustomPurpose(val) {
         const wrapper = document.getElementById('custom_purpose_wrapper');
         if (val === 'Lainnya') {
