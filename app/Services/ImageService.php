@@ -47,7 +47,7 @@ class ImageService
     }
 
     /**
-     * Compress and store a profile photo (square crop).
+     * Compress and store a profile photo (scales down without forcing center crop).
      */
     public static function storeAvatar(UploadedFile $file, string $directory = 'photos'): string
     {
@@ -55,7 +55,7 @@ class ImageService
         $path     = $directory . '/' . $filename;
 
         $image = Image::read($file)
-            ->cover(400, 400)
+            ->scaleDown(width: 600)
             ->toJpeg(85);
 
         Storage::disk('public')->put($path, $image);

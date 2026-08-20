@@ -4,6 +4,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 @endpush
 
 @section('title', 'Profil')
@@ -56,8 +58,7 @@
                 <form id="photo-form" method="POST" action="{{ route('siswa.profile.photo') }}"
                     enctype="multipart/form-data" class="hidden">
                     @csrf
-                    <input type="file" id="photo-input" name="photo" accept="image/*"
-                        onchange="this.form.submit()">
+                    <input type="file" id="photo-input" name="photo" accept="image/*">
                 </form>
             </div>
             @error('photo')
@@ -467,6 +468,124 @@
             Keluar dari Akun
         </button>
     </form>
+
+    {{-- ─── Modal Interactive Photo Crop ──────────────────────────── --}}
+    <div id="crop-modal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="px-4 py-3 bg-gray-900 text-white flex items-center justify-between">
+                <h3 class="text-sm font-bold flex items-center gap-2">
+                    <span>✂️ Sesuaikan & Geser Foto Profil</span>
+                </h3>
+                <button type="button" onclick="closeCropModal()" class="text-gray-400 hover:text-white text-lg font-bold cursor-pointer">✕</button>
+            </div>
+
+            <div class="p-4 bg-gray-900 flex-1 overflow-hidden flex items-center justify-center min-h-[280px] max-h-[420px] relative">
+                <img id="crop-image" class="max-w-full max-h-full block">
+            </div>
+
+            <div class="p-3 bg-gray-50 border-t border-gray-200 flex flex-col gap-3">
+                <p class="text-[11px] text-gray-500 text-center">Gunakan mouse / sentuhan untuk menggeser & menyesuaikan posisi kepala agar tidak terpotong.</p>
+                <div class="flex items-center justify-center gap-1.5 flex-wrap">
+                    <button type="button" onclick="cropper && cropper.zoom(0.1)" class="px-3 py-1.5 bg-white border border-gray-300 rounded-lg text-xs font-bold text-gray-700 hover:bg-gray-100 active:scale-95 transition-all cursor-pointer" title="Perbesar">🔍 +</button>
+                    <button type="button" onclick="cropper && cropper.zoom(-0.1)" class="px-3 py-1.5 bg-white border border-gray-300 rounded-lg text-xs font-bold text-gray-700 hover:bg-gray-100 active:scale-95 transition-all cursor-pointer" title="Perkecil">🔍 -</button>
+                    <button type="button" onclick="cropper && cropper.rotate(-90)" class="px-3 py-1.5 bg-white border border-gray-300 rounded-lg text-xs font-bold text-gray-700 hover:bg-gray-100 active:scale-95 transition-all cursor-pointer" title="Putar Kiri">↺ 90°</button>
+                    <button type="button" onclick="cropper && cropper.rotate(90)" class="px-3 py-1.5 bg-white border border-gray-300 rounded-lg text-xs font-bold text-gray-700 hover:bg-gray-100 active:scale-95 transition-all cursor-pointer" title="Putar Kanan">↻ 90°</button>
+                    <button type="button" onclick="cropper && cropper.reset()" class="px-3 py-1.5 bg-white border border-gray-300 rounded-lg text-xs font-bold text-gray-700 hover:bg-gray-100 active:scale-95 transition-all cursor-pointer" title="Reset">🔄 Reset</button>
+                </div>
+
+                <div class="flex items-center justify-end gap-2 pt-1 border-t border-gray-200">
+                    <button type="button" onclick="closeCropModal()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-xl text-xs font-bold hover:bg-gray-300 cursor-pointer">Batal</button>
+                    <button type="button" id="save-crop-btn" onclick="saveCroppedPhoto()" class="px-5 py-2 bg-blue-600 text-white rounded-xl text-xs font-bold hover:bg-blue-700 shadow-md active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer">
+                        <span id="save-crop-spinner" class="hidden animate-spin">⌛</span>
+                        <span>Simpan Foto Profil</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    let cropper = null;
+    const photoInput = document.getElementById('photo-input');
+    const cropModal = document.getElementById('crop-modal');
+    const cropImage = document.getElementById('crop-image');
+
+    if (photoInput) {
+        photoInput.addEventListener('change', function(e) {
+            const files = e.target.files;
+            if (files && files.length > 0) {
+                const file = files[0];
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    cropImage.src = evt.target.result;
+                    cropModal.classList.remove('hidden');
+                    if (cropper) {
+                        cropper.destroy();
+                    }
+                    cropper = new Cropper(cropImage, {
+                        aspectRatio: 1,
+                        viewMode: 1,
+                        autoCropArea: 0.9,
+                        dragMode: 'move',
+                        background: false,
+                        responsive: true,
+                    });
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    function closeCropModal() {
+        if (cropModal) cropModal.classList.add('hidden');
+        if (cropper) {
+            cropper.destroy();
+            cropper = null;
+        }
+        if (photoInput) photoInput.value = '';
+    }
+
+    function saveCroppedPhoto() {
+        if (!cropper) return;
+        const spinner = document.getElementById('save-crop-spinner');
+        const btn = document.getElementById('save-crop-btn');
+        if (spinner) spinner.classList.remove('hidden');
+        if (btn) btn.disabled = true;
+
+        const canvas = cropper.getCroppedCanvas({
+            width: 600,
+            height: 600,
+            imageSmoothingEnabled: true,
+            imageSmoothingQuality: 'high',
+        });
+
+        canvas.toBlob(function(blob) {
+            const formData = new FormData();
+            formData.append('_token', '{{ csrf_token() }}');
+            formData.append('photo', blob, 'avatar.jpg');
+
+            fetch('{{ route("siswa.profile.photo") }}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(res => {
+                if (res.redirected) {
+                    window.location.href = res.redirected;
+                } else {
+                    window.location.reload();
+                }
+            })
+            .catch(err => {
+                alert('Gagal menyimpan foto: ' + err);
+                if (spinner) spinner.classList.add('hidden');
+                if (btn) btn.disabled = false;
+            });
+        }, 'image/jpeg', 0.9);
+    }
+    </script>
 
 </div>
 @endsection

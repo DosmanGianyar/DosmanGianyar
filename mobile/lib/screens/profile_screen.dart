@@ -9,6 +9,7 @@ import '../providers/auth_provider.dart';
 import '../services/api_client.dart';
 import '../theme/app_colors.dart';
 import '../widgets/image_viewer_dialog.dart';
+import '../widgets/profile_image_cropper_dialog.dart';
 import 'login_screen.dart';
 import 'siswa_profile_edit_screen.dart';
 
@@ -125,19 +126,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _changePhoto() async {
-    // image_picker menggunakan Android Photo Picker bawaan sistem (Android 13+)
-    // atau document picker (≤12) — keduanya tidak memerlukan runtime permission.
     final picked = await ImagePicker().pickImage(
       source:       ImageSource.gallery,
       imageQuality: 85,
-      maxWidth:     1024,
+      maxWidth:     1280,
     );
     if (picked == null) return;
+
+    final croppedPath = await showDialog<String>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => ProfileImageCropperDialog(imagePath: picked.path),
+    );
+
+    if (croppedPath == null) return;
 
     setState(() => _uploadingPhoto = true);
     try {
       final formData = FormData.fromMap({
-        'photo': await MultipartFile.fromFile(picked.path, filename: 'photo.jpg'),
+        'photo': await MultipartFile.fromFile(croppedPath, filename: 'photo.jpg'),
       });
       final body = await ApiClient.postForm('/auth/profile/photo', formData);
       if (!mounted) return;
