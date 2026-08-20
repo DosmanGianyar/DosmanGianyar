@@ -465,6 +465,15 @@ class UserResource extends Resource
             ->recordActions([
                 ViewAction::make()->iconButton()
                     ->visible(fn (User $record): bool => in_array($record->role, ['siswa', 'pengelola'])),
+                Action::make('downloadStudentCard')
+                    ->label('Kartu Pelajar')
+                    ->icon('heroicon-o-identification')
+                    ->color('info')
+                    ->iconButton()
+                    ->visible(fn (User $record): bool => in_array($record->role, ['siswa', 'pengelola']))
+                    ->tooltip('Cetak/Download Kartu Pelajar Digital (Barcode/QR)')
+                    ->url(fn (User $record): string => route('admin.student-card.download', $record->id))
+                    ->openUrlInNewTab(),
                 EditAction::make()->iconButton(),
                 Action::make('padSingleNisn')
                     ->label('Fix NISN (+0)')

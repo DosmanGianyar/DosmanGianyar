@@ -11,16 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('user_fcm_tokens', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->text('fcm_token');
-            $table->string('device_type')->default('android');
-            $table->string('device_name')->nullable();
-            $table->timestamps();
+        if (! Schema::hasTable('user_fcm_tokens')) {
+            Schema::create('user_fcm_tokens', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+                $table->text('fcm_token');
+                $table->string('device_type')->default('android');
+                $table->string('device_name')->nullable();
+                $table->timestamps();
 
-            $table->index('user_id');
-        });
+                $table->index('user_id');
+            });
+        }
     }
 
     /**

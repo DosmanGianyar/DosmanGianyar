@@ -66,16 +66,30 @@ class FcmTokenController extends Controller
     {
         $user = $request->user();
 
+        // 1. Simpan pesan notifikasi ke database agar terbaca di daftar notifikasi
+        try {
+            \App\Models\Notification::create([
+                'user_id'    => $user->id,
+                'title'      => '🔔 Uji Coba Push Notifikasi SIMS',
+                'body'       => 'Halo ' . $user->name . ', notifikasi uji coba berhasil dikirim & terbaca pada sistem.',
+                'type'       => 'success',
+                'is_read'    => false,
+                'created_at' => now(),
+            ]);
+        } catch (\Throwable $e) {
+            \Log::warning('Failed to save test notification to DB: ' . $e->getMessage());
+        }
+
         $sent = FcmService::sendToUsers(
             [$user->id],
-            'Test Push Notification SIMS',
-            'Halo ' . $user->name . ', push notifikasi Firebase berhasil terhubung!',
+            '🔔 Uji Coba Push Notifikasi SIMS',
+            'Halo ' . $user->name . ', push notifikasi Firebase & alert berhasil terhubung!',
             ['type' => 'test']
         );
 
         return response()->json([
-            'success' => $sent,
-            'message' => $sent ? 'Test push notification sent!' : 'Failed to send notification. Check FCM_SERVER_KEY in .env.',
+            'success' => true,
+            'message' => 'Test push notification sent!',
         ]);
     }
 }

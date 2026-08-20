@@ -14,7 +14,7 @@
 @endif
 
 {{-- Header --}}
-<div class="bg-linear-to-br from-emerald-500 to-teal-600 rounded-2xl p-4 mb-4 text-white">
+<div class="rounded-2xl p-4 mb-4 text-white shadow-md" style="background: linear-gradient(135deg, #059669 0%, #0d9488 100%) !important; color: #ffffff !important;">
     <div class="flex items-center gap-3 mb-2">
         <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center shrink-0">
             <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">

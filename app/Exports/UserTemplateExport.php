@@ -3,12 +3,16 @@
 namespace App\Exports;
 
 use Maatwebsite\Excel\Concerns\FromArray;
+use Maatwebsite\Excel\Concerns\WithColumnWidths;
+use Maatwebsite\Excel\Concerns\WithCustomValueBinder;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithStyles;
-use Maatwebsite\Excel\Concerns\WithColumnWidths;
+use PhpOffice\PhpSpreadsheet\Cell\Cell;
+use PhpOffice\PhpSpreadsheet\Cell\DataType;
+use PhpOffice\PhpSpreadsheet\Cell\DefaultValueBinder;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class UserTemplateExport implements FromArray, WithHeadings, WithStyles, WithColumnWidths
+class UserTemplateExport extends DefaultValueBinder implements FromArray, WithHeadings, WithStyles, WithColumnWidths, WithCustomValueBinder
 {
     public function array(): array
     {
@@ -36,6 +40,20 @@ class UserTemplateExport implements FromArray, WithHeadings, WithStyles, WithCol
             'alamat',
             'mapel',        // Mata pelajaran (khusus guru)
         ];
+    }
+
+    public function bindValue(Cell $cell, $value): bool
+    {
+        if ($value !== null && $value !== '') {
+            $column = $cell->getColumn();
+            // D = nis, E = nip, G = no_hp, I = hp_ortu
+            if (in_array($column, ['D', 'E', 'G', 'I'], true)) {
+                $cell->setValueExplicit((string) $value, DataType::TYPE_STRING);
+                return true;
+            }
+        }
+
+        return parent::bindValue($cell, $value);
     }
 
     public function styles(Worksheet $sheet): array

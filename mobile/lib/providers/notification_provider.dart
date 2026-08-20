@@ -24,8 +24,9 @@ class NotificationProvider extends ChangeNotifier {
       final result = await NotificationService.fetchAll();
       _notifications = result.items;
       _unreadCount   = result.unreadCount;
-    } catch (_) {
-      // Non-critical — badge stays at 0
+    } catch (e) {
+      debugPrint('Error fetching notifications: $e');
+      _unreadCount = _notifications.where((n) => !n.isRead).length;
     } finally {
       _isLoading = false;
       notifyListeners();

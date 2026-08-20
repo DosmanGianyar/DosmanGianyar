@@ -5,7 +5,7 @@
 @section('content')
 
 {{-- ─── Header Banner ────────────────────────────────────────────────── --}}
-<div class="bg-gradient-to-r from-blue-700 via-indigo-700 to-purple-800 rounded-3xl p-6 text-white shadow-lg relative overflow-hidden mb-6">
+<div class="rounded-3xl p-6 text-white shadow-lg relative overflow-hidden mb-6" style="background: linear-gradient(135deg, #0f2460 0%, #1a3a8f 50%, #1e3fad 100%) !important; color: #ffffff !important;">
     <div class="absolute -right-6 -bottom-6 w-36 h-36 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
     <div class="flex items-start justify-between gap-4 relative z-10">
         <div class="flex items-center gap-3.5">
@@ -29,6 +29,25 @@
             Kartu Bebas Perpustakaan
         </a>
     </div>
+</div>
+
+{{-- ─── Navigation Tabs ──────────────────────────────────────────────── --}}
+<div class="flex items-center gap-2 mb-6 border-b border-gray-200 pb-3 overflow-x-auto">
+    <a href="{{ route('siswa.library.index') }}"
+        class="px-4 py-2 text-xs font-bold rounded-xl transition-all shadow-sm border border-blue-600 bg-blue-600 text-white flex items-center gap-2 shrink-0">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+        Peminjaman Buku
+    </a>
+    <a href="{{ route('siswa.library.visit') }}"
+        class="px-4 py-2 text-xs font-bold rounded-xl transition-all bg-white text-gray-700 hover:bg-gray-50 border border-gray-200 flex items-center gap-2 shrink-0">
+        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+        Kunjungan Perpustakaan (Baca)
+    </a>
+    <a href="{{ route('siswa.library.catalog') }}"
+        class="px-4 py-2 text-xs font-bold rounded-xl transition-all bg-white text-gray-700 hover:bg-gray-50 border border-gray-200 flex items-center gap-2 shrink-0">
+        <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+        Katalog Buku (E-Katalog)
+    </a>
 </div>
 
 @if(session('success'))
@@ -113,7 +132,7 @@
 
                 <div>
                     <label class="block font-bold text-gray-700 mb-1">Judul Buku <span class="text-red-500">*</span></label>
-                    <input type="text" name="book_title" value="{{ old('book_title') }}" required
+                    <input type="text" name="book_title" value="{{ old('book_title', request('title')) }}" required
                         placeholder="Contoh: Matematika Peminatan Kelas XII"
                         class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none">
                     @error('book_title') <p class="text-red-500 text-[10px] mt-1">{{ $message }}</p> @enderror
@@ -121,7 +140,7 @@
 
                 <div>
                     <label class="block font-bold text-gray-700 mb-1">Kode / No. Inventaris Buku <span class="text-gray-400 font-normal">(Opsional)</span></label>
-                    <input type="text" name="book_code" value="{{ old('book_code') }}"
+                    <input type="text" name="book_code" value="{{ old('book_code', request('code')) }}"
                         placeholder="Contoh: BIB-2026-088"
                         class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none">
                 </div>

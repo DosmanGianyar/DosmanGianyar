@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../../services/api_client.dart';
 import '../../theme/app_colors.dart';
 import 'library_clearance_screen.dart';
+import 'library_visit_screen.dart';
+import 'library_catalog_screen.dart';
 
 class LibraryScreen extends StatefulWidget {
   const LibraryScreen({super.key});
@@ -54,7 +56,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => const _BorrowBookModal(),
+      builder: (_) => const BorrowBookModal(),
     );
 
     if (result == true) {
@@ -73,10 +75,24 @@ class _LibraryScreenState extends State<LibraryScreen> {
     }
   }
 
+  void _openCatalogScreen() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const LibraryCatalogScreen()),
+    );
+  }
+
   void _openClearanceCard() {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => const LibraryClearanceScreen()),
+    );
+  }
+
+  void _openVisitScreen() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const LibraryVisitScreen()),
     );
   }
 
@@ -180,20 +196,54 @@ class _LibraryScreenState extends State<LibraryScreen> {
                         color: _isClear ? const Color(0xFF047857) : const Color(0xFFBE123C),
                       ),
                     ),
-                    const SizedBox(height: 10),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton.icon(
-                        onPressed: _openClearanceCard,
-                        icon: const Icon(Icons.qr_code_rounded, size: 16),
-                        label: const Text('Kartu Bebas Perpustakaan', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFEEF2FF),
-                          foregroundColor: AppColors.indigo700,
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: _openCatalogScreen,
+                            icon: const Icon(Icons.grid_view_rounded, size: 15),
+                            label: const Text('E-Katalog', style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.bold)),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.indigo700,
+                              foregroundColor: Colors.white,
+                              elevation: 1,
+                              padding: const EdgeInsets.symmetric(vertical: 11),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            ),
+                          ),
                         ),
-                      ),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: _openVisitScreen,
+                            icon: const Icon(Icons.qr_code_scanner_rounded, size: 15),
+                            label: const Text('Kunjungan', style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.bold)),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF2563EB),
+                              foregroundColor: Colors.white,
+                              elevation: 1,
+                              padding: const EdgeInsets.symmetric(vertical: 11),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: _openClearanceCard,
+                            icon: const Icon(Icons.qr_code_rounded, size: 15),
+                            label: const Text('Kartu Bebas', style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.bold)),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFFEEF2FF),
+                              foregroundColor: AppColors.indigo700,
+                              elevation: 0,
+                              padding: const EdgeInsets.symmetric(vertical: 11),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -339,19 +389,21 @@ class _LibraryScreenState extends State<LibraryScreen> {
                               ),
                             ],
                           ),
-                          if (loan['book_code'] != null && loan['book_code'].toString().isNotEmpty) ...[
-                            const SizedBox(height: 2),
-                            Text('Kode: ${loan['book_code']}', style: const TextStyle(fontSize: 11, color: AppColors.slate500, fontFamily: 'monospace')),
-                          ],
-                          if (loan['purpose'] != null && loan['purpose'].toString().isNotEmpty) ...[
+                          if ((loan['book_code'] != null && loan['book_code'].toString().isNotEmpty) ||
+                              (loan['book_nisb'] != null && loan['book_nisb'].toString().isNotEmpty) ||
+                              (loan['book_author'] != null && loan['book_author'].toString().isNotEmpty)) ...[
                             const SizedBox(height: 4),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFEEF2FF),
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: Text('Keperluan: ${loan['purpose']}', style: const TextStyle(fontSize: 10, color: AppColors.indigo700, fontWeight: FontWeight.bold)),
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 2,
+                              children: [
+                                if (loan['book_code'] != null && loan['book_code'].toString().isNotEmpty)
+                                  Text('Kode: ${loan['book_code']}', style: const TextStyle(fontSize: 11, color: AppColors.slate500, fontFamily: 'monospace')),
+                                if (loan['book_nisb'] != null && loan['book_nisb'].toString().isNotEmpty)
+                                  Text('ISBN: ${loan['book_nisb']}', style: const TextStyle(fontSize: 11, color: AppColors.slate500, fontFamily: 'monospace')),
+                                if (loan['book_author'] != null && loan['book_author'].toString().isNotEmpty)
+                                  Text('Pengarang: ${loan['book_author']}', style: const TextStyle(fontSize: 11, color: AppColors.slate600, fontWeight: FontWeight.w500)),
+                              ],
                             ),
                           ],
                           const Divider(height: 16),
@@ -383,30 +435,45 @@ class _LibraryScreenState extends State<LibraryScreen> {
 }
 
 // ─── Bottom Sheet Modal Form Pinjam Buku ─────────────────────────────────────
-class _BorrowBookModal extends StatefulWidget {
-  const _BorrowBookModal();
+class BorrowBookModal extends StatefulWidget {
+  final Map<String, dynamic>? initialBook;
+
+  const BorrowBookModal({super.key, this.initialBook});
 
   @override
-  State<_BorrowBookModal> createState() => _BorrowBookModalState();
+  State<BorrowBookModal> createState() => _BorrowBookModalState();
 }
 
-class _BorrowBookModalState extends State<_BorrowBookModal> {
+class _BorrowBookModalState extends State<BorrowBookModal> {
   final _formKey = GlobalKey<FormState>();
-  final _titleController = TextEditingController();
-  final _codeController  = TextEditingController();
-  final _customPurposeController = TextEditingController();
-  final _notesController = TextEditingController();
+  final _titleController  = TextEditingController();
+  final _codeController   = TextEditingController();
+  final _nisbController   = TextEditingController();
+  final _authorController = TextEditingController();
+  final _notesController  = TextEditingController();
 
   DateTime _borrowedAt = DateTime.now();
   DateTime _dueAt      = DateTime.now().add(const Duration(days: 7));
-  String _purposeOption = 'BELAJAR';
   bool _submitting = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.initialBook != null) {
+      final b = widget.initialBook!;
+      _titleController.text  = b['title']?.toString() ?? '';
+      _authorController.text = b['author']?.toString() ?? '';
+      _codeController.text   = b['book_code']?.toString() ?? '';
+      _nisbController.text   = b['isbn']?.toString() ?? '';
+    }
+  }
 
   @override
   void dispose() {
     _titleController.dispose();
     _codeController.dispose();
-    _customPurposeController.dispose();
+    _nisbController.dispose();
+    _authorController.dispose();
     _notesController.dispose();
     super.dispose();
   }
@@ -421,10 +488,10 @@ class _BorrowBookModalState extends State<_BorrowBookModal> {
         data: {
           'book_title': _titleController.text.trim(),
           'book_code': _codeController.text.trim(),
+          'book_nisb': _nisbController.text.trim(),
+          'book_author': _authorController.text.trim(),
           'borrowed_at': _borrowedAt.toIso8601String().substring(0, 10),
           'due_at': _dueAt.toIso8601String().substring(0, 10),
-          'purpose_option': _purposeOption,
-          'purpose_custom': _customPurposeController.text.trim(),
           'notes': _notesController.text.trim(),
         },
       );
@@ -498,14 +565,42 @@ class _BorrowBookModalState extends State<_BorrowBookModal> {
               ),
               const SizedBox(height: 12),
 
-              // Kode Buku
+              // Pengarang Buku
               TextFormField(
-                controller: _codeController,
+                controller: _authorController,
                 decoration: const InputDecoration(
-                  labelText: 'Kode / No. Inventaris Buku (Opsional)',
-                  hintText: 'Contoh: BIB-2026-088',
+                  labelText: 'Pengarang / Penulis Buku (Opsional)',
+                  hintText: 'Contoh: Prof. Dr. Sukartha',
                   border: OutlineInputBorder(),
                 ),
+              ),
+              const SizedBox(height: 12),
+
+              // ISBN / Kode Buku Row
+              Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      controller: _nisbController,
+                      decoration: const InputDecoration(
+                        labelText: 'ISBN Buku (Opsional)',
+                        hintText: 'Contoh: 978-602-123-4567',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: TextFormField(
+                      controller: _codeController,
+                      decoration: const InputDecoration(
+                        labelText: 'No. Inventaris (Opsional)',
+                        hintText: 'Contoh: BIB-2026-088',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 12),
 
@@ -551,33 +646,7 @@ class _BorrowBookModalState extends State<_BorrowBookModal> {
               ),
               const SizedBox(height: 12),
 
-              // Keperluan
-              const Text('Keperluan Peminjaman *', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-              const SizedBox(height: 4),
-              Wrap(
-                spacing: 8,
-                children: ['BELAJAR', 'MEMBACA', 'MEMINJAM BUKU/REFERENSI', 'LAINNYA'].map((opt) {
-                  return ChoiceChip(
-                    label: Text(opt, style: const TextStyle(fontSize: 11)),
-                    selected: _purposeOption == opt,
-                    onSelected: (sel) {
-                      if (sel) setState(() => _purposeOption = opt);
-                    },
-                  );
-                }).toList(),
-              ),
-              if (_purposeOption == 'LAINNYA') ...[
-                const SizedBox(height: 8),
-                TextFormField(
-                  controller: _customPurposeController,
-                  decoration: const InputDecoration(
-                    labelText: 'Keperluan Lainnya',
-                    hintText: 'Tuliskan keperluan secara spesifik...',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-              ],
-              const SizedBox(height: 12),
+
 
               // Catatan
               TextFormField(

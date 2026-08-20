@@ -26,7 +26,7 @@
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
 
         {{-- Banner --}}
-        <div class="h-20 bg-linear-to-r from-blue-600 via-blue-700 to-indigo-700 relative">
+        <div class="h-20 relative overflow-hidden" style="background: linear-gradient(135deg, #0f2460 0%, #1a3a8f 50%, #1e3fad 100%) !important;">
             <div class="absolute inset-0 opacity-10"
                 style="background-image: radial-gradient(circle at 20% 50%, white 1px, transparent 1px),
                                          radial-gradient(circle at 80% 20%, white 1px, transparent 1px);
@@ -40,8 +40,8 @@
                     <img src="{{ $siswa->photo_url }}"
                         class="w-20 h-20 rounded-2xl object-cover border-4 border-white shadow-lg">
                 @else
-                    <div class="w-20 h-20 rounded-2xl bg-linear-to-br from-blue-500 to-indigo-600
-                        border-4 border-white shadow-lg flex items-center justify-center text-white text-2xl font-bold">
+                    <div class="w-20 h-20 rounded-2xl border-4 border-white shadow-lg flex items-center justify-center text-white text-2xl font-bold"
+                         style="background: linear-gradient(135deg, #1d4ed8 0%, #4338ca 100%) !important;">
                         {{ $siswa->initials }}
                     </div>
                 @endif

@@ -10,6 +10,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 
+use App\Models\LibraryVisit;
+
 class SiswaLibraryApiController extends Controller
 {
     /**
@@ -74,6 +76,8 @@ class SiswaLibraryApiController extends Controller
             'id'           => $l->id,
             'book_title'   => $l->book_title,
             'book_code'    => $l->book_code,
+            'book_nisb'    => $l->book_nisb,
+            'book_author'  => $l->book_author,
             'phone_number' => $l->phone_number,
             'borrowed_at'  => $l->borrowed_at ? $l->borrowed_at->format('Y-m-d') : null,
             'due_at'       => $l->due_at ? $l->due_at->format('Y-m-d') : null,
@@ -105,6 +109,8 @@ class SiswaLibraryApiController extends Controller
             $validated = $request->validate([
                 'book_title'     => 'required|string|max:255',
                 'book_code'      => 'nullable|string|max:100',
+                'book_nisb'      => 'nullable|string|max:100',
+                'book_author'    => 'nullable|string|max:255',
                 'phone_number'   => 'nullable|string|max:30',
                 'borrowed_at'    => 'required|date',
                 'due_at'         => 'required|date|after_or_equal:borrowed_at',
@@ -140,6 +146,8 @@ class SiswaLibraryApiController extends Controller
                 'phone_number'       => $phoneNumber,
                 'book_title'         => $validated['book_title'],
                 'book_code'          => $validated['book_code'] ?? null,
+                'book_nisb'          => $validated['book_nisb'] ?? null,
+                'book_author'        => $validated['book_author'] ?? null,
                 'borrowed_at'        => $borrowedAt,
                 'due_at'             => $dueAt,
                 'purpose'            => $purpose,
@@ -212,5 +220,139 @@ class SiswaLibraryApiController extends Controller
                 'status'      => $l->status,
             ]),
         ]);
+    }
+
+    /**
+     * GET /api/v1/siswa/library/visits
+     */
+    public function visits(): JsonResponse
+    {
+        /** @var \App\Models\User $siswa */
+        $siswa = Auth::user();
+
+        $visits = LibraryVisit::where('student_id', $siswa->id)
+            ->orderBy('visited_at', 'desc')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data'    => $visits->map(fn (LibraryVisit $v) => [
+                'id'         => $v->id,
+                'visited_at' => $v->visited_at ? $v->visited_at->format('Y-m-d H:i') : null,
+                'purpose'    => $v->purpose,
+                'notes'      => $v->notes,
+                'created_at' => $v->created_at ? $v->created_at->format('Y-m-d H:i') : null,
+            ]),
+        ]);
+    }
+
+    /**
+     * GET /api/v1/siswa/library/catalog
+     */
+    public function catalog(Request $request): JsonResponse
+    {
+        $search   = $request->input('search');
+        $category = $request->input('category');
+
+        $query = \App\Models\LibraryBook::query();
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('author', 'like', "%{$search}%")
+                  ->orWhere('isbn', 'like', "%{$search}%")
+                  ->orWhere('book_code', 'like', "%{$search}%");
+            });
+        }
+
+        if ($category && $category !== 'all') {
+            $query->where('category', $category);
+        }
+
+        $books = $query->orderBy('title')->get();
+
+        return response()->json([
+            'success' => true,
+            'data'    => $books->map(fn (\App\Models\LibraryBook $b) => [
+                'id'              => $b->id,
+                'book_code'       => $b->book_code,
+                'isbn'            => $b->isbn,
+                'title'           => $b->title,
+                'author'          => $b->author,
+                'publisher'       => $b->publisher,
+                'publish_year'    => $b->publish_year,
+                'category'        => $b->category,
+                'total_stock'     => $b->total_stock,
+                'borrowed_count'  => $b->borrowed_count,
+                'available_stock' => $b->available_stock,
+                'shelf_location'  => $b->shelf_location,
+                'cover_url'       => $b->cover_url,
+                'description'     => $b->description,
+            ]),
+        ]);
+    }
+
+    /**
+     * POST /api/v1/siswa/library/visits
+     */
+    public function storeVisit(Request $request): JsonResponse
+    {
+        /** @var \App\Models\User $siswa */
+        $siswa = Auth::user();
+
+        try {
+            $validated = $request->validate([
+                'qr_code'        => 'required|string',
+                'visited_at'     => 'nullable|date',
+                'purpose_option' => 'nullable|string|max:100',
+                'purpose_custom' => 'nullable|string|max:255',
+                'notes'          => 'nullable|string|max:500',
+            ]);
+
+            $qrCodeUpper = strtoupper(trim($validated['qr_code']));
+            if (! str_contains($qrCodeUpper, 'SIMAK DOSMAN') && ! str_contains($qrCodeUpper, 'SIMAK_DOSMAN') && ! str_contains($qrCodeUpper, 'SIMS_PERPUS_VISIT') && ! str_contains($qrCodeUpper, 'SIMS_LIBRARY_VISIT')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Kode QR tidak valid! Pastikan Anda memindai Kode QR Kunjungan Resmi Perpustakaan.',
+                ], 422);
+            }
+
+            $purposeOption = $validated['purpose_option'] ?? 'Membaca Buku Paket / Literasi';
+            $purpose = $purposeOption === 'Lainnya'
+                ? ($validated['purpose_custom'] ?: 'Lainnya')
+                : $purposeOption;
+
+            $visitedAt = ! empty($validated['visited_at']) ? Carbon::parse($validated['visited_at']) : Carbon::now();
+
+            $visit = LibraryVisit::create([
+                'student_id' => $siswa->id,
+                'visited_at' => $visitedAt,
+                'purpose'    => $purpose,
+                'notes'      => $validated['notes'] ?? null,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Kehadiran kunjungan perpustakaan berhasil dicatat!',
+                'data'    => [
+                    'id'         => $visit->id,
+                    'visited_at' => $visit->visited_at->format('Y-m-d H:i'),
+                    'purpose'    => $visit->purpose,
+                    'notes'      => $visit->notes,
+                ],
+            ], 201);
+        } catch (ValidationException $e) {
+            $firstError = collect($e->errors())->flatten()->first() ?? 'Data yang dimasukkan tidak valid.';
+            return response()->json([
+                'success' => false,
+                'message' => $firstError,
+                'errors'  => $e->errors(),
+            ], 422);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mencatat kunjungan perpustakaan: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 }

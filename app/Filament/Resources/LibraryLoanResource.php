@@ -79,6 +79,40 @@ class LibraryLoanResource extends Resource
                     ->placeholder('081234567890')
                     ->nullable(),
 
+                Select::make('book_id')
+                    ->label('Pilih Buku dari Katalog (Rekomendasi)')
+                    ->options(function () {
+                        return \App\Models\LibraryBook::orderBy('title')
+                            ->get()
+                            ->mapWithKeys(fn (\App\Models\LibraryBook $b) => [
+                                $b->id => "{$b->title} [Kode: {$b->book_code}] (Sisa Stok: {$b->available_stock} / Total: {$b->total_stock})"
+                            ]);
+                    })
+                    ->searchable()
+                    ->nullable()
+                    ->live()
+                    ->afterStateUpdated(function ($state, callable $set) {
+                        if ($state) {
+                            $book = \App\Models\LibraryBook::find($state);
+                            if ($book) {
+                                $set('book_title', $book->title);
+                                $set('book_code', $book->book_code);
+                                $set('book_nisb', $book->isbn);
+                                $set('book_author', $book->author);
+
+                                if ($book->available_stock <= 0) {
+                                    Notification::make()
+                                        ->warning()
+                                        ->title('Peringatan Stok Buku')
+                                        ->body("Stok buku '{$book->title}' sedang habis (semua eksemplar sedang dipinjam).")
+                                        ->send();
+                                }
+                            }
+                        }
+                    })
+                    ->helperText('Pilih dari katalog buku perpustakaan untuk mengisi otomatis judul, kode & ISBN')
+                    ->columnSpanFull(),
+
                 TextInput::make('book_title')
                     ->label('Judul Buku')
                     ->placeholder('Contoh: Matematika Peminatan Kelas XII')
@@ -198,6 +232,74 @@ class LibraryLoanResource extends Resource
                     ]),
             ])
             ->header(view('filament.library-loans-header'))
+            ->headerActions([
+                Action::make('print_monthly_report')
+                    ->label('Cetak Rekap Peminjaman Bulanan')
+                    ->icon('heroicon-o-printer')
+                    ->color('warning')
+                    ->form([
+                        Select::make('month')
+                            ->label('Pilih Bulan')
+                            ->options([
+                                1  => 'Januari',
+                                2  => 'Februari',
+                                3  => 'Maret',
+                                4  => 'April',
+                                5  => 'Mei',
+                                6  => 'Juni',
+                                7  => 'Juli',
+                                8  => 'Agustus',
+                                9  => 'September',
+                                10 => 'Oktober',
+                                11 => 'November',
+                                12 => 'Desember',
+                            ])
+                            ->default(now()->month)
+                            ->required(),
+                        TextInput::make('year')
+                            ->label('Tahun')
+                            ->numeric()
+                            ->default(now()->year)
+                            ->required(),
+                        Select::make('status')
+                            ->label('Filter Status')
+                            ->options([
+                                'all'      => 'Semua Status',
+                                'borrowed' => 'Sedang Dipinjam',
+                                'returned' => 'Sudah Dikembalikan',
+                                'overdue'  => 'Terlambat',
+                            ])
+                            ->default('all'),
+                    ])
+                    ->action(function (array $data) {
+                        return redirect()->route('admin.library.monthly-loan-report', [
+                            'month'  => $data['month'],
+                            'year'   => $data['year'],
+                            'status' => $data['status'],
+                        ]);
+                    }),
+                Action::make('print_clearance_modal')
+                    ->label('Cetak Kartu Bebas Perpustakaan')
+                    ->icon('heroicon-o-document-check')
+                    ->color('success')
+                    ->form([
+                        Select::make('student_id')
+                            ->label('Pilih Siswa')
+                            ->options(
+                                User::where('role', 'siswa')
+                                    ->orderBy('name')
+                                    ->get()
+                                    ->mapWithKeys(fn (User $u) => [
+                                        $u->id => $u->name . ' (' . ($u->schoolClass?->name ?? '—') . ')',
+                                    ])
+                            )
+                            ->searchable()
+                            ->required(),
+                    ])
+                    ->action(function (array $data) {
+                        return redirect()->route('admin.library.clearance-card', $data['student_id']);
+                    }),
+            ])
             ->actions([
                 ActionGroup::make([
                     Action::make('mark_returned')

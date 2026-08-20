@@ -232,32 +232,54 @@ function startGPS() {
         return;
     }
 
+    const onSuccess = (pos) => {
+        gpsData = {
+            latitude  : pos.coords.latitude,
+            longitude : pos.coords.longitude,
+            accuracy  : pos.coords.accuracy,
+        };
+
+        const statusEl = document.getElementById('gps-status');
+        statusEl.innerHTML = `<div class="w-2 h-2 rounded-full bg-green-400"></div> GPS aktif (±${Math.round(pos.coords.accuracy)}m)`;
+
+        const btn = document.getElementById('btn-capture');
+        btn.disabled = false;
+        btn.classList.remove('bg-gray-400', 'cursor-not-allowed');
+        @if(isset($isCheckOut) && $isCheckOut)
+        btn.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
+        document.getElementById('btn-text').textContent = 'Ambil Foto & Absen Pulang';
+        @else
+        btn.classList.add('bg-blue-600', 'hover:bg-blue-700');
+        document.getElementById('btn-text').textContent = 'Ambil Foto & Presensi';
+        @endif
+    };
+
+    const onError = (err) => {
+        let msg = 'GPS tidak bisa diakses. Aktifkan lokasi di browser.';
+        if (err && err.code === 1) {
+            msg = 'Izin lokasi ditolak. Buka Pengaturan iPhone/Browser -> Aktifkan "Lokasi Tepat" (Precise Location).';
+        } else if (err && err.code === 3) {
+            msg = 'Waktu tunggu GPS habis (Timeout). Pastikan berada di lokasi terbuka atau dekat Wi-Fi.';
+        }
+        showError(msg);
+    };
+
+    // Try High Accuracy (GPS Satelit) first with short 6s timeout
     navigator.geolocation.getCurrentPosition(
-        (pos) => {
-            gpsData = {
-                latitude  : pos.coords.latitude,
-                longitude : pos.coords.longitude,
-                accuracy  : pos.coords.accuracy,
-            };
-
-            const statusEl = document.getElementById('gps-status');
-            statusEl.innerHTML = `<div class="w-2 h-2 rounded-full bg-green-400"></div> GPS aktif (±${Math.round(pos.coords.accuracy)}m)`;
-
-            const btn = document.getElementById('btn-capture');
-            btn.disabled = false;
-            btn.classList.remove('bg-gray-400', 'cursor-not-allowed');
-            @if(isset($isCheckOut) && $isCheckOut)
-            btn.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
-            document.getElementById('btn-text').textContent = 'Ambil Foto & Absen Pulang';
-            @else
-            btn.classList.add('bg-blue-600', 'hover:bg-blue-700');
-            document.getElementById('btn-text').textContent = 'Ambil Foto & Presensi';
-            @endif
-        },
+        onSuccess,
         (err) => {
-            showError('GPS tidak bisa diakses. Aktifkan lokasi di browser.');
+            if (err && err.code === 1) {
+                onError(err);
+            } else {
+                // Fallback for iOS/Indoor (Wi-Fi & Cellular triangulation - fast & reliable)
+                navigator.geolocation.getCurrentPosition(
+                    onSuccess,
+                    onError,
+                    { enableHighAccuracy: false, timeout: 15000, maximumAge: 30000 }
+                );
+            }
         },
-        { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+        { enableHighAccuracy: true, timeout: 6000, maximumAge: 0 }
     );
 }
 startGPS();

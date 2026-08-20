@@ -21,14 +21,14 @@ class NotificationItem {
 
   factory NotificationItem.fromJson(Map<String, dynamic> json) {
     return NotificationItem(
-      id:        json['id']         as int,
-      title:     json['title']      as String,
-      body:      json['body']       as String,
-      type:      json['type']       as String? ?? 'info',
-      url:       json['url']        as String?,
-      imageUrl:  json['image_url']  as String?,
-      isRead:    json['is_read']    as bool? ?? false,
-      createdAt: DateTime.parse(json['created_at'] as String),
+      id:        json['id'] != null ? (int.tryParse(json['id'].toString()) ?? 0) : 0,
+      title:     json['title']?.toString() ?? '',
+      body:      json['body']?.toString() ?? '',
+      type:      json['type']?.toString() ?? 'info',
+      url:       json['url']?.toString(),
+      imageUrl:  json['image_url']?.toString(),
+      isRead:    json['is_read'] == true || json['is_read'] == 1 || json['is_read'] == 'true',
+      createdAt: DateTime.tryParse(json['created_at']?.toString() ?? '') ?? DateTime.now(),
     );
   }
 }

@@ -4,19 +4,34 @@ namespace App\Filament\Widgets;
 
 use App\Models\ConductLog;
 use Filament\Widgets\ChartWidget;
+use Filament\Widgets\Concerns\InteractsWithPageFilters;
 
 class ConductChartWidget extends ChartWidget
 {
+    use InteractsWithPageFilters;
+
     protected ?string $heading = '📊 Distribusi Pelanggaran Siswa Bulan Ini';
     protected static ?int $sort = 3;
 
+    public static function canView(): bool
+    {
+        return in_array(auth()->user()?->role, ['admin', 'admin_kesiswaan'], true);
+    }
+
     protected function getData(): array
     {
-        $logs = ConductLog::with('category')
+        $grade = $this->filters['grade'] ?? 'all';
+
+        $logsQuery = ConductLog::with('category')
             ->where('type', 'pelanggaran')
             ->whereMonth('created_at', now()->month)
-            ->whereYear('created_at', now()->year)
-            ->get();
+            ->whereYear('created_at', now()->year);
+
+        if ($grade !== 'all') {
+            $logsQuery->whereHas('student.schoolClass', fn ($q) => $q->where('grade', (string) $grade));
+        }
+
+        $logs = $logsQuery->get();
 
         $grouped = $logs->groupBy(fn ($log) => $log->category?->name ?? 'Lain-lain');
 
@@ -52,3 +67,4 @@ class ConductChartWidget extends ChartWidget
         return 'doughnut';
     }
 }
+

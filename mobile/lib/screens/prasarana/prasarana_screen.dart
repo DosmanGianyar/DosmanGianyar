@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../../services/api_client.dart';
 import '../../theme/app_colors.dart';
 import 'library_screen.dart';
+import 'library_visit_screen.dart';
+import 'library_catalog_screen.dart';
 
 class PrasaranaScreen extends StatefulWidget {
   const PrasaranaScreen({super.key});
@@ -117,6 +119,77 @@ class _PrasaranaScreenState extends State<PrasaranaScreen> {
               ]),
             ),
             const SizedBox(height: 12),
+            // ─── CARD UTAMA E-KATALOG BUKU PERPUSTAKAAN ───────────────────
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const LibraryCatalogScreen()),
+                );
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF1E1B4B), Color(0xFF312E81), Color(0xFF4338CA)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: AppRadius.card,
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF312E81).withValues(alpha: 0.35),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: const Icon(Icons.menu_book_rounded, color: Color(0xFFFDE047), size: 24),
+                            ),
+                            const SizedBox(width: 12),
+                            const Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('E-KATALOG BUKU DIGITAL', style: TextStyle(color: Color(0xFFFEF08A), fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
+                                Text('Perpustakaan SMA 1 Gianyar', style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold)),
+                              ],
+                            ),
+                          ],
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFACC15),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: const Text('Buka →', style: TextStyle(color: Color(0xFF0F172A), fontSize: 11, fontWeight: FontWeight.w900)),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    const Text(
+                      'Jelajahi koleksi buku pelajaran, novel fiksi, sains, sejarah, dan cek ketersediaan stok rak.',
+                      style: TextStyle(color: Color(0xFFE2E8F0), fontSize: 11, height: 1.3),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
 
             // ─── Stats 4-grid ─────────────────────────────────────────────
             Row(children: [
@@ -191,55 +264,119 @@ class _PrasaranaScreenState extends State<PrasaranaScreen> {
             ]),
             const SizedBox(height: 10),
 
-            // Tombol Perpustakaan
-            GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const LibraryScreen()),
-                );
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF1D4ED8), Color(0xFF4338CA)],
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
+            // Tombol Perpustakaan & Kunjungan Baca
+            Container(
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF1D4ED8), Color(0xFF4338CA)],
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                ),
+                borderRadius: AppRadius.card,
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF1D4ED8).withValues(alpha: 0.25),
+                    blurRadius: 8,
+                    offset: const Offset(0, 3),
                   ),
-                  borderRadius: AppRadius.card,
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFF1D4ED8).withValues(alpha: 0.25),
-                      blurRadius: 8,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
-                ),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.20),
-                        borderRadius: BorderRadius.circular(12),
+                ],
+              ),
+              padding: const EdgeInsets.all(14),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.20),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(Icons.menu_book_rounded, color: Color(0xFFFDE047), size: 20),
                       ),
-                      child: const Icon(Icons.menu_book_rounded, color: Color(0xFFFDE047), size: 22),
-                    ),
-                    const SizedBox(width: 12),
-                    const Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('PERPUSTAKAAN & BUKU', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
-                          Text('Pinjam buku & Kartu Bebas Perpustakaan', style: TextStyle(color: Color(0xFFDBEAFE), fontSize: 10)),
-                        ],
+                      const SizedBox(width: 10),
+                      const Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('PERPUSTAKAAN & BUKU', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+                            Text('Presensi baca di tempat & peminjaman buku', style: TextStyle(color: Color(0xFFDBEAFE), fontSize: 10)),
+                          ],
+                        ),
                       ),
-                    ),
-                    const Icon(Icons.chevron_right_rounded, color: Colors.white, size: 22),
-                  ],
-                ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: SizedBox(
+                          height: 38,
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (_) => const LibraryCatalogScreen()),
+                              );
+                            },
+                            icon: const Icon(Icons.grid_view_rounded, size: 15),
+                            label: const Text('E-Katalog', style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.bold)),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.yellow600,
+                              foregroundColor: AppColors.slate900,
+                              elevation: 1,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: SizedBox(
+                          height: 38,
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (_) => const LibraryVisitScreen()),
+                              );
+                            },
+                            icon: const Icon(Icons.qr_code_scanner_rounded, size: 15),
+                            label: const Text('Kunjungan', style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.bold)),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF2563EB),
+                              foregroundColor: Colors.white,
+                              elevation: 1,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: SizedBox(
+                          height: 38,
+                          child: OutlinedButton.icon(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (_) => const LibraryScreen()),
+                              );
+                            },
+                            icon: const Icon(Icons.auto_stories_rounded, size: 15),
+                            label: const Text('Pinjam', style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.bold)),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: Colors.white,
+                              side: const BorderSide(color: Colors.white38),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 18),
@@ -247,9 +384,9 @@ class _PrasaranaScreenState extends State<PrasaranaScreen> {
             // ─── List Pinjaman Saya ─────────────────────────────────────────
             const _SectionHeader(title: 'Riwayat Pinjaman Saya'),
             const SizedBox(height: 8),
-            if (_loading)
-              const Center(child: Padding(padding: EdgeInsets.all(24), child: CircularProgressIndicator()))
-            else if (_loans.isEmpty)
+            if (_loading) ...[
+              const Center(child: Padding(padding: EdgeInsets.all(24), child: CircularProgressIndicator())),
+            ] else if (_loans.isEmpty) ...[
               _EmptyCard(
                 icon: Icons.swap_horiz_rounded,
                 iconColor: AppColors.violet500,
@@ -257,57 +394,59 @@ class _PrasaranaScreenState extends State<PrasaranaScreen> {
                 action: 'Pinjam Aset Sekolah',
                 actionColor: AppColors.violet600,
                 onAction: _openCatalogAndBorrowModal,
-              )
-            else
-              ..._loans.map((loan) {
-                final String status = loan['status'] ?? 'pending';
-                final Color badgeBg = matchStatusBg(status);
-                final Color badgeFg = matchStatusFg(status);
+              ),
+            ] else ...[
+              for (final loan in _loans)
+                Builder(builder: (context) {
+                  final String status = loan['status'] ?? 'pending';
+                  final Color badgeBg = matchStatusBg(status);
+                  final Color badgeFg = matchStatusFg(status);
 
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 8),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.gray200),
-                    boxShadow: AppShadow.sm,
-                  ),
-                  padding: const EdgeInsets.all(12),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 36, height: 36,
-                        decoration: BoxDecoration(color: AppColors.violet50, borderRadius: BorderRadius.circular(10)),
-                        child: const Icon(Icons.inventory_2_outlined, color: AppColors.violet600, size: 18),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(loan['asset_name'] ?? '—', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.gray900)),
-                            Text('Tgl Pinjam: ${loan['loan_date']}  ·  Kembali: ${loan['return_date']}', style: const TextStyle(fontSize: 11, color: AppColors.gray500)),
-                          ],
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppColors.gray200),
+                      boxShadow: AppShadow.sm,
+                    ),
+                    padding: const EdgeInsets.all(12),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 36, height: 36,
+                          decoration: BoxDecoration(color: AppColors.violet50, borderRadius: BorderRadius.circular(10)),
+                          child: const Icon(Icons.inventory_2_outlined, color: AppColors.violet600, size: 18),
                         ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(color: badgeBg, borderRadius: BorderRadius.circular(12)),
-                        child: Text(loan['status_label'] ?? status, style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: badgeFg)),
-                      ),
-                    ],
-                  ),
-                );
-              }),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(loan['asset_name'] ?? '—', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.gray900)),
+                              Text('Tgl Pinjam: ${loan['loan_date']}  ·  Kembali: ${loan['return_date']}', style: const TextStyle(fontSize: 11, color: AppColors.gray500)),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(color: badgeBg, borderRadius: BorderRadius.circular(12)),
+                          child: Text(loan['status_label'] ?? status, style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: badgeFg)),
+                        ),
+                      ],
+                    ),
+                  );
+                }),
+            ],
 
             const SizedBox(height: 18),
 
             // ─── List Laporan Kerusakan ────────────────────────────────────
             const _SectionHeader(title: 'Laporan Kerusakan Saya'),
             const SizedBox(height: 8),
-            if (_loading)
-              const Center(child: Padding(padding: EdgeInsets.all(24), child: CircularProgressIndicator()))
-            else if (_damageReports.isEmpty)
+            if (_loading) ...[
+              const Center(child: Padding(padding: EdgeInsets.all(24), child: CircularProgressIndicator())),
+            ] else if (_damageReports.isEmpty) ...[
               _EmptyCard(
                 icon: Icons.warning_amber_rounded,
                 iconColor: AppColors.orange500,
@@ -315,51 +454,53 @@ class _PrasaranaScreenState extends State<PrasaranaScreen> {
                 action: 'Buat Laporan Kerusakan',
                 actionColor: AppColors.orange600,
                 onAction: _openDamageReportModal,
-              )
-            else
-              ..._damageReports.map((rep) {
-                final String status = rep['status'] ?? 'pending';
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 8),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.gray200),
-                    boxShadow: AppShadow.sm,
-                  ),
-                  padding: const EdgeInsets.all(12),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 36, height: 36,
-                        decoration: BoxDecoration(color: AppColors.orange50, borderRadius: BorderRadius.circular(10)),
-                        child: const Icon(Icons.report_problem_outlined, color: AppColors.orange600, size: 18),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(rep['title'] ?? '—', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.gray900)),
-                            Text('Lokasi: ${rep['location']}  ·  ${rep['date']}', style: const TextStyle(fontSize: 11, color: AppColors.gray500)),
-                          ],
+              ),
+            ] else ...[
+              for (final rep in _damageReports)
+                Builder(builder: (context) {
+                  final String status = rep['status'] ?? 'pending';
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppColors.gray200),
+                      boxShadow: AppShadow.sm,
+                    ),
+                    padding: const EdgeInsets.all(12),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 36, height: 36,
+                          decoration: BoxDecoration(color: AppColors.orange50, borderRadius: BorderRadius.circular(10)),
+                          child: const Icon(Icons.report_problem_outlined, color: AppColors.orange600, size: 18),
                         ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: status == 'resolved' ? AppColors.emerald50 : AppColors.orange50,
-                          borderRadius: BorderRadius.circular(12),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(rep['title'] ?? '—', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.gray900)),
+                              Text('Lokasi: ${rep['location']}  ·  ${rep['date']}', style: const TextStyle(fontSize: 11, color: AppColors.gray500)),
+                            ],
+                          ),
                         ),
-                        child: Text(
-                          rep['status_label'] ?? status,
-                          style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: status == 'resolved' ? AppColors.emerald700 : AppColors.orange700),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: status == 'resolved' ? AppColors.emerald50 : AppColors.orange50,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            rep['status_label'] ?? status,
+                            style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: status == 'resolved' ? AppColors.emerald700 : AppColors.orange700),
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                );
-              }),
+                      ],
+                    ),
+                  );
+                }),
+            ],
           ],
         ),
       ),

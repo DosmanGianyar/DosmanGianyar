@@ -412,7 +412,10 @@ Route::middleware(['auth', 'role:siswa,pengelola', 'force.password.change'])->pr
     // Perpustakaan & Kartu Bebas Perpustakaan
     Route::prefix('library')->name('library.')->group(function () {
         Route::get('/', [App\Http\Controllers\Siswa\LibraryController::class, 'index'])->name('index');
+        Route::get('/catalog', [App\Http\Controllers\Siswa\LibraryController::class, 'catalog'])->name('catalog');
         Route::post('/', [App\Http\Controllers\Siswa\LibraryController::class, 'store'])->name('store');
+        Route::get('/visit', [App\Http\Controllers\Siswa\LibraryController::class, 'visitIndex'])->name('visit');
+        Route::post('/visit', [App\Http\Controllers\Siswa\LibraryController::class, 'storeVisit'])->name('visit.store');
         Route::get('/clearance-card', [App\Http\Controllers\Siswa\LibraryController::class, 'clearanceCard'])->name('clearance-card');
     });
 
@@ -425,8 +428,11 @@ Route::middleware(['auth', 'role:siswa,pengelola', 'force.password.change'])->pr
     });
 });
 
-// Admin Clearance Card PDF/Print Route
+// Admin Clearance Card & Loan Report PDF/Print Routes
 Route::middleware(['auth'])->get('/admin/library/clearance-card/{user}', [App\Http\Controllers\Siswa\LibraryController::class, 'adminClearanceCard'])->name('admin.library.clearance-card');
+Route::middleware(['auth'])->get('/admin/library/visit-qr-card', fn () => view('exports.library-visit-qr-pdf'))->name('admin.library.visit-qr-card');
+Route::middleware(['auth'])->get('/admin/library/monthly-loan-report', [App\Http\Controllers\Siswa\LibraryController::class, 'adminMonthlyLoanReport'])->name('admin.library.monthly-loan-report');
+Route::middleware(['auth'])->get('/admin/library/visit-report', [App\Http\Controllers\Siswa\LibraryController::class, 'adminVisitReport'])->name('admin.library.visit-report');
 
 // ─── Orangtua ─────────────────────────────────────────────────────────────────
 Route::middleware(['auth', 'role:orangtua'])->prefix('orangtua')->name('orangtua.')->group(function () {

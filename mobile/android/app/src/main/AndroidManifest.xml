@@ -37,7 +37,7 @@
         <!-- Channel Notifikasi Default FCM untuk Notifikasi Prioritas Tinggi -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
-            android:value="sims_high_importance_channel" />
+            android:value="sims_alert_v3_channel" />
 
         <activity
             android:name=".MainActivity"

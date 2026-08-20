@@ -20,12 +20,12 @@
 
 /* ─── Topbar ─────────────────────────────────────────────────── */
 .fi-topbar-ctn {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 
 .fi-topbar {
-    background: #070c18 !important;
-    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.5) !important;
+    background: linear-gradient(135deg, #0f2460 0%, #1a3a8f 50%, #1e3fad 100%) !important;
+    box-shadow: 0 4px 25px rgba(0, 0, 0, 0.4) !important;
 }
 
 /* ─── Sidebar — 3D Effect ────────────────────────────────────── */
@@ -35,7 +35,7 @@
     box-shadow:
         6px 0 40px rgba(0, 0, 0, 0.75),
         3px 0 15px rgba(0, 0, 0, 0.55),
-        1px 0 4px rgba(0, 0, 0, 0.4),
+        1px 0 4px rgba(0, 0, 0, 0.4);
 }
 
 /* Sidebar SVG Icon size cap fix */
@@ -56,9 +56,9 @@
     background: linear-gradient(
         180deg,
         transparent 5%,
-        rgba(251, 191, 36, 0.35) 35%,
-        rgba(245, 158, 11, 0.5) 50%,
-        rgba(251, 191, 36, 0.35) 65%,
+        rgba(59, 130, 246, 0.4) 35%,
+        rgba(37, 99, 235, 0.6) 50%,
+        rgba(59, 130, 246, 0.4) 65%,
         transparent 95%
     );
     pointer-events: none;
@@ -66,7 +66,7 @@
 
 /* ─── Sidebar Header ─────────────────────────────────────────── */
 .fi-sidebar-header-ctn {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
     background: rgba(0, 0, 0, 0.25) !important;
 }
 
@@ -76,10 +76,10 @@
     font-weight: 800 !important;
     letter-spacing: 0.06em !important;
     text-transform: uppercase !important;
-    color: rgba(255, 255, 255, 0.85) !important;
+    color: rgba(255, 255, 255, 0.9) !important;
     text-shadow:
-        0 0 12px rgba(234, 179, 8, 0.55),
-        0 0 24px rgba(234, 179, 8, 0.25),
+        0 0 12px rgba(59, 130, 246, 0.55),
+        0 0 24px rgba(37, 99, 235, 0.25),
         0 1px 4px rgba(0, 0, 0, 0.6) !important;
 }
 
@@ -94,9 +94,9 @@
 
 /* ─── Nav Items ──────────────────────────────────────────────── */
 .fi-sidebar-item-btn {
-    border-radius: 0.5rem !important;
+    border-radius: 0.75rem !important;
     transition: background 0.18s ease, transform 0.18s ease !important;
-    border-left: 2px solid transparent;
+    border-left: 3px solid transparent;
 }
 
 .fi-sidebar-item-toggle {
@@ -107,26 +107,27 @@
 }
 
 .fi-sidebar-item-btn:hover:not(.fi-active) {
-    background: rgba(255, 255, 255, 0.06) !important;
-    transform: translateX(3px);
-    border-left-color: rgba(251, 191, 36, 0.3);
+    background: rgba(255, 255, 255, 0.08) !important;
+    transform: translateX(4px);
+    border-left-color: rgba(59, 130, 246, 0.4);
 }
 
 .fi-sidebar-item-btn.fi-active,
 .fi-sidebar-item-btn[aria-current] {
-    background: rgba(245, 158, 11, 0.12) !important;
-    border-left-color: rgb(245, 158, 11) !important;
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.25) 0%, rgba(67, 56, 202, 0.25) 100%) !important;
+    border-left-color: #3b82f6 !important;
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2) !important;
 }
 
 .fi-sidebar-item-label {
     font-size: 0.82rem !important;
-    font-weight: 500 !important;
+    font-weight: 600 !important;
 }
 
 /* ─── Sidebar Footer ─────────────────────────────────────────── */
 .fi-sidebar-footer {
-    border-top: 1px solid rgba(255, 255, 255, 0.06) !important;
-    background: rgba(0, 0, 0, 0.2) !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+    background: rgba(0, 0, 0, 0.25) !important;
 }
 
 /* ─── Page Heading ───────────────────────────────────────────── */
@@ -135,37 +136,118 @@
     letter-spacing: -0.03em !important;
 }
 
-/* ─── Widgets & Cards ────────────────────────────────────────── */
+/* ─── Widgets, Stats Cards & Glassmorphism ────────────────────── */
+.fi-wi-widget,
+.fi-wi-stats-overview-stat-ctn,
+.fi-wi-chart,
 .fi-wi-account-widget,
 .fi-wi-filament-info-widget {
-    background: #0f1d33 !important;
-    border: 1px solid rgba(255, 255, 255, 0.07) !important;
-    border-radius: 1rem !important;
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35) !important;
+    background: rgba(15, 29, 51, 0.85) !important;
+    backdrop-filter: blur(12px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.09) !important;
+    border-radius: 1.25rem !important;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4) !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease !important;
+}
+
+.fi-wi-stats-overview-stat-ctn:hover {
+    transform: translateY(-3px) !important;
+    border-color: rgba(59, 130, 246, 0.3) !important;
+    box-shadow: 0 14px 35px rgba(0, 0, 0, 0.5), 0 0 25px rgba(37, 99, 235, 0.15) !important;
+}
+
+/* ─── Dashboard & Widget Icon Fixes ───────────────────────────── */
+.fi-wi-stats-overview-stat-icon-ctn,
+.fi-wi-stats-overview-stat-icon,
+.fi-wi-stats-overview-stat-description-icon {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+}
+
+.fi-wi-stats-overview-stat svg,
+.fi-wi-stats-overview-stat-icon svg {
+    width: 1.5rem !important;
+    height: 1.5rem !important;
+    max-width: 1.5rem !important;
+    max-height: 1.5rem !important;
+    display: inline-block !important;
+    flex-shrink: 0 !important;
+}
+
+.fi-wi-stats-overview-stat-description svg,
+.fi-wi-stats-overview-stat-description-icon svg,
+.fi-wi-stats-overview-stat-description-icon {
+    width: 1.125rem !important;
+    height: 1.125rem !important;
+    max-width: 1.125rem !important;
+    max-height: 1.125rem !important;
+    display: inline-block !important;
+    flex-shrink: 0 !important;
+    vertical-align: text-bottom !important;
+}
+
+/* Bright contrast colors for stat description icons and text */
+.fi-wi-stats-overview-stat-description {
+    font-weight: 600 !important;
+    opacity: 0.95 !important;
+}
+
+/* General SVG Icon rendering rules across Filament dashboard */
+.fi-sidebar-item-icon,
+.fi-sidebar-item-icon svg {
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+    max-width: 1.25rem !important;
+    max-height: 1.25rem !important;
+    flex-shrink: 0 !important;
+}
+
+.fi-btn svg:not(.fi-loading-indicator),
+.fi-icon-btn svg:not(.fi-loading-indicator) {
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+    max-width: 1.5rem !important;
+    max-height: 1.5rem !important;
+    flex-shrink: 0 !important;
+}
+
+/* Ensure hidden Livewire loading indicators are never forced visible by global CSS */
+.fi-loading-indicator:not([wire\:loading]),
+[wire\:loading]:not([wire\:loading\.flex]):not([wire\:loading\.block]):not([wire\:loading\.inline-block]):not([wire\:loading\.inline]) {
+    display: none !important;
+}
+
+.fi-topbar svg {
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+    flex-shrink: 0 !important;
 }
 
 /* ─── Tables ─────────────────────────────────────────────────── */
 .fi-ta-ctn {
-    background: #0f1d33 !important;
-    border: 1px solid rgba(255, 255, 255, 0.07) !important;
-    border-radius: 1rem !important;
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3) !important;
+    background: rgba(15, 29, 51, 0.85) !important;
+    backdrop-filter: blur(12px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.09) !important;
+    border-radius: 1.25rem !important;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4) !important;
     overflow: visible !important;
     min-height: 380px !important;
 }
 
 .fi-ta-header-ctn {
-    background: #0f1d33 !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
-    border-top-left-radius: 1rem !important;
-    border-top-right-radius: 1rem !important;
+    background: rgba(15, 29, 51, 0.95) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-top-left-radius: 1.25rem !important;
+    border-top-right-radius: 1.25rem !important;
     overflow: visible !important;
 }
 
 .fi-ta-content-ctn,
 .fi-ta-content {
-    border-bottom-left-radius: 1rem !important;
-    border-bottom-right-radius: 1rem !important;
+    border-bottom-left-radius: 1.25rem !important;
+    border-bottom-right-radius: 1.25rem !important;
     overflow-x: auto !important;
 }
 
@@ -178,14 +260,37 @@
 
 /* ─── Section / Form Panels ──────────────────────────────────── */
 .fi-section {
-    background: #0f1d33 !important;
-    border: 1px solid rgba(255, 255, 255, 0.07) !important;
-    border-radius: 1rem !important;
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3) !important;
+    background: rgba(15, 29, 51, 0.85) !important;
+    backdrop-filter: blur(12px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.09) !important;
+    border-radius: 1.25rem !important;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4) !important;
 }
 
 .fi-section-header {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+/* ─── Grade Filter ToggleButtons (Mobile Segment Style) ──────── */
+.fi-fo-toggle-buttons {
+    background: rgba(15, 29, 51, 0.85) !important;
+    backdrop-filter: blur(12px) !important;
+    border-radius: 1rem !important;
+    padding: 0.35rem !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    display: inline-flex !important;
+    flex-wrap: wrap !important;
+    gap: 0.5rem !important;
+    align-items: center !important;
+    margin-bottom: 0.5rem !important;
+}
+
+.fi-fo-toggle-buttons label {
+    border-radius: 0.75rem !important;
+    font-weight: 700 !important;
+    transition: all 0.2s ease !important;
+    padding: 0.35rem 0.85rem !important;
+    font-size: 0.825rem !important;
 }
 
 /* ─── Sidebar scroll fix ──────────────────────────────────────── */
@@ -388,10 +493,123 @@ body.sims-users-actions-grid .fi-ta-actions {
     gap: 0.25rem !important;
     width: fit-content !important;
 }
-body.sims-users-actions-grid .fi-ta-actions > * {
-    grid-column: auto !important;
-    grid-row: auto !important;
+/* ─── Dashboard Hero Banner — Explicit CSS (No Tailwind Dependency) ─── */
+.sims-dashboard-hero {
     position: relative !important;
+    overflow: hidden !important;
+    border-radius: 1.25rem !important;
+    padding: 1.5rem 1.75rem !important;
+    margin-bottom: 1.5rem !important;
+    background: linear-gradient(135deg, #0f2460 0%, #1a3a8f 50%, #1e3fad 100%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4) !important;
+    color: #ffffff !important;
+}
+
+.sims-hero-glow-1 {
+    position: absolute !important;
+    top: -4rem !important;
+    right: -4rem !important;
+    width: 16rem !important;
+    height: 16rem !important;
+    border-radius: 9999px !important;
+    background: rgba(96, 165, 250, 0.2) !important;
+    filter: blur(40px) !important;
+    pointer-events: none !important;
+}
+
+.sims-hero-glow-2 {
+    position: absolute !important;
+    bottom: -4rem !important;
+    left: -4rem !important;
+    width: 16rem !important;
+    height: 16rem !important;
+    border-radius: 9999px !important;
+    background: rgba(99, 102, 241, 0.2) !important;
+    filter: blur(40px) !important;
+    pointer-events: none !important;
+}
+
+.sims-hero-content {
+    position: relative !important;
+    z-index: 10 !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 1.25rem !important;
+}
+
+.sims-hero-text-block {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.5rem !important;
+}
+
+.sims-hero-status-tag {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    padding: 0.25rem 0.75rem !important;
+    border-radius: 9999px !important;
+    background: rgba(255, 255, 255, 0.12) !important;
+    backdrop-filter: blur(8px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.18) !important;
+    font-size: 0.75rem !important;
+    font-weight: 700 !important;
+    color: #bfdbfe !important;
+    width: fit-content !important;
+}
+
+.sims-hero-dot {
+    width: 0.5rem !important;
+    height: 0.5rem !important;
+    border-radius: 9999px !important;
+    background: #34d399 !important;
+    box-shadow: 0 0 8px #34d399 !important;
+}
+
+.sims-hero-title {
+    font-size: 1.5rem !important;
+    font-weight: 800 !important;
+    color: #ffffff !important;
+    letter-spacing: -0.02em !important;
+    margin: 0 !important;
+    line-height: 1.25 !important;
+}
+
+.sims-hero-subtitle {
+    font-size: 0.9rem !important;
+    color: #93c5fd !important;
+    font-weight: 500 !important;
+    margin: 0 !important;
+}
+
+.sims-hero-subtitle strong {
+    color: #ffffff !important;
+    font-weight: 700 !important;
+}
+
+.sims-hero-date-badge {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    padding: 0.6rem 1rem !important;
+    border-radius: 0.75rem !important;
+    background: rgba(255, 255, 255, 0.12) !important;
+    backdrop-filter: blur(8px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.18) !important;
+    font-size: 0.85rem !important;
+    font-weight: 700 !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+}
+
+.sims-hero-date-badge svg {
+    width: 1.1rem !important;
+    height: 1.1rem !important;
+    color: #93c5fd !important;
+    flex-shrink: 0 !important;
 }
 </style>
 

@@ -66,7 +66,7 @@ class _AchievementScreenState extends State<AchievementScreen> {
         onPressed: _openCreate,
         backgroundColor: AppColors.yellow600,
         icon: const Icon(Icons.add_rounded),
-        label: const Text('Laporkan Prestasi'),
+        label: const Text('Laporkan / Kurasi Prestasi'),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -78,6 +78,7 @@ class _AchievementScreenState extends State<AchievementScreen> {
                     slivers: [
                       if (_stats != null)
                         SliverToBoxAdapter(child: _StatsBar(stats: _stats!)),
+                      const SliverToBoxAdapter(child: _CurationGuideCard()),
                       if (_items.isEmpty)
                         const SliverFillRemaining(
                           child: Center(
@@ -114,37 +115,42 @@ class _StatsBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white, borderRadius: AppRadius.card,
-        border: Border.all(color: AppColors.gray100), boxShadow: AppShadow.sm,
-      ),
+      color: const Color(0xFF0F2460),
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       child: Row(children: [
-        _StatCell(count: stats.pending,  label: 'Menunggu Kurasi', color: AppColors.amber500),
-        _Divider(),
-        _StatCell(count: stats.approved, label: 'Lolos Kurasi', color: AppColors.green500),
-        _Divider(),
-        _StatCell(count: stats.rejected, label: 'Ditolak',  color: AppColors.red500),
+        Expanded(child: _StatChip(label: 'Pending', count: stats.pending, color: AppColors.yellow600)),
+        const SizedBox(width: 8),
+        Expanded(child: _StatChip(label: 'Disetujui', count: stats.approved, color: AppColors.emerald500)),
+        const SizedBox(width: 8),
+        Expanded(child: _StatChip(label: 'Ditolak', count: stats.rejected, color: AppColors.red500)),
       ]),
     );
   }
 }
 
-class _StatCell extends StatelessWidget {
-  final int count; final String label; final Color color;
-  const _StatCell({required this.count, required this.label, required this.color});
-  @override
-  Widget build(BuildContext context) => Expanded(child: Column(children: [
-    Text('$count', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: color)),
-    Text(label, style: const TextStyle(fontSize: 10, color: AppColors.gray400), textAlign: TextAlign.center),
-  ]));
-}
+class _StatChip extends StatelessWidget {
+  final String label;
+  final int count;
+  final Color color;
+  const _StatChip({required this.label, required this.count, required this.color});
 
-class _Divider extends StatelessWidget {
   @override
-  Widget build(BuildContext context) =>
-    Container(width: 1, height: 32, color: AppColors.gray100);
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.15)),
+      ),
+      child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+        Container(width: 8, height: 8, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
+        const SizedBox(width: 6),
+        Text('$label: $count',
+          style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w500)),
+      ]),
+    );
+  }
 }
 
 // ─── Achievement Card ─────────────────────────────────────────────────────────
@@ -153,95 +159,82 @@ class _AchievementCard extends StatelessWidget {
   final Achievement item;
   const _AchievementCard({required this.item});
 
-  String _fmtDate(String s) {
-    try {
-      final d = DateTime.parse(s);
-      const m = ['','Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
-      return '${d.day} ${m[d.month]} ${d.year}';
-    } catch (_) { return s; }
+  Color _statusColor() {
+    switch (item.status) {
+      case 'approved': return AppColors.emerald500;
+      case 'rejected': return AppColors.red500;
+      default:         return AppColors.yellow600;
+    }
+  }
+
+  String _statusLabel() {
+    switch (item.status) {
+      case 'approved': return 'Disetujui';
+      case 'rejected': return 'Ditolak';
+      default:         return 'Menunggu Verifikasi';
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white, borderRadius: AppRadius.card,
-        border: Border.all(color: AppColors.gray100), boxShadow: AppShadow.sm,
+    return Card(
+      elevation: 0,
+      color: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+        side: const BorderSide(color: AppColors.gray200),
       ),
-      padding: const EdgeInsets.all(14),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-            decoration: BoxDecoration(color: item.levelBg, borderRadius: BorderRadius.circular(20)),
-            child: Text(item.levelLabel,
-              style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: item.levelColor)),
-          ),
-          const SizedBox(width: 6),
-          if (item.rank != null) ...[
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Row(children: [
+            Expanded(child: Text(item.title,
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.gray800))),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-              decoration: BoxDecoration(color: AppColors.yellow50, borderRadius: BorderRadius.circular(20)),
-              child: Text(item.rank!,
-                style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.yellow600)),
+              decoration: BoxDecoration(
+                color: _statusColor().withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(_statusLabel(),
+                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: _statusColor())),
             ),
-            const SizedBox(width: 6),
+          ]),
+          const SizedBox(height: 6),
+          Row(children: [
+            if (item.categoryName != null) ...[
+              Text(item.categoryName!,
+                style: const TextStyle(fontSize: 11, color: AppColors.gray500, fontWeight: FontWeight.w500)),
+              const Text(' · ', style: TextStyle(color: AppColors.gray400)),
+            ],
+            Text(item.levelLabel,
+              style: const TextStyle(fontSize: 11, color: AppColors.purple700, fontWeight: FontWeight.w600)),
+            if (item.rank != null) ...[
+              const Text(' · ', style: TextStyle(color: AppColors.gray400)),
+              Text(item.rank!,
+                style: const TextStyle(fontSize: 11, color: AppColors.yellow600, fontWeight: FontWeight.w600)),
+            ],
+          ]),
+          if (item.rejectionReason != null && item.rejectionReason!.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: AppColors.red50,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text('Alasan ditolak: ${item.rejectionReason}',
+                style: const TextStyle(fontSize: 11, color: AppColors.red500)),
+            ),
           ],
-          const Spacer(),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-            decoration: BoxDecoration(color: item.statusBg, borderRadius: BorderRadius.circular(20)),
-            child: Text(item.curationStatusLabel,
-              style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: item.statusColor)),
-          ),
         ]),
-        const SizedBox(height: 8),
-        Text(item.title,
-          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.gray800)),
-        if (item.organizer != null && item.organizer!.isNotEmpty) ...[
-          const SizedBox(height: 2),
-          Text('Penyelenggara: ${item.organizer}',
-            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: AppColors.blue600)),
-        ],
-        if (item.fieldCategoryLabel != null) ...[
-          const SizedBox(height: 2),
-          Text('Rumpun: ${item.fieldCategoryLabel}',
-            style: const TextStyle(fontSize: 11, color: AppColors.gray400)),
-        ],
-        const SizedBox(height: 4),
-        Row(children: [
-          const Icon(Icons.calendar_today_rounded, size: 11, color: AppColors.gray400),
-          const SizedBox(width: 4),
-          Text(_fmtDate(item.achievementDate),
-            style: const TextStyle(fontSize: 11, color: AppColors.gray400)),
-        ]),
-        if (item.description != null && item.description!.isNotEmpty) ...[
-          const SizedBox(height: 6),
-          Text(item.description!,
-            style: const TextStyle(fontSize: 12, color: AppColors.gray500),
-            maxLines: 2, overflow: TextOverflow.ellipsis),
-        ],
-        if (item.curationNote != null && item.curationNote!.isNotEmpty) ...[
-          const SizedBox(height: 6),
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: item.isRevision ? AppColors.amber50 : AppColors.red50,
-              borderRadius: BorderRadius.circular(8)),
-            child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Icon(Icons.info_outline_rounded, size: 13, color: item.isRevision ? AppColors.amber600 : AppColors.red500),
-              const SizedBox(width: 6),
-              Expanded(child: Text('Catatan Kurator: ${item.curationNote}',
-                style: TextStyle(fontSize: 11, color: item.isRevision ? AppColors.amber700 : AppColors.red500))),
-            ]),
-          ),
-        ],
-      ]),
+      ),
     );
   }
 }
 
-// ─── Create Sheet ─────────────────────────────────────────────────────────────
+// ─── Create Sheet Form ────────────────────────────────────────────────────────
 
 class _CreateSheet extends StatefulWidget {
   final VoidCallback onCreated;
@@ -252,12 +245,19 @@ class _CreateSheet extends StatefulWidget {
 }
 
 class _CreateSheetState extends State<_CreateSheet> {
+  bool _isCuration = false;
+
   final _titleCtrl            = TextEditingController();
   final _eventNameCtrl        = TextEditingController();
   final _organizerCtrl        = TextEditingController();
   final _rankCtrl             = TextEditingController();
   final _descCtrl             = TextEditingController();
   final _eventUrlCtrl         = TextEditingController();
+
+  // Berkas 5 Poin Kurasi
+  final _docStandardUrlCtrl           = TextEditingController();
+  final _selectionLevelUrlCtrl        = TextEditingController();
+  final _frequencyConsistencyUrlCtrl = TextEditingController();
 
   int?                     _categoryId;
   String                   _fieldCategory     = 'akademik';
@@ -267,6 +267,23 @@ class _CreateSheetState extends State<_CreateSheet> {
   XFile?                   _photo;
   XFile?                   _certificate;
   XFile?                   _assignmentLetter;
+
+  // 5 Poin Kurasi Files
+  XFile? _docStandardFile;
+  XFile? _selectionLevelFile;
+  XFile? _frequencyConsistencyFile;
+  XFile? _infrastructureFile;
+  XFile? _rewardCertFile;
+  XFile? _rewardPhotoFile;
+  XFile? _rewardRecapFile;
+
+  String _selectionLevel       = '3_tingkat';
+  String _frequencyConsistency = 'berturut_3';
+  String _infrastructureType   = 'utama_pendukung';
+
+  final List<String> _docStandardChecklist = [];
+  final List<String> _rewardTypes          = [];
+
   List<AchievementCategory> _categories      = [];
   List<Map<String, dynamic>> _selectedTeamMembers = [];
   bool                     _loadingCats       = true;
@@ -304,6 +321,9 @@ class _CreateSheetState extends State<_CreateSheet> {
     _rankCtrl.dispose();
     _descCtrl.dispose();
     _eventUrlCtrl.dispose();
+    _docStandardUrlCtrl.dispose();
+    _selectionLevelUrlCtrl.dispose();
+    _frequencyConsistencyUrlCtrl.dispose();
     super.dispose();
   }
 
@@ -332,15 +352,20 @@ class _CreateSheetState extends State<_CreateSheet> {
   }
 
   Future<void> _pickFile({required int type}) async {
-    // type: 0 = photo, 1 = certificate, 2 = assignmentLetter
     final picker = ImagePicker();
     final file   = await picker.pickImage(source: ImageSource.gallery, imageQuality: 85);
-
     if (file != null && mounted) {
       setState(() {
-        if (type == 0) _photo = file;
-        else if (type == 1) _certificate = file;
-        else if (type == 2) _assignmentLetter = file;
+        if (type == 0) { _photo = file; }
+        else if (type == 1) { _certificate = file; }
+        else if (type == 2) { _assignmentLetter = file; }
+        else if (type == 10) { _docStandardFile = file; }
+        else if (type == 11) { _selectionLevelFile = file; }
+        else if (type == 12) { _frequencyConsistencyFile = file; }
+        else if (type == 13) { _infrastructureFile = file; }
+        else if (type == 14) { _rewardCertFile = file; }
+        else if (type == 15) { _rewardPhotoFile = file; }
+        else if (type == 16) { _rewardRecapFile = file; }
       });
     }
   }
@@ -391,17 +416,17 @@ class _CreateSheetState extends State<_CreateSheet> {
                   ),
                 ),
                 const SizedBox(height: 12),
-                const Text('Pilih Anggota Tim',
+                const Text('Pilih Anggota Tim (Siswa Lain)',
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.gray800)),
                 const SizedBox(height: 4),
-                const Text('Cari nama atau kelas teman se-tim kamu',
+                const Text('Cari nama atau kelas teman se-tim kamu SMAN 1 Gianyar',
                     style: TextStyle(fontSize: 11, color: AppColors.gray400)),
                 const SizedBox(height: 12),
                 TextField(
                   controller: searchCtrl,
                   onChanged: (val) => performSearch(val),
                   decoration: InputDecoration(
-                    hintText: 'Cari nama teman...',
+                    hintText: 'Cari nama teman / kelas...',
                     hintStyle: const TextStyle(fontSize: 12, color: AppColors.gray400),
                     prefixIcon: const Icon(Icons.search_rounded, size: 18, color: AppColors.gray400),
                     filled: true,
@@ -472,6 +497,7 @@ class _CreateSheetState extends State<_CreateSheet> {
     try {
       final dateStr = '${_date!.year}-${_date!.month.toString().padLeft(2,'0')}-${_date!.day.toString().padLeft(2,'0')}';
       final Map<String, dynamic> formMap = {
+        'is_curation':        _isCuration ? '1' : '0',
         'title':              _titleCtrl.text.trim(),
         'event_name':         _eventNameCtrl.text.trim().isNotEmpty ? _eventNameCtrl.text.trim() : _titleCtrl.text.trim(),
         'organizer':          _organizerCtrl.text.trim(),
@@ -490,10 +516,57 @@ class _CreateSheetState extends State<_CreateSheet> {
           'assignment_letter': await MultipartFile.fromFile(_assignmentLetter!.path, filename: 'assignment_letter.jpg'),
       };
 
+      if (_isCuration) {
+        formMap['selection_level']       = _selectionLevel;
+        formMap['frequency_consistency'] = _frequencyConsistency;
+        formMap['infrastructure_type']   = _infrastructureType;
+
+        if (_docStandardUrlCtrl.text.trim().isNotEmpty) {
+          formMap['doc_standard_url'] = _docStandardUrlCtrl.text.trim();
+        }
+        if (_selectionLevelUrlCtrl.text.trim().isNotEmpty) {
+          formMap['selection_level_url'] = _selectionLevelUrlCtrl.text.trim();
+        }
+        if (_frequencyConsistencyUrlCtrl.text.trim().isNotEmpty) {
+          formMap['frequency_consistency_url'] = _frequencyConsistencyUrlCtrl.text.trim();
+        }
+
+        if (_docStandardFile != null) {
+          formMap['doc_standard_file'] = await MultipartFile.fromFile(_docStandardFile!.path, filename: 'doc_standard.jpg');
+        }
+        if (_selectionLevelFile != null) {
+          formMap['selection_level_file'] = await MultipartFile.fromFile(_selectionLevelFile!.path, filename: 'selection_level.jpg');
+        }
+        if (_frequencyConsistencyFile != null) {
+          formMap['frequency_consistency_file'] = await MultipartFile.fromFile(_frequencyConsistencyFile!.path, filename: 'frequency.jpg');
+        }
+        if (_infrastructureFile != null) {
+          formMap['infrastructure_file'] = await MultipartFile.fromFile(_infrastructureFile!.path, filename: 'infrastructure.jpg');
+        }
+        if (_rewardCertFile != null) {
+          formMap['reward_certificate_file'] = await MultipartFile.fromFile(_rewardCertFile!.path, filename: 'reward_cert.jpg');
+        }
+        if (_rewardPhotoFile != null) {
+          formMap['reward_photo_file'] = await MultipartFile.fromFile(_rewardPhotoFile!.path, filename: 'reward_photo.jpg');
+        }
+        if (_rewardRecapFile != null) {
+          formMap['reward_recap_file'] = await MultipartFile.fromFile(_rewardRecapFile!.path, filename: 'reward_recap.jpg');
+        }
+      }
+
       final formData = FormData.fromMap(formMap);
       if (_participationType == 'beregu' && _selectedTeamMembers.isNotEmpty) {
         for (var i = 0; i < _selectedTeamMembers.length; i++) {
           formData.fields.add(MapEntry('team_member_ids[$i]', _selectedTeamMembers[i]['id'].toString()));
+        }
+      }
+
+      if (_isCuration) {
+        for (var i = 0; i < _docStandardChecklist.length; i++) {
+          formData.fields.add(MapEntry('doc_standard_checklist[$i]', _docStandardChecklist[i]));
+        }
+        for (var i = 0; i < _rewardTypes.length; i++) {
+          formData.fields.add(MapEntry('reward_types[$i]', _rewardTypes[i]));
         }
       }
 
@@ -538,11 +611,63 @@ class _CreateSheetState extends State<_CreateSheet> {
                 color: AppColors.gray200, borderRadius: BorderRadius.circular(2)),
             )),
             const SizedBox(height: 16),
-            const Text('Laporkan Berkas Prestasi (Kurasi)',
+            const Text('Laporkan & Kurasi Prestasi',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.gray800)),
             const SizedBox(height: 4),
-            const Text('Lengkapi berkas dan metadata agar lolos Kurasi Puspresnas/Sekolah.',
+            const Text('Pilih tujuan pengajuan dan lengkapi metadata prestasi.',
               style: TextStyle(fontSize: 11, color: AppColors.gray400)),
+            const SizedBox(height: 16),
+
+            // ─── CARDS PILIHAN UTAMA MODE PENGAJUAN ───────────────────────
+            Row(children: [
+              Expanded(
+                child: GestureDetector(
+                  onTap: () => setState(() => _isCuration = false),
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: !_isCuration ? AppColors.blue50 : Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: !_isCuration ? AppColors.blue600 : AppColors.gray200, width: !_isCuration ? 2 : 1),
+                    ),
+                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      Row(children: [
+                        const Icon(Icons.emoji_events_rounded, color: AppColors.blue600, size: 20),
+                        const Spacer(),
+                        Radio<bool>(value: false, groupValue: _isCuration, onChanged: (v) => setState(() => _isCuration = false)),
+                      ]),
+                      const Text('Hanya Laporkan', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.gray900)),
+                      const SizedBox(height: 2),
+                      const Text('Portofolio & Poin Sekolah', style: TextStyle(fontSize: 10, color: AppColors.gray500)),
+                    ]),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: GestureDetector(
+                  onTap: () => setState(() => _isCuration = true),
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: _isCuration ? AppColors.purple50 : Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: _isCuration ? AppColors.purple700 : AppColors.gray200, width: _isCuration ? 2 : 1),
+                    ),
+                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      Row(children: [
+                        const Icon(Icons.verified_rounded, color: AppColors.purple700, size: 20),
+                        const Spacer(),
+                        Radio<bool>(value: true, groupValue: _isCuration, onChanged: (v) => setState(() => _isCuration = true)),
+                      ]),
+                      const Text('Laporkan & Kurasi', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.gray900)),
+                      const SizedBox(height: 2),
+                      const Text('Persyaratan Kemendikdasmen', style: TextStyle(fontSize: 10, color: AppColors.gray500)),
+                    ]),
+                  ),
+                ),
+              ),
+            ]),
             const SizedBox(height: 20),
 
             // Judul Prestasi
@@ -553,7 +678,7 @@ class _CreateSheetState extends State<_CreateSheet> {
             const SizedBox(height: 14),
 
             // Penyelenggara Lomba
-            const _Label('Penyelenggara Lomba / Ajang *',
+            const _Label('Penyelenggara Lomba / Ajang',
               subText: 'Contoh: Kemendikbudristek, Universitas Udayana, KONI Bali, BRIN'),
             const SizedBox(height: 6),
             _InputField(controller: _organizerCtrl, hint: 'Ketik lembaga penyelenggara...'),
@@ -611,7 +736,7 @@ class _CreateSheetState extends State<_CreateSheet> {
                   const Row(children: [
                     Icon(Icons.group_outlined, size: 16, color: AppColors.purple700),
                     SizedBox(width: 6),
-                    Text('Anggota Tim (Siswa Lain)',
+                    Text('Anggota Tim (Siswa Lain SMAN 1 Gianyar)',
                         style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.purple900)),
                   ]),
                   const SizedBox(height: 4),
@@ -637,7 +762,7 @@ class _CreateSheetState extends State<_CreateSheet> {
                     child: OutlinedButton.icon(
                       onPressed: _openTeamMemberPicker,
                       icon: const Icon(Icons.person_add_alt_1_rounded, size: 16, color: AppColors.purple700),
-                      label: Text(_selectedTeamMembers.isEmpty ? 'Cari & Tambah Anggota Tim' : 'Tambah Anggota Lain',
+                      label: Text(_selectedTeamMembers.isEmpty ? 'Cari & Tambah Anggota Tim' : 'Tambah Anggota Lain (${_selectedTeamMembers.length} Terpilih)',
                           style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.purple700)),
                       style: OutlinedButton.styleFrom(
                         side: const BorderSide(color: AppColors.purple300),
@@ -739,13 +864,6 @@ class _CreateSheetState extends State<_CreateSheet> {
             ]),
             const SizedBox(height: 14),
 
-            // Link Website Pengumuman Resmi
-            const _Label('Link Web Pengumuman Resmi (opsional)',
-              subText: 'Contoh: https://puspresnas.kemdikbud.go.id/pengumuman-osn'),
-            const SizedBox(height: 6),
-            _InputField(controller: _eventUrlCtrl, hint: 'Paste tautan URL pengumuman...'),
-            const SizedBox(height: 14),
-
             // Foto kegiatan / Piala
             const _Label('Foto Kegiatan / Penyerahan Piala *',
               subText: 'Wajib! Foto fisik penyerahan piala / di panggung juara'),
@@ -768,29 +886,126 @@ class _CreateSheetState extends State<_CreateSheet> {
             ),
             const SizedBox(height: 14),
 
-            // Surat Tugas / Rekomendasi
-            const _Label('Surat Tugas / Rekomendasi Sekolah (opsional)',
-              subText: 'Upload Surat Tugas dari SMAN 1 Gianyar jika ada'),
-            const SizedBox(height: 6),
-            _ImagePickerTile(
-              file: _assignmentLetter,
-              label: 'Pilih file Surat Tugas Sekolah',
-              onTap: () => _pickFile(type: 2),
-            ),
+            // ─── 5 POIN BERKAS KURASI KEMENDIKDASMEN ───────────────────────
+            if (_isCuration) ...[
+              const SizedBox(height: 10),
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: AppColors.purple50.withValues(alpha: 0.6),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppColors.purple200),
+                ),
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  const Row(children: [
+                    Icon(Icons.verified_rounded, size: 18, color: AppColors.purple700),
+                    SizedBox(width: 6),
+                    Text('5 Poin Berkas Persyaratan Kurasi',
+                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.purple900)),
+                  ]),
+                  const SizedBox(height: 4),
+                  const Text('Upload berkas kurasi resmi agar ajang terdaftar di Puspresnas & BTIKP.',
+                      style: TextStyle(fontSize: 11, color: AppColors.purple700)),
+                  const SizedBox(height: 14),
+
+                  // P1: Dokumen Standar Juknis
+                  const _Label('P1: Dokumen Juknis/Pedoman Ajang', subText: 'File Juknis PDF/DOCX atau Tautan URL'),
+                  const SizedBox(height: 6),
+                  _ImagePickerTile(file: _docStandardFile, label: 'Upload Berkas Juknis P1', onTap: () => _pickFile(type: 10)),
+                  const SizedBox(height: 6),
+                  _InputField(controller: _docStandardUrlCtrl, hint: 'Atau paste URL Website Juknis Resmi...'),
+                  const SizedBox(height: 14),
+
+                  // P2: Tingkat Seleksi
+                  const _Label('P2: Tingkatan Seleksi Lomba', subText: 'Tahapan seleksi yang dilalui'),
+                  const SizedBox(height: 6),
+                  DropdownButtonFormField<String>(
+                    value: _selectionLevel,
+                    items: const [
+                      DropdownMenuItem(value: '3_tingkat', child: Text('≥3 Tingkat (Kab -> Prov -> Nas)', style: TextStyle(fontSize: 12))),
+                      DropdownMenuItem(value: '2_tingkat', child: Text('2 Tingkat (Prov -> Nas)', style: TextStyle(fontSize: 12))),
+                      DropdownMenuItem(value: '1_tingkat', child: Text('1 Tingkat (Langsung Final)', style: TextStyle(fontSize: 12))),
+                    ],
+                    onChanged: (v) => setState(() => _selectionLevel = v ?? '3_tingkat'),
+                    decoration: const InputDecoration(
+                      filled: true, fillColor: Colors.white,
+                      contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                      border: OutlineInputBorder(borderRadius: AppRadius.input, borderSide: BorderSide(color: AppColors.gray200)),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  _ImagePickerTile(file: _selectionLevelFile, label: 'Upload Bukti Tahapan Seleksi P2', onTap: () => _pickFile(type: 11)),
+                  const SizedBox(height: 14),
+
+                  // P3: Konsistensi Frekuensi
+                  const _Label('P3: Konsistensi Frekuensi Lomba', subText: 'Rutinitas ajang lintas tahun'),
+                  const SizedBox(height: 6),
+                  DropdownButtonFormField<String>(
+                    value: _frequencyConsistency,
+                    items: const [
+                      DropdownMenuItem(value: 'berturut_gt3', child: Text('Berturut-turut >3 Kali', style: TextStyle(fontSize: 12))),
+                      DropdownMenuItem(value: 'berturut_3', child: Text('Berturut 3 Kali', style: TextStyle(fontSize: 12))),
+                      DropdownMenuItem(value: 'berturut_2', child: Text('Berturut 2 Kali', style: TextStyle(fontSize: 12))),
+                      DropdownMenuItem(value: 'tidak_berturut', child: Text('Tidak Berturut-turut', style: TextStyle(fontSize: 12))),
+                    ],
+                    onChanged: (v) => setState(() => _frequencyConsistency = v ?? 'berturut_3'),
+                    decoration: const InputDecoration(
+                      filled: true, fillColor: Colors.white,
+                      contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                      border: OutlineInputBorder(borderRadius: AppRadius.input, borderSide: BorderSide(color: AppColors.gray200)),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  _ImagePickerTile(file: _frequencyConsistencyFile, label: 'Upload Berkas Juknis Lintas Tahun P3', onTap: () => _pickFile(type: 12)),
+                  const SizedBox(height: 14),
+
+                  // P4: Sarana Prasarana
+                  const _Label('P4: Sarana & Prasarana Lomba', subText: 'Fasilitas tempat & alat lomba'),
+                  const SizedBox(height: 6),
+                  DropdownButtonFormField<String>(
+                    value: _infrastructureType,
+                    items: const [
+                      DropdownMenuItem(value: 'utama_pendukung', child: Text('Sarana Utama & Pendukung Lengkap', style: TextStyle(fontSize: 12))),
+                      DropdownMenuItem(value: 'utama', child: Text('Sarana Utama Saja', style: TextStyle(fontSize: 12))),
+                      DropdownMenuItem(value: 'pendukung', child: Text('Sarana Pendukung Saja', style: TextStyle(fontSize: 12))),
+                    ],
+                    onChanged: (v) => setState(() => _infrastructureType = v ?? 'utama_pendukung'),
+                    decoration: const InputDecoration(
+                      filled: true, fillColor: Colors.white,
+                      contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                      border: OutlineInputBorder(borderRadius: AppRadius.input, borderSide: BorderSide(color: AppColors.gray200)),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  _ImagePickerTile(file: _infrastructureFile, label: 'Upload Foto Sarpras Lomba P4', onTap: () => _pickFile(type: 13)),
+                  const SizedBox(height: 14),
+
+                  // P5: Penghargaan & SK Rekap
+                  const _Label('P5: Penghargaan & SK Rekap Pemenang', subText: 'Scan Piagam, Foto Panggung, & SK Rekap'),
+                  const SizedBox(height: 6),
+                  _ImagePickerTile(file: _rewardCertFile, label: 'Upload Scan Piagam P5', onTap: () => _pickFile(type: 14)),
+                  const SizedBox(height: 6),
+                  _ImagePickerTile(file: _rewardPhotoFile, label: 'Upload Foto Panggung Juara P5', onTap: () => _pickFile(type: 15)),
+                  const SizedBox(height: 6),
+                  _ImagePickerTile(file: _rewardRecapFile, label: 'Upload Dokumen SK Rekap Pemenang P5', onTap: () => _pickFile(type: 16)),
+                ]),
+              ),
+            ],
+
             const SizedBox(height: 20),
 
             FilledButton(
               onPressed: _isSaving ? null : _submit,
               style: FilledButton.styleFrom(
-                backgroundColor: AppColors.yellow600,
+                backgroundColor: _isCuration ? AppColors.purple700 : AppColors.blue600,
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
               ),
               child: _isSaving
                   ? const SizedBox(width: 18, height: 18,
                       child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                  : const Text('Kirim Berkas Kurasi',
-                      style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                  : Text(_isCuration ? 'Kirim Laporkan & Kurasi Kemendikdasmen' : 'Kirim Laporkan Prestasi Internal',
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
             ),
           ],
         ),
@@ -860,7 +1075,7 @@ class _ImagePickerTile extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColors.gray50, borderRadius: AppRadius.input,
           border: Border.all(
-            color: file != null ? AppColors.yellow600 : AppColors.gray200,
+            color: file != null ? AppColors.purple700 : AppColors.gray200,
             width: file != null ? 1.5 : 1,
           ),
         ),
@@ -872,7 +1087,7 @@ class _ImagePickerTile extends StatelessWidget {
                 ),
                 const SizedBox(width: 10),
                 Expanded(child: Text(file!.name,
-                  style: const TextStyle(fontSize: 12, color: AppColors.gray700),
+                  style: const TextStyle(fontSize: 12, color: AppColors.gray700, fontWeight: FontWeight.bold),
                   overflow: TextOverflow.ellipsis)),
                 const Icon(Icons.edit_rounded, size: 14, color: AppColors.gray400),
               ])
@@ -904,4 +1119,201 @@ class _ErrorView extends StatelessWidget {
       TextButton(onPressed: onRetry, child: const Text('Coba Lagi')),
     ]),
   );
+}
+
+// ─── 5 Poin Kurasi Guide Card ───────────────────────────────────────────────────
+
+class _CurationGuideCard extends StatefulWidget {
+  const _CurationGuideCard();
+
+  @override
+  State<_CurationGuideCard> createState() => _CurationGuideCardState();
+}
+
+class _CurationGuideCardState extends State<_CurationGuideCard> {
+  bool _isExpanded = true;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFF1E1B4B), Color(0xFF312E81)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: const [
+          BoxShadow(color: Color(0x33312E81), blurRadius: 8, offset: Offset(0, 3)),
+        ],
+      ),
+      child: Column(
+        children: [
+          InkWell(
+            onTap: () => setState(() => _isExpanded = !_isExpanded),
+            borderRadius: BorderRadius.circular(16),
+            child: Padding(
+              padding: const EdgeInsets.all(14),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(Icons.lightbulb_rounded, color: Color(0xFFFACC15), size: 20),
+                  ),
+                  const SizedBox(width: 12),
+                  const Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('5 Syarat Lomba Bisa Dikurasi',
+                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
+                        SizedBox(height: 2),
+                        Text('Panduan resmi Pusprestnas / BPTI Kemendikdasmen',
+                          style: TextStyle(color: Color(0xFFC7D2FE), fontSize: 10.5)),
+                      ],
+                    ),
+                  ),
+                  Icon(
+                    _isExpanded ? Icons.keyboard_arrow_up_rounded : Icons.keyboard_arrow_down_rounded,
+                    color: Colors.white,
+                    size: 22,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          if (_isExpanded) ...[
+            const Divider(height: 1, color: Color(0x33C7D2FE)),
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                children: const [
+                  _PointItem(
+                    number: '1',
+                    title: 'Penyelenggara Resmi & Kredibel (P1)',
+                    canCurate: 'Diselenggarakan oleh Kementerian/Lembaga (Kemendikbud/BRIN/KONI), PTN/PTS Terakreditasi, atau Organisasi Resmi.',
+                    cannotCurate: 'Lomba komersial berbayar tanpa akreditasi, EO abal-abal, atau event tidak terdaftar.',
+                  ),
+                  SizedBox(height: 8),
+                  _PointItem(
+                    number: '2',
+                    title: 'Tahapan Seleksi Berjenjang (P2)',
+                    canCurate: 'Memiliki seleksi berjenjang terstruktur (Sekolah ➔ Kab/Kota ➔ Prov ➔ Nasional).',
+                    cannotCurate: 'Lomba instan online tanpa tahap seleksi resmi dan tanpa juri tersertifikasi.',
+                  ),
+                  SizedBox(height: 8),
+                  _PointItem(
+                    number: '3',
+                    title: 'Konsistensi Pelaksanaan Rutin (P3)',
+                    canCurate: 'Perlombaan rutin berkala setiap tahun (minimal 2-3 kali berturut-turut).',
+                    cannotCurate: 'Event sekali jalan (one-time event) yang tidak punya rekam jejak tahunan.',
+                  ),
+                  SizedBox(height: 8),
+                  _PointItem(
+                    number: '4',
+                    title: 'Sarana & Standar Infrastruktur (P4)',
+                    canCurate: 'Menggunakan arena/lab/platform resmi yang memenuhi regulasi teknis & keselamatan.',
+                    cannotCurate: 'Perlombaan informal tanpa standar keselamatan dan regulasi bidang terkait.',
+                  ),
+                  SizedBox(height: 8),
+                  _PointItem(
+                    number: '5',
+                    title: 'Keabsahan Sertifikat & SK Juara (P5)',
+                    canCurate: 'Sertifikat asli TTD pejabat/QR Code verifikasi + Surat Keputusan (SK) Juara resmi.',
+                    cannotCurate: 'Sertifikat peserta biasa, tanpa SK Pemenang resmi, atau dokumen fiktif/editan.',
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _PointItem extends StatelessWidget {
+  final String number;
+  final String title;
+  final String canCurate;
+  final String cannotCurate;
+
+  const _PointItem({
+    required this.number,
+    required this.title,
+    required this.canCurate,
+    required this.cannotCurate,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 20, height: 20,
+                decoration: const BoxDecoration(color: Color(0xFFFACC15), shape: BoxShape.circle),
+                alignment: Alignment.center,
+                child: Text(number, style: const TextStyle(color: Color(0xFF0F172A), fontWeight: FontWeight.bold, fontSize: 11)),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('✅ ', style: TextStyle(fontSize: 11)),
+              Expanded(
+                child: RichText(
+                  text: TextSpan(
+                    style: const TextStyle(fontSize: 10.5, color: Color(0xFF86EFAC)),
+                    children: [
+                      const TextSpan(text: 'BISA: ', style: TextStyle(fontWeight: FontWeight.bold)),
+                      TextSpan(text: canCurate),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('❌ ', style: TextStyle(fontSize: 11)),
+              Expanded(
+                child: RichText(
+                  text: TextSpan(
+                    style: const TextStyle(fontSize: 10.5, color: Color(0xFFFCA5A5)),
+                    children: [
+                      const TextSpan(text: 'TIDAK: ', style: TextStyle(fontWeight: FontWeight.bold)),
+                      TextSpan(text: cannotCurate),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 }

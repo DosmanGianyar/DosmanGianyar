@@ -5,7 +5,7 @@
 @section('content')
 
 {{-- ─── Header & Navigasi Bulan ─────────────────────────────────────── --}}
-<div class="bg-linear-to-br from-blue-600 to-indigo-700 rounded-2xl p-4 mb-4 text-white">
+<div class="rounded-2xl p-4 mb-4 text-white shadow-md" style="background: linear-gradient(135deg, #1d4ed8 0%, #4338ca 100%) !important; color: #ffffff !important;">
     <div class="flex items-center justify-between mb-3">
         <a href="{{ route('siswa.attendance.history', ['month' => $prevMonth->month, 'year' => $prevMonth->year]) }}"
             class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center hover:bg-white/30 transition-colors">

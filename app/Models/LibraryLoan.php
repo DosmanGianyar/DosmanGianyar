@@ -10,11 +10,14 @@ class LibraryLoan extends Model
 {
     protected $fillable = [
         'student_id',
+        'book_id',
         'manual_student_name',
         'manual_class_name',
         'phone_number',
         'book_title',
         'book_code',
+        'book_nisb',
+        'book_author',
         'borrowed_at',
         'due_at',
         'returned_at',
@@ -24,11 +27,25 @@ class LibraryLoan extends Model
         'created_by_user_id',
     ];
 
-    protected $casts = [
-        'borrowed_at' => 'date',
-        'due_at'      => 'date',
-        'returned_at' => 'datetime',
-    ];
+    protected static function booted(): void
+    {
+        static::saved(function (LibraryLoan $loan) {
+            if ($loan->book_id) {
+                $loan->book?->recalculateBorrowedCount();
+            }
+        });
+
+        static::deleted(function (LibraryLoan $loan) {
+            if ($loan->book_id) {
+                $loan->book?->recalculateBorrowedCount();
+            }
+        });
+    }
+
+    public function book(): BelongsTo
+    {
+        return $this->belongsTo(LibraryBook::class, 'book_id');
+    }
 
     public function student(): BelongsTo
     {

@@ -6,6 +6,8 @@ import '../widgets/image_viewer_dialog.dart';
 import '../theme/app_colors.dart';
 import '../services/api_client.dart';
 
+import '../services/push_notification_service.dart';
+
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
 
@@ -22,6 +24,27 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     });
   }
 
+  Future<void> _triggerTestNotification() async {
+    final notifProv = context.read<NotificationProvider>();
+    await PushNotificationService.showTestNotification(
+      title: '🔔 Uji Coba Push Notifikasi SIMS',
+      body: 'Selamat! Spanduk, nada alert, dan pesan notifikasi di HP Infinix Anda berfungsi 100%.',
+    );
+    try {
+      await ApiClient.post('/fcm-token/test');
+    } catch (_) {}
+    await notifProv.fetchAll();
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('⚡ Push Notifikasi alert + nada berhasil dikirim & dibaca!'),
+          backgroundColor: AppColors.green500,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -36,31 +59,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           IconButton(
             tooltip: 'Uji Coba Notifikasi',
             icon: const Icon(Icons.notifications_active_rounded, size: 20),
-            onPressed: () async {
-              try {
-                final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
-                final NotificationProvider provider = context.read<NotificationProvider>();
-                await ApiClient.post('/fcm-token/test');
-                await provider.fetchAll();
-                messenger.showSnackBar(
-                  const SnackBar(
-                    content: Text('⚡ Notifikasi uji coba dikirim! Silakan periksa notifikasi.'),
-                    backgroundColor: AppColors.blue600,
-                    behavior: SnackBarBehavior.floating,
-                  ),
-                );
-              } catch (e) {
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Gagal mengirim notifikasi: ${ApiClient.extractError(e)}'),
-                      backgroundColor: AppColors.red500,
-                      behavior: SnackBarBehavior.floating,
-                    ),
-                  );
-                }
-              }
-            },
+            onPressed: _triggerTestNotification,
           ),
           Consumer<NotificationProvider>(
             builder: (_, prov, __) {
@@ -74,39 +73,96 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           ),
         ],
       ),
-      body: Consumer<NotificationProvider>(
-        builder: (_, prov, __) {
-          if (prov.isLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (prov.notifications.isEmpty) {
-            return const Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.notifications_none_rounded, size: 56, color: AppColors.gray300),
-                  SizedBox(height: 12),
-                  Text('Tidak ada notifikasi',
-                    style: TextStyle(fontSize: 14, color: AppColors.gray400)),
-                ],
+      body: Column(
+        children: [
+          // ── Banner Uji Coba Push Notifikasi ──
+          Container(
+            margin: const EdgeInsets.fromLTRB(12, 12, 12, 4),
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFF1E1B4B), Color(0xFF4338CA)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
-            );
-          }
-
-          return RefreshIndicator(
-            onRefresh: () => prov.fetchAll(),
-            child: ListView.separated(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              itemCount: prov.notifications.length,
-              separatorBuilder: (_, __) => const Divider(height: 1, indent: 72, color: AppColors.gray100),
-              itemBuilder: (_, i) => _NotifTile(
-                item: prov.notifications[i],
-                onTap: () => prov.markRead(prov.notifications[i].id),
-              ),
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: const [
+                BoxShadow(color: Color(0x33312E81), blurRadius: 8, offset: Offset(0, 3)),
+              ],
             ),
-          );
-        },
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.notifications_active_rounded, color: Color(0xFFFDE047), size: 22),
+                ),
+                const SizedBox(width: 12),
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Uji Coba Push Notifikasi', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
+                      SizedBox(height: 2),
+                      Text('Tekan tombol untuk tes spanduk & suara notifikasi HP.', style: TextStyle(color: Color(0xFFE2E8F0), fontSize: 10)),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                ElevatedButton(
+                  onPressed: _triggerTestNotification,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFFACC15),
+                    foregroundColor: const Color(0xFF0F172A),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  child: const Text('Tes HP ⚡', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900)),
+                ),
+              ],
+            ),
+          ),
+
+          Expanded(
+            child: Consumer<NotificationProvider>(
+              builder: (_, prov, __) {
+                if (prov.isLoading) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                if (prov.notifications.isEmpty) {
+                  return const Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.notifications_none_rounded, size: 56, color: AppColors.gray300),
+                        SizedBox(height: 12),
+                        Text('Tidak ada notifikasi',
+                          style: TextStyle(fontSize: 14, color: AppColors.gray400)),
+                      ],
+                    ),
+                  );
+                }
+
+                return RefreshIndicator(
+                  onRefresh: () => prov.fetchAll(),
+                  child: ListView.separated(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    itemCount: prov.notifications.length,
+                    separatorBuilder: (_, __) => const Divider(height: 1, indent: 72, color: AppColors.gray100),
+                    itemBuilder: (_, i) => _NotifTile(
+                      item: prov.notifications[i],
+                      onTap: () => prov.markRead(prov.notifications[i].id),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -42,7 +42,7 @@ class AdminPanelProvider extends PanelProvider
                     ->visible(fn (): bool => auth()->user()?->role === 'admin'),
             ])
             ->colors([
-                'primary' => Color::Amber,
+                'primary' => Color::Blue,
             ])
             ->darkMode(true, isForced: true)
             ->brandName('Admin Dosman')
@@ -77,9 +77,11 @@ class AdminPanelProvider extends PanelProvider
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([
                 \App\Filament\Widgets\ExecutiveOverviewWidget::class,
+                \App\Filament\Widgets\LibraryStatsOverviewWidget::class,
                 \App\Filament\Widgets\AttendanceChartWidget::class,
                 \App\Filament\Widgets\ConductChartWidget::class,
                 \App\Filament\Widgets\ExtracurricularChartWidget::class,
+                \App\Filament\Widgets\LibraryVisitChartWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,
@@ -98,6 +100,15 @@ class AdminPanelProvider extends PanelProvider
             ->renderHook(
                 PanelsRenderHook::STYLES_AFTER,
                 fn (): string => Blade::render("@include('filament.admin-styles')")
+            )
+            ->renderHook(
+                PanelsRenderHook::PAGE_HEADER_WIDGETS_BEFORE,
+                function (): string {
+                    if (request()->routeIs('filament.admin.pages.dashboard')) {
+                        return Blade::render("@include('filament.components.dashboard-hero')");
+                    }
+                    return '';
+                }
             )
             ->renderHook(
                 PanelsRenderHook::SIDEBAR_FOOTER,

@@ -14,6 +14,7 @@ import 'guru_qr_scanner_screen.dart';
 import 'guru_input_nilai_screen.dart';
 import 'guru_permit_screen.dart';
 import 'guru_sarpras_screen.dart';
+import '../prasarana/library_screen.dart';
 import 'guru_teaching_session_screen.dart';
 import 'guru_layanan_screen.dart';
 

@@ -7,7 +7,9 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (DB::getDriverName() !== 'sqlite') {
+        if (DB::getDriverName() === 'sqlite') {
+            DB::statement('PRAGMA ignore_check_constraints = ON');
+        } else {
             DB::statement("ALTER TABLE assets MODIFY category ENUM('furniture', 'elektronik', 'olahraga', 'lab', 'perpustakaan', 'lain', 'perpus', 'sarana', 'prasarana') NOT NULL");
         }
 
@@ -15,7 +17,9 @@ return new class extends Migration
         DB::table('assets')->whereIn('category', ['furniture', 'elektronik', 'olahraga', 'lab', 'lain'])
             ->update(['category' => 'sarana']);
 
-        if (DB::getDriverName() !== 'sqlite') {
+        if (DB::getDriverName() === 'sqlite') {
+            DB::statement('PRAGMA ignore_check_constraints = OFF');
+        } else {
             DB::statement("ALTER TABLE assets MODIFY category ENUM('perpus', 'sarana', 'prasarana') NOT NULL");
         }
     }

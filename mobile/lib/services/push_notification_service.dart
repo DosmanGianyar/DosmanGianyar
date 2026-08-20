@@ -1,8 +1,10 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'api_client.dart';
+import '../screens/notifications_screen.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -13,11 +15,22 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 class PushNotificationService {
   PushNotificationService._();
 
+  static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
   static final FirebaseMessaging _messaging = FirebaseMessaging.instance;
   static final FlutterLocalNotificationsPlugin _localNotifications = FlutterLocalNotificationsPlugin();
 
   static String? _fcmToken;
   static String? get fcmToken => _fcmToken;
+
+  /// Membuka halaman Notifikasi ketika notifikasi diklik
+  static void openNotificationsPage() {
+    final state = navigatorKey.currentState;
+    if (state != null) {
+      state.push(
+        MaterialPageRoute(builder: (_) => const NotificationsScreen()),
+      );
+    }
+  }
 
   /// Inisialisasi Firebase & Channel Notifikasi Lokal.
   static Future<void> initialize() async {
@@ -35,14 +48,15 @@ class PushNotificationService {
 
       debugPrint('[FCM] User permission status: ${settings.authorizationStatus}');
 
-      // 3. Setup Android local notification channel
+      // 3. Setup Android local notification channel (High Alert & Sound)
       const AndroidNotificationChannel channel = AndroidNotificationChannel(
-        'sims_high_importance_channel',
-        'Notifikasi SIMS',
-        description: 'Notifikasi penting presensi, pengumuman, dan catatan siswa SMAN 1 Gianyar',
+        'sims_alert_v3_channel',
+        'Notifikasi Alert SIMS',
+        description: 'Notifikasi penting presensi, pengumuman, dan alert SMAN 1 Gianyar',
         importance: Importance.max,
         playSound: true,
         enableVibration: true,
+        enableLights: true,
       );
 
       const AndroidInitializationSettings initializationSettingsAndroid =
@@ -52,11 +66,21 @@ class PushNotificationService {
         android: initializationSettingsAndroid,
       );
 
-      await _localNotifications.initialize(initializationSettings);
+      await _localNotifications.initialize(
+        initializationSettings,
+        onDidReceiveNotificationResponse: (NotificationResponse response) {
+          debugPrint('[FCM] Notification tapped on device: ${response.payload}');
+          openNotificationsPage();
+        },
+      );
 
-      await _localNotifications
-          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
-          ?.createNotificationChannel(channel);
+      final androidPlugin = _localNotifications
+          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+
+      if (androidPlugin != null) {
+        await androidPlugin.requestNotificationsPermission();
+        await androidPlugin.createNotificationChannel(channel);
+      }
 
       // 4. Foreground Message Listener
       FirebaseMessaging.onMessage.listen((RemoteMessage message) {
@@ -64,6 +88,7 @@ class PushNotificationService {
         AndroidNotification? android = message.notification?.android;
 
         if (notification != null && android != null && !kIsWeb) {
+          final Int64List vibrationPattern = Int64List.fromList([0, 500, 250, 500]);
           _localNotifications.show(
             notification.hashCode,
             notification.title,
@@ -78,9 +103,23 @@ class PushNotificationService {
                 priority: Priority.max,
                 playSound: true,
                 enableVibration: true,
+                vibrationPattern: vibrationPattern,
               ),
             ),
           );
+        }
+      });
+
+      // 5. App Opened from Notification Listener
+      FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+        debugPrint('[FCM] Notification opened app from background: ${message.messageId}');
+        openNotificationsPage();
+      });
+
+      _messaging.getInitialMessage().then((RemoteMessage? message) {
+        if (message != null) {
+          debugPrint('[FCM] Initial notification opened app: ${message.messageId}');
+          openNotificationsPage();
         }
       });
 
@@ -130,6 +169,72 @@ class PushNotificationService {
       debugPrint('[FCM] Token unregistered successfully.');
     } catch (e) {
       debugPrint('[FCM] Failed to unregister FCM Token: $e');
+    }
+  }
+
+  /// Trigger a local push notification test directly on the device with full alert sound & vibration
+  static Future<void> showTestNotification({
+    String title = '🔔 Uji Coba Push Notifikasi SIMS',
+    String body = 'Selamat! Push Notifikasi dan nada alert di HP Anda telah aktif dan terbaca.',
+  }) async {
+    try {
+      const AndroidNotificationChannel channel = AndroidNotificationChannel(
+        'sims_alert_v3_channel',
+        'Notifikasi Alert SIMS',
+        description: 'Notifikasi penting presensi, pengumuman, dan alert SMAN 1 Gianyar',
+        importance: Importance.max,
+        playSound: true,
+        enableVibration: true,
+        enableLights: true,
+      );
+
+      const AndroidInitializationSettings initializationSettingsAndroid =
+          AndroidInitializationSettings('@mipmap/ic_launcher');
+
+      const InitializationSettings initializationSettings = InitializationSettings(
+        android: initializationSettingsAndroid,
+      );
+
+      await _localNotifications.initialize(initializationSettings);
+
+      final androidPlugin = _localNotifications
+          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+
+      if (androidPlugin != null) {
+        await androidPlugin.requestNotificationsPermission();
+        // Hapus channel lama agar Android memperbarui seting nada & alert
+        await androidPlugin.deleteNotificationChannel('sims_high_importance_channel');
+        await androidPlugin.createNotificationChannel(channel);
+      }
+
+      final Int64List vibrationPattern = Int64List.fromList([0, 500, 250, 500]);
+
+      await _localNotifications.show(
+        DateTime.now().millisecondsSinceEpoch ~/ 1000,
+        title,
+        body,
+        NotificationDetails(
+          android: AndroidNotificationDetails(
+            channel.id,
+            channel.name,
+            channelDescription: channel.description,
+            icon: '@mipmap/ic_launcher',
+            importance: Importance.max,
+            priority: Priority.max,
+            playSound: true,
+            enableVibration: true,
+            vibrationPattern: vibrationPattern,
+            styleInformation: BigTextStyleInformation(
+              body,
+              contentTitle: title,
+              htmlFormatContentTitle: true,
+              htmlFormatBigText: true,
+            ),
+          ),
+        ),
+      );
+    } catch (e) {
+      debugPrint('[FCM] Test notification error: $e');
     }
   }
 }

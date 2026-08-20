@@ -58,13 +58,13 @@ class FcmService
                 'title'              => $title,
                 'body'               => $body,
                 'sound'              => 'default',
-                'android_channel_id' => 'sims_high_importance_channel',
-                'channel_id'         => 'sims_high_importance_channel',
+                'android_channel_id' => 'sims_alert_v3_channel',
+                'channel_id'         => 'sims_alert_v3_channel',
             ],
             'android' => [
                 'priority' => 'high',
                 'notification' => [
-                    'channel_id'              => 'sims_high_importance_channel',
+                    'channel_id'              => 'sims_alert_v3_channel',
                     'sound'                   => 'default',
                     'default_sound'           => true,
                     'default_vibrate_timings' => true,

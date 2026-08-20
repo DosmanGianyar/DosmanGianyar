@@ -329,6 +329,8 @@ function haversine(lat1, lng1, lat2, lng2) {
 }
 
 // GPS watch — berjalan sejak fase 1, gpsData dipakai fase 2
+let watchId = null;
+
 function startGPSWatch() {
     if (!navigator.geolocation) {
         setStatus('warning', 'GPS tidak didukung', 'Browser ini tidak mendukung geolokasi.',
@@ -339,75 +341,101 @@ function startGPSWatch() {
         return;
     }
 
-    navigator.geolocation.watchPosition(
-        (pos) => {
-            const lat  = pos.coords.latitude;
-            const lng  = pos.coords.longitude;
-            const acc  = Math.round(pos.coords.accuracy);
-            const dist = Math.round(haversine(SCHOOL_LAT, SCHOOL_LNG, lat, lng));
-            const inside = dist <= RADIUS;
+    const onPosition = (pos) => {
+        const lat  = pos.coords.latitude;
+        const lng  = pos.coords.longitude;
+        const acc  = Math.round(pos.coords.accuracy);
+        const dist = Math.round(haversine(SCHOOL_LAT, SCHOOL_LNG, lat, lng));
+        const inside = dist <= RADIUS;
 
-            // Simpan untuk fase kamera
-            gpsData = { latitude: lat, longitude: lng, accuracy: pos.coords.accuracy };
+        // Simpan untuk fase kamera
+        gpsData = { latitude: lat, longitude: lng, accuracy: pos.coords.accuracy };
 
-            // Update GPS badge di fase kamera jika sudah aktif
-            const badge = document.getElementById('gps-badge-text');
-            if (badge) badge.textContent = `GPS ±${acc}m`;
+        // Update GPS badge di fase kamera jika sudah aktif
+        const badge = document.getElementById('gps-badge-text');
+        if (badge) badge.textContent = `GPS ±${acc}m`;
 
-            // Update marker di peta
-            if (mapInstance) {
-                if (!userMarker) {
-                    const userIcon = L.divIcon({
-                        className : '',
-                        iconSize  : [16, 16],
-                        iconAnchor: [8, 8],
-                        html: `<div style="
-                            width:16px;height:16px;border-radius:50%;
-                            background:#ef4444;border:3px solid #fff;
-                            box-shadow:0 1px 5px rgba(0,0,0,0.4);">
-                        </div>`,
-                    });
-                    userMarker = L.marker([lat, lng], { icon: userIcon })
-                        .addTo(mapInstance)
-                        .bindTooltip('Lokasi kamu', { direction: 'top', offset: [0, -10] });
+        // Update marker di peta
+        if (mapInstance) {
+            if (!userMarker) {
+                const userIcon = L.divIcon({
+                    className : '',
+                    iconSize  : [16, 16],
+                    iconAnchor: [8, 8],
+                    html: `<div style="
+                        width:16px;height:16px;border-radius:50%;
+                        background:#ef4444;border:3px solid #fff;
+                        box-shadow:0 1px 5px rgba(0,0,0,0.4);">
+                    </div>`,
+                });
+                userMarker = L.marker([lat, lng], { icon: userIcon })
+                    .addTo(mapInstance)
+                    .bindTooltip('Lokasi kamu', { direction: 'top', offset: [0, -10] });
 
-                    if (firstFix) {
-                        firstFix = false;
-                        mapInstance.fitBounds([[SCHOOL_LAT, SCHOOL_LNG],[lat, lng]], { padding: [60,60], maxZoom: 18 });
-                    }
-                } else {
-                    userMarker.setLatLng([lat, lng]);
+                if (firstFix) {
+                    firstFix = false;
+                    mapInstance.fitBounds([[SCHOOL_LAT, SCHOOL_LNG],[lat, lng]], { padding: [60,60], maxZoom: 18 });
                 }
+            } else {
+                userMarker.setLatLng([lat, lng]);
             }
+        }
 
-            // Update status card (hanya jika fase peta aktif)
-            if (!document.getElementById('phase-map').classList.contains('hidden')) {
-                if (inside) {
-                    setStatus('inside', '✓ Kamu berada di area presensi',
-                        `Jarak: ${dist}m · Akurasi: ±${acc}m`,
-                        `<svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
-                        </svg>`);
-                } else {
-                    setStatus('outside', `Di luar area presensi (${dist}m)`,
-                        `Harus dalam radius ${RADIUS}m · Akurasi: ±${acc}m`,
-                        `<svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                        </svg>`);
-                }
+        // Update status card (hanya jika fase peta aktif)
+        if (!document.getElementById('phase-map').classList.contains('hidden')) {
+            if (inside) {
+                setStatus('inside', '✓ Kamu berada di area presensi',
+                    `Jarak: ${dist}m · Akurasi: ±${acc}m`,
+                    `<svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                    </svg>`);
+            } else {
+                setStatus('outside', `Di luar area presensi (${dist}m)`,
+                    `Harus dalam radius ${RADIUS}m · Akurasi: ±${acc}m`,
+                    `<svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>`);
             }
-        },
-        (err) => {
-            const msgs = { 1: 'Izin lokasi ditolak.', 2: 'Sinyal GPS lemah.', 3: 'Waktu tunggu habis.' };
-            setStatus('warning', 'GPS tidak bisa diakses', msgs[err.code] || 'Tidak dapat membaca GPS.',
+        }
+    };
+
+    const onError = (err) => {
+        if (err && err.code === 1) {
+            setStatus('warning', 'GPS tidak bisa diakses', 'Izin lokasi ditolak. Buka Pengaturan iPhone -> Safari -> Aktifkan "Lokasi Tepat".',
                 `<svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
                 </svg>`);
-        },
-        { enableHighAccuracy: true, maximumAge: 0, timeout: 20000 }
+            return;
+        }
+
+        if (watchId !== null) {
+            navigator.geolocation.clearWatch(watchId);
+            watchId = null;
+        }
+
+        // Fallback for iOS / Indoor: Use getCurrentPosition with low accuracy
+        navigator.geolocation.getCurrentPosition(
+            onPosition,
+            (err2) => {
+                const msgs = { 1: 'Izin lokasi ditolak. Aktifkan Lokasi Tepat di pengaturan.', 2: 'Sinyal GPS lemah.', 3: 'Waktu tunggu habis (Timeout).' };
+                setStatus('warning', 'GPS tidak bisa diakses', msgs[err2.code] || 'Tidak dapat membaca GPS. Pastikan lokasi aktif.',
+                    `<svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>`);
+            },
+            { enableHighAccuracy: false, timeout: 15000, maximumAge: 30000 }
+        );
+    };
+
+    // Watch position with maximumAge: 5000 and 10s timeout
+    watchId = navigator.geolocation.watchPosition(
+        onPosition,
+        onError,
+        { enableHighAccuracy: true, maximumAge: 5000, timeout: 10000 }
     );
 }
 

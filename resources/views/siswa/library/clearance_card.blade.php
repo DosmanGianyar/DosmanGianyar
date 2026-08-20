@@ -30,7 +30,7 @@
         
         {{-- Kop Surat SMAN 1 Gianyar --}}
         <div class="flex items-center gap-4 border-b-2 border-gray-900 pb-4">
-            <img src="{{ asset('images/logo.png') }}" alt="Logo SMAN 1 Gianyar" class="w-16 h-16 object-contain shrink-0" onError="this.style.display='none'">
+            <img src="{{ asset('img/logo_sekolah.png') }}" alt="Logo SMAN 1 Gianyar" class="w-16 h-16 object-contain shrink-0">
             <div class="text-center flex-1">
                 <h4 class="text-xs font-bold uppercase tracking-wider text-gray-600">PEMERINTAH PROVINSI BALI</h4>
                 <h3 class="text-base font-extrabold uppercase tracking-wide text-gray-900">DINAS PENDIDIKAN KEPEMUDAAN DAN OLAHRAGA</h3>
@@ -102,7 +102,7 @@
         <div class="pt-4 flex items-end justify-between text-xs">
             <div class="space-y-1 text-center">
                 <div class="w-20 h-20 bg-gray-100 rounded-xl p-1.5 border border-gray-200 mx-auto flex items-center justify-center">
-                    {!! QrCode::size(70)->generate(url("/admin/library/clearance-card/{$siswa->id}")) !!}
+                    <img src="{{ (new \chillerlan\QRCode\QRCode(new \chillerlan\QRCode\QROptions(['outputType' => 'svg', 'scale' => 3])))->render(url("/admin/library/clearance-card/{$siswa->id}")) }}" alt="QR Code" class="w-full h-full object-contain">
                 </div>
                 <span class="text-[9px] font-mono text-gray-400 block">Scan Verifikasi Keabsahan</span>
             </div>

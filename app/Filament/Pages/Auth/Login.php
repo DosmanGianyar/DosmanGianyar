@@ -22,10 +22,6 @@ class Login extends BaseLogin
 
     protected function getRedirectUrl(): string
     {
-        if (auth()->user()?->role === 'admin_perpustakaan') {
-            return LibraryLoanResource::getUrl();
-        }
-
         return parent::getRedirectUrl();
     }
 }

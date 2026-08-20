@@ -209,12 +209,12 @@ class User extends Authenticatable implements FilamentUser
     public function dashboardRoute(): string
     {
         return match($this->role) {
-            'admin_perpustakaan' => '/admin/library-loans',
             'admin',
             'admin_kesiswaan',
             'admin_kurikulum',
             'admin_sarpras',
-            'admin_humas'        => '/admin',
+            'admin_humas',
+            'admin_perpustakaan' => '/admin',
             'guru'               => route('guru.dashboard'),
             'siswa'              => route('siswa.dashboard'),
             'pengelola'          => route('siswa.dashboard'),
@@ -230,6 +230,11 @@ class User extends Authenticatable implements FilamentUser
     public function devices(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(UserDevice::class);
+    }
+
+    public function libraryVisits(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(LibraryVisit::class, 'student_id');
     }
 
     public function isDeviceRegistered(string $deviceId): bool

@@ -6,7 +6,7 @@
 <div class="max-w-lg mx-auto space-y-4 pb-8">
 
     {{-- ─── Header & Navigasi Bulan ─────────────────────────────────────── --}}
-    <div class="bg-linear-to-br from-blue-600 via-indigo-600 to-indigo-800 rounded-3xl p-5 text-white shadow-lg shadow-indigo-100">
+    <div class="rounded-3xl p-5 text-white shadow-lg" style="background: linear-gradient(135deg, #0f2460 0%, #1a3a8f 50%, #1e3fad 100%) !important; color: #ffffff !important;">
         <div class="flex items-center justify-between mb-4">
             <a href="{{ route('orangtua.attendance.history', ['studentId' => $student->id, 'month' => $prevMonth->month, 'year' => $prevMonth->year]) }}"
                 class="w-9 h-9 bg-white/15 backdrop-blur-md rounded-xl flex items-center justify-center hover:bg-white/25 transition-colors border border-white/20">
