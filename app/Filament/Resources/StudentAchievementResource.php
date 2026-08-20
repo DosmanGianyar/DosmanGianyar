@@ -427,7 +427,7 @@ class StudentAchievementResource extends Resource
                     ->url(fn (StudentAchievement $record): ?string => $record->student_id ? UserResource::getUrl('view', ['record' => $record->student_id]) : null)
                     ->openUrlInNewTab()
                     ->tooltip('Klik untuk lihat profil siswa')
-                    ->limit(18),
+                    ->limit(15),
 
                 TextColumn::make('student.schoolClass.name')
                     ->label('Kelas')
@@ -456,13 +456,13 @@ class StudentAchievementResource extends Resource
                         return 'https://wa.me/' . $clean;
                     })
                     ->openUrlInNewTab()
-                    ->tooltip('Klik untuk chat WhatsApp'),
+                    ->tooltip('Klik untuk chat WhatsApp')
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('title')
                     ->label('Judul Prestasi')
                     ->searchable()
-                    ->limit(20)
-                    ->wrap(),
+                    ->limit(18),
 
                 TextColumn::make('organizer')
                     ->label('Penyelenggara')
@@ -492,13 +492,14 @@ class StudentAchievementResource extends Resource
                 TextColumn::make('rank')
                     ->label('Peringkat')
                     ->placeholder('—')
-                    ->limit(12),
+                    ->limit(10),
 
                 TextColumn::make('is_curation')
-                    ->label('Tipe Pengajuan')
+                    ->label('Tipe')
                     ->badge()
                     ->color(fn (bool $state): string => $state ? 'warning' : 'gray')
-                    ->formatStateUsing(fn (bool $state): string => $state ? '🎖️ Kurasi' : '🏆 Regular'),
+                    ->formatStateUsing(fn (bool $state): string => $state ? 'Kurasi' : 'Regular')
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('curation_status')
                     ->label('Status')
@@ -508,7 +509,7 @@ class StudentAchievementResource extends Resource
 
                 TextColumn::make('achievement_date')
                     ->label('Tanggal')
-                    ->date('d M Y')
+                    ->date('d MMM Y')
                     ->sortable(),
             ])
             ->defaultSort('created_at', 'desc')
