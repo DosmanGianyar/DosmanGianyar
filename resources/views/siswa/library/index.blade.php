@@ -259,18 +259,18 @@
                             <div class="grid grid-cols-2 md:grid-cols-3 gap-2 pt-1 border-t border-gray-200/60 text-[11px] text-gray-600">
                                 <div>
                                     <span class="text-gray-400 block text-[10px]">Tanggal Pinjam:</span>
-                                    <span class="font-semibold">{{ $loan->borrowed_at->isoFormat('D MMMM Y') }}</span>
+                                    <span class="font-semibold">{{ $loan->borrowed_at ? (is_string($loan->borrowed_at) ? \Carbon\Carbon::parse($loan->borrowed_at)->isoFormat('D MMMM Y') : $loan->borrowed_at->isoFormat('D MMMM Y')) : '—' }}</span>
                                 </div>
                                 <div>
                                     <span class="text-gray-400 block text-[10px]">Batas Pengembalian:</span>
                                     <span class="font-semibold {{ $loan->isOverdue() ? 'text-red-600 font-bold' : '' }}">
-                                        {{ $loan->due_at->isoFormat('D MMMM Y') }}
+                                        {{ $loan->due_at ? (is_string($loan->due_at) ? \Carbon\Carbon::parse($loan->due_at)->isoFormat('D MMMM Y') : $loan->due_at->isoFormat('D MMMM Y')) : '—' }}
                                     </span>
                                 </div>
                                 <div>
                                     <span class="text-gray-400 block text-[10px]">Dikembalikan Pada:</span>
                                     <span class="font-semibold text-emerald-700">
-                                        {{ $loan->returned_at ? $loan->returned_at->isoFormat('D MMM Y HH:mm') : '—' }}
+                                        {{ $loan->returned_at ? (is_string($loan->returned_at) ? \Carbon\Carbon::parse($loan->returned_at)->isoFormat('D MMM Y HH:mm') : $loan->returned_at->isoFormat('D MMM Y HH:mm')) : '—' }}
                                     </span>
                                 </div>
                             </div>

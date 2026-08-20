@@ -79,9 +79,9 @@ class SiswaLibraryApiController extends Controller
             'book_nisb'    => $l->book_nisb,
             'book_author'  => $l->book_author,
             'phone_number' => $l->phone_number,
-            'borrowed_at'  => $l->borrowed_at ? $l->borrowed_at->format('Y-m-d') : null,
-            'due_at'       => $l->due_at ? $l->due_at->format('Y-m-d') : null,
-            'returned_at'  => $l->returned_at ? $l->returned_at->format('Y-m-d H:i') : null,
+            'borrowed_at'  => static::formatDate($l->borrowed_at, 'Y-m-d'),
+            'due_at'       => static::formatDate($l->due_at, 'Y-m-d'),
+            'returned_at'  => static::formatDate($l->returned_at, 'Y-m-d H:i'),
             'status'       => $l->status,
             'status_label' => $l->statusLabel(),
             'is_overdue'   => $l->isOverdue(),
@@ -95,6 +95,22 @@ class SiswaLibraryApiController extends Controller
             'is_clear' => $activeLoans->isEmpty(),
             'loans'    => $mappedLoans,
         ]);
+    }
+
+    private static function formatDate($date, string $format = 'Y-m-d'): ?string
+    {
+        if (empty($date)) return null;
+        if (is_string($date)) {
+            try {
+                return Carbon::parse($date)->format($format);
+            } catch (\Throwable $e) {
+                return $date;
+            }
+        }
+        if ($date instanceof \DateTimeInterface) {
+            return $date->format($format);
+        }
+        return null;
     }
 
     /**
@@ -163,8 +179,8 @@ class SiswaLibraryApiController extends Controller
                     'id'           => $loan->id,
                     'book_title'   => $loan->book_title,
                     'book_code'    => $loan->book_code,
-                    'borrowed_at'  => $loan->borrowed_at ? $loan->borrowed_at->format('Y-m-d') : null,
-                    'due_at'       => $loan->due_at ? $loan->due_at->format('Y-m-d') : null,
+                    'borrowed_at'  => static::formatDate($loan->borrowed_at, 'Y-m-d'),
+                    'due_at'       => static::formatDate($loan->due_at, 'Y-m-d'),
                     'status'       => $loan->status,
                     'status_label' => $loan->statusLabel(),
                 ],

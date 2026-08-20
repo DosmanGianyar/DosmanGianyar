@@ -27,6 +27,45 @@ class LibraryLoan extends Model
         'created_by_user_id',
     ];
 
+    protected $casts = [
+        'borrowed_at' => 'date',
+        'due_at'      => 'date',
+        'returned_at' => 'datetime',
+    ];
+
+    public function getBorrowedAtAttribute($value): ?Carbon
+    {
+        if (empty($value)) return null;
+        if ($value instanceof Carbon) return $value;
+        try {
+            return Carbon::parse($value);
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
+
+    public function getDueAtAttribute($value): ?Carbon
+    {
+        if (empty($value)) return null;
+        if ($value instanceof Carbon) return $value;
+        try {
+            return Carbon::parse($value);
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
+
+    public function getReturnedAtAttribute($value): ?Carbon
+    {
+        if (empty($value)) return null;
+        if ($value instanceof Carbon) return $value;
+        try {
+            return Carbon::parse($value);
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
+
     protected static function booted(): void
     {
         static::saved(function (LibraryLoan $loan) {
