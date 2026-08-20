@@ -37,6 +37,27 @@ class StudentDataService
             ->mapWithKeys(fn ($d) => [$d->format('Y-m-d') => true])
             ->all();
 
+        $approvedPermits = \App\Models\Permit::where('student_id', $student->id)
+            ->where('status', 'approved')
+            ->where(function ($q) use ($start, $end) {
+                $q->whereBetween('start_date', [$start, $end])
+                  ->orWhereBetween('end_date', [$start, $end])
+                  ->orWhere(function ($q2) use ($start, $end) {
+                      $q2->where('start_date', '<=', $start)
+                         ->where('end_date', '>=', $end);
+                  });
+            })
+            ->get();
+
+        $permitMap = [];
+        foreach ($approvedPermits as $permit) {
+            $pStart = max($start->copy(), $permit->start_date);
+            $pEnd   = min($end->copy(), $permit->end_date);
+            for ($dt = $pStart->copy(); $dt->lte($pEnd); $dt->addDay()) {
+                $permitMap[$dt->format('Y-m-d')] = $permit->type;
+            }
+        }
+
         $records = $rows->map(fn ($r) => [
             'date'                => $r->date->format('Y-m-d'),
             'check_in_time'       => $r->check_in_time,
@@ -57,11 +78,14 @@ class StudentDataService
             $ds = $day->format('Y-m-d');
             if (! Holiday::isSchoolDay($day, $holidays, $specialDays)) continue;
             if (isset($recordedDates[$ds])) continue;
+            
+            $status = $permitMap[$ds] ?? 'alpa';
+
             $synthetic->push([
                 'date'                => $ds,
                 'check_in_time'       => null,
                 'check_out_time'      => null,
-                'status'              => 'alpa',
+                'status'              => $status,
                 'is_fake_gps'         => false,
                 'check_in_photo_url'  => null,
                 'check_out_photo_url' => null,

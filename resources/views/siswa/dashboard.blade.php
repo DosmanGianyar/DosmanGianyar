@@ -265,8 +265,10 @@
                     $cls = 'bg-blue-500 text-white font-bold';
                 } elseif ($isGrayDay) {
                     $cls = 'text-gray-300';
-                } elseif ($st && in_array($st, $hadir_set)) {
+                } elseif ($st && in_array($st, ['hadir', 'terlambat'])) {
                     $cls = 'bg-green-500 text-white';
+                } elseif ($st && in_array($st, ['izin', 'sakit', 'dispensasi'])) {
+                    $cls = 'bg-sky-500 text-white';
                 } elseif ($st === 'alpa') {
                     $cls = 'bg-red-500 text-white';
                 } else {
@@ -290,8 +292,12 @@
             <span class="text-[10px] text-gray-400">Hadir</span>
         </div>
         <div class="flex items-center gap-1.5">
+            <div class="w-3 h-3 rounded-full bg-sky-500 shrink-0"></div>
+            <span class="text-[10px] text-gray-400">Izin/Sakit/Disp</span>
+        </div>
+        <div class="flex items-center gap-1.5">
             <div class="w-3 h-3 rounded-full bg-red-500 shrink-0"></div>
-            <span class="text-[10px] text-gray-400">Tidak Hadir</span>
+            <span class="text-[10px] text-gray-400">Alpa</span>
         </div>
     </div>
 </div>

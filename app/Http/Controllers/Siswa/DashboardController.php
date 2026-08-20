@@ -95,6 +95,27 @@ class DashboardController extends Controller
             ->mapWithKeys(fn($d) => [$d->format('Y-m-d') => true])
             ->all();
 
+        $approvedPermits = \App\Models\Permit::where('student_id', $siswa->id)
+            ->where('status', 'approved')
+            ->where(function ($q) use ($monthStart, $monthEnd) {
+                $q->whereBetween('start_date', [$monthStart, $monthEnd])
+                  ->orWhereBetween('end_date', [$monthStart, $monthEnd])
+                  ->orWhere(function ($q2) use ($monthStart, $monthEnd) {
+                      $q2->where('start_date', '<=', $monthStart)
+                         ->where('end_date', '>=', $monthEnd);
+                  });
+            })
+            ->get();
+
+        $permitMap = [];
+        foreach ($approvedPermits as $permit) {
+            $pStart = max($monthStart->copy(), $permit->start_date);
+            $pEnd   = min($monthEnd->copy(), $permit->end_date);
+            for ($dt = $pStart->copy(); $dt->lte($pEnd); $dt->addDay()) {
+                $permitMap[$dt->format('Y-m-d')] = $permit->type;
+            }
+        }
+
         $monthlyHolidays = Holiday::getHolidayDates($monthStart, $monthEnd, $siswa->class_id);
         $monthlySpecial  = Holiday::getSpecialSchoolDates($monthStart, $monthEnd, $siswa->class_id);
 
@@ -107,13 +128,18 @@ class DashboardController extends Controller
             $monthlyByDate[$ds] = $rec->effectiveStatus(isset($monthlyApproved[$ds]));
         }
 
-        // Add alpa for past school days with no record
+        // Add permit status or alpa for past school days with no record
         $today = today();
         for ($day = $monthStart->copy(); $day->lt($today); $day->addDay()) {
             $ds = $day->format('Y-m-d');
             if (! Holiday::isSchoolDay($day, $monthlyHolidays, $monthlySpecial)) continue;
             if (isset($recordedDates[$ds])) continue;
-            $monthlyByDate[$ds] = 'alpa';
+            
+            if (isset($permitMap[$ds])) {
+                $monthlyByDate[$ds] = $permitMap[$ds];
+            } else {
+                $monthlyByDate[$ds] = 'alpa';
+            }
         }
 
         $monthlySummary = ['terlambat' => 0, 'alpa' => 0, 'izin' => 0, 'sakit' => 0, 'dispensasi' => 0];
