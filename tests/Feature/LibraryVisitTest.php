@@ -86,7 +86,7 @@ class LibraryVisitTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertSee('KUNJUNGAN PERPUSTAKAAN');
-        $response->assertSee('SIMAK DOSMAN');
+        $response->assertSee('PERPUSTAKAAN DOSMAN');
     }
 
     public function test_admin_can_download_student_card(): void

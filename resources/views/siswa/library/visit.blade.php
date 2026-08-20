@@ -88,14 +88,14 @@
                     <label class="block font-bold text-gray-700 mb-1">Kode QR Kunjungan <span class="text-rose-500">*</span></label>
                     <div class="flex gap-2">
                         <input type="text" name="qr_code" id="qr_code_input" required
-                            value="{{ old('qr_code', 'SIMAK DOSMAN') }}"
-                            placeholder="Contoh: SIMAK DOSMAN"
+                            value="{{ old('qr_code', 'PERPUSTAKAAN DOSMAN') }}"
+                            placeholder="Contoh: PERPUSTAKAAN DOSMAN"
                             class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3.5 py-2.5 font-mono text-xs focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all">
                         <button type="button" onclick="autoFillQR()" class="px-3 py-2 bg-blue-100 hover:bg-blue-200 text-blue-800 font-bold rounded-xl shrink-0 transition">
                             Perpus QR
                         </button>
                     </div>
-                    <p class="text-[10px] text-gray-400 mt-1">Kode resmi banner perpustakaan: <code class="font-bold text-blue-600">SIMAK DOSMAN</code></p>
+                    <p class="text-[10px] text-gray-400 mt-1">Kode resmi banner perpustakaan: <code class="font-bold text-blue-600">PERPUSTAKAAN DOSMAN</code></p>
                 </div>
 
                 {{-- Waktu Kunjungan --}}
@@ -200,7 +200,7 @@
 
 <script>
     function autoFillQR() {
-        document.getElementById('qr_code_input').value = 'SIMAK DOSMAN';
+        document.getElementById('qr_code_input').value = 'PERPUSTAKAAN DOSMAN';
     }
     function toggleCustomPurpose(val) {
         const wrapper = document.getElementById('custom_purpose_wrapper');

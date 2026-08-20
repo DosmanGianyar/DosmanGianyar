@@ -310,7 +310,7 @@ class SiswaLibraryApiController extends Controller
             ]);
 
             $qrCodeUpper = strtoupper(trim($validated['qr_code']));
-            if (! str_contains($qrCodeUpper, 'SIMAK DOSMAN') && ! str_contains($qrCodeUpper, 'SIMAK_DOSMAN') && ! str_contains($qrCodeUpper, 'SIMS_PERPUS_VISIT') && ! str_contains($qrCodeUpper, 'SIMS_LIBRARY_VISIT')) {
+            if (! str_contains($qrCodeUpper, 'PERPUSTAKAAN DOSMAN') && ! str_contains($qrCodeUpper, 'PERPUSTAKAAN_DOSMAN') && ! str_contains($qrCodeUpper, 'SIMAK DOSMAN') && ! str_contains($qrCodeUpper, 'SIMAK_DOSMAN') && ! str_contains($qrCodeUpper, 'SIMS_PERPUS_VISIT') && ! str_contains($qrCodeUpper, 'SIMS_LIBRARY_VISIT')) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Kode QR tidak valid! Pastikan Anda memindai Kode QR Kunjungan Resmi Perpustakaan.',
