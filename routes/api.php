@@ -80,6 +80,7 @@ Route::prefix('v1')->group(function () {
             Route::post('/fcm-token/test',            [\App\Http\Controllers\Api\FcmTokenController::class, 'test']);
 
             // Pengumuman
+            Route::get('/announcements/popup',  [AnnouncementController::class, 'popup']);
             Route::get('/announcements',        [AnnouncementController::class, 'index']);
             Route::get('/announcements/all',    [AnnouncementController::class, 'all']);
             Route::get('/announcements/{id}',   [AnnouncementController::class, 'show']);

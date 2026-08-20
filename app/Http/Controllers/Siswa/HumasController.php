@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Siswa;
 
 use App\Http\Controllers\Controller;
+use App\Models\Announcement;
 use App\Models\Gallery;
 use App\Models\SchoolEvent;
 use Illuminate\Support\Facades\Auth;
@@ -30,7 +31,14 @@ class HumasController extends Controller
             ->limit(6)
             ->get();
 
-        return view('siswa.humas.index', compact('siswa', 'upcomingEvents', 'latestGalleries'));
+        $latestAnnouncements = Announcement::published()
+            ->forRole('siswa', $siswa->class_id)
+            ->orderByDesc('is_pinned')
+            ->orderByDesc('published_at')
+            ->limit(4)
+            ->get();
+
+        return view('siswa.humas.index', compact('siswa', 'upcomingEvents', 'latestGalleries', 'latestAnnouncements'));
     }
 
     public function eventShow(SchoolEvent $event): View|RedirectResponse
@@ -67,5 +75,36 @@ class HumasController extends Controller
         $photos = $gallery->photos()->orderBy('sort_order')->get();
 
         return view('siswa.humas.gallery.show', compact('gallery', 'photos'));
+    }
+
+    public function announcementsIndex(): View
+    {
+        /** @var \App\Models\User $siswa */
+        $siswa = Auth::user();
+
+        $announcements = Announcement::published()
+            ->forRole('siswa', $siswa->class_id)
+            ->orderByDesc('is_pinned')
+            ->orderByDesc('published_at')
+            ->paginate(10);
+
+        return view('siswa.humas.announcements.index', compact('announcements'));
+    }
+
+    public function announcementShow(Announcement $announcement): View
+    {
+        /** @var \App\Models\User $siswa */
+        $siswa = Auth::user();
+
+        abort_if(! $announcement->isPublished(), 404);
+
+        $otherAnnouncements = Announcement::published()
+            ->forRole('siswa', $siswa->class_id)
+            ->where('id', '!=', $announcement->id)
+            ->orderByDesc('published_at')
+            ->limit(5)
+            ->get();
+
+        return view('siswa.humas.announcements.show', compact('announcement', 'otherAnnouncements'));
     }
 }

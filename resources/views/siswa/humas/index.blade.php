@@ -58,6 +58,44 @@
     </a>
 </div>
 
+{{-- ─── Pengumuman Terbaru ───────────────────────────────────────────── --}}
+@if(isset($latestAnnouncements) && $latestAnnouncements->isNotEmpty())
+<div class="mb-4">
+    <div class="flex items-center justify-between mb-2 px-1">
+        <p class="text-sm font-bold text-gray-700">Pengumuman Sekolah</p>
+        <a href="{{ route('siswa.humas.announcements.index') }}" class="text-xs text-orange-600 font-semibold hover:underline">Lihat Semua</a>
+    </div>
+    <div class="space-y-2">
+        @foreach($latestAnnouncements as $ann)
+        <a href="{{ route('siswa.humas.announcements.show', $ann) }}"
+            class="bg-white rounded-2xl shadow-sm border border-gray-100 p-3 flex items-start gap-3 block hover:bg-orange-50/40 transition-colors">
+            @if($ann->image)
+                <div class="w-16 h-16 rounded-xl overflow-hidden bg-gray-900 shrink-0 border border-gray-100">
+                    <img src="{{ $ann->image_url }}" alt="{{ $ann->title }}" class="w-full h-full object-cover">
+                </div>
+            @else
+                <div class="w-12 h-12 rounded-xl bg-orange-100 text-orange-600 flex items-center justify-center shrink-0">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/>
+                    </svg>
+                </div>
+            @endif
+            <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-1.5 mb-0.5">
+                    @if($ann->is_pinned)
+                        <span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-1.5 py-0.5 rounded-md">📌 Sematan</span>
+                    @endif
+                    <span class="text-[10px] text-gray-400 font-medium">{{ $ann->published_at?->isoFormat('D MMM Y') }}</span>
+                </div>
+                <h4 class="text-sm font-bold text-gray-800 line-clamp-1 leading-snug">{{ $ann->title }}</h4>
+                <p class="text-xs text-gray-500 line-clamp-2 mt-0.5 leading-relaxed">{{ $ann->body }}</p>
+            </div>
+        </a>
+        @endforeach
+    </div>
+</div>
+@endif
+
 {{-- ─── Agenda Sekolah ──────────────────────────────────────────────── --}}
 <div id="section-agenda" class="mb-4">
     <div class="flex items-center justify-between mb-2 px-1">

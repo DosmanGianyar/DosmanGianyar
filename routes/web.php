@@ -303,6 +303,8 @@ Route::middleware(['auth', 'role:siswa,pengelola', 'force.password.change'])->pr
     Route::get('/humas/events/{event}', [SiswaHumas::class, 'eventShow'])->name('humas.event.show');
     Route::get('/humas/gallery', [SiswaHumas::class, 'galleryIndex'])->name('humas.gallery.index');
     Route::get('/humas/gallery/{gallery}', [SiswaHumas::class, 'galleryShow'])->name('humas.gallery.show');
+    Route::get('/humas/pengumuman', [SiswaHumas::class, 'announcementsIndex'])->name('humas.announcements.index');
+    Route::get('/humas/pengumuman/{announcement}', [SiswaHumas::class, 'announcementShow'])->name('humas.announcements.show');
     Route::get('/prasarana', [SiswaPrasarana::class, 'index'])->name('prasarana');
     Route::get('/profile', [SiswaProfile::class, 'show'])->name('profile');
     Route::put('/profile', [SiswaProfile::class, 'update'])->name('profile.update');

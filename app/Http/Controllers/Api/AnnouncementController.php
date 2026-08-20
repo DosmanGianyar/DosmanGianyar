@@ -68,15 +68,36 @@ class AnnouncementController extends Controller
         return response()->json(['announcement' => $this->format($announcement)]);
     }
 
+    /**
+     * Pengumuman Pop-Up modal aktif teratas untuk layar awal app mobile.
+     */
+    public function popup(Request $request): JsonResponse
+    {
+        /** @var \App\Models\User $user */
+        $user = $request->user();
+
+        $announcement = Announcement::activeModal($user->role, $user->class_id)
+            ->with('author:id,name')
+            ->first();
+
+        return response()->json([
+            'announcement' => $announcement ? $this->format($announcement) : null,
+        ]);
+    }
+
     private function format(Announcement $a): array
     {
         return [
-            'id'           => $a->id,
-            'title'        => $a->title,
-            'body'         => $a->body,
-            'is_pinned'    => $a->is_pinned,
-            'published_at' => $a->published_at->toIso8601String(),
-            'author_name'  => $a->author?->name,
+            'id'            => $a->id,
+            'title'         => $a->title,
+            'body'          => $a->body,
+            'image_url'     => $a->image_url,
+            'is_pinned'     => $a->is_pinned,
+            'is_active'     => $a->is_active,
+            'show_as_modal' => $a->show_as_modal,
+            'published_at'  => $a->published_at?->toIso8601String(),
+            'expires_at'    => $a->expires_at?->toIso8601String(),
+            'author_name'   => $a->author?->name,
         ];
     }
 }

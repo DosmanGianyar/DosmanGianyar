@@ -342,11 +342,11 @@
 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
     <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100">
         <h3 class="text-sm font-semibold text-gray-700">Pengumuman</h3>
-        <a href="{{ route('siswa.announcements.index') }}" class="text-xs text-blue-600 hover:underline">Lihat Semua</a>
+        <a href="{{ route('siswa.humas.announcements.index') }}" class="text-xs text-blue-600 hover:underline">Lihat Semua</a>
     </div>
     <div class="divide-y divide-gray-50">
         @forelse($announcements as $ann)
-        <a href="{{ route('siswa.announcements.show', $ann['id']) }}"
+        <a href="{{ route('siswa.humas.announcements.show', $ann['id']) }}"
             class="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors">
             <div class="w-9 h-9 bg-blue-100 rounded-full shrink-0 flex items-center justify-center">
                 <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -364,5 +364,84 @@
         @endforelse
     </div>
 </div>
+
+@if(isset($popupAnnouncement) && $popupAnnouncement)
+{{-- ─── Modal Pop-Up Pengumuman (Auto-close 15 detik) ────────────────────── --}}
+<div id="announcement-popup-modal" class="fixed inset-0 z-50 hidden bg-black/75 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh] animate-in fade-in zoom-in duration-200">
+        {{-- Header Modal --}}
+        <div class="px-4 py-3 bg-linear-to-r from-blue-900 via-indigo-900 to-blue-950 text-white flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <span class="text-lg">📢</span>
+                <span class="text-sm font-extrabold tracking-wide uppercase">Pengumuman Sekolah</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <span id="announcement-timer-badge" class="bg-amber-400 text-amber-950 text-[11px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 shadow-xs">
+                    ⏳ <span id="announcement-timer-count">15</span>s
+                </span>
+                <button type="button" onclick="closeAnnouncementPopup()" class="text-gray-300 hover:text-white text-xl font-bold px-1.5 cursor-pointer">✕</button>
+            </div>
+        </div>
+
+        {{-- Body Modal --}}
+        <div class="p-4 overflow-y-auto space-y-3 flex-1 bg-gray-50/50">
+            @if($popupAnnouncement->image)
+                <div class="rounded-xl overflow-hidden shadow-sm border border-gray-200 bg-gray-900 flex justify-center">
+                    <img src="{{ $popupAnnouncement->image_url }}" alt="{{ $popupAnnouncement->title }}" class="max-h-72 w-auto object-contain">
+                </div>
+            @endif
+
+            <h3 class="text-base font-bold text-gray-900 leading-snug">{{ $popupAnnouncement->title }}</h3>
+            <p class="text-xs text-gray-400 font-medium">Dipublikasikan: {{ $popupAnnouncement->published_at?->isoFormat('D MMMM Y, HH:mm') }} WITA</p>
+
+            <div class="text-sm text-gray-700 whitespace-pre-line leading-relaxed bg-white p-3.5 rounded-xl border border-gray-100 shadow-2xs">
+                {!! nl2br(e($popupAnnouncement->body)) !!}
+            </div>
+        </div>
+
+        {{-- Footer Modal --}}
+        <div class="px-4 py-3 bg-white border-t border-gray-100 flex items-center justify-between gap-2">
+            <a href="{{ route('siswa.humas.announcements.index') }}" class="text-xs font-bold text-blue-600 hover:underline flex items-center gap-1">
+                <span>Daftar Pengumuman Humas</span> →
+            </a>
+            <button type="button" onclick="closeAnnouncementPopup()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-sm active:scale-95 transition-all cursor-pointer">
+                Mengerti & Tutup
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const annId = '{{ $popupAnnouncement->id }}';
+    const storageKey = 'dismissed_announcement_' + annId;
+    const modal = document.getElementById('announcement-popup-modal');
+    const timerCount = document.getElementById('announcement-timer-count');
+
+    if (!modal) return;
+
+    if (!sessionStorage.getItem(storageKey)) {
+        modal.classList.remove('hidden');
+
+        let secondsLeft = 15;
+        const countdownInterval = setInterval(function() {
+            secondsLeft--;
+            if (timerCount) timerCount.textContent = secondsLeft;
+
+            if (secondsLeft <= 0) {
+                clearInterval(countdownInterval);
+                closeAnnouncementPopup();
+            }
+        }, 1000);
+
+        window.closeAnnouncementPopup = function() {
+            clearInterval(countdownInterval);
+            modal.classList.add('hidden');
+            sessionStorage.setItem(storageKey, '1');
+        };
+    }
+});
+</script>
+@endif
 
 @endsection
