@@ -62,7 +62,7 @@
                 <span class="text-xs font-bold text-blue-600">{{ $student->initials }}</span>
             </div>
             <div class="flex-1 min-w-0">
-                <p class="font-medium text-sm text-gray-800 truncate">{{ $student->name }}</p>
+                <p class="font-medium text-sm text-gray-800 leading-snug break-words">{{ $student->name }}</p>
                 <p class="text-xs text-gray-400">{{ $student->nis }}</p>
             </div>
             <div class="flex items-center gap-1.5 shrink-0">

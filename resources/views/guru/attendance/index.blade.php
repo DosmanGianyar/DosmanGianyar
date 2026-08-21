@@ -97,7 +97,7 @@
                 <span class="text-xs font-bold text-blue-600">{{ $student->initials }}</span>
             </div>
             <div class="flex-1 min-w-0">
-                <p class="font-medium text-sm text-gray-800 truncate">{{ $student->name }}</p>
+                <p class="font-medium text-sm text-gray-800 leading-snug break-words">{{ $student->name }}</p>
                 <div class="flex items-center gap-2 mt-0.5 flex-wrap">
                     @if($att?->via_lupa_absen)
                     <span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-300">

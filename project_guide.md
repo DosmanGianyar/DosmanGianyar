@@ -204,7 +204,7 @@ tabel users sebagai pengganti. Bisa di-upgrade saat pindah ke PHP 8.3.
 [x] Halaman selfie (akses kamera depan via browser API)
 [x] Kirim foto + koordinat GPS ke server
 [x] Server validasi geolocation (Haversine, radius 50m dari titik sekolah)
-[x] Deteksi & blokir Mock Location / Fake GPS (accuracy < 5m → reject)
+[x] Deteksi & blokir Mock Location / Fake GPS (isMocked via Android Native API; validasi geofence Haversine)
 [x] Simpan record attendance (status: Hadir / Terlambat)
 [x] Form pengajuan Izin & Sakit (upload file dokumen)
 [x] Exit Pass: form keluar sementara + countdown timer

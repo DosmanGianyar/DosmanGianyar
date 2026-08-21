@@ -191,14 +191,6 @@ class AttendanceController extends Controller
             ], 422);
         }
 
-        // Anti Fake GPS
-        if ((float) $request->accuracy < 5) {
-            return response()->json([
-                'message' => 'Terdeteksi Mock Location / Fake GPS.',
-                'code'    => 'FAKE_GPS_DETECTED',
-            ], 422);
-        }
-
         // Validasi Geofence
         if (! GeofenceService::isInsideZone((float) $request->latitude, (float) $request->longitude, $location)) {
             return response()->json([

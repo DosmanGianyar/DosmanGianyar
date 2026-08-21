@@ -200,8 +200,8 @@ function loadStudents(classId) {
                 html += `
                 <div class="flex items-center gap-2 py-1.5 border-b border-gray-50 last:border-0" data-student-id="${s.id}">
                     <div class="flex-1 min-w-0">
-                        <span class="text-sm font-medium text-gray-700 truncate">${s.name}${s.nis ? ' <span class="text-gray-400 text-xs">('+s.nis+')</span>' : ''}</span>
-                        <span class="ml-1.5 text-[10px] px-1.5 py-0.5 rounded border ${morningBadgeBg}">
+                        <span class="text-sm font-medium text-gray-700 break-words leading-tight block mb-0.5">${s.name}${s.nis ? ' <span class="text-gray-400 text-xs">('+s.nis+')</span>' : ''}</span>
+                        <span class="text-[10px] px-1.5 py-0.5 rounded border ${morningBadgeBg} inline-block">
                             Pagi: ${s.morning_status_label}
                         </span>
                     </div>
