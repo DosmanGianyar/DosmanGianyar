@@ -45,10 +45,7 @@ class StudentAchievementResource extends Resource
 
     public static function getNavigationBadge(): ?string
     {
-        $count = static::getModel()::where(function (Builder $query) {
-            $query->where('curation_status', 'pending')
-                  ->orWhere('status', 'pending');
-        })->count();
+        $count = static::getModel()::where('curation_status', 'pending')->count();
         return $count > 0 ? (string) $count : null;
     }
 

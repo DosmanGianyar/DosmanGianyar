@@ -27,7 +27,8 @@ class ListStudentAchievements extends ListRecords
 
     public function getTabs(): array
     {
-        $pendingCount  = StudentAchievement::whereIn('curation_status', ['pending', 'revision'])->count();
+        $pendingCount  = StudentAchievement::where('curation_status', 'pending')->count();
+        $revisionCount = StudentAchievement::where('curation_status', 'revision')->count();
         $curatedCount  = StudentAchievement::where('curation_status', 'curated')->count();
         $internalCount = StudentAchievement::where('curation_status', 'not_curatable')->count();
         $rejectedCount = StudentAchievement::where('curation_status', 'rejected')->count();
@@ -38,7 +39,13 @@ class ListStudentAchievements extends ListRecords
                 ->icon('heroicon-o-clock')
                 ->badge($pendingCount > 0 ? (string) $pendingCount : null)
                 ->badgeColor('warning')
-                ->modifyQueryUsing(fn (Builder $query) => $query->whereIn('curation_status', ['pending', 'revision'])),
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('curation_status', 'pending')),
+
+            'revision' => Tab::make('Perlu Revisi')
+                ->icon('heroicon-o-arrow-path')
+                ->badge($revisionCount > 0 ? (string) $revisionCount : null)
+                ->badgeColor('warning')
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('curation_status', 'revision')),
 
             'curated' => Tab::make('Lolos Kurasi Resmi')
                 ->icon('heroicon-o-check-badge')
