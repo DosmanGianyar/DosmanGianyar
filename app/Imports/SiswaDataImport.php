@@ -76,9 +76,7 @@ class SiswaDataImport implements ToCollection, SkipsEmptyRows
         // Search existing user (NISN is primary immutable key)
         $existing = null;
         if ($nisn) {
-            $existing = User::where(function ($q) use ($nisn) {
-                $q->where('nisn', $nisn)->orWhere('username', $nisn);
-            })->whereIn('role', ['siswa', 'pengelola'])->first();
+            $existing = User::where('nisn', $nisn)->whereIn('role', ['siswa', 'pengelola'])->first();
         }
         if (! $existing && $nis) {
             $existing = User::where('nis', $nis)->whereIn('role', ['siswa', 'pengelola'])->first();
@@ -285,7 +283,7 @@ class SiswaDataImport implements ToCollection, SkipsEmptyRows
                 User::where('nis', $nis)->update(['nis' => null]);
             }
             if ($nisn && filled($nisn)) {
-                User::where('nisn', $nisn)->orWhere('username', $nisn)->update(['nisn' => null]);
+                User::where('nisn', $nisn)->update(['nisn' => null]);
             }
 
             User::create([
