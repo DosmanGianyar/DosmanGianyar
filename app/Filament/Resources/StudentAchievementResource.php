@@ -587,9 +587,9 @@ class StudentAchievementResource extends Resource
                     ImageEntry::make('photo')
                         ->label('Foto Dokumentasi / Penyerahan Utama')
                         ->disk('public')
-                        ->height(260)
                         ->extraImgAttributes([
-                            'class' => 'rounded-2xl border border-gray-200 dark:border-gray-700 shadow-md object-cover max-w-md mt-1',
+                            'style' => 'max-height: 250px !important; max-width: 420px !important; width: auto !important; height: auto !important; border-radius: 16px !important; object-fit: cover !important;',
+                            'class' => 'shadow-md border border-gray-200 dark:border-gray-700 mt-1',
                         ])
                         ->columnSpanFull()
                         ->visible(fn (StudentAchievement $record): bool => ! empty($record->photo)),

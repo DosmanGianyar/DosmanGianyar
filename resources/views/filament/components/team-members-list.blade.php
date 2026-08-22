@@ -28,7 +28,12 @@
                 }
             @endphp
             <div class="flex items-center gap-3 p-3.5 rounded-2xl border border-gray-200 dark:border-gray-700/80 bg-white dark:bg-gray-800/90 shadow-sm hover:shadow-md transition-all">
-                <img src="{{ $avatar }}" alt="{{ $s->name }}" class="w-12 h-12 rounded-xl object-cover border border-gray-200 dark:border-gray-600 shrink-0 shadow-sm">
+                <img src="{{ $avatar }}" 
+                     alt="{{ $s->name }}" 
+                     width="52" 
+                     height="52" 
+                     style="width: 52px !important; height: 52px !important; min-width: 52px !important; min-height: 52px !important; max-width: 52px !important; max-height: 52px !important; border-radius: 14px !important; object-fit: cover !important; display: block !important;" 
+                     class="border border-gray-200 dark:border-gray-600 shrink-0 shadow-sm">
                 <div class="min-w-0 flex-1 space-y-0.5">
                     <div class="flex items-center justify-between gap-1.5">
                         <a href="{{ \App\Filament\Resources\UserResource::getUrl('view', ['record' => $s->id]) }}" 
