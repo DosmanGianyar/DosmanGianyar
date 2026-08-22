@@ -62,8 +62,8 @@ class SiswaDataImport implements ToCollection, SkipsEmptyRows
 
     public function processRow(Collection $row, array $colMap, int $lineNum): void
     {
-        $nisn  = $this->pick($row, $colMap, ['nisn', 'nonisn']);
-        $nis   = $this->pick($row, $colMap, ['nis', 'noinduk', 'nipd']);
+        $nisn  = $this->pick($row, $colMap, ['nisn', 'nonisn', 'nisnsiswa']);
+        $nis   = $this->pick($row, $colMap, ['nis', 'nonis', 'noinduk', 'nipd']);
         $nama  = $this->pick($row, $colMap, ['nama', 'namalengkap', 'namapesertadidik', 'namasiswa']);
         $email = strtolower($this->pick($row, $colMap, ['email', 'surel']));
 
@@ -73,25 +73,27 @@ class SiswaDataImport implements ToCollection, SkipsEmptyRows
             return;
         }
 
-        // Search existing user
+        // Search existing user (NISN is primary immutable key)
         $existing = null;
         if ($nisn) {
-            $existing = User::where('nisn', $nisn)->first();
+            $existing = User::where(function ($q) use ($nisn) {
+                $q->where('nisn', $nisn)->orWhere('username', $nisn);
+            })->whereIn('role', ['siswa', 'pengelola'])->first();
         }
         if (! $existing && $nis) {
             $existing = User::where('nis', $nis)->whereIn('role', ['siswa', 'pengelola'])->first();
         }
         if (! $existing && $email && filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $existing = User::where('email', $email)->first();
+            $existing = User::where('email', $email)->whereIn('role', ['siswa', 'pengelola'])->first();
         }
 
         // Read all attribute fields from row
         $role        = strtolower($this->pick($row, $colMap, ['role'])) ?: null;
         $gender      = $this->normalizeGender($this->pick($row, $colMap, ['jeniskelamin', 'jk', 'gender', 'lp']));
-        $kelasName   = $this->pick($row, $colMap, ['kelas', 'rombonganbelajar', 'rombel', 'namakelas']);
-        $phone       = User::formatPhoneNumber($this->pick($row, $colMap, ['nohp', 'telepon', 'notelp', 'hp']));
-        $tglLahir    = $this->parseDate($this->pick($row, $colMap, ['tgllahir', 'tanggallahir', 'birthdate']));
-        $alamat      = $this->pick($row, $colMap, ['alamat', 'alamatjalan']);
+        $kelasName   = $this->pick($row, $colMap, ['kelas', 'rombonganbelajar', 'rombel', 'namakelas', 'namarombel']);
+        $phone       = User::formatPhoneNumber($this->pick($row, $colMap, ['nohp', 'telepon', 'notelp', 'hp', 'nomorhp', 'nohpsiswa']));
+        $tglLahir    = $this->parseDate($this->pick($row, $colMap, ['tgllahir', 'tanggallahir', 'birthdate', 'tgl_lahir']));
+        $alamat      = $this->pick($row, $colMap, ['alamat', 'alamatjalan', 'alamat_jalan']);
         $parentName  = $this->pick($row, $colMap, ['namaortu', 'nama_ortu', 'orangtua']);
         $parentPhone = User::formatPhoneNumber($this->pick($row, $colMap, ['hportu', 'hp_ortu', 'nohportu']));
 
@@ -99,7 +101,7 @@ class SiswaDataImport implements ToCollection, SkipsEmptyRows
         $fatherPhone = User::formatPhoneNumber($this->pick($row, $colMap, ['hpayah', 'hp_ayah', 'nohpayah']));
         $fatherJob   = $this->pick($row, $colMap, ['pekerjaanayah', 'pekerjaan_ayah']);
 
-        $motherName  = $this->pick($row, $colMap, ['namaibu', 'nama_ibu', 'ibu']);
+        $motherName  = $this->pick($row, $colMap, ['namaibu', 'nama_ibu', 'ibu', 'namaibukandung']);
         $motherPhone = User::formatPhoneNumber($this->pick($row, $colMap, ['hpibu', 'hp_ibu', 'nohpibu']));
         $motherJob   = $this->pick($row, $colMap, ['pekerjaanibu', 'pekerjaan_ibu']);
 
@@ -132,17 +134,19 @@ class SiswaDataImport implements ToCollection, SkipsEmptyRows
             if ($nama && $this->isDifferent($existing->name, $nama)) {
                 $changes['name'] = $nama;
             }
-            if ($nisn && $this->isDifferent($existing->nisn, $nisn)) {
+
+            // NISN is immutable primary key, set only if student currently has no NISN
+            if ($nisn && empty($existing->nisn)) {
                 $changes['nisn'] = $nisn;
             }
+
+            // NIS can be updated! If updated, clear conflicting NIS on other users to avoid UNIQUE constraint error
             if ($nis && $this->isDifferent($existing->nis, $nis)) {
                 $changes['nis'] = $nis;
             }
+
             if ($email && filter_var($email, FILTER_VALIDATE_EMAIL) && $this->isDifferent($existing->email, $email)) {
-                // Only update email if not used by another user
-                if (! User::where('email', $email)->where('id', '!=', $existing->id)->exists()) {
-                    $changes['email'] = $email;
-                }
+                $changes['email'] = $email;
             }
             if ($role && in_array($role, ['siswa', 'pengelola'], true) && $this->isDifferent($existing->role, $role)) {
                 $changes['role'] = $role;
@@ -244,6 +248,18 @@ class SiswaDataImport implements ToCollection, SkipsEmptyRows
             }
 
             if (! empty($changes)) {
+                // Clear potential UNIQUE constraint conflicts before applying updates
+                if (isset($changes['nis']) && filled($changes['nis'])) {
+                    User::where('nis', $changes['nis'])
+                        ->where('id', '!=', $existing->id)
+                        ->update(['nis' => null]);
+                }
+                if (isset($changes['email']) && filled($changes['email'])) {
+                    User::where('email', $changes['email'])
+                        ->where('id', '!=', $existing->id)
+                        ->update(['email' => null]);
+                }
+
                 $existing->update($changes);
                 $this->updated++;
             } else {
@@ -263,6 +279,14 @@ class SiswaDataImport implements ToCollection, SkipsEmptyRows
             }
 
             $defaultPassword = $nisn ?: ($nis ?: $email);
+
+            // Clear potential UNIQUE conflicts before creating new user
+            if ($nis && filled($nis)) {
+                User::where('nis', $nis)->update(['nis' => null]);
+            }
+            if ($nisn && filled($nisn)) {
+                User::where('nisn', $nisn)->orWhere('username', $nisn)->update(['nisn' => null]);
+            }
 
             User::create([
                 'name'                 => $nama,
