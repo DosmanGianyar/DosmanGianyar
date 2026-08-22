@@ -103,6 +103,26 @@ class ViewStudentAchievement extends ViewRecord
                     ]);
                     Notification::make()->title('Prestasi Ditolak / Tidak Layak')->danger()->send();
                 }),
+
+            Action::make('reset_pending')
+                ->label('Batalkan Status / Reset')
+                ->icon('heroicon-o-arrow-uturn-left')
+                ->color('gray')
+                ->requiresConfirmation()
+                ->modalHeading('Batalkan Status Kurasi')
+                ->modalDescription('Apakah Anda yakin ingin membatalkan status kurasi ini dan mengembalikannya ke status Menunggu Penilaian Kurasi?')
+                ->action(function (StudentAchievement $record): void {
+                    $record->update([
+                        'is_curation'      => false,
+                        'curation_status'  => 'pending',
+                        'status'           => 'pending',
+                        'curation_note'    => null,
+                        'rejection_reason' => null,
+                        'verified_by'      => null,
+                        'verified_at'      => null,
+                    ]);
+                    Notification::make()->title('Status kurasi dibatalkan & dikembalikan ke Menunggu Penilaian')->info()->send();
+                }),
         ];
     }
 }
