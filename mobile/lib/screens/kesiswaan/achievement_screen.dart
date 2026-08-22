@@ -870,7 +870,6 @@ class _CreateSheetState extends State<_CreateSheet> {
             const SizedBox(height: 6),
             _InputField(controller: _docStandardUrlCtrl, hint: 'Atau paste URL Website / Berita Resmi Lomba...'),
             const SizedBox(height: 14),
-            ],
 
             const SizedBox(height: 20),
 
