@@ -596,6 +596,10 @@ class StudentAchievementResource extends Resource
     {
         return $table
             ->columns([
+                TextColumn::make('index')
+                    ->label('No.')
+                    ->rowIndex(),
+
                 TextColumn::make('student.name')
                     ->label('Siswa')
                     ->searchable(query: function (Builder $query, string $search): Builder {
@@ -604,10 +608,10 @@ class StudentAchievementResource extends Resource
                     ->icon('heroicon-o-user')
                     ->color('primary')
                     ->weight('semibold')
+                    ->wrap()
                     ->url(fn (StudentAchievement $record): ?string => $record->student_id ? UserResource::getUrl('view', ['record' => $record->student_id]) : null)
                     ->openUrlInNewTab()
-                    ->tooltip('Klik untuk lihat profil siswa')
-                    ->limit(15),
+                    ->tooltip('Klik untuk lihat profil siswa'),
 
                 TextColumn::make('student.schoolClass.name')
                     ->label('Kelas')
@@ -642,7 +646,8 @@ class StudentAchievementResource extends Resource
                 TextColumn::make('title')
                     ->label('Judul Prestasi')
                     ->searchable()
-                    ->limit(18),
+                    ->wrap()
+                    ->weight('medium'),
 
                 TextColumn::make('organizer')
                     ->label('Penyelenggara')
@@ -671,8 +676,7 @@ class StudentAchievementResource extends Resource
 
                 TextColumn::make('rank')
                     ->label('Peringkat')
-                    ->placeholder('—')
-                    ->limit(10),
+                    ->placeholder('—'),
 
                 TextColumn::make('is_curation')
                     ->label('Tipe')
@@ -689,7 +693,7 @@ class StudentAchievementResource extends Resource
 
                 TextColumn::make('achievement_date')
                     ->label('Tanggal')
-                    ->date('d MMM Y')
+                    ->formatStateUsing(fn ($state) => $state ? \Carbon\Carbon::parse($state)->translatedFormat('d F Y') : '—')
                     ->sortable(),
             ])
             ->defaultSort('created_at', 'desc')
