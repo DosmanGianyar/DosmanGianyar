@@ -181,61 +181,151 @@ class StudentAchievementResource extends Resource
                 ->schema([
                     FileUpload::make('photo')
                         ->label('Foto Kegiatan / Penyerahan Piagam')
-                        ->directory('achievements/photos')
+                        ->disk('public')
                         ->image()
-                        ->maxSize(5120),
+                        ->openable()
+                        ->downloadable()
+                        ->previewable()
+                        ->directory('achievements/photos')
+                        ->maxSize(5120)
+                        ->helperText(function (?StudentAchievement $record): ?\Illuminate\Support\HtmlString {
+                            if (! $record || blank($record->photo)) return new \Illuminate\Support\HtmlString('<span class="text-xs text-gray-400">Belum ada foto</span>');
+                            $url = str_starts_with($record->photo, 'kurasi/') ? asset($record->photo) : asset('storage/' . $record->photo);
+                            return new \Illuminate\Support\HtmlString('<a href="' . $url . '" target="_blank" class="inline-flex items-center gap-1 text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline pt-1">📷 Buka Foto Kegiatan Siswa ↗</a>');
+                        }),
 
                     FileUpload::make('certificate')
                         ->label('Scan Piagam / Sertifikat')
+                        ->disk('public')
+                        ->openable()
+                        ->downloadable()
+                        ->previewable()
                         ->directory('achievements/certificates')
-                        ->maxSize(10240),
+                        ->maxSize(10240)
+                        ->helperText(function (?StudentAchievement $record): ?\Illuminate\Support\HtmlString {
+                            if (! $record || blank($record->certificate)) return new \Illuminate\Support\HtmlString('<span class="text-xs text-gray-400">Belum ada sertifikat</span>');
+                            $url = str_starts_with($record->certificate, 'kurasi/') ? asset($record->certificate) : asset('storage/' . $record->certificate);
+                            return new \Illuminate\Support\HtmlString('<a href="' . $url . '" target="_blank" class="inline-flex items-center gap-1 text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline pt-1">📄 Buka Sertifikat Siswa ↗</a>');
+                        }),
 
                     FileUpload::make('assignment_letter')
                         ->label('Surat Tugas / Surat Rekomendasi Sekolah')
+                        ->disk('public')
+                        ->openable()
+                        ->downloadable()
+                        ->previewable()
                         ->directory('achievements/letters')
-                        ->maxSize(10240),
+                        ->maxSize(10240)
+                        ->helperText(function (?StudentAchievement $record): ?\Illuminate\Support\HtmlString {
+                            if (! $record || blank($record->assignment_letter)) return new \Illuminate\Support\HtmlString('<span class="text-xs text-gray-400">Belum ada surat tugas</span>');
+                            $url = str_starts_with($record->assignment_letter, 'kurasi/') ? asset($record->assignment_letter) : asset('storage/' . $record->assignment_letter);
+                            return new \Illuminate\Support\HtmlString('<a href="' . $url . '" target="_blank" class="inline-flex items-center gap-1 text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline pt-1">📑 Buka Surat Tugas Siswa ↗</a>');
+                        }),
                 ])
                 ->columns(3),
 
             Section::make('Berkas Pendukung Kurasi (5 Poin Puspresnas)')
                 ->icon('heroicon-o-folder-open')
                 ->collapsible()
-                ->collapsed()
+                ->collapsed(fn (?StudentAchievement $record): bool => ! ($record && ($record->doc_standard_file || $record->selection_level_file || $record->frequency_consistency_file || $record->infrastructure_file || $record->reward_certificate_file)))
                 ->schema([
                     FileUpload::make('doc_standard_file')
                         ->label('P1: Juknis / Pedoman Lomba')
+                        ->disk('public')
+                        ->openable()
+                        ->downloadable()
+                        ->previewable()
                         ->directory('curations/doc_standards')
-                        ->maxSize(10240),
+                        ->maxSize(10240)
+                        ->helperText(function (?StudentAchievement $record): ?\Illuminate\Support\HtmlString {
+                            if (! $record || blank($record->doc_standard_file)) return new \Illuminate\Support\HtmlString('<span class="text-xs text-gray-400">Belum ada berkas P1</span>');
+                            $url = str_starts_with($record->doc_standard_file, 'kurasi/') ? asset($record->doc_standard_file) : asset('storage/' . $record->doc_standard_file);
+                            return new \Illuminate\Support\HtmlString('<a href="' . $url . '" target="_blank" class="inline-flex items-center gap-1 text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline pt-1">📄 Buka Berkas P1 (Juknis) ↗</a>');
+                        }),
 
                     FileUpload::make('selection_level_file')
                         ->label('P2: Berkas Jenjang Seleksi')
+                        ->disk('public')
+                        ->openable()
+                        ->downloadable()
+                        ->previewable()
                         ->directory('curations/selection_levels')
-                        ->maxSize(10240),
+                        ->maxSize(10240)
+                        ->helperText(function (?StudentAchievement $record): ?\Illuminate\Support\HtmlString {
+                            if (! $record || blank($record->selection_level_file)) return new \Illuminate\Support\HtmlString('<span class="text-xs text-gray-400">Belum ada berkas P2</span>');
+                            $url = str_starts_with($record->selection_level_file, 'kurasi/') ? asset($record->selection_level_file) : asset('storage/' . $record->selection_level_file);
+                            return new \Illuminate\Support\HtmlString('<a href="' . $url . '" target="_blank" class="inline-flex items-center gap-1 text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline pt-1">📄 Buka Berkas P2 (Seleksi) ↗</a>');
+                        }),
 
                     FileUpload::make('frequency_consistency_file')
                         ->label('P3: Bukti Konsistensi Penyelenggaraan')
+                        ->disk('public')
+                        ->openable()
+                        ->downloadable()
+                        ->previewable()
                         ->directory('curations/frequencies')
-                        ->maxSize(20480),
+                        ->maxSize(20480)
+                        ->helperText(function (?StudentAchievement $record): ?\Illuminate\Support\HtmlString {
+                            if (! $record || blank($record->frequency_consistency_file)) return new \Illuminate\Support\HtmlString('<span class="text-xs text-gray-400">Belum ada berkas P3</span>');
+                            $url = str_starts_with($record->frequency_consistency_file, 'kurasi/') ? asset($record->frequency_consistency_file) : asset('storage/' . $record->frequency_consistency_file);
+                            return new \Illuminate\Support\HtmlString('<a href="' . $url . '" target="_blank" class="inline-flex items-center gap-1 text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline pt-1">📄 Buka Berkas P3 (Konsistensi) ↗</a>');
+                        }),
 
                     FileUpload::make('infrastructure_file')
                         ->label('P4: Bukti Sarana & Prasarana')
+                        ->disk('public')
+                        ->openable()
+                        ->downloadable()
+                        ->previewable()
                         ->directory('curations/infrastructures')
-                        ->maxSize(10240),
+                        ->maxSize(10240)
+                        ->helperText(function (?StudentAchievement $record): ?\Illuminate\Support\HtmlString {
+                            if (! $record || blank($record->infrastructure_file)) return new \Illuminate\Support\HtmlString('<span class="text-xs text-gray-400">Belum ada berkas P4</span>');
+                            $url = str_starts_with($record->infrastructure_file, 'kurasi/') ? asset($record->infrastructure_file) : asset('storage/' . $record->infrastructure_file);
+                            return new \Illuminate\Support\HtmlString('<a href="' . $url . '" target="_blank" class="inline-flex items-center gap-1 text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline pt-1">📷 Buka Berkas P4 (Sarpras) ↗</a>');
+                        }),
 
                     FileUpload::make('reward_certificate_file')
                         ->label('P5: Sertifikat Penghargaan')
+                        ->disk('public')
+                        ->openable()
+                        ->downloadable()
+                        ->previewable()
                         ->directory('curations/rewards/certificates')
-                        ->maxSize(10240),
+                        ->maxSize(10240)
+                        ->helperText(function (?StudentAchievement $record): ?\Illuminate\Support\HtmlString {
+                            if (! $record || blank($record->reward_certificate_file)) return new \Illuminate\Support\HtmlString('<span class="text-xs text-gray-400">Belum ada berkas P5 Piagam</span>');
+                            $url = str_starts_with($record->reward_certificate_file, 'kurasi/') ? asset($record->reward_certificate_file) : asset('storage/' . $record->reward_certificate_file);
+                            return new \Illuminate\Support\HtmlString('<a href="' . $url . '" target="_blank" class="inline-flex items-center gap-1 text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline pt-1">📜 Buka Berkas P5 (Piagam) ↗</a>');
+                        }),
 
                     FileUpload::make('reward_photo_file')
                         ->label('P5: Foto Penyerahan Penghargaan')
+                        ->disk('public')
+                        ->openable()
+                        ->downloadable()
+                        ->previewable()
                         ->directory('curations/rewards/photos')
-                        ->maxSize(10240),
+                        ->maxSize(10240)
+                        ->helperText(function (?StudentAchievement $record): ?\Illuminate\Support\HtmlString {
+                            if (! $record || blank($record->reward_photo_file)) return new \Illuminate\Support\HtmlString('<span class="text-xs text-gray-400">Belum ada berkas P5 Foto</span>');
+                            $url = str_starts_with($record->reward_photo_file, 'kurasi/') ? asset($record->reward_photo_file) : asset('storage/' . $record->reward_photo_file);
+                            return new \Illuminate\Support\HtmlString('<a href="' . $url . '" target="_blank" class="inline-flex items-center gap-1 text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline pt-1">📷 Buka Berkas P5 (Foto Penyerahan) ↗</a>');
+                        }),
 
                     FileUpload::make('reward_recap_file')
                         ->label('P5: Rekapitulasi Hasil Lomba')
+                        ->disk('public')
+                        ->openable()
+                        ->downloadable()
+                        ->previewable()
                         ->directory('curations/rewards/recaps')
-                        ->maxSize(10240),
+                        ->maxSize(10240)
+                        ->helperText(function (?StudentAchievement $record): ?\Illuminate\Support\HtmlString {
+                            if (! $record || blank($record->reward_recap_file)) return new \Illuminate\Support\HtmlString('<span class="text-xs text-gray-400">Belum ada berkas P5 Rekap</span>');
+                            $url = str_starts_with($record->reward_recap_file, 'kurasi/') ? asset($record->reward_recap_file) : asset('storage/' . $record->reward_recap_file);
+                            return new \Illuminate\Support\HtmlString('<a href="' . $url . '" target="_blank" class="inline-flex items-center gap-1 text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline pt-1">📑 Buka Berkas P5 (Rekap Hasil) ↗</a>');
+                        }),
                 ])
                 ->columns(2),
         ]);
