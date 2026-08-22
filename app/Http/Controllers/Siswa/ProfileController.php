@@ -36,7 +36,10 @@ class ProfileController extends Controller
             return back()->with('error', 'Pengisian & pembaruan data profil siswa sedang dikunci oleh pihak sekolah.');
         }
 
+        $user = Auth::user();
+
         $validated = $request->validate([
+            'email'                => 'nullable|email|max:255|unique:users,email,' . $user->id,
             'phone'                => 'nullable|string|max:50',
             'nickname'             => 'nullable|string|max:50',
             'birth_place'          => 'nullable|string|max:100',

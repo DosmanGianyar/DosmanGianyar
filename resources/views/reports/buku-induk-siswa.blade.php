@@ -291,6 +291,13 @@
         </div>
 
         <div class="field-row">
+            <div class="field-num">13a.</div>
+            <div class="field-label">Alamat E-mail</div>
+            <div class="field-colon">:</div>
+            <div class="field-value">{{ $siswa->email ?: '-' }}</div>
+        </div>
+
+        <div class="field-row">
             <div class="field-num">14.</div>
             <div class="field-label">Tinggal dengan orang tua / saudara / di Asrama / Kost</div>
             <div class="field-colon">:</div>

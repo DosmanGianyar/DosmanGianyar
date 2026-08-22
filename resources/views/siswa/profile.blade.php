@@ -237,6 +237,14 @@
                             class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 bg-white focus:outline-none focus:border-blue-500 disabled:bg-gray-100" placeholder="08xxxxxxxxxx">
                     </div>
                     <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Alamat E-mail</label>
+                        <input type="email" name="email" value="{{ old('email', $siswa->email) }}" @disabled(!$canEditProfile)
+                            class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 bg-white focus:outline-none focus:border-blue-500 disabled:bg-gray-100" placeholder="siswa@sekolah.sch.id">
+                        @error('email')
+                            <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <div>
                         <label class="block text-xs font-semibold text-gray-600 mb-1">Hobi / Minat</label>
                         <input type="text" name="hobbies" value="{{ old('hobbies', $siswa->hobbies) }}" @disabled(!$canEditProfile)
                             class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 bg-white focus:outline-none focus:border-blue-500 disabled:bg-gray-100" placeholder="Membaca, Badminton">

@@ -20,6 +20,7 @@ class StudentProfileSaveTest extends TestCase
         ]);
 
         $payload = [
+            'email'                => 'kadek.siswa@sch.id',
             'nickname'             => 'Kadek',
             'birth_place'          => 'Gianyar',
             'religion'             => 'Hindu',
@@ -46,6 +47,7 @@ class StudentProfileSaveTest extends TestCase
         $response->assertSessionHas('success');
 
         $siswa->refresh();
+        $this->assertEquals('kadek.siswa@sch.id', $siswa->email);
         $this->assertEquals('Kadek', $siswa->nickname);
         $this->assertEquals('Gianyar', $siswa->birth_place);
         $this->assertEquals('Hindu', $siswa->religion);
@@ -64,6 +66,7 @@ class StudentProfileSaveTest extends TestCase
         ]);
 
         $payload = [
+            'email'                => 'wayan.siswa@sch.id',
             'nickname'             => 'Wayan',
             'birth_place'          => 'Ubud',
             'religion'             => 'Hindu',
@@ -76,11 +79,13 @@ class StudentProfileSaveTest extends TestCase
         $response = $this->actingAs($siswa, 'sanctum')->putJson('/api/v1/auth/profile', $payload);
 
         $response->assertStatus(200);
+        $response->assertJsonPath('user.email', 'wayan.siswa@sch.id');
         $response->assertJsonPath('user.nickname', 'Wayan');
         $response->assertJsonPath('user.birth_place', 'Ubud');
         $response->assertJsonPath('user.father_name', 'I Nyoman Rai');
 
         $siswa->refresh();
+        $this->assertEquals('wayan.siswa@sch.id', $siswa->email);
         $this->assertEquals('Wayan', $siswa->nickname);
         $this->assertEquals('Ubud', $siswa->birth_place);
     }

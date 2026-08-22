@@ -40,6 +40,7 @@ class BukuIndukPrintTest extends TestCase
         $response->assertSee('II. DATA PRIBADI SISWA');
         $response->assertSee('A. KETERANGAN TENTANG DIRI SISWA');
         $response->assertSee('B. KETERANGAN TEMPAT TINGGAL');
+        $response->assertSee('Alamat E-mail');
         $response->assertSee('C. KETERANGAN KESEHATAN');
         $response->assertSee('D. KETERANGAN PENDIDIKAN');
         $response->assertSee('E. KETERANGAN TENTANG AYAH KANDUNG');
