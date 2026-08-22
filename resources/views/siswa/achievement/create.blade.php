@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="max-w-4xl mx-auto space-y-6" x-data="{
-    isCuration: {{ old('is_curation', 0) == 1 ? 1 : 0 }},
+    uploadCurationFiles: false,
     participationType: '{{ old('participation_type', 'individu') }}',
     studentSearch: '',
     selectedMembers: {{ json_encode(old('team_member_ids', [])) }},
@@ -46,7 +46,7 @@
                     </span>
                     <h3 class="font-black text-xl leading-tight">Pencatatan & Kurasi Prestasi Puspresnas</h3>
                     <p class="text-xs text-blue-100 leading-relaxed max-w-2xl">
-                        Pilih apakah Anda hanya ingin melaporkan prestasi untuk poin internal sekolah, atau sekaligus melengkapi <strong>5 Berkas Persyaratan Kurasi Resmi Kemendikdasmen</strong> untuk beasiswa, PPDB, & SNPMB.
+                        Unggah data perlombaan & berkas prestasi Anda. Admin Kesiswaan akan meninjau dan menetapkan status kurasi resmi (Puspresnas/SIMT) atau prestasi internal sekolah.
                     </p>
                 </div>
             </div>
@@ -63,54 +63,14 @@
     <form action="{{ route('siswa.achievements.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
         @csrf
 
-        {{-- ─── PILIHAN UTAMA: MODE PENGAJUAN (HANYA LAPOR VS APPORVE KURASI) ──────── --}}
-        <div class="bg-white border-2 border-indigo-100 rounded-3xl p-6 shadow-sm space-y-4">
-            <div class="flex items-center justify-between border-b border-gray-100 pb-3">
-                <div>
-                    <h4 class="font-extrabold text-gray-900 text-base">Pilih Tujuan Pengajuan Prestasi</h4>
-                    <p class="text-xs text-gray-500">Tentukan apakah ingin mengkurasi prestasi ke tingkat nasional atau pencatatan sekolah biasa.</p>
-                </div>
-                <span class="text-xs font-bold text-indigo-700 bg-indigo-50 px-3 py-1 rounded-full">Langkah 1 dari 2</span>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {{-- Opsi A: Hanya Laporkan Prestasi Internal Sekolah --}}
-                <div @click="isCuration = 0"
-                    :class="isCuration === 0 ? 'border-blue-600 bg-blue-50/60 ring-2 ring-blue-500/30' : 'border-gray-200 hover:border-gray-300 bg-white'"
-                    class="relative flex flex-col p-5 border-2 rounded-2xl cursor-pointer transition-all duration-200">
-                    <div class="flex items-center justify-between mb-3">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center text-xl">🏆</div>
-                            <div>
-                                <h5 class="font-extrabold text-gray-900 text-sm">1. Hanya Laporkan Prestasi</h5>
-                                <span class="text-[10px] font-bold text-blue-700 bg-blue-100 px-2 py-0.5 rounded-full">Portofolio Internal</span>
-                            </div>
-                        </div>
-                        <input type="radio" name="is_curation" value="0" x-model.number="isCuration" :checked="isCuration === 0" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
-                    </div>
-                    <p class="text-xs text-gray-600 leading-relaxed">
-                        Pencatatan prestasi cepat untuk pengumpulan poin nilai kesiswaan & portofolio sekolah. <strong>Tanpa syarat pengisian 5 berkas kurasi.</strong>
-                    </p>
-                </div>
-
-                {{-- Opsi B: Melaporkan + Pengajuan Kurasi Kemendikdasmen --}}
-                <div @click="isCuration = 1"
-                    :class="isCuration === 1 ? 'border-purple-600 bg-purple-50/60 ring-2 ring-purple-500/30' : 'border-gray-200 hover:border-gray-300 bg-white'"
-                    class="relative flex flex-col p-5 border-2 rounded-2xl cursor-pointer transition-all duration-200">
-                    <div class="flex items-center justify-between mb-3">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center text-xl">🎖️</div>
-                            <div>
-                                <h5 class="font-extrabold text-gray-900 text-sm">2. Laporkan & Ajukan Kurasi</h5>
-                                <span class="text-[10px] font-bold text-purple-700 bg-purple-100 px-2 py-0.5 rounded-full">Kemendikdasmen / BTIKP</span>
-                            </div>
-                        </div>
-                        <input type="radio" name="is_curation" value="1" x-model.number="isCuration" :checked="isCuration === 1" class="w-4 h-4 text-purple-600 focus:ring-purple-500">
-                    </div>
-                    <p class="text-xs text-gray-600 leading-relaxed">
-                        Mengunggah <strong>5 Poin Berkas Persyaratan Kurasi Resmi</strong> untuk memvalidasi keabsahan ajang lomba bagi syarat PPDB, Beasiswa, & SNPMB.
-                    </p>
-                </div>
+        {{-- ─── ALUR PENGAJUAN & KURASI PRESTASI ──────── --}}
+        <div class="bg-blue-50/80 border border-blue-200 rounded-3xl p-5 shadow-sm flex items-start gap-4">
+            <div class="w-10 h-10 bg-blue-600 text-white rounded-2xl flex items-center justify-center font-bold shrink-0 text-xl shadow-md">ℹ️</div>
+            <div class="space-y-1">
+                <h4 class="font-extrabold text-blue-900 text-sm">Alur Penilaian Kurasi Prestasi</h4>
+                <p class="text-xs text-blue-800 leading-relaxed">
+                    Siswa cukup mengisi data perlombaan & mengunggah berkas pendukung yang dimiliki. Penilaian dan penetapan apakah perlombaan tersebut <strong>Lolos Kurasi Resmi Puspresnas</strong> atau <strong>Prestasi Internal Sekolah</strong> akan dilakukan secara resmi oleh <strong>Admin / Tim Kurasi Kesiswaan</strong>.
+                </p>
             </div>
         </div>
 
@@ -290,16 +250,21 @@
             </div>
         </div>
 
-        {{-- ─── BAGIAN 2: 5 POIN PERSYARATAN KURASI KEMENDIKDASMEN ───────────── --}}
-        <div x-show="isCuration === 1" x-collapse class="space-y-6">
-
-            <div class="bg-gradient-to-r from-indigo-900 to-purple-900 text-white p-5 rounded-3xl shadow-md flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+        {{-- ─── BAGIAN 2: 5 POIN PERSYARATAN KURASI KEMENDIKDASMEN (OPSIONAL) ───────────── --}}
+        <div class="bg-white border border-gray-200 rounded-3xl p-6 shadow-sm space-y-4">
+            <div class="flex items-center justify-between border-b border-gray-100 pb-3">
                 <div>
-                    <h4 class="font-black text-base">5 Poin Persyaratan Kurasi Kemendikdasmen / Puspresnas</h4>
-                    <p class="text-xs text-indigo-200">Lengkapi 5 kelompok dokumen di bawah sesuai panduan resmi agar ajang lomba lolos kurasi.</p>
+                    <h4 class="font-extrabold text-gray-900 text-base">Unggah Berkas Pendukung Kurasi (Opsional)</h4>
+                    <p class="text-xs text-gray-500">Lengkapi 5 poin berkas pendukung jika Anda memiliki dokumen resmi kurasi Puspresnas.</p>
                 </div>
-                <span class="text-xs font-extrabold bg-yellow-400 text-gray-900 px-3 py-1 rounded-full shrink-0">Standar Resmi Kurasi</span>
+                <button type="button" @click="uploadCurationFiles = !uploadCurationFiles"
+                    class="px-4 py-2 text-xs font-bold rounded-2xl border transition-all flex items-center gap-1.5 shrink-0"
+                    :class="uploadCurationFiles ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-gray-50 text-gray-700 border-gray-300 hover:bg-gray-100'">
+                    <span x-text="uploadCurationFiles ? 'Tutup 5 Berkas Kurasi' : '+ Unggah 5 Berkas Kurasi'"></span>
+                </button>
             </div>
+
+            <div x-show="uploadCurationFiles" x-collapse class="space-y-6 pt-2">
 
             {{-- POIN 1 --}}
             <div class="bg-white border border-indigo-200 rounded-3xl p-6 shadow-sm space-y-4">
@@ -577,7 +542,7 @@
                 <svg class="w-6 h-6 text-yellow-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
-                <span x-text="isCuration === 1 ? 'Kirim Laporkan & Pengajuan Kurasi Kemendikdasmen' : 'Kirim Laporkan Prestasi Internal Sekolah'"></span>
+                <span>Kirim Pengajuan Prestasi & Berkas Pendukung</span>
             </button>
         </div>
     </form>

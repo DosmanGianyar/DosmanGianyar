@@ -112,8 +112,8 @@ class AchievementController extends Controller
 
         $data['student_id']      = $siswa->id;
         $data['status']          = 'pending';
-        $data['curation_status'] = $request->boolean('is_curation') ? 'pending' : 'curated';
-        $data['is_curation']    = $request->boolean('is_curation');
+        $data['curation_status'] = 'pending';
+        $data['is_curation']    = false; // Ditentukan oleh Admin/Tim Kurasi Sekolah saat verifikasi
 
         $data['photo'] = ImageService::store(
             $request->file('photo'),
@@ -139,25 +139,24 @@ class AchievementController extends Controller
             }
         }
 
-        if ($request->boolean('is_curation')) {
-            $curationFileFields = [
-                'doc_standard_file'          => 'curations/doc_standards/' . $siswa->id,
-                'selection_level_file'       => 'curations/selection_levels/' . $siswa->id,
-                'frequency_consistency_file' => 'curations/frequencies/' . $siswa->id,
-                'infrastructure_file'        => 'curations/infrastructures/' . $siswa->id,
-                'reward_certificate_file'    => 'curations/rewards/certificates/' . $siswa->id,
-                'reward_photo_file'          => 'curations/rewards/photos/' . $siswa->id,
-                'reward_recap_file'          => 'curations/rewards/recaps/' . $siswa->id,
-            ];
+        // Simpan berkas kurasi pendukung jika ada
+        $curationFileFields = [
+            'doc_standard_file'          => 'curations/doc_standards/' . $siswa->id,
+            'selection_level_file'       => 'curations/selection_levels/' . $siswa->id,
+            'frequency_consistency_file' => 'curations/frequencies/' . $siswa->id,
+            'infrastructure_file'        => 'curations/infrastructures/' . $siswa->id,
+            'reward_certificate_file'    => 'curations/rewards/certificates/' . $siswa->id,
+            'reward_photo_file'          => 'curations/rewards/photos/' . $siswa->id,
+            'reward_recap_file'          => 'curations/rewards/recaps/' . $siswa->id,
+        ];
 
-            foreach ($curationFileFields as $field => $path) {
-                if ($request->hasFile($field)) {
-                    $file = $request->file($field);
-                    if (in_array(strtolower($file->getClientOriginalExtension()), ['jpg', 'jpeg', 'png'])) {
-                        $data[$field] = ImageService::store($file, $path, 1600, 85);
-                    } else {
-                        $data[$field] = $file->store($path, 'public');
-                    }
+        foreach ($curationFileFields as $field => $path) {
+            if ($request->hasFile($field)) {
+                $file = $request->file($field);
+                if (in_array(strtolower($file->getClientOriginalExtension()), ['jpg', 'jpeg', 'png'])) {
+                    $data[$field] = ImageService::store($file, $path, 1600, 85);
+                } else {
+                    $data[$field] = $file->store($path, 'public');
                 }
             }
         }
@@ -177,9 +176,7 @@ class AchievementController extends Controller
         }
 
         return response()->json([
-            'message'     => $request->boolean('is_curation')
-                ? 'Laporan prestasi & berkas kurasi berhasil dikirim dan sedang dalam proses verifikasi admin.'
-                : 'Laporan prestasi berhasil dikirim dan otomatis didaftarkan ke seluruh anggota tim.',
+            'message'     => 'Laporan prestasi & berkas berhasil dikirim! Admin akan meninjau dan menentukan status kurasi prestasi Anda.',
             'achievement' => StudentDataService::formatAchievement($achievement),
         ], 201);
     }

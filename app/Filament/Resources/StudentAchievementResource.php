@@ -574,6 +574,7 @@ class StudentAchievementResource extends Resource
                     ->modalDescription('Prestasi ini akan disahkan sebagai Lolos Kurasi Resmi Standar Puspresnas/SIMT.')
                     ->action(function (StudentAchievement $record): void {
                         $record->update([
+                            'is_curation'     => true,
                             'curation_status' => 'curated',
                             'status'          => 'approved',
                             'curation_note'   => null,
@@ -594,6 +595,7 @@ class StudentAchievementResource extends Resource
                     ->modalDescription('Prestasi ini akan tetap dicatat & diakui sebagai Prestasi Siswa Sekolah, tetapi ditandai TIDAK masuk kurasi resmi Puspresnas/SIMT.')
                     ->action(function (StudentAchievement $record): void {
                         $record->update([
+                            'is_curation'     => false,
                             'curation_status' => 'not_curatable',
                             'status'          => 'approved',
                             'curation_note'   => 'Dicatat sebagai Prestasi Catatan Internal Sekolah',
@@ -641,6 +643,7 @@ class StudentAchievementResource extends Resource
                     ])
                     ->action(function (StudentAchievement $record, array $data): void {
                         $record->update([
+                            'is_curation'      => false,
                             'curation_status'  => 'rejected',
                             'status'           => 'rejected',
                             'curation_note'    => $data['curation_note'],
