@@ -4,7 +4,7 @@
         <div class="flex items-center justify-between mb-3 pb-3 border-b border-gray-100 dark:border-gray-800">
             <div class="flex items-center gap-2">
                 <div class="p-2 bg-primary-50 dark:bg-primary-950 text-primary-600 dark:text-primary-400 rounded-lg">
-                    <x-heroicon-o-clock class="w-5 h-5" />
+                    <x-filament::icon icon="heroicon-o-clock" class="w-5 h-5" />
                 </div>
                 <div>
                     <h3 class="text-base font-semibold text-gray-900 dark:text-white">Jadwal Jam Presensi Baku (Default Sekolah)</h3>
