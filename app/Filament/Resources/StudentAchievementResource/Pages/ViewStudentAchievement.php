@@ -5,6 +5,7 @@ namespace App\Filament\Resources\StudentAchievementResource\Pages;
 use App\Filament\Resources\StudentAchievementResource;
 use App\Models\StudentAchievement;
 use Filament\Actions\Action;
+use Filament\Actions\EditAction;
 use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
@@ -16,6 +17,10 @@ class ViewStudentAchievement extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
+            EditAction::make()
+                ->label('Edit Data & Berkas')
+                ->icon('heroicon-o-pencil-square')
+                ->color('primary'),
             Action::make('curate')
                 ->label('Lolos Kurasi Resmi')
                 ->icon('heroicon-o-check-badge')

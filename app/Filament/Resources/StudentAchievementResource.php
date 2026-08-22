@@ -8,8 +8,14 @@ use App\Models\StudentAchievement;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Infolists\Components\ImageEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Components\ViewEntry;
@@ -54,7 +60,181 @@ class StudentAchievementResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        return $schema->components([]);
+        return $schema->components([
+            Section::make('Status Kurasi & Verifikasi Admin')
+                ->icon('heroicon-o-check-badge')
+                ->schema([
+                    Select::make('curation_status')
+                        ->label('Status Kurasi')
+                        ->options([
+                            'pending'       => 'Menunggu Penilaian Kurasi',
+                            'curated'       => 'Lolos Kurasi Resmi (SIMT/Puspresnas)',
+                            'not_curatable' => 'Prestasi Internal Sekolah',
+                            'revision'      => 'Perlu Revisi Berkas',
+                            'rejected'      => 'Tidak Layak / Ditolak',
+                        ])
+                        ->required(),
+
+                    Toggle::make('is_curation')
+                        ->label('Status Kurasi Resmi (SIMT/Puspresnas)')
+                        ->helperText('Aktifkan jika prestasi ini sah lolos kurasi resmi Kemendikdasmen/Puspresnas.'),
+
+                    Textarea::make('curation_note')
+                        ->label('Catatan Kurasi / Alasan Revisi / Alasan Penolakan')
+                        ->placeholder('Isi catatan internal atau petunjuk revisi untuk siswa')
+                        ->columnSpanFull()
+                        ->rows(2),
+                ])
+                ->columns(2),
+
+            Section::make('Informasi Utama Prestasi Siswa')
+                ->icon('heroicon-o-trophy')
+                ->schema([
+                    Select::make('student_id')
+                        ->label('Siswa Utama')
+                        ->relationship('student', 'name')
+                        ->searchable()
+                        ->preload()
+                        ->required(),
+
+                    Select::make('category_id')
+                        ->label('Kategori Prestasi')
+                        ->options(\App\Models\AchievementCategory::pluck('name', 'id'))
+                        ->required(),
+
+                    Select::make('field_category')
+                        ->label('Bidang Lomba / Capaian')
+                        ->options([
+                            'akademik'     => 'Akademik',
+                            'sains_riset'  => 'Sains & Riset',
+                            'olahraga'     => 'Olahraga',
+                            'seni_budaya'  => 'Seni & Budaya',
+                            'bahasa_debat' => 'Bahasa & Debat',
+                            'keagamaan'    => 'Keagamaan',
+                            'lainnya'      => 'Lainnya',
+                        ])
+                        ->required(),
+
+                    Select::make('level')
+                        ->label('Tingkat Perlombaan')
+                        ->options([
+                            'sekolah'       => 'Sekolah',
+                            'kabupaten'     => 'Kabupaten/Kota',
+                            'provinsi'      => 'Provinsi',
+                            'nasional'      => 'Nasional',
+                            'internasional' => 'Internasional',
+                        ])
+                        ->required(),
+
+                    TextInput::make('title')
+                        ->label('Judul Capaian / Nama Lomba')
+                        ->placeholder('Contoh: Juara 1 Porsenijar Catur Tingkat Kabupaten Gianyar 2026')
+                        ->required()
+                        ->maxLength(200)
+                        ->columnSpanFull(),
+
+                    TextInput::make('event_name')
+                        ->label('Nama Ajang / Kejuaraan')
+                        ->placeholder('Contoh: Porsenijar Kabupaten Gianyar 2026')
+                        ->maxLength(200),
+
+                    TextInput::make('organizer')
+                        ->label('Penyelenggara Ajang')
+                        ->placeholder('Contoh: Disdikpora Kabupaten Gianyar')
+                        ->maxLength(200),
+
+                    TextInput::make('rank')
+                        ->label('Juara / Raihan')
+                        ->placeholder('Contoh: Juara 1 / Medali Emas / Harapan 1')
+                        ->maxLength(50),
+
+                    Select::make('participation_type')
+                        ->label('Jenis Keikutsertaan')
+                        ->options([
+                            'individu' => 'Perorangan (Individu)',
+                            'beregu'   => 'Beregu (Kelompok)',
+                        ]),
+
+                    DatePicker::make('achievement_date')
+                        ->label('Tanggal Pelaksanaan / Capaian')
+                        ->required(),
+
+                    TextInput::make('event_url')
+                        ->label('Tautan Website Resmi Ajang (URL)')
+                        ->url()
+                        ->placeholder('https://...')
+                        ->maxLength(500),
+
+                    Textarea::make('description')
+                        ->label('Deskripsi / Catatan Tambahan Lomba')
+                        ->columnSpanFull()
+                        ->rows(3),
+                ])
+                ->columns(2),
+
+            Section::make('Berkas Utama & Lampiran Foto / Sertifikat')
+                ->icon('heroicon-o-document-arrow-up')
+                ->schema([
+                    FileUpload::make('photo')
+                        ->label('Foto Kegiatan / Penyerahan Piagam')
+                        ->directory('achievements/photos')
+                        ->image()
+                        ->maxSize(5120),
+
+                    FileUpload::make('certificate')
+                        ->label('Scan Piagam / Sertifikat')
+                        ->directory('achievements/certificates')
+                        ->maxSize(10240),
+
+                    FileUpload::make('assignment_letter')
+                        ->label('Surat Tugas / Surat Rekomendasi Sekolah')
+                        ->directory('achievements/letters')
+                        ->maxSize(10240),
+                ])
+                ->columns(3),
+
+            Section::make('Berkas Pendukung Kurasi (5 Poin Puspresnas)')
+                ->icon('heroicon-o-folder-open')
+                ->collapsible()
+                ->collapsed()
+                ->schema([
+                    FileUpload::make('doc_standard_file')
+                        ->label('P1: Juknis / Pedoman Lomba')
+                        ->directory('curations/doc_standards')
+                        ->maxSize(10240),
+
+                    FileUpload::make('selection_level_file')
+                        ->label('P2: Berkas Jenjang Seleksi')
+                        ->directory('curations/selection_levels')
+                        ->maxSize(10240),
+
+                    FileUpload::make('frequency_consistency_file')
+                        ->label('P3: Bukti Konsistensi Penyelenggaraan')
+                        ->directory('curations/frequencies')
+                        ->maxSize(20480),
+
+                    FileUpload::make('infrastructure_file')
+                        ->label('P4: Bukti Sarana & Prasarana')
+                        ->directory('curations/infrastructures')
+                        ->maxSize(10240),
+
+                    FileUpload::make('reward_certificate_file')
+                        ->label('P5: Sertifikat Penghargaan')
+                        ->directory('curations/rewards/certificates')
+                        ->maxSize(10240),
+
+                    FileUpload::make('reward_photo_file')
+                        ->label('P5: Foto Penyerahan Penghargaan')
+                        ->directory('curations/rewards/photos')
+                        ->maxSize(10240),
+
+                    FileUpload::make('reward_recap_file')
+                        ->label('P5: Rekapitulasi Hasil Lomba')
+                        ->directory('curations/rewards/recaps')
+                        ->maxSize(10240),
+                ])
+                ->columns(2),
+        ]);
     }
 
     public static function infolist(Schema $schema): Schema
@@ -554,6 +734,10 @@ class StudentAchievementResource extends Resource
                     ->iconButton()
                     ->tooltip('Lihat Detail Prestasi'),
 
+                EditAction::make()
+                    ->iconButton()
+                    ->tooltip('Edit Data & Berkas Prestasi'),
+
                 Action::make('student_profile')
                     ->label('Profil Siswa')
                     ->tooltip('Buka Profil Lengkap Siswa')
@@ -662,6 +846,7 @@ class StudentAchievementResource extends Resource
         return [
             'index' => Pages\ListStudentAchievements::route('/'),
             'view'  => Pages\ViewStudentAchievement::route('/{record}'),
+            'edit'  => Pages\EditStudentAchievement::route('/{record}/edit'),
         ];
     }
 }
