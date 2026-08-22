@@ -441,6 +441,8 @@ Route::middleware(['auth'])->get('/admin/library/clearance-card/{user}', [App\Ht
 Route::middleware(['auth'])->get('/admin/library/visit-qr-card', fn () => view('exports.library-visit-qr-pdf'))->name('admin.library.visit-qr-card');
 Route::middleware(['auth'])->get('/admin/library/monthly-loan-report', [App\Http\Controllers\Siswa\LibraryController::class, 'adminMonthlyLoanReport'])->name('admin.library.monthly-loan-report');
 Route::middleware(['auth'])->get('/admin/library/visit-report', [App\Http\Controllers\Siswa\LibraryController::class, 'adminVisitReport'])->name('admin.library.visit-report');
+Route::middleware(['auth'])->get('/admin/buku-induk/print/{siswa}', [App\Http\Controllers\Admin\BukuIndukController::class, 'printSingle'])->name('admin.buku-induk.print');
+Route::middleware(['auth'])->get('/admin/buku-induk/print-class/{class}', [App\Http\Controllers\Admin\BukuIndukController::class, 'printClass'])->name('admin.buku-induk.print-class');
 
 // ─── Orangtua ─────────────────────────────────────────────────────────────────
 Route::middleware(['auth', 'role:orangtua'])->prefix('orangtua')->name('orangtua.')->group(function () {
