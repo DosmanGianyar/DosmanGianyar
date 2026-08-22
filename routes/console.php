@@ -20,3 +20,7 @@ Schedule::command('db:backup --keep=7')->dailyAt('19:00');
 // Pengingat Presensi Masuk (07:05 WITA) & Pulang (14:00 WITA)
 Schedule::command('attendance:send-reminders checkin')->dailyAt('07:05')->timezone('Asia/Makassar');
 Schedule::command('attendance:send-reminders checkout')->dailyAt('14:00')->timezone('Asia/Makassar');
+
+// Auto check & pull GitHub repository updates weekly (Senin 03:00 WITA)
+Schedule::command('git:check-update')->weeklyOn(1, '03:00')->timezone('Asia/Makassar');
+

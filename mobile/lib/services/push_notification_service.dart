@@ -48,7 +48,14 @@ class PushNotificationService {
 
       debugPrint('[FCM] User permission status: ${settings.authorizationStatus}');
 
-      // 3. Setup Android local notification channel (High Alert & Sound)
+      // Configure iOS foreground notification presentation options
+      await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
+
+      // 3. Setup Android & iOS local notification settings
       const AndroidNotificationChannel channel = AndroidNotificationChannel(
         'sims_alert_v3_channel',
         'Notifikasi Alert SIMS',
@@ -62,8 +69,16 @@ class PushNotificationService {
       const AndroidInitializationSettings initializationSettingsAndroid =
           AndroidInitializationSettings('@mipmap/ic_launcher');
 
+      const DarwinInitializationSettings initializationSettingsDarwin =
+          DarwinInitializationSettings(
+        requestAlertPermission: true,
+        requestBadgePermission: true,
+        requestSoundPermission: true,
+      );
+
       const InitializationSettings initializationSettings = InitializationSettings(
         android: initializationSettingsAndroid,
+        iOS: initializationSettingsDarwin,
       );
 
       await _localNotifications.initialize(
@@ -82,12 +97,11 @@ class PushNotificationService {
         await androidPlugin.createNotificationChannel(channel);
       }
 
-      // 4. Foreground Message Listener
+      // 4. Foreground Message Listener for both Android and iOS
       FirebaseMessaging.onMessage.listen((RemoteMessage message) {
         RemoteNotification? notification = message.notification;
-        AndroidNotification? android = message.notification?.android;
 
-        if (notification != null && android != null && !kIsWeb) {
+        if (notification != null && !kIsWeb) {
           final Int64List vibrationPattern = Int64List.fromList([0, 500, 250, 500]);
           _localNotifications.show(
             notification.hashCode,
@@ -104,6 +118,11 @@ class PushNotificationService {
                 playSound: true,
                 enableVibration: true,
                 vibrationPattern: vibrationPattern,
+              ),
+              iOS: const DarwinNotificationDetails(
+                presentAlert: true,
+                presentBadge: true,
+                presentSound: true,
               ),
             ),
           );
