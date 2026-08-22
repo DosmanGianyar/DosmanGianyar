@@ -31,6 +31,8 @@ class ConductCategoryResource extends Resource
 
     public static function canAccess(): bool { return AdminAccess::can('SIPINTER (Pendidikan Karakter)') || AdminAccess::can('Kedisiplinan & Tata Tertib'); }
 
+    public static function shouldRegisterNavigation(): bool { return false; }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
