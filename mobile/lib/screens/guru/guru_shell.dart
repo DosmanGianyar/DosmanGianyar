@@ -334,15 +334,16 @@ class _GuruTeachingTab extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
+                  Wrap(
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: 6,
+                    runSpacing: 4,
                     children: [
-                      Expanded(
-                        child: Text(
-                          title,
-                          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.gray800),
-                        ),
+                      Text(
+                        title,
+                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.gray800),
                       ),
-                      if (badge != null) ...[
+                      if (badge != null)
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                           decoration: BoxDecoration(
@@ -354,7 +355,6 @@ class _GuruTeachingTab extends StatelessWidget {
                             style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: color),
                           ),
                         ),
-                      ],
                     ],
                   ),
                   const SizedBox(height: 4),
