@@ -34,11 +34,12 @@ class StudentAchievementResource extends Resource
 {
     protected static ?string $model = StudentAchievement::class;
 
-    protected static string|\BackedEnum|null $navigationIcon       = 'heroicon-o-trophy';
+    protected static string|\BackedEnum|null $navigationIcon       = 'heroicon-o-clipboard-document-check';
     protected static string|\UnitEnum|null   $navigationGroup      = 'Prestasi & Ekskul';
-    protected static ?string                 $navigationLabel      = 'Kurasi Prestasi';
-    protected static ?string                 $modelLabel           = 'Prestasi Siswa';
-    protected static ?string                 $pluralModelLabel     = 'Kurasi Prestasi Siswa';
+    protected static ?string                 $navigationLabel      = 'Persetujuan & Kurasi Ajuan Siswa';
+    protected static ?string                 $modelLabel           = 'Ajuan Prestasi Siswa';
+    protected static ?string                 $pluralModelLabel     = 'Persetujuan Ajuan Prestasi Siswa';
+    protected static ?int                    $navigationSort       = 12;
 
     public static function canAccess(): bool { return AdminAccess::can('Prestasi & Ekskul'); }
 
