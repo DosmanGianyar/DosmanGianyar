@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../models/guru_models.dart';
 import '../../theme/app_colors.dart';
 import 'guru_conduct_screen.dart';
+import 'guru_gate_verification_screen.dart';
 
 class GuruKesiswaanScreen extends StatelessWidget {
   final List<GuruClass> classes;
@@ -30,6 +31,18 @@ class GuruKesiswaanScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
+          _buildMenuCard(
+            context,
+            icon: Icons.flash_on_rounded,
+            label: '⚡ Piket Gerbang (Terlambat)',
+            subtitle: 'Verifikasi pengajuan pembinaan mandiri hari ini',
+            color: const Color(0xFFD97706),
+            bg: const Color(0xFFFEF3C7),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const GuruGateVerificationScreen()),
+            ),
+          ),
           _buildMenuCard(
             context,
             icon: Icons.shield_rounded,
