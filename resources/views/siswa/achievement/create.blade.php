@@ -64,13 +64,17 @@
         @csrf
 
         {{-- ─── ALUR PENGAJUAN & KURASI PRESTASI ──────── --}}
-        <div class="bg-blue-50/80 border border-blue-200 rounded-3xl p-5 shadow-sm flex items-start gap-4">
+        <div class="bg-blue-50/90 border border-blue-200 rounded-3xl p-5 shadow-sm flex items-start gap-4">
             <div class="w-10 h-10 bg-blue-600 text-white rounded-2xl flex items-center justify-center font-bold shrink-0 text-xl shadow-md">ℹ️</div>
-            <div class="space-y-1">
-                <h4 class="font-extrabold text-blue-900 text-sm">Alur Penilaian Kurasi Prestasi</h4>
+            <div class="space-y-2">
+                <h4 class="font-extrabold text-blue-900 text-sm">Alur Penilaian Kurasi Prestasi & Informasi Pelayanan</h4>
                 <p class="text-xs text-blue-800 leading-relaxed">
                     Siswa cukup mengisi data perlombaan & mengunggah berkas pendukung yang dimiliki. Penilaian dan penetapan apakah perlombaan tersebut <strong>Lolos Kurasi Resmi Puspresnas</strong> atau <strong>Prestasi Internal Sekolah</strong> akan dilakukan secara resmi oleh <strong>Admin / Tim Kurasi Kesiswaan</strong>.
                 </p>
+                <div class="flex items-start gap-2.5 text-xs font-semibold text-indigo-900 bg-indigo-100/90 px-3.5 py-2.5 rounded-2xl border border-indigo-200/80">
+                    <span class="text-base shrink-0">🏛️</span>
+                    <span>Jika ingin mengajukan prestasi kurasi lebih lengkap atau konsultasi dokumen, silakan menghubungi <strong>TU Bagian Prestasi Siswa</strong>.</span>
+                </div>
             </div>
         </div>
 

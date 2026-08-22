@@ -17,7 +17,14 @@
         </div>
         <div class="bg-red-50 rounded-2xl p-3 text-center border border-red-200 shadow-xs">
             <p class="text-2xl font-extrabold text-red-600">{{ $stats['rejected'] }}</p>
-            <p class="text-xs font-bold text-red-800 mt-0.5">Ditolak</p>
+    </div>
+
+    {{-- Banner Pengumuman TU Prestasi Siswa --}}
+    <div class="bg-indigo-50/90 border border-indigo-200/90 rounded-2xl p-3.5 flex items-start gap-3 shadow-xs">
+        <div class="w-8 h-8 bg-indigo-600 text-white rounded-xl flex items-center justify-center text-sm font-bold shrink-0 shadow-xs">🏛️</div>
+        <div class="text-xs text-indigo-950 space-y-0.5">
+            <p class="font-extrabold text-indigo-900">Pengumuman Kurasi Prestasi</p>
+            <p class="leading-relaxed text-indigo-800">Jika Anda ingin mengajukan prestasi kurasi lebih lengkap atau membutuhkan informasi tambahan, silakan dapat menghubungi <strong>TU Bagian Prestasi Siswa</strong>.</p>
         </div>
     </div>
 
