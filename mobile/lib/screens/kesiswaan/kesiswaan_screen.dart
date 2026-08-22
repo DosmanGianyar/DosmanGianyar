@@ -182,8 +182,7 @@ class _KesiswaanScreenState extends State<KesiswaanScreen>
                     labelStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
                     tabs: const [
                       Tab(text: 'Presensi'),
-                      Tab(text: 'SIPINTER'),
-                      Tab(text: 'Prestasi Lomba'),
+                      Tab(text: 'SIPINTER (Kedisiplinan)'),
                     ],
                   ),
                   SizedBox(
@@ -197,13 +196,6 @@ class _KesiswaanScreenState extends State<KesiswaanScreen>
                           loaded: _summaryLoaded,
                           onViewAll: () => Navigator.push(context,
                             MaterialPageRoute(builder: (_) => const ConductScreen())),
-                        ),
-                        _PrestasiLombaTab(
-                          achievements: _recentAchievements,
-                          pendingCount: _achievementStats['pending'] ?? 0,
-                          loaded: _summaryLoaded,
-                          onViewAll: () => Navigator.push(context,
-                            MaterialPageRoute(builder: (_) => const AchievementScreen())),
                         ),
                       ],
                     ),
@@ -355,79 +347,7 @@ class _KesiswaanScreenState extends State<KesiswaanScreen>
               const SizedBox(height: 12),
             ],
 
-            // ─── Prestasi ──────────────────────────────────────────────
-            Container(
-              decoration: BoxDecoration(
-                color: AppColors.white,
-                borderRadius: AppRadius.card,
-                border: Border.all(color: AppColors.gray100),
-                boxShadow: AppShadow.sm,
-              ),
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(children: [
-                    Container(
-                      width: 36, height: 36,
-                      decoration: BoxDecoration(color: AppColors.yellow100, borderRadius: BorderRadius.circular(10)),
-                      child: const Icon(Icons.workspace_premium_rounded, color: AppColors.yellow600, size: 18),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      const Text('Prestasi',
-                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.gray700)),
-                      Text(
-                        (_achievementStats['approved'] ?? 0) > 0
-                            ? '${_achievementStats['approved']} prestasi disetujui'
-                            : 'Laporkan dan kelola prestasi',
-                        style: const TextStyle(fontSize: 11, color: AppColors.gray400)),
-                    ])),
-                    if ((_achievementStats['pending'] ?? 0) > 0)
-                      _Badge(count: _achievementStats['pending']!, color: AppColors.yellow600),
-                  ]),
-                  const SizedBox(height: 12),
-                  Row(children: [
-                    Expanded(child: _IzinButton(
-                      label: (_achievementStats['pending'] ?? 0) > 0
-                          ? 'Laporkan (${_achievementStats['pending']})'
-                          : 'Laporkan',
-                      color: AppColors.yellow50,
-                      textColor: AppColors.yellow600,
-                      onTap: () => Navigator.push(context,
-                        MaterialPageRoute(builder: (_) => const AchievementScreen())))),
-                    const SizedBox(width: 8),
-                    Expanded(child: _IzinButton(
-                      label: 'Prestasi Saya',
-                      color: AppColors.gray50,
-                      textColor: AppColors.gray700,
-                      onTap: () => Navigator.push(context,
-                        MaterialPageRoute(builder: (_) => const AchievementScreen())))),
-                  ]),
-                  if (_pendingVerify > 0) ...[
-                    const SizedBox(height: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: AppColors.yellow50,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: AppColors.yellow100),
-                      ),
-                      child: Row(children: [
-                        const Icon(Icons.verified_outlined, color: AppColors.yellow600, size: 16),
-                        const SizedBox(width: 8),
-                        Expanded(child: Text(
-                          '$_pendingVerify prestasi menunggu verifikasi',
-                          style: const TextStyle(
-                            fontSize: 11, color: AppColors.yellow600, fontWeight: FontWeight.w500),
-                        )),
-                      ]),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-            const SizedBox(height: 8),
+
 
             // ─── Ekstrakurikuler ───────────────────────────────────────
             _LinkRow(
