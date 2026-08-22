@@ -48,14 +48,28 @@ class ForgotAttendanceController extends Controller
         /** @var \App\Models\User $student */
         $student = Auth::user()->load('schoolClass.homeroomTeacher');
 
-        $existing = ForgotAttendanceRequest::where('student_id', $student->id)
+        $targetType = $data['type'] ?? 'masuk';
+
+        $existingQuery = ForgotAttendanceRequest::where('student_id', $student->id)
             ->where('date', $data['date'])
-            ->whereIn('status', ['pending', 'approved'])
-            ->first();
+            ->whereIn('status', ['pending', 'approved']);
+
+        if ($targetType === 'masuk') {
+            $existing = (clone $existingQuery)->whereIn('type', ['masuk', 'keduanya'])->first();
+        } elseif ($targetType === 'pulang') {
+            $existing = (clone $existingQuery)->whereIn('type', ['pulang', 'keduanya'])->first();
+        } else {
+            $existing = (clone $existingQuery)->first();
+        }
 
         if ($existing) {
+            $typeLabel = match ($targetType) {
+                'masuk'   => 'datang',
+                'pulang'  => 'pulang',
+                default   => 'datang & pulang',
+            };
             return response()->json([
-                'message' => 'Sudah ada pengajuan lupa absen untuk tanggal ini.',
+                'message' => "Sudah ada pengajuan lupa absen {$typeLabel} untuk tanggal ini.",
             ], 422);
         }
 
@@ -63,10 +77,22 @@ class ForgotAttendanceController extends Controller
             ->whereDate('date', $data['date'])
             ->first();
 
-        if ($attendance && $attendance->status !== 'alpa' && $attendance->check_in_time && $attendance->check_out_time) {
-            return response()->json([
-                'message' => 'Presensi tanggal ini sudah tercatat sebagai ' . ucfirst($attendance->status) . ' (sudah absen datang & pulang).',
-            ], 422);
+        if ($attendance && $attendance->status !== 'alpa') {
+            if ($targetType === 'masuk' && $attendance->check_in_time) {
+                return response()->json([
+                    'message' => 'Presensi masuk/datang untuk tanggal ini sudah tercatat.',
+                ], 422);
+            }
+            if ($targetType === 'pulang' && $attendance->check_out_time) {
+                return response()->json([
+                    'message' => 'Presensi pulang untuk tanggal ini sudah tercatat.',
+                ], 422);
+            }
+            if ($targetType === 'keduanya' && $attendance->check_in_time && $attendance->check_out_time) {
+                return response()->json([
+                    'message' => 'Presensi datang & pulang untuk tanggal ini sudah tercatat lengkap.',
+                ], 422);
+            }
         }
 
         $r = ForgotAttendanceRequest::create([

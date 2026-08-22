@@ -15,12 +15,12 @@
     @endphp
 
     <div class="bg-white border border-gray-100 rounded-3xl p-5 shadow-sm space-y-3">
-        <div class="flex items-center justify-between">
-            <span class="text-xs font-bold px-3 py-1 rounded-full {{ $achievement->is_curation ? 'bg-indigo-100 text-indigo-700 border border-indigo-200' : 'bg-gray-100 text-gray-700' }}">
-                {{ $achievement->is_curation ? '🎖️ Kurasi Kemendikdasmen' : '🏆 Prestasi Internal Sekolah' }}
+        <div class="flex items-center justify-between flex-wrap gap-2">
+            <span class="text-xs font-bold px-3 py-1 rounded-full {{ $achievement->curationStatusBadgeClass() }}">
+                {{ $achievement->curationStatusLabel() }}
             </span>
-            <span class="text-xs font-semibold px-3 py-1 rounded-full {{ $achievement->statusBadgeClass() }}">
-                Status: {{ $achievement->statusLabel() }}
+            <span class="text-xs font-semibold px-3 py-1 rounded-full {{ $achievement->levelBadgeClass() }}">
+                Tingkat: {{ $achievement->levelLabel() }}
             </span>
         </div>
 

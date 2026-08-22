@@ -13,6 +13,7 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -62,6 +63,19 @@ class UserResource extends Resource
     {
         return $schema->components([
             Section::make('Identitas')->schema([
+                FileUpload::make('photo')
+                    ->label('Foto Profil Siswa / Pengguna')
+                    ->disk('public')
+                    ->image()
+                    ->avatar()
+                    ->openable()
+                    ->downloadable()
+                    ->previewable()
+                    ->directory('users/photos')
+                    ->maxSize(5120)
+                    ->helperText('Anda dapat mengunggah foto baru atau menghapus foto yang melanggar aturan sekolah.')
+                    ->columnSpanFull(),
+
                 TextInput::make('name')
                     ->label('Nama Lengkap')
                     ->required()
@@ -94,7 +108,7 @@ class UserResource extends Resource
                     ->helperText('Pengguna dapat memperbarui password setelah login pertama kali.'),
             ])->columns(2),
 
-            Section::make('Data Siswa')
+            Section::make('A. Keterangan Tentang Diri Siswa')
                 ->schema([
                     TextInput::make('nisn')
                         ->label('NISN')
@@ -103,13 +117,12 @@ class UserResource extends Resource
                         ->regex('/^\d{10}$/')
                         ->unique(ignoreRecord: true)
                         ->placeholder('0001234567')
-                        ->helperText('10 digit angka, termasuk angka 0 di depan (contoh: 0002349876)'),
+                        ->helperText('10 digit angka'),
 
                     TextInput::make('nis')
                         ->label('NIS')
                         ->maxLength(20)
-                        ->unique(ignoreRecord: true)
-                        ->helperText('Nomor Induk Siswa lokal sekolah'),
+                        ->unique(ignoreRecord: true),
 
                     Select::make('class_id')
                         ->label('Kelas')
@@ -117,30 +130,269 @@ class UserResource extends Resource
                         ->searchable()
                         ->preload(),
 
+                    TextInput::make('name')
+                        ->label('Nama Lengkap')
+                        ->required()
+                        ->maxLength(100),
+
+                    TextInput::make('nickname')
+                        ->label('Nama Panggilan')
+                        ->maxLength(50),
+
                     Select::make('gender')
                         ->label('Jenis Kelamin')
                         ->options(['L' => 'Laki-laki', 'P' => 'Perempuan'])
                         ->nullable(),
 
-                    TextInput::make('parent_name')
-                        ->label('Nama Orang Tua / Wali')
+                    TextInput::make('birth_place')
+                        ->label('Tempat Lahir')
                         ->maxLength(100),
-
-                    TextInput::make('parent_phone')
-                        ->label('HP Orang Tua')
-                        ->tel()
-                        ->maxLength(20),
 
                     DatePicker::make('birth_date')
                         ->label('Tanggal Lahir')
                         ->displayFormat('d/m/Y'),
 
-                    TextInput::make('address')
-                        ->label('Alamat')
-                        ->maxLength(255),
+                    TextInput::make('religion')
+                        ->label('Agama')
+                        ->placeholder('Islam / Hindu / Budha / Kristen / Katolik'),
+
+                    TextInput::make('citizenship')
+                        ->label('Kewarganegaraan')
+                        ->default('WNI'),
+
+                    TextInput::make('child_order')
+                        ->label('Anak Keberapa')
+                        ->numeric(),
+
+                    TextInput::make('siblings_count')
+                        ->label('Jml Saudara Kandung')
+                        ->numeric(),
+
+                    TextInput::make('step_siblings_count')
+                        ->label('Jml Saudara Tiri')
+                        ->numeric(),
+
+                    TextInput::make('foster_siblings_count')
+                        ->label('Jml Saudara Angkat')
+                        ->numeric(),
+
+                    TextInput::make('orphan_status')
+                        ->label('Anak Yatim / Piatu')
+                        ->placeholder('Lengkap / Yatim / Piatu / Yatim Piatu'),
+
+                    TextInput::make('daily_language')
+                        ->label('Bahasa Sehari-hari')
+                        ->placeholder('Bahasa Indonesia / Bali / dll'),
                 ])
-                ->columns(2)
-                ->visible(fn () => true),
+                ->columns(2),
+
+            Section::make('B. Keterangan Tempat Tinggal')
+                ->schema([
+                    TextInput::make('address')
+                        ->label('Alamat Lengkap')
+                        ->maxLength(255)
+                        ->columnSpanFull(),
+
+                    TextInput::make('phone')
+                        ->label('Nomor Telepon / HP')
+                        ->tel()
+                        ->maxLength(20),
+
+                    TextInput::make('living_with')
+                        ->label('Tinggal Dengan')
+                        ->placeholder('Orang tua / Saudara / Kost / Asrama'),
+
+                    TextInput::make('distance_km')
+                        ->label('Jarak Tempat Tinggal ke Sekolah (km)')
+                        ->numeric(),
+                ])
+                ->columns(2),
+
+            Section::make('C. Keterangan Kesehatan')
+                ->schema([
+                    TextInput::make('blood_type')
+                        ->label('Golongan Darah')
+                        ->placeholder('A / B / AB / O'),
+
+                    TextInput::make('medical_history')
+                        ->label('Penyakit Pernah Diderita')
+                        ->placeholder('TBC / Cacar / Malaria / dll'),
+
+                    TextInput::make('physical_disability')
+                        ->label('Kelainan Jasmani')
+                        ->placeholder('-'),
+
+                    TextInput::make('height_cm')
+                        ->label('Tinggi Badan (cm)')
+                        ->numeric(),
+
+                    TextInput::make('weight_kg')
+                        ->label('Berat Badan (kg)')
+                        ->numeric(),
+                ])
+                ->columns(2),
+
+            Section::make('D. Keterangan Pendidikan')
+                ->schema([
+                    TextInput::make('prev_school_name')
+                        ->label('Pendidikan Sebelumnya (Lulusan Dari)')
+                        ->placeholder('SMP N 1 Gianyar / dll'),
+
+                    TextInput::make('prev_sttb_no')
+                        ->label('Nomor STTB / Ijazah'),
+
+                    DatePicker::make('prev_sttb_date')
+                        ->label('Tanggal STTB / Ijazah')
+                        ->displayFormat('d/m/Y'),
+
+                    TextInput::make('prev_study_duration')
+                        ->label('Lama Belajar')
+                        ->placeholder('3 Tahun'),
+
+                    TextInput::make('transfer_from_school')
+                        ->label('Pindahan Dari Sekolah'),
+
+                    TextInput::make('transfer_reason')
+                        ->label('Alasan Pindah'),
+
+                    TextInput::make('admission_grade')
+                        ->label('Diterima di Tingkat')
+                        ->placeholder('X / XI / XII'),
+
+                    TextInput::make('admission_class_group')
+                        ->label('Kelompok / Rombel Diterima'),
+
+                    TextInput::make('admission_major')
+                        ->label('Jurusan Diterima')
+                        ->placeholder('MIPA / IPS / Umum'),
+
+                    DatePicker::make('admission_date')
+                        ->label('Tanggal Diterima')
+                        ->displayFormat('d/m/Y'),
+                ])
+                ->columns(2),
+
+            Section::make('E. Keterangan Tentang Ayah Kandung')
+                ->schema([
+                    TextInput::make('father_name')
+                        ->label('Nama Ayah'),
+
+                    TextInput::make('father_birth_place')
+                        ->label('Tempat Lahir Ayah'),
+
+                    DatePicker::make('father_birth_date')
+                        ->label('Tanggal Lahir Ayah')
+                        ->displayFormat('d/m/Y'),
+
+                    TextInput::make('father_religion')
+                        ->label('Agama Ayah'),
+
+                    TextInput::make('father_citizenship')
+                        ->label('Kewarganegaraan Ayah')
+                        ->default('WNI'),
+
+                    TextInput::make('father_education')
+                        ->label('Pendidikan Ayah'),
+
+                    TextInput::make('father_job')
+                        ->label('Pekerjaan Ayah'),
+
+                    TextInput::make('father_income')
+                        ->label('Penghasilan Per Bulan'),
+
+                    TextInput::make('father_address')
+                        ->label('Alamat Ayah')
+                        ->columnSpanFull(),
+
+                    TextInput::make('father_phone')
+                        ->label('Nomor Telepon Ayah')
+                        ->tel(),
+
+                    TextInput::make('father_status')
+                        ->label('Status Ayah (Masih Hidup / Meninggal Tahun ...)'),
+                ])
+                ->columns(2),
+
+            Section::make('F. Keterangan Tentang Ibu Kandung')
+                ->schema([
+                    TextInput::make('mother_name')
+                        ->label('Nama Ibu'),
+
+                    TextInput::make('mother_birth_place')
+                        ->label('Tempat Lahir Ibu'),
+
+                    DatePicker::make('mother_birth_date')
+                        ->label('Tanggal Lahir Ibu')
+                        ->displayFormat('d/m/Y'),
+
+                    TextInput::make('mother_religion')
+                        ->label('Agama Ibu'),
+
+                    TextInput::make('mother_citizenship')
+                        ->label('Kewarganegaraan Ibu')
+                        ->default('WNI'),
+
+                    TextInput::make('mother_education')
+                        ->label('Pendidikan Ibu'),
+
+                    TextInput::make('mother_job')
+                        ->label('Pekerjaan Ibu'),
+
+                    TextInput::make('mother_income')
+                        ->label('Penghasilan Per Bulan'),
+
+                    TextInput::make('mother_address')
+                        ->label('Alamat Ibu')
+                        ->columnSpanFull(),
+
+                    TextInput::make('mother_phone')
+                        ->label('Nomor Telepon Ibu')
+                        ->tel(),
+
+                    TextInput::make('mother_status')
+                        ->label('Status Ibu (Masih Hidup / Meninggal Tahun ...)'),
+                ])
+                ->columns(2),
+
+            Section::make('G. Keterangan Tentang Wali')
+                ->schema([
+                    TextInput::make('guardian_name')
+                        ->label('Nama Wali'),
+
+                    TextInput::make('guardian_birth_place')
+                        ->label('Tempat Lahir Wali'),
+
+                    DatePicker::make('guardian_birth_date')
+                        ->label('Tanggal Lahir Wali')
+                        ->displayFormat('d/m/Y'),
+
+                    TextInput::make('guardian_religion')
+                        ->label('Agama Wali'),
+
+                    TextInput::make('guardian_citizenship')
+                        ->label('Kewarganegaraan Wali'),
+
+                    TextInput::make('guardian_education')
+                        ->label('Pendidikan Wali'),
+
+                    TextInput::make('guardian_job')
+                        ->label('Pekerjaan Wali'),
+
+                    TextInput::make('guardian_income')
+                        ->label('Penghasilan Per Bulan'),
+
+                    TextInput::make('guardian_address')
+                        ->label('Alamat Wali')
+                        ->columnSpanFull(),
+
+                    TextInput::make('guardian_phone')
+                        ->label('Nomor Telepon Wali')
+                        ->tel(),
+
+                    TextInput::make('guardian_relation')
+                        ->label('Hubungan Dengan Siswa'),
+                ])
+                ->columns(2),
         ]);
     }
 
@@ -438,10 +690,28 @@ class UserResource extends Resource
                         'XI'  => 'Angkatan / Kelas XI',
                         'XII' => 'Angkatan / Kelas XII',
                     ])
-                    ->query(fn (Builder $query, array $data): Builder => filled($data['value'] ?? null)
-                        ? $query->whereHas('schoolClass', fn ($q) => $q->where('grade', $data['value']))
-                        : $query
-                    ),
+                    ->query(function (Builder $query, array $data): Builder {
+                        $val = $data['value'] ?? null;
+                        if (blank($val)) {
+                            return $query;
+                        }
+
+                        $grades = match ($val) {
+                            'X'   => [10, '10', 'X'],
+                            'XI'  => [11, '11', 'XI'],
+                            'XII' => [12, '12', 'XII'],
+                            default => [$val],
+                        };
+
+                        $prefix = $val . '-';
+
+                        return $query->whereHas('schoolClass', function (Builder $q) use ($grades, $prefix) {
+                            $q->where(function (Builder $sub) use ($grades, $prefix) {
+                                $sub->whereIn('grade', $grades)
+                                    ->orWhere('name', 'like', $prefix . '%');
+                            });
+                        });
+                    }),
 
                 SelectFilter::make('class_id')
                     ->label('Filter Kelas')
@@ -473,6 +743,15 @@ class UserResource extends Resource
                     ->visible(fn (User $record): bool => in_array($record->role, ['siswa', 'pengelola']))
                     ->tooltip('Cetak/Download Kartu Pelajar Digital (Barcode/QR)')
                     ->url(fn (User $record): string => route('admin.student-card.download', $record->id))
+                    ->openUrlInNewTab(),
+                Action::make('printBukuInduk')
+                    ->label('Buku Induk')
+                    ->icon('heroicon-o-printer')
+                    ->color('success')
+                    ->iconButton()
+                    ->visible(fn (User $record): bool => in_array($record->role, ['siswa', 'pengelola']))
+                    ->tooltip('Cetak Buku Induk Siswa (A4)')
+                    ->url(fn (User $record): string => route('admin.buku-induk.print', $record->id))
                     ->openUrlInNewTab(),
                 EditAction::make()->iconButton(),
                 Action::make('padSingleNisn')
@@ -519,6 +798,26 @@ class UserResource extends Resource
                         $record->resetDevices();
                         Notification::make()
                             ->title("{$record->name}: {$count} perangkat direset.")
+                            ->success()
+                            ->send();
+                    }),
+                Action::make('deletePhoto')
+                    ->label('Hapus Foto Profil')
+                    ->icon('heroicon-o-trash')
+                    ->color('danger')
+                    ->iconButton()
+                    ->visible(fn (User $record): bool => ! empty($record->photo))
+                    ->tooltip('Hapus Foto Profil Siswa (Reset ke default)')
+                    ->requiresConfirmation()
+                    ->modalHeading('Hapus Foto Profil Siswa?')
+                    ->modalDescription(fn (User $record): string => "Apakah Anda yakin ingin menghapus foto profil milik '{$record->name}'? Foto yang melanggar aturan akan dihapus dan dikembalikan ke avatar standar UI-Avatars.")
+                    ->action(function (User $record): void {
+                        if ($record->photo && \Illuminate\Support\Facades\Storage::disk('public')->exists($record->photo)) {
+                            \Illuminate\Support\Facades\Storage::disk('public')->delete($record->photo);
+                        }
+                        $record->update(['photo' => null]);
+                        Notification::make()
+                            ->title("Foto profil {$record->name} berhasil dihapus.")
                             ->success()
                             ->send();
                     }),

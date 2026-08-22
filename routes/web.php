@@ -161,10 +161,13 @@ Route::middleware(['auth', 'role:guru,admin'])->prefix('guru')->name('guru.')->g
     // Kesiswaan
     Route::prefix('conduct')->name('conduct.')->group(function () {
         Route::get('/', [GuruConduct::class, 'index'])->name('index');
+        Route::get('/today', [GuruConduct::class, 'todayIndex'])->name('today');
         Route::get('/pilih', [GuruConduct::class, 'choose'])->name('choose');
         Route::get('/create', [GuruConduct::class, 'create'])->name('create');
         Route::post('/', [GuruConduct::class, 'store'])->name('store');
         Route::post('/scan-lookup', [GuruConduct::class, 'scanLookup'])->name('scan-lookup');
+        Route::get('/verification', [GuruConduct::class, 'verificationIndex'])->name('verification');
+        Route::post('/verify/{log}', [GuruConduct::class, 'verifyLog'])->name('verify');
         Route::get('/student/{student}', [GuruConduct::class, 'studentDetail'])->name('student');
     });
 
@@ -331,8 +334,9 @@ Route::middleware(['auth', 'role:siswa,pengelola', 'force.password.change'])->pr
     Route::post('/exit-pass', [ExitPassController::class, 'store'])->name('exit-pass.store');
     Route::patch('/exit-pass/checkin', [ExitPassController::class, 'checkin'])->name('exit-pass.checkin');
 
-    // Poin
+    // Poin & Pembinaan Mandiri
     Route::get('/conduct', [SiswaConduct::class, 'index'])->name('conduct.index');
+    Route::post('/conduct/self-report', [SiswaConduct::class, 'storeSelfReport'])->name('conduct.self-report');
 
     // Sarpras
     Route::prefix('sarpras')->name('sarpras.')->group(function () {
@@ -430,11 +434,19 @@ Route::middleware(['auth', 'role:siswa,pengelola', 'force.password.change'])->pr
     });
 });
 
-// Admin Clearance Card & Loan Report PDF/Print Routes
+Route::middleware(['auth'])->post('/admin/students/{user}/delete-photo', function (\App\Models\User $user) {
+    if ($user->photo && \Illuminate\Support\Facades\Storage::disk('public')->exists($user->photo)) {
+        \Illuminate\Support\Facades\Storage::disk('public')->delete($user->photo);
+    }
+    $user->update(['photo' => null]);
+    return back()->with('success', 'Foto profil ' . $user->name . ' berhasil dihapus.');
+})->name('admin.students.delete-photo');
 Route::middleware(['auth'])->get('/admin/library/clearance-card/{user}', [App\Http\Controllers\Siswa\LibraryController::class, 'adminClearanceCard'])->name('admin.library.clearance-card');
 Route::middleware(['auth'])->get('/admin/library/visit-qr-card', fn () => view('exports.library-visit-qr-pdf'))->name('admin.library.visit-qr-card');
 Route::middleware(['auth'])->get('/admin/library/monthly-loan-report', [App\Http\Controllers\Siswa\LibraryController::class, 'adminMonthlyLoanReport'])->name('admin.library.monthly-loan-report');
 Route::middleware(['auth'])->get('/admin/library/visit-report', [App\Http\Controllers\Siswa\LibraryController::class, 'adminVisitReport'])->name('admin.library.visit-report');
+Route::middleware(['auth'])->get('/admin/buku-induk/print/{siswa}', [App\Http\Controllers\Admin\BukuIndukController::class, 'printSingle'])->name('admin.buku-induk.print');
+Route::middleware(['auth'])->get('/admin/buku-induk/print-class/{class}', [App\Http\Controllers\Admin\BukuIndukController::class, 'printClass'])->name('admin.buku-induk.print-class');
 
 // ─── Orangtua ─────────────────────────────────────────────────────────────────
 Route::middleware(['auth', 'role:orangtua'])->prefix('orangtua')->name('orangtua.')->group(function () {

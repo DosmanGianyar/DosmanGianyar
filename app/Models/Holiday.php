@@ -46,7 +46,8 @@ class Holiday extends Model
      */
     public static function isOffDayFor(Carbon $date, ?int $classId): bool
     {
-        if ($date->isSunday()) {
+        $setting = AttendanceSetting::forDay((int) $date->dayOfWeekIso);
+        if ($setting && ! $setting->is_active) {
             return ! static::specialSchoolDayExistsFor($date, $classId);
         }
         return static::holidayExistsFor($date, $classId);

@@ -13,7 +13,7 @@ class ImportDapodikPage extends Page
 {
     protected static string|\BackedEnum|null $navigationIcon  = 'heroicon-o-arrow-up-tray';
     protected static string|\UnitEnum|null  $navigationGroup = 'Manajemen User';
-    protected static ?string                $navigationLabel = 'Import Dapodik';
+    protected static ?string                $navigationLabel = 'Import Data Siswa';
     protected static ?int                   $navigationSort  = 5;
 
     public static function canAccess(): bool { return auth()->user()?->role === 'admin'; }
@@ -46,8 +46,8 @@ class ImportDapodikPage extends Page
         return $schema
             ->components([
                 FileUpload::make('file')
-                    ->label('File Excel Dapodik')
-                    ->helperText('Export dari Dapodik: menu Peserta Didik → Rekap Data Peserta Didik → Export Excel')
+                    ->label('File Excel Data Siswa / Dapodik')
+                    ->helperText('Unggah file Excel Data Siswa (.xlsx / .xls). NISN digunakan sebagai acuan update data siswa.')
                     ->acceptedFileTypes([
                         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
                         'application/vnd.ms-excel',

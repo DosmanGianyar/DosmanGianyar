@@ -8,8 +8,14 @@ use App\Models\StudentAchievement;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Infolists\Components\ImageEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Components\ViewEntry;
@@ -28,11 +34,12 @@ class StudentAchievementResource extends Resource
 {
     protected static ?string $model = StudentAchievement::class;
 
-    protected static string|\BackedEnum|null $navigationIcon       = 'heroicon-o-trophy';
+    protected static string|\BackedEnum|null $navigationIcon       = 'heroicon-o-clipboard-document-check';
     protected static string|\UnitEnum|null   $navigationGroup      = 'Prestasi & Ekskul';
-    protected static ?string                 $navigationLabel      = 'Kurasi Prestasi';
-    protected static ?string                 $modelLabel           = 'Prestasi Siswa';
-    protected static ?string                 $pluralModelLabel     = 'Kurasi Prestasi Siswa';
+    protected static ?string                 $navigationLabel      = 'Persetujuan & Kurasi Ajuan Siswa';
+    protected static ?string                 $modelLabel           = 'Ajuan Prestasi Siswa';
+    protected static ?string                 $pluralModelLabel     = 'Persetujuan Ajuan Prestasi Siswa';
+    protected static ?int                    $navigationSort       = 12;
 
     public static function canAccess(): bool { return AdminAccess::can('Prestasi & Ekskul'); }
 
@@ -54,7 +61,271 @@ class StudentAchievementResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        return $schema->components([]);
+        return $schema->components([
+            Section::make('Status Kurasi & Verifikasi Admin')
+                ->icon('heroicon-o-check-badge')
+                ->schema([
+                    Select::make('curation_status')
+                        ->label('Status Kurasi')
+                        ->options([
+                            'pending'       => 'Menunggu Penilaian Kurasi',
+                            'curated'       => 'Lolos Kurasi Resmi (SIMT/Puspresnas)',
+                            'not_curatable' => 'Prestasi Internal Sekolah',
+                            'revision'      => 'Perlu Revisi Berkas',
+                            'rejected'      => 'Tidak Layak / Ditolak',
+                        ])
+                        ->required(),
+
+                    Toggle::make('is_curation')
+                        ->label('Status Kurasi Resmi (SIMT/Puspresnas)')
+                        ->helperText('Aktifkan jika prestasi ini sah lolos kurasi resmi Kemendikdasmen/Puspresnas.'),
+
+                    Textarea::make('curation_note')
+                        ->label('Catatan Kurasi / Alasan Revisi / Alasan Penolakan')
+                        ->placeholder('Isi catatan internal atau petunjuk revisi untuk siswa')
+                        ->columnSpanFull()
+                        ->rows(2),
+                ])
+                ->columns(2),
+
+            Section::make('Informasi Utama Prestasi Siswa')
+                ->icon('heroicon-o-trophy')
+                ->schema([
+                    Select::make('student_id')
+                        ->label('Siswa Utama')
+                        ->relationship('student', 'name')
+                        ->searchable()
+                        ->preload()
+                        ->required(),
+
+                    Select::make('category_id')
+                        ->label('Kategori Prestasi')
+                        ->options(\App\Models\AchievementCategory::pluck('name', 'id'))
+                        ->required(),
+
+                    Select::make('field_category')
+                        ->label('Bidang Lomba / Capaian')
+                        ->options([
+                            'akademik'     => 'Akademik',
+                            'sains_riset'  => 'Sains & Riset',
+                            'olahraga'     => 'Olahraga',
+                            'seni_budaya'  => 'Seni & Budaya',
+                            'bahasa_debat' => 'Bahasa & Debat',
+                            'keagamaan'    => 'Keagamaan',
+                            'lainnya'      => 'Lainnya',
+                        ])
+                        ->required(),
+
+                    Select::make('level')
+                        ->label('Tingkat Perlombaan')
+                        ->options([
+                            'sekolah'       => 'Sekolah',
+                            'kabupaten'     => 'Kabupaten/Kota',
+                            'provinsi'      => 'Provinsi',
+                            'nasional'      => 'Nasional',
+                            'internasional' => 'Internasional',
+                        ])
+                        ->required(),
+
+                    TextInput::make('title')
+                        ->label('Judul Capaian / Nama Lomba')
+                        ->placeholder('Contoh: Juara 1 Porsenijar Catur Tingkat Kabupaten Gianyar 2026')
+                        ->required()
+                        ->maxLength(200)
+                        ->columnSpanFull(),
+
+                    TextInput::make('event_name')
+                        ->label('Nama Ajang / Kejuaraan')
+                        ->placeholder('Contoh: Porsenijar Kabupaten Gianyar 2026')
+                        ->maxLength(200),
+
+                    TextInput::make('organizer')
+                        ->label('Penyelenggara Ajang')
+                        ->placeholder('Contoh: Disdikpora Kabupaten Gianyar')
+                        ->maxLength(200),
+
+                    TextInput::make('rank')
+                        ->label('Juara / Raihan')
+                        ->placeholder('Contoh: Juara 1 / Medali Emas / Harapan 1')
+                        ->maxLength(50),
+
+                    Select::make('participation_type')
+                        ->label('Jenis Keikutsertaan')
+                        ->options([
+                            'individu' => 'Perorangan (Individu)',
+                            'beregu'   => 'Beregu (Kelompok)',
+                        ]),
+
+                    DatePicker::make('achievement_date')
+                        ->label('Tanggal Pelaksanaan / Capaian')
+                        ->required(),
+
+                    TextInput::make('event_url')
+                        ->label('Tautan Website Resmi Ajang (URL)')
+                        ->url()
+                        ->placeholder('https://...')
+                        ->maxLength(500),
+
+                    Textarea::make('description')
+                        ->label('Deskripsi / Catatan Tambahan Lomba')
+                        ->columnSpanFull()
+                        ->rows(3),
+                ])
+                ->columns(2),
+
+            Section::make('Berkas Utama & Lampiran Foto / Sertifikat')
+                ->icon('heroicon-o-document-arrow-up')
+                ->schema([
+                    FileUpload::make('photo')
+                        ->label('Foto Kegiatan / Penyerahan Piagam')
+                        ->disk('public')
+                        ->image()
+                        ->openable()
+                        ->downloadable()
+                        ->previewable()
+                        ->directory('achievements/photos')
+                        ->maxSize(5120)
+                        ->helperText(function (?StudentAchievement $record): ?\Illuminate\Support\HtmlString {
+                            if (! $record || blank($record->photo)) return new \Illuminate\Support\HtmlString('<span class="text-xs text-gray-400">Belum ada foto</span>');
+                            $url = str_starts_with($record->photo, 'kurasi/') ? asset($record->photo) : asset('storage/' . $record->photo);
+                            return new \Illuminate\Support\HtmlString('<a href="' . $url . '" target="_blank" class="inline-flex items-center gap-1 text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline pt-1">📷 Buka Foto Kegiatan Siswa ↗</a>');
+                        }),
+
+                    FileUpload::make('certificate')
+                        ->label('Scan Piagam / Sertifikat')
+                        ->disk('public')
+                        ->openable()
+                        ->downloadable()
+                        ->previewable()
+                        ->directory('achievements/certificates')
+                        ->maxSize(10240)
+                        ->helperText(function (?StudentAchievement $record): ?\Illuminate\Support\HtmlString {
+                            if (! $record || blank($record->certificate)) return new \Illuminate\Support\HtmlString('<span class="text-xs text-gray-400">Belum ada sertifikat</span>');
+                            $url = str_starts_with($record->certificate, 'kurasi/') ? asset($record->certificate) : asset('storage/' . $record->certificate);
+                            return new \Illuminate\Support\HtmlString('<a href="' . $url . '" target="_blank" class="inline-flex items-center gap-1 text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline pt-1">📄 Buka Sertifikat Siswa ↗</a>');
+                        }),
+
+                    FileUpload::make('assignment_letter')
+                        ->label('Surat Tugas / Surat Rekomendasi Sekolah')
+                        ->disk('public')
+                        ->openable()
+                        ->downloadable()
+                        ->previewable()
+                        ->directory('achievements/letters')
+                        ->maxSize(10240)
+                        ->helperText(function (?StudentAchievement $record): ?\Illuminate\Support\HtmlString {
+                            if (! $record || blank($record->assignment_letter)) return new \Illuminate\Support\HtmlString('<span class="text-xs text-gray-400">Belum ada surat tugas</span>');
+                            $url = str_starts_with($record->assignment_letter, 'kurasi/') ? asset($record->assignment_letter) : asset('storage/' . $record->assignment_letter);
+                            return new \Illuminate\Support\HtmlString('<a href="' . $url . '" target="_blank" class="inline-flex items-center gap-1 text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline pt-1">📑 Buka Surat Tugas Siswa ↗</a>');
+                        }),
+                ])
+                ->columns(3),
+
+            Section::make('Berkas Pendukung Kurasi (5 Poin Puspresnas)')
+                ->icon('heroicon-o-folder-open')
+                ->collapsible()
+                ->collapsed(fn (?StudentAchievement $record): bool => ! ($record && ($record->doc_standard_file || $record->selection_level_file || $record->frequency_consistency_file || $record->infrastructure_file || $record->reward_certificate_file)))
+                ->schema([
+                    FileUpload::make('doc_standard_file')
+                        ->label('P1: Juknis / Pedoman Lomba')
+                        ->disk('public')
+                        ->openable()
+                        ->downloadable()
+                        ->previewable()
+                        ->directory('curations/doc_standards')
+                        ->maxSize(10240)
+                        ->helperText(function (?StudentAchievement $record): ?\Illuminate\Support\HtmlString {
+                            if (! $record || blank($record->doc_standard_file)) return new \Illuminate\Support\HtmlString('<span class="text-xs text-gray-400">Belum ada berkas P1</span>');
+                            $url = str_starts_with($record->doc_standard_file, 'kurasi/') ? asset($record->doc_standard_file) : asset('storage/' . $record->doc_standard_file);
+                            return new \Illuminate\Support\HtmlString('<a href="' . $url . '" target="_blank" class="inline-flex items-center gap-1 text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline pt-1">📄 Buka Berkas P1 (Juknis) ↗</a>');
+                        }),
+
+                    FileUpload::make('selection_level_file')
+                        ->label('P2: Berkas Jenjang Seleksi')
+                        ->disk('public')
+                        ->openable()
+                        ->downloadable()
+                        ->previewable()
+                        ->directory('curations/selection_levels')
+                        ->maxSize(10240)
+                        ->helperText(function (?StudentAchievement $record): ?\Illuminate\Support\HtmlString {
+                            if (! $record || blank($record->selection_level_file)) return new \Illuminate\Support\HtmlString('<span class="text-xs text-gray-400">Belum ada berkas P2</span>');
+                            $url = str_starts_with($record->selection_level_file, 'kurasi/') ? asset($record->selection_level_file) : asset('storage/' . $record->selection_level_file);
+                            return new \Illuminate\Support\HtmlString('<a href="' . $url . '" target="_blank" class="inline-flex items-center gap-1 text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline pt-1">📄 Buka Berkas P2 (Seleksi) ↗</a>');
+                        }),
+
+                    FileUpload::make('frequency_consistency_file')
+                        ->label('P3: Bukti Konsistensi Penyelenggaraan')
+                        ->disk('public')
+                        ->openable()
+                        ->downloadable()
+                        ->previewable()
+                        ->directory('curations/frequencies')
+                        ->maxSize(20480)
+                        ->helperText(function (?StudentAchievement $record): ?\Illuminate\Support\HtmlString {
+                            if (! $record || blank($record->frequency_consistency_file)) return new \Illuminate\Support\HtmlString('<span class="text-xs text-gray-400">Belum ada berkas P3</span>');
+                            $url = str_starts_with($record->frequency_consistency_file, 'kurasi/') ? asset($record->frequency_consistency_file) : asset('storage/' . $record->frequency_consistency_file);
+                            return new \Illuminate\Support\HtmlString('<a href="' . $url . '" target="_blank" class="inline-flex items-center gap-1 text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline pt-1">📄 Buka Berkas P3 (Konsistensi) ↗</a>');
+                        }),
+
+                    FileUpload::make('infrastructure_file')
+                        ->label('P4: Bukti Sarana & Prasarana')
+                        ->disk('public')
+                        ->openable()
+                        ->downloadable()
+                        ->previewable()
+                        ->directory('curations/infrastructures')
+                        ->maxSize(10240)
+                        ->helperText(function (?StudentAchievement $record): ?\Illuminate\Support\HtmlString {
+                            if (! $record || blank($record->infrastructure_file)) return new \Illuminate\Support\HtmlString('<span class="text-xs text-gray-400">Belum ada berkas P4</span>');
+                            $url = str_starts_with($record->infrastructure_file, 'kurasi/') ? asset($record->infrastructure_file) : asset('storage/' . $record->infrastructure_file);
+                            return new \Illuminate\Support\HtmlString('<a href="' . $url . '" target="_blank" class="inline-flex items-center gap-1 text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline pt-1">📷 Buka Berkas P4 (Sarpras) ↗</a>');
+                        }),
+
+                    FileUpload::make('reward_certificate_file')
+                        ->label('P5: Sertifikat Penghargaan')
+                        ->disk('public')
+                        ->openable()
+                        ->downloadable()
+                        ->previewable()
+                        ->directory('curations/rewards/certificates')
+                        ->maxSize(10240)
+                        ->helperText(function (?StudentAchievement $record): ?\Illuminate\Support\HtmlString {
+                            if (! $record || blank($record->reward_certificate_file)) return new \Illuminate\Support\HtmlString('<span class="text-xs text-gray-400">Belum ada berkas P5 Piagam</span>');
+                            $url = str_starts_with($record->reward_certificate_file, 'kurasi/') ? asset($record->reward_certificate_file) : asset('storage/' . $record->reward_certificate_file);
+                            return new \Illuminate\Support\HtmlString('<a href="' . $url . '" target="_blank" class="inline-flex items-center gap-1 text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline pt-1">📜 Buka Berkas P5 (Piagam) ↗</a>');
+                        }),
+
+                    FileUpload::make('reward_photo_file')
+                        ->label('P5: Foto Penyerahan Penghargaan')
+                        ->disk('public')
+                        ->openable()
+                        ->downloadable()
+                        ->previewable()
+                        ->directory('curations/rewards/photos')
+                        ->maxSize(10240)
+                        ->helperText(function (?StudentAchievement $record): ?\Illuminate\Support\HtmlString {
+                            if (! $record || blank($record->reward_photo_file)) return new \Illuminate\Support\HtmlString('<span class="text-xs text-gray-400">Belum ada berkas P5 Foto</span>');
+                            $url = str_starts_with($record->reward_photo_file, 'kurasi/') ? asset($record->reward_photo_file) : asset('storage/' . $record->reward_photo_file);
+                            return new \Illuminate\Support\HtmlString('<a href="' . $url . '" target="_blank" class="inline-flex items-center gap-1 text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline pt-1">📷 Buka Berkas P5 (Foto Penyerahan) ↗</a>');
+                        }),
+
+                    FileUpload::make('reward_recap_file')
+                        ->label('P5: Rekapitulasi Hasil Lomba')
+                        ->disk('public')
+                        ->openable()
+                        ->downloadable()
+                        ->previewable()
+                        ->directory('curations/rewards/recaps')
+                        ->maxSize(10240)
+                        ->helperText(function (?StudentAchievement $record): ?\Illuminate\Support\HtmlString {
+                            if (! $record || blank($record->reward_recap_file)) return new \Illuminate\Support\HtmlString('<span class="text-xs text-gray-400">Belum ada berkas P5 Rekap</span>');
+                            $url = str_starts_with($record->reward_recap_file, 'kurasi/') ? asset($record->reward_recap_file) : asset('storage/' . $record->reward_recap_file);
+                            return new \Illuminate\Support\HtmlString('<a href="' . $url . '" target="_blank" class="inline-flex items-center gap-1 text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline pt-1">📑 Buka Berkas P5 (Rekap Hasil) ↗</a>');
+                        }),
+                ])
+                ->columns(2),
+        ]);
     }
 
     public static function infolist(Schema $schema): Schema
@@ -403,7 +674,10 @@ class StudentAchievementResource extends Resource
                     ImageEntry::make('photo')
                         ->label('Foto Dokumentasi / Penyerahan Utama')
                         ->disk('public')
-                        ->imageWidth(400)
+                        ->extraImgAttributes([
+                            'style' => 'max-height: 250px !important; max-width: 420px !important; width: auto !important; height: auto !important; border-radius: 16px !important; object-fit: cover !important;',
+                            'class' => 'shadow-md border border-gray-200 dark:border-gray-700 mt-1',
+                        ])
                         ->columnSpanFull()
                         ->visible(fn (StudentAchievement $record): bool => ! empty($record->photo)),
                 ])
@@ -416,6 +690,10 @@ class StudentAchievementResource extends Resource
     {
         return $table
             ->columns([
+                TextColumn::make('index')
+                    ->label('No.')
+                    ->rowIndex(),
+
                 TextColumn::make('student.name')
                     ->label('Siswa')
                     ->searchable(query: function (Builder $query, string $search): Builder {
@@ -424,10 +702,10 @@ class StudentAchievementResource extends Resource
                     ->icon('heroicon-o-user')
                     ->color('primary')
                     ->weight('semibold')
+                    ->wrap()
                     ->url(fn (StudentAchievement $record): ?string => $record->student_id ? UserResource::getUrl('view', ['record' => $record->student_id]) : null)
                     ->openUrlInNewTab()
-                    ->tooltip('Klik untuk lihat profil siswa')
-                    ->limit(15),
+                    ->tooltip('Klik untuk lihat profil siswa'),
 
                 TextColumn::make('student.schoolClass.name')
                     ->label('Kelas')
@@ -462,7 +740,8 @@ class StudentAchievementResource extends Resource
                 TextColumn::make('title')
                     ->label('Judul Prestasi')
                     ->searchable()
-                    ->limit(18),
+                    ->wrap()
+                    ->weight('medium'),
 
                 TextColumn::make('organizer')
                     ->label('Penyelenggara')
@@ -491,8 +770,7 @@ class StudentAchievementResource extends Resource
 
                 TextColumn::make('rank')
                     ->label('Peringkat')
-                    ->placeholder('—')
-                    ->limit(10),
+                    ->placeholder('—'),
 
                 TextColumn::make('is_curation')
                     ->label('Tipe')
@@ -509,7 +787,7 @@ class StudentAchievementResource extends Resource
 
                 TextColumn::make('achievement_date')
                     ->label('Tanggal')
-                    ->date('d MMM Y')
+                    ->formatStateUsing(fn ($state) => $state ? \Carbon\Carbon::parse($state)->translatedFormat('d F Y') : '—')
                     ->sortable(),
             ])
             ->defaultSort('created_at', 'desc')
@@ -554,6 +832,10 @@ class StudentAchievementResource extends Resource
                     ->iconButton()
                     ->tooltip('Lihat Detail Prestasi'),
 
+                EditAction::make()
+                    ->iconButton()
+                    ->tooltip('Edit Data & Berkas Prestasi'),
+
                 Action::make('student_profile')
                     ->label('Profil Siswa')
                     ->tooltip('Buka Profil Lengkap Siswa')
@@ -574,6 +856,7 @@ class StudentAchievementResource extends Resource
                     ->modalDescription('Prestasi ini akan disahkan sebagai Lolos Kurasi Resmi Standar Puspresnas/SIMT.')
                     ->action(function (StudentAchievement $record): void {
                         $record->update([
+                            'is_curation'     => true,
                             'curation_status' => 'curated',
                             'status'          => 'approved',
                             'curation_note'   => null,
@@ -594,6 +877,7 @@ class StudentAchievementResource extends Resource
                     ->modalDescription('Prestasi ini akan tetap dicatat & diakui sebagai Prestasi Siswa Sekolah, tetapi ditandai TIDAK masuk kurasi resmi Puspresnas/SIMT.')
                     ->action(function (StudentAchievement $record): void {
                         $record->update([
+                            'is_curation'     => false,
                             'curation_status' => 'not_curatable',
                             'status'          => 'approved',
                             'curation_note'   => 'Dicatat sebagai Prestasi Catatan Internal Sekolah',
@@ -641,6 +925,7 @@ class StudentAchievementResource extends Resource
                     ])
                     ->action(function (StudentAchievement $record, array $data): void {
                         $record->update([
+                            'is_curation'      => false,
                             'curation_status'  => 'rejected',
                             'status'           => 'rejected',
                             'curation_note'    => $data['curation_note'],
@@ -649,6 +934,28 @@ class StudentAchievementResource extends Resource
                             'verified_at'      => now(),
                         ]);
                         Notification::make()->title('Prestasi Ditolak / Tidak Layak')->danger()->send();
+                    }),
+
+                Action::make('reset_pending')
+                    ->label('Batalkan Status / Reset')
+                    ->tooltip('Batalkan penetapan dan kembalikan ke status Menunggu Penilaian')
+                    ->icon('heroicon-o-arrow-uturn-left')
+                    ->color('gray')
+                    ->iconButton()
+                    ->requiresConfirmation()
+                    ->modalHeading('Batalkan Status Kurasi')
+                    ->modalDescription('Apakah Anda yakin ingin membatalkan status kurasi ini dan mengembalikannya ke status Menunggu Penilaian Kurasi?')
+                    ->action(function (StudentAchievement $record): void {
+                        $record->update([
+                            'is_curation'      => false,
+                            'curation_status'  => 'pending',
+                            'status'           => 'pending',
+                            'curation_note'    => null,
+                            'rejection_reason' => null,
+                            'verified_by'      => null,
+                            'verified_at'      => null,
+                        ]);
+                        Notification::make()->title('Status kurasi dibatalkan & dikembalikan ke Menunggu Penilaian')->info()->send();
                     }),
             ])
             ->bulkActions([BulkActionGroup::make([DeleteBulkAction::make()])]);
@@ -659,6 +966,7 @@ class StudentAchievementResource extends Resource
         return [
             'index' => Pages\ListStudentAchievements::route('/'),
             'view'  => Pages\ViewStudentAchievement::route('/{record}'),
+            'edit'  => Pages\EditStudentAchievement::route('/{record}/edit'),
         ];
     }
 }

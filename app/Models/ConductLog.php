@@ -11,6 +11,12 @@ class ConductLog extends Model
         'student_id', 'teacher_id', 'type', 'category_id', 'photo', 'note',
         'description', 'severity',
         'prestasi_type', 'lomba_name', 'lomba_level', 'lomba_rank',
+        'is_self_reported', 'status', 'verified_at', 'verifier_id',
+    ];
+
+    protected $casts = [
+        'is_self_reported' => 'boolean',
+        'verified_at'      => 'datetime',
     ];
 
     public function student(): BelongsTo
@@ -23,9 +29,29 @@ class ConductLog extends Model
         return $this->belongsTo(User::class, 'teacher_id');
     }
 
+    public function verifier(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'verifier_id');
+    }
+
     public function category(): BelongsTo
     {
         return $this->belongsTo(ConductCategory::class, 'category_id');
+    }
+
+    public function isPending(): bool
+    {
+        return $this->status === 'pending';
+    }
+
+    public function scopePending($query)
+    {
+        return $query->where('status', 'pending');
+    }
+
+    public function scopeVerified($query)
+    {
+        return $query->where('status', 'verified');
     }
 
     public function isPrestasi(): bool

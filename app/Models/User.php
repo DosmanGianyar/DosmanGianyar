@@ -19,17 +19,20 @@ class User extends Authenticatable implements FilamentUser
     use HasApiTokens, HasFactory, Notifiable;
 
     protected $fillable = [
-        'name', 'email', 'password', 'must_change_password', 'role', 'photo', 'phone',
-        'nis', 'nisn', 'gender', 'class_id', 'parent_name', 'parent_phone', 'birth_date', 'address',
-        'nip', 'subject',
+        'name', 'nickname', 'email', 'password', 'must_change_password', 'role', 'photo', 'phone',
+        'nis', 'nisn', 'gender', 'class_id', 'parent_name', 'parent_phone', 'birth_date', 'birth_place', 'religion', 'citizenship',
+        'child_order', 'siblings_count', 'step_siblings_count', 'foster_siblings_count', 'orphan_status', 'daily_language',
+        'address', 'living_with', 'nip', 'subject',
         'device_id', 'device_locked_at', 'qr_code_token',
         'hobbies', 'aspirations', 'rt_rw', 'kelurahan', 'kecamatan', 'kabupaten',
         'residence_status', 'transportation', 'distance_km', 'travel_time_minutes',
-        'father_name', 'father_phone', 'father_job',
-        'mother_name', 'mother_phone', 'mother_job',
-        'guardian_name', 'guardian_phone', 'guardian_job',
+        'blood_type', 'medical_history', 'physical_disability', 'height_cm', 'weight_kg',
+        'prev_school_name', 'prev_sttb_no', 'prev_sttb_date', 'prev_study_duration',
+        'transfer_from_school', 'transfer_reason', 'admission_grade', 'admission_class_group', 'admission_major', 'admission_date',
+        'father_name', 'father_phone', 'father_job', 'father_birth_place', 'father_birth_date', 'father_religion', 'father_citizenship', 'father_education', 'father_income', 'father_address', 'father_status',
+        'mother_name', 'mother_phone', 'mother_job', 'mother_birth_place', 'mother_birth_date', 'mother_religion', 'mother_citizenship', 'mother_education', 'mother_income', 'mother_address', 'mother_status',
+        'guardian_name', 'guardian_phone', 'guardian_job', 'guardian_birth_place', 'guardian_birth_date', 'guardian_religion', 'guardian_citizenship', 'guardian_education', 'guardian_income', 'guardian_address', 'guardian_relation',
         'emergency_contact_name', 'emergency_contact_phone', 'emergency_contact_relation',
-        'blood_type', 'medical_history', 'height_cm', 'weight_kg',
     ];
 
     protected $hidden = ['password', 'remember_token'];
@@ -39,6 +42,11 @@ class User extends Authenticatable implements FilamentUser
         return [
             'email_verified_at'     => 'datetime',
             'birth_date'            => 'date',
+            'prev_sttb_date'        => 'date',
+            'admission_date'        => 'date',
+            'father_birth_date'     => 'date',
+            'mother_birth_date'     => 'date',
+            'guardian_birth_date'   => 'date',
             'device_locked_at'      => 'datetime',
             'password'              => 'hashed',
             'must_change_password'  => 'boolean',
@@ -46,6 +54,10 @@ class User extends Authenticatable implements FilamentUser
             'travel_time_minutes'   => 'integer',
             'height_cm'             => 'integer',
             'weight_kg'             => 'integer',
+            'child_order'           => 'integer',
+            'siblings_count'        => 'integer',
+            'step_siblings_count'   => 'integer',
+            'foster_siblings_count' => 'integer',
         ];
     }
 
@@ -299,11 +311,15 @@ class User extends Authenticatable implements FilamentUser
     }
 
     // ─── Photo ───────────────────────────────────────────────────────────────
-    public function getPhotoUrlAttribute(): string
+    public function getPhotoUrlAttribute(): ?string
     {
-        return $this->photo
-            ? asset('storage/' . $this->photo)
-            : asset('images/default-avatar.png');
+        if ($this->photo && trim($this->photo) !== '') {
+            if (str_starts_with($this->photo, 'http://') || str_starts_with($this->photo, 'https://')) {
+                return $this->photo;
+            }
+            return asset('storage/' . $this->photo);
+        }
+        return null;
     }
 
     public function getInitialsAttribute(): string

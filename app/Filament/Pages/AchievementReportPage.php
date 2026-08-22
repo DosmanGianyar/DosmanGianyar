@@ -20,9 +20,9 @@ class AchievementReportPage extends Page implements HasTable
 {
     use InteractsWithTable;
 
-    protected static string|\BackedEnum|null $navigationIcon  = 'heroicon-o-document-chart-bar';
+    protected static string|\BackedEnum|null $navigationIcon  = 'heroicon-o-trophy';
     protected static string|\UnitEnum|null   $navigationGroup = 'Prestasi & Ekskul';
-    protected static ?string                 $navigationLabel = 'Laporan Prestasi Siswa';
+    protected static ?string                 $navigationLabel = 'Rekap Prestasi Disetujui (PDF/Excel)';
     protected static ?string                 $slug            = 'achievement-report';
     protected static ?int                    $navigationSort  = 13;
 

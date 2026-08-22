@@ -128,9 +128,9 @@
             <tbody class="divide-y divide-gray-50">
                 @foreach($studentData as $row)
                 <tr class="hover:bg-gray-50/50">
-                    <td class="px-3 py-2 sticky left-0 bg-white font-medium text-gray-800 truncate max-w-[140px]">
+                    <td class="px-3 py-2 sticky left-0 bg-white font-medium text-gray-800 break-words leading-tight min-w-[140px] max-w-[180px]">
                         <button type="button" @click="fetchDetail({{ $row['student']->id }})"
-                            class="hover:underline text-blue-600 font-semibold cursor-pointer text-left truncate max-w-[130px]">
+                            class="hover:underline text-blue-600 font-semibold cursor-pointer text-left break-words leading-tight">
                             {{ $row['student']->name }}
                         </button>
                     </td>

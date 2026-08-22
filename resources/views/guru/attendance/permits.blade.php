@@ -29,7 +29,7 @@
         <div class="mb-3">
             <div class="flex items-start justify-between gap-2 mb-1.5">
                 <div class="min-w-0">
-                    <p class="font-semibold text-gray-800 text-sm truncate">{{ $permit->student->name }}</p>
+                    <p class="font-semibold text-gray-800 text-sm leading-snug break-words">{{ $permit->student->name }}</p>
                     <p class="text-xs text-gray-400">{{ $permit->student->schoolClass?->name }}</p>
                 </div>
                 <span class="text-xs text-gray-400 shrink-0 text-right">

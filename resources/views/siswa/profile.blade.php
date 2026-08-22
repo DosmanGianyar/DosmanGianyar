@@ -70,6 +70,22 @@
             </p>
         </div>
 
+        {{-- Ketentuan Foto Profil Resmi Siswa --}}
+        <div class="mx-4 mb-4 bg-red-50/90 border border-red-200/90 rounded-2xl p-3.5 flex items-start gap-3 shadow-xs">
+            <div class="w-8 h-8 bg-red-600 text-white rounded-xl flex items-center justify-center text-sm font-bold shrink-0 shadow-xs">📌</div>
+            <div class="text-xs text-red-950 space-y-1">
+                <p class="font-extrabold text-red-900 flex items-center gap-1">
+                    Ketentuan Foto Profil Resmi Siswa:
+                </p>
+                <ul class="list-disc list-inside space-y-0.5 text-red-800 font-medium leading-relaxed">
+                    <li>Wajib foto resmi berpakaian sekolah rapi.</li>
+                    <li><strong>Latar belakang (background) warna merah</strong>.</li>
+                    <li><strong>Diutamakan berpakaian Batik SMAN 1 Gianyar</strong>.</li>
+                </ul>
+                <p class="text-[11px] text-red-700 font-semibold pt-0.5">⚠️ Foto yang tidak sesuai aturan sekolah dapat dihapus oleh Admin.</p>
+            </div>
+        </div>
+
         {{-- Grid Info --}}
         <div class="px-4 pb-4 grid grid-cols-3 gap-2">
             <div class="bg-gray-50 rounded-xl px-3 py-2.5">
@@ -155,6 +171,60 @@
         <form method="POST" action="{{ route('siswa.profile.update') }}" class="space-y-4">
             @csrf @method('PUT')
 
+            {{-- Section A: Data Diri Siswa --}}
+            <div class="bg-gray-50/70 p-3.5 rounded-xl border border-gray-200/70 space-y-3">
+                <h4 class="text-xs font-bold text-indigo-900 uppercase tracking-wider flex items-center gap-1.5">
+                    <span>👤 Data Diri Siswa</span>
+                </h4>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Nama Panggilan</label>
+                        <input type="text" name="nickname" value="{{ old('nickname', $siswa->nickname) }}" @disabled(!$canEditProfile)
+                            class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 bg-white focus:outline-none focus:border-blue-500 disabled:bg-gray-100" placeholder="Contoh: Budi">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Tempat Lahir</label>
+                        <input type="text" name="birth_place" value="{{ old('birth_place', $siswa->birth_place) }}" @disabled(!$canEditProfile)
+                            class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 bg-white focus:outline-none focus:border-blue-500 disabled:bg-gray-100" placeholder="Gianyar">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Agama</label>
+                        <input type="text" name="religion" value="{{ old('religion', $siswa->religion) }}" @disabled(!$canEditProfile)
+                            class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 bg-white focus:outline-none focus:border-blue-500 disabled:bg-gray-100" placeholder="Hindu / Islam / dll">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Kewarganegaraan</label>
+                        <input type="text" name="citizenship" value="{{ old('citizenship', $siswa->citizenship ?? 'WNI') }}" @disabled(!$canEditProfile)
+                            class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 bg-white focus:outline-none focus:border-blue-500 disabled:bg-gray-100">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Anak Keberapa</label>
+                        <input type="number" name="child_order" value="{{ old('child_order', $siswa->child_order) }}" @disabled(!$canEditProfile)
+                            class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 bg-white focus:outline-none focus:border-blue-500 disabled:bg-gray-100" placeholder="1">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Jml Saudara Kandung</label>
+                        <input type="number" name="siblings_count" value="{{ old('siblings_count', $siswa->siblings_count) }}" @disabled(!$canEditProfile)
+                            class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 bg-white focus:outline-none focus:border-blue-500 disabled:bg-gray-100" placeholder="2">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Status Anak (Yatim/Piatu)</label>
+                        <input type="text" name="orphan_status" value="{{ old('orphan_status', $siswa->orphan_status) }}" @disabled(!$canEditProfile)
+                            class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 bg-white focus:outline-none focus:border-blue-500 disabled:bg-gray-100" placeholder="Lengkap / Yatim / Piatu">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Bahasa Sehari-hari</label>
+                        <input type="text" name="daily_language" value="{{ old('daily_language', $siswa->daily_language) }}" @disabled(!$canEditProfile)
+                            class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 bg-white focus:outline-none focus:border-blue-500 disabled:bg-gray-100" placeholder="Bahasa Indonesia / Bali">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Tinggal Dengan</label>
+                        <input type="text" name="living_with" value="{{ old('living_with', $siswa->living_with) }}" @disabled(!$canEditProfile)
+                            class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 bg-white focus:outline-none focus:border-blue-500 disabled:bg-gray-100" placeholder="Orang Tua / Wali">
+                    </div>
+                </div>
+            </div>
+
             {{-- Section 1: Kontak & Domisili --}}
             <div class="bg-gray-50/70 p-3.5 rounded-xl border border-gray-200/70 space-y-3">
                 <h4 class="text-xs font-bold text-blue-900 uppercase tracking-wider flex items-center gap-1.5">
@@ -165,6 +235,14 @@
                         <label class="block text-xs font-semibold text-gray-600 mb-1">No. WhatsApp Siswa</label>
                         <input type="text" name="phone" value="{{ old('phone', $siswa->phone) }}" @disabled(!$canEditProfile)
                             class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 bg-white focus:outline-none focus:border-blue-500 disabled:bg-gray-100" placeholder="08xxxxxxxxxx">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Alamat E-mail</label>
+                        <input type="email" name="email" value="{{ old('email', $siswa->email) }}" @disabled(!$canEditProfile)
+                            class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 bg-white focus:outline-none focus:border-blue-500 disabled:bg-gray-100" placeholder="siswa@sekolah.sch.id">
+                        @error('email')
+                            <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
+                        @enderror
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-gray-600 mb-1">Hobi / Minat</label>
@@ -304,11 +382,38 @@
                         <label class="block text-xs font-semibold text-gray-600 mb-1">Berat Badan (kg)</label>
                         <input type="number" name="weight_kg" value="{{ old('weight_kg', $siswa->weight_kg) }}" @disabled(!$canEditProfile) class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 bg-white focus:outline-none focus:border-blue-500 disabled:bg-gray-100" placeholder="55">
                     </div>
-                    <div class="md:col-span-3">
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">Riwayat Penyakit Khusus / Alergi</label>
-                        <textarea name="medical_history" rows="2" @disabled(!$canEditProfile) class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 bg-white focus:outline-none focus:border-blue-500 disabled:bg-gray-100" placeholder="Alergi udang / Asma saat dingin">{{ old('medical_history', $siswa->medical_history) }}</textarea>
+            {{-- Section D: Pendidikan & Penerimaan --}}
+            <div class="bg-gray-50/70 p-3.5 rounded-xl border border-gray-200/70 space-y-3">
+                <h4 class="text-xs font-bold text-purple-900 uppercase tracking-wider flex items-center gap-1.5">
+                    <span>🎓 Pendidikan Sebelumnya & Penerimaan</span>
+                </h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Pendidikan Sebelumnya (Lulusan Dari)</label>
+                        <input type="text" name="prev_school_name" value="{{ old('prev_school_name', $siswa->prev_school_name) }}" @disabled(!$canEditProfile) class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 bg-white focus:outline-none focus:border-blue-500 disabled:bg-gray-100" placeholder="SMP N 1 Gianyar">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Nomor STTB / Ijazah</label>
+                        <input type="text" name="prev_sttb_no" value="{{ old('prev_sttb_no', $siswa->prev_sttb_no) }}" @disabled(!$canEditProfile) class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 bg-white focus:outline-none focus:border-blue-500 disabled:bg-gray-100">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Tanggal STTB / Ijazah</label>
+                        <input type="date" name="prev_sttb_date" value="{{ old('prev_sttb_date', $siswa->prev_sttb_date?->toDateString()) }}" @disabled(!$canEditProfile) class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 bg-white focus:outline-none focus:border-blue-500 disabled:bg-gray-100">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Lama Belajar</label>
+                        <input type="text" name="prev_study_duration" value="{{ old('prev_study_duration', $siswa->prev_study_duration) }}" @disabled(!$canEditProfile) class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 bg-white focus:outline-none focus:border-blue-500 disabled:bg-gray-100" placeholder="3 Tahun">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Pindahan Dari Sekolah</label>
+                        <input type="text" name="transfer_from_school" value="{{ old('transfer_from_school', $siswa->transfer_from_school) }}" @disabled(!$canEditProfile) class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 bg-white focus:outline-none focus:border-blue-500 disabled:bg-gray-100">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Alasan Pindah</label>
+                        <input type="text" name="transfer_reason" value="{{ old('transfer_reason', $siswa->transfer_reason) }}" @disabled(!$canEditProfile) class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 bg-white focus:outline-none focus:border-blue-500 disabled:bg-gray-100">
                     </div>
                 </div>
+            </div>
             </div>
 
             @if($canEditProfile)
@@ -477,6 +582,11 @@
                     <span>✂️ Sesuaikan & Geser Foto Profil</span>
                 </h3>
                 <button type="button" onclick="closeCropModal()" class="text-gray-400 hover:text-white text-lg font-bold cursor-pointer">✕</button>
+            </div>
+
+            <div class="px-3.5 py-2.5 bg-red-950/80 border-b border-red-800 text-xs text-red-100 flex items-center gap-2">
+                <span class="text-base shrink-0">📌</span>
+                <span><strong>Ingat:</strong> Gunakan <strong>foto resmi berpakaian sekolah (diutamakan Batik SMAN 1 Gianyar)</strong> dengan <strong>latar belakang merah</strong>.</span>
             </div>
 
             <div class="p-4 bg-gray-900 flex-1 overflow-hidden flex items-center justify-center min-h-[280px] max-h-[420px] relative">

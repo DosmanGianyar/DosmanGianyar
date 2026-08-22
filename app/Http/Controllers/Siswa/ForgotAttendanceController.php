@@ -42,25 +42,45 @@ class ForgotAttendanceController extends Controller
 
         $student = Auth::user()->load('schoolClass.homeroomTeacher');
 
-        // Reject if a pending/approved request already exists for this date
-        $existing = ForgotAttendanceRequest::where('student_id', $student->id)
-            ->where('date', $data['date'])
-            ->whereIn('status', ['pending', 'approved'])
-            ->first();
+        $targetType = $data['type'] ?? 'masuk';
 
-        if ($existing) {
-            return back()->withErrors(['date' => 'Sudah ada pengajuan lupa absen untuk tanggal ini.'])->withInput();
+        // Pengecekan pengajuan yang sudah ada berdasarkan jenis (masuk / pulang / keduanya)
+        $existingQuery = ForgotAttendanceRequest::where('student_id', $student->id)
+            ->where('date', $data['date'])
+            ->whereIn('status', ['pending', 'approved']);
+
+        if ($targetType === 'masuk') {
+            $existing = (clone $existingQuery)->whereIn('type', ['masuk', 'keduanya'])->first();
+        } elseif ($targetType === 'pulang') {
+            $existing = (clone $existingQuery)->whereIn('type', ['pulang', 'keduanya'])->first();
+        } else {
+            $existing = (clone $existingQuery)->first();
         }
 
-        // Reject if attendance already recorded with a non-alpa status
+        if ($existing) {
+            $typeLabel = match ($targetType) {
+                'masuk'   => 'datang',
+                'pulang'  => 'pulang',
+                default   => 'datang & pulang',
+            };
+            return back()->withErrors(['date' => "Sudah ada pengajuan lupa absen {$typeLabel} untuk tanggal ini."])->withInput();
+        }
+
+        // Pengecekan data presensi yang sudah tercatat
         $attendance = Attendance::where('user_id', $student->id)
             ->whereDate('date', $data['date'])
             ->first();
 
-        if ($attendance && $attendance->status !== 'alpa' && $attendance->check_in_time && $attendance->check_out_time) {
-            return back()->withErrors([
-                'date' => 'Presensi tanggal ini sudah tercatat sebagai ' . $attendance->status_label . ' (sudah absen datang & pulang).',
-            ])->withInput();
+        if ($attendance && $attendance->status !== 'alpa') {
+            if ($targetType === 'masuk' && $attendance->check_in_time) {
+                return back()->withErrors(['date' => 'Presensi masuk/datang untuk tanggal ini sudah tercatat.'])->withInput();
+            }
+            if ($targetType === 'pulang' && $attendance->check_out_time) {
+                return back()->withErrors(['date' => 'Presensi pulang untuk tanggal ini sudah tercatat.'])->withInput();
+            }
+            if ($targetType === 'keduanya' && $attendance->check_in_time && $attendance->check_out_time) {
+                return back()->withErrors(['date' => 'Presensi datang & pulang untuk tanggal ini sudah tercatat lengkap.'])->withInput();
+            }
         }
 
         ForgotAttendanceRequest::create([

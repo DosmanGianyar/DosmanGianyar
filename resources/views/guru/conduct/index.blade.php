@@ -5,6 +5,21 @@
 @section('content')
 <div class="space-y-4">
 
+    {{-- Banner Verifikasi Gerbang --}}
+    <div class="bg-gradient-to-r from-amber-500 to-orange-600 rounded-2xl p-4 text-white shadow-sm flex items-center justify-between">
+        <div>
+            <h3 class="font-bold text-sm flex items-center gap-2">
+                <span>⚡ Verifikasi Pembinaan Mandiri (Gerbang)</span>
+            </h3>
+            <p class="text-xs text-amber-100 mt-0.5">Verifikasi siswa terlambat yang mengajukan pembinaan dari HP.</p>
+        </div>
+        <a href="{{ route('guru.conduct.today') }}"
+            class="px-3.5 py-2 bg-white text-amber-700 hover:bg-amber-50 text-xs font-bold rounded-xl transition-all shadow-sm shrink-0 flex items-center gap-1.5">
+            <span>Lihat List Pengajuan Hari Ini</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+        </a>
+    </div>
+
     {{-- Summary Cards --}}
     <div class="grid grid-cols-2 gap-3">
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
@@ -62,7 +77,7 @@
                 <span class="text-xs font-bold text-blue-600">{{ $student->initials }}</span>
             </div>
             <div class="flex-1 min-w-0">
-                <p class="font-medium text-sm text-gray-800 truncate">{{ $student->name }}</p>
+                <p class="font-medium text-sm text-gray-800 leading-snug break-words">{{ $student->name }}</p>
                 <p class="text-xs text-gray-400">{{ $student->nis }}</p>
             </div>
             <div class="flex items-center gap-1.5 shrink-0">

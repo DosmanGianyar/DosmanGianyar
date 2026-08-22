@@ -80,6 +80,24 @@ class ListUsers extends ListRecords
                         ->send();
                 }),
 
+            Actions\Action::make('print_buku_induk_class')
+                ->label('Cetak Buku Induk Per Kelas')
+                ->icon('heroicon-o-printer')
+                ->color('primary')
+                ->modalHeading('Pilih Kelas untuk Cetak Buku Induk')
+                ->modalSubmitActionLabel('Buka Halaman Cetak')
+                ->form([
+                    \Filament\Forms\Components\Select::make('class_id')
+                        ->label('Kelas')
+                        ->options(\App\Models\SchoolClass::orderBy('grade')->orderBy('name')->pluck('name', 'id'))
+                        ->searchable()
+                        ->preload()
+                        ->required(),
+                ])
+                ->action(function (array $data) {
+                    return redirect()->route('admin.buku-induk.print-class', $data['class_id']);
+                }),
+
             Actions\CreateAction::make()->label('Tambah Siswa'),
         ];
     }

@@ -163,7 +163,7 @@ class User {
       subjects:          (json['subjects'] as List<dynamic>? ?? [])
                              .map((e) => SubjectRef.fromJson(e as Map<String, dynamic>))
                              .toList(),
-      photoUrl:          json['photo_url'] as String?,
+      photoUrl:          _normalizeUrl(json['photo_url'] as String?),
       classId:           json['class_id'] as int?,
       className:         json['class_name'] as String?,
       homeroomClassId:   json['homeroom_class_id'] as int?,
@@ -261,5 +261,19 @@ class User {
     final parts = name.trim().split(' ');
     if (parts.length >= 2) return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
     return name.isNotEmpty ? name[0].toUpperCase() : '?';
+  }
+
+  static String? _normalizeUrl(String? url) {
+    if (url == null || url.trim().isEmpty) return null;
+    var u = url.trim();
+    if (u.contains('sims.sman1-gianyar.sch.id')) {
+      u = u.replaceAll('https://sims.sman1-gianyar.sch.id', 'https://36.93.15.146')
+           .replaceAll('http://sims.sman1-gianyar.sch.id', 'https://36.93.15.146');
+    }
+    if (u.contains('localhost')) {
+      u = u.replaceAll('https://localhost', 'https://36.93.15.146')
+           .replaceAll('http://localhost', 'https://36.93.15.146');
+    }
+    return u;
   }
 }

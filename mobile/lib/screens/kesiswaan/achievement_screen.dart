@@ -56,7 +56,7 @@ class _AchievementScreenState extends State<AchievementScreen> {
     return Scaffold(
       backgroundColor: AppColors.slate100,
       appBar: AppBar(
-        title: const Text('Kurasi Prestasi Siswa',
+        title: const Text('Pelaporan Prestasi Siswa',
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 16)),
         backgroundColor: const Color(0xFF0F2460),
         foregroundColor: Colors.white,
@@ -66,7 +66,7 @@ class _AchievementScreenState extends State<AchievementScreen> {
         onPressed: _openCreate,
         backgroundColor: AppColors.yellow600,
         icon: const Icon(Icons.add_rounded),
-        label: const Text('Laporkan / Kurasi Prestasi'),
+        label: const Text('Laporkan Prestasi'),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -284,9 +284,17 @@ class _CreateSheetState extends State<_CreateSheet> {
   final List<String> _docStandardChecklist = [];
   final List<String> _rewardTypes          = [];
 
-  List<AchievementCategory> _categories      = [];
+  List<AchievementCategory> _categories = const [
+    AchievementCategory(id: 1, name: 'Akademik / Ilmiah'),
+    AchievementCategory(id: 2, name: 'Olahraga'),
+    AchievementCategory(id: 3, name: 'Seni & Budaya'),
+    AchievementCategory(id: 4, name: 'Teknologi & Inovasi'),
+    AchievementCategory(id: 5, name: 'Kepemimpinan & Organisasi'),
+    AchievementCategory(id: 6, name: 'Keagamaan'),
+    AchievementCategory(id: 7, name: 'Lainnya'),
+  ];
   List<Map<String, dynamic>> _selectedTeamMembers = [];
-  bool                     _loadingCats       = true;
+  bool                     _loadingCats       = false;
   bool                     _isSaving          = false;
 
   final List<(String, String)> _levels = const [
@@ -330,12 +338,17 @@ class _CreateSheetState extends State<_CreateSheet> {
   Future<void> _loadCategories() async {
     try {
       final body = await ApiClient.get('/achievements/categories');
-      final list = (body['categories'] as List)
-          .map((e) => AchievementCategory.fromJson(e as Map<String, dynamic>))
-          .toList();
-      setState(() { _categories = list; _loadingCats = false; });
+      final listData = body['categories'] ?? body['data'];
+      if (listData != null && listData is List && listData.isNotEmpty) {
+        final list = listData
+            .map((e) => AchievementCategory.fromJson(e as Map<String, dynamic>))
+            .toList();
+        if (mounted) setState(() { _categories = list; _loadingCats = false; });
+      } else {
+        if (mounted) setState(() => _loadingCats = false);
+      }
     } catch (_) {
-      setState(() => _loadingCats = false);
+      if (mounted) setState(() => _loadingCats = false);
     }
   }
 
@@ -611,64 +624,12 @@ class _CreateSheetState extends State<_CreateSheet> {
                 color: AppColors.gray200, borderRadius: BorderRadius.circular(2)),
             )),
             const SizedBox(height: 16),
-            const Text('Laporkan & Kurasi Prestasi',
+            const Text('Laporkan Prestasi Siswa',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.gray800)),
             const SizedBox(height: 4),
-            const Text('Pilih tujuan pengajuan dan lengkapi metadata prestasi.',
+            const Text('Lengkapi metadata prestasi yang telah diraih.',
               style: TextStyle(fontSize: 11, color: AppColors.gray400)),
             const SizedBox(height: 16),
-
-            // ─── CARDS PILIHAN UTAMA MODE PENGAJUAN ───────────────────────
-            Row(children: [
-              Expanded(
-                child: GestureDetector(
-                  onTap: () => setState(() => _isCuration = false),
-                  child: Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: !_isCuration ? AppColors.blue50 : Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: !_isCuration ? AppColors.blue600 : AppColors.gray200, width: !_isCuration ? 2 : 1),
-                    ),
-                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      Row(children: [
-                        const Icon(Icons.emoji_events_rounded, color: AppColors.blue600, size: 20),
-                        const Spacer(),
-                        Radio<bool>(value: false, groupValue: _isCuration, onChanged: (v) => setState(() => _isCuration = false)),
-                      ]),
-                      const Text('Hanya Laporkan', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.gray900)),
-                      const SizedBox(height: 2),
-                      const Text('Portofolio & Poin Sekolah', style: TextStyle(fontSize: 10, color: AppColors.gray500)),
-                    ]),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: GestureDetector(
-                  onTap: () => setState(() => _isCuration = true),
-                  child: Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: _isCuration ? AppColors.purple50 : Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: _isCuration ? AppColors.purple700 : AppColors.gray200, width: _isCuration ? 2 : 1),
-                    ),
-                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      Row(children: [
-                        const Icon(Icons.verified_rounded, color: AppColors.purple700, size: 20),
-                        const Spacer(),
-                        Radio<bool>(value: true, groupValue: _isCuration, onChanged: (v) => setState(() => _isCuration = true)),
-                      ]),
-                      const Text('Laporkan & Kurasi', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.gray900)),
-                      const SizedBox(height: 2),
-                      const Text('Persyaratan Kemendikdasmen', style: TextStyle(fontSize: 10, color: AppColors.gray500)),
-                    ]),
-                  ),
-                ),
-              ),
-            ]),
-            const SizedBox(height: 20),
 
             // Judul Prestasi
             const _Label('Judul Capaian / Prestasi *',
@@ -876,7 +837,7 @@ class _CreateSheetState extends State<_CreateSheet> {
             const SizedBox(height: 14),
 
             // Sertifikat
-            const _Label('Sertifikat / Piagam Juara (opsional)',
+            const _Label('Sertifikat / Piagam Juara (Opsional)',
               subText: 'Scan/foto piagam resmi yang mencantumkan nama & NISN'),
             const SizedBox(height: 6),
             _ImagePickerTile(
@@ -886,126 +847,44 @@ class _CreateSheetState extends State<_CreateSheet> {
             ),
             const SizedBox(height: 14),
 
-            // ─── 5 POIN BERKAS KURASI KEMENDIKDASMEN ───────────────────────
-            if (_isCuration) ...[
-              const SizedBox(height: 10),
-              Container(
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: AppColors.purple50.withValues(alpha: 0.6),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.purple200),
-                ),
-                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  const Row(children: [
-                    Icon(Icons.verified_rounded, size: 18, color: AppColors.purple700),
-                    SizedBox(width: 6),
-                    Text('5 Poin Berkas Persyaratan Kurasi',
-                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.purple900)),
-                  ]),
-                  const SizedBox(height: 4),
-                  const Text('Upload berkas kurasi resmi agar ajang terdaftar di Puspresnas & BTIKP.',
-                      style: TextStyle(fontSize: 11, color: AppColors.purple700)),
-                  const SizedBox(height: 14),
+            // Surat Tugas
+            const _Label('Surat Tugas / SK Penugasan Sekolah (Opsional)',
+              subText: 'Scan surat penugasan dari sekolah jika ada'),
+            const SizedBox(height: 6),
+            _ImagePickerTile(
+              file: _assignmentLetter,
+              label: 'Pilih file surat tugas',
+              onTap: () => _pickFile(type: 2),
+            ),
+            const SizedBox(height: 14),
 
-                  // P1: Dokumen Standar Juknis
-                  const _Label('P1: Dokumen Juknis/Pedoman Ajang', subText: 'File Juknis PDF/DOCX atau Tautan URL'),
-                  const SizedBox(height: 6),
-                  _ImagePickerTile(file: _docStandardFile, label: 'Upload Berkas Juknis P1', onTap: () => _pickFile(type: 10)),
-                  const SizedBox(height: 6),
-                  _InputField(controller: _docStandardUrlCtrl, hint: 'Atau paste URL Website Juknis Resmi...'),
-                  const SizedBox(height: 14),
-
-                  // P2: Tingkat Seleksi
-                  const _Label('P2: Tingkatan Seleksi Lomba', subText: 'Tahapan seleksi yang dilalui'),
-                  const SizedBox(height: 6),
-                  DropdownButtonFormField<String>(
-                    value: _selectionLevel,
-                    items: const [
-                      DropdownMenuItem(value: '3_tingkat', child: Text('≥3 Tingkat (Kab -> Prov -> Nas)', style: TextStyle(fontSize: 12))),
-                      DropdownMenuItem(value: '2_tingkat', child: Text('2 Tingkat (Prov -> Nas)', style: TextStyle(fontSize: 12))),
-                      DropdownMenuItem(value: '1_tingkat', child: Text('1 Tingkat (Langsung Final)', style: TextStyle(fontSize: 12))),
-                    ],
-                    onChanged: (v) => setState(() => _selectionLevel = v ?? '3_tingkat'),
-                    decoration: const InputDecoration(
-                      filled: true, fillColor: Colors.white,
-                      contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                      border: OutlineInputBorder(borderRadius: AppRadius.input, borderSide: BorderSide(color: AppColors.gray200)),
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  _ImagePickerTile(file: _selectionLevelFile, label: 'Upload Bukti Tahapan Seleksi P2', onTap: () => _pickFile(type: 11)),
-                  const SizedBox(height: 14),
-
-                  // P3: Konsistensi Frekuensi
-                  const _Label('P3: Konsistensi Frekuensi Lomba', subText: 'Rutinitas ajang lintas tahun'),
-                  const SizedBox(height: 6),
-                  DropdownButtonFormField<String>(
-                    value: _frequencyConsistency,
-                    items: const [
-                      DropdownMenuItem(value: 'berturut_gt3', child: Text('Berturut-turut >3 Kali', style: TextStyle(fontSize: 12))),
-                      DropdownMenuItem(value: 'berturut_3', child: Text('Berturut 3 Kali', style: TextStyle(fontSize: 12))),
-                      DropdownMenuItem(value: 'berturut_2', child: Text('Berturut 2 Kali', style: TextStyle(fontSize: 12))),
-                      DropdownMenuItem(value: 'tidak_berturut', child: Text('Tidak Berturut-turut', style: TextStyle(fontSize: 12))),
-                    ],
-                    onChanged: (v) => setState(() => _frequencyConsistency = v ?? 'berturut_3'),
-                    decoration: const InputDecoration(
-                      filled: true, fillColor: Colors.white,
-                      contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                      border: OutlineInputBorder(borderRadius: AppRadius.input, borderSide: BorderSide(color: AppColors.gray200)),
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  _ImagePickerTile(file: _frequencyConsistencyFile, label: 'Upload Berkas Juknis Lintas Tahun P3', onTap: () => _pickFile(type: 12)),
-                  const SizedBox(height: 14),
-
-                  // P4: Sarana Prasarana
-                  const _Label('P4: Sarana & Prasarana Lomba', subText: 'Fasilitas tempat & alat lomba'),
-                  const SizedBox(height: 6),
-                  DropdownButtonFormField<String>(
-                    value: _infrastructureType,
-                    items: const [
-                      DropdownMenuItem(value: 'utama_pendukung', child: Text('Sarana Utama & Pendukung Lengkap', style: TextStyle(fontSize: 12))),
-                      DropdownMenuItem(value: 'utama', child: Text('Sarana Utama Saja', style: TextStyle(fontSize: 12))),
-                      DropdownMenuItem(value: 'pendukung', child: Text('Sarana Pendukung Saja', style: TextStyle(fontSize: 12))),
-                    ],
-                    onChanged: (v) => setState(() => _infrastructureType = v ?? 'utama_pendukung'),
-                    decoration: const InputDecoration(
-                      filled: true, fillColor: Colors.white,
-                      contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                      border: OutlineInputBorder(borderRadius: AppRadius.input, borderSide: BorderSide(color: AppColors.gray200)),
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  _ImagePickerTile(file: _infrastructureFile, label: 'Upload Foto Sarpras Lomba P4', onTap: () => _pickFile(type: 13)),
-                  const SizedBox(height: 14),
-
-                  // P5: Penghargaan & SK Rekap
-                  const _Label('P5: Penghargaan & SK Rekap Pemenang', subText: 'Scan Piagam, Foto Panggung, & SK Rekap'),
-                  const SizedBox(height: 6),
-                  _ImagePickerTile(file: _rewardCertFile, label: 'Upload Scan Piagam P5', onTap: () => _pickFile(type: 14)),
-                  const SizedBox(height: 6),
-                  _ImagePickerTile(file: _rewardPhotoFile, label: 'Upload Foto Panggung Juara P5', onTap: () => _pickFile(type: 15)),
-                  const SizedBox(height: 6),
-                  _ImagePickerTile(file: _rewardRecapFile, label: 'Upload Dokumen SK Rekap Pemenang P5', onTap: () => _pickFile(type: 16)),
-                ]),
-              ),
-            ],
+            // Dokumen Juknis & SK Rekap
+            const _Label('Dokumen Juknis / Pedoman / SK Rekap Pemenang (Opsional)',
+              subText: 'File pedoman lomba atau SK rekap pemenang resmi'),
+            const SizedBox(height: 6),
+            _ImagePickerTile(
+              file: _docStandardFile,
+              label: 'Pilih file juknis / SK rekap pemenang',
+              onTap: () => _pickFile(type: 10),
+            ),
+            const SizedBox(height: 6),
+            _InputField(controller: _docStandardUrlCtrl, hint: 'Atau paste URL Website / Berita Resmi Lomba...'),
+            const SizedBox(height: 14),
 
             const SizedBox(height: 20),
 
             FilledButton(
               onPressed: _isSaving ? null : _submit,
               style: FilledButton.styleFrom(
-                backgroundColor: _isCuration ? AppColors.purple700 : AppColors.blue600,
+                backgroundColor: AppColors.blue600,
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
               ),
               child: _isSaving
                   ? const SizedBox(width: 18, height: 18,
                       child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                  : Text(_isCuration ? 'Kirim Laporkan & Kurasi Kemendikdasmen' : 'Kirim Laporkan Prestasi Internal',
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                  : const Text('Kirim Laporan Prestasi',
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
             ),
           ],
         ),
@@ -1173,7 +1052,7 @@ class _CurationGuideCardState extends State<_CurationGuideCard> {
                         Text('5 Syarat Lomba Bisa Dikurasi',
                           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
                         SizedBox(height: 2),
-                        Text('Panduan resmi Pusprestnas / BPTI Kemendikdasmen',
+                        Text('Panduan resmi Puspresnas / BPTI Kemendikdasmen',
                           style: TextStyle(color: Color(0xFFC7D2FE), fontSize: 10.5)),
                       ],
                     ),
@@ -1192,36 +1071,76 @@ class _CurationGuideCardState extends State<_CurationGuideCard> {
             Padding(
               padding: const EdgeInsets.all(12),
               child: Column(
-                children: const [
-                  _PointItem(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFEF3C7),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: const Color(0xFFF59E0B), width: 1.2),
+                    ),
+                    child: const Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(Icons.campaign_rounded, color: Color(0xFFB45309), size: 20),
+                            SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'INFORMASI PENTING KURASI PRESTASI',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF78350F),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 6),
+                        Text(
+                          'Bagi siswa yang ingin mengajukan Kurasi Prestasi Resmi (Puspresnas / BPTI Kemendikdasmen), WAJIB menghubungi Tim Kesiswaan atau Tata Usaha (TU) Bagian Prestasi jauh-jauh hari (JANGAN MENDADAK). Pengajuan memerlukan waktu untuk persiapan berkas & verifikasi administrasi sekolah sebelum batas waktu berakhir.',
+                          style: TextStyle(
+                            fontSize: 11,
+                            height: 1.45,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF92400E),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  const _PointItem(
                     number: '1',
                     title: 'Penyelenggara Resmi & Kredibel (P1)',
                     canCurate: 'Diselenggarakan oleh Kementerian/Lembaga (Kemendikbud/BRIN/KONI), PTN/PTS Terakreditasi, atau Organisasi Resmi.',
                     cannotCurate: 'Lomba komersial berbayar tanpa akreditasi, EO abal-abal, atau event tidak terdaftar.',
                   ),
-                  SizedBox(height: 8),
-                  _PointItem(
+                  const SizedBox(height: 8),
+                  const _PointItem(
                     number: '2',
                     title: 'Tahapan Seleksi Berjenjang (P2)',
                     canCurate: 'Memiliki seleksi berjenjang terstruktur (Sekolah ➔ Kab/Kota ➔ Prov ➔ Nasional).',
                     cannotCurate: 'Lomba instan online tanpa tahap seleksi resmi dan tanpa juri tersertifikasi.',
                   ),
-                  SizedBox(height: 8),
-                  _PointItem(
+                  const SizedBox(height: 8),
+                  const _PointItem(
                     number: '3',
                     title: 'Konsistensi Pelaksanaan Rutin (P3)',
                     canCurate: 'Perlombaan rutin berkala setiap tahun (minimal 2-3 kali berturut-turut).',
                     cannotCurate: 'Event sekali jalan (one-time event) yang tidak punya rekam jejak tahunan.',
                   ),
-                  SizedBox(height: 8),
-                  _PointItem(
+                  const SizedBox(height: 8),
+                  const _PointItem(
                     number: '4',
                     title: 'Sarana & Standar Infrastruktur (P4)',
                     canCurate: 'Menggunakan arena/lab/platform resmi yang memenuhi regulasi teknis & keselamatan.',
                     cannotCurate: 'Perlombaan informal tanpa standar keselamatan dan regulasi bidang terkait.',
                   ),
-                  SizedBox(height: 8),
-                  _PointItem(
+                  const SizedBox(height: 8),
+                  const _PointItem(
                     number: '5',
                     title: 'Keabsahan Sertifikat & SK Juara (P5)',
                     canCurate: 'Sertifikat asli TTD pejabat/QR Code verifikasi + Surat Keputusan (SK) Juara resmi.',

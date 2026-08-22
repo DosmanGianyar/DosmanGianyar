@@ -1,21 +1,12 @@
 <x-filament-panels::page>
     {{-- Panduan ----------------------------------------------------------------}}
     <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6 text-sm text-blue-800 space-y-1">
-        <p class="font-semibold">Cara menggunakan Import Dapodik:</p>
+        <p class="font-semibold">Cara menggunakan Import Data Siswa Terpadu:</p>
         <ol class="list-decimal list-inside space-y-0.5 text-blue-700">
-            <li>Login ke Dapodik → menu <strong>Peserta Didik</strong></li>
-            <li>Pilih <strong>Rekap Data Peserta Didik</strong> → klik tombol <strong>Export Excel</strong></li>
-            <li>Upload file <code>.xlsx</code> hasil export di sini</li>
-            <li>Sistem otomatis <strong>menambah</strong> siswa baru atau <strong>memperbarui</strong> data yang sudah ada berdasarkan <strong>NISN</strong></li>
+            <li>Gunakan file Excel Data Siswa atau hasil export dari Dapodik (menu <strong>Peserta Didik → Rekap Data Peserta Didik → Export Excel</strong>).</li>
+            <li>Upload file <code>.xlsx</code> / <code>.xls</code> hasil export di sini.</li>
+            <li>Sistem menggunakan <strong>NISN</strong> sebagai acuan utama identifikasi siswa. Jika siswa sudah ada di database, data siswa & NIS akan diperbarui. Jika siswa belum ada, siswa baru akan dibuat otomatis.</li>
         </ol>
-        <p class="text-blue-600 mt-2">⚠ Pastikan kelas-kelas sudah dibuat di <strong>Data Kelas</strong> sebelum import, agar siswa bisa langsung terhubung ke kelasnya.</p>
-        <p class="mt-3">
-            <a href="{{ asset('templates/contoh-import-dapodik.xlsx') }}" download
-               class="inline-flex items-center gap-1.5 text-blue-700 font-semibold underline hover:text-blue-900">
-                📄 Unduh contoh format Excel
-            </a>
-            <span class="text-blue-600"> — kalau belum punya file ekspor Dapodik, bisa isi manual mengikuti format ini.</span>
-        </p>
     </div>
 
     {{-- Upload Form (hidden while processing) --------------------------------}}

@@ -105,7 +105,7 @@
             </div>
             {{-- Info --}}
             <div class="flex-1 min-w-0">
-                <p class="text-sm font-semibold text-gray-800 truncate">{{ $student->name }}</p>
+                <p class="text-sm font-semibold text-gray-800 leading-snug break-words">{{ $student->name }}</p>
                 <p class="text-xs text-gray-400">{{ $student->nis }} · {{ $student->bk_logs_count }} catatan BK</p>
             </div>
             {{-- Poin --}}
