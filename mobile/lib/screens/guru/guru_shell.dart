@@ -13,6 +13,7 @@ import 'guru_bk_screen.dart';
 import 'guru_conduct_screen.dart';
 import 'guru_early_checkout_screen.dart';
 import 'guru_forgot_attendance_screen.dart';
+import 'guru_gate_verification_screen.dart';
 import 'guru_home_screen.dart';
 import 'guru_homeroom_consultation_screen.dart';
 import 'guru_input_nilai_screen.dart';
@@ -401,8 +402,18 @@ class _GuruServicesTab extends StatelessWidget {
           const SizedBox(height: 16),
 
           _buildHubCard(
+            title: '⚡ Piket Gerbang (Pengajuan Terlambat)',
+            subtitle: 'Daftar pengajuan pembinaan mandiri siswa terlambat hari ini',
+            icon: Icons.flash_on_rounded,
+            color: const Color(0xFFD97706),
+            bg: const Color(0xFFFEF3C7),
+            onTap: () => onNavigate(const GuruGateVerificationScreen()),
+          ),
+          const SizedBox(height: 12),
+
+          _buildHubCard(
             title: 'SIPINTER (Pendidikan Karakter)',
-            subtitle: 'Catat apresiasi karakter & kedisiplinan siswa',
+            subtitle: 'Catat apresiasi karakter & kedisiplinan siswa per kelas',
             icon: Icons.shield_rounded,
             color: AppColors.emerald600,
             bg: AppColors.emerald50,
