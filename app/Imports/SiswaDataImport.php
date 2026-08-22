@@ -253,9 +253,12 @@ class SiswaDataImport implements ToCollection, SkipsEmptyRows
                         ->update(['nis' => null]);
                 }
                 if (isset($changes['email']) && filled($changes['email'])) {
-                    User::where('email', $changes['email'])
+                    $conflictingUsers = User::where('email', $changes['email'])
                         ->where('id', '!=', $existing->id)
-                        ->update(['email' => null]);
+                        ->get();
+                    foreach ($conflictingUsers as $cu) {
+                        $cu->update(['email' => 'old_' . $cu->id . '_' . time() . '@siswa.sims.sch.id']);
+                    }
                 }
 
                 $existing->update($changes);
@@ -284,6 +287,12 @@ class SiswaDataImport implements ToCollection, SkipsEmptyRows
             }
             if ($nisn && filled($nisn)) {
                 User::where('nisn', $nisn)->update(['nisn' => null]);
+            }
+            if ($email && filled($email)) {
+                $conflictingUsers = User::where('email', $email)->get();
+                foreach ($conflictingUsers as $cu) {
+                    $cu->update(['email' => 'old_' . $cu->id . '_' . time() . '@siswa.sims.sch.id']);
+                }
             }
 
             User::create([
