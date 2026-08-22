@@ -1052,7 +1052,7 @@ class _CurationGuideCardState extends State<_CurationGuideCard> {
                         Text('5 Syarat Lomba Bisa Dikurasi',
                           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
                         SizedBox(height: 2),
-                        Text('Panduan resmi Pusprestnas / BPTI Kemendikdasmen',
+                        Text('Panduan resmi Puspresnas / BPTI Kemendikdasmen',
                           style: TextStyle(color: Color(0xFFC7D2FE), fontSize: 10.5)),
                       ],
                     ),
@@ -1071,36 +1071,76 @@ class _CurationGuideCardState extends State<_CurationGuideCard> {
             Padding(
               padding: const EdgeInsets.all(12),
               child: Column(
-                children: const [
-                  _PointItem(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFEF3C7),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: const Color(0xFFF59E0B), width: 1.2),
+                    ),
+                    child: const Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(Icons.campaign_rounded, color: Color(0xFFB45309), size: 20),
+                            SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'INFORMASI PENTING KURASI PRESTASI',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF78350F),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 6),
+                        Text(
+                          'Bagi siswa yang ingin mengajukan Kurasi Prestasi Resmi (Puspresnas / BPTI Kemendikdasmen), WAJIB menghubungi Tim Kesiswaan atau Tata Usaha (TU) Bagian Prestasi jauh-jauh hari (JANGAN MENDADAK). Pengajuan memerlukan waktu untuk persiapan berkas & verifikasi administrasi sekolah sebelum batas waktu berakhir.',
+                          style: TextStyle(
+                            fontSize: 11,
+                            height: 1.45,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF92400E),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  const _PointItem(
                     number: '1',
                     title: 'Penyelenggara Resmi & Kredibel (P1)',
                     canCurate: 'Diselenggarakan oleh Kementerian/Lembaga (Kemendikbud/BRIN/KONI), PTN/PTS Terakreditasi, atau Organisasi Resmi.',
                     cannotCurate: 'Lomba komersial berbayar tanpa akreditasi, EO abal-abal, atau event tidak terdaftar.',
                   ),
-                  SizedBox(height: 8),
-                  _PointItem(
+                  const SizedBox(height: 8),
+                  const _PointItem(
                     number: '2',
                     title: 'Tahapan Seleksi Berjenjang (P2)',
                     canCurate: 'Memiliki seleksi berjenjang terstruktur (Sekolah ➔ Kab/Kota ➔ Prov ➔ Nasional).',
                     cannotCurate: 'Lomba instan online tanpa tahap seleksi resmi dan tanpa juri tersertifikasi.',
                   ),
-                  SizedBox(height: 8),
-                  _PointItem(
+                  const SizedBox(height: 8),
+                  const _PointItem(
                     number: '3',
                     title: 'Konsistensi Pelaksanaan Rutin (P3)',
                     canCurate: 'Perlombaan rutin berkala setiap tahun (minimal 2-3 kali berturut-turut).',
                     cannotCurate: 'Event sekali jalan (one-time event) yang tidak punya rekam jejak tahunan.',
                   ),
-                  SizedBox(height: 8),
-                  _PointItem(
+                  const SizedBox(height: 8),
+                  const _PointItem(
                     number: '4',
                     title: 'Sarana & Standar Infrastruktur (P4)',
                     canCurate: 'Menggunakan arena/lab/platform resmi yang memenuhi regulasi teknis & keselamatan.',
                     cannotCurate: 'Perlombaan informal tanpa standar keselamatan dan regulasi bidang terkait.',
                   ),
-                  SizedBox(height: 8),
-                  _PointItem(
+                  const SizedBox(height: 8),
+                  const _PointItem(
                     number: '5',
                     title: 'Keabsahan Sertifikat & SK Juara (P5)',
                     canCurate: 'Sertifikat asli TTD pejabat/QR Code verifikasi + Surat Keputusan (SK) Juara resmi.',
