@@ -42,10 +42,12 @@ class ForgotAttendanceController extends Controller
         ]);
 
         $type = $forgotAttendance->type ?: 'masuk';
-        $att = Attendance::firstOrNew([
-            'user_id' => $forgotAttendance->student_id,
-            'date'    => $forgotAttendance->date->toDateString(),
-        ]);
+        $att = Attendance::where('user_id', $forgotAttendance->student_id)
+            ->whereDate('date', $forgotAttendance->date)
+            ->first() ?? new Attendance([
+                'user_id' => $forgotAttendance->student_id,
+                'date'    => $forgotAttendance->date->toDateString(),
+            ]);
 
         $att->status          = 'hadir';
         $att->via_lupa_absen  = true;

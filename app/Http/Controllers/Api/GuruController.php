@@ -556,10 +556,27 @@ class GuruController extends Controller
     {
         $this->authorizeForgotAttendance($forgotAttendance);
 
-        Attendance::updateOrCreate(
-            ['user_id' => $forgotAttendance->student_id, 'date' => $forgotAttendance->date->toDateString()],
-            ['status' => 'hadir']
-        );
+        $type = $forgotAttendance->type ?: 'masuk';
+        $att = Attendance::where('user_id', $forgotAttendance->student_id)
+            ->whereDate('date', $forgotAttendance->date)
+            ->first() ?? new Attendance([
+                'user_id' => $forgotAttendance->student_id,
+                'date'    => $forgotAttendance->date->toDateString(),
+            ]);
+
+        $att->status          = 'hadir';
+        $att->via_lupa_absen  = true;
+        $att->lupa_absen_type = $type;
+
+        if ($type === 'masuk') {
+            if (! $att->check_in_time) $att->check_in_time = '07:00:00';
+        } elseif ($type === 'pulang') {
+            if (! $att->check_out_time) $att->check_out_time = '15:30:00';
+        } else {
+            if (! $att->check_in_time) $att->check_in_time = '07:00:00';
+            if (! $att->check_out_time) $att->check_out_time = '15:30:00';
+        }
+        $att->save();
 
         $forgotAttendance->update([
             'status'      => 'approved',
@@ -570,11 +587,11 @@ class GuruController extends Controller
         NotificationService::send(
             $forgotAttendance->student_id,
             'Lupa Absen Disetujui',
-            'Pengajuan lupa absen tanggal ' . $forgotAttendance->date->isoFormat('D MMMM Y') . ' telah disetujui.',
+            'Pengajuan ' . $forgotAttendance->typeLabel() . ' tanggal ' . $forgotAttendance->date->isoFormat('D MMMM Y') . ' telah disetujui.',
             'success',
         );
 
-        return response()->json(['message' => 'Disetujui. Presensi dicatat sebagai Hadir.']);
+        return response()->json(['message' => 'Disetujui. Presensi dicatat sebagai Hadir (' . $forgotAttendance->typeLabel() . ').']);
     }
 
     public function rejectForgotAttendance(Request $request, ForgotAttendanceRequest $forgotAttendance): JsonResponse

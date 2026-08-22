@@ -148,10 +148,12 @@ class ForgotAttendanceResource extends Resource
                     ])
                     ->action(function (ForgotAttendanceRequest $record, array $data): void {
                         $type = $record->type ?: 'masuk';
-                        $att = Attendance::firstOrNew([
-                            'user_id' => $record->student_id,
-                            'date'    => $record->date->toDateString(),
-                        ]);
+                        $att = Attendance::where('user_id', $record->student_id)
+                            ->whereDate('date', $record->date)
+                            ->first() ?? new Attendance([
+                                'user_id' => $record->student_id,
+                                'date'    => $record->date->toDateString(),
+                            ]);
 
                         $att->status          = 'hadir';
                         $att->via_lupa_absen  = true;
@@ -230,10 +232,12 @@ class ForgotAttendanceResource extends Resource
                             foreach ($records as $record) {
                                 if ($record->isPending()) {
                                     $type = $record->type ?: 'masuk';
-                                    $att = Attendance::firstOrNew([
-                                        'user_id' => $record->student_id,
-                                        'date'    => $record->date->toDateString(),
-                                    ]);
+                                    $att = Attendance::where('user_id', $record->student_id)
+                                        ->whereDate('date', $record->date)
+                                        ->first() ?? new Attendance([
+                                            'user_id' => $record->student_id,
+                                            'date'    => $record->date->toDateString(),
+                                        ]);
 
                                     $att->status          = 'hadir';
                                     $att->via_lupa_absen  = true;
