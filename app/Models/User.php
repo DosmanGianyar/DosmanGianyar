@@ -311,11 +311,15 @@ class User extends Authenticatable implements FilamentUser
     }
 
     // ─── Photo ───────────────────────────────────────────────────────────────
-    public function getPhotoUrlAttribute(): string
+    public function getPhotoUrlAttribute(): ?string
     {
-        return $this->photo
-            ? asset('storage/' . $this->photo)
-            : asset('images/default-avatar.png');
+        if ($this->photo && trim($this->photo) !== '') {
+            if (str_starts_with($this->photo, 'http://') || str_starts_with($this->photo, 'https://')) {
+                return $this->photo;
+            }
+            return asset('storage/' . $this->photo);
+        }
+        return null;
     }
 
     public function getInitialsAttribute(): string
