@@ -285,14 +285,19 @@
 
         <div class="field-row">
             <div class="field-num">13.</div>
-            <div class="field-label">Nomor Telepon</div>
+            <div class="field-label">Kontak Siswa</div>
+            <div class="field-colon"></div>
+            <div class="field-value"></div>
+        </div>
+        <div class="field-row">
+            <div class="field-num"></div>
+            <div class="sub-label">a. Nomor Telepon / HP</div>
             <div class="field-colon">:</div>
             <div class="field-value">{{ $siswa->phone ?: '-' }}</div>
         </div>
-
         <div class="field-row">
-            <div class="field-num">13a.</div>
-            <div class="field-label">Alamat E-mail</div>
+            <div class="field-num"></div>
+            <div class="sub-label">b. Alamat E-mail</div>
             <div class="field-colon">:</div>
             <div class="field-value">{{ $siswa->email ?: '-' }}</div>
         </div>
