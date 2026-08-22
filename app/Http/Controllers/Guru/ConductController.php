@@ -229,17 +229,33 @@ class ConductController extends Controller
         $pendingLogs = ConductLog::where('is_self_reported', true)
             ->where('status', 'pending')
             ->whereDate('created_at', $today)
-            ->with(['student.schoolClass', 'category'])
+            ->with(['student.schoolClass', 'student.conductLogs', 'category'])
             ->latest()
-            ->get();
+            ->get()
+            ->map(function ($log) {
+                if ($log->student) {
+                    $log->student->lateness_count = $log->student->conductLogs
+                        ->filter(fn ($l) => $l->isPelanggaran())
+                        ->count();
+                }
+                return $log;
+            });
 
         $verifiedLogs = ConductLog::where('is_self_reported', true)
             ->where('status', 'verified')
             ->whereDate('created_at', $today)
-            ->with(['student.schoolClass', 'category', 'verifier'])
+            ->with(['student.schoolClass', 'student.conductLogs', 'category', 'verifier'])
             ->latest()
-            ->limit(30)
-            ->get();
+            ->limit(50)
+            ->get()
+            ->map(function ($log) {
+                if ($log->student) {
+                    $log->student->lateness_count = $log->student->conductLogs
+                        ->filter(fn ($l) => $l->isPelanggaran())
+                        ->count();
+                }
+                return $log;
+            });
 
         return view('guru.conduct.verification', compact('pendingLogs', 'verifiedLogs'));
     }

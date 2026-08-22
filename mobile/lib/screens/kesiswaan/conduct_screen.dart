@@ -162,7 +162,7 @@ class _ConductScreenState extends State<ConductScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
-                mainAxisAlignment: MainAxisAlignment.between,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Row(
                     children: const [
@@ -219,7 +219,7 @@ class _ConductScreenState extends State<ConductScreen> {
                   onPressed: isSubmitting ? null : () async {
                     setModalState(() => isSubmitting = true);
                     try {
-                      await ApiClient.post('/conduct/self-report', {
+                      await ApiClient.post('/conduct/self-report', data: {
                         'reason': selectedReason,
                         'description': descController.text,
                       });
@@ -242,7 +242,7 @@ class _ConductScreenState extends State<ConductScreen> {
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFD97706),
-                    padding: const EdgeInsets.vertical(12),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                   child: isSubmitting
