@@ -190,7 +190,8 @@ class AttendanceSettingPage extends Page
             ->components([
                 Tabs::make('Jadwal Waktu Presensi Harian')
                     ->tabs($tabs),
-            ]);
+            ])
+            ->statePath('data');
     }
 
     public function save(): void

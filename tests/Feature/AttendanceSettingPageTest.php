@@ -13,13 +13,23 @@ class AttendanceSettingPageTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_admin_can_access_attendance_setting_page(): void
+    public function test_admin_can_access_attendance_setting_page_and_inputs_are_filled(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);
 
         $response = $this->actingAs($admin)->get(AttendanceSettingPage::getUrl());
 
         $response->assertSuccessful();
+
+        Livewire::actingAs($admin)
+            ->test(AttendanceSettingPage::class)
+            ->assertFormSet([
+                'days.1.check_in_open'  => '05:00',
+                'days.1.check_in_late'  => '07:15',
+                'days.1.check_in_close' => '08:00',
+                'days.1.check_out_open' => '13:30',
+                'days.6.check_out_open' => '11:00',
+            ]);
     }
 
     public function test_admin_can_reset_single_day_to_default(): void
@@ -42,7 +52,11 @@ class AttendanceSettingPageTest extends TestCase
         // Reset khusus hari Sabtu (6)
         Livewire::actingAs($admin)
             ->test(AttendanceSettingPage::class)
-            ->call('resetDay', 6);
+            ->call('resetDay', 6)
+            ->assertFormSet([
+                'days.6.check_in_open'  => '05:00',
+                'days.6.check_out_open' => '11:00',
+            ]);
 
         $sabtu = AttendanceSetting::where('day_of_week', 6)->first();
 
@@ -59,7 +73,11 @@ class AttendanceSettingPageTest extends TestCase
 
         Livewire::actingAs($admin)
             ->test(AttendanceSettingPage::class)
-            ->callAction('resetGlobal');
+            ->callAction('resetGlobal')
+            ->assertFormSet([
+                'days.1.check_out_open' => '13:30',
+                'days.6.check_out_open' => '11:00',
+            ]);
 
         $seninData = AttendanceSetting::where('day_of_week', 1)->first();
         $sabtuData = AttendanceSetting::where('day_of_week', 6)->first();
