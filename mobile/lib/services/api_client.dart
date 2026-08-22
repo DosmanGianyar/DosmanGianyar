@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:dio/dio.dart';
+import 'package:dio/io.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../config/app_config.dart';
 
@@ -28,6 +30,13 @@ class ApiClient {
         },
       ),
     );
+
+    // Bypass SSL cert verification untuk IP server production (https://36.93.15.146)
+    (dio.httpClientAdapter as IOHttpClientAdapter).createHttpClient = () {
+      final client = HttpClient();
+      client.badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+      return client;
+    };
 
     dio.interceptors.add(
       InterceptorsWrapper(
