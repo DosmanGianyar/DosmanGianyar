@@ -222,42 +222,54 @@ class ConductController extends Controller
         ]);
     }
 
-    public function verificationIndex(Request $request): View
+    public function todayIndex(Request $request): View
     {
         $today = now()->format('Y-m-d');
+        $classes = SchoolClass::orderBy('name')->get();
 
-        $pendingLogs = ConductLog::where('is_self_reported', true)
-            ->where('status', 'pending')
-            ->whereDate('created_at', $today)
-            ->with(['student.schoolClass', 'student.conductLogs', 'category'])
-            ->latest()
-            ->get()
-            ->map(function ($log) {
-                if ($log->student) {
-                    $log->student->lateness_count = $log->student->conductLogs
-                        ->filter(fn ($l) => $l->isPelanggaran())
-                        ->count();
-                }
-                return $log;
-            });
+        $selectedClassId = $request->input('class_id');
+        $statusFilter    = $request->input('status');
 
-        $verifiedLogs = ConductLog::where('is_self_reported', true)
-            ->where('status', 'verified')
+        $query = ConductLog::where('is_self_reported', true)
             ->whereDate('created_at', $today)
             ->with(['student.schoolClass', 'student.conductLogs', 'category', 'verifier'])
-            ->latest()
-            ->limit(50)
-            ->get()
-            ->map(function ($log) {
-                if ($log->student) {
-                    $log->student->lateness_count = $log->student->conductLogs
-                        ->filter(fn ($l) => $l->isPelanggaran())
-                        ->count();
-                }
-                return $log;
-            });
+            ->latest();
 
-        return view('guru.conduct.verification', compact('pendingLogs', 'verifiedLogs'));
+        if ($selectedClassId) {
+            $query->whereHas('student', fn ($q) => $q->where('class_id', $selectedClassId));
+        }
+
+        if ($statusFilter && in_array($statusFilter, ['pending', 'verified'])) {
+            $query->where('status', $statusFilter);
+        }
+
+        $allTodayLogs = (clone $query)->get();
+
+        $logs = $query->get()->map(function ($log) {
+            if ($log->student) {
+                $log->student->total_pelanggaran_count = $log->student->conductLogs
+                    ->filter(fn ($l) => $l->isPelanggaran())
+                    ->count();
+                $log->student->total_prestasi_count = $log->student->conductLogs
+                    ->filter(fn ($l) => $l->isPrestasi())
+                    ->count();
+            }
+            return $log;
+        });
+
+        $pendingCount  = ConductLog::where('is_self_reported', true)->whereDate('created_at', $today)->where('status', 'pending')->count();
+        $verifiedCount = ConductLog::where('is_self_reported', true)->whereDate('created_at', $today)->where('status', 'verified')->count();
+        $frequentCount = $logs->filter(fn ($l) => ($l->student?->total_pelanggaran_count ?? 0) >= 3)->count();
+
+        return view('guru.conduct.today', compact(
+            'logs', 'classes', 'selectedClassId', 'statusFilter',
+            'pendingCount', 'verifiedCount', 'frequentCount'
+        ));
+    }
+
+    public function verificationIndex(Request $request): View
+    {
+        return $this->todayIndex($request);
     }
 
     public function verifyLog(ConductLog $log): RedirectResponse

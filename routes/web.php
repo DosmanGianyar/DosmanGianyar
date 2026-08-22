@@ -161,6 +161,7 @@ Route::middleware(['auth', 'role:guru,admin'])->prefix('guru')->name('guru.')->g
     // Kesiswaan
     Route::prefix('conduct')->name('conduct.')->group(function () {
         Route::get('/', [GuruConduct::class, 'index'])->name('index');
+        Route::get('/today', [GuruConduct::class, 'todayIndex'])->name('today');
         Route::get('/pilih', [GuruConduct::class, 'choose'])->name('choose');
         Route::get('/create', [GuruConduct::class, 'create'])->name('create');
         Route::post('/', [GuruConduct::class, 'store'])->name('store');

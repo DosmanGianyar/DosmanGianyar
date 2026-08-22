@@ -13,9 +13,9 @@
             </h3>
             <p class="text-xs text-amber-100 mt-0.5">Verifikasi siswa terlambat yang mengajukan pembinaan dari HP.</p>
         </div>
-        <a href="{{ route('guru.conduct.verification') }}"
+        <a href="{{ route('guru.conduct.today') }}"
             class="px-3.5 py-2 bg-white text-amber-700 hover:bg-amber-50 text-xs font-bold rounded-xl transition-all shadow-sm shrink-0 flex items-center gap-1.5">
-            <span>Buka Verifikasi</span>
+            <span>Lihat List Pengajuan Hari Ini</span>
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
         </a>
     </div>
