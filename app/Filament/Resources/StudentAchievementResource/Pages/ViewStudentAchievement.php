@@ -123,6 +123,24 @@ class ViewStudentAchievement extends ViewRecord
                     ]);
                     Notification::make()->title('Status kurasi dibatalkan & dikembalikan ke Menunggu Penilaian')->info()->send();
                 }),
+
+            Action::make('delete_student_photo')
+                ->label('Hapus Foto Profil Siswa')
+                ->icon('heroicon-o-trash')
+                ->color('danger')
+                ->visible(fn (StudentAchievement $record): bool => ! empty($record->student?->photo))
+                ->requiresConfirmation()
+                ->modalHeading('Hapus Foto Profil Siswa?')
+                ->modalDescription(fn (StudentAchievement $record): string => "Apakah Anda yakin ingin menghapus foto profil milik '" . ($record->student?->name ?? 'Siswa') . "'? Foto yang melanggar aturan akan dihapus dan dikembalikan ke avatar standar UI-Avatars.")
+                ->action(function (StudentAchievement $record): void {
+                    if ($record->student) {
+                        if ($record->student->photo && \Illuminate\Support\Facades\Storage::disk('public')->exists($record->student->photo)) {
+                            \Illuminate\Support\Facades\Storage::disk('public')->delete($record->student->photo);
+                        }
+                        $record->student->update(['photo' => null]);
+                        Notification::make()->title("Foto profil " . $record->student->name . " berhasil dihapus.")->success()->send();
+                    }
+                }),
         ];
     }
 }

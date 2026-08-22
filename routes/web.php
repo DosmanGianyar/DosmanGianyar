@@ -430,8 +430,13 @@ Route::middleware(['auth', 'role:siswa,pengelola', 'force.password.change'])->pr
     });
 });
 
-// Admin Clearance Card & Loan Report PDF/Print Routes
-Route::middleware(['auth'])->get('/admin/library/clearance-card/{user}', [App\Http\Controllers\Siswa\LibraryController::class, 'adminClearanceCard'])->name('admin.library.clearance-card');
+Route::middleware(['auth'])->post('/admin/students/{user}/delete-photo', function (\App\Models\User $user) {
+    if ($user->photo && \Illuminate\Support\Facades\Storage::disk('public')->exists($user->photo)) {
+        \Illuminate\Support\Facades\Storage::disk('public')->delete($user->photo);
+    }
+    $user->update(['photo' => null]);
+    return back()->with('success', 'Foto profil ' . $user->name . ' berhasil dihapus.');
+})->name('admin.students.delete-photo');
 Route::middleware(['auth'])->get('/admin/library/visit-qr-card', fn () => view('exports.library-visit-qr-pdf'))->name('admin.library.visit-qr-card');
 Route::middleware(['auth'])->get('/admin/library/monthly-loan-report', [App\Http\Controllers\Siswa\LibraryController::class, 'adminMonthlyLoanReport'])->name('admin.library.monthly-loan-report');
 Route::middleware(['auth'])->get('/admin/library/visit-report', [App\Http\Controllers\Siswa\LibraryController::class, 'adminVisitReport'])->name('admin.library.visit-report');

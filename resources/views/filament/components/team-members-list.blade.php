@@ -49,13 +49,24 @@
                         Kelas: <span class="font-bold text-gray-800 dark:text-gray-200">{{ $s->schoolClass?->name ?? '—' }}</span>
                         @if($s->nisn) · NISN: <span class="font-mono text-gray-700 dark:text-gray-300">{{ $s->nisn }}</span> @endif
                     </p>
-                    @if($cleanPhone)
-                        <a href="https://wa.me/{{ $cleanPhone }}" target="_blank" class="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400 hover:underline pt-0.5">
-                            💬 WhatsApp ({{ $s->phone }})
-                        </a>
-                    @else
-                        <span class="text-[11px] text-gray-400 dark:text-gray-500 block pt-0.5">No. HP belum diisi</span>
-                    @endif
+                    <div class="flex items-center justify-between gap-2 pt-0.5">
+                        @if($cleanPhone)
+                            <a href="https://wa.me/{{ $cleanPhone }}" target="_blank" class="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400 hover:underline truncate">
+                                💬 WhatsApp ({{ $s->phone }})
+                            </a>
+                        @else
+                            <span class="text-[11px] text-gray-400 dark:text-gray-500 block truncate">No. HP belum diisi</span>
+                        @endif
+
+                        @if($s->photo)
+                            <form action="{{ route('admin.students.delete-photo', $s->id) }}" method="POST" onsubmit="return confirm('Hapus foto profil {{ addslashes($s->name) }}? Foto yang melanggar aturan akan dihapus dan dikembalikan ke avatar standar.')" class="shrink-0">
+                                @csrf
+                                <button type="submit" class="text-[10px] font-bold text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 hover:underline bg-red-50 dark:bg-red-950/40 px-2 py-0.5 rounded-full border border-red-200 dark:border-red-800 shrink-0">
+                                    🗑️ Hapus Foto
+                                </button>
+                            </form>
+                        @endif
+                    </div>
                 </div>
             </div>
         @endforeach

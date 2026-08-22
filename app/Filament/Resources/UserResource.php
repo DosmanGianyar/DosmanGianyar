@@ -13,6 +13,7 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -62,6 +63,19 @@ class UserResource extends Resource
     {
         return $schema->components([
             Section::make('Identitas')->schema([
+                FileUpload::make('photo')
+                    ->label('Foto Profil Siswa / Pengguna')
+                    ->disk('public')
+                    ->image()
+                    ->avatar()
+                    ->openable()
+                    ->downloadable()
+                    ->previewable()
+                    ->directory('users/photos')
+                    ->maxSize(5120)
+                    ->helperText('Anda dapat mengunggah foto baru atau menghapus foto yang melanggar aturan sekolah.')
+                    ->columnSpanFull(),
+
                 TextInput::make('name')
                     ->label('Nama Lengkap')
                     ->required()
@@ -519,6 +533,26 @@ class UserResource extends Resource
                         $record->resetDevices();
                         Notification::make()
                             ->title("{$record->name}: {$count} perangkat direset.")
+                            ->success()
+                            ->send();
+                    }),
+                Action::make('deletePhoto')
+                    ->label('Hapus Foto Profil')
+                    ->icon('heroicon-o-trash')
+                    ->color('danger')
+                    ->iconButton()
+                    ->visible(fn (User $record): bool => ! empty($record->photo))
+                    ->tooltip('Hapus Foto Profil Siswa (Reset ke default)')
+                    ->requiresConfirmation()
+                    ->modalHeading('Hapus Foto Profil Siswa?')
+                    ->modalDescription(fn (User $record): string => "Apakah Anda yakin ingin menghapus foto profil milik '{$record->name}'? Foto yang melanggar aturan akan dihapus dan dikembalikan ke avatar standar UI-Avatars.")
+                    ->action(function (User $record): void {
+                        if ($record->photo && \Illuminate\Support\Facades\Storage::disk('public')->exists($record->photo)) {
+                            \Illuminate\Support\Facades\Storage::disk('public')->delete($record->photo);
+                        }
+                        $record->update(['photo' => null]);
+                        Notification::make()
+                            ->title("Foto profil {$record->name} berhasil dihapus.")
                             ->success()
                             ->send();
                     }),
