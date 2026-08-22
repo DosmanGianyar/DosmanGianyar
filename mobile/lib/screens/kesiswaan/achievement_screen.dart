@@ -56,7 +56,7 @@ class _AchievementScreenState extends State<AchievementScreen> {
     return Scaffold(
       backgroundColor: AppColors.slate100,
       appBar: AppBar(
-        title: const Text('Kurasi Prestasi Siswa',
+        title: const Text('Pelaporan Prestasi Siswa',
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 16)),
         backgroundColor: const Color(0xFF0F2460),
         foregroundColor: Colors.white,
@@ -66,7 +66,7 @@ class _AchievementScreenState extends State<AchievementScreen> {
         onPressed: _openCreate,
         backgroundColor: AppColors.yellow600,
         icon: const Icon(Icons.add_rounded),
-        label: const Text('Laporkan / Kurasi Prestasi'),
+        label: const Text('Laporkan Prestasi'),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -611,64 +611,12 @@ class _CreateSheetState extends State<_CreateSheet> {
                 color: AppColors.gray200, borderRadius: BorderRadius.circular(2)),
             )),
             const SizedBox(height: 16),
-            const Text('Laporkan & Kurasi Prestasi',
+            const Text('Laporkan Prestasi Siswa',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.gray800)),
             const SizedBox(height: 4),
-            const Text('Pilih tujuan pengajuan dan lengkapi metadata prestasi.',
+            const Text('Lengkapi metadata prestasi yang telah diraih.',
               style: TextStyle(fontSize: 11, color: AppColors.gray400)),
             const SizedBox(height: 16),
-
-            // ─── CARDS PILIHAN UTAMA MODE PENGAJUAN ───────────────────────
-            Row(children: [
-              Expanded(
-                child: GestureDetector(
-                  onTap: () => setState(() => _isCuration = false),
-                  child: Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: !_isCuration ? AppColors.blue50 : Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: !_isCuration ? AppColors.blue600 : AppColors.gray200, width: !_isCuration ? 2 : 1),
-                    ),
-                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      Row(children: [
-                        const Icon(Icons.emoji_events_rounded, color: AppColors.blue600, size: 20),
-                        const Spacer(),
-                        Radio<bool>(value: false, groupValue: _isCuration, onChanged: (v) => setState(() => _isCuration = false)),
-                      ]),
-                      const Text('Hanya Laporkan', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.gray900)),
-                      const SizedBox(height: 2),
-                      const Text('Portofolio & Poin Sekolah', style: TextStyle(fontSize: 10, color: AppColors.gray500)),
-                    ]),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: GestureDetector(
-                  onTap: () => setState(() => _isCuration = true),
-                  child: Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: _isCuration ? AppColors.purple50 : Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: _isCuration ? AppColors.purple700 : AppColors.gray200, width: _isCuration ? 2 : 1),
-                    ),
-                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      Row(children: [
-                        const Icon(Icons.verified_rounded, color: AppColors.purple700, size: 20),
-                        const Spacer(),
-                        Radio<bool>(value: true, groupValue: _isCuration, onChanged: (v) => setState(() => _isCuration = true)),
-                      ]),
-                      const Text('Laporkan & Kurasi', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.gray900)),
-                      const SizedBox(height: 2),
-                      const Text('Persyaratan Kemendikdasmen', style: TextStyle(fontSize: 10, color: AppColors.gray500)),
-                    ]),
-                  ),
-                ),
-              ),
-            ]),
-            const SizedBox(height: 20),
 
             // Judul Prestasi
             const _Label('Judul Capaian / Prestasi *',
@@ -997,15 +945,15 @@ class _CreateSheetState extends State<_CreateSheet> {
             FilledButton(
               onPressed: _isSaving ? null : _submit,
               style: FilledButton.styleFrom(
-                backgroundColor: _isCuration ? AppColors.purple700 : AppColors.blue600,
+                backgroundColor: AppColors.blue600,
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
               ),
               child: _isSaving
                   ? const SizedBox(width: 18, height: 18,
                       child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                  : Text(_isCuration ? 'Kirim Laporkan & Kurasi Kemendikdasmen' : 'Kirim Laporkan Prestasi Internal',
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                  : const Text('Kirim Laporan Prestasi',
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
             ),
           ],
         ),
