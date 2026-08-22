@@ -113,7 +113,7 @@ class _GuruGateVerificationScreenState extends State<GuruGateVerificationScreen>
                       decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)),
                       child: Text(
                         '${_pendingList.length}',
-                        style: const TextStyle(color: Color(0xFFD97706), fontSize: 11, fontWeight: FontWeight.black),
+                        style: const TextStyle(color: Color(0xFFD97706), fontSize: 11, fontWeight: FontWeight.w900),
                       ),
                     ),
                   ],

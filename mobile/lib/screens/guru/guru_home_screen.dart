@@ -17,6 +17,7 @@ import 'guru_sarpras_screen.dart';
 import '../prasarana/library_screen.dart';
 import 'guru_teaching_session_screen.dart';
 import 'guru_layanan_screen.dart';
+import 'guru_gate_verification_screen.dart';
 
 class GuruHomeScreen extends StatefulWidget {
   const GuruHomeScreen({super.key});
@@ -216,6 +217,7 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
             else if (_error != null)
               _buildError()
             else if (_dashboard != null) ...[
+              _buildGatePiketShortcutCard(),
               _buildScanKartuShortcutCard(),
               _buildPembinaBanner(_dashboard!),
               _buildTodayScheduleCard(context, _dashboard!),
@@ -273,6 +275,81 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
             ],
           ),
         )).toList(),
+      ),
+    );
+  }
+
+  Widget _buildGatePiketShortcutCard() {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 14),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFFD97706), Color(0xFFB45309)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFFD97706).withValues(alpha: 0.25),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const GuruGateVerificationScreen()),
+            );
+          },
+          child: const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            child: Row(
+              children: [
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: Colors.white24,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(Icons.flash_on_rounded, color: Colors.white, size: 24),
+                ),
+                SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '⚡ Piket Gerbang — Pengajuan Terlambat',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                        ),
+                      ),
+                      SizedBox(height: 2),
+                      Text(
+                        'Daftar pengajuan pembinaan mandiri siswa terlambat hari ini',
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: Colors.white70,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(Icons.chevron_right_rounded, color: Colors.white, size: 22),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
