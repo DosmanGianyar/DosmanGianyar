@@ -307,8 +307,8 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
               MaterialPageRoute(builder: (_) => const GuruGateVerificationScreen()),
             );
           },
-          child: const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             child: Row(
               children: [
                 Container(
@@ -318,10 +318,10 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
                     color: Colors.white24,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Icon(Icons.flash_on_rounded, color: Colors.white, size: 24),
+                  child: const Icon(Icons.flash_on_rounded, color: Colors.white, size: 24),
                 ),
-                SizedBox(width: 14),
-                Expanded(
+                const SizedBox(width: 14),
+                const Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
