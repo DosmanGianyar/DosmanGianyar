@@ -165,6 +165,8 @@ Route::middleware(['auth', 'role:guru,admin'])->prefix('guru')->name('guru.')->g
         Route::get('/create', [GuruConduct::class, 'create'])->name('create');
         Route::post('/', [GuruConduct::class, 'store'])->name('store');
         Route::post('/scan-lookup', [GuruConduct::class, 'scanLookup'])->name('scan-lookup');
+        Route::get('/verification', [GuruConduct::class, 'verificationIndex'])->name('verification');
+        Route::post('/verify/{log}', [GuruConduct::class, 'verifyLog'])->name('verify');
         Route::get('/student/{student}', [GuruConduct::class, 'studentDetail'])->name('student');
     });
 
@@ -331,8 +333,9 @@ Route::middleware(['auth', 'role:siswa,pengelola', 'force.password.change'])->pr
     Route::post('/exit-pass', [ExitPassController::class, 'store'])->name('exit-pass.store');
     Route::patch('/exit-pass/checkin', [ExitPassController::class, 'checkin'])->name('exit-pass.checkin');
 
-    // Poin
+    // Poin & Pembinaan Mandiri
     Route::get('/conduct', [SiswaConduct::class, 'index'])->name('conduct.index');
+    Route::post('/conduct/self-report', [SiswaConduct::class, 'storeSelfReport'])->name('conduct.self-report');
 
     // Sarpras
     Route::prefix('sarpras')->name('sarpras.')->group(function () {

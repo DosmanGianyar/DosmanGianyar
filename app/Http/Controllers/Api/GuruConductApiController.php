@@ -279,4 +279,85 @@ class GuruConductApiController extends Controller
             ],
         ]);
     }
+
+    // GET /api/v1/guru/conduct-self-reports
+    public function selfReports(): JsonResponse
+    {
+        $today = now()->format('Y-m-d');
+
+        $pendingLogs = ConductLog::where('is_self_reported', true)
+            ->where('status', 'pending')
+            ->whereDate('created_at', $today)
+            ->with(['student:id,name,nis,class_id', 'student.schoolClass:id,name', 'category:id,name'])
+            ->latest()
+            ->get();
+
+        $verifiedLogs = ConductLog::where('is_self_reported', true)
+            ->where('status', 'verified')
+            ->whereDate('created_at', $today)
+            ->with(['student:id,name,nis,class_id', 'student.schoolClass:id,name', 'category:id,name', 'verifier:id,name'])
+            ->latest()
+            ->limit(30)
+            ->get();
+
+        return response()->json([
+            'pending'  => $pendingLogs->map(fn ($log) => [
+                'id'            => $log->id,
+                'student_id'    => $log->student_id,
+                'student_name'  => $log->student?->name ?? '—',
+                'class_name'    => $log->student?->schoolClass?->name ?? '—',
+                'category_name' => $log->displayCategoryName(),
+                'description'   => $log->parsed_description,
+                'note'          => $log->note,
+                'created_at'    => $log->created_at->format('H:i'),
+            ]),
+            'verified' => $verifiedLogs->map(fn ($log) => [
+                'id'            => $log->id,
+                'student_id'    => $log->student_id,
+                'student_name'  => $log->student?->name ?? '—',
+                'class_name'    => $log->student?->schoolClass?->name ?? '—',
+                'category_name' => $log->displayCategoryName(),
+                'verifier_name' => $log->verifier?->name ?? 'Guru',
+                'verified_at'   => $log->verified_at?->format('H:i'),
+            ]),
+        ]);
+    }
+
+    // POST /api/v1/guru/conduct-self-reports/{id}/verify
+    public function verifySelfReport(int $id): JsonResponse
+    {
+        $log = ConductLog::findOrFail($id);
+
+        if ($log->status === 'verified') {
+            return response()->json(['success' => false, 'message' => 'Pengajuan ini sudah diverifikasi sebelumnya.'], 400);
+        }
+
+        $log->update([
+            'status'      => 'verified',
+            'verified_at' => now(),
+            'verifier_id' => Auth::id(),
+            'teacher_id'  => Auth::id(),
+        ]);
+
+        $student = $log->student;
+        if ($student) {
+            NotificationService::send(
+                $student->id,
+                "Pembinaan Disiplin Diverifikasi",
+                "Pengajuan pembinaan Anda telah diverifikasi oleh " . Auth::user()->name . ". Selamat belajar!",
+                'success'
+            );
+            NotificationService::notifyParentsOfStudent(
+                $student,
+                "Catatan Kedisiplinan Siswa",
+                "Ananda {$student->name} telah melakukan pengajuan pembinaan keterlambatan dan diverifikasi oleh guru.",
+                'warning'
+            );
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => "Pengajuan pembinaan {$student?->name} berhasil diverifikasi.",
+        ]);
+    }
 }

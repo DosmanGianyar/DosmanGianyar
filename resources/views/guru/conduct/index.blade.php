@@ -5,6 +5,21 @@
 @section('content')
 <div class="space-y-4">
 
+    {{-- Banner Verifikasi Gerbang --}}
+    <div class="bg-gradient-to-r from-amber-500 to-orange-600 rounded-2xl p-4 text-white shadow-sm flex items-center justify-between">
+        <div>
+            <h3 class="font-bold text-sm flex items-center gap-2">
+                <span>⚡ Verifikasi Pembinaan Mandiri (Gerbang)</span>
+            </h3>
+            <p class="text-xs text-amber-100 mt-0.5">Verifikasi siswa terlambat yang mengajukan pembinaan dari HP.</p>
+        </div>
+        <a href="{{ route('guru.conduct.verification') }}"
+            class="px-3.5 py-2 bg-white text-amber-700 hover:bg-amber-50 text-xs font-bold rounded-xl transition-all shadow-sm shrink-0 flex items-center gap-1.5">
+            <span>Buka Verifikasi</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+        </a>
+    </div>
+
     {{-- Summary Cards --}}
     <div class="grid grid-cols-2 gap-3">
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4">

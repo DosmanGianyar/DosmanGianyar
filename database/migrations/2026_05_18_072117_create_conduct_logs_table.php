@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('conduct_logs', function (Blueprint $table) {
             $table->id();
             $table->foreignId('student_id')->constrained('users')->cascadeOnDelete();
-            $table->foreignId('teacher_id')->constrained('users')->cascadeOnDelete();
+            $table->foreignId('teacher_id')->nullable()->constrained('users')->cascadeOnDelete();
             $table->foreignId('category_id')->constrained('conduct_categories')->cascadeOnDelete();
             $table->integer('point');             // salinan dari category, bisa dioverride
             $table->string('photo')->nullable();

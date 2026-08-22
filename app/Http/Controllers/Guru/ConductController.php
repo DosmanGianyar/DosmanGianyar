@@ -221,4 +221,59 @@ class ConductController extends Controller
             ],
         ]);
     }
+
+    public function verificationIndex(Request $request): View
+    {
+        $today = now()->format('Y-m-d');
+
+        $pendingLogs = ConductLog::where('is_self_reported', true)
+            ->where('status', 'pending')
+            ->whereDate('created_at', $today)
+            ->with(['student.schoolClass', 'category'])
+            ->latest()
+            ->get();
+
+        $verifiedLogs = ConductLog::where('is_self_reported', true)
+            ->where('status', 'verified')
+            ->whereDate('created_at', $today)
+            ->with(['student.schoolClass', 'category', 'verifier'])
+            ->latest()
+            ->limit(30)
+            ->get();
+
+        return view('guru.conduct.verification', compact('pendingLogs', 'verifiedLogs'));
+    }
+
+    public function verifyLog(ConductLog $log): RedirectResponse
+    {
+        if ($log->status === 'verified') {
+            return redirect()->back()->with('info', 'Pengajuan ini sudah diverifikasi sebelumnya.');
+        }
+
+        $log->update([
+            'status'      => 'verified',
+            'verified_at' => now(),
+            'verifier_id' => Auth::id(),
+            'teacher_id'  => Auth::id(),
+        ]);
+
+        $student = $log->student;
+        if ($student) {
+            NotificationService::send(
+                $student->id,
+                "Pembinaan Disiplin Diverifikasi",
+                "Pengajuan pembinaan Anda telah diverifikasi oleh " . Auth::user()->name . ". Selamat belajar!",
+                'success',
+                route('siswa.conduct.index')
+            );
+            NotificationService::notifyParentsOfStudent(
+                $student,
+                "Catatan Kedisiplinan Siswa",
+                "Ananda {$student->name} telah melakukan pengajuan pembinaan keterlambatan dan diverifikasi oleh guru.",
+                'warning'
+            );
+        }
+
+        return redirect()->back()->with('success', "Pengajuan pembinaan {$student?->name} berhasil diverifikasi. Siswa diizinkan masuk.");
+    }
 }
