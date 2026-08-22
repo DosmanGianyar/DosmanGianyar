@@ -60,7 +60,16 @@ class GuruKesiswaanScreen extends StatelessWidget {
                   )
                 : null,
           ),
-
+          _buildMenuCard(
+            context,
+            icon: Icons.emoji_events_rounded,
+            label: 'Prestasi Akademik',
+            subtitle: 'Pencapaian siswa di bidang akademik',
+            color: AppColors.yellow600,
+            bg: AppColors.yellow50,
+            onTap: null,
+            comingSoon: true,
+          ),
           _buildMenuCard(
             context,
             icon: Icons.record_voice_over_rounded,

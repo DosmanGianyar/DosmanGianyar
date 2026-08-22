@@ -42,7 +42,7 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
   SimpleStudent? _selectedStudent;
 
   // Form Unified
-  String _selectedConductType = 'negatif'; // 'negatif' or 'positif'
+  String _selectedConductType = 'positif'; // 'positif' or 'negatif'
   final _positifCategoryCtrl  = TextEditingController();
   final _descriptionCtrl      = TextEditingController();
   final _noteCtrl             = TextEditingController();
