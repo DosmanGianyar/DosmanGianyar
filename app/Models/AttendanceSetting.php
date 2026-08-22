@@ -66,9 +66,9 @@ class AttendanceSetting extends Model
     }
 
     /**
-     * Reset all 7 daily settings to default values.
+     * Reset a single day setting to default values.
      */
-    public static function resetToDefault(): void
+    public static function resetDayToDefault(int $dayOfWeek): static
     {
         $days = [
             1 => ['name' => 'Senin',  'check_out' => '13:30:00', 'active' => true],
@@ -77,22 +77,32 @@ class AttendanceSetting extends Model
             4 => ['name' => 'Kamis',  'check_out' => '13:30:00', 'active' => true],
             5 => ['name' => 'Jumat',  'check_out' => '13:30:00', 'active' => true],
             6 => ['name' => 'Sabtu',  'check_out' => '11:00:00', 'active' => true],
-            7 => ['name' => 'Minggu', 'check_out' => '12:00:00', 'active' => false],
+            7 => ['name' => 'Minggu', 'check_out' => '13:30:00', 'active' => false],
         ];
 
-        foreach ($days as $num => $day) {
-            static::updateOrCreate(
-                ['day_of_week' => $num],
-                [
-                    'day_name'       => $day['name'],
-                    'check_in_open'  => '05:00:00',
-                    'check_in_late'  => '07:15:00',
-                    'check_in_close' => '08:00:00',
-                    'check_out_open' => $day['check_out'],
-                    'check_out_close'=> null,
-                    'is_active'      => $day['active'],
-                ]
-            );
+        $day = $days[$dayOfWeek] ?? ['name' => 'Hari', 'check_out' => '13:30:00', 'active' => true];
+
+        return static::updateOrCreate(
+            ['day_of_week' => $dayOfWeek],
+            [
+                'day_name'       => $day['name'],
+                'check_in_open'  => '05:00:00',
+                'check_in_late'  => '07:15:00',
+                'check_in_close' => '08:00:00',
+                'check_out_open' => $day['check_out'],
+                'check_out_close'=> null,
+                'is_active'      => $day['active'],
+            ]
+        );
+    }
+
+    /**
+     * Reset all 7 daily settings to default values.
+     */
+    public static function resetToDefault(): void
+    {
+        for ($i = 1; $i <= 7; $i++) {
+            static::resetDayToDefault($i);
         }
     }
 
