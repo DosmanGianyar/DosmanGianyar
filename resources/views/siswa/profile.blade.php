@@ -70,6 +70,22 @@
             </p>
         </div>
 
+        {{-- Ketentuan Foto Profil Resmi Siswa --}}
+        <div class="mx-4 mb-4 bg-red-50/90 border border-red-200/90 rounded-2xl p-3.5 flex items-start gap-3 shadow-xs">
+            <div class="w-8 h-8 bg-red-600 text-white rounded-xl flex items-center justify-center text-sm font-bold shrink-0 shadow-xs">📌</div>
+            <div class="text-xs text-red-950 space-y-1">
+                <p class="font-extrabold text-red-900 flex items-center gap-1">
+                    Ketentuan Foto Profil Resmi Siswa:
+                </p>
+                <ul class="list-disc list-inside space-y-0.5 text-red-800 font-medium leading-relaxed">
+                    <li>Wajib foto resmi berpakaian sekolah rapi.</li>
+                    <li><strong>Latar belakang (background) warna merah</strong>.</li>
+                    <li><strong>Diutamakan berpakaian Batik SMAN 1 Gianyar</strong>.</li>
+                </ul>
+                <p class="text-[11px] text-red-700 font-semibold pt-0.5">⚠️ Foto yang tidak sesuai aturan sekolah dapat dihapus oleh Admin.</p>
+            </div>
+        </div>
+
         {{-- Grid Info --}}
         <div class="px-4 pb-4 grid grid-cols-3 gap-2">
             <div class="bg-gray-50 rounded-xl px-3 py-2.5">
@@ -477,6 +493,11 @@
                     <span>✂️ Sesuaikan & Geser Foto Profil</span>
                 </h3>
                 <button type="button" onclick="closeCropModal()" class="text-gray-400 hover:text-white text-lg font-bold cursor-pointer">✕</button>
+            </div>
+
+            <div class="px-3.5 py-2.5 bg-red-950/80 border-b border-red-800 text-xs text-red-100 flex items-center gap-2">
+                <span class="text-base shrink-0">📌</span>
+                <span><strong>Ingat:</strong> Gunakan <strong>foto resmi berpakaian sekolah (diutamakan Batik SMAN 1 Gianyar)</strong> dengan <strong>latar belakang merah</strong>.</span>
             </div>
 
             <div class="p-4 bg-gray-900 flex-1 overflow-hidden flex items-center justify-center min-h-[280px] max-h-[420px] relative">
