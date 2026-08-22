@@ -5,7 +5,7 @@ namespace App\Filament\Resources\StudentAchievementResource\Pages;
 use App\Filament\Resources\StudentAchievementResource;
 use App\Models\StudentAchievement;
 use Filament\Actions\Action;
-use Filament\Resources\Pages\ListRecords\Tab;
+use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Database\Eloquent\Builder;
 
