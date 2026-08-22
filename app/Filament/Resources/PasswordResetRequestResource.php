@@ -133,10 +133,28 @@ class PasswordResetRequestResource extends Resource
                         'XI'  => 'Angkatan XI',
                         'XII' => 'Angkatan XII',
                     ])
-                    ->query(fn ($query, array $data) => filled($data['value'] ?? null)
-                        ? $query->whereHas('user.schoolClass', fn ($q) => $q->where('grade', $data['value']))
-                        : $query
-                    ),
+                    ->query(function ($query, array $data) {
+                        $val = $data['value'] ?? null;
+                        if (blank($val)) {
+                            return $query;
+                        }
+
+                        $grades = match ($val) {
+                            'X'   => [10, '10', 'X'],
+                            'XI'  => [11, '11', 'XI'],
+                            'XII' => [12, '12', 'XII'],
+                            default => [$val],
+                        };
+
+                        $prefix = $val . '-';
+
+                        return $query->whereHas('user.schoolClass', function ($q) use ($grades, $prefix) {
+                            $q->where(function ($sub) use ($grades, $prefix) {
+                                $sub->whereIn('grade', $grades)
+                                    ->orWhere('name', 'like', $prefix . '%');
+                            });
+                        });
+                    }),
 
                 SelectFilter::make('class_id')
                     ->label('Filter Kelas')

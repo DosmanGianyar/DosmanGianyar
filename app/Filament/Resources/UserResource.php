@@ -452,10 +452,28 @@ class UserResource extends Resource
                         'XI'  => 'Angkatan / Kelas XI',
                         'XII' => 'Angkatan / Kelas XII',
                     ])
-                    ->query(fn (Builder $query, array $data): Builder => filled($data['value'] ?? null)
-                        ? $query->whereHas('schoolClass', fn ($q) => $q->where('grade', $data['value']))
-                        : $query
-                    ),
+                    ->query(function (Builder $query, array $data): Builder {
+                        $val = $data['value'] ?? null;
+                        if (blank($val)) {
+                            return $query;
+                        }
+
+                        $grades = match ($val) {
+                            'X'   => [10, '10', 'X'],
+                            'XI'  => [11, '11', 'XI'],
+                            'XII' => [12, '12', 'XII'],
+                            default => [$val],
+                        };
+
+                        $prefix = $val . '-';
+
+                        return $query->whereHas('schoolClass', function (Builder $q) use ($grades, $prefix) {
+                            $q->where(function (Builder $sub) use ($grades, $prefix) {
+                                $sub->whereIn('grade', $grades)
+                                    ->orWhere('name', 'like', $prefix . '%');
+                            });
+                        });
+                    }),
 
                 SelectFilter::make('class_id')
                     ->label('Filter Kelas')
