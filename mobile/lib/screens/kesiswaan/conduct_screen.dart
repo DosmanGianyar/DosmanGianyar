@@ -50,6 +50,12 @@ class _ConductScreenState extends State<ConductScreen> {
         foregroundColor: Colors.white,
         elevation: 0,
       ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _showSelfReportDialog,
+        backgroundColor: const Color(0xFFD97706),
+        icon: const Icon(Icons.flash_on_rounded, color: Colors.white),
+        label: const Text('Lapor Mandiri', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
+      ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
@@ -58,7 +64,55 @@ class _ConductScreenState extends State<ConductScreen> {
                   onRefresh: _load,
                   child: CustomScrollView(
                     slivers: [
-                      SliverToBoxAdapter(child: _SummaryCards(summary: _summary!)),
+                      SliverToBoxAdapter(
+                        child: Column(
+                          children: [
+                            Container(
+                              margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                              padding: const EdgeInsets.all(14),
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                  colors: [Color(0xFFF59E0B), Color(0xFFD97706)],
+                                ),
+                                borderRadius: AppRadius.card,
+                              ),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: const [
+                                        Text(
+                                          '⚡ Terlambat / Lapor Pembinaan Mandiri?',
+                                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                                        ),
+                                        SizedBox(height: 2),
+                                        Text(
+                                          'Ajukan dari HP Anda untuk diverifikasi oleh Guru Piket di gerbang.',
+                                          style: TextStyle(color: Colors.white70, fontSize: 11),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  ElevatedButton(
+                                    onPressed: _showSelfReportDialog,
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.white,
+                                      foregroundColor: const Color(0xFFB45309),
+                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                      elevation: 0,
+                                    ),
+                                    child: const Text('Ajukan', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            _SummaryCards(summary: _summary!),
+                          ],
+                        ),
+                      ),
                       if (_logs.isEmpty)
                         const SliverFillRemaining(
                           child: Center(
@@ -72,7 +126,7 @@ class _ConductScreenState extends State<ConductScreen> {
                         )
                       else
                         SliverPadding(
-                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 80),
                           sliver: SliverList.separated(
                             itemCount: _logs.length,
                             separatorBuilder: (_, __) => const SizedBox(height: 8),
@@ -82,6 +136,124 @@ class _ConductScreenState extends State<ConductScreen> {
                     ],
                   ),
                 ),
+    );
+  }
+
+  void _showSelfReportDialog() {
+    String selectedReason = 'Terlambat Masuk Sekolah';
+    final descController = TextEditingController();
+    bool isSubmitting = false;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setModalState) => Padding(
+          padding: EdgeInsets.only(
+            left: 20, right: 20, top: 20,
+            bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.between,
+                children: [
+                  Row(
+                    children: const [
+                      Icon(Icons.flash_on_rounded, color: Color(0xFFD97706), size: 20),
+                      SizedBox(width: 8),
+                      Text('Lapor Pembinaan Mandiri',
+                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.gray800)),
+                    ],
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close, size: 20, color: AppColors.gray400),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 14),
+              const Text('Alasan Pembinaan Disiplin',
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.gray700)),
+              const SizedBox(height: 6),
+              DropdownButtonFormField<String>(
+                value: selectedReason,
+                decoration: InputDecoration(
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.gray200)),
+                ),
+                items: const [
+                  DropdownMenuItem(value: 'Terlambat Masuk Sekolah', child: Text('Terlambat Masuk Sekolah (Gerbang)', style: TextStyle(fontSize: 12))),
+                  DropdownMenuItem(value: 'Terlambat Kembali dari Izin Keluar', child: Text('Terlambat Kembali dari Izin Keluar', style: TextStyle(fontSize: 12))),
+                  DropdownMenuItem(value: 'Seragam / Atribut Tidak Lengkap', child: Text('Seragam / Atribut Tidak Lengkap', style: TextStyle(fontSize: 12))),
+                  DropdownMenuItem(value: 'Lainnya', child: Text('Alasan Lainnya', style: TextStyle(fontSize: 12))),
+                ],
+                onChanged: (val) {
+                  if (val != null) setModalState(() => selectedReason = val);
+                },
+              ),
+              const SizedBox(height: 12),
+              const Text('Keterangan / Alasan Tambahan (Opsional)',
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.gray700)),
+              const SizedBox(height: 6),
+              TextField(
+                controller: descController,
+                maxLines: 2,
+                style: const TextStyle(fontSize: 12),
+                decoration: InputDecoration(
+                  hintText: 'Contoh: Terjebak kemacetan di jalan utama.',
+                  contentPadding: const EdgeInsets.all(12),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.gray200)),
+                ),
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: isSubmitting ? null : () async {
+                    setModalState(() => isSubmitting = true);
+                    try {
+                      await ApiClient.post('/conduct/self-report', {
+                        'reason': selectedReason,
+                        'description': descController.text,
+                      });
+                      if (mounted) {
+                        Navigator.pop(context);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Pengajuan pembinaan mandiri berhasil dikirim. Tunjukkan ke Guru Piket.'),
+                            backgroundColor: AppColors.emerald600,
+                          ),
+                        );
+                        _load();
+                      }
+                    } catch (e) {
+                      setModalState(() => isSubmitting = false);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(ApiClient.extractError(e)), backgroundColor: AppColors.red500),
+                      );
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFD97706),
+                    padding: const EdgeInsets.vertical(12),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  child: isSubmitting
+                      ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                      : const Text('Kirim Pengajuan', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
