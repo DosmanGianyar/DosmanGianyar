@@ -790,6 +790,7 @@ class StudentAchievementResource extends Resource
                 TextColumn::make('achievement_date')
                     ->label('Tanggal')
                     ->formatStateUsing(fn ($state) => $state ? \Carbon\Carbon::parse($state)->translatedFormat('d F Y') : '—')
+                    ->width('140px')
                     ->sortable(),
             ])
             ->defaultSort('created_at', 'desc')
@@ -967,7 +968,9 @@ class StudentAchievementResource extends Resource
                 ->icon('heroicon-m-chevron-down')
                 ->color('primary')
                 ->button()
+                ->size('sm')
             ])
+            ->actionsColumnLabel('Aksi')
             ->bulkActions([BulkActionGroup::make([DeleteBulkAction::make()])]);
     }
 
