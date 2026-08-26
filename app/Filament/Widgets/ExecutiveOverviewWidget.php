@@ -17,7 +17,7 @@ class ExecutiveOverviewWidget extends BaseWidget
 
     public static function canView(): bool
     {
-        return in_array(auth()->user()?->role, ['admin', 'admin_kesiswaan', 'admin_kurikulum', 'admin_sarpras', 'admin_humas'], true);
+        return in_array(auth()->user()?->role, ['admin', 'admin_kesiswaan', 'admin_kurikulum', 'admin_sarpras', 'admin_humas', 'admin_prestasi'], true);
     }
 
     protected function getStats(): array

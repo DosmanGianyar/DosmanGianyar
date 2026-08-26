@@ -7,6 +7,7 @@
         'admin_sarpras'      => 'Admin Sarpras',
         'admin_humas'        => 'Admin Humas',
         'admin_perpustakaan' => 'Admin Perpustakaan',
+        'admin_prestasi'     => 'Admin Prestasi',
         'guru'               => 'Tenaga Pendidik',
         default              => ucfirst($user?->role ?? 'Pengguna'),
     };

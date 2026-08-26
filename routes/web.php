@@ -74,7 +74,7 @@ Route::get('/privacy-policy', fn() => view('legal.privacy-policy'))->name('priva
 Route::get('/delete-account', fn() => view('legal.delete-account'))->name('delete-account');
 
 // ─── Admin & Presensi Exports ────────────────────────────────────────────────
-Route::middleware(['auth', 'role:admin,admin_kesiswaan,admin_kurikulum,guru'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'role:admin,admin_kesiswaan,admin_kurikulum,admin_prestasi,guru'])->prefix('admin')->name('admin.')->group(function () {
     // Laporan Presensi
     Route::get('/attendance-report/excel',        [AdminAttendanceReport::class, 'downloadExcel'])->name('attendance-report.excel');
     Route::get('/attendance-report/pdf',          [AdminAttendanceReport::class, 'downloadPdf'])->name('attendance-report.pdf');

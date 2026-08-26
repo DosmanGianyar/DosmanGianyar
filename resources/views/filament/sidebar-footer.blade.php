@@ -12,20 +12,24 @@
                 @php
                     $role = auth()->user()?->role;
                     $badgeClass = match($role) {
-                        'admin'           => 'sims-role-admin',
-                        'admin_kesiswaan' => 'sims-role-kesiswaan',
-                        'admin_kurikulum' => 'sims-role-kurikulum',
-                        'admin_sarpras'   => 'sims-role-sarpras',
-                        'admin_humas'     => 'sims-role-humas',
-                        default           => 'sims-role-admin',
+                        'admin'              => 'sims-role-admin',
+                        'admin_kesiswaan'    => 'sims-role-kesiswaan',
+                        'admin_kurikulum'    => 'sims-role-kurikulum',
+                        'admin_sarpras'      => 'sims-role-sarpras',
+                        'admin_humas'        => 'sims-role-humas',
+                        'admin_perpustakaan' => 'sims-role-perpustakaan',
+                        'admin_prestasi'     => 'sims-role-prestasi',
+                        default              => 'sims-role-admin',
                     };
                     $badgeLabel = match($role) {
-                        'admin'           => 'Super Admin',
-                        'admin_kesiswaan' => 'Admin Kesiswaan',
-                        'admin_kurikulum' => 'Admin Kurikulum',
-                        'admin_sarpras'   => 'Admin Sarpras',
-                        'admin_humas'     => 'Admin Humas',
-                        default           => 'Admin',
+                        'admin'              => 'Super Admin',
+                        'admin_kesiswaan'    => 'Admin Kesiswaan',
+                        'admin_kurikulum'    => 'Admin Kurikulum',
+                        'admin_sarpras'      => 'Admin Sarpras',
+                        'admin_humas'        => 'Admin Humas',
+                        'admin_perpustakaan' => 'Admin Perpustakaan',
+                        'admin_prestasi'     => 'Admin Prestasi',
+                        default              => 'Admin',
                     };
                 @endphp
                 <span class="sims-role-badge {{ $badgeClass }}">

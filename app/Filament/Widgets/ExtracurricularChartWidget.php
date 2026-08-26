@@ -15,7 +15,7 @@ class ExtracurricularChartWidget extends ChartWidget
 
     public static function canView(): bool
     {
-        return in_array(auth()->user()?->role, ['admin', 'admin_kesiswaan', 'admin_kurikulum'], true);
+        return in_array(auth()->user()?->role, ['admin', 'admin_kesiswaan', 'admin_kurikulum', 'admin_prestasi'], true);
     }
 
     protected function getData(): array

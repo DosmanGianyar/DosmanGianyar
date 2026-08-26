@@ -15,6 +15,7 @@ class AdminAccess
         'admin_sarpras'      => ['Sarpras', 'Perpustakaan'],
         'admin_humas'        => ['Humas'],
         'admin_perpustakaan' => ['Perpustakaan'],
+        'admin_prestasi'     => ['Prestasi & Ekskul'],
     ];
 
     /**

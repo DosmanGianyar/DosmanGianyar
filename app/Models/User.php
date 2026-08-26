@@ -140,7 +140,7 @@ class User extends Authenticatable implements FilamentUser
     public function canAccessPanel(Panel $panel): bool
     {
         if (in_array($this->role, [
-            'admin', 'admin_kesiswaan', 'admin_kurikulum', 'admin_sarpras', 'admin_humas', 'admin_perpustakaan',
+            'admin', 'admin_kesiswaan', 'admin_kurikulum', 'admin_sarpras', 'admin_humas', 'admin_perpustakaan', 'admin_prestasi',
         ])) {
             return true;
         }
@@ -226,7 +226,8 @@ class User extends Authenticatable implements FilamentUser
             'admin_kurikulum',
             'admin_sarpras',
             'admin_humas',
-            'admin_perpustakaan' => '/admin',
+            'admin_perpustakaan',
+            'admin_prestasi' => '/admin',
             'guru'               => route('guru.dashboard'),
             'siswa'              => route('siswa.dashboard'),
             'pengelola'          => route('siswa.dashboard'),
