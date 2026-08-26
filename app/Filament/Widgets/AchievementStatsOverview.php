@@ -16,8 +16,14 @@ class AchievementStatsOverview extends BaseWidget
     protected function getStats(): array
     {
         $grade = $this->filters['grade'] ?? 'all';
+        $from  = $this->tableFilters['date_range']['from'] ?? ($this->filters['from'] ?? now()->startOfYear()->toDateString());
+        $until = $this->tableFilters['date_range']['until'] ?? ($this->filters['until'] ?? now()->toDateString());
 
-        $approvedQuery = StudentAchievement::query()->whereIn('curation_status', ['curated', 'not_curatable']);
+        $approvedQuery = StudentAchievement::query()
+            ->whereIn('curation_status', ['curated', 'not_curatable'])
+            ->when($from, fn ($q) => $q->whereDate('achievement_date', '>=', $from))
+            ->when($until, fn ($q) => $q->whereDate('achievement_date', '<=', $until));
+
         if ($grade !== 'all') {
             $approvedQuery->whereHas('student.schoolClass', fn ($q) => $q->where('grade', (string) $grade));
         }

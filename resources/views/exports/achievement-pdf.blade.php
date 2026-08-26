@@ -86,9 +86,10 @@
 <div class="doc-header">
   <div class="doc-title">REKAPITULASI PRESTASI & KEJUARAAN SISWA</div>
   <div class="doc-subtitle">STATUS: PRESTASI DIAKUI SEKOLAH (KURASI RESMI & INTERNAL)</div>
-  @if(!empty($selectedClass) || !empty($selectedLevel) || !empty($selectedCategory) || !empty($selectedCuration) || !empty($year))
+  @if(!empty($selectedClass) || !empty($selectedLevel) || !empty($selectedCategory) || !empty($selectedCuration) || !empty($year) || !empty($fromDate) || !empty($untilDate))
     <div class="doc-filter">
       Kriteria Filter: 
+      @if(!empty($fromDate) || !empty($untilDate)) Periode {{ $fromDate ?? 'Awal' }} s.d. {{ $untilDate ?? 'Sekarang' }} &bull; @endif
       @if(!empty($selectedCuration)) Status {{ $selectedCuration }} &bull; @endif
       @if(!empty($selectedLevel)) Tingkat {{ $selectedLevel }} &bull; @endif
       @if(!empty($selectedCategory)) Rumpun {{ $selectedCategory }} &bull; @endif

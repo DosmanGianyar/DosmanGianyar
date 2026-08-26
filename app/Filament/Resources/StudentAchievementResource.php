@@ -28,6 +28,7 @@ use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -795,6 +796,42 @@ class StudentAchievementResource extends Resource
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
+                Filter::make('date_range')
+                    ->label('Periode Tanggal Prestasi')
+                    ->form([
+                        DatePicker::make('from')
+                            ->label('Dari Tanggal')
+                            ->native(false)
+                            ->displayFormat('d/m/Y')
+                            ->default(now()->startOfYear()->toDateString()),
+                        DatePicker::make('until')
+                            ->label('Sampai Tanggal')
+                            ->native(false)
+                            ->displayFormat('d/m/Y')
+                            ->default(now()->toDateString()),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['from'] ?? null,
+                                fn (Builder $query, $date): Builder => $query->whereDate('achievement_date', '>=', $date),
+                            )
+                            ->when(
+                                $data['until'] ?? null,
+                                fn (Builder $query, $date): Builder => $query->whereDate('achievement_date', '<=', $date),
+                            );
+                    })
+                    ->indicateUsing(function (array $data): array {
+                        $indicators = [];
+                        if ($data['from'] ?? null) {
+                            $indicators[] = 'Dari: ' . \Carbon\Carbon::parse($data['from'])->translatedFormat('d F Y');
+                        }
+                        if ($data['until'] ?? null) {
+                            $indicators[] = 'Sampai: ' . \Carbon\Carbon::parse($data['until'])->translatedFormat('d F Y');
+                        }
+                        return $indicators;
+                    }),
+
                 SelectFilter::make('is_curation')
                     ->label('Tipe Pengajuan')
                     ->options([

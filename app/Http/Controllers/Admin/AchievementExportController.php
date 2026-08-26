@@ -42,6 +42,14 @@ class AchievementExportController extends Controller
             $query->whereYear('achievement_date', $request->year);
         }
 
+        if ($request->filled('from')) {
+            $query->whereDate('achievement_date', '>=', $request->from);
+        }
+
+        if ($request->filled('until')) {
+            $query->whereDate('achievement_date', '<=', $request->until);
+        }
+
         $achievements = $query->get();
 
         $selectedClass = $request->filled('class_id') ? SchoolClass::find($request->class_id)?->name : null;
@@ -61,6 +69,9 @@ class AchievementExportController extends Controller
             'unique_students' => $achievements->pluck('student_id')->unique()->count(),
         ];
 
+        $fromDate  = $request->filled('from') ? \Carbon\Carbon::parse($request->from)->translatedFormat('d F Y') : null;
+        $untilDate = $request->filled('until') ? \Carbon\Carbon::parse($request->until)->translatedFormat('d F Y') : null;
+
         $pdf = Pdf::loadView('exports.achievement-pdf', [
             'achievements'     => $achievements,
             'stats'            => $stats,
@@ -69,6 +80,8 @@ class AchievementExportController extends Controller
             'selectedCategory' => $selectedCategory,
             'selectedCuration' => $selectedCuration,
             'year'             => $request->year,
+            'fromDate'         => $fromDate,
+            'untilDate'        => $untilDate,
         ])->setPaper('a4', 'landscape');
 
         $filename = 'laporan_prestasi_siswa_' . now()->format('Ymd_His') . '.pdf';
@@ -105,6 +118,14 @@ class AchievementExportController extends Controller
 
         if ($request->filled('year')) {
             $query->whereYear('achievement_date', $request->year);
+        }
+
+        if ($request->filled('from')) {
+            $query->whereDate('achievement_date', '>=', $request->from);
+        }
+
+        if ($request->filled('until')) {
+            $query->whereDate('achievement_date', '<=', $request->until);
         }
 
         $achievements = $query->get();
