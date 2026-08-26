@@ -271,18 +271,29 @@ class JournalController extends Controller
         $teacher = $request->filled('teacher_id')
             ? (User::where('role', 'guru')->find($request->input('teacher_id')) ?: Auth::user())
             : Auth::user();
-        $month = (int) $request->input('month', now()->month);
-        $year  = (int) $request->input('year', now()->year);
-        $classId = $request->input('class_id');
 
-        $firstDayOfMonth = \Illuminate\Support\Carbon::create($year, $month, 1)->startOfDay();
-        $lastDayOfMonth  = $firstDayOfMonth->copy()->endOfMonth()->endOfDay();
+        $month   = $request->filled('month') ? (int) $request->input('month') : null;
+        $year    = $request->filled('year') ? (int) $request->input('year') : null;
+        $classId = $request->input('class_id');
 
         $query = TeacherJournal::where('teacher_id', $teacher->id)
             ->with(['schoolClass:id,name', 'subject:id,name', 'tp:id,code,description', 'absences.student:id,name,nis'])
-            ->whereBetween('date', [$firstDayOfMonth->toDateString(), $lastDayOfMonth->toDateString()])
             ->orderBy('date')
             ->orderBy('period');
+
+        if ($month && $year) {
+            $firstDay = \Illuminate\Support\Carbon::create($year, $month, 1)->startOfDay();
+            $lastDay  = $firstDay->copy()->endOfMonth()->endOfDay();
+            $query->whereBetween('date', [$firstDay->toDateString(), $lastDay->toDateString()]);
+        } elseif ($month) {
+            $query->whereMonth('date', $month);
+            $firstDay = \Illuminate\Support\Carbon::create(now()->year, $month, 1)->startOfDay();
+            $lastDay  = $firstDay->copy()->endOfMonth()->endOfDay();
+        } elseif ($year) {
+            $query->whereYear('date', $year);
+            $firstDay = \Illuminate\Support\Carbon::create($year, 1, 1)->startOfDay();
+            $lastDay  = \Illuminate\Support\Carbon::create($year, 12, 31)->endOfDay();
+        }
 
         if ($classId) {
             $query->where('class_id', $classId);
@@ -290,12 +301,22 @@ class JournalController extends Controller
 
         $allJournals = $query->get();
 
-        // Bagi jurnal perhalaman baru perminggu (Minggu 1, Minggu 2, Minggu 3, Minggu 4, dst.)
+        if (!isset($firstDay) || !isset($lastDay)) {
+            if ($allJournals->isNotEmpty()) {
+                $firstDay = \Illuminate\Support\Carbon::parse($allJournals->min('date'))->startOfDay();
+                $lastDay  = \Illuminate\Support\Carbon::parse($allJournals->max('date'))->endOfDay();
+            } else {
+                $firstDay = now()->startOfMonth()->startOfDay();
+                $lastDay  = now()->endOfMonth()->endOfDay();
+            }
+        }
+
+        // Bagi jurnal perhalaman baru perminggu (Minggu 1, Minggu 2, Minggu 3, dst.)
         $weeklyGroups = [];
-        $currStart = $firstDayOfMonth->copy()->startOfWeek(\Illuminate\Support\Carbon::MONDAY);
+        $currStart = $firstDay->copy()->startOfWeek(\Illuminate\Support\Carbon::MONDAY);
         $weekIndex = 1;
 
-        while ($currStart->lte($lastDayOfMonth)) {
+        while ($currStart->lte($lastDay)) {
             $currEnd = $currStart->copy()->addDays(5); // Senin - Sabtu
 
             $weekJournals = $allJournals->filter(function ($j) use ($currStart, $currEnd) {
@@ -304,18 +325,20 @@ class JournalController extends Controller
                 return $dt->gte($currStart->startOfDay()) && $dt->lte($currEnd->endOfDay());
             })->values();
 
-            $weeklyGroups[] = [
-                'week_number'     => $weekIndex,
-                'start_date'      => $currStart->copy(),
-                'end_date'        => $currEnd->copy(),
-                'period_label'    => $currStart->isoFormat('D MMMM Y') . ' s/d ' . $currEnd->isoFormat('D MMMM Y'),
-                'journals'        => $weekJournals,
-                'total_pertemuan' => $weekJournals->count(),
-                'total_absen'     => $weekJournals->sum(fn ($j) => $j->absences->count()),
-            ];
+            if ($weekJournals->isNotEmpty() || ($month && $year)) {
+                $weeklyGroups[] = [
+                    'week_number'     => $weekIndex,
+                    'start_date'      => $currStart->copy(),
+                    'end_date'        => $currEnd->copy(),
+                    'period_label'    => $currStart->isoFormat('D MMMM Y') . ' s/d ' . $currEnd->isoFormat('D MMMM Y'),
+                    'journals'        => $weekJournals,
+                    'total_pertemuan' => $weekJournals->count(),
+                    'total_absen'     => $weekJournals->sum(fn ($j) => $j->absences->count()),
+                ];
+                $weekIndex++;
+            }
 
             $currStart->addWeek();
-            $weekIndex++;
         }
 
         $classes   = SchoolClass::orderBy('name')->get();

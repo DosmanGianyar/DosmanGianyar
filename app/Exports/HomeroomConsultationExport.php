@@ -23,21 +23,23 @@ class HomeroomConsultationExport implements FromCollection, WithHeadings, WithMa
     WithColumnWidths, WithStyles, WithTitle, WithEvents
 {
     public function __construct(
-        private readonly int    $teacherId,
-        private readonly string $month,   // Y-m
+        private readonly int     $teacherId,
+        private readonly ?string $month = null,   // Y-m (opsional)
     ) {}
 
     public function collection()
     {
-        [$year, $mon] = explode('-', $this->month);
-
-        return HomeroomConsultation::where('teacher_id', $this->teacherId)
+        $query = HomeroomConsultation::where('teacher_id', $this->teacherId)
             ->where('status', 'completed')
-            ->whereYear('conducted_date', $year)
-            ->whereMonth('conducted_date', $mon)
             ->with('student')
-            ->orderBy('conducted_date')
-            ->get();
+            ->orderBy('conducted_date');
+
+        if ($this->month) {
+            [$year, $mon] = explode('-', $this->month);
+            $query->whereYear('conducted_date', $year)->whereMonth('conducted_date', $mon);
+        }
+
+        return $query->get();
     }
 
     public function headings(): array
@@ -78,9 +80,7 @@ class HomeroomConsultationExport implements FromCollection, WithHeadings, WithMa
 
     public function registerEvents(): array
     {
-        $teacher   = User::find($this->teacherId);
-        $class     = SchoolClass::where('homeroom_teacher_id', $this->teacherId)->first();
-        $monthName = Carbon::parse($this->month . '-01')->isoFormat('MMMM Y');
+        $monthName = $this->month ? Carbon::parse($this->month . '-01')->isoFormat('MMMM Y') : 'Keseluruhan Periode';
 
         return [
             AfterSheet::class => function (AfterSheet $event) use ($teacher, $class, $monthName) {

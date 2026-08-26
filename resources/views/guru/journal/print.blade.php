@@ -224,7 +224,7 @@ body {
             <td class="val"><strong>{{ $teacher->name }}</strong></td>
             <td class="label" style="text-align:right;">Bulan / Tahun</td>
             <td class="sep">:</td>
-            <td class="val" style="width:120px;">{{ \Illuminate\Support\Carbon::create($year, $month, 1)->isoFormat('MMMM Y') }}</td>
+            <td class="val" style="width:120px;">{{ ($month && $year) ? \Illuminate\Support\Carbon::create($year, $month, 1)->isoFormat('MMMM Y') : ($year ? "Tahun $year" : "Semua Periode") }}</td>
         </tr>
         <tr>
             <td class="label">NIP</td>

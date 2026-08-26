@@ -98,10 +98,14 @@ class HomeroomConsultationController extends Controller
     {
         $guru = auth()->user();
 
-        $request->validate(['month' => 'required|date_format:Y-m']);
+        $request->validate([
+            'month'      => 'nullable|date_format:Y-m',
+            'student_id' => 'nullable|exists:users,id',
+        ]);
 
         $safeName = str_replace(' ', '_', $guru->name);
-        $filename = 'jurnal_bimbingan_' . $safeName . '_' . $request->month . '.xlsx';
+        $monthStr = $request->month ?: 'keseluruhan';
+        $filename = 'jurnal_bimbingan_' . $safeName . '_' . $monthStr . '.xlsx';
 
         return Excel::download(new HomeroomConsultationExport($guru->id, $request->month), $filename);
     }
@@ -110,26 +114,35 @@ class HomeroomConsultationController extends Controller
     {
         $guru = auth()->user();
 
-        $request->validate(['month' => 'required|date_format:Y-m']);
+        $request->validate([
+            'month'      => 'nullable|date_format:Y-m',
+            'student_id' => 'nullable|exists:users,id',
+        ]);
 
-        [$year, $mon] = explode('-', $request->month);
-
-        $consultations = HomeroomConsultation::where('teacher_id', $guru->id)
+        $query = HomeroomConsultation::where('teacher_id', $guru->id)
             ->where('status', 'completed')
-            ->whereYear('conducted_date', $year)
-            ->whereMonth('conducted_date', $mon)
-            ->with('student')
-            ->orderBy('conducted_date')
-            ->get();
+            ->with('student');
+
+        if ($request->filled('month')) {
+            [$year, $mon] = explode('-', $request->month);
+            $query->whereYear('conducted_date', $year)->whereMonth('conducted_date', $mon);
+        }
+
+        if ($request->filled('student_id')) {
+            $query->where('student_id', $request->student_id);
+        }
+
+        $consultations = $query->orderBy('conducted_date')->get();
 
         $html = view('exports.homeroom-consultation-pdf', [
             'consultations' => $consultations,
             'teacher'       => $guru,
-            'month'         => $request->month,
+            'month'         => $request->month ?: 'Keseluruhan',
         ])->render();
 
         $safeName = str_replace(' ', '_', $guru->name);
-        $filename = 'jurnal_bimbingan_' . $safeName . '_' . $request->month . '.pdf';
+        $monthStr = $request->month ?: 'keseluruhan';
+        $filename = 'jurnal_bimbingan_' . $safeName . '_' . $monthStr . '.pdf';
 
         $pdf = Browsershot::html($html)
             ->format('A4')

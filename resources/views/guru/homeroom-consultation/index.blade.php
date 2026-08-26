@@ -201,8 +201,7 @@ const routes = {
 };
 function doExport(type) {
     const month = document.getElementById('export-month').value;
-    if (!month) { swalAlert('Pilih periode terlebih dahulu.'); return; }
-    window.location.href = routes[type] + '?month=' + month;
+    window.location.href = routes[type] + (month ? '?month=' + month : '');
 }
 </script>
 @endsection
