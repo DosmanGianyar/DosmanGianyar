@@ -8,6 +8,7 @@ use App\Models\StudentAchievement;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
@@ -829,11 +830,11 @@ class StudentAchievementResource extends Resource
                     ]),
             ])
             ->actions([
-                ViewAction::make()
-                    ->iconButton()
-                    ->tooltip('Lihat Detail Prestasi'),
-
                 ActionGroup::make([
+                    ViewAction::make()
+                        ->label('Lihat Detail & Berkas')
+                        ->icon('heroicon-o-eye'),
+
                     EditAction::make()
                         ->label('Edit Data & Upload Berkas')
                         ->icon('heroicon-o-pencil'),
@@ -953,11 +954,19 @@ class StudentAchievementResource extends Resource
                             ]);
                             Notification::make()->title('Status kurasi dibatalkan & dikembalikan ke Menunggu Penilaian')->info()->send();
                         }),
+
+                    DeleteAction::make()
+                        ->label('Hapus Ajuan Prestasi')
+                        ->icon('heroicon-o-trash')
+                        ->color('danger')
+                        ->requiresConfirmation()
+                        ->modalHeading('Hapus Data Ajuan Prestasi?')
+                        ->modalDescription('Apakah Anda yakin ingin menghapus data ajuan prestasi ini secara permanen? Data yang dihapus tidak dapat dikembalikan.'),
                 ])
-                ->label('Opsi Kurasi')
-                ->icon('heroicon-m-ellipsis-vertical')
+                ->label('Menu Aksi')
+                ->icon('heroicon-m-chevron-down')
                 ->color('primary')
-                ->tooltip('Pilihan Opsi & Kurasi Status Prestasi')
+                ->button()
             ])
             ->bulkActions([BulkActionGroup::make([DeleteBulkAction::make()])]);
     }
