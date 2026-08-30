@@ -1,6 +1,6 @@
 class AppConfig {
   // Production Base URL
-  static const String baseUrl = 'https://36.93.15.146/api/v1';
+  static const String baseUrl = 'https://sims.sman1-gianyar.sch.id/api/v1';
 
   static const Duration connectTimeout = Duration(seconds: 30);
   static const Duration receiveTimeout = Duration(seconds: 30);

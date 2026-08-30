@@ -266,13 +266,13 @@ class User {
   static String? _normalizeUrl(String? url) {
     if (url == null || url.trim().isEmpty) return null;
     var u = url.trim();
-    if (u.contains('sims.sman1-gianyar.sch.id')) {
-      u = u.replaceAll('https://sims.sman1-gianyar.sch.id', 'https://36.93.15.146')
-           .replaceAll('http://sims.sman1-gianyar.sch.id', 'https://36.93.15.146');
+    if (u.contains('36.93.15.146')) {
+      u = u.replaceAll('https://36.93.15.146', 'https://sims.sman1-gianyar.sch.id')
+           .replaceAll('http://36.93.15.146', 'https://sims.sman1-gianyar.sch.id');
     }
     if (u.contains('localhost')) {
-      u = u.replaceAll('https://localhost', 'https://36.93.15.146')
-           .replaceAll('http://localhost', 'https://36.93.15.146');
+      u = u.replaceAll('https://localhost', 'https://sims.sman1-gianyar.sch.id')
+           .replaceAll('http://localhost', 'https://sims.sman1-gianyar.sch.id');
     }
     return u;
   }
