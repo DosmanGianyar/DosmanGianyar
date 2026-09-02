@@ -147,12 +147,19 @@
         <tr>
             @for($d = 1; $d <= $daysInMonth; $d++)
                 @php
-                    $curDate = $start->copy()->setDay($d);
-                    $dayIso  = $curDate->dayOfWeekIso;
-                    $dayName = $shortDays[$dayIso] ?? '';
-                    $isOff   = ! Holiday::isSchoolDay($curDate, $holidays, $specialDays);
+                    $curDate  = $start->copy()->setDay($d);
+                    $dayIso   = $curDate->dayOfWeekIso;
+                    $dayName  = $shortDays[$dayIso] ?? '';
+                    $isSunday = $curDate->isSunday();
+                    $isOff    = ! Holiday::isSchoolDay($curDate, $holidays, $specialDays);
+                    $headerStyle = '';
+                    if ($isSunday) {
+                        $headerStyle = 'background-color: #fee2e2; color: #dc2626;';
+                    } elseif ($isOff) {
+                        $headerStyle = 'background-color: #e2e8f0; color: #000000;';
+                    }
                 @endphp
-                <th style="{{ $isOff ? 'background-color: #e5e7eb; color: #6b7280;' : '' }}">
+                <th style="{{ $headerStyle }}">
                     {{ $dayName }}<br><span style="font-size: 7.5px; font-weight: bold;">{{ $d }}</span>
                 </th>
             @endfor
@@ -188,6 +195,7 @@
                     @php
                         $curDate = $start->copy()->setDay($d);
                         $dateStr = $curDate->toDateString();
+                        $isSunday    = $curDate->isSunday();
                         $isSchoolDay = Holiday::isSchoolDay($curDate, $holidays, $specialDays);
                         $isFuture    = $curDate->gt($today);
                         
@@ -197,6 +205,7 @@
 
                         $badgeClass = '';
                         $char = '';
+                        $customColor = '';
 
                         if ($isFuture) {
                             $badgeClass = 'bg-future';
@@ -205,6 +214,11 @@
                             $badgeClass = 'bg-libur';
                             $char = 'L';
                             $liburCount++;
+                            if ($isSunday) {
+                                $customColor = 'color: #dc2626 !important; font-weight: 800;'; // Merah untuk Hari Minggu
+                            } else {
+                                $customColor = 'color: #000000 !important; font-weight: 800;'; // Hitam untuk Libur Khusus
+                            }
                         } elseif ($status === 'hadir') {
                             if ($viaLupa) {
                                 $badgeClass = 'bg-lupa';
@@ -231,13 +245,15 @@
                             $char = 'D';
                             $dispensasiCount++;
                         } else {
-                            // Belum Absen Pagi / Alpa untuk tanggal yang sudah berlalu atau hari ini
+                            // Belum Absen Pagi / Alpa untuk hari sekolah yang sudah berlalu
                             $badgeClass = 'bg-alpa';
                             $char = 'A';
                             $alpaCount++;
                         }
+                        
+                        $cellStyle = $customColor ? $customColor : ($char === 'Lp' ? 'font-size: 7px; font-weight: 800;' : 'font-size: 8.5px; font-weight: 800;');
                     @endphp
-                    <td class="{{ $badgeClass }}" style="{{ $char === 'Lp' ? 'font-size: 7px; font-weight: 800;' : 'font-size: 8.5px; font-weight: 800;' }}">{{ $char }}</td>
+                    <td class="{{ $badgeClass }}" style="{{ $cellStyle }}">{{ $char }}</td>
                 @endfor
 
                 <td class="summary-col" style="color: #7e22ce;">{{ $sakitCount ?: '-' }}</td>
@@ -254,14 +270,40 @@
 
 {{-- ── KETERANGAN & CATATAN ──────────────────────────────────────────────── --}}
 <div class="notes-section">
-    <div><strong>* Keterangan Status:</strong> H = Hadir, S = Sakit, I = Izin, A = Alpa / Tanpa Keterangan, D = Dispensasi, L = Libur Sekolah / Hari Minggu, Lp = Lupa Absen.</div>
+    <div><strong>* Keterangan Status:</strong> H = Hadir, S = Sakit, I = Izin, A = Alpa / Tanpa Keterangan, D = Dispensasi, L = Libur (<span style="color:#dc2626; font-weight:bold;">L Merah</span> = Minggu, <span style="color:#000000; font-weight:bold;">L Hitam</span> = Libur Khusus / Nasional), Lp = Lupa Absen.</div>
     <div><strong>* Indikator Warna Badge:</strong> 
         <span style="color:#16a34a; font-weight:bold;">[H] Hijau</span> = Hadir Tepat Waktu | 
         <span style="color:#ca8a04; font-weight:bold;">[H] Kuning</span> = Terlambat | 
         <span style="color:#9333ea; font-weight:bold;">[Lp] Ungu</span> = Lupa Absen | 
         <span style="color:#dc2626; font-weight:bold;">[A] Merah</span> = Alpa / Belum Absen.
     </div>
-    <div style="font-style: italic; color: #4b5563; margin-top: 2px;">
+
+    @php
+        $holidayList = \App\Models\Holiday::whereBetween('date', [$start, $start->copy()->endOfMonth()])
+            ->where('type', 'libur')
+            ->where(fn ($q) => $q
+                ->where('applies_to', 'semua')
+                ->orWhere(fn ($q2) => $q2
+                    ->where('applies_to', 'kelas_tertentu')
+                    ->whereHas('schoolClasses', fn ($q3) => $q3->where('classes.id', $classIdObj))
+                )
+            )
+            ->orderBy('date')
+            ->get();
+    @endphp
+
+    @if($holidayList->count() > 0)
+        <div style="margin-top: 5px; padding: 4px 8px; background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 4px;">
+            <strong style="color: #0f172a;">* Daftar Hari Libur Khusus / Nasional (Bulan {{ $monthName }} {{ $yearNum }}):</strong>
+            <div style="margin-top: 2px; font-size: 8.5px; color: #1e293b;">
+                @foreach($holidayList as $h)
+                    <span>• <strong>Tgl {{ $h->date->format('j') }} ({{ $h->date->isoFormat('D MMMM Y') }} - {{ $h->date->isoFormat('dddd') }}):</strong> {{ $h->description ?? 'Hari Libur Sekolah' }}</span>{{ !$loop->last ? ' | ' : '' }}
+                @endforeach
+            </div>
+        </div>
+    @endif
+
+    <div style="font-style: italic; color: #4b5563; margin-top: 4px;">
         * Perhitungan Alpa (A) hanya dihitung untuk hari sekolah yang sudah berlalu (tanggal 1 s/d {{ $today->isoFormat('D MMMM Y') }}). Tanggal yang belum berjalan ditandai dengan (-) dan tidak dihitung Alpa.
     </div>
 </div>
