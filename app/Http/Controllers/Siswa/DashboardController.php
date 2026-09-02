@@ -119,11 +119,14 @@ class DashboardController extends Controller
         $monthlyHolidays = Holiday::getHolidayDates($monthStart, $monthEnd, $siswa->class_id);
         $monthlySpecial  = Holiday::getSpecialSchoolDates($monthStart, $monthEnd, $siswa->class_id);
 
-        // Build per-day map with effective status applied
+        // Build per-day map with effective status applied (ignore alpa on non-school days)
         $monthlyByDate = [];
         $recordedDates = [];
         foreach ($monthlyRecs as $rec) {
             $ds = $rec->date->format('Y-m-d');
+            $isSchool = Holiday::isSchoolDay($rec->date, $monthlyHolidays, $monthlySpecial);
+            if (! $isSchool && $rec->status === 'alpa') continue;
+
             $recordedDates[$ds] = true;
             $monthlyByDate[$ds] = $rec->effectiveStatus(isset($monthlyApproved[$ds]));
         }

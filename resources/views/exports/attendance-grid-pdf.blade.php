@@ -82,11 +82,16 @@
 
 @php
     use Carbon\Carbon;
+    use App\Models\Holiday;
     $start        = Carbon::parse($month . '-01');
     $daysInMonth  = $start->daysInMonth;
     $today        = now();
     $monthName    = $start->isoFormat('MMMM');
     $yearNum      = $start->year;
+
+    $classIdObj   = isset($students) && count($students) > 0 ? $students[0]->class_id : null;
+    $holidays     = Holiday::getHolidayDates($start, $start->copy()->endOfMonth(), $classIdObj);
+    $specialDays  = Holiday::getSpecialSchoolDates($start, $start->copy()->endOfMonth(), $classIdObj);
 
     // Indonesian short day names: 1(Mon)->Sn, 2(Tue)->Sl, 3(Wed)->Rb, 4(Thu)->Km, 5(Fri)->Jm, 6(Sat)->Sb, 7(Sun)->Mg
     $shortDays = [1 => 'Sn', 2 => 'Sl', 3 => 'Rb', 4 => 'Km', 5 => 'Jm', 6 => 'Sb', 7 => 'Mg'];
@@ -145,9 +150,9 @@
                     $curDate = $start->copy()->setDay($d);
                     $dayIso  = $curDate->dayOfWeekIso;
                     $dayName = $shortDays[$dayIso] ?? '';
-                    $isWknd  = $curDate->isSunday();
+                    $isOff   = ! Holiday::isSchoolDay($curDate, $holidays, $specialDays);
                 @endphp
-                <th style="{{ $isWknd ? 'background-color: #e5e7eb; color: #6b7280;' : '' }}">
+                <th style="{{ $isOff ? 'background-color: #e5e7eb; color: #6b7280;' : '' }}">
                     {{ $dayName }}<br><span style="font-size: 7.5px; font-weight: bold;">{{ $d }}</span>
                 </th>
             @endfor
@@ -183,8 +188,8 @@
                     @php
                         $curDate = $start->copy()->setDay($d);
                         $dateStr = $curDate->toDateString();
-                        $isWeekend = $curDate->isSunday();
-                        $isFuture  = $curDate->gt($today);
+                        $isSchoolDay = Holiday::isSchoolDay($curDate, $holidays, $specialDays);
+                        $isFuture    = $curDate->gt($today);
                         
                         $attInfo = $studentGrid[$d] ?? null;
                         $status  = is_array($attInfo) ? ($attInfo['status'] ?? null) : $attInfo;
@@ -196,7 +201,7 @@
                         if ($isFuture) {
                             $badgeClass = 'bg-future';
                             $char = '-';
-                        } elseif ($isWeekend) {
+                        } elseif (! $isSchoolDay) {
                             $badgeClass = 'bg-libur';
                             $char = 'L';
                             $liburCount++;

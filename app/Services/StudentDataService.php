@@ -58,7 +58,14 @@ class StudentDataService
             }
         }
 
-        $records = $rows->map(fn ($r) => [
+        $holidays      = Holiday::getHolidayDates($start, $end, $student->class_id);
+        $specialDays   = Holiday::getSpecialSchoolDates($start, $end, $student->class_id);
+        $today         = today();
+
+        $records = $rows->reject(function ($r) use ($holidays, $specialDays) {
+            $isSchool = Holiday::isSchoolDay($r->date, $holidays, $specialDays);
+            return ! $isSchool && $r->status === 'alpa';
+        })->map(fn ($r) => [
             'date'                => $r->date->format('Y-m-d'),
             'check_in_time'       => $r->check_in_time,
             'check_out_time'      => $r->check_out_time,
@@ -69,9 +76,6 @@ class StudentDataService
         ]);
 
         $recordedDates = $rows->pluck('date')->mapWithKeys(fn ($d) => [$d->format('Y-m-d') => true])->all();
-        $holidays      = Holiday::getHolidayDates($start, $end, $student->class_id);
-        $specialDays   = Holiday::getSpecialSchoolDates($start, $end, $student->class_id);
-        $today         = today();
 
         $synthetic = collect();
         for ($day = $start->copy(); $day->lt($today) && $day->lte($end); $day->addDay()) {

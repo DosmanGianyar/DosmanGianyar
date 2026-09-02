@@ -91,29 +91,34 @@ class AttendanceReportPage extends Page
             ->orderBy('name')
             ->get();
 
+        $start       = Carbon::createFromDate($this->year, $this->month, 1);
+        $end         = $start->copy()->endOfMonth();
+        $holidays    = \App\Models\Holiday::getHolidayDates($start, $end, $this->classId);
+        $specialDays = \App\Models\Holiday::getSpecialSchoolDates($start, $end, $this->classId);
+
         $workingDays = $this->getWorkingDays();
         $studentIds  = $students->pluck('id');
 
         $allCounts = Attendance::whereIn('user_id', $studentIds)
             ->whereYear('date', $this->year)
             ->whereMonth('date', $this->month)
-            ->selectRaw('user_id, status, count(*) as total')
-            ->groupBy('user_id', 'status')
-            ->get()
+            ->get(['user_id', 'status', 'date'])
+            ->reject(function ($att) use ($holidays, $specialDays) {
+                $isSchool = \App\Models\Holiday::isSchoolDay($att->date, $holidays, $specialDays);
+                return ! $isSchool && $att->status === 'alpa';
+            })
             ->groupBy('user_id');
 
         $rows = [];
         foreach ($students as $student) {
-            $counts = $allCounts->get($student->id, collect())
-                ->pluck('total', 'status')
-                ->toArray();
+            $studentAtts = $allCounts->get($student->id, collect());
 
-            $hadir      = (int) ($counts['hadir']      ?? 0);
-            $terlambat  = (int) ($counts['terlambat']  ?? 0);
-            $izin       = (int) ($counts['izin']       ?? 0);
-            $sakit      = (int) ($counts['sakit']      ?? 0);
-            $alpa       = (int) ($counts['alpa']       ?? 0);
-            $dispensasi = (int) ($counts['dispensasi'] ?? 0);
+            $hadir      = $studentAtts->where('status', 'hadir')->count();
+            $terlambat  = $studentAtts->where('status', 'terlambat')->count();
+            $izin       = $studentAtts->where('status', 'izin')->count();
+            $sakit      = $studentAtts->where('status', 'sakit')->count();
+            $alpa       = $studentAtts->where('status', 'alpa')->count();
+            $dispensasi = $studentAtts->where('status', 'dispensasi')->count();
 
             $present = $hadir + $terlambat + $dispensasi;
             $pct     = $workingDays > 0 ? round($present / $workingDays * 100, 1) : 0;
@@ -153,6 +158,8 @@ class AttendanceReportPage extends Page
 
         $start       = Carbon::createFromDate($this->year, $this->month, 1);
         $daysInMonth = $start->daysInMonth;
+        $holidays    = \App\Models\Holiday::getHolidayDates($start, $start->copy()->endOfMonth(), $classId);
+        $specialDays = \App\Models\Holiday::getSpecialSchoolDates($start, $start->copy()->endOfMonth(), $classId);
 
         $students = User::where('role', 'siswa')
             ->where('class_id', $classId)
@@ -185,6 +192,8 @@ class AttendanceReportPage extends Page
             'daysInMonth'  => $daysInMonth,
             'className'    => $className,
             'homeroomName' => $homeroom?->name ?? '—',
+            'holidays'     => $holidays,
+            'specialDays'  => $specialDays,
         ];
     }
 

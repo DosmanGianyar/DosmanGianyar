@@ -42,6 +42,9 @@ class AttendanceGridExport implements FromArray, WithTitle, WithColumnWidths, Wi
         $this->daysInMonth  = $start->daysInMonth;
         $this->monthLabel   = $start->isoFormat('MMMM Y');
 
+        $holidays    = \App\Models\Holiday::getHolidayDates($start, $start->copy()->endOfMonth(), $this->classId);
+        $specialDays = \App\Models\Holiday::getSpecialSchoolDates($start, $start->copy()->endOfMonth(), $this->classId);
+
         $students = User::where('role', 'siswa')
             ->where('class_id', $this->classId)
             ->with('schoolClass')
@@ -59,8 +62,9 @@ class AttendanceGridExport implements FromArray, WithTitle, WithColumnWidths, Wi
         // ── Row 1: header labels ──
         $header = ['No', 'Kelas', 'Nama Siswa', 'NISN / NIS'];
         for ($d = 1; $d <= $this->daysInMonth; $d++) {
-            $date = $start->copy()->setDay($d);
-            $header[] = $d . ($date->isSunday() ? '*' : '');
+            $date  = $start->copy()->setDay($d);
+            $isOff = ! \App\Models\Holiday::isSchoolDay($date, $holidays, $specialDays);
+            $header[] = $d . ($isOff ? '*' : '');
         }
         $header[] = 'Hdr';
         $header[] = 'Alp';
@@ -81,9 +85,10 @@ class AttendanceGridExport implements FromArray, WithTitle, WithColumnWidths, Wi
 
             for ($d = 1; $d <= $this->daysInMonth; $d++) {
                 $date   = $start->copy()->setDay($d);
+                $isOff  = ! \App\Models\Holiday::isSchoolDay($date, $holidays, $specialDays);
                 $status = $dayRecords->get($d)?->status ?? null;
 
-                if ($date->isSunday()) {
+                if ($isOff) {
                     $row[] = '·';
                 } else {
                     $letter = match($status) {

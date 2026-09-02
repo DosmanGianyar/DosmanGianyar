@@ -115,16 +115,39 @@ class Holiday extends Model
             ->all();
     }
 
+    protected static ?array $cachedInactiveDays = null;
+
     /**
-     * Is this day a school day based on pre-fetched maps?
+     * Get day_of_week (1=Monday ... 7=Sunday) list for days set as inactive in AttendanceSetting.
+     */
+    public static function getInactiveDaysOfWeek(): array
+    {
+        if (static::$cachedInactiveDays === null) {
+            static::$cachedInactiveDays = AttendanceSetting::where('is_active', false)
+                ->pluck('day_of_week')
+                ->map(fn ($d) => (int) $d)
+                ->all();
+            if (empty(static::$cachedInactiveDays)) {
+                static::$cachedInactiveDays = [7]; // Default Sunday as inactive if settings not initialized
+            }
+        }
+        return static::$cachedInactiveDays;
+    }
+
+    /**
+     * Is this day a school day based on pre-fetched maps and active attendance settings?
      * Use in bulk date-range loops to avoid per-day DB queries.
      */
-    public static function isSchoolDay(Carbon $date, array $holidays, array $specialDays): bool
+    public static function isSchoolDay(Carbon $date, array $holidays, array $specialDays, ?array $inactiveDays = null): bool
     {
         $ds = $date->format('Y-m-d');
-        if ($date->isSunday()) {
+        $inactiveDays = $inactiveDays ?? static::getInactiveDaysOfWeek();
+        $dayOfWeek = (int) $date->dayOfWeekIso;
+
+        if (in_array($dayOfWeek, $inactiveDays, true)) {
             return isset($specialDays[$ds]);
         }
+
         return ! isset($holidays[$ds]);
     }
 }

@@ -74,9 +74,23 @@ class StudentAttendanceDetailService
             $early  = $earlyCheckouts->get($dateStr);
 
             $isSchoolDay = Holiday::isSchoolDay($d, $holidays, $specialDays);
-            if (! $isSchoolDay && ! $att && ! $permit) {
-                $counts['libur']++;
-                continue;
+            if (! $isSchoolDay) {
+                if (! $att || $att->status === 'alpa') {
+                    $counts['libur']++;
+                    $dailyLogs[] = [
+                        'date'           => $d->toDateString(),
+                        'date_formatted' => $d->isoFormat('dddd, D MMMM Y'),
+                        'status'         => 'libur',
+                        'via_lupa_absen' => false,
+                        'lupa_absen_type'=> null,
+                        'check_in'       => null,
+                        'check_out'      => null,
+                        'reason'         => 'Hari Libur / Non-Sekolah',
+                        'photo_in_url'   => null,
+                        'photo_out_url'  => null,
+                    ];
+                    continue;
+                }
             }
 
             $status = 'alpa';

@@ -147,6 +147,8 @@ class ExportController extends Controller
 
         $start       = Carbon::parse("{$year}-{$mon}-01");
         $daysInMonth = $start->daysInMonth;
+        $holidays    = \App\Models\Holiday::getHolidayDates($start, $start->copy()->endOfMonth(), $classId);
+        $specialDays = \App\Models\Holiday::getSpecialSchoolDates($start, $start->copy()->endOfMonth(), $classId);
 
         $schoolClass = SchoolClass::with('homeroomTeacher')->find($request->class_id);
         $className   = $schoolClass?->name ?? '—';
@@ -190,6 +192,8 @@ class ExportController extends Controller
             'homeroomNip'    => $homeroom?->nip ? 'NIP. ' . $homeroom->nip : 'NIP. —',
             'headmasterName' => $headmaster?->name ?? 'I Wayan Sutrisna, S.Pd., M.Pd.',
             'headmasterNip'  => $headmaster?->nip ?? '19710415 199703 1 007',
+            'holidays'       => $holidays,
+            'specialDays'    => $specialDays,
         ];
     }
 

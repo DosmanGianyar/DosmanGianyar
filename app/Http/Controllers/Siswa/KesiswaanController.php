@@ -29,12 +29,16 @@ class KesiswaanController extends Controller
             ->whereBetween('date', [$monthStart, $monthEnd])
             ->get(['date', 'status']);
 
-        $absensi = $monthlyRecs->groupBy('status')->map->count();
-
-        // Hari sekolah yang lalu tanpa record → dihitung alpa (sama seperti dashboard)
         $monthlyHolidays = Holiday::getHolidayDates($monthStart, $monthEnd, $siswa->class_id);
         $monthlySpecial  = Holiday::getSpecialSchoolDates($monthStart, $monthEnd, $siswa->class_id);
-        $recordedDates   = $monthlyRecs->pluck('date')->map->format('Y-m-d')->flip()->all();
+
+        $validMonthlyRecs = $monthlyRecs->reject(function ($r) use ($monthlyHolidays, $monthlySpecial) {
+            $isSchool = Holiday::isSchoolDay($r->date, $monthlyHolidays, $monthlySpecial);
+            return ! $isSchool && $r->status === 'alpa';
+        });
+
+        $absensi = $validMonthlyRecs->groupBy('status')->map->count();
+        $recordedDates   = $validMonthlyRecs->pluck('date')->map->format('Y-m-d')->flip()->all();
 
         $virtualAlpa = 0;
         $today = today();
