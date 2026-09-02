@@ -36,8 +36,8 @@ class ExportController extends Controller
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        // Admin dan guru BK bisa akses semua kelas; guru biasa hanya kelas wali-nya
-        $classes = ($user->isAdmin() || $user->isBk())
+        // Admin, admin_kesiswaan, dan guru BK bisa akses semua kelas; guru biasa hanya kelas wali-nya
+        $classes = ($user->isAdmin() || $user->isBk() || $user->role === 'admin_kesiswaan')
             ? SchoolClass::orderBy('name')->get()
             : SchoolClass::where('homeroom_teacher_id', $user->id)->orderBy('name')->get();
 
@@ -102,7 +102,7 @@ class ExportController extends Controller
     {
         /** @var \App\Models\User $user */
         $user = auth()->user();
-        if ($user->isAdmin() || $user->isBk()) return;
+        if ($user->isAdmin() || $user->isBk() || $user->role === 'admin_kesiswaan') return;
 
         $isHomeroom = SchoolClass::where('id', $classId)
             ->where('homeroom_teacher_id', $user->id)

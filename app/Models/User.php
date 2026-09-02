@@ -154,6 +154,7 @@ class User extends Authenticatable implements FilamentUser
 
     // ─── Role Helpers ────────────────────────────────────────────────────────
     public function isAdmin(): bool           { return $this->role === 'admin'; }
+    public function isAdminKesiswaan(): bool  { return $this->role === 'admin_kesiswaan'; }
     public function getQrTokenAttribute(): string
     {
         if (empty($this->attributes['qr_code_token'])) {
