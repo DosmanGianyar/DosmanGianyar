@@ -97,6 +97,9 @@
                         placeholder="NISN (Siswa) / NIP-Email (Guru) / No. HP (Orangtua)"
                         class="w-full px-4 py-2.5 rounded-xl border {{ $errors->has('login') ? 'border-red-400 bg-red-50' : 'border-gray-200 bg-gray-50' }} focus:bg-white focus:outline-none focus:ring-2 focus:border-transparent text-sm text-gray-700 placeholder-gray-400 transition"
                         style="--tw-ring-color:#0d2460;">
+                    <p class="text-[11px] text-blue-800 bg-blue-50/70 border border-blue-200/80 rounded-lg px-3 py-1.5 leading-snug">
+                        💡 <strong>Siswa:</strong> Login menggunakan <strong>NISN</strong> (bukan email). Perhatikan huruf kapital pada password.
+                    </p>
 
                     <div class="relative">
                         <input

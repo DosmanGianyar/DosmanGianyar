@@ -33,14 +33,18 @@ class LoginController extends Controller
 
         $loginInput = trim($request->input('login'));
 
+        $isEmailInput = str_contains($loginInput, '@');
+
         // Siswa/pengelola: hanya boleh login pakai NISN. Guru: NIP atau email. Admin: email.
-        $user = str_contains($loginInput, '@')
+        $user = $isEmailInput
             ? User::where('email', $loginInput)->first()
             : $this->findByUsername($loginInput);
 
         // Siswa/pengelola tidak boleh login pakai email — hanya NISN.
-        if ($user && $user->isSiswa() && str_contains($loginInput, '@')) {
-            $user = null;
+        if ($isEmailInput && $user && $user->isSiswa()) {
+            return back()
+                ->withErrors(['login' => 'Siswa wajib menggunakan NISN untuk login, bukan Alamat Email.'])
+                ->onlyInput('login');
         }
 
         if (! $user || ! Auth::attempt(

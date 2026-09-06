@@ -449,6 +449,7 @@
                         <li>Panjang password <strong>minimal 8 karakter</strong>.</li>
                         <li>Password Baru & Konfirmasi harus <strong>sama persis</strong>.</li>
                         <li>Gunakan kombinasi angka atau huruf yang mudah Anda ingat.</li>
+                        <li>💡 <strong>Penting:</strong> Langsung <strong>simpan/catat password baru</strong> Anda di aplikasi Catatan HP atau Google Password Manager agar tidak lupa pada login berikutnya.</li>
                     </ul>
                 </div>
             </div>

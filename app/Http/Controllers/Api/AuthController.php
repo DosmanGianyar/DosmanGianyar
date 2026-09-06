@@ -27,15 +27,19 @@ class AuthController extends Controller
         ]);
 
         $loginInput = trim($request->input('login'));
+        $isEmailInput = str_contains($loginInput, '@');
 
         // Siswa/pengelola: hanya boleh login pakai NISN. Guru: NIP atau email.
-        $user = str_contains($loginInput, '@')
+        $user = $isEmailInput
             ? User::where('email', $loginInput)->first()
             : $this->findByUsername($loginInput);
 
         // Siswa/pengelola tidak boleh login pakai email — hanya NISN.
-        if ($user && $user->isSiswa() && str_contains($loginInput, '@')) {
-            $user = null;
+        if ($isEmailInput && $user && $user->isSiswa()) {
+            return response()->json([
+                'message' => 'Siswa wajib menggunakan NISN untuk login di aplikasi, bukan Alamat Email.',
+                'code'    => 'MUST_USE_NISN',
+            ], 422);
         }
 
         if (! $user || ! Hash::check($request->input('password'), $user->password)) {
