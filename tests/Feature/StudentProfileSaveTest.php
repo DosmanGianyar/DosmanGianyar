@@ -105,4 +105,22 @@ class StudentProfileSaveTest extends TestCase
         $response->assertSessionHas('error');
         $this->assertNull($siswa->fresh()->nickname);
     }
+
+    public function test_siswa_can_update_photo_via_web_ajax(): void
+    {
+        \Illuminate\Support\Facades\Storage::fake('public');
+
+        $siswa = User::factory()->create(['role' => 'siswa']);
+        $file  = \Illuminate\Http\UploadedFile::fake()->image('avatar.jpg', 600, 600);
+
+        $response = $this->actingAs($siswa)
+            ->postJson(route('siswa.profile.photo'), ['photo' => $file]);
+
+        $response->assertOk();
+        $response->assertJsonPath('success', true);
+
+        $siswa->refresh();
+        $this->assertNotNull($siswa->photo);
+        \Illuminate\Support\Facades\Storage::disk('public')->assertExists($siswa->photo);
+    }
 }

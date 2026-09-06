@@ -147,7 +147,7 @@ class ProfileController extends Controller
         return back()->with('success', 'Password berhasil diperbarui.');
     }
 
-    public function updatePhoto(Request $request): RedirectResponse
+    public function updatePhoto(Request $request): mixed
     {
         $request->validate([
             'photo' => 'required|image|mimes:jpg,jpeg,png,webp,heic|max:5120',
@@ -167,6 +167,14 @@ class ProfileController extends Controller
 
         $path = ImageService::storeAvatar($request->file('photo'), 'avatars');
         $user->update(['photo' => $path]);
+
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success'   => true,
+                'message'   => 'Foto profil berhasil diperbarui.',
+                'photo_url' => $user->fresh()->photo_url,
+            ]);
+        }
 
         return back()->with('success', 'Foto profil berhasil diperbarui.');
     }

@@ -299,8 +299,8 @@
         if (btn) btn.disabled = true;
 
         const canvas = cropper.getCroppedCanvas({
-            width: 600,
-            height: 600,
+            width: 500,
+            height: 500,
             imageSmoothingEnabled: true,
             imageSmoothingQuality: 'high',
         });
@@ -314,22 +314,25 @@
                 method: 'POST',
                 body: formData,
                 headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
                 }
             })
             .then(res => {
-                if (res.redirected) {
-                    window.location.href = res.redirected;
-                } else {
-                    window.location.reload();
+                if (!res.ok) {
+                    return res.json().then(err => { throw new Error(err.message || 'Gagal mengunggah foto'); });
                 }
+                return res.json();
+            })
+            .then(data => {
+                window.location.reload();
             })
             .catch(err => {
-                alert('Gagal menyimpan foto: ' + err);
+                alert('Gagal menyimpan foto: ' + (err.message || err));
                 if (spinner) spinner.classList.add('hidden');
                 if (btn) btn.disabled = false;
             });
-        }, 'image/jpeg', 0.9);
+        }, 'image/jpeg', 0.82);
     }
     </script>
 

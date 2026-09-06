@@ -55,8 +55,8 @@ class ImageService
         $path     = $directory . '/' . $filename;
 
         $image = Image::read($file)
-            ->scaleDown(width: 600)
-            ->toJpeg(85);
+            ->scaleDown(width: 500)
+            ->toJpeg(80);
 
         Storage::disk('public')->put($path, $image);
 
