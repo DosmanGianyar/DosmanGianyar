@@ -144,12 +144,153 @@
             font-size: 14px;
         }
 
-        .btn-print:hover {
-            background: #1d4ed8;
+        .print-btn-bar:hover {
+            background: #0f172a;
+        }
+
+        /* KOP SURAT SMAN 1 GIANYAR */
+        .kop-container {
+            text-align: center;
+            border-bottom: 3px double #000;
+            padding-bottom: 5px;
+            margin-bottom: 12px;
+            position: relative;
+            min-height: 65px;
+        }
+
+        .kop-logo-left {
+            position: absolute;
+            left: 0px;
+            top: 2px;
+            width: 58px;
+            height: 58px;
+            object-fit: contain;
+        }
+
+        .kop-logo-right {
+            position: absolute;
+            right: 0px;
+            top: 2px;
+            width: 58px;
+            height: 58px;
+            object-fit: contain;
+        }
+
+        .kop-text {
+            text-align: center;
+            line-height: 1.25;
+            padding: 0 65px;
+        }
+
+        .kop-text .l1 {
+            font-size: 11pt;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .kop-text .l2 {
+            font-size: 11pt;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .kop-text .l3 {
+            font-size: 15pt;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .kop-text .l4 {
+            font-size: 8.5pt;
+            font-style: italic;
+            margin-top: 2px;
+        }
+
+        /* TTD KEPALA SEKOLAH */
+        .signature-section {
+            margin-top: 22px;
+            width: 100%;
+            page-break-inside: avoid;
+        }
+
+        .signature-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .signature-table td {
+            vertical-align: top;
+            border: none;
+        }
+
+        .sig-col {
+            width: 45%;
+            text-align: center;
+        }
+
+        .sig-city-date {
+            font-size: 11pt;
+            color: #000;
+        }
+
+        .sig-title {
+            font-size: 11pt;
+            font-weight: bold;
+            color: #000;
+            margin-bottom: 4px;
+        }
+
+        .sig-stamp-container {
+            height: 75px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 2px auto;
+        }
+
+        .sig-stamp-img {
+            height: 80px;
+            width: auto;
+            max-width: 175px;
+            object-fit: contain;
+        }
+
+        .sig-name {
+            font-size: 11pt;
+            font-weight: bold;
+            text-decoration: underline;
+            color: #000;
+        }
+
+        .sig-nip {
+            font-size: 10pt;
+            font-weight: bold;
+            color: #000;
+            margin-top: 2px;
         }
     </style>
 </head>
 <body>
+
+    @php
+        $logoBaliPath = public_path('img/logo-pemprov-bali.png');
+        $logoBaliSrc = file_exists($logoBaliPath) 
+            ? 'data:image/png;base64,' . base64_encode(file_get_contents($logoBaliPath)) 
+            : asset('img/logo-pemprov-bali.png');
+
+        $logoSekolahPath = public_path('img/logo_sekolah.png');
+        $logoSekolahSrc = file_exists($logoSekolahPath) 
+            ? 'data:image/png;base64,' . base64_encode(file_get_contents($logoSekolahPath)) 
+            : asset('img/logo_sekolah.png');
+
+        $ttdKepsekPath = public_path('img/ttd_kepsek.png');
+        $ttdKepsekSrc = file_exists($ttdKepsekPath) 
+            ? 'data:image/png;base64,' . base64_encode(file_get_contents($ttdKepsekPath)) 
+            : asset('img/ttd_kepsek.png');
+
+        $printDate = now()->translatedFormat('d F Y');
+    @endphp
 
     <div class="print-btn-bar no-print">
         <div>
@@ -161,6 +302,18 @@
 
     @foreach($students as $siswa)
     <div class="page-container">
+
+        <!-- KOP SURAT SMAN 1 GIANYAR -->
+        <div class="kop-container">
+            <img class="kop-logo-left" src="{{ $logoBaliSrc }}" alt="Logo Pemprov Bali">
+            <div class="kop-text">
+                <div class="l1">PEMERINTAH PROVINSI BALI</div>
+                <div class="l2">DINAS PENDIDIKAN, KEPEMUDAAN, DAN OLAHRAGA</div>
+                <div class="l3">SMA NEGERI 1 GIANYAR</div>
+                <div class="l4">Jl. Ratna No. 1, Gianyar, Bali 80511 | Telp: (0361) 943034 | Website: sman1-gianyar.sch.id</div>
+            </div>
+            <img class="kop-logo-right" src="{{ $logoSekolahSrc }}" alt="Logo SMAN 1 Gianyar">
+        </div>
 
         <div class="top-meta">
             <div class="nis-box">
@@ -625,6 +778,24 @@
             <div class="field-label">Hubungan dengan siswa</div>
             <div class="field-colon">:</div>
             <div class="field-value">{{ $siswa->guardian_relation ?: '-' }}</div>
+        </div>
+
+        <!-- TANDA TANGAN KEPALA SEKOLAH -->
+        <div class="signature-section">
+            <table class="signature-table">
+                <tr>
+                    <td style="width: 55%;"></td>
+                    <td class="sig-col">
+                        <div class="sig-city-date">Gianyar, {{ $printDate }}</div>
+                        <div class="sig-title">Kepala SMA Negeri 1 Gianyar,</div>
+                        <div class="sig-stamp-container">
+                            <img src="{{ $ttdKepsekSrc }}" class="sig-stamp-img" alt="TTD & Stempel Kepsek">
+                        </div>
+                        <div class="sig-name">I Wayan Sudra Astra, S.Pd., M.Pd.</div>
+                        <div class="sig-nip">NIP. 19710415 199703 1 007</div>
+                    </td>
+                </tr>
+            </table>
         </div>
 
     </div>
