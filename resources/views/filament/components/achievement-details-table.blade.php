@@ -135,7 +135,85 @@
     .btn-verify-reset:hover { background-color: #334155 !important; transform: translateY(-1px); }
 </style>
 
-<div class="sims-tagihan-wrap space-y-5">
+<div x-data="{
+    modalOpen: false,
+    fileUrl: '',
+    fileTitle: '',
+    fileType: 'pdf',
+    zoomLevel: 1,
+    rotation: 0,
+    isDragging: false,
+    startX: 0,
+    startY: 0,
+    translateX: 0,
+    translateY: 0,
+
+    openDoc(url, title, type = null) {
+        if (!url) return;
+        this.fileUrl = url;
+        this.fileTitle = title;
+        if (type) {
+            this.fileType = type;
+        } else {
+            const clean = url.split('?')[0].toLowerCase();
+            this.fileType = clean.endsWith('.pdf') ? 'pdf' : 'image';
+        }
+        this.zoomLevel = 1;
+        this.rotation = 0;
+        this.translateX = 0;
+        this.translateY = 0;
+        this.modalOpen = true;
+    },
+    zoomIn() {
+        if (this.zoomLevel < 4) {
+            this.zoomLevel = Math.round((this.zoomLevel + 0.25) * 100) / 100;
+        }
+    },
+    zoomOut() {
+        if (this.zoomLevel > 0.4) {
+            this.zoomLevel = Math.round((this.zoomLevel - 0.25) * 100) / 100;
+        }
+    },
+    resetZoom() {
+        this.zoomLevel = 1;
+        this.rotation = 0;
+        this.translateX = 0;
+        this.translateY = 0;
+    },
+    rotate() {
+        this.rotation = (this.rotation + 90) % 360;
+    },
+    close() {
+        this.modalOpen = false;
+        this.fileUrl = '';
+    },
+    handleWheel(e) {
+        if (this.fileType !== 'image') return;
+        e.preventDefault();
+        if (e.deltaY < 0) {
+            this.zoomIn();
+        } else {
+            this.zoomOut();
+        }
+    },
+    startDrag(e) {
+        if (this.fileType !== 'image' || this.zoomLevel <= 1) return;
+        this.isDragging = true;
+        this.startX = e.clientX - this.translateX;
+        this.startY = e.clientY - this.translateY;
+    },
+    onDrag(e) {
+        if (!this.isDragging) return;
+        this.translateX = e.clientX - this.startX;
+        this.translateY = e.clientY - this.startY;
+    },
+    endDrag() {
+        this.isDragging = false;
+    }
+}"
+@open-doc-preview.window="openDoc($event.detail.url, $event.detail.title, $event.detail.type)"
+class="sims-tagihan-wrap space-y-5"
+style="width: 100% !important; box-sizing: border-box !important;">
     <!-- Header Status & Catatan Verifikasi -->
     <div style="padding: 14px 18px; border-radius: 14px; background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(71, 85, 105, 0.5);">
         <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px;">
@@ -300,10 +378,7 @@
                     <td style="font-weight: 700;">Deskripsi / Catatan Tambahan</td>
                     <td style="white-space: pre-line; color: #cbd5e1;">
                         {{ $record->description ?: '— (Tidak ada catatan tambahan)' }}
-                    </td>
-                </tr>
-
-                <!-- 11. Scan Piagam / Sertifikat (Wajib) -->
+                           <!-- 11. Scan Piagam / Sertifikat (Wajib) -->
                 <tr>
                     <td style="text-align: center; font-weight: 800; color: #94a3b8;">11</td>
                     <td style="font-weight: 700;">
@@ -312,9 +387,11 @@
                     <td>
                         <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px;">
                             @if($certUrl)
-                                <a href="{{ $certUrl }}" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 8px; background: #1d4ed8; color: #ffffff; font-weight: 700; font-size: 0.75rem; text-decoration: none; box-shadow: 0 1px 3px rgba(0,0,0,0.3);">
-                                    📄 Buka Berkas Sertifikat (PDF) ↗
-                                </a>
+                                <button type="button" 
+                                        @click="openDoc('{{ $certUrl }}', 'Scan Piagam / Sertifikat Kejuaraan - {{ addslashes($record->title) }}', 'pdf')" 
+                                        style="cursor: pointer; display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 8px; background: #1d4ed8; color: #ffffff; font-weight: 700; font-size: 0.75rem; border: none; box-shadow: 0 1px 3px rgba(0,0,0,0.3);">
+                                    📄 Buka Sertifikat (PDF) 🔍
+                                </button>
                                 <button type="button" wire:click="mountAction('edit_files')" title="Ganti berkas sertifikat" style="cursor: pointer; background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.4); color: #93c5fd; padding: 4px 10px; border-radius: 7px; font-size: 0.7rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
                                     ✏️ Ganti Berkas
                                 </button>
@@ -340,9 +417,11 @@
                     <td>
                         <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px;">
                             @if($letterUrl)
-                                <a href="{{ $letterUrl }}" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 8px; background: #4338ca; color: #ffffff; font-weight: 700; font-size: 0.75rem; text-decoration: none; box-shadow: 0 1px 3px rgba(0,0,0,0.3);">
-                                    📑 Buka Surat Tugas (PDF) ↗
-                                </a>
+                                <button type="button" 
+                                        @click="openDoc('{{ $letterUrl }}', 'Surat Tugas / Rekomendasi Sekolah - {{ addslashes($record->title) }}', 'pdf')" 
+                                        style="cursor: pointer; display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 8px; background: #4338ca; color: #ffffff; font-weight: 700; font-size: 0.75rem; border: none; box-shadow: 0 1px 3px rgba(0,0,0,0.3);">
+                                    📑 Buka Surat Tugas (PDF) 🔍
+                                </button>
                                 <button type="button" wire:click="mountAction('edit_files')" title="Ganti berkas surat tugas" style="cursor: pointer; background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.4); color: #c7d2fe; padding: 4px 10px; border-radius: 7px; font-size: 0.7rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
                                     ✏️ Ganti Berkas
                                 </button>
@@ -366,12 +445,17 @@
                     <td>
                         @if($photoUrl)
                             <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px;">
-                                <a href="{{ $photoUrl }}" target="_blank" style="display: block; border-radius: 8px; overflow: hidden; border: 1px solid #475569;">
+                                <button type="button" 
+                                        @click="openDoc('{{ $photoUrl }}', 'Foto Dokumentasi Kegiatan - {{ addslashes($record->title) }}', 'image')" 
+                                        title="Klik untuk membuka dan memperbesar foto"
+                                        style="display: block; border-radius: 8px; overflow: hidden; border: 1px solid #475569; padding: 0; background: transparent; cursor: pointer;">
                                     <img src="{{ $photoUrl }}" alt="Foto Kegiatan" style="width: 80px; height: 55px; object-fit: cover; display: block;">
-                                </a>
-                                <a href="{{ $photoUrl }}" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 8px; background: #047857; color: #ffffff; font-weight: 700; font-size: 0.75rem; text-decoration: none;">
-                                    📷 Buka Foto Ukuran Penuh ↗
-                                </a>
+                                </button>
+                                <button type="button" 
+                                        @click="openDoc('{{ $photoUrl }}', 'Foto Dokumentasi Kegiatan - {{ addslashes($record->title) }}', 'image')" 
+                                        style="cursor: pointer; display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 8px; background: #047857; color: #ffffff; font-weight: 700; font-size: 0.75rem; border: none; box-shadow: 0 1px 3px rgba(0,0,0,0.3);">
+                                    📷 Buka & Zoom Foto 🔍
+                                </button>
                                 <button type="button" wire:click="mountAction('edit_files')" title="Ganti foto kegiatan" style="cursor: pointer; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); color: #a7f3d0; padding: 4px 10px; border-radius: 7px; font-size: 0.7rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
                                     ✏️ Ganti Foto
                                 </button>
@@ -398,9 +482,11 @@
                         <div style="display: flex; flex-direction: column; gap: 6px;">
                             <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px;">
                                 @if($docStandardUrl)
-                                    <a href="{{ $docStandardUrl }}" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 8px; background: #0284c7; color: #ffffff; font-weight: 700; font-size: 0.75rem; text-decoration: none; box-shadow: 0 1px 3px rgba(0,0,0,0.3);">
-                                        📄 Buka Juknis / Pedoman (PDF) ↗
-                                    </a>
+                                    <button type="button" 
+                                            @click="openDoc('{{ $docStandardUrl }}', 'Kurasi P1: Juknis / Pedoman Lomba - {{ addslashes($record->title) }}', 'pdf')" 
+                                            style="cursor: pointer; display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 8px; background: #0284c7; color: #ffffff; font-weight: 700; font-size: 0.75rem; border: none; box-shadow: 0 1px 3px rgba(0,0,0,0.3);">
+                                        📄 Buka Juknis / Pedoman (PDF) 🔍
+                                    </button>
                                     <button type="button" wire:click="mountAction('edit_files')" title="Ganti berkas juknis" style="cursor: pointer; background: rgba(2, 132, 199, 0.15); border: 1px solid rgba(2, 132, 199, 0.4); color: #bae6fd; padding: 4px 10px; border-radius: 7px; font-size: 0.7rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
                                         ✏️ Ganti
                                     </button>
@@ -436,9 +522,11 @@
                         <div style="display: flex; flex-direction: column; gap: 6px;">
                             <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px;">
                                 @if($selectionLevelUrl)
-                                    <a href="{{ $selectionLevelUrl }}" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 8px; background: #0284c7; color: #ffffff; font-weight: 700; font-size: 0.75rem; text-decoration: none; box-shadow: 0 1px 3px rgba(0,0,0,0.3);">
-                                        📄 Buka Bukti Seleksi (PDF) ↗
-                                    </a>
+                                    <button type="button" 
+                                            @click="openDoc('{{ $selectionLevelUrl }}', 'Kurasi P2: Bukti Jenjang Seleksi - {{ addslashes($record->title) }}', 'pdf')" 
+                                            style="cursor: pointer; display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 8px; background: #0284c7; color: #ffffff; font-weight: 700; font-size: 0.75rem; border: none; box-shadow: 0 1px 3px rgba(0,0,0,0.3);">
+                                        📄 Buka Bukti Seleksi (PDF) 🔍
+                                    </button>
                                     <button type="button" wire:click="mountAction('edit_files')" title="Ganti berkas seleksi" style="cursor: pointer; background: rgba(2, 132, 199, 0.15); border: 1px solid rgba(2, 132, 199, 0.4); color: #bae6fd; padding: 4px 10px; border-radius: 7px; font-size: 0.7rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
                                         ✏️ Ganti
                                     </button>
@@ -470,9 +558,11 @@
                         <div style="display: flex; flex-direction: column; gap: 6px;">
                             <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px;">
                                 @if($frequencyConsistencyUrl)
-                                    <a href="{{ $frequencyConsistencyUrl }}" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 8px; background: #0284c7; color: #ffffff; font-weight: 700; font-size: 0.75rem; text-decoration: none; box-shadow: 0 1px 3px rgba(0,0,0,0.3);">
-                                        📄 Buka Juknis Lintas Tahun (PDF) ↗
-                                    </a>
+                                    <button type="button" 
+                                            @click="openDoc('{{ $frequencyConsistencyUrl }}', 'Kurasi P3: Bukti Konsistensi Penyelenggaraan - {{ addslashes($record->title) }}', 'pdf')" 
+                                            style="cursor: pointer; display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 8px; background: #0284c7; color: #ffffff; font-weight: 700; font-size: 0.75rem; border: none; box-shadow: 0 1px 3px rgba(0,0,0,0.3);">
+                                        📄 Buka Juknis Lintas Tahun (PDF) 🔍
+                                    </button>
                                     <button type="button" wire:click="mountAction('edit_files')" title="Ganti berkas konsistensi" style="cursor: pointer; background: rgba(2, 132, 199, 0.15); border: 1px solid rgba(2, 132, 199, 0.4); color: #bae6fd; padding: 4px 10px; border-radius: 7px; font-size: 0.7rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
                                         ✏️ Ganti
                                     </button>
@@ -504,9 +594,11 @@
                         <div style="display: flex; flex-direction: column; gap: 6px;">
                             <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px;">
                                 @if($infrastructureUrl)
-                                    <a href="{{ $infrastructureUrl }}" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 8px; background: #0284c7; color: #ffffff; font-weight: 700; font-size: 0.75rem; text-decoration: none; box-shadow: 0 1px 3px rgba(0,0,0,0.3);">
-                                        📷 Buka Berkas Sarpras / Venue ↗
-                                    </a>
+                                    <button type="button" 
+                                            @click="openDoc('{{ $infrastructureUrl }}', 'Kurasi P4: Bukti Sarpras / Venue - {{ addslashes($record->title) }}', null)" 
+                                            style="cursor: pointer; display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 8px; background: #0284c7; color: #ffffff; font-weight: 700; font-size: 0.75rem; border: none; box-shadow: 0 1px 3px rgba(0,0,0,0.3);">
+                                        📷 Buka Berkas Sarpras / Venue 🔍
+                                    </button>
                                     <button type="button" wire:click="mountAction('edit_files')" title="Ganti berkas sarpras" style="cursor: pointer; background: rgba(2, 132, 199, 0.15); border: 1px solid rgba(2, 132, 199, 0.4); color: #bae6fd; padding: 4px 10px; border-radius: 7px; font-size: 0.7rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
                                         ✏️ Ganti
                                     </button>
@@ -538,9 +630,11 @@
                         <div style="display: flex; flex-direction: column; gap: 6px;">
                             <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px;">
                                 @if($rewardRecapUrl)
-                                    <a href="{{ $rewardRecapUrl }}" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 8px; background: #0284c7; color: #ffffff; font-weight: 700; font-size: 0.75rem; text-decoration: none; box-shadow: 0 1px 3px rgba(0,0,0,0.3);">
-                                        📑 Buka Rekap Hasil / Apresiasi ↗
-                                    </a>
+                                    <button type="button" 
+                                            @click="openDoc('{{ $rewardRecapUrl }}', 'Kurasi P5: Rekapitulasi Hasil & Apresiasi - {{ addslashes($record->title) }}', 'pdf')" 
+                                            style="cursor: pointer; display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 8px; background: #0284c7; color: #ffffff; font-weight: 700; font-size: 0.75rem; border: none; box-shadow: 0 1px 3px rgba(0,0,0,0.3);">
+                                        📑 Buka Rekap Hasil / Apresiasi 🔍
+                                    </button>
                                     <button type="button" wire:click="mountAction('edit_files')" title="Ganti berkas apresiasi" style="cursor: pointer; background: rgba(2, 132, 199, 0.15); border: 1px solid rgba(2, 132, 199, 0.4); color: #bae6fd; padding: 4px 10px; border-radius: 7px; font-size: 0.7rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
                                         ✏️ Ganti
                                     </button>
@@ -626,4 +720,83 @@
             </button>
         </div>
     </div>
+
+    <!-- ─── MODAL PREVIEWER BERKAS & DOKUMEN (IN-PAGE + ZOOM) ─────────── -->
+    <template x-teleport="body">
+        <div x-show="modalOpen" 
+             x-transition.opacity 
+             x-cloak 
+             @keydown.escape.window="close()"
+             style="position: fixed; inset: 0; z-index: 99999; display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(6px); padding: 16px;">
+            
+            <div @click.away="close()" 
+                 style="position: relative; width: 96vw; max-width: 1440px; height: 92vh; background: #0f172a; border: 1px solid #334155; border-radius: 18px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.85);">
+                
+                <!-- Header Toolbar Modal -->
+                <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; padding: 12px 20px; background: #1e293b; border-bottom: 1px solid #334155; gap: 12px;">
+                    <!-- Judul Dokumen & Badge -->
+                    <div style="display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1;">
+                        <span x-show="fileType === 'pdf'" style="padding: 3px 8px; border-radius: 6px; background: #dc2626; color: #fff; font-weight: 800; font-size: 0.7rem; letter-spacing: 0.05em;">PDF</span>
+                        <span x-show="fileType !== 'pdf'" style="padding: 3px 8px; border-radius: 6px; background: #2563eb; color: #fff; font-weight: 800; font-size: 0.7rem; letter-spacing: 0.05em;">GAMBAR</span>
+                        <h3 style="font-size: 0.95rem; font-weight: 700; color: #f8fafc; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" x-text="fileTitle"></h3>
+                    </div>
+
+                    <!-- Toolbar Zoom (Aktif untuk Gambar & Kontrol) -->
+                    <div style="display: flex; align-items: center; gap: 6px; background: #0f172a; padding: 4px 8px; border-radius: 10px; border: 1px solid #334155;">
+                        <button type="button" @click="zoomOut()" title="Zoom Out (Perkecil)" style="cursor: pointer; background: #334155; color: #f8fafc; border: none; border-radius: 6px; width: 30px; height: 30px; font-weight: bold; font-size: 1.1rem; display: flex; align-items: center; justify-content: center;">−</button>
+                        <span style="font-size: 0.75rem; font-weight: 700; color: #38bdf8; min-width: 48px; text-align: center;" x-text="Math.round(zoomLevel * 100) + '%'">100%</span>
+                        <button type="button" @click="zoomIn()" title="Zoom In (Perbesar)" style="cursor: pointer; background: #334155; color: #f8fafc; border: none; border-radius: 6px; width: 30px; height: 30px; font-weight: bold; font-size: 1.1rem; display: flex; align-items: center; justify-content: center;">+</button>
+                        
+                        <div style="width: 1px; height: 20px; background: #475569; margin: 0 4px;"></div>
+                        
+                        <button type="button" @click="resetZoom()" title="Reset Zoom ke 100%" style="cursor: pointer; background: #1e293b; color: #94a3b8; border: 1px solid #475569; border-radius: 6px; padding: 4px 8px; font-size: 0.7rem; font-weight: 600;">⟲ Reset</button>
+                        <button x-show="fileType !== 'pdf'" type="button" @click="rotate()" title="Putar 90 Derajat" style="cursor: pointer; background: #1e293b; color: #94a3b8; border: 1px solid #475569; border-radius: 6px; padding: 4px 8px; font-size: 0.7rem; font-weight: 600;">↻ 90°</button>
+                    </div>
+
+                    <!-- Tombol Aksi Tambahan & Tutup -->
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <a :href="fileUrl" target="_blank" title="Buka di tab baru browser sebagai cadangan" style="display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; border-radius: 8px; background: #334155; color: #f1f5f9; font-size: 0.75rem; font-weight: 600; text-decoration: none;">
+                            <span>↗</span> Tab Baru
+                        </a>
+                        <a :href="fileUrl" download title="Download file ini" style="display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; border-radius: 8px; background: #0284c7; color: #ffffff; font-size: 0.75rem; font-weight: 600; text-decoration: none;">
+                            <span>⬇</span> Unduh
+                        </a>
+                        <button type="button" @click="close()" title="Tutup Pratinjau (Esc)" style="cursor: pointer; background: #ef4444; color: #ffffff; border: none; border-radius: 8px; width: 32px; height: 32px; font-size: 1rem; font-weight: bold; display: flex; align-items: center; justify-content: center; margin-left: 4px;">✕</button>
+                    </div>
+                </div>
+
+                <!-- Konten Pratinjau Dokumen -->
+                <div style="flex: 1; position: relative; overflow: hidden; background: #020617; display: flex; align-items: center; justify-content: center;">
+                    
+                    <!-- Pratinjau PDF -->
+                    <template x-if="fileType === 'pdf'">
+                        <iframe :src="fileUrl" 
+                                style="width: 100%; height: 100%; border: none; background: #ffffff;"
+                                allowfullscreen>
+                        </iframe>
+                    </template>
+
+                    <!-- Pratinjau Gambar / Foto dengan Zoom + Pan -->
+                    <template x-if="fileType !== 'pdf'">
+                        <div style="width: 100%; height: 100%; overflow: auto; display: flex; align-items: center; justify-content: center; position: relative;"
+                             @wheel="handleWheel($event)"
+                             @mousedown="startDrag($event)"
+                             @mousemove="onDrag($event)"
+                             @mouseup="endDrag()"
+                             @mouseleave="endDrag()">
+                            
+                            <img :src="fileUrl" 
+                                 :alt="fileTitle"
+                                 :style="'transform: translate(' + translateX + 'px, ' + translateY + 'px) scale(' + zoomLevel + ') rotate(' + rotation + 'deg); transform-origin: center center; max-width: 90%; max-height: 85vh; object-fit: contain; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.6); transition: ' + (isDragging ? 'none' : 'transform 0.15s ease') + '; user-select: none; cursor: ' + (zoomLevel > 1 ? (isDragging ? 'grabbing' : 'grab') : 'zoom-in') + ';'"
+                                 draggable="false">
+                            
+                            <div style="position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(71, 85, 105, 0.6); padding: 4px 14px; border-radius: 9999px; font-size: 0.72rem; color: #cbd5e1; pointer-events: none;">
+                                💡 Scroll mouse untuk Zoom In/Out · Drag mouse untuk geser saat di-zoom
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+    </template>
 </div>

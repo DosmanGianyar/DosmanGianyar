@@ -339,29 +339,27 @@ class StudentAchievementResource extends Resource
 
     public static function infolist(Schema $schema): Schema
     {
-        return $schema->components([
-            // Section 1: Data Siswa & Anggota Tim
-            Section::make('Siswa Berprestasi & Anggota Tim')
-                ->icon('heroicon-o-user-group')
-                ->schema([
-                    ViewEntry::make('team_members_view')
-                        ->hiddenLabel()
-                        ->view('filament.components.team-members-list')
-                        ->columnSpanFull(),
-                ])
-                ->columnSpanFull(),
+        return $schema
+            ->columns(1)
+            ->components([
+                // Section 1: Data Siswa & Anggota Tim
+                Section::make('Siswa Berprestasi & Anggota Tim')
+                    ->icon('heroicon-o-user-group')
+                    ->schema([
+                        ViewEntry::make('team_members_view')
+                            ->hiddenLabel()
+                            ->view('filament.components.team-members-list'),
+                    ]),
 
-            // Section 2: Rincian Tagihan & Data Ajuan Prestasi Siswa
-            Section::make('Rincian Tagihan & Data Ajuan Prestasi')
-                ->icon('heroicon-o-table-cells')
-                ->schema([
-                    ViewEntry::make('achievement_table')
-                        ->hiddenLabel()
-                        ->view('filament.components.achievement-details-table')
-                        ->columnSpanFull(),
-                ])
-                ->columnSpanFull(),
-        ]);
+                // Section 2: Rincian Tagihan & Data Ajuan Prestasi Siswa
+                Section::make('Rincian Tagihan & Data Ajuan Prestasi')
+                    ->icon('heroicon-o-table-cells')
+                    ->schema([
+                        ViewEntry::make('achievement_table')
+                            ->hiddenLabel()
+                            ->view('filament.components.achievement-details-table'),
+                    ]),
+            ]);
     }
 
     public static function table(Table $table): Table
