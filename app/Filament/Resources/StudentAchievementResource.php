@@ -340,18 +340,7 @@ class StudentAchievementResource extends Resource
     public static function infolist(Schema $schema): Schema
     {
         return $schema->components([
-            // Section 1: Rincian Tagihan & Data Ajuan Prestasi Siswa
-            Section::make('Rincian Tagihan & Data Ajuan Prestasi')
-                ->icon('heroicon-o-table-cells')
-                ->schema([
-                    ViewEntry::make('achievement_table')
-                        ->hiddenLabel()
-                        ->view('filament.components.achievement-details-table')
-                        ->columnSpanFull(),
-                ])
-                ->columnSpanFull(),
-
-            // Section 2: Data Siswa & Anggota Tim
+            // Section 1: Data Siswa & Anggota Tim
             Section::make('Siswa Berprestasi & Anggota Tim')
                 ->icon('heroicon-o-user-group')
                 ->schema([
@@ -362,87 +351,15 @@ class StudentAchievementResource extends Resource
                 ])
                 ->columnSpanFull(),
 
-            // Section 3: Bukti Fisik & Dokumentasi Utama
-            Section::make('Bukti Fisik & Dokumentasi Utama')
-                ->icon('heroicon-o-paper-clip')
+            // Section 2: Rincian Tagihan & Data Ajuan Prestasi Siswa
+            Section::make('Rincian Tagihan & Data Ajuan Prestasi')
+                ->icon('heroicon-o-table-cells')
                 ->schema([
-                    TextEntry::make('certificate')
-                        ->label('Sertifikat / Piagam Utama')
-                        ->formatStateUsing(fn ($state) => $state ? '📄 Buka / Unduh File Sertifikat ↗' : 'Tidak ada sertifikat')
-                        ->url(fn (StudentAchievement $record): ?string => $record->certificate ? (str_starts_with($record->certificate, 'kurasi/') ? asset($record->certificate) : asset('storage/' . $record->certificate)) : null)
-                        ->openUrlInNewTab()
-                        ->color('primary')
-                        ->weight('bold')
-                        ->visible(fn (StudentAchievement $record): bool => ! empty($record->certificate)),
-
-                    TextEntry::make('assignment_letter')
-                        ->label('Surat Tugas / Rekomendasi Sekolah')
-                        ->formatStateUsing(fn ($state) => $state ? '📑 Buka / Unduh Surat Tugas ↗' : 'Tidak ada surat tugas')
-                        ->url(fn (StudentAchievement $record): ?string => $record->assignment_letter ? (str_starts_with($record->assignment_letter, 'kurasi/') ? asset($record->assignment_letter) : asset('storage/' . $record->assignment_letter)) : null)
-                        ->openUrlInNewTab()
-                        ->color('primary')
-                        ->weight('bold')
-                        ->visible(fn (StudentAchievement $record): bool => ! empty($record->assignment_letter)),
-
-                    ImageEntry::make('photo')
-                        ->label('Foto Dokumentasi Kegiatan / Penyerahan Piagam')
-                        ->disk('public')
-                        ->url(fn (StudentAchievement $record): ?string => $record->photo ? (str_starts_with($record->photo, 'kurasi/') ? asset($record->photo) : asset('storage/' . $record->photo)) : null)
-                        ->openUrlInNewTab()
-                        ->extraImgAttributes([
-                            'style' => 'max-height: 320px !important; width: auto !important; height: auto !important; border-radius: 16px !important; object-fit: cover !important; cursor: pointer !important;',
-                            'class' => 'shadow-md border border-gray-200 dark:border-gray-700 mt-2 hover:opacity-90 transition-opacity',
-                            'title' => 'Klik untuk lihat foto ukuran penuh di tab baru',
-                        ])
-                        ->columnSpanFull()
-                        ->visible(fn (StudentAchievement $record): bool => ! empty($record->photo)),
+                    ViewEntry::make('achievement_table')
+                        ->hiddenLabel()
+                        ->view('filament.components.achievement-details-table')
+                        ->columnSpanFull(),
                 ])
-                ->columns(2)
-                ->columnSpanFull(),
-
-            // Section 4: Berkas Kurasi Formal (Collapsed)
-            Section::make('Berkas Pendukung Kurasi Formal (Puspresnas)')
-                ->icon('heroicon-o-academic-cap')
-                ->collapsible()
-                ->collapsed(true)
-                ->visible(fn (StudentAchievement $record): bool => (bool) $record->is_curation || ! empty($record->doc_standard_file))
-                ->schema([
-                    TextEntry::make('doc_standard_file')
-                        ->label('P1. File Juknis / Pedoman Lomba')
-                        ->formatStateUsing(fn ($state) => $state ? '📄 Lihat File Juknis (P1)' : '—')
-                        ->url(fn (StudentAchievement $record): ?string => $record->doc_standard_file ? (str_starts_with($record->doc_standard_file, 'kurasi/') ? asset($record->doc_standard_file) : asset('storage/' . $record->doc_standard_file)) : null)
-                        ->openUrlInNewTab()
-                        ->color('primary'),
-
-                    TextEntry::make('selection_level_file')
-                        ->label('P2. File Bukti Tahapan Seleksi')
-                        ->formatStateUsing(fn ($state) => $state ? '📄 Lihat Berkas Seleksi (P2)' : '—')
-                        ->url(fn (StudentAchievement $record): ?string => $record->selection_level_file ? (str_starts_with($record->selection_level_file, 'kurasi/') ? asset($record->selection_level_file) : asset('storage/' . $record->selection_level_file)) : null)
-                        ->openUrlInNewTab()
-                        ->color('primary'),
-
-                    TextEntry::make('frequency_consistency_file')
-                        ->label('P3. File Juknis Lintas Tahun')
-                        ->formatStateUsing(fn ($state) => $state ? '📄 Lihat File Lintas Tahun (P3)' : '—')
-                        ->url(fn (StudentAchievement $record): ?string => $record->frequency_consistency_file ? (str_starts_with($record->frequency_consistency_file, 'kurasi/') ? asset($record->frequency_consistency_file) : asset('storage/' . $record->frequency_consistency_file)) : null)
-                        ->openUrlInNewTab()
-                        ->color('primary'),
-
-                    TextEntry::make('infrastructure_file')
-                        ->label('P4. File Dokumentasi Sarpras / Venue')
-                        ->formatStateUsing(fn ($state) => $state ? '📷 Lihat Dokumentasi Sarpras (P4)' : '—')
-                        ->url(fn (StudentAchievement $record): ?string => $record->infrastructure_file ? (str_starts_with($record->infrastructure_file, 'kurasi/') ? asset($record->infrastructure_file) : asset('storage/' . $record->infrastructure_file)) : null)
-                        ->openUrlInNewTab()
-                        ->color('primary'),
-
-                    TextEntry::make('reward_certificate_file')
-                        ->label('P5. Scan Piagam / Sertifikat')
-                        ->formatStateUsing(fn ($state) => $state ? '📜 Lihat Scan Piagam (P5)' : '—')
-                        ->url(fn (StudentAchievement $record): ?string => $record->reward_certificate_file ? (str_starts_with($record->reward_certificate_file, 'kurasi/') ? asset($record->reward_certificate_file) : asset('storage/' . $record->reward_certificate_file)) : null)
-                        ->openUrlInNewTab()
-                        ->color('primary'),
-                ])
-                ->columns(3)
                 ->columnSpanFull(),
         ]);
     }
@@ -651,10 +568,6 @@ class StudentAchievementResource extends Resource
                     ->size('sm'),
 
                 ActionGroup::make([
-                    EditAction::make()
-                        ->label('Edit Data Ajuan')
-                        ->icon('heroicon-o-pencil'),
-
                     Action::make('student_profile')
                         ->label('Buka Profil Siswa')
                         ->tooltip('Buka Profil Lengkap Siswa')
@@ -684,7 +597,6 @@ class StudentAchievementResource extends Resource
         return [
             'index' => Pages\ListStudentAchievements::route('/'),
             'view'  => Pages\ViewStudentAchievement::route('/{record}'),
-            'edit'  => Pages\EditStudentAchievement::route('/{record}/edit'),
         ];
     }
 }
