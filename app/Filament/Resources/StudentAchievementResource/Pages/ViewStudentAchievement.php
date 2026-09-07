@@ -361,7 +361,9 @@ class ViewStudentAchievement extends ViewRecord
                         $affected = 1;
                     }
                     Notification::make()->title("Prestasi Disetujui ({$affected} Siswa)")->success()->send();
-                }),
+                    $this->redirect(StudentAchievementResource::getUrl('index'));
+                })
+                ->successRedirectUrl(StudentAchievementResource::getUrl('index')),
 
             Action::make('revision')
                 ->label('Minta Revisi Berkas')
@@ -395,7 +397,9 @@ class ViewStudentAchievement extends ViewRecord
                         $affected = 1;
                     }
                     Notification::make()->title("Diminta Revisi Berkas ({$affected} Siswa)")->warning()->send();
-                }),
+                    $this->redirect(StudentAchievementResource::getUrl('index'));
+                })
+                ->successRedirectUrl(StudentAchievementResource::getUrl('index')),
 
             Action::make('reject')
                 ->label('Tolak / Tidak Valid')
@@ -431,7 +435,9 @@ class ViewStudentAchievement extends ViewRecord
                         $affected = 1;
                     }
                     Notification::make()->title("Prestasi Ditolak ({$affected} Siswa)")->danger()->send();
-                }),
+                    $this->redirect(StudentAchievementResource::getUrl('index'));
+                })
+                ->successRedirectUrl(StudentAchievementResource::getUrl('index')),
 
             ActionGroup::make([
                 Action::make('reset_pending')
@@ -463,7 +469,9 @@ class ViewStudentAchievement extends ViewRecord
                             ]);
                         }
                         Notification::make()->title('Status verifikasi dibatalkan & dikembalikan ke Menunggu Verifikasi')->info()->send();
-                    }),
+                        $this->redirect(StudentAchievementResource::getUrl('index'));
+                    })
+                    ->successRedirectUrl(StudentAchievementResource::getUrl('index')),
 
                 Action::make('student_profile')
                     ->label('Buka Profil Siswa')
@@ -478,7 +486,8 @@ class ViewStudentAchievement extends ViewRecord
                     ->icon('heroicon-o-trash')
                     ->requiresConfirmation()
                     ->modalHeading('Hapus Data Ajuan Prestasi?')
-                    ->modalDescription('Apakah Anda yakin ingin menghapus data ajuan prestasi ini secara permanen? Data yang dihapus tidak dapat dikembalikan.'),
+                    ->modalDescription('Apakah Anda yakin ingin menghapus data ajuan prestasi ini secara permanen? Data yang dihapus tidak dapat dikembalikan.')
+                    ->successRedirectUrl(StudentAchievementResource::getUrl('index')),
             ])
                 ->label('Opsi Lainnya')
                 ->icon('heroicon-m-ellipsis-vertical')
