@@ -236,20 +236,21 @@
             {{-- Upload Foto Kegiatan Wajib & Certificate --}}
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
                 <div>
-                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Foto Kegiatan / Penyerahan Piala <span class="text-red-500">*</span></label>
+                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Foto Kegiatan / Penyerahan Piala (Wajib) <span class="text-red-500">*</span></label>
                     <label class="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-2xl p-4 cursor-pointer hover:border-blue-500 transition-colors bg-gray-50/50">
                         <svg class="w-6 h-6 text-gray-400 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                        <span id="photo-name" class="text-xs text-gray-600 font-bold">Upload Foto Fisik Lomba (Wajib, Maks 5MB)</span>
+                        <span id="photo-name" class="text-xs text-gray-600 font-bold">Upload Foto Panggung / Piala (Wajib, Maks 5MB)</span>
                         <input type="file" name="photo" accept="image/*" required class="hidden" onchange="document.getElementById('photo-name').textContent = this.files[0]?.name ?? 'Upload Foto'">
                     </label>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Scan Piagam / Sertifikat (Opsional)</label>
+                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Scan Piagam / Sertifikat (Khusus PDF)</label>
                     <label class="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-2xl p-4 cursor-pointer hover:border-blue-500 transition-colors bg-gray-50/50">
                         <svg class="w-6 h-6 text-gray-400 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 01-2-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                        <span id="cert-name" class="text-xs text-gray-600 font-bold">Upload Scan Piagam (PDF/JPG, Maks 10MB)</span>
-                        <input type="file" name="certificate" accept=".pdf,image/*" class="hidden" onchange="document.getElementById('cert-name').textContent = this.files[0]?.name ?? 'Upload Piagam'">
+                        <span id="cert-name" class="text-xs text-gray-600 font-bold">Upload Scan Piagam (Format PDF Saja, Maks 10MB)</span>
+                        <input type="file" name="certificate" accept=".pdf,application/pdf" class="hidden" onchange="document.getElementById('cert-name').textContent = this.files[0]?.name ?? 'Upload Piagam'">
                     </label>
+                    <p class="text-[11px] text-amber-700 font-medium mt-1.5 flex items-center gap-1">⚠️ Wajib berupa PDF scan/convert resmi. Foto piagam fisik (seperti foto di atas kasur/meja) tidak etis & akan ditolak.</p>
                 </div>
             </div>
         </div>
@@ -522,8 +523,8 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                        <label class="block text-xs font-bold text-gray-700 mb-1">Scan Piagam Resmi (PDF/JPG)</label>
-                        <input type="file" name="reward_certificate_file" accept=".pdf,image/*" class="w-full text-xs border rounded-xl p-2 bg-gray-50">
+                        <label class="block text-xs font-bold text-gray-700 mb-1">Scan Piagam Resmi (Khusus PDF)</label>
+                        <input type="file" name="reward_certificate_file" accept=".pdf,application/pdf" class="w-full text-xs border rounded-xl p-2 bg-gray-50">
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-gray-700 mb-1">Foto Panggung Juara (JPG/PNG)</label>

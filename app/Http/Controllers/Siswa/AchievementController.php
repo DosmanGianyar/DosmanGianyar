@@ -60,7 +60,7 @@ class AchievementController extends Controller
             'achievement_date'            => 'required|date|before_or_equal:today',
             'description'                 => 'nullable|string|max:1000',
             'photo'                       => 'required|image|max:5120',
-            'certificate'                 => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:10240',
+            'certificate'                 => 'nullable|file|mimes:pdf|max:10240',
 
             // Berkas Kurasi (Opsional)
             'doc_standard_checklist'      => 'nullable|array',
@@ -81,12 +81,16 @@ class AchievementController extends Controller
 
             'reward_types'                => 'nullable|array',
             'reward_types.*'              => 'string',
-            'reward_certificate_file'     => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
+            'reward_certificate_file'     => 'nullable|file|mimes:pdf|max:10240',
             'reward_photo_file'           => 'nullable|file|mimes:jpg,jpeg,png|max:10240',
             'reward_recap_file'           => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:10240',
         ];
 
-        $data = $request->validate($rules);
+        $data = $request->validate($rules, [
+            'certificate.mimes'             => 'Scan sertifikat / piagam WAJIB berformat PDF (bukan foto). Silakan scan atau convert foto ke PDF terlebih dahulu.',
+            'reward_certificate_file.mimes' => 'Scan sertifikat penghargaan WAJIB berformat PDF.',
+            'photo.required'                => 'Foto kegiatan / panggung penyerahan piala wajib diunggah.',
+        ]);
 
         /** @var \App\Models\User $siswa */
         $siswa = Auth::user();
@@ -106,14 +110,9 @@ class AchievementController extends Controller
             1280, 80
         );
 
-        // Certificate
+        // Certificate (Khusus PDF)
         if ($request->hasFile('certificate')) {
-            $file = $request->file('certificate');
-            if (str_starts_with($file->getMimeType(), 'image/')) {
-                $data['certificate'] = ImageService::store($file, 'achievements/certificates/' . $siswa->id, 1600, 85);
-            } else {
-                $data['certificate'] = $file->store('achievements/certificates/' . $siswa->id, 'public');
-            }
+            $data['certificate'] = $request->file('certificate')->store('achievements/certificates/' . $siswa->id, 'public');
         }
 
         // Simpan Berkas Kurasi (jika diunggah oleh siswa)

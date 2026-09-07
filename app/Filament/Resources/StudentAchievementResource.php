@@ -217,17 +217,18 @@ class StudentAchievementResource extends Resource
                         }),
 
                     FileUpload::make('certificate')
-                        ->label('Scan Piagam / Sertifikat')
+                        ->label('Scan Piagam / Sertifikat (Khusus PDF)')
                         ->disk('public')
+                        ->acceptedFileTypes(['application/pdf'])
                         ->openable()
                         ->downloadable()
                         ->previewable()
                         ->directory('achievements/certificates')
                         ->maxSize(10240)
                         ->helperText(function (?StudentAchievement $record): ?\Illuminate\Support\HtmlString {
-                            if (! $record || blank($record->certificate)) return new \Illuminate\Support\HtmlString('<span class="text-xs text-gray-400">Belum ada sertifikat</span>');
+                            if (! $record || blank($record->certificate)) return new \Illuminate\Support\HtmlString('<span class="text-xs text-gray-400">Belum ada sertifikat (Format PDF)</span>');
                             $url = str_starts_with($record->certificate, 'kurasi/') ? asset($record->certificate) : asset('storage/' . $record->certificate);
-                            return new \Illuminate\Support\HtmlString('<a href="' . $url . '" target="_blank" class="inline-flex items-center gap-1 text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline pt-1">📄 Buka Sertifikat Siswa ↗</a>');
+                            return new \Illuminate\Support\HtmlString('<a href="' . $url . '" target="_blank" class="inline-flex items-center gap-1 text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline pt-1">📄 Buka Sertifikat Siswa (PDF) ↗</a>');
                         }),
 
                     FileUpload::make('assignment_letter')
@@ -308,17 +309,18 @@ class StudentAchievementResource extends Resource
                         }),
 
                     FileUpload::make('reward_certificate_file')
-                        ->label('P5: Sertifikat Penghargaan')
+                        ->label('P5: Sertifikat Penghargaan (Khusus PDF)')
                         ->disk('public')
+                        ->acceptedFileTypes(['application/pdf'])
                         ->openable()
                         ->downloadable()
                         ->previewable()
                         ->directory('curations/rewards/certificates')
                         ->maxSize(10240)
                         ->helperText(function (?StudentAchievement $record): ?\Illuminate\Support\HtmlString {
-                            if (! $record || blank($record->reward_certificate_file)) return new \Illuminate\Support\HtmlString('<span class="text-xs text-gray-400">Belum ada berkas P5 Piagam</span>');
+                            if (! $record || blank($record->reward_certificate_file)) return new \Illuminate\Support\HtmlString('<span class="text-xs text-gray-400">Belum ada berkas P5 Piagam (PDF)</span>');
                             $url = str_starts_with($record->reward_certificate_file, 'kurasi/') ? asset($record->reward_certificate_file) : asset('storage/' . $record->reward_certificate_file);
-                            return new \Illuminate\Support\HtmlString('<a href="' . $url . '" target="_blank" class="inline-flex items-center gap-1 text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline pt-1">📜 Buka Berkas P5 (Piagam) ↗</a>');
+                            return new \Illuminate\Support\HtmlString('<a href="' . $url . '" target="_blank" class="inline-flex items-center gap-1 text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline pt-1">📜 Buka Berkas P5 (Piagam PDF) ↗</a>');
                         }),
 
                     FileUpload::make('reward_photo_file')

@@ -72,7 +72,7 @@ class AchievementController extends Controller
             'description'        => 'nullable|string|max:1000',
             'event_url'          => 'nullable|string|max:500',
             'photo'              => 'required|image|max:5120',
-            'certificate'        => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:10240',
+            'certificate'        => 'nullable|file|mimes:pdf|max:10240',
             'assignment_letter'  => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:10240',
         ];
 
@@ -96,7 +96,7 @@ class AchievementController extends Controller
 
                 'reward_types'                => 'nullable|array',
                 'reward_types.*'              => 'string',
-                'reward_certificate_file'     => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
+                'reward_certificate_file'     => 'nullable|file|mimes:pdf|max:10240',
                 'reward_photo_file'           => 'nullable|file|mimes:jpg,jpeg,png|max:10240',
                 'reward_recap_file'           => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:10240',
             ]);
@@ -122,12 +122,7 @@ class AchievementController extends Controller
         );
 
         if ($request->hasFile('certificate')) {
-            $file = $request->file('certificate');
-            if (in_array(strtolower($file->getClientOriginalExtension()), ['jpg', 'jpeg', 'png'])) {
-                $data['certificate'] = ImageService::store($file, 'achievements/certificates/' . $siswa->id, 1600, 85);
-            } else {
-                $data['certificate'] = $file->store('achievements/certificates/' . $siswa->id, 'public');
-            }
+            $data['certificate'] = $request->file('certificate')->store('achievements/certificates/' . $siswa->id, 'public');
         }
 
         if ($request->hasFile('assignment_letter')) {
