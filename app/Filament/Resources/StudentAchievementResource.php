@@ -48,24 +48,7 @@ class StudentAchievementResource extends Resource
 
     public static function getNavigationBadge(): ?string
     {
-        $query = static::getModel()::where('status', 'pending')->where('curation_status', '!=', 'revision');
-
-        $individualCount = (clone $query)->where(function ($q) {
-            $q->where('participation_type', '!=', 'beregu')
-              ->orWhereNull('participation_type');
-        })->count();
-
-        $teamCount = (clone $query)->where('participation_type', 'beregu')
-            ->whereNotNull('team_code')
-            ->distinct('team_code')
-            ->count('team_code');
-
-        $unkeyedTeam = (clone $query)->where('participation_type', 'beregu')
-            ->whereNull('team_code')
-            ->distinct('title')
-            ->count('title');
-
-        $count = $individualCount + $teamCount + $unkeyedTeam;
+        $count = static::getModel()::where('status', 'pending')->where('curation_status', '!=', 'revision')->count();
         return $count > 0 ? (string) $count : null;
     }
 
