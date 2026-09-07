@@ -15,313 +15,405 @@
         : null;
 
     $levelBadges = [
-        'sekolah'       => 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 border-gray-300 dark:border-gray-600',
-        'kabupaten'     => 'bg-sky-50 text-sky-700 dark:bg-sky-950/60 dark:text-sky-300 border-sky-300 dark:border-sky-700',
-        'provinsi'      => 'bg-amber-50 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border-amber-300 dark:border-amber-700',
-        'nasional'      => 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700',
-        'internasional' => 'bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 border-rose-300 dark:border-rose-700',
+        'sekolah'       => 'background:#334155; color:#cbd5e1; border:1px solid #475569;',
+        'kabupaten'     => 'background:#0369a1; color:#e0f2fe; border:1px solid #0284c7;',
+        'provinsi'      => 'background:#b45309; color:#fef3c7; border:1px solid #d97706;',
+        'nasional'      => 'background:#047857; color:#d1fae5; border:1px solid #059669;',
+        'internasional' => 'background:#be123c; color:#ffe4e6; border:1px solid #e11d48;',
     ];
-    $levelClass = $levelBadges[$record->level] ?? 'bg-gray-100 text-gray-700 border-gray-300';
+    $levelStyle = $levelBadges[$record->level] ?? 'background:#334155; color:#cbd5e1; border:1px solid #475569;';
 
     $statusConfig = match ($record->status) {
         'approved' => [
             'label' => 'Disetujui / Valid (Masuk Rekap Sekolah)',
-            'badge' => 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700',
-            'icon'  => 'heroicon-o-check-circle',
+            'class' => 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
         ],
         'rejected' => [
             'label' => 'Ditolak / Tidak Valid',
-            'badge' => 'bg-rose-100 text-rose-800 dark:bg-rose-950/80 dark:text-rose-300 border-rose-300 dark:border-rose-700',
-            'icon'  => 'heroicon-o-x-circle',
+            'class' => 'bg-rose-500/20 text-rose-300 border-rose-500/40',
         ],
         default => $record->curation_status === 'revision' ? [
             'label' => 'Perlu Revisi Berkas',
-            'badge' => 'bg-amber-100 text-amber-800 dark:bg-amber-950/80 dark:text-amber-300 border-amber-300 dark:border-amber-700',
-            'icon'  => 'heroicon-o-arrow-path',
+            'class' => 'bg-amber-500/20 text-amber-300 border-amber-500/40',
         ] : [
             'label' => 'Menunggu Verifikasi Admin',
-            'badge' => 'bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-400 border-amber-200 dark:border-amber-800',
-            'icon'  => 'heroicon-o-clock',
+            'class' => 'bg-blue-500/20 text-blue-300 border-blue-500/40',
         ],
     };
 @endphp
 
-<div class="w-full space-y-4">
-    <!-- Status & Catatan Verifikasi Card -->
-    <div class="rounded-xl border border-gray-200 dark:border-gray-700/80 bg-gray-50/80 dark:bg-gray-800/60 p-4 shadow-sm">
+<style>
+    .sims-tagihan-wrap {
+        width: 100%;
+        margin-bottom: 1.5rem;
+    }
+    .sims-tagihan-table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        border-spacing: 0 !important;
+        font-size: 0.85rem !important;
+        border: 1px solid rgba(148, 163, 184, 0.4) !important;
+        border-radius: 12px !important;
+        overflow: hidden !important;
+    }
+    .sims-tagihan-table th {
+        border: 1px solid rgba(148, 163, 184, 0.35) !important;
+        padding: 10px 14px !important;
+        font-weight: 700 !important;
+        text-transform: uppercase !important;
+        font-size: 0.75rem !important;
+        letter-spacing: 0.05em !important;
+        background-color: rgba(30, 41, 59, 0.85) !important;
+        color: #f1f5f9 !important;
+    }
+    .sims-tagihan-table td {
+        border: 1px solid rgba(148, 163, 184, 0.25) !important;
+        padding: 9px 14px !important;
+        vertical-align: middle !important;
+        line-height: 1.45 !important;
+    }
+    .sims-tagihan-table tbody tr:nth-child(even) {
+        background-color: rgba(30, 41, 59, 0.35) !important;
+    }
+    .sims-tagihan-table tbody tr:nth-child(odd) {
+        background-color: rgba(15, 23, 42, 0.15) !important;
+    }
+    .sims-tagihan-table tbody tr:hover {
+        background-color: rgba(59, 130, 246, 0.12) !important;
+    }
+
+    /* Light mode */
+    :root:not(.dark) .sims-tagihan-table {
+        border: 1px solid #cbd5e1 !important;
+    }
+    :root:not(.dark) .sims-tagihan-table th {
+        border: 1px solid #cbd5e1 !important;
+        background-color: #f1f5f9 !important;
+        color: #0f172a !important;
+    }
+    :root:not(.dark) .sims-tagihan-table td {
+        border: 1px solid #e2e8f0 !important;
+    }
+    :root:not(.dark) .sims-tagihan-table tbody tr:nth-child(even) {
+        background-color: #f8fafc !important;
+    }
+    :root:not(.dark) .sims-tagihan-table tbody tr:nth-child(odd) {
+        background-color: #ffffff !important;
+    }
+    :root:not(.dark) .sims-tagihan-table tbody tr:hover {
+        background-color: #eff6ff !important;
+    }
+</style>
+
+<div class="sims-tagihan-wrap space-y-5">
+    <!-- Header Status & Catatan Verifikasi -->
+    <div class="p-4 rounded-2xl border border-slate-700/60 bg-slate-800/60 dark:bg-slate-900/60 shadow-sm space-y-3">
         <div class="flex flex-wrap items-center justify-between gap-3">
-            <div class="flex items-center gap-2.5">
-                <span class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status Verifikasi:</span>
-                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border {{ $statusConfig['badge'] }}">
+            <div class="flex items-center gap-2">
+                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Status Verifikasi:</span>
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border {{ $statusConfig['class'] }}">
                     {{ $statusConfig['label'] }}
                 </span>
             </div>
 
-            @if($record->verified_by)
-                <div class="text-xs text-gray-600 dark:text-gray-400">
-                    Diverifikasi oleh: <span class="font-bold text-gray-900 dark:text-gray-200">{{ $record->verifier?->name ?? 'Administrator' }}</span>
+            <div class="text-xs text-slate-400">
+                @if($record->verified_by)
+                    Diverifikasi oleh: <span class="font-bold text-slate-200">{{ $record->verifier?->name ?? 'Administrator' }}</span>
                     @if($record->verified_at)
-                        <span class="text-gray-400 dark:text-gray-500">({{ $record->verified_at->translatedFormat('d F Y, H:i') }})</span>
+                        <span>({{ $record->verified_at->translatedFormat('d F Y, H:i') }})</span>
                     @endif
-                </div>
-            @else
-                <div class="text-xs text-gray-400 dark:text-gray-500 italic">
-                    Belum diverifikasi
-                </div>
-            @endif
+                @else
+                    <span class="italic text-slate-500">Belum diverifikasi oleh admin</span>
+                @endif
+            </div>
         </div>
 
         @if(!empty($record->curation_note))
-            <div class="mt-3 p-3 rounded-lg border border-amber-300 dark:border-amber-700/80 bg-amber-50/90 dark:bg-amber-950/40 text-xs">
-                <div class="font-bold text-amber-900 dark:text-amber-300 flex items-center gap-1.5 mb-1">
+            <div class="p-3.5 rounded-xl border border-amber-500/50 bg-amber-500/10 text-xs">
+                <div class="font-bold text-amber-300 flex items-center gap-1.5 mb-1 text-xs">
                     <span>⚠️</span> Catatan Verifikasi / Alasan Revisi / Penolakan:
                 </div>
-                <div class="text-amber-800 dark:text-amber-200 pl-5 font-medium whitespace-pre-line">
+                <div class="text-amber-200 pl-5 font-semibold whitespace-pre-line text-xs">
                     {{ $record->curation_note }}
                 </div>
             </div>
         @endif
     </div>
 
-    <!-- Tabel Rincian Tagihan & Input Siswa -->
-    <div class="overflow-x-auto rounded-xl border border-gray-300 dark:border-gray-700 shadow-sm bg-white dark:bg-gray-900">
-        <table class="min-w-full text-sm border-collapse">
+    <!-- Tabel Rincian Tagihan Menurun -->
+    <div class="overflow-x-auto rounded-2xl shadow-sm border border-slate-700/50">
+        <table class="sims-tagihan-table">
             <thead>
-                <tr class="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 border-b border-gray-300 dark:border-gray-700">
-                    <th scope="col" class="py-3 px-3 w-14 text-center font-bold uppercase text-xs tracking-wider border-r border-gray-300 dark:border-gray-700">
-                        No.
-                    </th>
-                    <th scope="col" class="py-3 px-4 w-60 sm:w-72 font-bold uppercase text-xs tracking-wider border-r border-gray-300 dark:border-gray-700 text-left">
-                        Tagihan
-                    </th>
-                    <th scope="col" class="py-3 px-4 font-bold uppercase text-xs tracking-wider text-left">
-                        Input Siswa
-                    </th>
+                <tr>
+                    <th style="width: 55px; text-align: center;">No.</th>
+                    <th style="width: 270px; text-align: left;">Tagihan</th>
+                    <th style="text-align: left;">Input Siswa</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-gray-300 dark:divide-gray-700">
+            <tbody>
                 <!-- 1. Judul Prestasi -->
-                <tr class="hover:bg-blue-50/40 dark:hover:bg-gray-800/50 transition-colors">
-                    <td class="py-3 px-3 text-center font-bold text-gray-500 dark:text-gray-400 border-r border-gray-300 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/30">
-                        1
-                    </td>
-                    <td class="py-3 px-4 font-semibold text-gray-800 dark:text-gray-200 border-r border-gray-300 dark:border-gray-700 bg-gray-50/30 dark:bg-gray-800/20">
-                        Judul Prestasi / Kejuaraan
-                    </td>
-                    <td class="py-3 px-4 font-bold text-amber-600 dark:text-amber-400 text-base">
+                <tr>
+                    <td style="text-align: center; font-weight: 700; color: #94a3b8;">1</td>
+                    <td style="font-weight: 600;">Judul Prestasi / Kejuaraan</td>
+                    <td style="font-weight: 700; color: #f59e0b; font-size: 0.95rem;">
                         🏆 {{ $record->title }}
                     </td>
                 </tr>
 
                 <!-- 2. Nama Ajang / Event -->
-                <tr class="hover:bg-blue-50/40 dark:hover:bg-gray-800/50 transition-colors">
-                    <td class="py-3 px-3 text-center font-bold text-gray-500 dark:text-gray-400 border-r border-gray-300 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/30">
-                        2
-                    </td>
-                    <td class="py-3 px-4 font-semibold text-gray-800 dark:text-gray-200 border-r border-gray-300 dark:border-gray-700 bg-gray-50/30 dark:bg-gray-800/20">
-                        Nama Ajang / Event
-                    </td>
-                    <td class="py-3 px-4 text-gray-900 dark:text-gray-100">
-                        {{ $record->event_name ?: '—' }}
+                <tr>
+                    <td style="text-align: center; font-weight: 700; color: #94a3b8;">2</td>
+                    <td style="font-weight: 600;">Nama Ajang / Event</td>
+                    <td>
+                        @if($record->event_name)
+                            <span class="font-medium text-slate-200">{{ $record->event_name }}</span>
+                        @else
+                            <span class="text-slate-500 italic">— (Siswa tidak mengisi nama ajang)</span>
+                        @endif
                     </td>
                 </tr>
 
                 <!-- 3. Penyelenggara -->
-                <tr class="hover:bg-blue-50/40 dark:hover:bg-gray-800/50 transition-colors">
-                    <td class="py-3 px-3 text-center font-bold text-gray-500 dark:text-gray-400 border-r border-gray-300 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/30">
-                        3
-                    </td>
-                    <td class="py-3 px-4 font-semibold text-gray-800 dark:text-gray-200 border-r border-gray-300 dark:border-gray-700 bg-gray-50/30 dark:bg-gray-800/20">
-                        Penyelenggara
-                    </td>
-                    <td class="py-3 px-4 text-gray-900 dark:text-gray-100">
-                        {{ $record->organizer ?: '—' }}
+                <tr>
+                    <td style="text-align: center; font-weight: 700; color: #94a3b8;">3</td>
+                    <td style="font-weight: 600;">Penyelenggara Lomba</td>
+                    <td>
+                        @if($record->organizer)
+                            <span class="font-medium text-slate-200">{{ $record->organizer }}</span>
+                        @else
+                            <span class="text-slate-500 italic">— (Siswa tidak mengisi penyelenggara)</span>
+                        @endif
                     </td>
                 </tr>
 
                 <!-- 4. Tingkat Kejuaraan -->
-                <tr class="hover:bg-blue-50/40 dark:hover:bg-gray-800/50 transition-colors">
-                    <td class="py-3 px-3 text-center font-bold text-gray-500 dark:text-gray-400 border-r border-gray-300 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/30">
-                        4
-                    </td>
-                    <td class="py-3 px-4 font-semibold text-gray-800 dark:text-gray-200 border-r border-gray-300 dark:border-gray-700 bg-gray-50/30 dark:bg-gray-800/20">
-                        Tingkat Kejuaraan
-                    </td>
-                    <td class="py-3 px-4">
-                        <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold border {{ $levelClass }}">
+                <tr>
+                    <td style="text-align: center; font-weight: 700; color: #94a3b8;">4</td>
+                    <td style="font-weight: 600;">Tingkat Kejuaraan</td>
+                    <td>
+                        <span style="display: inline-block; padding: 2px 10px; border-radius: 6px; font-weight: 700; font-size: 0.75rem; {{ $levelStyle }}">
                             {{ $record->levelLabel() }}
                         </span>
                     </td>
                 </tr>
 
                 <!-- 5. Peringkat / Juara -->
-                <tr class="hover:bg-blue-50/40 dark:hover:bg-gray-800/50 transition-colors">
-                    <td class="py-3 px-3 text-center font-bold text-gray-500 dark:text-gray-400 border-r border-gray-300 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/30">
-                        5
-                    </td>
-                    <td class="py-3 px-4 font-semibold text-gray-800 dark:text-gray-200 border-r border-gray-300 dark:border-gray-700 bg-gray-50/30 dark:bg-gray-800/20">
-                        Peringkat / Juara
-                    </td>
-                    <td class="py-3 px-4 font-bold text-gray-900 dark:text-gray-100">
+                <tr>
+                    <td style="text-align: center; font-weight: 700; color: #94a3b8;">5</td>
+                    <td style="font-weight: 600;">Peringkat / Capaian (Juara)</td>
+                    <td>
                         @if($record->rank)
-                            <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-black bg-amber-100 text-amber-900 dark:bg-amber-950/70 dark:text-amber-300 border border-amber-300 dark:border-amber-700">
+                            <span style="display: inline-block; padding: 2px 10px; border-radius: 6px; font-weight: 800; font-size: 0.75rem; background:#78350f; color:#fef3c7; border:1px solid #b45309;">
                                 🥇 {{ $record->rank }}
                             </span>
                         @else
-                            <span class="text-gray-400">—</span>
+                            <span class="text-slate-500 italic">—</span>
                         @endif
                     </td>
                 </tr>
 
-                <!-- 6. Rumpun Bidang -->
-                <tr class="hover:bg-blue-50/40 dark:hover:bg-gray-800/50 transition-colors">
-                    <td class="py-3 px-3 text-center font-bold text-gray-500 dark:text-gray-400 border-r border-gray-300 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/30">
-                        6
-                    </td>
-                    <td class="py-3 px-4 font-semibold text-gray-800 dark:text-gray-200 border-r border-gray-300 dark:border-gray-700 bg-gray-50/30 dark:bg-gray-800/20">
-                        Rumpun Bidang
-                    </td>
-                    <td class="py-3 px-4">
-                        <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 border border-blue-300 dark:border-blue-700">
+                <!-- 6. Rumpun Talenta -->
+                <tr>
+                    <td style="text-align: center; font-weight: 700; color: #94a3b8;">6</td>
+                    <td style="font-weight: 600;">Rumpun Bidang / Talenta</td>
+                    <td>
+                        <span style="display: inline-block; padding: 2px 10px; border-radius: 6px; font-weight: 700; font-size: 0.75rem; background:#1e3a8a; color:#bfdbfe; border:1px solid #2563eb;">
                             {{ $record->fieldCategoryLabel() }}
                         </span>
                     </td>
                 </tr>
 
                 <!-- 7. Jenis Partisipasi -->
-                <tr class="hover:bg-blue-50/40 dark:hover:bg-gray-800/50 transition-colors">
-                    <td class="py-3 px-3 text-center font-bold text-gray-500 dark:text-gray-400 border-r border-gray-300 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/30">
-                        7
-                    </td>
-                    <td class="py-3 px-4 font-semibold text-gray-800 dark:text-gray-200 border-r border-gray-300 dark:border-gray-700 bg-gray-50/30 dark:bg-gray-800/20">
-                        Jenis Partisipasi
-                    </td>
-                    <td class="py-3 px-4">
+                <tr>
+                    <td style="text-align: center; font-weight: 700; color: #94a3b8;">7</td>
+                    <td style="font-weight: 600;">Jenis Partisipasi</td>
+                    <td>
                         @if($record->isBeregu())
-                            <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-purple-50 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300 border border-purple-300 dark:border-purple-700">
-                                👥 Beregu ({{ $record->team_members->count() }} Siswa)
+                            <span style="display: inline-block; padding: 2px 10px; border-radius: 6px; font-weight: 700; font-size: 0.75rem; background:#581c87; color:#f3e8ff; border:1px solid #7e22ce;">
+                                👥 Beregu ({{ $record->team_members->count() }} Anggota Tim)
                             </span>
                         @else
-                            <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 border border-gray-300 dark:border-gray-600">
+                            <span style="display: inline-block; padding: 2px 10px; border-radius: 6px; font-weight: 700; font-size: 0.75rem; background:#334155; color:#cbd5e1; border:1px solid #475569;">
                                 👤 Perorangan (Individu)
                             </span>
                         @endif
                     </td>
                 </tr>
 
-                <!-- 8. Tanggal Lomba / Capaian -->
-                <tr class="hover:bg-blue-50/40 dark:hover:bg-gray-800/50 transition-colors">
-                    <td class="py-3 px-3 text-center font-bold text-gray-500 dark:text-gray-400 border-r border-gray-300 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/30">
-                        8
-                    </td>
-                    <td class="py-3 px-4 font-semibold text-gray-800 dark:text-gray-200 border-r border-gray-300 dark:border-gray-700 bg-gray-50/30 dark:bg-gray-800/20">
-                        Tanggal Lomba / Capaian
-                    </td>
-                    <td class="py-3 px-4 text-gray-900 dark:text-gray-100 font-medium">
+                <!-- 8. Tanggal Pelaksanaan -->
+                <tr>
+                    <td style="text-align: center; font-weight: 700; color: #94a3b8;">8</td>
+                    <td style="font-weight: 600;">Tanggal Lomba / Capaian</td>
+                    <td style="font-weight: 600;">
                         🗓️ {{ $record->achievement_date ? $record->achievement_date->translatedFormat('d F Y') : '—' }}
                     </td>
                 </tr>
 
-                <!-- 9. Website Resmi Ajang / Berita -->
-                <tr class="hover:bg-blue-50/40 dark:hover:bg-gray-800/50 transition-colors">
-                    <td class="py-3 px-3 text-center font-bold text-gray-500 dark:text-gray-400 border-r border-gray-300 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/30">
-                        9
-                    </td>
-                    <td class="py-3 px-4 font-semibold text-gray-800 dark:text-gray-200 border-r border-gray-300 dark:border-gray-700 bg-gray-50/30 dark:bg-gray-800/20">
-                        Website Resmi Ajang / Berita
-                    </td>
-                    <td class="py-3 px-4 text-gray-900 dark:text-gray-100">
+                <!-- 9. Website Resmi Ajang -->
+                <tr>
+                    <td style="text-align: center; font-weight: 700; color: #94a3b8;">9</td>
+                    <td style="font-weight: 600;">Website Resmi Ajang / Berita</td>
+                    <td>
                         @if($record->event_url)
-                            <a href="{{ $record->event_url }}" target="_blank" class="text-blue-600 dark:text-blue-400 font-bold hover:underline inline-flex items-center gap-1">
+                            <a href="{{ $record->event_url }}" target="_blank" style="color: #60a5fa; text-decoration: underline; font-weight: 600;">
                                 🔗 {{ $record->event_url }} ↗
                             </a>
                         @else
-                            <span class="text-gray-400">—</span>
+                            <span class="text-slate-500 italic">— (Tidak dilampirkan)</span>
                         @endif
                     </td>
                 </tr>
 
-                <!-- 10. Deskripsi / Catatan Tambahan Lomba -->
-                <tr class="hover:bg-blue-50/40 dark:hover:bg-gray-800/50 transition-colors">
-                    <td class="py-3 px-3 text-center font-bold text-gray-500 dark:text-gray-400 border-r border-gray-300 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/30">
-                        10
-                    </td>
-                    <td class="py-3 px-4 font-semibold text-gray-800 dark:text-gray-200 border-r border-gray-300 dark:border-gray-700 bg-gray-50/30 dark:bg-gray-800/20">
-                        Deskripsi / Catatan Tambahan
-                    </td>
-                    <td class="py-3 px-4 text-gray-900 dark:text-gray-100 whitespace-pre-line">
-                        {{ $record->description ?: '—' }}
+                <!-- 10. Deskripsi / Catatan Tambahan -->
+                <tr>
+                    <td style="text-align: center; font-weight: 700; color: #94a3b8;">10</td>
+                    <td style="font-weight: 600;">Deskripsi / Catatan Tambahan</td>
+                    <td style="white-space: pre-line;">
+                        {{ $record->description ?: '— (Tidak ada catatan tambahan)' }}
                     </td>
                 </tr>
 
-                <!-- 11. Berkas Scan Piagam / Sertifikat -->
-                <tr class="hover:bg-blue-50/40 dark:hover:bg-gray-800/50 transition-colors">
-                    <td class="py-3 px-3 text-center font-bold text-gray-500 dark:text-gray-400 border-r border-gray-300 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/30">
-                        11
+                <!-- 11. Scan Piagam / Sertifikat (Wajib) -->
+                <tr>
+                    <td style="text-align: center; font-weight: 700; color: #94a3b8;">11</td>
+                    <td style="font-weight: 600;">
+                        Scan Piagam / Sertifikat <span style="color: #f43f5e; font-weight: 800;">*Wajib</span>
                     </td>
-                    <td class="py-3 px-4 font-semibold text-gray-800 dark:text-gray-200 border-r border-gray-300 dark:border-gray-700 bg-gray-50/30 dark:bg-gray-800/20">
-                        Scan Piagam / Sertifikat (Wajib)
-                    </td>
-                    <td class="py-3 px-4">
+                    <td>
                         @if($certUrl)
-                            <a href="{{ $certUrl }}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 font-bold text-xs hover:bg-blue-100 dark:hover:bg-blue-900 transition-colors">
-                                📄 Buka Berkas Sertifikat Siswa (PDF) ↗
+                            <a href="{{ $certUrl }}" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 8px; background: rgba(37, 99, 235, 0.2); color: #93c5fd; border: 1px solid #3b82f6; font-weight: 700; font-size: 0.75rem; text-decoration: none;">
+                                📄 Buka File Sertifikat (PDF) ↗
                             </a>
                         @else
-                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 border border-rose-200 dark:border-rose-800 text-xs font-bold">
-                                ⚠️ Belum Diupload
+                            <span style="display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 6px; background: rgba(244, 63, 94, 0.15); color: #fda4af; border: 1px solid #f43f5e; font-weight: 700; font-size: 0.75rem;">
+                                ⚠️ BELUM DIISI / BELUM DIUPLOAD OLEH SISWA
                             </span>
                         @endif
                     </td>
                 </tr>
 
                 <!-- 12. Surat Tugas / Rekomendasi Sekolah -->
-                <tr class="hover:bg-blue-50/40 dark:hover:bg-gray-800/50 transition-colors">
-                    <td class="py-3 px-3 text-center font-bold text-gray-500 dark:text-gray-400 border-r border-gray-300 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/30">
-                        12
-                    </td>
-                    <td class="py-3 px-4 font-semibold text-gray-800 dark:text-gray-200 border-r border-gray-300 dark:border-gray-700 bg-gray-50/30 dark:bg-gray-800/20">
-                        Surat Tugas / Rekomendasi
-                    </td>
-                    <td class="py-3 px-4">
+                <tr>
+                    <td style="text-align: center; font-weight: 700; color: #94a3b8;">12</td>
+                    <td style="font-weight: 600;">Surat Tugas / Rekomendasi Sekolah</td>
+                    <td>
                         @if($letterUrl)
-                            <a href="{{ $letterUrl }}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 font-bold text-xs hover:bg-indigo-100 dark:hover:bg-indigo-900 transition-colors">
-                                📑 Buka Surat Tugas Sekolah (PDF) ↗
+                            <a href="{{ $letterUrl }}" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 8px; background: rgba(99, 102, 241, 0.2); color: #c7d2fe; border: 1px solid #6366f1; font-weight: 700; font-size: 0.75rem; text-decoration: none;">
+                                📑 Buka Surat Tugas (PDF) ↗
                             </a>
                         @else
-                            <span class="text-xs text-gray-400 dark:text-gray-500 italic">
-                                Tidak ada surat tugas
-                            </span>
+                            <span class="text-slate-500 italic">— Tidak dilampirkan</span>
                         @endif
                     </td>
                 </tr>
 
                 <!-- 13. Foto Kegiatan / Penyerahan Piagam -->
-                <tr class="hover:bg-blue-50/40 dark:hover:bg-gray-800/50 transition-colors">
-                    <td class="py-3 px-3 text-center font-bold text-gray-500 dark:text-gray-400 border-r border-gray-300 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/30">
-                        13
-                    </td>
-                    <td class="py-3 px-4 font-semibold text-gray-800 dark:text-gray-200 border-r border-gray-300 dark:border-gray-700 bg-gray-50/30 dark:bg-gray-800/20">
-                        Foto Kegiatan / Penyerahan Piagam
-                    </td>
-                    <td class="py-3 px-4">
+                <tr>
+                    <td style="text-align: center; font-weight: 700; color: #94a3b8;">13</td>
+                    <td style="font-weight: 600;">Foto Dokumentasi Kegiatan</td>
+                    <td>
                         @if($photoUrl)
-                            <div class="flex items-center gap-3">
-                                <a href="{{ $photoUrl }}" target="_blank" class="block shrink-0 rounded-lg overflow-hidden border border-gray-300 dark:border-gray-600 hover:opacity-90">
-                                    <img src="{{ $photoUrl }}" alt="Foto Kegiatan" class="w-16 h-16 object-cover">
-                                </a>
-                                <a href="{{ $photoUrl }}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 font-bold text-xs hover:bg-gray-100">
-                                    📷 Buka Foto Kegiatan Ukuran Penuh ↗
-                                </a>
-                            </div>
+                            <a href="{{ $photoUrl }}" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 8px; background: rgba(16, 185, 129, 0.2); color: #a7f3d0; border: 1px solid #10b981; font-weight: 700; font-size: 0.75rem; text-decoration: none;">
+                                📷 Buka Foto Kegiatan (Ukuran Penuh) ↗
+                            </a>
                         @else
-                            <span class="text-xs text-gray-400 dark:text-gray-500 italic">
-                                Belum ada foto
-                            </span>
+                            <span class="text-slate-500 italic">— Belum ada foto kegiatan</span>
                         @endif
                     </td>
                 </tr>
             </tbody>
         </table>
+    </div>
+
+    <!-- ─── BUKTI FISIK DI BAWAHNYA (SESUAI REQUEST USER) ──────────── -->
+    <div class="p-5 rounded-2xl border border-slate-700/60 bg-slate-800/40 dark:bg-slate-900/50 space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-700 pb-3">
+            <h4 class="font-bold text-sm text-slate-100 flex items-center gap-2">
+                <span class="text-base">📎</span> Lampiran Bukti Fisik & Dokumentasi (Tagihan #11, #12, #13)
+            </h4>
+            <span class="text-xs text-slate-400">Klik berkas untuk melihat ukuran penuh</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Bukti 1: Piagam / Sertifikat (Tagihan #11) -->
+            <div class="p-4 rounded-xl border border-slate-700 bg-slate-800/80 flex flex-col justify-between space-y-3">
+                <div>
+                    <div class="flex items-center justify-between gap-1 mb-1.5">
+                        <span class="text-xs font-bold text-slate-300">Tagihan #11: Piagam / Sertifikat</span>
+                        @if($certUrl)
+                            <span class="text-[10px] font-extrabold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Ada</span>
+                        @else
+                            <span class="text-[10px] font-extrabold px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/30">Kosong</span>
+                        @endif
+                    </div>
+                    <p class="text-xs text-slate-400">Scan sertifikat atau piagam kejuaraan siswa.</p>
+                </div>
+
+                @if($certUrl)
+                    <a href="{{ $certUrl }}" target="_blank" class="w-full text-center py-2 px-3 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition shadow-sm flex items-center justify-center gap-1.5">
+                        📄 Buka Sertifikat (PDF) ↗
+                    </a>
+                @else
+                    <div class="p-2.5 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs text-center font-semibold">
+                        ⚠️ Belum diunggah oleh siswa
+                    </div>
+                @endif
+            </div>
+
+            <!-- Bukti 2: Surat Tugas (Tagihan #12) -->
+            <div class="p-4 rounded-xl border border-slate-700 bg-slate-800/80 flex flex-col justify-between space-y-3">
+                <div>
+                    <div class="flex items-center justify-between gap-1 mb-1.5">
+                        <span class="text-xs font-bold text-slate-300">Tagihan #12: Surat Tugas</span>
+                        @if($letterUrl)
+                            <span class="text-[10px] font-extrabold px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">Ada</span>
+                        @else
+                            <span class="text-[10px] font-extrabold px-2 py-0.5 rounded bg-slate-600/40 text-slate-400 border border-slate-600">Tidak ada</span>
+                        @endif
+                    </div>
+                    <p class="text-xs text-slate-400">Surat tugas / rekomendasi dari pihak sekolah.</p>
+                </div>
+
+                @if($letterUrl)
+                    <a href="{{ $letterUrl }}" target="_blank" class="w-full text-center py-2 px-3 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition shadow-sm flex items-center justify-center gap-1.5">
+                        📑 Buka Surat Tugas (PDF) ↗
+                    </a>
+                @else
+                    <div class="p-2.5 rounded-lg bg-slate-700/30 border border-slate-700 text-slate-400 text-xs text-center italic">
+                        Tidak dilampirkan
+                    </div>
+                @endif
+            </div>
+
+            <!-- Bukti 3: Foto Kegiatan (Tagihan #13) -->
+            <div class="p-4 rounded-xl border border-slate-700 bg-slate-800/80 flex flex-col justify-between space-y-3">
+                <div>
+                    <div class="flex items-center justify-between gap-1 mb-1.5">
+                        <span class="text-xs font-bold text-slate-300">Tagihan #13: Foto Kegiatan</span>
+                        @if($photoUrl)
+                            <span class="text-[10px] font-extrabold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Ada</span>
+                        @else
+                            <span class="text-[10px] font-extrabold px-2 py-0.5 rounded bg-slate-600/40 text-slate-400 border border-slate-600">Tidak ada</span>
+                        @endif
+                    </div>
+                    <p class="text-xs text-slate-400">Dokumentasi penyerahan piagam / panggung ajang.</p>
+                </div>
+
+                @if($photoUrl)
+                    <div class="space-y-2">
+                        <a href="{{ $photoUrl }}" target="_blank" class="block rounded-lg overflow-hidden border border-slate-600 group relative">
+                            <img src="{{ $photoUrl }}" alt="Foto Kegiatan" class="w-full h-28 object-cover group-hover:scale-105 transition-transform duration-200">
+                        </a>
+                        <a href="{{ $photoUrl }}" target="_blank" class="w-full text-center py-1.5 px-3 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 font-bold text-xs transition block">
+                            📷 Lihat Ukuran Penuh ↗
+                        </a>
+                    </div>
+                @else
+                    <div class="p-2.5 rounded-lg bg-slate-700/30 border border-slate-700 text-slate-400 text-xs text-center italic">
+                        Belum ada foto kegiatan
+                    </div>
+                @endif
+            </div>
+        </div>
     </div>
 </div>
