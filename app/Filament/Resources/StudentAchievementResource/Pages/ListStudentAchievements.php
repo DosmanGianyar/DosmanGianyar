@@ -27,19 +27,24 @@ class ListStudentAchievements extends ListRecords
 
     public function getTabs(): array
     {
-        $pendingCount  = StudentAchievement::where('curation_status', 'pending')->count();
+        $pendingCount  = StudentAchievement::where('status', 'pending')->where('curation_status', '!=', 'revision')->count();
+        $approvedCount = StudentAchievement::where('status', 'approved')->count();
         $revisionCount = StudentAchievement::where('curation_status', 'revision')->count();
-        $curatedCount  = StudentAchievement::where('curation_status', 'curated')->count();
-        $internalCount = StudentAchievement::where('curation_status', 'not_curatable')->count();
-        $rejectedCount = StudentAchievement::where('curation_status', 'rejected')->count();
+        $rejectedCount = StudentAchievement::where('status', 'rejected')->count();
         $totalCount    = StudentAchievement::count();
 
         return [
-            'pending' => Tab::make('Menunggu Persetujuan')
+            'pending' => Tab::make('Menunggu Verifikasi')
                 ->icon('heroicon-o-clock')
                 ->badge($pendingCount > 0 ? (string) $pendingCount : null)
                 ->badgeColor('warning')
-                ->modifyQueryUsing(fn (Builder $query) => $query->where('curation_status', 'pending')),
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('status', 'pending')->where('curation_status', '!=', 'revision')),
+
+            'approved' => Tab::make('Disetujui / Valid')
+                ->icon('heroicon-o-check-circle')
+                ->badge($approvedCount > 0 ? (string) $approvedCount : null)
+                ->badgeColor('success')
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('status', 'approved')),
 
             'revision' => Tab::make('Perlu Revisi')
                 ->icon('heroicon-o-arrow-path')
@@ -47,25 +52,13 @@ class ListStudentAchievements extends ListRecords
                 ->badgeColor('warning')
                 ->modifyQueryUsing(fn (Builder $query) => $query->where('curation_status', 'revision')),
 
-            'curated' => Tab::make('Lolos Kurasi Resmi')
-                ->icon('heroicon-o-check-badge')
-                ->badge($curatedCount > 0 ? (string) $curatedCount : null)
-                ->badgeColor('success')
-                ->modifyQueryUsing(fn (Builder $query) => $query->where('curation_status', 'curated')),
-
-            'internal' => Tab::make('Prestasi Internal')
-                ->icon('heroicon-o-bookmark')
-                ->badge($internalCount > 0 ? (string) $internalCount : null)
-                ->badgeColor('info')
-                ->modifyQueryUsing(fn (Builder $query) => $query->where('curation_status', 'not_curatable')),
-
             'rejected' => Tab::make('Ditolak')
                 ->icon('heroicon-o-x-circle')
                 ->badge($rejectedCount > 0 ? (string) $rejectedCount : null)
                 ->badgeColor('danger')
-                ->modifyQueryUsing(fn (Builder $query) => $query->where('curation_status', 'rejected')),
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('status', 'rejected')),
 
-            'all' => Tab::make('Semua Ajuan')
+            'all' => Tab::make('Semua Data')
                 ->icon('heroicon-o-square-3-stack-3d')
                 ->badge($totalCount > 0 ? (string) $totalCount : null)
                 ->badgeColor('gray'),

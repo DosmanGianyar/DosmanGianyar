@@ -20,7 +20,10 @@ class AchievementStatsOverview extends BaseWidget
         $until = $this->tableFilters['date_range']['until'] ?? ($this->filters['until'] ?? now()->toDateString());
 
         $approvedQuery = StudentAchievement::query()
-            ->whereIn('curation_status', ['curated', 'not_curatable'])
+            ->where(function ($q) {
+                $q->where('status', 'approved')
+                  ->orWhereIn('curation_status', ['curated', 'not_curatable']);
+            })
             ->when($from, fn ($q) => $q->whereDate('achievement_date', '>=', $from))
             ->when($until, fn ($q) => $q->whereDate('achievement_date', '<=', $until));
 
@@ -28,9 +31,10 @@ class AchievementStatsOverview extends BaseWidget
             $approvedQuery->whereHas('student.schoolClass', fn ($q) => $q->where('grade', (string) $grade));
         }
 
-        $totalApproved     = (clone $approvedQuery)->count();
-        $resmiCuratedCount = (clone $approvedQuery)->where('curation_status', 'curated')->count();
-        $internalCount     = (clone $approvedQuery)->where('curation_status', 'not_curatable')->count();
+        $individualCount = (clone $approvedQuery)->where('participation_type', '!=', 'beregu')->count();
+        $teamCount       = (clone $approvedQuery)->where('participation_type', 'beregu')->whereNotNull('team_code')->distinct('team_code')->count('team_code');
+        $unkeyedTeam     = (clone $approvedQuery)->where('participation_type', 'beregu')->whereNull('team_code')->distinct('title')->count('title');
+        $totalSchoolAchievements = $individualCount + $teamCount + $unkeyedTeam;
 
         $nasionalInternasional = (clone $approvedQuery)->whereIn('level', ['nasional', 'internasional'])->count();
         $uniqueStudents        = (clone $approvedQuery)->pluck('student_id')->unique()->count();
@@ -38,14 +42,14 @@ class AchievementStatsOverview extends BaseWidget
         $gradeLabel = $grade === 'all' ? '' : " (Kelas {$grade})";
 
         return [
-            Stat::make('Total Prestasi Diakui' . $gradeLabel, number_format($totalApproved) . ' Capaian')
-                ->description("{$resmiCuratedCount} Kurasi Resmi • {$internalCount} Catatan Internal")
+            Stat::make('Total Prestasi Sekolah' . $gradeLabel, number_format($totalSchoolAchievements) . ' Capaian')
+                ->description('Raihan Kejuaraan Sekolah (Lomba Beregu dihitung 1)')
                 ->descriptionIcon('heroicon-m-academic-cap')
                 ->color('success'),
 
-            Stat::make('Lolos Kurasi Resmi' . $gradeLabel, number_format($resmiCuratedCount) . ' Berkas')
-                ->description('Prestasi disahkan standar Puspresnas/SIMT')
-                ->descriptionIcon('heroicon-m-check-badge')
+            Stat::make('Siswa Berprestasi' . $gradeLabel, number_format($uniqueStudents) . ' Siswa')
+                ->description('Total siswa unik penerima apresiasi/kejuaraan')
+                ->descriptionIcon('heroicon-m-user-group')
                 ->color('primary'),
 
             Stat::make('Tingkat Nasional & Internasional' . $gradeLabel, number_format($nasionalInternasional))
@@ -53,9 +57,9 @@ class AchievementStatsOverview extends BaseWidget
                 ->descriptionIcon('heroicon-m-trophy')
                 ->color('warning'),
 
-            Stat::make('Siswa Berprestasi' . $gradeLabel, number_format($uniqueStudents) . ' Siswa')
-                ->description('Total siswa unik penerima kejuaraan')
-                ->descriptionIcon('heroicon-m-user-group')
+            Stat::make('Jumlah Total Berkas Siswa' . $gradeLabel, number_format((clone $approvedQuery)->count()) . ' Berkas')
+                ->description('Termasuk seluruh berkas anggota tim beregu')
+                ->descriptionIcon('heroicon-m-document-text')
                 ->color('info'),
         ];
     }

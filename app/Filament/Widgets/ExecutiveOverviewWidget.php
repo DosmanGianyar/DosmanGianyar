@@ -60,7 +60,7 @@ class ExecutiveOverviewWidget extends BaseWidget
         }
         $prestasiMonth = $prestasiQuery->count();
 
-        $achieveQuery  = \App\Models\StudentAchievement::where('curation_status', 'pending');
+        $achieveQuery  = \App\Models\StudentAchievement::where('status', 'pending')->where('curation_status', '!=', 'revision');
         $permitQuery   = \App\Models\Permit::where('status', 'pending');
         $checkoutQuery = \App\Models\EarlyCheckoutRequest::where('status', 'pending');
         $forgotQuery   = \App\Models\ForgotAttendanceRequest::where('status', 'pending');

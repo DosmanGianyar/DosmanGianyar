@@ -39,16 +39,16 @@ class StudentAchievementResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon       = 'heroicon-o-clipboard-document-check';
     protected static string|\UnitEnum|null   $navigationGroup      = 'Prestasi & Ekskul';
-    protected static ?string                 $navigationLabel      = 'Persetujuan & Kurasi Ajuan Siswa';
-    protected static ?string                 $modelLabel           = 'Ajuan Prestasi Siswa';
-    protected static ?string                 $pluralModelLabel     = 'Persetujuan Ajuan Prestasi Siswa';
+    protected static ?string                 $navigationLabel      = 'Verifikasi & Pendataan Prestasi';
+    protected static ?string                 $modelLabel           = 'Prestasi Siswa';
+    protected static ?string                 $pluralModelLabel     = 'Verifikasi & Pendataan Prestasi Sekolah';
     protected static ?int                    $navigationSort       = 12;
 
     public static function canAccess(): bool { return AdminAccess::can('Prestasi & Ekskul'); }
 
     public static function getNavigationBadge(): ?string
     {
-        $count = static::getModel()::where('curation_status', 'pending')->count();
+        $count = static::getModel()::where('status', 'pending')->where('curation_status', '!=', 'revision')->count();
         return $count > 0 ? (string) $count : null;
     }
 
@@ -65,26 +65,31 @@ class StudentAchievementResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
-            Section::make('Status Kurasi & Verifikasi Admin')
+            Section::make('Status Verifikasi & Pendataan Admin')
                 ->icon('heroicon-o-check-badge')
                 ->schema([
-                    Select::make('curation_status')
-                        ->label('Status Kurasi')
+                    Select::make('status')
+                        ->label('Status Verifikasi')
                         ->options([
-                            'pending'       => 'Menunggu Penilaian Kurasi',
-                            'curated'       => 'Lolos Kurasi Resmi (SIMT/Puspresnas)',
+                            'pending'  => '⏳ Menunggu Verifikasi',
+                            'approved' => '✅ Disetujui / Valid (Masuk Rekap Sekolah)',
+                            'rejected' => '❌ Ditolak / Tidak Valid',
+                        ])
+                        ->required(),
+
+                    Select::make('curation_status')
+                        ->label('Kategori Pendataan')
+                        ->options([
+                            'pending'       => 'Menunggu Penilaian',
+                            'curated'       => 'Prestasi Kurasi Resmi (SIMT/Puspresnas)',
                             'not_curatable' => 'Prestasi Internal Sekolah',
                             'revision'      => 'Perlu Revisi Berkas',
                             'rejected'      => 'Tidak Layak / Ditolak',
                         ])
                         ->required(),
 
-                    Toggle::make('is_curation')
-                        ->label('Status Kurasi Resmi (SIMT/Puspresnas)')
-                        ->helperText('Aktifkan jika prestasi ini sah lolos kurasi resmi Kemendikdasmen/Puspresnas.'),
-
                     Textarea::make('curation_note')
-                        ->label('Catatan Kurasi / Alasan Revisi / Alasan Penolakan')
+                        ->label('Catatan Verifikasi / Petunjuk Revisi / Alasan Penolakan')
                         ->placeholder('Isi catatan internal atau petunjuk revisi untuk siswa')
                         ->columnSpanFull()
                         ->rows(2),
@@ -775,18 +780,36 @@ class StudentAchievementResource extends Resource
                     ->label('Peringkat')
                     ->placeholder('—'),
 
-                TextColumn::make('is_curation')
-                    ->label('Tipe')
+                TextColumn::make('participation_type')
+                    ->label('Partisipasi')
                     ->badge()
-                    ->color(fn (bool $state): string => $state ? 'warning' : 'gray')
-                    ->formatStateUsing(fn (bool $state): string => $state ? 'Kurasi' : 'Regular')
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->color(fn (StudentAchievement $record): string => $record->isBeregu() ? 'purple' : 'gray')
+                    ->formatStateUsing(function (StudentAchievement $record): string {
+                        if (! $record->isBeregu()) {
+                            return '👤 Perorangan';
+                        }
+                        $teamCount = $record->team_members->count();
+                        return "👥 Beregu ({$teamCount} Siswa)";
+                    })
+                    ->tooltip(function (StudentAchievement $record): ?string {
+                        if (! $record->isBeregu()) return null;
+                        $names = $record->team_members->pluck('student.name')->filter()->implode(', ');
+                        return 'Anggota Tim: ' . ($names ?: '—');
+                    }),
 
-                TextColumn::make('curation_status')
-                    ->label('Status')
+                TextColumn::make('status')
+                    ->label('Status Verifikasi')
                     ->badge()
-                    ->color(fn (StudentAchievement $record): string => $record->curationStatusColor())
-                    ->formatStateUsing(fn (StudentAchievement $record): string => $record->curationStatusLabel()),
+                    ->color(fn (StudentAchievement $record): string => match ($record->status) {
+                        'approved' => 'success',
+                        'rejected' => 'danger',
+                        default    => $record->curation_status === 'revision' ? 'warning' : 'amber',
+                    })
+                    ->formatStateUsing(fn (StudentAchievement $record): string => match ($record->status) {
+                        'approved' => 'Disetujui / Valid',
+                        'rejected' => 'Ditolak',
+                        default    => $record->curation_status === 'revision' ? 'Perlu Revisi' : 'Menunggu Verifikasi',
+                    }),
 
                 TextColumn::make('achievement_date')
                     ->label('Tanggal')
@@ -885,44 +908,51 @@ class StudentAchievementResource extends Resource
                         ->url(fn (StudentAchievement $record): ?string => $record->student_id ? UserResource::getUrl('view', ['record' => $record->student_id]) : null)
                         ->openUrlInNewTab(),
 
-                    Action::make('curate')
-                        ->label('Sahkan Lolos Kurasi Resmi (Puspresnas)')
-                        ->tooltip('Sahkan Lolos Kurasi Resmi (SIMT/Puspresnas)')
-                        ->icon('heroicon-o-check-badge')
+                    Action::make('approve_achievement')
+                        ->label('Setujui & Sahkan Prestasi')
+                        ->tooltip('Setujui & Masukkan ke Rekap Prestasi Sekolah')
+                        ->icon('heroicon-o-check-circle')
                         ->color('success')
                         ->requiresConfirmation()
-                        ->modalHeading('Loloskan Kurasi Resmi')
-                        ->modalDescription('Prestasi ini akan disahkan sebagai Lolos Kurasi Resmi Standar Puspresnas/SIMT.')
+                        ->modalHeading('Setujui & Sahkan Prestasi')
+                        ->modalDescription(function (StudentAchievement $record): string {
+                            if ($record->isBeregu()) {
+                                $count = $record->team_members->count();
+                                return "Prestasi beregu ini akan disetujui untuk SELURUH tim ({$count} siswa). Data akan langsung masuk ke Rekapitulasi Sekolah (dihitung 1 Prestasi Sekolah).";
+                            }
+                            return 'Prestasi siswa ini akan disetujui & disahkan ke Rekapitulasi Prestasi Sekolah.';
+                        })
                         ->action(function (StudentAchievement $record): void {
-                            $record->update([
-                                'is_curation'     => true,
-                                'curation_status' => 'curated',
-                                'status'          => 'approved',
-                                'curation_note'   => null,
-                                'verified_by'     => auth()->id(),
-                                'verified_at'     => now(),
-                            ]);
-                            Notification::make()->title('Prestasi Lolos Kurasi Resmi')->success()->send();
-                        }),
-
-                    Action::make('not_curatable')
-                        ->label('Tandai Sebagai Prestasi Internal Sekolah')
-                        ->tooltip('Tandai sebagai Prestasi Internal Sekolah (Tidak Dikurasi)')
-                        ->icon('heroicon-o-bookmark')
-                        ->color('info')
-                        ->requiresConfirmation()
-                        ->modalHeading('Tandai Prestasi Internal Sekolah')
-                        ->modalDescription('Prestasi ini akan tetap dicatat & diakui sebagai Prestasi Siswa Sekolah, tetapi ditandai TIDAK masuk kurasi resmi Puspresnas/SIMT.')
-                        ->action(function (StudentAchievement $record): void {
-                            $record->update([
-                                'is_curation'     => false,
-                                'curation_status' => 'not_curatable',
-                                'status'          => 'approved',
-                                'curation_note'   => 'Dicatat sebagai Prestasi Catatan Internal Sekolah',
-                                'verified_by'     => auth()->id(),
-                                'verified_at'     => now(),
-                            ]);
-                            Notification::make()->title('Prestasi Diakui sebagai Catatan Internal Sekolah')->info()->send();
+                            if ($record->isBeregu() && ! empty($record->team_code)) {
+                                $affected = StudentAchievement::where('team_code', $record->team_code)->update([
+                                    'status'          => 'approved',
+                                    'curation_status' => $record->is_curation ? 'curated' : 'not_curatable',
+                                    'curation_note'   => null,
+                                    'verified_by'     => auth()->id(),
+                                    'verified_at'     => now(),
+                                ]);
+                            } elseif ($record->isBeregu()) {
+                                $affected = StudentAchievement::where('participation_type', 'beregu')
+                                    ->where('title', $record->title)
+                                    ->where('achievement_date', $record->achievement_date)
+                                    ->update([
+                                        'status'          => 'approved',
+                                        'curation_status' => $record->is_curation ? 'curated' : 'not_curatable',
+                                        'curation_note'   => null,
+                                        'verified_by'     => auth()->id(),
+                                        'verified_at'     => now(),
+                                    ]);
+                            } else {
+                                $record->update([
+                                    'status'          => 'approved',
+                                    'curation_status' => $record->is_curation ? 'curated' : 'not_curatable',
+                                    'curation_note'   => null,
+                                    'verified_by'     => auth()->id(),
+                                    'verified_at'     => now(),
+                                ]);
+                                $affected = 1;
+                            }
+                            Notification::make()->title("Prestasi Disetujui ({$affected} Siswa)")->success()->send();
                         }),
 
                     Action::make('revision')
@@ -938,59 +968,92 @@ class StudentAchievementResource extends Resource
                                 ->rows(3),
                         ])
                         ->action(function (StudentAchievement $record, array $data): void {
-                            $record->update([
-                                'curation_status' => 'revision',
-                                'curation_note'   => $data['curation_note'],
-                                'verified_by'     => auth()->id(),
-                                'verified_at'     => now(),
-                            ]);
-                            Notification::make()->title('Diminta Revisi Berkas')->warning()->send();
+                            if ($record->isBeregu() && ! empty($record->team_code)) {
+                                $affected = StudentAchievement::where('team_code', $record->team_code)->update([
+                                    'status'          => 'pending',
+                                    'curation_status' => 'revision',
+                                    'curation_note'   => $data['curation_note'],
+                                    'verified_by'     => auth()->id(),
+                                    'verified_at'     => now(),
+                                ]);
+                            } else {
+                                $record->update([
+                                    'status'          => 'pending',
+                                    'curation_status' => 'revision',
+                                    'curation_note'   => $data['curation_note'],
+                                    'verified_by'     => auth()->id(),
+                                    'verified_at'     => now(),
+                                ]);
+                                $affected = 1;
+                            }
+                            Notification::make()->title("Diminta Revisi Berkas ({$affected} Siswa)")->warning()->send();
                         }),
 
                     Action::make('reject')
-                        ->label('Tolak / Tidak Layak Kurasi')
-                        ->tooltip('Tolak / Tidak Layak Kurasi')
+                        ->label('Tolak / Tidak Valid')
+                        ->tooltip('Tolak Ajuan Prestasi')
                         ->icon('heroicon-o-x-circle')
                         ->color('danger')
                         ->form([
                             Textarea::make('curation_note')
-                                ->label('Alasan Tidak Layak Kurasi')
-                                ->placeholder('Jelaskan alasan penolakan kurasi (contoh: Lomba tidak resmi / komersial tanpa seleksi)')
+                                ->label('Alasan Penolakan')
+                                ->placeholder('Jelaskan alasan penolakan (contoh: Sertifikat tidak valid/bukan atas nama siswa)')
                                 ->required()
                                 ->rows(3),
                         ])
                         ->action(function (StudentAchievement $record, array $data): void {
-                            $record->update([
-                                'is_curation'      => false,
-                                'curation_status'  => 'rejected',
-                                'status'           => 'rejected',
-                                'curation_note'    => $data['curation_note'],
-                                'rejection_reason' => $data['curation_note'],
-                                'verified_by'      => auth()->id(),
-                                'verified_at'      => now(),
-                            ]);
-                            Notification::make()->title('Prestasi Ditolak / Tidak Layak')->danger()->send();
+                            if ($record->isBeregu() && ! empty($record->team_code)) {
+                                $affected = StudentAchievement::where('team_code', $record->team_code)->update([
+                                    'status'           => 'rejected',
+                                    'curation_status'  => 'rejected',
+                                    'curation_note'    => $data['curation_note'],
+                                    'rejection_reason' => $data['curation_note'],
+                                    'verified_by'      => auth()->id(),
+                                    'verified_at'      => now(),
+                                ]);
+                            } else {
+                                $record->update([
+                                    'status'           => 'rejected',
+                                    'curation_status'  => 'rejected',
+                                    'curation_note'    => $data['curation_note'],
+                                    'rejection_reason' => $data['curation_note'],
+                                    'verified_by'      => auth()->id(),
+                                    'verified_at'      => now(),
+                                ]);
+                                $affected = 1;
+                            }
+                            Notification::make()->title("Prestasi Ditolak ({$affected} Siswa)")->danger()->send();
                         }),
 
                     Action::make('reset_pending')
                         ->label('Batalkan Status & Reset Ke Menunggu')
-                        ->tooltip('Batalkan penetapan dan kembalikan ke status Menunggu Penilaian')
+                        ->tooltip('Batalkan penetapan dan kembalikan ke status Menunggu Verifikasi')
                         ->icon('heroicon-o-arrow-uturn-left')
                         ->color('gray')
                         ->requiresConfirmation()
-                        ->modalHeading('Batalkan Status Kurasi')
-                        ->modalDescription('Apakah Anda yakin ingin membatalkan status kurasi ini dan mengembalikannya ke status Menunggu Penilaian Kurasi?')
+                        ->modalHeading('Batalkan Status Verifikasi')
+                        ->modalDescription('Apakah Anda yakin ingin membatalkan status verifikasi ini dan mengembalikannya ke status Menunggu Verifikasi?')
                         ->action(function (StudentAchievement $record): void {
-                            $record->update([
-                                'is_curation'      => false,
-                                'curation_status'  => 'pending',
-                                'status'           => 'pending',
-                                'curation_note'    => null,
-                                'rejection_reason' => null,
-                                'verified_by'      => null,
-                                'verified_at'      => null,
-                            ]);
-                            Notification::make()->title('Status kurasi dibatalkan & dikembalikan ke Menunggu Penilaian')->info()->send();
+                            if ($record->isBeregu() && ! empty($record->team_code)) {
+                                StudentAchievement::where('team_code', $record->team_code)->update([
+                                    'status'           => 'pending',
+                                    'curation_status'  => 'pending',
+                                    'curation_note'    => null,
+                                    'rejection_reason' => null,
+                                    'verified_by'      => null,
+                                    'verified_at'      => null,
+                                ]);
+                            } else {
+                                $record->update([
+                                    'status'           => 'pending',
+                                    'curation_status'  => 'pending',
+                                    'curation_note'    => null,
+                                    'rejection_reason' => null,
+                                    'verified_by'      => null,
+                                    'verified_at'      => null,
+                                ]);
+                            }
+                            Notification::make()->title('Status verifikasi dibatalkan & dikembalikan ke Menunggu Verifikasi')->info()->send();
                         }),
 
                     DeleteAction::make()

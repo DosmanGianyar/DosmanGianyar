@@ -1,11 +1,17 @@
 @php
     $record = $getRecord();
     if ($record && $record->participation_type === 'beregu') {
-        $matching = \App\Models\StudentAchievement::where('participation_type', 'beregu')
-            ->where('title', $record->title)
-            ->where('achievement_date', $record->achievement_date)
-            ->with('student.schoolClass')
-            ->get();
+        if (!empty($record->team_code)) {
+            $matching = \App\Models\StudentAchievement::where('team_code', $record->team_code)
+                ->with('student.schoolClass')
+                ->get();
+        } else {
+            $matching = \App\Models\StudentAchievement::where('participation_type', 'beregu')
+                ->where('title', $record->title)
+                ->where('achievement_date', $record->achievement_date)
+                ->with('student.schoolClass')
+                ->get();
+        }
         $students = $matching->pluck('student')->filter()->unique('id');
         if ($students->isEmpty() && $record->student) {
             $students = collect([$record->student]);

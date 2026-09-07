@@ -9,7 +9,7 @@ class StudentAchievement extends Model
 {
     protected $fillable = [
         'student_id', 'category_id', 'title', 'description',
-        'event_name', 'organizer', 'field_category', 'participation_type',
+        'event_name', 'organizer', 'field_category', 'participation_type', 'team_code',
         'achievement_date', 'level', 'rank', 'photo', 'certificate',
         'event_url', 'assignment_letter',
         'status', 'curation_status', 'curation_note',
@@ -76,6 +76,30 @@ class StudentAchievement extends Model
             'beregu' => 'Beregu (Kelompok)',
             default  => 'Perorangan (Individu)',
         };
+    }
+
+    public function isBeregu(): bool
+    {
+        return $this->participation_type === 'beregu';
+    }
+
+    public function getTeamMembersAttribute()
+    {
+        if ($this->isBeregu() && ! empty($this->team_code)) {
+            return static::where('team_code', $this->team_code)
+                ->with('student.schoolClass')
+                ->get();
+        }
+
+        if ($this->isBeregu()) {
+            return static::where('participation_type', 'beregu')
+                ->where('title', $this->title)
+                ->where('achievement_date', $this->achievement_date)
+                ->with('student.schoolClass')
+                ->get();
+        }
+
+        return collect([$this]);
     }
 
     public function curationStatusLabel(): string

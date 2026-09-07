@@ -23,7 +23,10 @@ class AchievementExportController extends Controller
         if ($request->filled('curation_status')) {
             $query->where('curation_status', $request->curation_status);
         } else {
-            $query->whereIn('curation_status', ['curated', 'not_curatable']);
+            $query->where(function ($q) {
+                $q->where('status', 'approved')
+                  ->orWhereIn('curation_status', ['curated', 'not_curatable']);
+            });
         }
 
         if ($request->filled('level')) {
@@ -57,8 +60,14 @@ class AchievementExportController extends Controller
         $selectedCategory = $request->filled('field_category') ? (new StudentAchievement(['field_category' => $request->field_category]))->fieldCategoryLabel() : null;
         $selectedCuration = $request->filled('curation_status') ? (new StudentAchievement(['curation_status' => $request->curation_status]))->curationStatusLabel() : null;
 
+        $individualCount = $achievements->where('participation_type', '!=', 'beregu')->count();
+        $teamCount       = $achievements->where('participation_type', 'beregu')->whereNotNull('team_code')->pluck('team_code')->unique()->count();
+        $unkeyedTeam     = $achievements->where('participation_type', 'beregu')->whereNull('team_code')->pluck('title')->unique()->count();
+        $totalSchoolAchievements = $individualCount + $teamCount + $unkeyedTeam;
+
         $stats = [
-            'total'           => $achievements->count(),
+            'total'           => $totalSchoolAchievements,
+            'total_files'     => $achievements->count(),
             'curated'         => $achievements->where('curation_status', 'curated')->count(),
             'not_curatable'   => $achievements->where('curation_status', 'not_curatable')->count(),
             'internasional'   => $achievements->where('level', 'internasional')->count(),

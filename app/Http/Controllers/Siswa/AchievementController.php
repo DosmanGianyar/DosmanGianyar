@@ -138,6 +138,10 @@ class AchievementController extends Controller
             }
         }
 
+        if (($data['participation_type'] ?? 'individu') === 'beregu') {
+            $data['team_code'] = 'TEAM-' . strtoupper(\Illuminate\Support\Str::random(8)) . '-' . time();
+        }
+
         StudentAchievement::create($data);
 
         // Jika beregu dan ada anggota tim yang dipilih, buatkan record otomatis untuk setiap anggota tim
