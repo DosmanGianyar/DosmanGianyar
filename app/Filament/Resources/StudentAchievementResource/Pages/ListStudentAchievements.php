@@ -25,13 +25,39 @@ class ListStudentAchievements extends ListRecords
         ];
     }
 
+    protected function countDistinctAchievements(Builder $query): int
+    {
+        $individualCount = (clone $query)->where(function ($q) {
+            $q->where('participation_type', '!=', 'beregu')
+              ->orWhereNull('participation_type');
+        })->count();
+
+        $teamCount = (clone $query)->where('participation_type', 'beregu')
+            ->whereNotNull('team_code')
+            ->distinct('team_code')
+            ->count('team_code');
+
+        $unkeyedTeam = (clone $query)->where('participation_type', 'beregu')
+            ->whereNull('team_code')
+            ->distinct('title')
+            ->count('title');
+
+        return $individualCount + $teamCount + $unkeyedTeam;
+    }
+
     public function getTabs(): array
     {
-        $pendingCount  = StudentAchievement::where('status', 'pending')->where('curation_status', '!=', 'revision')->count();
-        $approvedCount = StudentAchievement::where('status', 'approved')->count();
-        $revisionCount = StudentAchievement::where('curation_status', 'revision')->count();
-        $rejectedCount = StudentAchievement::where('status', 'rejected')->count();
-        $totalCount    = StudentAchievement::count();
+        $pendingQuery  = StudentAchievement::where('status', 'pending')->where('curation_status', '!=', 'revision');
+        $approvedQuery = StudentAchievement::where('status', 'approved');
+        $revisionQuery = StudentAchievement::where('curation_status', 'revision');
+        $rejectedQuery = StudentAchievement::where('status', 'rejected');
+        $totalQuery    = StudentAchievement::query();
+
+        $pendingCount  = $this->countDistinctAchievements($pendingQuery);
+        $approvedCount = $this->countDistinctAchievements($approvedQuery);
+        $revisionCount = $this->countDistinctAchievements($revisionQuery);
+        $rejectedCount = $this->countDistinctAchievements($rejectedQuery);
+        $totalCount    = $this->countDistinctAchievements($totalQuery);
 
         return [
             'pending' => Tab::make('Menunggu Verifikasi')

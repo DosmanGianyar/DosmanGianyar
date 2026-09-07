@@ -48,7 +48,24 @@ class StudentAchievementResource extends Resource
 
     public static function getNavigationBadge(): ?string
     {
-        $count = static::getModel()::where('status', 'pending')->where('curation_status', '!=', 'revision')->count();
+        $query = static::getModel()::where('status', 'pending')->where('curation_status', '!=', 'revision');
+
+        $individualCount = (clone $query)->where(function ($q) {
+            $q->where('participation_type', '!=', 'beregu')
+              ->orWhereNull('participation_type');
+        })->count();
+
+        $teamCount = (clone $query)->where('participation_type', 'beregu')
+            ->whereNotNull('team_code')
+            ->distinct('team_code')
+            ->count('team_code');
+
+        $unkeyedTeam = (clone $query)->where('participation_type', 'beregu')
+            ->whereNull('team_code')
+            ->distinct('title')
+            ->count('title');
+
+        $count = $individualCount + $teamCount + $unkeyedTeam;
         return $count > 0 ? (string) $count : null;
     }
 
@@ -675,13 +692,11 @@ class StudentAchievementResource extends Resource
                         DatePicker::make('from')
                             ->label('Dari Tanggal')
                             ->native(false)
-                            ->displayFormat('d/m/Y')
-                            ->default(now()->startOfYear()->toDateString()),
+                            ->displayFormat('d/m/Y'),
                         DatePicker::make('until')
                             ->label('Sampai Tanggal')
                             ->native(false)
-                            ->displayFormat('d/m/Y')
-                            ->default(now()->toDateString()),
+                            ->displayFormat('d/m/Y'),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
