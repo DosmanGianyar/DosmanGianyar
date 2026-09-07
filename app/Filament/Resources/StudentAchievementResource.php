@@ -455,17 +455,34 @@ class StudentAchievementResource extends Resource
                     ->formatStateUsing(fn (StudentAchievement $record): string => $record->fieldCategoryLabel()),
 
                 TextColumn::make('level')
-                    ->label('Tingkat')
-                    ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'sekolah'       => 'gray',
-                        'kabupaten'     => 'info',
-                        'provinsi'      => 'warning',
-                        'nasional'      => 'success',
-                        'internasional' => 'danger',
-                        default         => 'gray',
+                    ->label('Tingkat & Partisipasi')
+                    ->html()
+                    ->formatStateUsing(function (StudentAchievement $record): string {
+                        $levelLabel = e($record->levelLabel());
+                        $levelColors = match ($record->level) {
+                            'sekolah'       => 'background: rgba(148, 163, 184, 0.2); color: #cbd5e1; border: 1px solid rgba(148, 163, 184, 0.4);',
+                            'kabupaten'     => 'background: rgba(56, 189, 248, 0.2); color: #7dd3fc; border: 1px solid rgba(56, 189, 248, 0.4);',
+                            'provinsi'      => 'background: rgba(245, 158, 11, 0.2); color: #fde68a; border: 1px solid rgba(245, 158, 11, 0.4);',
+                            'nasional'      => 'background: rgba(16, 185, 129, 0.2); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.4);',
+                            'internasional' => 'background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.4);',
+                            default         => 'background: rgba(148, 163, 184, 0.2); color: #cbd5e1; border: 1px solid rgba(148, 163, 184, 0.4);',
+                        };
+
+                        if ($record->isBeregu()) {
+                            $teamCount = $record->team_members->count();
+                            $names = e($record->team_members->pluck('student.name')->filter()->implode(', '));
+                            $tooltipAttr = $names ? "title=\"Anggota Tim: {$names}\"" : '';
+                            $partBadge = "<span {$tooltipAttr} style=\"display: inline-block; padding: 2px 7px; border-radius: 6px; font-size: 0.68rem; font-weight: 700; background: rgba(168, 85, 247, 0.2); color: #d8b4fe; border: 1px solid rgba(168, 85, 247, 0.4); white-space: nowrap;\">👥 Beregu ({$teamCount})</span>";
+                        } else {
+                            $partBadge = "<span style=\"display: inline-block; padding: 2px 7px; border-radius: 6px; font-size: 0.68rem; font-weight: 700; background: rgba(100, 116, 139, 0.2); color: #94a3b8; border: 1px solid rgba(100, 116, 139, 0.3); white-space: nowrap;\">👤 Perorangan</span>";
+                        }
+
+                        return "<div style=\"display: inline-flex; flex-direction: column; align-items: flex-start; gap: 4px;\">
+                            <span style=\"display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 0.72rem; font-weight: 700; {$levelColors}\">{$levelLabel}</span>
+                            {$partBadge}
+                        </div>";
                     })
-                    ->formatStateUsing(fn (StudentAchievement $record): string => $record->levelLabel()),
+                    ->sortable(),
 
                 TextColumn::make('rank')
                     ->label('Peringkat')
@@ -473,24 +490,6 @@ class StudentAchievementResource extends Resource
                     ->color('warning')
                     ->icon('heroicon-o-trophy')
                     ->formatStateUsing(fn (?string $state) => filled($state) ? $state : '—'),
-
-                TextColumn::make('participation_type')
-                    ->label('Partisipasi')
-                    ->badge()
-                    ->color(fn (StudentAchievement $record): string => $record->isBeregu() ? 'purple' : 'gray')
-                    ->formatStateUsing(function (StudentAchievement $record): string {
-                        if (! $record->isBeregu()) {
-                            return '👤 Perorangan';
-                        }
-                        $teamCount = $record->team_members->count();
-                        return "👥 Beregu ({$teamCount} Siswa)";
-                    })
-                    ->tooltip(function (StudentAchievement $record): ?string {
-                        if (! $record->isBeregu()) return null;
-                        $names = $record->team_members->pluck('student.name')->filter()->implode(', ');
-                        return 'Anggota Tim: ' . ($names ?: '—');
-                    })
-                    ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('status')
                     ->label('Status')
@@ -581,6 +580,13 @@ class StudentAchievementResource extends Resource
                         'provinsi'      => 'Provinsi',
                         'nasional'      => 'Nasional',
                         'internasional' => 'Internasional',
+                    ]),
+
+                SelectFilter::make('participation_type')
+                    ->label('Tipe Partisipasi')
+                    ->options([
+                        'individu' => '👤 Perorangan (Individu)',
+                        'beregu'   => '👥 Beregu (Kelompok)',
                     ]),
             ])
             ->recordUrl(fn (StudentAchievement $record): string => static::getUrl('view', ['record' => $record]))
