@@ -3,9 +3,11 @@
 namespace App\Filament\Resources\StudentAchievementResource\Pages;
 
 use App\Filament\Resources\StudentAchievementResource;
+use App\Filament\Resources\UserResource;
 use App\Models\StudentAchievement;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
@@ -176,6 +178,21 @@ class ViewStudentAchievement extends ViewRecord
                         }
                         Notification::make()->title('Status verifikasi dibatalkan & dikembalikan ke Menunggu Verifikasi')->info()->send();
                     }),
+
+                Action::make('student_profile')
+                    ->label('Buka Profil Siswa')
+                    ->tooltip('Buka Profil Lengkap Siswa')
+                    ->icon('heroicon-o-user-circle')
+                    ->color('info')
+                    ->url(fn (StudentAchievement $record): ?string => $record->student_id ? UserResource::getUrl('view', ['record' => $record->student_id]) : null)
+                    ->openUrlInNewTab(),
+
+                DeleteAction::make()
+                    ->label('Hapus Ajuan')
+                    ->icon('heroicon-o-trash')
+                    ->requiresConfirmation()
+                    ->modalHeading('Hapus Data Ajuan Prestasi?')
+                    ->modalDescription('Apakah Anda yakin ingin menghapus data ajuan prestasi ini secara permanen? Data yang dihapus tidak dapat dikembalikan.'),
             ])
                 ->label('Menu Aksi Verifikasi')
                 ->icon('heroicon-m-chevron-down')
