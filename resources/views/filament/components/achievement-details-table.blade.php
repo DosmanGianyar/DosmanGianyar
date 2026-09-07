@@ -14,6 +14,30 @@
         ? (str_starts_with($record->photo, 'kurasi/') ? asset($record->photo) : asset('storage/' . $record->photo)) 
         : null;
 
+    $docStandardUrl = $record->doc_standard_file 
+        ? (str_starts_with($record->doc_standard_file, 'kurasi/') ? asset($record->doc_standard_file) : asset('storage/' . $record->doc_standard_file)) 
+        : null;
+
+    $selectionLevelUrl = $record->selection_level_file 
+        ? (str_starts_with($record->selection_level_file, 'kurasi/') ? asset($record->selection_level_file) : asset('storage/' . $record->selection_level_file)) 
+        : null;
+
+    $frequencyConsistencyUrl = $record->frequency_consistency_file 
+        ? (str_starts_with($record->frequency_consistency_file, 'kurasi/') ? asset($record->frequency_consistency_file) : asset('storage/' . $record->frequency_consistency_file)) 
+        : null;
+
+    $infrastructureUrl = $record->infrastructure_file 
+        ? (str_starts_with($record->infrastructure_file, 'kurasi/') ? asset($record->infrastructure_file) : asset('storage/' . $record->infrastructure_file)) 
+        : null;
+
+    $rewardRecapUrl = $record->reward_recap_file 
+        ? (str_starts_with($record->reward_recap_file, 'kurasi/') ? asset($record->reward_recap_file) : asset('storage/' . $record->reward_recap_file)) 
+        : ($record->reward_certificate_file ? (str_starts_with($record->reward_certificate_file, 'kurasi/') ? asset($record->reward_certificate_file) : asset('storage/' . $record->reward_certificate_file)) : null);
+
+    $rewardPhotoUrl = $record->reward_photo_file 
+        ? (str_starts_with($record->reward_photo_file, 'kurasi/') ? asset($record->reward_photo_file) : asset('storage/' . $record->reward_photo_file)) 
+        : null;
+
     $levelBadges = [
         'sekolah'       => 'background:#334155; color:#cbd5e1; border:1px solid #475569;',
         'kabupaten'     => 'background:#0369a1; color:#e0f2fe; border:1px solid #0284c7;',
@@ -286,50 +310,258 @@
                         Scan Piagam / Sertifikat <span style="color: #f43f5e; font-weight: 800;">*Wajib</span>
                     </td>
                     <td>
-                        @if($certUrl)
-                            <a href="{{ $certUrl }}" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 8px; background: #1d4ed8; color: #ffffff; font-weight: 700; font-size: 0.75rem; text-decoration: none; box-shadow: 0 1px 3px rgba(0,0,0,0.3);">
-                                📄 Buka Berkas Sertifikat (PDF) ↗
-                            </a>
-                        @else
-                            <span style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border-radius: 6px; background: rgba(244, 63, 94, 0.15); color: #fda4af; border: 1px solid #f43f5e; font-weight: 800; font-size: 0.75rem;">
-                                ⚠️ BELUM DIISI / BELUM DIUPLOAD OLEH SISWA
-                            </span>
-                        @endif
+                        <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px;">
+                            @if($certUrl)
+                                <a href="{{ $certUrl }}" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 8px; background: #1d4ed8; color: #ffffff; font-weight: 700; font-size: 0.75rem; text-decoration: none; box-shadow: 0 1px 3px rgba(0,0,0,0.3);">
+                                    📄 Buka Berkas Sertifikat (PDF) ↗
+                                </a>
+                                <button type="button" wire:click="mountAction('edit_files')" title="Ganti berkas sertifikat" style="cursor: pointer; background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.4); color: #93c5fd; padding: 4px 10px; border-radius: 7px; font-size: 0.7rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
+                                    ✏️ Ganti Berkas
+                                </button>
+                            @else
+                                <span style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border-radius: 6px; background: rgba(244, 63, 94, 0.15); color: #fda4af; border: 1px solid #f43f5e; font-weight: 800; font-size: 0.75rem;">
+                                    ⚠️ BELUM DIISI / BELUM DIUPLOAD OLEH SISWA
+                                </span>
+                                <button type="button" wire:click="mountAction('edit_files')" title="Bantu upload berkas siswa" style="cursor: pointer; background: #2563eb; color: #ffffff; padding: 4px 12px; border-radius: 7px; border: none; font-size: 0.72rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.2);">
+                                    📤 Bantu Uploadkan
+                                </button>
+                            @endif
+                        </div>
                     </td>
                 </tr>
 
                 <!-- 12. Surat Tugas / Rekomendasi Sekolah -->
                 <tr>
                     <td style="text-align: center; font-weight: 800; color: #94a3b8;">12</td>
-                    <td style="font-weight: 700;">Surat Tugas / Rekomendasi Sekolah</td>
+                    <td style="font-weight: 700;">
+                        Surat Tugas / Rekomendasi Sekolah
+                        <span style="color: #94a3b8; font-size: 0.7rem; display: block; font-weight: 500;">(Opsional)</span>
+                    </td>
                     <td>
-                        @if($letterUrl)
-                            <a href="{{ $letterUrl }}" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 8px; background: #4338ca; color: #ffffff; font-weight: 700; font-size: 0.75rem; text-decoration: none; box-shadow: 0 1px 3px rgba(0,0,0,0.3);">
-                                📑 Buka Surat Tugas (PDF) ↗
-                            </a>
-                        @else
-                            <span style="color: #64748b; font-style: italic;">— Tidak dilampirkan</span>
-                        @endif
+                        <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px;">
+                            @if($letterUrl)
+                                <a href="{{ $letterUrl }}" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 8px; background: #4338ca; color: #ffffff; font-weight: 700; font-size: 0.75rem; text-decoration: none; box-shadow: 0 1px 3px rgba(0,0,0,0.3);">
+                                    📑 Buka Surat Tugas (PDF) ↗
+                                </a>
+                                <button type="button" wire:click="mountAction('edit_files')" title="Ganti berkas surat tugas" style="cursor: pointer; background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.4); color: #c7d2fe; padding: 4px 10px; border-radius: 7px; font-size: 0.7rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
+                                    ✏️ Ganti Berkas
+                                </button>
+                            @else
+                                <span style="color: #64748b; font-style: italic;">— Tidak ada berkas (Opsional)</span>
+                                <button type="button" wire:click="mountAction('edit_files')" title="Upload surat tugas" style="cursor: pointer; background: rgba(71, 85, 105, 0.4); border: 1px solid #475569; color: #cbd5e1; padding: 4px 10px; border-radius: 7px; font-size: 0.7rem; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">
+                                    📤 Upload
+                                </button>
+                            @endif
+                        </div>
                     </td>
                 </tr>
 
                 <!-- 13. Foto Kegiatan / Penyerahan Piagam -->
                 <tr>
                     <td style="text-align: center; font-weight: 800; color: #94a3b8;">13</td>
-                    <td style="font-weight: 700;">Foto Dokumentasi Kegiatan</td>
+                    <td style="font-weight: 700;">
+                        Foto Dokumentasi Kegiatan
+                        <span style="color: #94a3b8; font-size: 0.7rem; display: block; font-weight: 500;">(Opsional)</span>
+                    </td>
                     <td>
                         @if($photoUrl)
-                            <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px;">
                                 <a href="{{ $photoUrl }}" target="_blank" style="display: block; border-radius: 8px; overflow: hidden; border: 1px solid #475569;">
                                     <img src="{{ $photoUrl }}" alt="Foto Kegiatan" style="width: 80px; height: 55px; object-fit: cover; display: block;">
                                 </a>
                                 <a href="{{ $photoUrl }}" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 8px; background: #047857; color: #ffffff; font-weight: 700; font-size: 0.75rem; text-decoration: none;">
                                     📷 Buka Foto Ukuran Penuh ↗
                                 </a>
+                                <button type="button" wire:click="mountAction('edit_files')" title="Ganti foto kegiatan" style="cursor: pointer; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); color: #a7f3d0; padding: 4px 10px; border-radius: 7px; font-size: 0.7rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
+                                    ✏️ Ganti Foto
+                                </button>
                             </div>
                         @else
-                            <span style="color: #64748b; font-style: italic;">— Belum ada foto kegiatan</span>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span style="color: #64748b; font-style: italic;">— Tidak ada foto kegiatan (Opsional)</span>
+                                <button type="button" wire:click="mountAction('edit_files')" title="Upload foto kegiatan" style="cursor: pointer; background: rgba(71, 85, 105, 0.4); border: 1px solid #475569; color: #cbd5e1; padding: 4px 10px; border-radius: 7px; font-size: 0.7rem; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">
+                                    📤 Upload Foto
+                                </button>
+                            </div>
                         @endif
+                    </td>
+                </tr>
+
+                <!-- 14. Kurasi P1: Standar Penyelenggaraan / Juknis (Pedoman Lomba) -->
+                <tr>
+                    <td style="text-align: center; font-weight: 800; color: #94a3b8;">14</td>
+                    <td style="font-weight: 700;">
+                        Kurasi P1: Dokumen Standar Penyelenggaraan
+                        <span style="color: #94a3b8; font-size: 0.7rem; display: block; font-weight: 500;">(Pedoman/Juknis resmi ajang lomba talenta - Opsional)</span>
+                    </td>
+                    <td>
+                        <div style="display: flex; flex-direction: column; gap: 6px;">
+                            <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px;">
+                                @if($docStandardUrl)
+                                    <a href="{{ $docStandardUrl }}" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 8px; background: #0284c7; color: #ffffff; font-weight: 700; font-size: 0.75rem; text-decoration: none; box-shadow: 0 1px 3px rgba(0,0,0,0.3);">
+                                        📄 Buka Juknis / Pedoman (PDF) ↗
+                                    </a>
+                                    <button type="button" wire:click="mountAction('edit_files')" title="Ganti berkas juknis" style="cursor: pointer; background: rgba(2, 132, 199, 0.15); border: 1px solid rgba(2, 132, 199, 0.4); color: #bae6fd; padding: 4px 10px; border-radius: 7px; font-size: 0.7rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
+                                        ✏️ Ganti
+                                    </button>
+                                @else
+                                    <span style="color: #64748b; font-style: italic;">— Tidak ada berkas (Opsional / Tidak Wajib)</span>
+                                    <button type="button" wire:click="mountAction('edit_files')" title="Upload juknis" style="cursor: pointer; background: rgba(71, 85, 105, 0.4); border: 1px solid #475569; color: #cbd5e1; padding: 4px 10px; border-radius: 7px; font-size: 0.7rem; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">
+                                        📤 Upload
+                                    </button>
+                                @endif
+                            </div>
+
+                            @if(!empty($record->doc_standard_checklist))
+                                <div style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 2px;">
+                                    @foreach($record->doc_standard_checklist as $item)
+                                        <span style="font-size: 0.68rem; font-weight: 600; padding: 2px 7px; border-radius: 5px; background: rgba(59, 130, 246, 0.15); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.3);">
+                                            ✓ {{ ucwords(str_replace('_', ' ', $item)) }}
+                                        </span>
+                                    @endforeach
+                                </div>
+                            @endif
+                        </div>
+                    </td>
+                </tr>
+
+                <!-- 15. Kurasi P2: Bukti Tahapan / Jenjang Seleksi Ajang -->
+                <tr>
+                    <td style="text-align: center; font-weight: 800; color: #94a3b8;">15</td>
+                    <td style="font-weight: 700;">
+                        Kurasi P2: Bukti Jenjang Seleksi Ajang
+                        <span style="color: #94a3b8; font-size: 0.7rem; display: block; font-weight: 500;">(Bukti seleksi berjenjang dari sekolah/kab/prov - Opsional)</span>
+                    </td>
+                    <td>
+                        <div style="display: flex; flex-direction: column; gap: 6px;">
+                            <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px;">
+                                @if($selectionLevelUrl)
+                                    <a href="{{ $selectionLevelUrl }}" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 8px; background: #0284c7; color: #ffffff; font-weight: 700; font-size: 0.75rem; text-decoration: none; box-shadow: 0 1px 3px rgba(0,0,0,0.3);">
+                                        📄 Buka Bukti Seleksi (PDF) ↗
+                                    </a>
+                                    <button type="button" wire:click="mountAction('edit_files')" title="Ganti berkas seleksi" style="cursor: pointer; background: rgba(2, 132, 199, 0.15); border: 1px solid rgba(2, 132, 199, 0.4); color: #bae6fd; padding: 4px 10px; border-radius: 7px; font-size: 0.7rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
+                                        ✏️ Ganti
+                                    </button>
+                                @else
+                                    <span style="color: #64748b; font-style: italic;">— Tidak ada berkas (Opsional / Tidak Wajib)</span>
+                                    <button type="button" wire:click="mountAction('edit_files')" title="Upload bukti seleksi" style="cursor: pointer; background: rgba(71, 85, 105, 0.4); border: 1px solid #475569; color: #cbd5e1; padding: 4px 10px; border-radius: 7px; font-size: 0.7rem; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">
+                                        📤 Upload
+                                    </button>
+                                @endif
+                            </div>
+
+                            @if($record->selection_level)
+                                <div style="font-size: 0.75rem; color: #cbd5e1;">
+                                    Tahapan: <strong style="color: #93c5fd;">{{ ucwords(str_replace('_', ' ', $record->selection_level)) }}</strong>
+                                </div>
+                            @endif
+                        </div>
+                    </td>
+                </tr>
+
+                <!-- 16. Kurasi P3: Konsistensi Frekuensi Penyelenggaraan -->
+                <tr>
+                    <td style="text-align: center; font-weight: 800; color: #94a3b8;">16</td>
+                    <td style="font-weight: 700;">
+                        Kurasi P3: Konsistensi Frekuensi Penyelenggaraan
+                        <span style="color: #94a3b8; font-size: 0.7rem; display: block; font-weight: 500;">(Bukti juknis lintas tahun lomba - Opsional)</span>
+                    </td>
+                    <td>
+                        <div style="display: flex; flex-direction: column; gap: 6px;">
+                            <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px;">
+                                @if($frequencyConsistencyUrl)
+                                    <a href="{{ $frequencyConsistencyUrl }}" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 8px; background: #0284c7; color: #ffffff; font-weight: 700; font-size: 0.75rem; text-decoration: none; box-shadow: 0 1px 3px rgba(0,0,0,0.3);">
+                                        📄 Buka Juknis Lintas Tahun (PDF) ↗
+                                    </a>
+                                    <button type="button" wire:click="mountAction('edit_files')" title="Ganti berkas konsistensi" style="cursor: pointer; background: rgba(2, 132, 199, 0.15); border: 1px solid rgba(2, 132, 199, 0.4); color: #bae6fd; padding: 4px 10px; border-radius: 7px; font-size: 0.7rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
+                                        ✏️ Ganti
+                                    </button>
+                                @else
+                                    <span style="color: #64748b; font-style: italic;">— Tidak ada berkas (Opsional / Tidak Wajib)</span>
+                                    <button type="button" wire:click="mountAction('edit_files')" title="Upload bukti konsistensi" style="cursor: pointer; background: rgba(71, 85, 105, 0.4); border: 1px solid #475569; color: #cbd5e1; padding: 4px 10px; border-radius: 7px; font-size: 0.7rem; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">
+                                        📤 Upload
+                                    </button>
+                                @endif
+                            </div>
+
+                            @if($record->frequency_consistency)
+                                <div style="font-size: 0.75rem; color: #cbd5e1;">
+                                    Frekuensi: <strong style="color: #93c5fd;">{{ ucwords(str_replace('_', ' ', $record->frequency_consistency)) }}</strong>
+                                </div>
+                            @endif
+                        </div>
+                    </td>
+                </tr>
+
+                <!-- 17. Kurasi P4: Bukti Sarana & Prasarana / Venue Ajang -->
+                <tr>
+                    <td style="text-align: center; font-weight: 800; color: #94a3b8;">17</td>
+                    <td style="font-weight: 700;">
+                        Kurasi P4: Bukti Sarana & Prasarana / Venue
+                        <span style="color: #94a3b8; font-size: 0.7rem; display: block; font-weight: 500;">(Dokumentasi venue & fasilitas lomba - Opsional)</span>
+                    </td>
+                    <td>
+                        <div style="display: flex; flex-direction: column; gap: 6px;">
+                            <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px;">
+                                @if($infrastructureUrl)
+                                    <a href="{{ $infrastructureUrl }}" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 8px; background: #0284c7; color: #ffffff; font-weight: 700; font-size: 0.75rem; text-decoration: none; box-shadow: 0 1px 3px rgba(0,0,0,0.3);">
+                                        📷 Buka Berkas Sarpras / Venue ↗
+                                    </a>
+                                    <button type="button" wire:click="mountAction('edit_files')" title="Ganti berkas sarpras" style="cursor: pointer; background: rgba(2, 132, 199, 0.15); border: 1px solid rgba(2, 132, 199, 0.4); color: #bae6fd; padding: 4px 10px; border-radius: 7px; font-size: 0.7rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
+                                        ✏️ Ganti
+                                    </button>
+                                @else
+                                    <span style="color: #64748b; font-style: italic;">— Tidak ada berkas (Opsional / Tidak Wajib)</span>
+                                    <button type="button" wire:click="mountAction('edit_files')" title="Upload dokumentasi venue" style="cursor: pointer; background: rgba(71, 85, 105, 0.4); border: 1px solid #475569; color: #cbd5e1; padding: 4px 10px; border-radius: 7px; font-size: 0.7rem; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">
+                                        📤 Upload
+                                    </button>
+                                @endif
+                            </div>
+
+                            @if($record->infrastructure_type)
+                                <div style="font-size: 0.75rem; color: #cbd5e1;">
+                                    Fasilitas: <strong style="color: #93c5fd;">{{ ucwords(str_replace('_', ' ', $record->infrastructure_type)) }}</strong>
+                                </div>
+                            @endif
+                        </div>
+                    </td>
+                </tr>
+
+                <!-- 18. Kurasi P5: Rekapitulasi Hasil Lomba & Bukti Apresiasi -->
+                <tr>
+                    <td style="text-align: center; font-weight: 800; color: #94a3b8;">18</td>
+                    <td style="font-weight: 700;">
+                        Kurasi P5: Rekapitulasi Hasil & Apresiasi
+                        <span style="color: #94a3b8; font-size: 0.7rem; display: block; font-weight: 500;">(SK pemenang, rekapitulasi juara, medali, apresiasi - Opsional)</span>
+                    </td>
+                    <td>
+                        <div style="display: flex; flex-direction: column; gap: 6px;">
+                            <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px;">
+                                @if($rewardRecapUrl)
+                                    <a href="{{ $rewardRecapUrl }}" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 8px; background: #0284c7; color: #ffffff; font-weight: 700; font-size: 0.75rem; text-decoration: none; box-shadow: 0 1px 3px rgba(0,0,0,0.3);">
+                                        📑 Buka Rekap Hasil / Apresiasi ↗
+                                    </a>
+                                    <button type="button" wire:click="mountAction('edit_files')" title="Ganti berkas apresiasi" style="cursor: pointer; background: rgba(2, 132, 199, 0.15); border: 1px solid rgba(2, 132, 199, 0.4); color: #bae6fd; padding: 4px 10px; border-radius: 7px; font-size: 0.7rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
+                                        ✏️ Ganti
+                                    </button>
+                                @else
+                                    <span style="color: #64748b; font-style: italic;">— Tidak ada berkas (Opsional / Tidak Wajib)</span>
+                                    <button type="button" wire:click="mountAction('edit_files')" title="Upload rekap hasil" style="cursor: pointer; background: rgba(71, 85, 105, 0.4); border: 1px solid #475569; color: #cbd5e1; padding: 4px 10px; border-radius: 7px; font-size: 0.7rem; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">
+                                        📤 Upload
+                                    </button>
+                                @endif
+                            </div>
+
+                            @if(!empty($record->reward_types))
+                                <div style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 2px;">
+                                    @foreach($record->reward_types as $rew)
+                                        <span style="font-size: 0.68rem; font-weight: 600; padding: 2px 7px; border-radius: 5px; background: rgba(16, 185, 129, 0.15); color: #a7f3d0; border: 1px solid rgba(16, 185, 129, 0.3);">
+                                            🎁 {{ ucwords(str_replace('_', ' ', $rew)) }}
+                                        </span>
+                                    @endforeach
+                                </div>
+                            @endif
+                        </div>
                     </td>
                 </tr>
             </tbody>
@@ -340,14 +572,23 @@
     <div style="padding: 16px 20px; border-radius: 14px; background: #0b1329; border: 1px solid #334155; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.25);">
         <div>
             <div style="font-weight: 800; font-size: 0.85rem; color: #f8fafc; display: flex; align-items: center; gap: 6px;">
-                <span>⚡</span> Tombol Aksi Verifikasi (Langsung Tanpa Perlu Scroll Ke Atas)
+                <span>⚡</span> Aksi Verifikasi & Bantuan Edit Admin
             </div>
             <p style="font-size: 0.75rem; color: #94a3b8; margin-top: 2px;">
-                Pilih keputusan verifikasi untuk ajuan prestasi siswa ini:
+                Verifikasi ajuan atau bantu perbaiki data & berkas siswa langsung di bawah ini:
             </p>
         </div>
 
         <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px;">
+            <!-- 0. Tombol Bantu Edit Berkas & Data Siswa (Biru) -->
+            <button type="button" 
+                    wire:click="mountAction('edit_files')" 
+                    class="btn-verify-edit"
+                    style="cursor: pointer; background: #2563eb; color: #ffffff; font-weight: 700; font-size: 0.8rem; padding: 9px 18px; border-radius: 10px; border: none; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.25); transition: all 0.15s ease;">
+                <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                Bantu Edit Berkas & Data
+            </button>
+
             <!-- 1. Tombol Setujui & Sahkan (Hijau) -->
             <button type="button" 
                     wire:click="mountAction('approve_achievement')" 

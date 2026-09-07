@@ -40,6 +40,26 @@
         $photoUrl = $achievement->photo 
             ? (str_starts_with($achievement->photo, 'kurasi/') ? asset($achievement->photo) : asset('storage/' . $achievement->photo)) 
             : null;
+
+        $docStandardUrl = $achievement->doc_standard_file 
+            ? (str_starts_with($achievement->doc_standard_file, 'kurasi/') ? asset($achievement->doc_standard_file) : asset('storage/' . $achievement->doc_standard_file)) 
+            : null;
+
+        $selectionLevelUrl = $achievement->selection_level_file 
+            ? (str_starts_with($achievement->selection_level_file, 'kurasi/') ? asset($achievement->selection_level_file) : asset('storage/' . $achievement->selection_level_file)) 
+            : null;
+
+        $frequencyConsistencyUrl = $achievement->frequency_consistency_file 
+            ? (str_starts_with($achievement->frequency_consistency_file, 'kurasi/') ? asset($achievement->frequency_consistency_file) : asset('storage/' . $achievement->frequency_consistency_file)) 
+            : null;
+
+        $infrastructureUrl = $achievement->infrastructure_file 
+            ? (str_starts_with($achievement->infrastructure_file, 'kurasi/') ? asset($achievement->infrastructure_file) : asset('storage/' . $achievement->infrastructure_file)) 
+            : null;
+
+        $rewardRecapUrl = $achievement->reward_recap_file 
+            ? (str_starts_with($achievement->reward_recap_file, 'kurasi/') ? asset($achievement->reward_recap_file) : asset('storage/' . $achievement->reward_recap_file)) 
+            : ($achievement->reward_certificate_file ? (str_starts_with($achievement->reward_certificate_file, 'kurasi/') ? asset($achievement->reward_certificate_file) : asset('storage/' . $achievement->reward_certificate_file)) : null);
     @endphp
 
     <!-- Card Status Verifikasi -->
@@ -264,6 +284,144 @@
                             @endif
                         </td>
                     </tr>
+
+                    <!-- 14. Kurasi P1: Standar Penyelenggaraan / Juknis (Pedoman) -->
+                    <tr class="hover:bg-blue-50/40">
+                        <td class="py-2.5 px-3 text-center font-bold text-gray-500 border-r border-gray-200 bg-gray-50/60">14</td>
+                        <td class="py-2.5 px-4 font-bold text-gray-800 border-r border-gray-200 bg-gray-50/30">
+                            Kurasi P1: Dokumen Standar Penyelenggaraan
+                            <span class="text-[10px] text-gray-400 font-normal block">(Pedoman / Juknis resmi lomba - Opsional)</span>
+                        </td>
+                        <td class="py-2.5 px-4">
+                            @if($docStandardUrl)
+                                <div class="space-y-1">
+                                    <a href="{{ $docStandardUrl }}" target="_blank" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-sky-50 text-sky-700 border border-sky-200 font-bold text-xs hover:bg-sky-100">
+                                        📄 Buka Juknis / Pedoman (PDF) ↗
+                                    </a>
+                                    @if(!empty($achievement->doc_standard_checklist))
+                                        <div class="flex flex-wrap gap-1 pt-0.5">
+                                            @foreach($achievement->doc_standard_checklist as $item)
+                                                <span class="bg-gray-100 text-gray-600 text-[10px] px-1.5 py-0.5 rounded">✓ {{ ucwords(str_replace('_', ' ', $item)) }}</span>
+                                            @endforeach
+                                        </div>
+                                    @endif
+                                </div>
+                            @else
+                                <span class="text-gray-400 italic">— Tidak ada berkas (Opsional)</span>
+                            @endif
+                        </td>
+                    </tr>
+
+                    <!-- 15. Kurasi P2: Bukti Tahapan / Jenjang Seleksi Ajang -->
+                    <tr class="hover:bg-blue-50/40">
+                        <td class="py-2.5 px-3 text-center font-bold text-gray-500 border-r border-gray-200 bg-gray-50/60">15</td>
+                        <td class="py-2.5 px-4 font-bold text-gray-800 border-r border-gray-200 bg-gray-50/30">
+                            Kurasi P2: Bukti Jenjang Seleksi Ajang
+                            <span class="text-[10px] text-gray-400 font-normal block">(Bukti seleksi berjenjang - Opsional)</span>
+                        </td>
+                        <td class="py-2.5 px-4">
+                            @if($selectionLevelUrl)
+                                <div class="space-y-1">
+                                    <a href="{{ $selectionLevelUrl }}" target="_blank" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-sky-50 text-sky-700 border border-sky-200 font-bold text-xs hover:bg-sky-100">
+                                        📄 Buka Bukti Seleksi (PDF) ↗
+                                    </a>
+                                    @if($achievement->selection_level)
+                                        <span class="text-[11px] text-gray-600 block">Tahapan: <strong>{{ ucwords(str_replace('_', ' ', $achievement->selection_level)) }}</strong></span>
+                                    @endif
+                                </div>
+                            @elseif($achievement->selection_level)
+                                <span class="text-gray-700 font-semibold">{{ ucwords(str_replace('_', ' ', $achievement->selection_level)) }}</span>
+                                <span class="text-gray-400 italic text-[11px]"> (Berkas tidak dilampirkan)</span>
+                            @else
+                                <span class="text-gray-400 italic">— Tidak ada berkas (Opsional)</span>
+                            @endif
+                        </td>
+                    </tr>
+
+                    <!-- 16. Kurasi P3: Konsistensi Frekuensi Penyelenggaraan -->
+                    <tr class="hover:bg-blue-50/40">
+                        <td class="py-2.5 px-3 text-center font-bold text-gray-500 border-r border-gray-200 bg-gray-50/60">16</td>
+                        <td class="py-2.5 px-4 font-bold text-gray-800 border-r border-gray-200 bg-gray-50/30">
+                            Kurasi P3: Konsistensi Frekuensi Penyelenggaraan
+                            <span class="text-[10px] text-gray-400 font-normal block">(Arsip / Juknis lintas tahun - Opsional)</span>
+                        </td>
+                        <td class="py-2.5 px-4">
+                            @if($frequencyConsistencyUrl)
+                                <div class="space-y-1">
+                                    <a href="{{ $frequencyConsistencyUrl }}" target="_blank" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-sky-50 text-sky-700 border border-sky-200 font-bold text-xs hover:bg-sky-100">
+                                        📄 Buka Juknis Lintas Tahun (PDF) ↗
+                                    </a>
+                                    @if($achievement->frequency_consistency)
+                                        <span class="text-[11px] text-gray-600 block">Frekuensi: <strong>{{ ucwords(str_replace('_', ' ', $achievement->frequency_consistency)) }}</strong></span>
+                                    @endif
+                                </div>
+                            @elseif($achievement->frequency_consistency)
+                                <span class="text-gray-700 font-semibold">{{ ucwords(str_replace('_', ' ', $achievement->frequency_consistency)) }}</span>
+                                <span class="text-gray-400 italic text-[11px]"> (Berkas tidak dilampirkan)</span>
+                            @else
+                                <span class="text-gray-400 italic">— Tidak ada berkas (Opsional)</span>
+                            @endif
+                        </td>
+                    </tr>
+
+                    <!-- 17. Kurasi P4: Bukti Sarana & Prasarana / Venue Ajang -->
+                    <tr class="hover:bg-blue-50/40">
+                        <td class="py-2.5 px-3 text-center font-bold text-gray-500 border-r border-gray-200 bg-gray-50/60">17</td>
+                        <td class="py-2.5 px-4 font-bold text-gray-800 border-r border-gray-200 bg-gray-50/30">
+                            Kurasi P4: Bukti Sarana & Prasarana / Venue
+                            <span class="text-[10px] text-gray-400 font-normal block">(Dokumentasi venue lomba - Opsional)</span>
+                        </td>
+                        <td class="py-2.5 px-4">
+                            @if($infrastructureUrl)
+                                <div class="space-y-1">
+                                    <a href="{{ $infrastructureUrl }}" target="_blank" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-sky-50 text-sky-700 border border-sky-200 font-bold text-xs hover:bg-sky-100">
+                                        📷 Buka Bukti Sarpras / Venue ↗
+                                    </a>
+                                    @if($achievement->infrastructure_type)
+                                        <span class="text-[11px] text-gray-600 block">Fasilitas: <strong>{{ ucwords(str_replace('_', ' ', $achievement->infrastructure_type)) }}</strong></span>
+                                    @endif
+                                </div>
+                            @elseif($achievement->infrastructure_type)
+                                <span class="text-gray-700 font-semibold">{{ ucwords(str_replace('_', ' ', $achievement->infrastructure_type)) }}</span>
+                                <span class="text-gray-400 italic text-[11px]"> (Dokumentasi tidak dilampirkan)</span>
+                            @else
+                                <span class="text-gray-400 italic">— Tidak ada berkas (Opsional)</span>
+                            @endif
+                        </td>
+                    </tr>
+
+                    <!-- 18. Kurasi P5: Rekapitulasi Hasil Lomba & Bukti Apresiasi -->
+                    <tr class="hover:bg-blue-50/40">
+                        <td class="py-2.5 px-3 text-center font-bold text-gray-500 border-r border-gray-200 bg-gray-50/60">18</td>
+                        <td class="py-2.5 px-4 font-bold text-gray-800 border-r border-gray-200 bg-gray-50/30">
+                            Kurasi P5: Rekapitulasi Hasil & Bukti Apresiasi
+                            <span class="text-[10px] text-gray-400 font-normal block">(SK Pemenang, rekap juara, uang pembinaan - Opsional)</span>
+                        </td>
+                        <td class="py-2.5 px-4">
+                            @if($rewardRecapUrl)
+                                <div class="space-y-1">
+                                    <a href="{{ $rewardRecapUrl }}" target="_blank" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-sky-50 text-sky-700 border border-sky-200 font-bold text-xs hover:bg-sky-100">
+                                        📑 Buka Rekap Hasil / Apresiasi ↗
+                                    </a>
+                                    @if(!empty($achievement->reward_types))
+                                        <div class="flex flex-wrap gap-1 pt-0.5">
+                                            @foreach($achievement->reward_types as $rew)
+                                                <span class="bg-emerald-50 text-emerald-700 text-[10px] px-1.5 py-0.5 rounded border border-emerald-200">🎁 {{ ucwords(str_replace('_', ' ', $rew)) }}</span>
+                                            @endforeach
+                                        </div>
+                                    @endif
+                                </div>
+                            @elseif(!empty($achievement->reward_types))
+                                <div class="flex flex-wrap gap-1">
+                                    @foreach($achievement->reward_types as $rew)
+                                        <span class="bg-emerald-50 text-emerald-700 text-[10px] px-1.5 py-0.5 rounded border border-emerald-200">🎁 {{ ucwords(str_replace('_', ' ', $rew)) }}</span>
+                                    @endforeach
+                                </div>
+                            @else
+                                <span class="text-gray-400 italic">— Tidak ada berkas (Opsional)</span>
+                            @endif
+                        </td>
+                    </tr>
                 </tbody>
             </table>
         </div>
@@ -331,85 +489,7 @@
         </div>
     </div>
 
-    {{-- RINCIAN 5 POIN KURASI (JIKA ADA) --}}
-    @if($achievement->is_curation)
-        <div class="bg-indigo-50/60 border border-indigo-100 rounded-3xl p-5 space-y-4">
-            <h4 class="font-bold text-indigo-950 text-sm flex items-center gap-2 border-b border-indigo-100 pb-2">
-                <span>🎖️</span> Rincian Berkas 5 Poin Kurasi Kemendikdasmen
-            </h4>
 
-            <div class="space-y-3 text-xs">
-                <div class="bg-white p-3.5 rounded-2xl border border-indigo-100/80 space-y-1.5">
-                    <span class="font-bold text-indigo-900 block">P1. Dokumen Standar Penyelenggaraan:</span>
-                    @if(!empty($achievement->doc_standard_checklist))
-                        <div class="flex flex-wrap gap-1">
-                            @foreach($achievement->doc_standard_checklist as $chk)
-                                <span class="bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded text-[10px] font-medium border border-indigo-100">
-                                    ✓ {{ ucwords(str_replace('_', ' ', $chk)) }}
-                                </span>
-                            @endforeach
-                        </div>
-                    @endif
-                    @if($achievement->doc_standard_file)
-                        <div class="pt-1">
-                            <a href="{{ asset('storage/' . $achievement->doc_standard_file) }}" target="_blank" class="inline-flex items-center gap-1 text-indigo-600 font-semibold hover:underline">
-                                📎 Lihat Dokumen Juknis/Pedoman (P1)
-                            </a>
-                        </div>
-                    @endif
-                </div>
-
-                <div class="bg-white p-3.5 rounded-2xl border border-indigo-100/80 space-y-1.5">
-                    <span class="font-bold text-indigo-900 block">P2. Tingkatan Seleksi Ajang:</span>
-                    <p class="text-gray-700 font-medium">Opsi Selected: <span class="uppercase font-bold text-indigo-800">{{ str_replace('_', ' ', $achievement->selection_level ?? '—') }}</span></p>
-                    @if($achievement->selection_level_file)
-                        <div class="pt-1">
-                            <a href="{{ asset('storage/' . $achievement->selection_level_file) }}" target="_blank" class="inline-flex items-center gap-1 text-indigo-600 font-semibold hover:underline">
-                                📎 Lihat Berkas Bukti Seleksi (P2)
-                            </a>
-                        </div>
-                    @endif
-                </div>
-
-                <div class="bg-white p-3.5 rounded-2xl border border-indigo-100/80 space-y-1.5">
-                    <span class="font-bold text-indigo-900 block">P3. Konsistensi Frekuensi Penyelenggaraan:</span>
-                    <p class="text-gray-700 font-medium">Kekerapatan: <span class="uppercase font-bold text-indigo-800">{{ str_replace('_', ' ', $achievement->frequency_consistency ?? '—') }}</span></p>
-                    @if($achievement->frequency_consistency_file)
-                        <div class="pt-1">
-                            <a href="{{ asset('storage/' . $achievement->frequency_consistency_file) }}" target="_blank" class="inline-flex items-center gap-1 text-indigo-600 font-semibold hover:underline">
-                                📎 Lihat Berkas Juknis Lintas Tahun (P3)
-                            </a>
-                        </div>
-                    @endif
-                </div>
-
-                <div class="bg-white p-3.5 rounded-2xl border border-indigo-100/80 space-y-1.5">
-                    <span class="font-bold text-indigo-900 block">P4. Sarana dan Prasarana Ajang:</span>
-                    <p class="text-gray-700 font-medium">Status Sarpras: <span class="uppercase font-bold text-indigo-800">{{ str_replace('_', ' ', $achievement->infrastructure_type ?? '—') }}</span></p>
-                    @if($achievement->infrastructure_file)
-                        <div class="pt-1">
-                            <a href="{{ asset('storage/' . $achievement->infrastructure_file) }}" target="_blank" class="inline-flex items-center gap-1 text-indigo-600 font-semibold hover:underline">
-                                📎 Lihat Dokumentasi Sarpras/Foto Venue (P4)
-                            </a>
-                        </div>
-                    @endif
-                </div>
-
-                <div class="bg-white p-3.5 rounded-2xl border border-indigo-100/80 space-y-1.5">
-                    <span class="font-bold text-indigo-900 block">P5. Penghargaan dan Apresiasi:</span>
-                    @if(!empty($achievement->reward_types))
-                        <div class="flex flex-wrap gap-1 mb-1">
-                            @foreach($achievement->reward_types as $rew)
-                                <span class="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded text-[10px] font-medium border border-emerald-100">
-                                    🎁 {{ ucwords(str_replace('_', ' ', $rew)) }}
-                                </span>
-                            @endforeach
-                        </div>
-                    @endif
-                </div>
-            </div>
-        </div>
-    @endif
 
     <div class="flex items-center justify-between pt-2">
         <a href="{{ route('siswa.achievements.index') }}" class="inline-flex items-center gap-1 text-xs font-bold text-gray-500 hover:text-gray-800 transition">
