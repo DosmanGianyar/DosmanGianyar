@@ -251,6 +251,32 @@
     overflow-x: auto !important;
 }
 
+/* ─── Sticky Action Column in Tables ─────────────────────────── */
+.fi-ta-table th.fi-ta-actions-header-cell {
+    position: sticky !important;
+    right: 0 !important;
+    z-index: 10 !important;
+    background: #0f1d33 !important;
+    box-shadow: -6px 0 16px rgba(0, 0, 0, 0.45) !important;
+    min-width: 140px !important;
+    text-align: center !important;
+}
+
+.fi-ta-table td.fi-ta-actions-cell,
+.fi-ta-table td.fi-ta-cell:has(.fi-ta-actions) {
+    position: sticky !important;
+    right: 0 !important;
+    z-index: 5 !important;
+    background: #0f1d33 !important;
+    box-shadow: -6px 0 16px rgba(0, 0, 0, 0.45) !important;
+    min-width: 140px !important;
+}
+
+.fi-ta-table tr:hover td.fi-ta-actions-cell,
+.fi-ta-table tr:hover td.fi-ta-cell:has(.fi-ta-actions) {
+    background: #172a4a !important;
+}
+
 .fi-dropdown-panel,
 .fi-popover,
 .fi-ta-filters-dropdown,

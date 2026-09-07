@@ -368,24 +368,37 @@ class StudentAchievementResource extends Resource
             ->columns([
                 TextColumn::make('index')
                     ->label('No.')
-                    ->rowIndex(),
+                    ->rowIndex()
+                    ->alignCenter()
+                    ->width('40px'),
 
                 TextColumn::make('student.name')
-                    ->label('Siswa')
+                    ->label('Siswa & Kelas')
                     ->searchable(query: function (Builder $query, string $search): Builder {
                         return $query->whereHas('student', fn (Builder $q) => $q->where('name', 'like', "%{$search}%")->orWhere('nisn', 'like', "%{$search}%")->orWhere('nis', 'like', "%{$search}%"));
                     })
                     ->icon('heroicon-o-user')
                     ->color('primary')
-                    ->weight('semibold')
+                    ->weight('bold')
                     ->wrap()
+                    ->description(function (StudentAchievement $record): ?string {
+                        $parts = [];
+                        if ($record->student?->schoolClass?->name) {
+                            $parts[] = 'Kelas ' . $record->student->schoolClass->name;
+                        }
+                        if ($record->isBeregu()) {
+                            $parts[] = '👥 Beregu (' . $record->team_members->count() . ' Siswa)';
+                        }
+                        return count($parts) ? implode(' • ', $parts) : null;
+                    })
                     ->url(fn (StudentAchievement $record): ?string => $record->student_id ? UserResource::getUrl('view', ['record' => $record->student_id]) : null)
                     ->openUrlInNewTab()
                     ->tooltip('Klik untuk lihat profil siswa'),
 
                 TextColumn::make('student.schoolClass.name')
                     ->label('Kelas')
-                    ->placeholder('—'),
+                    ->placeholder('—')
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('student.phone')
                     ->label('No. HP Siswa')
@@ -414,10 +427,20 @@ class StudentAchievementResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('title')
-                    ->label('Judul Prestasi')
+                    ->label('Prestasi / Kejuaraan')
                     ->searchable()
                     ->wrap()
-                    ->weight('medium'),
+                    ->weight('bold')
+                    ->description(function (StudentAchievement $record): ?string {
+                        $desc = [];
+                        if ($record->event_name) {
+                            $desc[] = 'Ajang: ' . $record->event_name;
+                        }
+                        if ($record->organizer) {
+                            $desc[] = 'Penyelenggara: ' . $record->organizer;
+                        }
+                        return count($desc) ? implode(' • ', $desc) : null;
+                    }),
 
                 TextColumn::make('organizer')
                     ->label('Penyelenggara')
@@ -446,7 +469,10 @@ class StudentAchievementResource extends Resource
 
                 TextColumn::make('rank')
                     ->label('Peringkat')
-                    ->placeholder('—'),
+                    ->badge()
+                    ->color('warning')
+                    ->icon('heroicon-o-trophy')
+                    ->formatStateUsing(fn (?string $state) => filled($state) ? $state : '—'),
 
                 TextColumn::make('participation_type')
                     ->label('Partisipasi')
@@ -463,10 +489,11 @@ class StudentAchievementResource extends Resource
                         if (! $record->isBeregu()) return null;
                         $names = $record->team_members->pluck('student.name')->filter()->implode(', ');
                         return 'Anggota Tim: ' . ($names ?: '—');
-                    }),
+                    })
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('status')
-                    ->label('Status Verifikasi')
+                    ->label('Status')
                     ->badge()
                     ->color(fn (StudentAchievement $record): string => match ($record->status) {
                         'approved' => 'success',
@@ -474,15 +501,15 @@ class StudentAchievementResource extends Resource
                         default    => $record->curation_status === 'revision' ? 'warning' : 'amber',
                     })
                     ->formatStateUsing(fn (StudentAchievement $record): string => match ($record->status) {
-                        'approved' => 'Disetujui / Valid',
+                        'approved' => 'Disetujui',
                         'rejected' => 'Ditolak',
-                        default    => $record->curation_status === 'revision' ? 'Perlu Revisi' : 'Menunggu Verifikasi',
+                        default    => $record->curation_status === 'revision' ? 'Perlu Revisi' : 'Menunggu',
                     }),
 
                 TextColumn::make('achievement_date')
                     ->label('Tanggal')
-                    ->formatStateUsing(fn ($state) => $state ? \Carbon\Carbon::parse($state)->translatedFormat('d F Y') : '—')
-                    ->width('140px')
+                    ->formatStateUsing(fn ($state) => $state ? \Carbon\Carbon::parse($state)->translatedFormat('d M Y') : '—')
+                    ->width('110px')
                     ->sortable(),
             ])
             ->defaultSort('created_at', 'desc')
