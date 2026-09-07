@@ -339,154 +339,8 @@ class StudentAchievementResource extends Resource
     public static function infolist(Schema $schema): Schema
     {
         return $schema->components([
-            // Card 1: Status Kurasi
-            Section::make('Status Kurasi & Verifikasi')
-                ->icon('heroicon-o-check-badge')
-                ->schema([
-                    TextEntry::make('curation_status')
-                        ->label('Status Kurasi')
-                        ->badge()
-                        ->color(fn (StudentAchievement $record): string => $record->curationStatusColor())
-                        ->formatStateUsing(fn (StudentAchievement $record): string => $record->curationStatusLabel()),
-
-                    TextEntry::make('verifier.name')
-                        ->label('Diverifikasi Oleh')
-                        ->weight('bold')
-                        ->color('info')
-                        ->placeholder('—'),
-
-                    TextEntry::make('verified_at')
-                        ->label('Waktu Verifikasi')
-                        ->dateTime('d F Y, H:i')
-                        ->placeholder('—'),
-
-                    TextEntry::make('curation_note')
-                        ->label('Catatan Kurasi / Alasan Revisi')
-                        ->placeholder('Tidak ada catatan')
-                        ->columnSpanFull(),
-                ])
-                ->columns(3)
-                ->columnSpanFull(),
-
-            // Card 2: Foto Profil & Anggota Tim Siswa
-            Section::make('Foto Profil & Data Anggota Siswa')
-                ->icon('heroicon-o-user-group')
-                ->schema([
-                    ViewEntry::make('team_members_view')
-                        ->hiddenLabel()
-                        ->view('filament.components.team-members-list')
-                        ->columnSpanFull(),
-                ])
-                ->columnSpanFull(),
-
-            // Card 3: Identitas & Profil Data Diri Siswa
-            Section::make('Identitas & Profil Data Diri Siswa')
-                ->icon('heroicon-o-user-circle')
-                ->schema([
-                    TextEntry::make('student.name')
-                        ->label('Nama Lengkap Siswa')
-                        ->weight('bold')
-                        ->color('primary')
-                        ->icon('heroicon-o-user')
-                        ->url(fn (StudentAchievement $record): ?string => $record->student_id ? UserResource::getUrl('view', ['record' => $record->student_id]) : null)
-                        ->openUrlInNewTab()
-                        ->tooltip('Klik untuk membuka profil lengkap siswa'),
-
-                    TextEntry::make('student.nisn')
-                        ->label('NISN')
-                        ->fontFamily('mono')
-                        ->placeholder('—'),
-
-                    TextEntry::make('student.nis')
-                        ->label('NIS')
-                        ->fontFamily('mono')
-                        ->placeholder('—'),
-
-                    TextEntry::make('student.schoolClass.name')
-                        ->label('Kelas')
-                        ->badge()
-                        ->color('info')
-                        ->placeholder('—'),
-
-                    TextEntry::make('student.gender')
-                        ->label('Jenis Kelamin')
-                        ->formatStateUsing(fn ($state) => match ($state) {
-                            'L' => 'Laki-laki',
-                            'P' => 'Perempuan',
-                            default => '—',
-                        })
-                        ->placeholder('—'),
-
-                    TextEntry::make('student.blood_type')
-                        ->label('Golongan Darah')
-                        ->badge()
-                        ->color('danger')
-                        ->formatStateUsing(fn ($state) => filled($state) ? 'Gol. ' . strtoupper($state) : '—')
-                        ->placeholder('—'),
-
-                    TextEntry::make('student.phone')
-                        ->label('No. HP Siswa')
-                        ->icon('heroicon-o-phone')
-                        ->color('success')
-                        ->weight('bold')
-                        ->formatStateUsing(fn (?string $state) => filled($state) ? $state : 'Belum diisi')
-                        ->url(function (StudentAchievement $record): ?string {
-                            $phone = $record->student?->phone;
-                            if (blank($phone)) return null;
-                            $clean = preg_replace('/[^0-9]/', '', $phone);
-                            if (str_starts_with($clean, '0')) $clean = '62' . substr($clean, 1);
-                            return 'https://wa.me/' . $clean;
-                        })
-                        ->openUrlInNewTab()
-                        ->tooltip('Klik untuk chat WhatsApp siswa'),
-
-                    TextEntry::make('student.parent_name')
-                        ->label('Nama Orang Tua / Wali')
-                        ->placeholder('—'),
-
-                    TextEntry::make('student.parent_phone')
-                        ->label('No. HP Orang Tua / Wali')
-                        ->icon('heroicon-o-phone')
-                        ->color('info')
-                        ->formatStateUsing(fn (?string $state) => filled($state) ? $state : 'Belum diisi')
-                        ->url(function (StudentAchievement $record): ?string {
-                            $phone = $record->student?->parent_phone;
-                            if (blank($phone)) return null;
-                            $clean = preg_replace('/[^0-9]/', '', $phone);
-                            if (str_starts_with($clean, '0')) $clean = '62' . substr($clean, 1);
-                            return 'https://wa.me/' . $clean;
-                        })
-                        ->openUrlInNewTab()
-                        ->tooltip('Klik untuk chat WhatsApp Orang Tua'),
-
-                    TextEntry::make('student_address_formatted')
-                        ->label('Alamat Tempat Tinggal Siswa')
-                        ->formatStateUsing(function (StudentAchievement $record): string {
-                            $s = $record->student;
-                            if (! $s) return '—';
-                            $parts = array_filter([
-                                $s->address,
-                                $s->rt_rw ? 'RT/RW ' . $s->rt_rw : null,
-                                $s->kelurahan ? 'Kel. ' . $s->kelurahan : null,
-                                $s->kecamatan ? 'Kec. ' . $s->kecamatan : null,
-                                $s->kabupaten ? 'Kab. ' . $s->kabupaten : null,
-                            ]);
-                            return count($parts) > 0 ? implode(', ', $parts) : '—';
-                        })
-                        ->icon('heroicon-o-map-pin')
-                        ->columnSpanFull(),
-
-                    TextEntry::make('achievement_date')
-                        ->label('Tanggal Prestasi')
-                        ->date('d F Y')
-                        ->icon('heroicon-o-calendar')
-                        ->weight('semibold'),
-                ])
-                ->columns(3)
-                ->columnSpanFull(),
-
-            // Card 3: Detail Kejuaraan & Lomba
-            Section::make('Detail Kejuaraan & Lomba')
+            // Section 1: Ringkasan Prestasi & Status Verifikasi
+            Section::make('Informasi Kejuaraan & Status Verifikasi')
                 ->icon('heroicon-o-trophy')
                 ->schema([
                     TextEntry::make('title')
@@ -496,8 +350,28 @@ class StudentAchievementResource extends Resource
                         ->icon('heroicon-o-sparkles')
                         ->columnSpanFull(),
 
+                    TextEntry::make('status')
+                        ->label('Status Verifikasi Saat Ini')
+                        ->badge()
+                        ->color(fn (StudentAchievement $record): string => match ($record->status) {
+                            'approved' => 'success',
+                            'rejected' => 'danger',
+                            default    => $record->curation_status === 'revision' ? 'warning' : 'amber',
+                        })
+                        ->formatStateUsing(fn (StudentAchievement $record): string => match ($record->status) {
+                            'approved' => 'Disetujui / Valid (Masuk Rekap Sekolah)',
+                            'rejected' => 'Ditolak',
+                            default    => $record->curation_status === 'revision' ? 'Perlu Revisi Berkas' : 'Menunggu Verifikasi Admin',
+                        }),
+
+                    TextEntry::make('curation_note')
+                        ->label('Catatan Verifikasi / Alasan Revisi / Penolakan')
+                        ->placeholder('Tidak ada catatan verifikasi')
+                        ->columnSpanFull()
+                        ->visible(fn (StudentAchievement $record): bool => ! empty($record->curation_note)),
+
                     TextEntry::make('event_name')
-                        ->label('Nama Lomba / Event')
+                        ->label('Nama Ajang / Event')
                         ->icon('heroicon-o-flag')
                         ->placeholder('—'),
 
@@ -505,12 +379,6 @@ class StudentAchievementResource extends Resource
                         ->label('Penyelenggara')
                         ->icon('heroicon-o-building-office')
                         ->placeholder('—'),
-
-                    TextEntry::make('field_category')
-                        ->label('Rumpun Bidang')
-                        ->badge()
-                        ->color('info')
-                        ->formatStateUsing(fn (StudentAchievement $record): string => $record->fieldCategoryLabel()),
 
                     TextEntry::make('level')
                         ->label('Tingkat Kejuaraan')
@@ -531,67 +399,114 @@ class StudentAchievementResource extends Resource
                         ->color('warning')
                         ->placeholder('—'),
 
+                    TextEntry::make('field_category')
+                        ->label('Rumpun Bidang')
+                        ->badge()
+                        ->color('info')
+                        ->formatStateUsing(fn (StudentAchievement $record): string => $record->fieldCategoryLabel()),
+
                     TextEntry::make('participation_type')
                         ->label('Jenis Partisipasi')
                         ->badge()
-                        ->color('gray')
-                        ->formatStateUsing(fn (StudentAchievement $record): string => $record->participationTypeLabel()),
+                        ->color(fn (StudentAchievement $record): string => $record->isBeregu() ? 'purple' : 'gray')
+                        ->formatStateUsing(function (StudentAchievement $record): string {
+                            if (! $record->isBeregu()) return '👤 Perorangan (Individu)';
+                            $count = $record->team_members->count();
+                            return "👥 Beregu ({$count} Siswa)";
+                        }),
+
+                    TextEntry::make('achievement_date')
+                        ->label('Tanggal Lomba / Capaian')
+                        ->date('d F Y')
+                        ->icon('heroicon-o-calendar'),
+
+                    TextEntry::make('verifier.name')
+                        ->label('Diverifikasi Oleh')
+                        ->weight('bold')
+                        ->color('info')
+                        ->placeholder('Belum diverifikasi'),
+
+                    TextEntry::make('verified_at')
+                        ->label('Waktu Verifikasi')
+                        ->dateTime('d F Y, H:i')
+                        ->placeholder('—'),
 
                     TextEntry::make('event_url')
-                        ->label('URL Event / Berita')
+                        ->label('Website Resmi Ajang / Berita')
                         ->url(fn ($state) => $state)
                         ->openUrlInNewTab()
                         ->icon('heroicon-o-arrow-top-right-on-square')
                         ->color('primary')
                         ->placeholder('—')
                         ->columnSpanFull(),
+
+                    TextEntry::make('description')
+                        ->label('Deskripsi / Catatan Tambahan Lomba')
+                        ->placeholder('Tidak ada deskripsi tambahan')
+                        ->columnSpanFull(),
                 ])
                 ->columns(3)
                 ->columnSpanFull(),
 
-            // Card 4: Deskripsi Prestasi
-            Section::make('Deskripsi Prestasi')
-                ->icon('heroicon-o-document-text')
+            // Section 2: Data Siswa & Anggota Tim
+            Section::make('Siswa Berprestasi & Anggota Tim')
+                ->icon('heroicon-o-user-group')
                 ->schema([
-                    TextEntry::make('description')
-                        ->label('Deskripsi Lengkap')
-                        ->placeholder('Tidak ada deskripsi tambahan')
+                    ViewEntry::make('team_members_view')
+                        ->hiddenLabel()
+                        ->view('filament.components.team-members-list')
                         ->columnSpanFull(),
                 ])
                 ->columnSpanFull(),
 
-            // Card 5: Rincian 5 Poin Kurasi Kemendikdasmen (SIMT / Puspresnas)
-            Section::make('Rincian Berkas 5 Poin Kurasi Kemendikdasmen (SIMT / Puspresnas)')
-                ->icon('heroicon-o-academic-cap')
-                ->visible(fn (StudentAchievement $record): bool => (bool) $record->is_curation)
+            // Section 3: Bukti Fisik & Dokumentasi Utama
+            Section::make('Bukti Fisik & Dokumentasi Utama')
+                ->icon('heroicon-o-paper-clip')
                 ->schema([
-                    TextEntry::make('doc_standard_checklist')
-                        ->label('P1. Checklist Dokumen Juknis Standar')
-                        ->formatStateUsing(function ($state): string {
-                            if (empty($state) || !is_array($state)) return '—';
-                            return implode(', ', array_map(fn($item) => ucwords(str_replace('_', ' ', $item)), $state));
-                        })
-                        ->badge()
-                        ->color('info'),
+                    TextEntry::make('certificate')
+                        ->label('Sertifikat / Piagam Utama')
+                        ->formatStateUsing(fn ($state) => $state ? '📄 Buka / Unduh File Sertifikat ↗' : 'Tidak ada sertifikat')
+                        ->url(fn (StudentAchievement $record): ?string => $record->certificate ? (str_starts_with($record->certificate, 'kurasi/') ? asset($record->certificate) : asset('storage/' . $record->certificate)) : null)
+                        ->openUrlInNewTab()
+                        ->color('primary')
+                        ->weight('bold')
+                        ->visible(fn (StudentAchievement $record): bool => ! empty($record->certificate)),
 
+                    TextEntry::make('assignment_letter')
+                        ->label('Surat Tugas / Rekomendasi Sekolah')
+                        ->formatStateUsing(fn ($state) => $state ? '📑 Buka / Unduh Surat Tugas ↗' : 'Tidak ada surat tugas')
+                        ->url(fn (StudentAchievement $record): ?string => $record->assignment_letter ? (str_starts_with($record->assignment_letter, 'kurasi/') ? asset($record->assignment_letter) : asset('storage/' . $record->assignment_letter)) : null)
+                        ->openUrlInNewTab()
+                        ->color('primary')
+                        ->weight('bold')
+                        ->visible(fn (StudentAchievement $record): bool => ! empty($record->assignment_letter)),
+
+                    ImageEntry::make('photo')
+                        ->label('Foto Dokumentasi Kegiatan / Penyerahan Piagam')
+                        ->disk('public')
+                        ->extraImgAttributes([
+                            'style' => 'max-height: 320px !important; width: auto !important; height: auto !important; border-radius: 16px !important; object-fit: cover !important;',
+                            'class' => 'shadow-md border border-gray-200 dark:border-gray-700 mt-2',
+                        ])
+                        ->columnSpanFull()
+                        ->visible(fn (StudentAchievement $record): bool => ! empty($record->photo)),
+                ])
+                ->columns(2)
+                ->columnSpanFull(),
+
+            // Section 4: Berkas Kurasi Formal (Collapsed)
+            Section::make('Berkas Pendukung Kurasi Formal (Puspresnas)')
+                ->icon('heroicon-o-academic-cap')
+                ->collapsible()
+                ->collapsed(true)
+                ->visible(fn (StudentAchievement $record): bool => (bool) $record->is_curation || ! empty($record->doc_standard_file))
+                ->schema([
                     TextEntry::make('doc_standard_file')
                         ->label('P1. File Juknis / Pedoman Lomba')
                         ->formatStateUsing(fn ($state) => $state ? '📄 Lihat File Juknis (P1)' : '—')
                         ->url(fn (StudentAchievement $record): ?string => $record->doc_standard_file ? (str_starts_with($record->doc_standard_file, 'kurasi/') ? asset($record->doc_standard_file) : asset('storage/' . $record->doc_standard_file)) : null)
                         ->openUrlInNewTab()
                         ->color('primary'),
-
-                    TextEntry::make('doc_standard_url')
-                        ->label('P1. URL Juknis / Website Resmi')
-                        ->url(fn ($state) => $state)
-                        ->openUrlInNewTab()
-                        ->placeholder('—'),
-
-                    TextEntry::make('selection_level')
-                        ->label('P2. Tingkatan Seleksi Ajang')
-                        ->badge()
-                        ->color('warning')
-                        ->formatStateUsing(fn ($state) => $state ? strtoupper(str_replace('_', ' ', $state)) : '—'),
 
                     TextEntry::make('selection_level_file')
                         ->label('P2. File Bukti Tahapan Seleksi')
@@ -600,24 +515,12 @@ class StudentAchievementResource extends Resource
                         ->openUrlInNewTab()
                         ->color('primary'),
 
-                    TextEntry::make('frequency_consistency')
-                        ->label('P3. Konsistensi Frekuensi Penyelenggaraan')
-                        ->badge()
-                        ->color('info')
-                        ->formatStateUsing(fn ($state) => $state ? ucwords(str_replace('_', ' ', $state)) : '—'),
-
                     TextEntry::make('frequency_consistency_file')
                         ->label('P3. File Juknis Lintas Tahun')
                         ->formatStateUsing(fn ($state) => $state ? '📄 Lihat File Lintas Tahun (P3)' : '—')
                         ->url(fn (StudentAchievement $record): ?string => $record->frequency_consistency_file ? (str_starts_with($record->frequency_consistency_file, 'kurasi/') ? asset($record->frequency_consistency_file) : asset('storage/' . $record->frequency_consistency_file)) : null)
                         ->openUrlInNewTab()
                         ->color('primary'),
-
-                    TextEntry::make('infrastructure_type')
-                        ->label('P4. Sarana & Prasarana Ajang')
-                        ->badge()
-                        ->color('success')
-                        ->formatStateUsing(fn ($state) => $state ? ucwords(str_replace('_', ' ', $state)) : '—'),
 
                     TextEntry::make('infrastructure_file')
                         ->label('P4. File Dokumentasi Sarpras / Venue')
@@ -626,70 +529,14 @@ class StudentAchievementResource extends Resource
                         ->openUrlInNewTab()
                         ->color('primary'),
 
-                    TextEntry::make('reward_types')
-                        ->label('P5. Jenis Penghargaan & Apresiasi')
-                        ->formatStateUsing(function ($state): string {
-                            if (empty($state) || !is_array($state)) return '—';
-                            return implode(', ', array_map(fn($item) => ucwords(str_replace('_', ' ', $item)), $state));
-                        })
-                        ->badge()
-                        ->color('success'),
-
                     TextEntry::make('reward_certificate_file')
                         ->label('P5. Scan Piagam / Sertifikat')
                         ->formatStateUsing(fn ($state) => $state ? '📜 Lihat Scan Piagam (P5)' : '—')
                         ->url(fn (StudentAchievement $record): ?string => $record->reward_certificate_file ? (str_starts_with($record->reward_certificate_file, 'kurasi/') ? asset($record->reward_certificate_file) : asset('storage/' . $record->reward_certificate_file)) : null)
                         ->openUrlInNewTab()
                         ->color('primary'),
-
-                    TextEntry::make('reward_photo_file')
-                        ->label('P5. Foto Penyerahan Hadiah / Medali')
-                        ->formatStateUsing(fn ($state) => $state ? '📷 Lihat Foto Penyerahan (P5)' : '—')
-                        ->url(fn (StudentAchievement $record): ?string => $record->reward_photo_file ? (str_starts_with($record->reward_photo_file, 'kurasi/') ? asset($record->reward_photo_file) : asset('storage/' . $record->reward_photo_file)) : null)
-                        ->openUrlInNewTab()
-                        ->color('primary'),
-
-                    TextEntry::make('reward_recap_file')
-                        ->label('P5. SK / Rekap Pemenang Lomba')
-                        ->formatStateUsing(fn ($state) => $state ? '📄 Lihat Rekap Pemenang (P5)' : '—')
-                        ->url(fn (StudentAchievement $record): ?string => $record->reward_recap_file ? (str_starts_with($record->reward_recap_file, 'kurasi/') ? asset($record->reward_recap_file) : asset('storage/' . $record->reward_recap_file)) : null)
-                        ->openUrlInNewTab()
-                        ->color('primary'),
                 ])
                 ->columns(3)
-                ->columnSpanFull(),
-
-            // Card 6: Berkas & Lampiran
-            Section::make('Berkas & Lampiran Dokumentasi Utama')
-                ->icon('heroicon-o-paper-clip')
-                ->schema([
-                    TextEntry::make('certificate')
-                        ->label('Sertifikat / Piagam Utama')
-                        ->formatStateUsing(fn ($state) => $state ? '📄 Lihat File Sertifikat' : 'Tidak ada berkas')
-                        ->url(fn (StudentAchievement $record): ?string => $record->certificate ? (str_starts_with($record->certificate, 'kurasi/') ? asset($record->certificate) : asset('storage/' . $record->certificate)) : null)
-                        ->openUrlInNewTab()
-                        ->color('primary')
-                        ->visible(fn (StudentAchievement $record): bool => ! empty($record->certificate)),
-
-                    TextEntry::make('assignment_letter')
-                        ->label('Surat Tugas Utama')
-                        ->formatStateUsing(fn ($state) => $state ? '📑 Lihat Surat Tugas' : 'Tidak ada berkas')
-                        ->url(fn (StudentAchievement $record): ?string => $record->assignment_letter ? (str_starts_with($record->assignment_letter, 'kurasi/') ? asset($record->assignment_letter) : asset('storage/' . $record->assignment_letter)) : null)
-                        ->openUrlInNewTab()
-                        ->color('primary')
-                        ->visible(fn (StudentAchievement $record): bool => ! empty($record->assignment_letter)),
-
-                    ImageEntry::make('photo')
-                        ->label('Foto Dokumentasi / Penyerahan Utama')
-                        ->disk('public')
-                        ->extraImgAttributes([
-                            'style' => 'max-height: 250px !important; max-width: 420px !important; width: auto !important; height: auto !important; border-radius: 16px !important; object-fit: cover !important;',
-                            'class' => 'shadow-md border border-gray-200 dark:border-gray-700 mt-1',
-                        ])
-                        ->columnSpanFull()
-                        ->visible(fn (StudentAchievement $record): bool => ! empty($record->photo)),
-                ])
-                ->columns(2)
                 ->columnSpanFull(),
         ]);
     }

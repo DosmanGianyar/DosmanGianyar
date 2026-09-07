@@ -5,6 +5,7 @@ namespace App\Filament\Resources\StudentAchievementResource\Pages;
 use App\Filament\Resources\StudentAchievementResource;
 use App\Models\StudentAchievement;
 use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
@@ -14,133 +15,172 @@ class ViewStudentAchievement extends ViewRecord
 {
     protected static string $resource = StudentAchievementResource::class;
 
+    public function getTitle(): string
+    {
+        return 'Detail & Verifikasi Prestasi Siswa';
+    }
+
     protected function getHeaderActions(): array
     {
         return [
-            EditAction::make()
-                ->label('Edit Data & Berkas')
-                ->icon('heroicon-o-pencil-square')
-                ->color('primary'),
-            Action::make('curate')
-                ->label('Lolos Kurasi Resmi')
-                ->icon('heroicon-o-check-badge')
+            Action::make('approve_achievement')
+                ->label('Setujui & Sahkan Prestasi')
+                ->tooltip('Setujui & Masukkan ke Rekap Prestasi Sekolah')
+                ->icon('heroicon-o-check-circle')
                 ->color('success')
                 ->requiresConfirmation()
-                ->modalHeading('Loloskan Kurasi Resmi')
-                ->modalDescription('Prestasi ini akan disahkan sebagai Lolos Kurasi Resmi Standar Puspresnas/SIMT.')
-                ->action(function (StudentAchievement $record): void {
-                    $record->update([
-                        'is_curation'     => true,
-                        'curation_status' => 'curated',
-                        'status'          => 'approved',
-                        'curation_note'   => null,
-                        'verified_by'     => auth()->id(),
-                        'verified_at'     => now(),
-                    ]);
-                    Notification::make()->title('Prestasi Lolos Kurasi Resmi')->success()->send();
-                }),
-
-            Action::make('not_curatable')
-                ->label('Prestasi Internal')
-                ->icon('heroicon-o-bookmark')
-                ->color('info')
-                ->requiresConfirmation()
-                ->modalHeading('Tandai Prestasi Internal Sekolah')
-                ->modalDescription('Prestasi ini akan tetap dicatat & diakui sebagai Prestasi Siswa Sekolah, tetapi ditandai TIDAK masuk kurasi resmi Puspresnas/SIMT.')
-                ->action(function (StudentAchievement $record): void {
-                    $record->update([
-                        'is_curation'     => false,
-                        'curation_status' => 'not_curatable',
-                        'status'          => 'approved',
-                        'curation_note'   => 'Dicatat sebagai Prestasi Catatan Internal Sekolah',
-                        'verified_by'     => auth()->id(),
-                        'verified_at'     => now(),
-                    ]);
-                    Notification::make()->title('Prestasi Diakui sebagai Catatan Internal Sekolah')->info()->send();
-                }),
-
-            Action::make('revision')
-                ->label('Perlu Revisi')
-                ->icon('heroicon-o-arrow-path')
-                ->color('warning')
-                ->form([
-                    Textarea::make('curation_note')
-                        ->label('Catatan Revisi untuk Siswa')
-                        ->placeholder('Jelaskan berkas yang perlu diperbaiki')
-                        ->required()
-                        ->rows(3),
-                ])
-                ->action(function (StudentAchievement $record, array $data): void {
-                    $record->update([
-                        'curation_status' => 'revision',
-                        'curation_note'   => $data['curation_note'],
-                        'verified_by'     => auth()->id(),
-                        'verified_at'     => now(),
-                    ]);
-                    Notification::make()->title('Diminta Revisi Berkas')->warning()->send();
-                }),
-
-            Action::make('reject')
-                ->label('Tolak / Tidak Layak')
-                ->icon('heroicon-o-x-circle')
-                ->color('danger')
-                ->form([
-                    Textarea::make('curation_note')
-                        ->label('Alasan Tidak Layak Kurasi')
-                        ->placeholder('Jelaskan alasan penolakan')
-                        ->required()
-                        ->rows(3),
-                ])
-                ->action(function (StudentAchievement $record, array $data): void {
-                    $record->update([
-                        'is_curation'      => false,
-                        'curation_status'  => 'rejected',
-                        'status'           => 'rejected',
-                        'curation_note'    => $data['curation_note'],
-                        'rejection_reason' => $data['curation_note'],
-                        'verified_by'      => auth()->id(),
-                        'verified_at'      => now(),
-                    ]);
-                    Notification::make()->title('Prestasi Ditolak / Tidak Layak')->danger()->send();
-                }),
-
-            Action::make('reset_pending')
-                ->label('Batalkan Status / Reset')
-                ->icon('heroicon-o-arrow-uturn-left')
-                ->color('gray')
-                ->requiresConfirmation()
-                ->modalHeading('Batalkan Status Kurasi')
-                ->modalDescription('Apakah Anda yakin ingin membatalkan status kurasi ini dan mengembalikannya ke status Menunggu Penilaian Kurasi?')
-                ->action(function (StudentAchievement $record): void {
-                    $record->update([
-                        'is_curation'      => false,
-                        'curation_status'  => 'pending',
-                        'status'           => 'pending',
-                        'curation_note'    => null,
-                        'rejection_reason' => null,
-                        'verified_by'      => null,
-                        'verified_at'      => null,
-                    ]);
-                    Notification::make()->title('Status kurasi dibatalkan & dikembalikan ke Menunggu Penilaian')->info()->send();
-                }),
-
-            Action::make('delete_student_photo')
-                ->label('Hapus Foto Profil Siswa')
-                ->icon('heroicon-o-trash')
-                ->color('danger')
-                ->visible(fn (StudentAchievement $record): bool => ! empty($record->student?->photo))
-                ->requiresConfirmation()
-                ->modalHeading('Hapus Foto Profil Siswa?')
-                ->modalDescription(fn (StudentAchievement $record): string => "Apakah Anda yakin ingin menghapus foto profil milik '" . ($record->student?->name ?? 'Siswa') . "'? Foto yang melanggar aturan akan dihapus dan dikembalikan ke avatar standar UI-Avatars.")
-                ->action(function (StudentAchievement $record): void {
-                    if ($record->student) {
-                        if ($record->student->photo && \Illuminate\Support\Facades\Storage::disk('public')->exists($record->student->photo)) {
-                            \Illuminate\Support\Facades\Storage::disk('public')->delete($record->student->photo);
-                        }
-                        $record->student->update(['photo' => null]);
-                        Notification::make()->title("Foto profil " . $record->student->name . " berhasil dihapus.")->success()->send();
+                ->modalHeading('Setujui & Sahkan Prestasi')
+                ->modalDescription(function (StudentAchievement $record): string {
+                    if ($record->isBeregu()) {
+                        $count = $record->team_members->count();
+                        return "Prestasi beregu ini akan disetujui untuk SELURUH tim ({$count} siswa). Data akan langsung masuk ke Rekapitulasi Sekolah (dihitung 1 Prestasi Sekolah).";
                     }
+                    return 'Prestasi siswa ini akan disetujui & disahkan ke Rekapitulasi Prestasi Sekolah.';
+                })
+                ->action(function (StudentAchievement $record): void {
+                    if ($record->isBeregu() && ! empty($record->team_code)) {
+                        $affected = StudentAchievement::where('team_code', $record->team_code)->update([
+                            'status'          => 'approved',
+                            'curation_status' => $record->is_curation ? 'curated' : 'not_curatable',
+                            'curation_note'   => null,
+                            'verified_by'     => auth()->id(),
+                            'verified_at'     => now(),
+                        ]);
+                    } elseif ($record->isBeregu()) {
+                        $affected = StudentAchievement::where('participation_type', 'beregu')
+                            ->where('title', $record->title)
+                            ->where('achievement_date', $record->achievement_date)
+                            ->update([
+                                'status'          => 'approved',
+                                'curation_status' => $record->is_curation ? 'curated' : 'not_curatable',
+                                'curation_note'   => null,
+                                'verified_by'     => auth()->id(),
+                                'verified_at'     => now(),
+                            ]);
+                    } else {
+                        $record->update([
+                            'status'          => 'approved',
+                            'curation_status' => $record->is_curation ? 'curated' : 'not_curatable',
+                            'curation_note'   => null,
+                            'verified_by'     => auth()->id(),
+                            'verified_at'     => now(),
+                        ]);
+                        $affected = 1;
+                    }
+                    Notification::make()->title("Prestasi Disetujui ({$affected} Siswa)")->success()->send();
                 }),
+
+            ActionGroup::make([
+                EditAction::make()
+                    ->label('Edit Data & Berkas')
+                    ->icon('heroicon-o-pencil-square')
+                    ->color('primary'),
+
+                Action::make('revision')
+                    ->label('Minta Revisi Berkas ke Siswa')
+                    ->tooltip('Minta Revisi Berkas')
+                    ->icon('heroicon-o-arrow-path')
+                    ->color('warning')
+                    ->form([
+                        Textarea::make('curation_note')
+                            ->label('Catatan Revisi untuk Siswa')
+                            ->placeholder('Jelaskan berkas yang perlu diperbaiki (contoh: Upload ulang Surat Tugas / Sertifikat buram)')
+                            ->required()
+                            ->rows(3),
+                    ])
+                    ->action(function (StudentAchievement $record, array $data): void {
+                        if ($record->isBeregu() && ! empty($record->team_code)) {
+                            $affected = StudentAchievement::where('team_code', $record->team_code)->update([
+                                'status'          => 'pending',
+                                'curation_status' => 'revision',
+                                'curation_note'   => $data['curation_note'],
+                                'verified_by'     => auth()->id(),
+                                'verified_at'     => now(),
+                            ]);
+                        } else {
+                            $record->update([
+                                'status'          => 'pending',
+                                'curation_status' => 'revision',
+                                'curation_note'   => $data['curation_note'],
+                                'verified_by'     => auth()->id(),
+                                'verified_at'     => now(),
+                            ]);
+                            $affected = 1;
+                        }
+                        Notification::make()->title("Diminta Revisi Berkas ({$affected} Siswa)")->warning()->send();
+                    }),
+
+                Action::make('reject')
+                    ->label('Tolak / Tidak Valid')
+                    ->tooltip('Tolak Ajuan Prestasi')
+                    ->icon('heroicon-o-x-circle')
+                    ->color('danger')
+                    ->form([
+                        Textarea::make('curation_note')
+                            ->label('Alasan Penolakan')
+                            ->placeholder('Jelaskan alasan penolakan (contoh: Sertifikat tidak valid/bukan atas nama siswa)')
+                            ->required()
+                            ->rows(3),
+                    ])
+                    ->action(function (StudentAchievement $record, array $data): void {
+                        if ($record->isBeregu() && ! empty($record->team_code)) {
+                            $affected = StudentAchievement::where('team_code', $record->team_code)->update([
+                                'status'           => 'rejected',
+                                'curation_status'  => 'rejected',
+                                'curation_note'    => $data['curation_note'],
+                                'rejection_reason' => $data['curation_note'],
+                                'verified_by'      => auth()->id(),
+                                'verified_at'      => now(),
+                            ]);
+                        } else {
+                            $record->update([
+                                'status'           => 'rejected',
+                                'curation_status'  => 'rejected',
+                                'curation_note'    => $data['curation_note'],
+                                'rejection_reason' => $data['curation_note'],
+                                'verified_by'      => auth()->id(),
+                                'verified_at'      => now(),
+                            ]);
+                            $affected = 1;
+                        }
+                        Notification::make()->title("Prestasi Ditolak ({$affected} Siswa)")->danger()->send();
+                    }),
+
+                Action::make('reset_pending')
+                    ->label('Reset Ke Menunggu Verifikasi')
+                    ->tooltip('Batalkan penetapan dan kembalikan ke status Menunggu Verifikasi')
+                    ->icon('heroicon-o-arrow-uturn-left')
+                    ->color('gray')
+                    ->requiresConfirmation()
+                    ->modalHeading('Batalkan Status Verifikasi')
+                    ->modalDescription('Apakah Anda yakin ingin membatalkan status verifikasi ini dan mengembalikannya ke status Menunggu Verifikasi?')
+                    ->action(function (StudentAchievement $record): void {
+                        if ($record->isBeregu() && ! empty($record->team_code)) {
+                            StudentAchievement::where('team_code', $record->team_code)->update([
+                                'status'           => 'pending',
+                                'curation_status'  => 'pending',
+                                'curation_note'    => null,
+                                'rejection_reason' => null,
+                                'verified_by'      => null,
+                                'verified_at'      => null,
+                            ]);
+                        } else {
+                            $record->update([
+                                'status'           => 'pending',
+                                'curation_status'  => 'pending',
+                                'curation_note'    => null,
+                                'rejection_reason' => null,
+                                'verified_by'      => null,
+                                'verified_at'      => null,
+                            ]);
+                        }
+                        Notification::make()->title('Status verifikasi dibatalkan & dikembalikan ke Menunggu Verifikasi')->info()->send();
+                    }),
+            ])
+                ->label('Menu Aksi Verifikasi')
+                ->icon('heroicon-m-chevron-down')
+                ->color('primary')
+                ->button(),
         ];
     }
 }
