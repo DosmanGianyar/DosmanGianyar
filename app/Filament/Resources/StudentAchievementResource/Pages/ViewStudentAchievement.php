@@ -30,14 +30,37 @@ class ViewStudentAchievement extends ViewRecord
         return 'Detail & Verifikasi Prestasi Siswa';
     }
 
+    public function getSubheading(): ?string
+    {
+        /** @var StudentAchievement $record */
+        $record = $this->getRecord();
+        if (! $record) return null;
+
+        $studentName = $record->student?->name ?? 'Siswa';
+        $className = $record->student?->schoolClass?->name ? "Kelas {$record->student->schoolClass->name}" : '';
+        $type = $record->isBeregu() ? '👥 Prestasi Beregu' : '👤 Prestasi Individu';
+        $rank = $record->rank ? " • 🏆 {$record->rank}" : '';
+        $level = $record->levelLabel() ? " (Tingkat {$record->levelLabel()})" : '';
+
+        return "{$studentName}" . ($className ? " ({$className})" : '') . " • {$type}{$rank}{$level}";
+    }
+
     protected function getHeaderActions(): array
     {
         return [
+            Action::make('back')
+                ->label('Kembali ke Daftar')
+                ->icon('heroicon-o-arrow-left')
+                ->color('gray')
+                ->outlined()
+                ->url(StudentAchievementResource::getUrl('index')),
+
             Action::make('edit_achievement')
-                ->label('Edit Data & Berkas Prestasi')
-                ->tooltip('Ubah data ajuan, ganti siswa, perbarui berkas, atau kurasi langsung di halaman ini')
+                ->label('Edit Lengkap (Form)')
+                ->tooltip('Ubah seluruh data ajuan & berkas melalui form modal 4 tab')
                 ->icon('heroicon-o-pencil-square')
                 ->color('primary')
+                ->outlined()
                 ->modalHeading('Edit Lengkap Data & Berkas Prestasi Siswa')
                 ->modalDescription('Verifikator/Admin dapat mengedit seluruh data prestasi, mengganti siswa utama, mengunggah/mengganti berkas, serta memperbarui kurasi tanpa perlu berpindah halaman.')
                 ->modalSubmitActionLabel('Simpan Semua Perubahan')
@@ -311,9 +334,10 @@ class ViewStudentAchievement extends ViewRecord
                     Notification::make()->title('Data & Berkas Prestasi Berhasil Diperbarui')->success()->send();
                 }),
 
-            // ─── ACTION EDIT PER-BARIS (QUICK EDIT MODALS) ────────────────
+            // ─── ACTION EDIT PER-BARIS (QUICK EDIT MODALS - HIDDEN FROM HEADER) ──
             Action::make('edit_event_name')
                 ->label('Edit Nama Ajang / Event')
+                ->extraAttributes(['style' => 'display: none !important'])
                 ->modalHeading('Edit Nama Ajang / Event Lomba')
                 ->modalDescription('Lengkapi atau ubah nama ajang kejuaraan/cabang olahraga (contoh: Kejuaraan Taekwondo Walikota Cup Denpasar XVI 2026).')
                 ->modalSubmitActionLabel('Simpan Nama Ajang')
@@ -336,6 +360,7 @@ class ViewStudentAchievement extends ViewRecord
 
             Action::make('edit_title')
                 ->label('Edit Judul Prestasi')
+                ->extraAttributes(['style' => 'display: none !important'])
                 ->modalHeading('Edit Judul Prestasi / Kejuaraan')
                 ->modalDescription('Ubah judul capaian prestasi yang diraih oleh siswa.')
                 ->modalSubmitActionLabel('Simpan Judul')
@@ -358,6 +383,7 @@ class ViewStudentAchievement extends ViewRecord
 
             Action::make('edit_organizer')
                 ->label('Edit Penyelenggara Lomba')
+                ->extraAttributes(['style' => 'display: none !important'])
                 ->modalHeading('Edit Penyelenggara Lomba')
                 ->modalDescription('Ubah instansi, induk organisasi, atau lembaga penyelenggara ajang.')
                 ->modalSubmitActionLabel('Simpan Penyelenggara')
@@ -380,6 +406,7 @@ class ViewStudentAchievement extends ViewRecord
 
             Action::make('edit_level')
                 ->label('Edit Tingkat Kejuaraan')
+                ->extraAttributes(['style' => 'display: none !important'])
                 ->modalHeading('Edit Tingkat Kejuaraan')
                 ->modalSubmitActionLabel('Simpan Tingkat')
                 ->fillForm(fn (StudentAchievement $record): array => ['level' => $record->level])
@@ -406,6 +433,7 @@ class ViewStudentAchievement extends ViewRecord
 
             Action::make('edit_rank')
                 ->label('Edit Peringkat / Capaian')
+                ->extraAttributes(['style' => 'display: none !important'])
                 ->modalHeading('Edit Peringkat / Capaian Juara')
                 ->modalSubmitActionLabel('Simpan Peringkat')
                 ->fillForm(fn (StudentAchievement $record): array => ['rank' => $record->rank])
@@ -427,6 +455,7 @@ class ViewStudentAchievement extends ViewRecord
 
             Action::make('edit_field_category')
                 ->label('Edit Rumpun Talenta & Kategori')
+                ->extraAttributes(['style' => 'display: none !important'])
                 ->modalHeading('Edit Rumpun Bidang & Kategori Prestasi')
                 ->modalSubmitActionLabel('Simpan Kategori')
                 ->fillForm(fn (StudentAchievement $record): array => [
@@ -469,6 +498,7 @@ class ViewStudentAchievement extends ViewRecord
 
             Action::make('edit_participation_type')
                 ->label('Edit Jenis Partisipasi')
+                ->extraAttributes(['style' => 'display: none !important'])
                 ->modalHeading('Edit Jenis Partisipasi')
                 ->modalSubmitActionLabel('Simpan Partisipasi')
                 ->fillForm(fn (StudentAchievement $record): array => ['participation_type' => $record->participation_type])
@@ -488,6 +518,7 @@ class ViewStudentAchievement extends ViewRecord
 
             Action::make('edit_achievement_date')
                 ->label('Edit Tanggal Lomba')
+                ->extraAttributes(['style' => 'display: none !important'])
                 ->modalHeading('Edit Tanggal Pelaksanaan Lomba')
                 ->modalSubmitActionLabel('Simpan Tanggal')
                 ->fillForm(fn (StudentAchievement $record): array => ['achievement_date' => $record->achievement_date?->format('Y-m-d')])
@@ -507,6 +538,7 @@ class ViewStudentAchievement extends ViewRecord
 
             Action::make('edit_event_url')
                 ->label('Edit Website Resmi')
+                ->extraAttributes(['style' => 'display: none !important'])
                 ->modalHeading('Edit Website Resmi Ajang / Berita')
                 ->modalSubmitActionLabel('Simpan URL')
                 ->fillForm(fn (StudentAchievement $record): array => ['event_url' => $record->event_url])
@@ -528,6 +560,7 @@ class ViewStudentAchievement extends ViewRecord
 
             Action::make('edit_description')
                 ->label('Edit Deskripsi / Catatan')
+                ->extraAttributes(['style' => 'display: none !important'])
                 ->modalHeading('Edit Deskripsi / Catatan Tambahan')
                 ->modalSubmitActionLabel('Simpan Catatan')
                 ->fillForm(fn (StudentAchievement $record): array => ['description' => $record->description])
@@ -549,10 +582,10 @@ class ViewStudentAchievement extends ViewRecord
             // Alias edit_files agar tombol yang memanggil mountAction('edit_files') tetap berfungsi
             Action::make('edit_files')
                 ->label('Bantu Edit Berkas & Data')
-                ->hidden(),
+                ->extraAttributes(['style' => 'display: none !important']),
 
             Action::make('approve_achievement')
-                ->label('Setujui & Sahkan Prestasi')
+                ->label('Setujui / Valid')
                 ->tooltip('Setujui & Masukkan ke Rekap Prestasi Sekolah')
                 ->icon('heroicon-o-check-circle')
                 ->color('success')
@@ -601,7 +634,7 @@ class ViewStudentAchievement extends ViewRecord
                 ->successRedirectUrl(StudentAchievementResource::getUrl('index')),
 
             Action::make('revision')
-                ->label('Minta Revisi Berkas')
+                ->label('Minta Revisi')
                 ->tooltip('Minta Siswa Memperbaiki Berkas/Data')
                 ->icon('heroicon-o-arrow-path')
                 ->color('warning')
@@ -637,7 +670,7 @@ class ViewStudentAchievement extends ViewRecord
                 ->successRedirectUrl(StudentAchievementResource::getUrl('index')),
 
             Action::make('reject')
-                ->label('Tolak / Tidak Valid')
+                ->label('Tolak')
                 ->tooltip('Tolak Ajuan Prestasi')
                 ->icon('heroicon-o-x-circle')
                 ->color('danger')

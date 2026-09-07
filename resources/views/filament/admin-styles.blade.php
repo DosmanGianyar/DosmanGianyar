@@ -284,6 +284,33 @@
     z-index: 99 !important;
 }
 
+/* ─── Page Header & Action Bar Cleanup ───────────────────────── */
+.fi-header {
+    flex-wrap: wrap !important;
+    gap: 1rem !important;
+    align-items: center !important;
+}
+
+.fi-header-heading {
+    white-space: normal !important;
+    word-break: break-word !important;
+    letter-spacing: -0.01em !important;
+}
+
+.fi-header-subheading {
+    color: #94a3b8 !important;
+    font-weight: 500 !important;
+    font-size: 0.875rem !important;
+    margin-top: 0.25rem !important;
+}
+
+.fi-header .fi-ac,
+.fi-header-actions-ctn {
+    flex-wrap: wrap !important;
+    gap: 0.5rem !important;
+    max-width: 100% !important;
+}
+
 /* ─── Section / Form Panels ──────────────────────────────────── */
 .fi-section {
     background: rgba(15, 29, 51, 0.85) !important;
