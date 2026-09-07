@@ -263,21 +263,44 @@ style="width: 100% !important; box-sizing: border-box !important;">
                 <tr>
                     <td style="text-align: center; font-weight: 800; color: #94a3b8;">1</td>
                     <td style="font-weight: 700;">Judul Prestasi / Kejuaraan</td>
-                    <td style="font-weight: 800; color: #f59e0b; font-size: 0.95rem;">
-                        🏆 {{ $record->title }}
+                    <td>
+                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
+                            <span style="font-weight: 800; color: #f59e0b; font-size: 0.95rem;">
+                                🏆 {{ $record->title }}
+                            </span>
+                            <button type="button" 
+                                    wire:click="mountAction('edit_title')" 
+                                    title="Edit Judul Prestasi" 
+                                    style="cursor: pointer; background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.4); color: #93c5fd; padding: 4px 10px; border-radius: 7px; font-size: 0.72rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
+                                ✏️ Edit
+                            </button>
+                        </div>
                     </td>
                 </tr>
 
                 <!-- 2. Nama Ajang / Event -->
                 <tr>
                     <td style="text-align: center; font-weight: 800; color: #94a3b8;">2</td>
-                    <td style="font-weight: 700;">Nama Ajang / Event</td>
+                    <td style="font-weight: 700;">
+                        Nama Ajang / Event
+                        <span style="color: #94a3b8; font-size: 0.7rem; display: block; font-weight: 500;">(Nama kejuaraan / cabang lomba)</span>
+                    </td>
                     <td>
-                        @if($record->event_name)
-                            <span style="font-weight: 600; color: #e2e8f0;">{{ $record->event_name }}</span>
-                        @else
-                            <span style="color: #64748b; font-style: italic;">— (Siswa tidak mengisi nama ajang)</span>
-                        @endif
+                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
+                            <div>
+                                @if($record->event_name)
+                                    <span style="font-weight: 700; color: #f1f5f9; font-size: 0.9rem;">{{ $record->event_name }}</span>
+                                @else
+                                    <span style="color: #f59e0b; font-style: italic; font-weight: 600;">⚠️ Belum diisi (Contoh: Kejuaraan Taekwondo Walikota Cup XVI 2026)</span>
+                                @endif
+                            </div>
+                            <button type="button" 
+                                    wire:click="mountAction('edit_event_name')" 
+                                    title="Edit Nama Ajang / Event" 
+                                    style="cursor: pointer; background: {{ $record->event_name ? 'rgba(59, 130, 246, 0.15)' : '#2563eb' }}; border: 1px solid {{ $record->event_name ? 'rgba(59, 130, 246, 0.4)' : '#3b82f6' }}; color: {{ $record->event_name ? '#93c5fd' : '#ffffff' }}; padding: 5px 12px; border-radius: 8px; font-size: 0.74rem; font-weight: 800; display: inline-flex; align-items: center; gap: 5px; box-shadow: 0 1px 3px rgba(0,0,0,0.2);">
+                                ✏️ {{ $record->event_name ? 'Edit Nama Ajang' : '➕ Isi / Edit Nama Ajang' }}
+                            </button>
+                        </div>
                     </td>
                 </tr>
 
@@ -286,11 +309,21 @@ style="width: 100% !important; box-sizing: border-box !important;">
                     <td style="text-align: center; font-weight: 800; color: #94a3b8;">3</td>
                     <td style="font-weight: 700;">Penyelenggara Lomba</td>
                     <td>
-                        @if($record->organizer)
-                            <span style="font-weight: 600; color: #e2e8f0;">{{ $record->organizer }}</span>
-                        @else
-                            <span style="color: #64748b; font-style: italic;">— (Siswa tidak mengisi penyelenggara)</span>
-                        @endif
+                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
+                            <div>
+                                @if($record->organizer)
+                                    <span style="font-weight: 600; color: #e2e8f0;">{{ $record->organizer }}</span>
+                                @else
+                                    <span style="color: #64748b; font-style: italic;">— (Belum diisi)</span>
+                                @endif
+                            </div>
+                            <button type="button" 
+                                    wire:click="mountAction('edit_organizer')" 
+                                    title="Edit Penyelenggara Lomba" 
+                                    style="cursor: pointer; background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.4); color: #93c5fd; padding: 4px 10px; border-radius: 7px; font-size: 0.72rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
+                                ✏️ Edit
+                            </button>
+                        </div>
                     </td>
                 </tr>
 
@@ -299,9 +332,17 @@ style="width: 100% !important; box-sizing: border-box !important;">
                     <td style="text-align: center; font-weight: 800; color: #94a3b8;">4</td>
                     <td style="font-weight: 700;">Tingkat Kejuaraan</td>
                     <td>
-                        <span style="display: inline-block; padding: 3px 12px; border-radius: 6px; font-weight: 700; font-size: 0.75rem; {{ $levelStyle }}">
-                            {{ $record->levelLabel() }}
-                        </span>
+                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
+                            <span style="display: inline-block; padding: 3px 12px; border-radius: 6px; font-weight: 700; font-size: 0.75rem; {{ $levelStyle }}">
+                                {{ $record->levelLabel() }}
+                            </span>
+                            <button type="button" 
+                                    wire:click="mountAction('edit_level')" 
+                                    title="Edit Tingkat Kejuaraan" 
+                                    style="cursor: pointer; background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.4); color: #93c5fd; padding: 4px 10px; border-radius: 7px; font-size: 0.72rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
+                                ✏️ Edit
+                            </button>
+                        </div>
                     </td>
                 </tr>
 
@@ -310,13 +351,23 @@ style="width: 100% !important; box-sizing: border-box !important;">
                     <td style="text-align: center; font-weight: 800; color: #94a3b8;">5</td>
                     <td style="font-weight: 700;">Peringkat / Capaian (Juara)</td>
                     <td>
-                        @if($record->rank)
-                            <span style="display: inline-block; padding: 3px 12px; border-radius: 6px; font-weight: 800; font-size: 0.75rem; background:#78350f; color:#fef3c7; border:1px solid #b45309;">
-                                🥇 {{ $record->rank }}
-                            </span>
-                        @else
-                            <span style="color: #64748b; font-style: italic;">—</span>
-                        @endif
+                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
+                            <div>
+                                @if($record->rank)
+                                    <span style="display: inline-block; padding: 3px 12px; border-radius: 6px; font-weight: 800; font-size: 0.75rem; background:#78350f; color:#fef3c7; border:1px solid #b45309;">
+                                        🥇 {{ $record->rank }}
+                                    </span>
+                                @else
+                                    <span style="color: #64748b; font-style: italic;">—</span>
+                                @endif
+                            </div>
+                            <button type="button" 
+                                    wire:click="mountAction('edit_rank')" 
+                                    title="Edit Peringkat Juara" 
+                                    style="cursor: pointer; background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.4); color: #93c5fd; padding: 4px 10px; border-radius: 7px; font-size: 0.72rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
+                                ✏️ Edit
+                            </button>
+                        </div>
                     </td>
                 </tr>
 
@@ -325,9 +376,17 @@ style="width: 100% !important; box-sizing: border-box !important;">
                     <td style="text-align: center; font-weight: 800; color: #94a3b8;">6</td>
                     <td style="font-weight: 700;">Rumpun Bidang / Talenta</td>
                     <td>
-                        <span style="display: inline-block; padding: 3px 12px; border-radius: 6px; font-weight: 700; font-size: 0.75rem; background:#1e3a8a; color:#bfdbfe; border:1px solid #2563eb;">
-                            {{ $record->fieldCategoryLabel() }}
-                        </span>
+                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
+                            <span style="display: inline-block; padding: 3px 12px; border-radius: 6px; font-weight: 700; font-size: 0.75rem; background:#1e3a8a; color:#bfdbfe; border:1px solid #2563eb;">
+                                {{ $record->fieldCategoryLabel() }}
+                            </span>
+                            <button type="button" 
+                                    wire:click="mountAction('edit_field_category')" 
+                                    title="Edit Rumpun & Kategori" 
+                                    style="cursor: pointer; background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.4); color: #93c5fd; padding: 4px 10px; border-radius: 7px; font-size: 0.72rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
+                                ✏️ Edit
+                            </button>
+                        </div>
                     </td>
                 </tr>
 
@@ -336,15 +395,25 @@ style="width: 100% !important; box-sizing: border-box !important;">
                     <td style="text-align: center; font-weight: 800; color: #94a3b8;">7</td>
                     <td style="font-weight: 700;">Jenis Partisipasi</td>
                     <td>
-                        @if($record->isBeregu())
-                            <span style="display: inline-block; padding: 3px 12px; border-radius: 6px; font-weight: 700; font-size: 0.75rem; background:#581c87; color:#f3e8ff; border:1px solid #7e22ce;">
-                                👥 Beregu ({{ $record->team_members->count() }} Anggota Tim)
-                            </span>
-                        @else
-                            <span style="display: inline-block; padding: 3px 12px; border-radius: 6px; font-weight: 700; font-size: 0.75rem; background:#334155; color:#cbd5e1; border:1px solid #475569;">
-                                👤 Perorangan (Individu)
-                            </span>
-                        @endif
+                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
+                            <div>
+                                @if($record->isBeregu())
+                                    <span style="display: inline-block; padding: 3px 12px; border-radius: 6px; font-weight: 700; font-size: 0.75rem; background:#581c87; color:#f3e8ff; border:1px solid #7e22ce;">
+                                        👥 Beregu ({{ $record->team_members->count() }} Anggota Tim)
+                                    </span>
+                                @else
+                                    <span style="display: inline-block; padding: 3px 12px; border-radius: 6px; font-weight: 700; font-size: 0.75rem; background:#334155; color:#cbd5e1; border:1px solid #475569;">
+                                        👤 Perorangan (Individu)
+                                    </span>
+                                @endif
+                            </div>
+                            <button type="button" 
+                                    wire:click="mountAction('edit_participation_type')" 
+                                    title="Edit Jenis Partisipasi" 
+                                    style="cursor: pointer; background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.4); color: #93c5fd; padding: 4px 10px; border-radius: 7px; font-size: 0.72rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
+                                ✏️ Edit
+                            </button>
+                        </div>
                     </td>
                 </tr>
 
@@ -352,8 +421,18 @@ style="width: 100% !important; box-sizing: border-box !important;">
                 <tr>
                     <td style="text-align: center; font-weight: 800; color: #94a3b8;">8</td>
                     <td style="font-weight: 700;">Tanggal Lomba / Capaian</td>
-                    <td style="font-weight: 600;">
-                        🗓️ {{ $record->achievement_date ? $record->achievement_date->translatedFormat('d F Y') : '—' }}
+                    <td>
+                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
+                            <span style="font-weight: 600;">
+                                🗓️ {{ $record->achievement_date ? $record->achievement_date->translatedFormat('d F Y') : '—' }}
+                            </span>
+                            <button type="button" 
+                                    wire:click="mountAction('edit_achievement_date')" 
+                                    title="Edit Tanggal Lomba" 
+                                    style="cursor: pointer; background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.4); color: #93c5fd; padding: 4px 10px; border-radius: 7px; font-size: 0.72rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
+                                ✏️ Edit
+                            </button>
+                        </div>
                     </td>
                 </tr>
 
@@ -362,13 +441,23 @@ style="width: 100% !important; box-sizing: border-box !important;">
                     <td style="text-align: center; font-weight: 800; color: #94a3b8;">9</td>
                     <td style="font-weight: 700;">Website Resmi Ajang / Berita</td>
                     <td>
-                        @if($record->event_url)
-                            <a href="{{ $record->event_url }}" target="_blank" style="color: #60a5fa; text-decoration: underline; font-weight: 700;">
-                                🔗 {{ $record->event_url }} ↗
-                            </a>
-                        @else
-                            <span style="color: #64748b; font-style: italic;">— (Tidak dilampirkan)</span>
-                        @endif
+                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
+                            <div>
+                                @if($record->event_url)
+                                    <a href="{{ $record->event_url }}" target="_blank" style="color: #60a5fa; text-decoration: underline; font-weight: 700;">
+                                        🔗 {{ $record->event_url }} ↗
+                                    </a>
+                                @else
+                                    <span style="color: #64748b; font-style: italic;">— (Tidak dilampirkan)</span>
+                                @endif
+                            </div>
+                            <button type="button" 
+                                    wire:click="mountAction('edit_event_url')" 
+                                    title="Edit Tautan Website" 
+                                    style="cursor: pointer; background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.4); color: #93c5fd; padding: 4px 10px; border-radius: 7px; font-size: 0.72rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
+                                ✏️ Edit
+                            </button>
+                        </div>
                     </td>
                 </tr>
 
@@ -376,8 +465,20 @@ style="width: 100% !important; box-sizing: border-box !important;">
                 <tr>
                     <td style="text-align: center; font-weight: 800; color: #94a3b8;">10</td>
                     <td style="font-weight: 700;">Deskripsi / Catatan Tambahan</td>
-                    <td style="white-space: pre-line; color: #cbd5e1;">
-                        {{ $record->description ?: '— (Tidak ada catatan tambahan)' }}
+                    <td>
+                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
+                            <div style="white-space: pre-line; color: #cbd5e1; flex: 1; min-width: 200px;">
+                                {{ $record->description ?: '— (Tidak ada catatan tambahan)' }}
+                            </div>
+                            <button type="button" 
+                                    wire:click="mountAction('edit_description')" 
+                                    title="Edit Deskripsi" 
+                                    style="cursor: pointer; background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.4); color: #93c5fd; padding: 4px 10px; border-radius: 7px; font-size: 0.72rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
+                                ✏️ Edit
+                            </button>
+                        </div>
+                    </td>
+                </tr>
                            <!-- 11. Scan Piagam / Sertifikat (Wajib) -->
                 <tr>
                     <td style="text-align: center; font-weight: 800; color: #94a3b8;">11</td>

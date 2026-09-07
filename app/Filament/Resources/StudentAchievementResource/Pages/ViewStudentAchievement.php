@@ -311,6 +311,241 @@ class ViewStudentAchievement extends ViewRecord
                     Notification::make()->title('Data & Berkas Prestasi Berhasil Diperbarui')->success()->send();
                 }),
 
+            // ─── ACTION EDIT PER-BARIS (QUICK EDIT MODALS) ────────────────
+            Action::make('edit_event_name')
+                ->label('Edit Nama Ajang / Event')
+                ->modalHeading('Edit Nama Ajang / Event Lomba')
+                ->modalDescription('Lengkapi atau ubah nama ajang kejuaraan/cabang olahraga (contoh: Kejuaraan Taekwondo Walikota Cup Denpasar XVI 2026).')
+                ->modalSubmitActionLabel('Simpan Nama Ajang')
+                ->fillForm(fn (StudentAchievement $record): array => ['event_name' => $record->event_name])
+                ->form([
+                    TextInput::make('event_name')
+                        ->label('Nama Ajang / Event Perlombaan')
+                        ->placeholder('Contoh: Kejuaraan Taekwondo Walikota Cup XVI 2026')
+                        ->required()
+                        ->maxLength(200),
+                ])
+                ->action(function (StudentAchievement $record, array $data): void {
+                    if ($record->isBeregu() && ! empty($record->team_code)) {
+                        StudentAchievement::where('team_code', $record->team_code)->update(['event_name' => $data['event_name']]);
+                    } else {
+                        $record->update(['event_name' => $data['event_name']]);
+                    }
+                    Notification::make()->title('Nama ajang lomba berhasil diperbarui')->success()->send();
+                }),
+
+            Action::make('edit_title')
+                ->label('Edit Judul Prestasi')
+                ->modalHeading('Edit Judul Prestasi / Kejuaraan')
+                ->modalDescription('Ubah judul capaian prestasi yang diraih oleh siswa.')
+                ->modalSubmitActionLabel('Simpan Judul')
+                ->fillForm(fn (StudentAchievement $record): array => ['title' => $record->title])
+                ->form([
+                    TextInput::make('title')
+                        ->label('Judul Prestasi / Kejuaraan')
+                        ->placeholder('Contoh: JUARA 3 WALIKOTA CUP DENPASAR XVI 2026')
+                        ->required()
+                        ->maxLength(200),
+                ])
+                ->action(function (StudentAchievement $record, array $data): void {
+                    if ($record->isBeregu() && ! empty($record->team_code)) {
+                        StudentAchievement::where('team_code', $record->team_code)->update(['title' => $data['title']]);
+                    } else {
+                        $record->update(['title' => $data['title']]);
+                    }
+                    Notification::make()->title('Judul prestasi berhasil diperbarui')->success()->send();
+                }),
+
+            Action::make('edit_organizer')
+                ->label('Edit Penyelenggara Lomba')
+                ->modalHeading('Edit Penyelenggara Lomba')
+                ->modalDescription('Ubah instansi, induk organisasi, atau lembaga penyelenggara ajang.')
+                ->modalSubmitActionLabel('Simpan Penyelenggara')
+                ->fillForm(fn (StudentAchievement $record): array => ['organizer' => $record->organizer])
+                ->form([
+                    TextInput::make('organizer')
+                        ->label('Penyelenggara Lomba')
+                        ->placeholder('Contoh: KONI Kota Denpasar / Pengprov Taekwondo Indonesia')
+                        ->required()
+                        ->maxLength(200),
+                ])
+                ->action(function (StudentAchievement $record, array $data): void {
+                    if ($record->isBeregu() && ! empty($record->team_code)) {
+                        StudentAchievement::where('team_code', $record->team_code)->update(['organizer' => $data['organizer']]);
+                    } else {
+                        $record->update(['organizer' => $data['organizer']]);
+                    }
+                    Notification::make()->title('Penyelenggara lomba berhasil diperbarui')->success()->send();
+                }),
+
+            Action::make('edit_level')
+                ->label('Edit Tingkat Kejuaraan')
+                ->modalHeading('Edit Tingkat Kejuaraan')
+                ->modalSubmitActionLabel('Simpan Tingkat')
+                ->fillForm(fn (StudentAchievement $record): array => ['level' => $record->level])
+                ->form([
+                    Select::make('level')
+                        ->label('Tingkat Kejuaraan')
+                        ->options([
+                            'sekolah'       => 'Sekolah (Internal)',
+                            'kabupaten'     => 'Kabupaten / Kota',
+                            'provinsi'      => 'Provinsi',
+                            'nasional'      => 'Nasional',
+                            'internasional' => 'Internasional',
+                        ])
+                        ->required(),
+                ])
+                ->action(function (StudentAchievement $record, array $data): void {
+                    if ($record->isBeregu() && ! empty($record->team_code)) {
+                        StudentAchievement::where('team_code', $record->team_code)->update(['level' => $data['level']]);
+                    } else {
+                        $record->update(['level' => $data['level']]);
+                    }
+                    Notification::make()->title('Tingkat kejuaraan berhasil diperbarui')->success()->send();
+                }),
+
+            Action::make('edit_rank')
+                ->label('Edit Peringkat / Capaian')
+                ->modalHeading('Edit Peringkat / Capaian Juara')
+                ->modalSubmitActionLabel('Simpan Peringkat')
+                ->fillForm(fn (StudentAchievement $record): array => ['rank' => $record->rank])
+                ->form([
+                    TextInput::make('rank')
+                        ->label('Peringkat / Capaian Juara')
+                        ->placeholder('Contoh: JUARA 3, Medali Perunggu, Harapan 1')
+                        ->required()
+                        ->maxLength(100),
+                ])
+                ->action(function (StudentAchievement $record, array $data): void {
+                    if ($record->isBeregu() && ! empty($record->team_code)) {
+                        StudentAchievement::where('team_code', $record->team_code)->update(['rank' => $data['rank']]);
+                    } else {
+                        $record->update(['rank' => $data['rank']]);
+                    }
+                    Notification::make()->title('Peringkat juara berhasil diperbarui')->success()->send();
+                }),
+
+            Action::make('edit_field_category')
+                ->label('Edit Rumpun Talenta & Kategori')
+                ->modalHeading('Edit Rumpun Bidang & Kategori Prestasi')
+                ->modalSubmitActionLabel('Simpan Kategori')
+                ->fillForm(fn (StudentAchievement $record): array => [
+                    'field_category' => $record->field_category,
+                    'category_id'    => $record->category_id,
+                ])
+                ->form([
+                    Select::make('field_category')
+                        ->label('Rumpun Talenta')
+                        ->options([
+                            'sains_riset'  => 'Sains & Riset',
+                            'olahraga'     => 'Olahraga',
+                            'seni_budaya'  => 'Seni & Budaya',
+                            'bahasa_debat' => 'Bahasa & Debat',
+                            'keagamaan'    => 'Keagamaan',
+                            'akademik'     => 'Akademik',
+                            'lainnya'      => 'Lainnya',
+                        ])
+                        ->required(),
+                    Select::make('category_id')
+                        ->label('Kategori Prestasi')
+                        ->options(AchievementCategory::orderBy('name')->pluck('name', 'id'))
+                        ->searchable()
+                        ->required(),
+                ])
+                ->action(function (StudentAchievement $record, array $data): void {
+                    if ($record->isBeregu() && ! empty($record->team_code)) {
+                        StudentAchievement::where('team_code', $record->team_code)->update([
+                            'field_category' => $data['field_category'],
+                            'category_id'    => $data['category_id'],
+                        ]);
+                    } else {
+                        $record->update([
+                            'field_category' => $data['field_category'],
+                            'category_id'    => $data['category_id'],
+                        ]);
+                    }
+                    Notification::make()->title('Rumpun bidang & kategori berhasil diperbarui')->success()->send();
+                }),
+
+            Action::make('edit_participation_type')
+                ->label('Edit Jenis Partisipasi')
+                ->modalHeading('Edit Jenis Partisipasi')
+                ->modalSubmitActionLabel('Simpan Partisipasi')
+                ->fillForm(fn (StudentAchievement $record): array => ['participation_type' => $record->participation_type])
+                ->form([
+                    Select::make('participation_type')
+                        ->label('Jenis Partisipasi')
+                        ->options([
+                            'individu' => 'Perorangan (Individu)',
+                            'beregu'   => 'Beregu / Kelompok',
+                        ])
+                        ->required(),
+                ])
+                ->action(function (StudentAchievement $record, array $data): void {
+                    $record->update(['participation_type' => $data['participation_type']]);
+                    Notification::make()->title('Jenis partisipasi berhasil diperbarui')->success()->send();
+                }),
+
+            Action::make('edit_achievement_date')
+                ->label('Edit Tanggal Lomba')
+                ->modalHeading('Edit Tanggal Pelaksanaan Lomba')
+                ->modalSubmitActionLabel('Simpan Tanggal')
+                ->fillForm(fn (StudentAchievement $record): array => ['achievement_date' => $record->achievement_date?->format('Y-m-d')])
+                ->form([
+                    DatePicker::make('achievement_date')
+                        ->label('Tanggal Pelaksanaan / Capaian')
+                        ->required(),
+                ])
+                ->action(function (StudentAchievement $record, array $data): void {
+                    if ($record->isBeregu() && ! empty($record->team_code)) {
+                        StudentAchievement::where('team_code', $record->team_code)->update(['achievement_date' => $data['achievement_date']]);
+                    } else {
+                        $record->update(['achievement_date' => $data['achievement_date']]);
+                    }
+                    Notification::make()->title('Tanggal lomba berhasil diperbarui')->success()->send();
+                }),
+
+            Action::make('edit_event_url')
+                ->label('Edit Website Resmi')
+                ->modalHeading('Edit Website Resmi Ajang / Berita')
+                ->modalSubmitActionLabel('Simpan URL')
+                ->fillForm(fn (StudentAchievement $record): array => ['event_url' => $record->event_url])
+                ->form([
+                    TextInput::make('event_url')
+                        ->label('Website Resmi Ajang / Tautan Berita')
+                        ->placeholder('https://...')
+                        ->url()
+                        ->maxLength(255),
+                ])
+                ->action(function (StudentAchievement $record, array $data): void {
+                    if ($record->isBeregu() && ! empty($record->team_code)) {
+                        StudentAchievement::where('team_code', $record->team_code)->update(['event_url' => $data['event_url']]);
+                    } else {
+                        $record->update(['event_url' => $data['event_url']]);
+                    }
+                    Notification::make()->title('Website resmi lomba berhasil diperbarui')->success()->send();
+                }),
+
+            Action::make('edit_description')
+                ->label('Edit Deskripsi / Catatan')
+                ->modalHeading('Edit Deskripsi / Catatan Tambahan')
+                ->modalSubmitActionLabel('Simpan Catatan')
+                ->fillForm(fn (StudentAchievement $record): array => ['description' => $record->description])
+                ->form([
+                    Textarea::make('description')
+                        ->label('Deskripsi / Catatan Tambahan')
+                        ->placeholder('Tuliskan rincian atau keterangan tambahan tentang ajang lomba ini...')
+                        ->rows(4),
+                ])
+                ->action(function (StudentAchievement $record, array $data): void {
+                    if ($record->isBeregu() && ! empty($record->team_code)) {
+                        StudentAchievement::where('team_code', $record->team_code)->update(['description' => $data['description']]);
+                    } else {
+                        $record->update(['description' => $data['description']]);
+                    }
+                    Notification::make()->title('Deskripsi berhasil diperbarui')->success()->send();
+                }),
+
             // Alias edit_files agar tombol yang memanggil mountAction('edit_files') tetap berfungsi
             Action::make('edit_files')
                 ->label('Bantu Edit Berkas & Data')
