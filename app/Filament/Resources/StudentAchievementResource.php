@@ -484,9 +484,12 @@ class StudentAchievementResource extends Resource
                     ImageEntry::make('photo')
                         ->label('Foto Dokumentasi Kegiatan / Penyerahan Piagam')
                         ->disk('public')
+                        ->url(fn (StudentAchievement $record): ?string => $record->photo ? (str_starts_with($record->photo, 'kurasi/') ? asset($record->photo) : asset('storage/' . $record->photo)) : null)
+                        ->openUrlInNewTab()
                         ->extraImgAttributes([
-                            'style' => 'max-height: 320px !important; width: auto !important; height: auto !important; border-radius: 16px !important; object-fit: cover !important;',
-                            'class' => 'shadow-md border border-gray-200 dark:border-gray-700 mt-2',
+                            'style' => 'max-height: 320px !important; width: auto !important; height: auto !important; border-radius: 16px !important; object-fit: cover !important; cursor: pointer !important;',
+                            'class' => 'shadow-md border border-gray-200 dark:border-gray-700 mt-2 hover:opacity-90 transition-opacity',
+                            'title' => 'Klik untuk lihat foto ukuran penuh di tab baru',
                         ])
                         ->columnSpanFull()
                         ->visible(fn (StudentAchievement $record): bool => ! empty($record->photo)),
