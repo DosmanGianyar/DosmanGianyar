@@ -340,113 +340,15 @@ class StudentAchievementResource extends Resource
     public static function infolist(Schema $schema): Schema
     {
         return $schema->components([
-            // Section 1: Ringkasan Prestasi & Status Verifikasi
-            Section::make('Informasi Kejuaraan & Status Verifikasi')
-                ->icon('heroicon-o-trophy')
+            // Section 1: Rincian Tagihan & Data Ajuan Prestasi Siswa
+            Section::make('Rincian Tagihan & Data Ajuan Prestasi')
+                ->icon('heroicon-o-table-cells')
                 ->schema([
-                    TextEntry::make('title')
-                        ->label('Judul Prestasi / Kejuaraan')
-                        ->weight('bold')
-                        ->color('warning')
-                        ->icon('heroicon-o-sparkles')
-                        ->columnSpanFull(),
-
-                    TextEntry::make('status')
-                        ->label('Status Verifikasi Saat Ini')
-                        ->badge()
-                        ->color(fn (StudentAchievement $record): string => match ($record->status) {
-                            'approved' => 'success',
-                            'rejected' => 'danger',
-                            default    => $record->curation_status === 'revision' ? 'warning' : 'amber',
-                        })
-                        ->formatStateUsing(fn (StudentAchievement $record): string => match ($record->status) {
-                            'approved' => 'Disetujui / Valid (Masuk Rekap Sekolah)',
-                            'rejected' => 'Ditolak',
-                            default    => $record->curation_status === 'revision' ? 'Perlu Revisi Berkas' : 'Menunggu Verifikasi Admin',
-                        }),
-
-                    TextEntry::make('curation_note')
-                        ->label('Catatan Verifikasi / Alasan Revisi / Penolakan')
-                        ->placeholder('Tidak ada catatan verifikasi')
-                        ->columnSpanFull()
-                        ->visible(fn (StudentAchievement $record): bool => ! empty($record->curation_note)),
-
-                    TextEntry::make('event_name')
-                        ->label('Nama Ajang / Event')
-                        ->icon('heroicon-o-flag')
-                        ->placeholder('—'),
-
-                    TextEntry::make('organizer')
-                        ->label('Penyelenggara')
-                        ->icon('heroicon-o-building-office')
-                        ->placeholder('—'),
-
-                    TextEntry::make('level')
-                        ->label('Tingkat Kejuaraan')
-                        ->badge()
-                        ->color(fn (string $state): string => match ($state) {
-                            'sekolah'       => 'gray',
-                            'kabupaten'     => 'info',
-                            'provinsi'      => 'warning',
-                            'nasional'      => 'success',
-                            'internasional' => 'danger',
-                            default         => 'gray',
-                        })
-                        ->formatStateUsing(fn (StudentAchievement $record): string => $record->levelLabel()),
-
-                    TextEntry::make('rank')
-                        ->label('Peringkat / Juara')
-                        ->badge()
-                        ->color('warning')
-                        ->placeholder('—'),
-
-                    TextEntry::make('field_category')
-                        ->label('Rumpun Bidang')
-                        ->badge()
-                        ->color('info')
-                        ->formatStateUsing(fn (StudentAchievement $record): string => $record->fieldCategoryLabel()),
-
-                    TextEntry::make('participation_type')
-                        ->label('Jenis Partisipasi')
-                        ->badge()
-                        ->color(fn (StudentAchievement $record): string => $record->isBeregu() ? 'purple' : 'gray')
-                        ->formatStateUsing(function (StudentAchievement $record): string {
-                            if (! $record->isBeregu()) return '👤 Perorangan (Individu)';
-                            $count = $record->team_members->count();
-                            return "👥 Beregu ({$count} Siswa)";
-                        }),
-
-                    TextEntry::make('achievement_date')
-                        ->label('Tanggal Lomba / Capaian')
-                        ->date('d F Y')
-                        ->icon('heroicon-o-calendar'),
-
-                    TextEntry::make('verifier.name')
-                        ->label('Diverifikasi Oleh')
-                        ->weight('bold')
-                        ->color('info')
-                        ->placeholder('Belum diverifikasi'),
-
-                    TextEntry::make('verified_at')
-                        ->label('Waktu Verifikasi')
-                        ->dateTime('d F Y, H:i')
-                        ->placeholder('—'),
-
-                    TextEntry::make('event_url')
-                        ->label('Website Resmi Ajang / Berita')
-                        ->url(fn ($state) => $state)
-                        ->openUrlInNewTab()
-                        ->icon('heroicon-o-arrow-top-right-on-square')
-                        ->color('primary')
-                        ->placeholder('—')
-                        ->columnSpanFull(),
-
-                    TextEntry::make('description')
-                        ->label('Deskripsi / Catatan Tambahan Lomba')
-                        ->placeholder('Tidak ada deskripsi tambahan')
+                    ViewEntry::make('achievement_table')
+                        ->hiddenLabel()
+                        ->view('filament.components.achievement-details-table')
                         ->columnSpanFull(),
                 ])
-                ->columns(3)
                 ->columnSpanFull(),
 
             // Section 2: Data Siswa & Anggota Tim
