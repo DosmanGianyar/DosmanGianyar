@@ -19,6 +19,9 @@ dependencies:
   # Device ID — ANDROID_ID / identifierForVendor (Anti-Titip Absen)
   device_info_plus: ^10.1.0
 
+  # File path provider
+  path_provider: ^2.1.2
+
   # GPS + isMocked detection
   geolocator: ^11.0.0
 
