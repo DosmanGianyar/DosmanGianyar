@@ -63,6 +63,14 @@ class RoleSeeder extends Seeder
                 'extra' => [],
             ],
             [
+                'role'  => 'admin_reset_password',
+                'email' => 'resetpassword@sims.sch.id',
+                'name'  => 'Admin Reset Password',
+                'extra' => [
+                    'nip' => 'admin_reset',
+                ],
+            ],
+            [
                 'role'  => 'guru',
                 'email' => 'guru@sims.sch.id',
                 'name'  => 'Budi Setiawan, S.Pd',

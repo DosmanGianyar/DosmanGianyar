@@ -11,6 +11,18 @@ class Dashboard extends BaseDashboard
 {
     use HasFiltersForm;
 
+    public function mount(): void
+    {
+        if (auth()->user()?->role === 'admin_reset_password') {
+            redirect()->to(\App\Filament\Resources\PasswordResetRequestResource::getUrl());
+        }
+    }
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return auth()->user()?->role !== 'admin_reset_password';
+    }
+
     public function filtersForm(Schema $schema): Schema
     {
         return $schema

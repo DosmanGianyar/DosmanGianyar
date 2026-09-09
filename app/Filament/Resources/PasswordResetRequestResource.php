@@ -14,6 +14,7 @@ use Filament\Resources\Resource;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 
@@ -28,14 +29,27 @@ class PasswordResetRequestResource extends Resource
     protected static ?string $pluralModelLabel = 'Permintaan Reset Password';
     protected static ?int    $navigationSort   = 7;
 
+    public static function getNavigationGroup(): string|\UnitEnum|null
+    {
+        if (auth()->user()?->role === 'admin_reset_password') {
+            return null;
+        }
+
+        return 'Manajemen User';
+    }
+
     public static function canAccess(): bool
     {
-        return auth()->user()?->role === 'admin';
+        return in_array(auth()->user()?->role, ['admin', 'admin_reset_password'], true);
     }
 
     public static function getNavigationBadge(): ?string
     {
-        $count = static::getModel()::where('status', 'pending')->count();
+        $query = static::getModel()::where('status', 'pending');
+        if (auth()->user()?->role === 'admin_reset_password') {
+            $query->whereHas('user', fn ($q) => $q->whereIn('role', ['siswa', 'pengelola']));
+        }
+        $count = $query->count();
         return $count > 0 ? (string) $count : null;
     }
 
@@ -248,6 +262,16 @@ class PasswordResetRequestResource extends Resource
                     DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+        if (auth()->user()?->role === 'admin_reset_password') {
+            $query->whereHas('user', fn ($q) => $q->whereIn('role', ['siswa', 'pengelola']));
+        }
+
+        return $query;
     }
 
     public static function getPages(): array

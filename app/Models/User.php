@@ -145,7 +145,7 @@ class User extends Authenticatable implements FilamentUser
     public function canAccessPanel(Panel $panel): bool
     {
         if (in_array($this->role, [
-            'admin', 'admin_kesiswaan', 'admin_kurikulum', 'admin_sarpras', 'admin_humas', 'admin_perpustakaan', 'admin_prestasi',
+            'admin', 'admin_kesiswaan', 'admin_kurikulum', 'admin_sarpras', 'admin_humas', 'admin_perpustakaan', 'admin_prestasi', 'admin_reset_password',
         ])) {
             return true;
         }
@@ -158,8 +158,9 @@ class User extends Authenticatable implements FilamentUser
     }
 
     // ─── Role Helpers ────────────────────────────────────────────────────────
-    public function isAdmin(): bool           { return $this->role === 'admin'; }
-    public function isAdminKesiswaan(): bool  { return $this->role === 'admin_kesiswaan'; }
+    public function isAdmin(): bool                { return $this->role === 'admin'; }
+    public function isAdminKesiswaan(): bool       { return $this->role === 'admin_kesiswaan'; }
+    public function isAdminResetPassword(): bool   { return $this->role === 'admin_reset_password'; }
     public function getQrTokenAttribute(): string
     {
         if (empty($this->attributes['qr_code_token'])) {

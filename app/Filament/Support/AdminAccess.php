@@ -14,8 +14,9 @@ class AdminAccess
         'admin_kurikulum'    => ['Kurikulum'],
         'admin_sarpras'      => ['Sarpras', 'Perpustakaan'],
         'admin_humas'        => ['Humas'],
-        'admin_perpustakaan' => ['Perpustakaan'],
-        'admin_prestasi'     => ['Prestasi & Ekskul'],
+        'admin_perpustakaan'   => ['Perpustakaan'],
+        'admin_prestasi'       => ['Prestasi & Ekskul'],
+        'admin_reset_password' => ['Reset Password'],
     ];
 
     /**

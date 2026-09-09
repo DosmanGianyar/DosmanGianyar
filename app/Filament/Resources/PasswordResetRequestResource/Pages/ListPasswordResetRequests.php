@@ -20,6 +20,7 @@ class ListPasswordResetRequests extends ListRecords
                 ->label('⚡ Reset Akun Demo PlayStore')
                 ->icon('heroicon-o-arrow-path')
                 ->color('warning')
+                ->visible(fn (): bool => auth()->user()?->role === 'admin')
                 ->requiresConfirmation()
                 ->modalHeading('Reset Password Akun Demo')
                 ->modalDescription('Reset password playstore.demo@sims.sch.id (NISN: 0000000001) kembali ke "PlayReview123" & bersihkan device lock?')
