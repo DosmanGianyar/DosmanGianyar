@@ -109,6 +109,12 @@ class GuruResource extends Resource
     {
         return $table
             ->columns([
+                TextColumn::make('no_urut')
+                    ->label('No.')
+                    ->rowIndex()
+                    ->alignCenter()
+                    ->width('48px'),
+
                 TextColumn::make('name')
                     ->label('Nama')
                     ->searchable()
