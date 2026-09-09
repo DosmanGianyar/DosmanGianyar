@@ -69,7 +69,7 @@ class User extends Authenticatable implements FilamentUser
             }
             if (empty($user->password)) {
                 $username = match (true) {
-                    $user->isGuru()                           => $user->nip ?: ($user->email ?: 'guru123'),
+                    $user->isGuru() || $user->isPegawai()     => $user->nip ?: ($user->email ?: 'guru123'),
                     $user->isSiswa() || $user->isPengelola()  => $user->nisn ?: ($user->nis ?: ($user->email ?: 'siswa123')),
                     $user->isOrangtua()                       => $user->phone ?: 'orangtua123',
                     default                                   => $user->email ?: 'user123',
@@ -168,6 +168,8 @@ class User extends Authenticatable implements FilamentUser
     }
 
     public function isGuru(): bool            { return $this->role === 'guru'; }
+    public function isPegawai(): bool         { return $this->role === 'pegawai'; }
+    public function isGuruOrPegawai(): bool   { return in_array($this->role, ['guru', 'pegawai']); }
     public function isSiswa(): bool           { return in_array($this->role, ['siswa', 'pengelola']); }
     public function isPengelola(): bool       { return $this->role === 'pengelola'; }
     public function isOrangtua(): bool        { return $this->role === 'orangtua'; }
@@ -228,12 +230,13 @@ class User extends Authenticatable implements FilamentUser
             'admin_sarpras',
             'admin_humas',
             'admin_perpustakaan',
-            'admin_prestasi' => '/admin',
-            'guru'               => route('guru.dashboard'),
-            'siswa'              => route('siswa.dashboard'),
-            'pengelola'          => route('siswa.dashboard'),
-            'orangtua'           => route('orangtua.dashboard'),
-            default              => '/',
+            'admin_prestasi'   => '/admin',
+            'guru',
+            'pegawai'          => route('guru.dashboard'),
+            'siswa'            => route('siswa.dashboard'),
+            'pengelola'        => route('siswa.dashboard'),
+            'orangtua'         => route('orangtua.dashboard'),
+            default            => '/',
         };
     }
 

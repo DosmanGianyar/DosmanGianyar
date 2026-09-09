@@ -4,6 +4,7 @@ namespace App\Filament\Pages;
 
 use App\Imports\GuruImport;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Schema;
@@ -13,7 +14,7 @@ class ImportGuruPage extends Page
 {
     protected static string|\BackedEnum|null $navigationIcon  = 'heroicon-o-arrow-up-tray';
     protected static string|\UnitEnum|null  $navigationGroup = 'Manajemen User';
-    protected static ?string                $navigationLabel = 'Import Guru';
+    protected static ?string                $navigationLabel = 'Import Guru & Pegawai';
     protected static ?int                   $navigationSort  = 6;
 
     public static function canAccess(): bool { return auth()->user()?->role === 'admin'; }
@@ -45,12 +46,26 @@ class ImportGuruPage extends Page
     {
         return $schema
             ->components([
+                Select::make('default_role')
+                    ->label('Pilihan Tipe Akun')
+                    ->options([
+                        'auto'    => 'Otomatis (Sesuai Kolom Role di File / Default Guru)',
+                        'guru'    => 'Guru',
+                        'pegawai' => 'Pegawai',
+                    ])
+                    ->default('auto')
+                    ->helperText('Jika di dalam file Excel/CSV terdapat kolom "Role" atau "Jenis", pilihan pada file yang akan diprioritaskan.'),
+
                 FileUpload::make('file')
-                    ->label('File Excel Data Guru')
-                    ->helperText('Kolom wajib: NIP, Nama Lengkap. Opsional: Email, No HP, Jenis Kelamin, Mata Pelajaran.')
+                    ->label('File CSV / Excel Data Guru & Pegawai')
+                    ->helperText('Format file didukung: .csv, .xlsx, .xls. Kolom wajib: NIP, Nama Lengkap. Opsional: Role (Guru/Pegawai), Email, No HP, Jenis Kelamin, Mata Pelajaran.')
                     ->acceptedFileTypes([
                         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
                         'application/vnd.ms-excel',
+                        'text/csv',
+                        'text/plain',
+                        'application/csv',
+                        'text/comma-separated-values',
                     ])
                     ->maxSize(10240)
                     ->required()
@@ -115,8 +130,13 @@ class ImportGuruPage extends Page
         if (! is_dir($tempDir)) {
             mkdir($tempDir, 0755, true);
         }
-        $tempPath = $tempDir . '/guru_' . auth()->id() . '.json';
-        file_put_contents($tempPath, json_encode(['header' => $headerRow, 'rows' => $dataRows]));
+        $tempPath    = $tempDir . '/guru_' . auth()->id() . '.json';
+        $defaultRole = ($data['default_role'] ?? 'auto') === 'auto' ? null : ($data['default_role'] ?? null);
+        file_put_contents($tempPath, json_encode([
+            'header'       => $headerRow,
+            'rows'         => $dataRows,
+            'default_role' => $defaultRole,
+        ]));
 
         // Reset state
         $this->tempDataPath  = $tempPath;
@@ -145,12 +165,13 @@ class ImportGuruPage extends Page
         $headerRow = $stored['header'];
         $allRows   = $stored['rows'];
 
-        $importer           = new GuruImport();
-        $importer->created  = $this->createdCount;
-        $importer->updated  = $this->updatedCount;
-        $importer->skipped  = $this->skippedCount;
-        $importer->errors   = $this->errorsList;
-        $importer->warnings = $this->warningsList;
+        $importer              = new GuruImport();
+        $importer->defaultRole = $stored['default_role'] ?? null;
+        $importer->created     = $this->createdCount;
+        $importer->updated     = $this->updatedCount;
+        $importer->skipped     = $this->skippedCount;
+        $importer->errors      = $this->errorsList;
+        $importer->warnings    = $this->warningsList;
 
         $colMap = $importer->buildColMap($headerRow);
         $chunk  = array_slice($allRows, $this->processedRows, self::CHUNK_SIZE);
@@ -197,7 +218,7 @@ class ImportGuruPage extends Page
             Notification::make()->title('Import gagal')->body($this->errorsList[0])->danger()->send();
         } elseif ($total > 0) {
             Notification::make()
-                ->title("Import selesai: {$this->createdCount} ditambah, {$this->updatedCount} diperbarui")
+                ->title("Import selesai: {$this->createdCount} akun baru dibuat, {$this->updatedCount} data diperbarui")
                 ->success()
                 ->send();
         } else {

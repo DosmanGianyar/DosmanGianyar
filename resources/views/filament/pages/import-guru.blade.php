@@ -1,19 +1,24 @@
 <x-filament-panels::page>
     {{-- Panduan ----------------------------------------------------------------}}
-    <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6 text-sm text-blue-800 space-y-1">
-        <p class="font-semibold">Cara menggunakan Import Guru:</p>
-        <ol class="list-decimal list-inside space-y-0.5 text-blue-700">
-            <li>Siapkan file Excel dengan kolom: <strong>NIP, Nama Lengkap</strong> (wajib), dan opsional Email, No HP, Jenis Kelamin, Mata Pelajaran</li>
-            <li>Upload file <code>.xlsx</code> di sini</li>
-            <li>Sistem otomatis <strong>menambah</strong> guru baru atau <strong>memperbarui</strong> data yang sudah ada berdasarkan <strong>NIP</strong></li>
+    <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6 text-sm text-blue-800 space-y-2">
+        <p class="font-semibold text-base">Panduan Import Data Guru & Pegawai:</p>
+        <ol class="list-decimal list-inside space-y-1 text-blue-700">
+            <li>Siapkan file Excel (<code>.xlsx</code>) atau CSV (<code>.csv</code>) dengan kolom: <strong>NIP, Nama Lengkap</strong> (wajib), serta opsional: <strong>Role (Guru / Pegawai)</strong>, Email, No HP, Jenis Kelamin, Mata Pelajaran.</li>
+            <li>Jika <strong>NIP belum terdaftar</strong>, sistem otomatis membuat <strong>akun baru</strong> (Guru / Pegawai) dengan password default = <strong>NIP</strong>.</li>
+            <li>Jika <strong>NIP sudah terdaftar</strong>, data akan otomatis <strong>diperbarui</strong> (misalnya nama dengan tambahan gelar, nomor HP, jenis kelamin, dsb).</li>
+            <li>Untuk <strong>Pegawai</strong>, kolom Mata Pelajaran dapat dikosongkan.</li>
         </ol>
-        <p class="text-blue-600 mt-2">⚠ Kolom "Mata Pelajaran" bisa diisi lebih dari satu, dipisah koma (contoh: <em>Matematika, Fisika</em>). Mata pelajaran yang belum ada akan otomatis dibuat.</p>
-        <p class="mt-3">
-            <a href="{{ asset('templates/contoh-import-guru.xlsx') }}" download
-               class="inline-flex items-center gap-1.5 text-blue-700 font-semibold underline hover:text-blue-900">
-                📄 Unduh contoh format Excel
+        <p class="text-blue-600 text-xs">💡 Anda bisa memilih tipe akun melalui dropdown formulir atau mengisi kolom "Role" di file dengan <code>Guru</code> atau <code>Pegawai</code>.</p>
+        <div class="flex flex-wrap gap-3 pt-2">
+            <a href="{{ asset('templates/contoh-import-guru-pegawai.csv') }}" download
+               class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-blue-300 rounded-lg text-blue-700 font-medium text-xs hover:bg-blue-50 shadow-sm transition">
+                📄 Unduh Contoh CSV (.csv)
             </a>
-        </p>
+            <a href="{{ asset('templates/contoh-import-guru-pegawai.xlsx') }}" download
+               class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-blue-300 rounded-lg text-blue-700 font-medium text-xs hover:bg-blue-50 shadow-sm transition">
+                📊 Unduh Contoh Excel (.xlsx)
+            </a>
+        </div>
     </div>
 
     {{-- Upload Form (hidden while processing) --------------------------------}}
@@ -43,7 +48,7 @@
                 <div style="display:flex;align-items:center;gap:10px;">
                     {{-- CSS-only spinner (no SVG) --}}
                     <div style="width:18px;height:18px;min-width:18px;border-radius:50%;border:3px solid #bfdbfe;border-top-color:#2563eb;animation:spin 0.8s linear infinite;"></div>
-                    <span style="font-size:14px;font-weight:600;color:#1e40af;">Mengimpor data guru…</span>
+                    <span style="font-size:14px;font-weight:600;color:#1e40af;">Mengimpor data guru & pegawai…</span>
                 </div>
                 <span style="font-size:22px;font-weight:700;color:#1d4ed8;">{{ $pct }}%</span>
             </div>
@@ -90,7 +95,7 @@
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <div class="bg-green-50 border border-green-200 rounded-xl p-4 text-center">
                 <p class="text-2xl font-bold text-green-700">{{ $results['created'] }}</p>
-                <p class="text-xs text-green-600 mt-0.5">Guru Ditambahkan</p>
+                <p class="text-xs text-green-600 mt-0.5">Akun Ditambahkan</p>
             </div>
             <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 text-center">
                 <p class="text-2xl font-bold text-blue-700">{{ $results['updated'] }}</p>
@@ -109,8 +114,8 @@
         {{-- Default password notice --}}
         @if($results['created'] > 0)
         <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 text-sm text-amber-800">
-            <span class="font-semibold">Password default guru baru</span> = NIP masing-masing guru.
-            Guru dapat mengubah password setelah login pertama kali.
+            <span class="font-semibold">Password default akun baru</span> = NIP masing-masing pengguna.
+            Pengguna dapat mengubah password setelah login pertama kali.
         </div>
         @endif
 

@@ -16,6 +16,12 @@ class GuruImport implements ToCollection
     public array $errors   = [];
     public array $warnings = [];
 
+    /**
+     * Fallback role jika kolom role/jenis tidak ada di file.
+     * Nilai: 'guru' | 'pegawai' | null
+     */
+    public ?string $defaultRole = null;
+
     private array $subjectCache = [];
 
     public function collection(Collection $rows): void
@@ -78,49 +84,71 @@ class GuruImport implements ToCollection
             return;
         }
 
-        $nama = $this->pick($row, $colMap, ['namalengkap', 'nama', 'namaguru']);
+        $nama = $this->pick($row, $colMap, ['namalengkap', 'nama', 'namaguru', 'namapegawai', 'namaptk']);
         if (! $nama) {
             $this->errors[] = "Baris {$lineNum} (NIP {$nip}): nama kosong — dilewati.";
             $this->skipped++;
             return;
         }
 
-        $email      = strtolower($this->pick($row, $colMap, ['email', 'surel']));
-        $phone      = $this->pick($row, $colMap, ['nohp', 'telepon', 'notelp', 'hp', 'nohptelepon']);
-        $gender     = $this->normalizeGender($this->pick($row, $colMap, ['jeniskelamin', 'lp', 'gender', 'jk']));
-        $mapelRaw   = $this->pick($row, $colMap, ['matapelajaran', 'mapel', 'subjects', 'subject']);
+        // Deteksi role dari file atau fallback ke defaultRole
+        $rawRole  = $this->pick($row, $colMap, ['role', 'jenis', 'tipe', 'status', 'jabatan', 'kategori', 'posisi']);
+        $role     = $this->normalizeRole($rawRole) ?: ($this->defaultRole ?: 'guru');
+
+        $email    = strtolower($this->pick($row, $colMap, ['email', 'surel']));
+        $phone    = $this->pick($row, $colMap, ['nohp', 'telepon', 'notelp', 'hp', 'nohptelepon']);
+        $gender   = $this->normalizeGender($this->pick($row, $colMap, ['jeniskelamin', 'lp', 'gender', 'jk']));
+        $mapelRaw = $this->pick($row, $colMap, ['matapelajaran', 'mapel', 'subjects', 'subject']);
 
         $existing = User::where('nip', $nip)->first();
 
         if ($existing) {
-            $this->updateGuru($existing, compact('nama', 'phone', 'gender', 'mapelRaw'));
+            $this->updateUser($existing, compact('nama', 'role', 'email', 'phone', 'gender', 'mapelRaw'));
         } else {
-            $this->createGuru(compact('nip', 'nama', 'email', 'phone', 'gender', 'mapelRaw'));
+            $this->createUser(compact('nip', 'nama', 'role', 'email', 'phone', 'gender', 'mapelRaw'));
         }
     }
 
-    private function updateGuru(User $user, array $data): void
+    private function updateUser(User $user, array $data): void
     {
         $update = [
-            'name'   => $data['nama'],
+            'name'   => $data['nama'], // Selalu update nama agar gelar baru tersimpan
             'phone'  => $data['phone']  ?: $user->phone,
             'gender' => $data['gender'] ?: $user->gender,
         ];
 
+        // Update role jika ditentukan dan user bukan admin (mencegah penurunan role admin secara tidak sengaja)
+        if (! empty($data['role']) && $user->role !== 'admin') {
+            $update['role'] = $data['role'];
+        }
+
+        // Update email jika diisi valid dan belum dipakai orang lain
+        if (! empty($data['email']) && filter_var($data['email'], FILTER_VALIDATE_EMAIL) && $data['email'] !== $user->email) {
+            if (! User::where('email', $data['email'])->where('id', '!=', $user->id)->exists()) {
+                $update['email'] = $data['email'];
+            }
+        }
+
         $user->update($update);
 
-        if ($data['mapelRaw']) {
+        if (! empty($data['mapelRaw'])) {
             $user->subjects()->sync($this->resolveSubjects($data['mapelRaw']));
         }
 
         $this->updated++;
     }
 
-    private function createGuru(array $data): void
+    private function createUser(array $data): void
     {
+        $role  = $data['role'] ?: 'guru';
         $email = $data['email'];
+
         if (! $email || ! filter_var($email, FILTER_VALIDATE_EMAIL) || User::where('email', $email)->exists()) {
-            $email = $data['nip'] . '@guru.sims.sch.id';
+            $domain = ($role === 'pegawai') ? 'pegawai.sims.sch.id' : 'guru.sims.sch.id';
+            $email = $data['nip'] . '@' . $domain;
+            if (User::where('email', $email)->exists()) {
+                $email = $data['nip'] . '.' . substr(uniqid(), -4) . '@' . $domain;
+            }
         }
 
         $defaultPassword = $data['nip'] ?: ($email ?: 'Guru123');
@@ -129,17 +157,33 @@ class GuruImport implements ToCollection
             'name'     => $data['nama'],
             'email'    => $email,
             'password' => Hash::make($defaultPassword, ['rounds' => 4]), // low rounds intentional for bulk import speed
-            'role'     => 'guru',
+            'role'     => $role,
             'nip'      => $data['nip'],
             'phone'    => $data['phone']  ?: null,
             'gender'   => $data['gender'] ?: null,
         ]);
 
-        if ($data['mapelRaw']) {
+        if (! empty($data['mapelRaw'])) {
             $user->subjects()->sync($this->resolveSubjects($data['mapelRaw']));
         }
 
         $this->created++;
+    }
+
+    public function normalizeRole(?string $value): ?string
+    {
+        if (! $value) return null;
+        $v = strtolower(trim($value));
+        if (in_array($v, ['pegawai', 'staff', 'staf', 'tu', 'tata usaha', 'tenaga kependidikan', 'karyawan', 'tendik'])) {
+            return 'pegawai';
+        }
+        if (in_array($v, ['guru', 'pengajar', 'pendidik', 'teacher'])) {
+            return 'guru';
+        }
+        if (in_array($v, ['admin', 'administrator'])) {
+            return 'admin';
+        }
+        return null;
     }
 
     // ─── Helpers ──────────────────────────────────────────────────────────────

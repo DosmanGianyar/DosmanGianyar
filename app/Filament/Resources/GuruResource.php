@@ -27,19 +27,19 @@ class GuruResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon  = 'heroicon-o-briefcase';
     protected static string|\UnitEnum|null   $navigationGroup = 'Manajemen User';
-    protected static ?string $navigationLabel = 'Data Guru';
-    protected static ?string $modelLabel       = 'Guru / Admin';
-    protected static ?string $pluralModelLabel = 'Data Guru';
+    protected static ?string $navigationLabel = 'Data Guru & Pegawai';
+    protected static ?string $modelLabel       = 'Guru / Pegawai / Admin';
+    protected static ?string $pluralModelLabel = 'Data Guru & Pegawai';
     protected static ?int    $navigationSort   = 2;
 
-    // ── Scope: hanya guru dan admin ───────────────────────────────────────────
+    // ── Scope: guru, pegawai, dan admin ───────────────────────────────────────
 
     public static function canAccess(): bool { return auth()->user()?->role === 'admin'; }
 
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->whereIn('role', ['guru', 'admin']);
+            ->whereIn('role', ['guru', 'pegawai', 'admin']);
     }
 
     // ── Form ──────────────────────────────────────────────────────────────────
@@ -62,8 +62,9 @@ class GuruResource extends Resource
                 Select::make('role')
                     ->label('Role')
                     ->options([
-                        'guru'  => 'Guru',
-                        'admin' => 'Admin',
+                        'guru'    => 'Guru',
+                        'pegawai' => 'Pegawai',
+                        'admin'   => 'Admin',
                     ])
                     ->default('guru')
                     ->required(),
@@ -118,14 +119,16 @@ class GuruResource extends Resource
                     ->label('Role')
                     ->badge()
                     ->color(fn (string $state) => match ($state) {
-                        'admin' => 'danger',
-                        'guru'  => 'warning',
-                        default => 'gray',
+                        'admin'   => 'danger',
+                        'guru'    => 'warning',
+                        'pegawai' => 'info',
+                        default   => 'gray',
                     })
                     ->formatStateUsing(fn ($state) => match ($state) {
-                        'admin' => 'Admin',
-                        'guru'  => 'Guru',
-                        default => $state,
+                        'admin'   => 'Admin',
+                        'guru'    => 'Guru',
+                        'pegawai' => 'Pegawai',
+                        default   => $state,
                     }),
 
                 TextColumn::make('nip')
@@ -155,8 +158,9 @@ class GuruResource extends Resource
                 SelectFilter::make('role')
                     ->label('Filter Role')
                     ->options([
-                        'guru'  => 'Guru',
-                        'admin' => 'Admin',
+                        'guru'    => 'Guru',
+                        'pegawai' => 'Pegawai',
+                        'admin'   => 'Admin',
                     ]),
             ])
             ->recordActions([
