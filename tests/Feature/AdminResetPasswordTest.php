@@ -29,6 +29,18 @@ class AdminResetPasswordTest extends TestCase
         $panel = Filament::getPanel('admin');
         $this->assertTrue($user->canAccessPanel($panel));
         $this->assertTrue($user->isAdminResetPassword());
+        $this->assertEquals('/admin', $user->dashboardRoute());
+    }
+
+    public function test_admin_reset_password_can_login_via_web_form_and_redirects_to_admin(): void
+    {
+        $response = $this->post('/login', [
+            'login'    => 'admin_reset',
+            'password' => 'Dosman123',
+        ]);
+
+        $response->assertRedirect('/admin');
+        $this->assertAuthenticated();
     }
 
     public function test_admin_reset_password_sidebar_and_resource_access_restrictions(): void

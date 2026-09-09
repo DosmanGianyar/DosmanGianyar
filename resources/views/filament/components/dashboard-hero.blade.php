@@ -6,9 +6,10 @@
         'admin_kurikulum'    => 'Admin Kurikulum',
         'admin_sarpras'      => 'Admin Sarpras',
         'admin_humas'        => 'Admin Humas',
-        'admin_perpustakaan' => 'Admin Perpustakaan',
-        'admin_prestasi'     => 'Admin Prestasi',
-        'guru'               => 'Tenaga Pendidik',
+        'admin_perpustakaan'   => 'Admin Perpustakaan',
+        'admin_prestasi'       => 'Admin Prestasi',
+        'admin_reset_password' => 'Admin Reset Password',
+        'guru'                 => 'Tenaga Pendidik',
         default              => ucfirst($user?->role ?? 'Pengguna'),
     };
     $todayFormatted = now()->locale('id')->isoFormat('dddd, D MMMM Y');
