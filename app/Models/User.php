@@ -129,6 +129,11 @@ class User extends Authenticatable implements FilamentUser
         $this->attributes['parent_phone'] = static::formatPhoneNumber($value);
     }
 
+    public function setNipAttribute(?string $value): void
+    {
+        $this->attributes['nip'] = $value !== null ? preg_replace('/\s+/', '', trim($value)) : null;
+    }
+
     // ─── Filament ────────────────────────────────────────────────────────────
     public function isPembinaEkstra(): bool
     {

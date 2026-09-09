@@ -77,7 +77,8 @@ class GuruImport implements ToCollection
 
     public function processRow(Collection $row, array $colMap, int $lineNum): void
     {
-        $nip = $this->pick($row, $colMap, ['nip']);
+        $rawNip = $this->pick($row, $colMap, ['nip']);
+        $nip    = preg_replace('/\s+/', '', $rawNip);
 
         if (! $nip) {
             $this->skipped++;
@@ -141,24 +142,25 @@ class GuruImport implements ToCollection
     private function createUser(array $data): void
     {
         $role  = $data['role'] ?: 'guru';
-        $email = $data['email'];
+        $nip   = preg_replace('/\s+/', '', $data['nip']);
+        $email = str_replace(' ', '', strtolower($data['email'] ?? ''));
 
         if (! $email || ! filter_var($email, FILTER_VALIDATE_EMAIL) || User::where('email', $email)->exists()) {
             $domain = ($role === 'pegawai') ? 'pegawai.sims.sch.id' : 'guru.sims.sch.id';
-            $email = $data['nip'] . '@' . $domain;
+            $email = $nip . '@' . $domain;
             if (User::where('email', $email)->exists()) {
-                $email = $data['nip'] . '.' . substr(uniqid(), -4) . '@' . $domain;
+                $email = $nip . '.' . substr(uniqid(), -4) . '@' . $domain;
             }
         }
 
-        $defaultPassword = $data['nip'] ?: ($email ?: 'Guru123');
+        $defaultPassword = $nip ?: ($email ?: 'Guru123');
 
         $user = User::create([
             'name'     => $data['nama'],
             'email'    => $email,
             'password' => Hash::make($defaultPassword, ['rounds' => 4]), // low rounds intentional for bulk import speed
             'role'     => $role,
-            'nip'      => $data['nip'],
+            'nip'      => $nip,
             'phone'    => $data['phone']  ?: null,
             'gender'   => $data['gender'] ?: null,
         ]);

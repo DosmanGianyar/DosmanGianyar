@@ -127,12 +127,13 @@ class ProfileController extends Controller
     {
         $request->validate([
             'current_password' => 'required',
-            'password'         => 'required|min:8|confirmed',
+            'password'         => ['required', 'min:8', 'confirmed', 'regex:/^\S+$/'],
         ], [
             'current_password.required' => 'Password saat ini wajib diisi.',
             'password.required'         => 'Password baru wajib diisi.',
             'password.min'              => 'Password baru minimal 8 karakter.',
             'password.confirmed'        => 'Konfirmasi password baru tidak cocok dengan password baru.',
+            'password.regex'            => 'Password baru tidak boleh mengandung spasi.',
         ]);
 
         /** @var \App\Models\User $user */

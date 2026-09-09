@@ -85,7 +85,12 @@ class GuruResource extends Resource
                     ->label('NIP')
                     ->maxLength(30)
                     ->unique(ignoreRecord: true)
-                    ->placeholder('198001012006041001'),
+                    ->placeholder('198001012006041001')
+                    ->dehydrateStateUsing(fn ($state) => $state ? preg_replace('/\s+/', '', $state) : null)
+                    ->regex('/^\S+$/')
+                    ->validationMessages([
+                        'regex' => 'NIP tidak boleh mengandung spasi.',
+                    ]),
 
                 Select::make('subjects')
                     ->label('Mata Pelajaran (bisa lebih dari satu)')

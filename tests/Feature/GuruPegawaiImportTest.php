@@ -126,4 +126,35 @@ class GuruPegawaiImportTest extends TestCase
         $this->assertEquals('pegawai', $pegawai2->role);
         $this->assertTrue($pegawai2->isPegawai());
     }
+
+    public function test_nip_with_spaces_is_automatically_sanitized_and_matched(): void
+    {
+        // Existing user with clean NIP
+        $user = User::factory()->create([
+            'nip'  => '198001012006041001',
+            'name' => 'Guru Lama',
+            'role' => 'guru',
+        ]);
+
+        $importer = new GuruImport();
+        $colMap = $importer->buildColMap(['nip', 'nama lengkap']);
+
+        // Upload has spaces in NIP!
+        $row = collect(['19800101 200604 1 001', 'Drs. Guru Lama, M.Pd.']);
+        $importer->processRow($row, $colMap, 2);
+
+        $this->assertEquals(0, $importer->created);
+        $this->assertEquals(1, $importer->updated);
+
+        $user->refresh();
+        $this->assertEquals('198001012006041001', $user->nip);
+        $this->assertEquals('Drs. Guru Lama, M.Pd.', $user->name);
+    }
+
+    public function test_user_mutator_automatically_strips_spaces_from_nip(): void
+    {
+        $user = new User();
+        $user->nip = ' 19850101 201001 1 001 ';
+        $this->assertEquals('198501012010011001', $user->nip);
+    }
 }

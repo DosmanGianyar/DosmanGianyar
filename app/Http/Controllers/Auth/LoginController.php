@@ -27,11 +27,16 @@ class LoginController extends Controller
     public function login(Request $request): RedirectResponse
     {
         $request->validate([
-            'login'    => 'required|string',
-            'password' => 'required|string',
+            'login'    => ['required', 'string'],
+            'password' => ['required', 'string', 'regex:/^\S+$/'],
+        ], [
+            'password.regex' => 'Password tidak boleh mengandung spasi.',
         ]);
 
         $loginInput = trim($request->input('login'));
+        if (! str_contains($loginInput, '@')) {
+            $loginInput = preg_replace('/\s+/', '', $loginInput);
+        }
 
         $isEmailInput = str_contains($loginInput, '@');
 
