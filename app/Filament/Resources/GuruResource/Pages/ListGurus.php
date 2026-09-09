@@ -20,7 +20,7 @@ class ListGurus extends ListRecords
     {
         return [
             Actions\Action::make('download_excel')
-                ->label('Download Data Guru (Excel)')
+                ->label('Download Data Guru & Pegawai (Excel)')
                 ->icon('heroicon-o-document-arrow-down')
                 ->color('success')
                 ->action(function (): BinaryFileResponse {

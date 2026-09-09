@@ -21,7 +21,7 @@ class GuruDataExport extends DefaultValueBinder implements FromCollection, WithH
 {
     public function collection(): Collection
     {
-        return User::whereIn('role', ['guru', 'admin'])
+        return User::whereIn('role', ['guru', 'pegawai', 'admin'])
             ->with('subjects')
             ->orderBy('name')
             ->get();
