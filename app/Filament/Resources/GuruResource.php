@@ -5,13 +5,16 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\GuruResource\Pages;
 use App\Models\Subject;
 use App\Models\User;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\EditAction;
+use Filament\Actions\Action;
+use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -19,6 +22,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Hash;
 
 class GuruResource extends Resource
@@ -175,11 +179,74 @@ class GuruResource extends Resource
                     ]),
             ])
             ->recordActions([
+                Action::make('resetPassword')
+                    ->label('Reset Password')
+                    ->icon('heroicon-o-key')
+                    ->color('warning')
+                    ->iconButton()
+                    ->tooltip('Reset Password akun ini ke NIP default atau password baru')
+                    ->modalHeading(fn (User $record): string => "Reset Password: {$record->name}")
+                    ->modalDescription(fn (User $record): string => "Password akun '{$record->name}' akan diubah. Nilai default terisi NIP pengguna. Anda juga dapat menentukan password baru secara manual tanpa spasi.")
+                    ->modalSubmitActionLabel('Ya, Simpan Password')
+                    ->form([
+                        TextInput::make('new_password')
+                            ->label('Password Baru')
+                            ->default(fn (User $record): string => $record->nip ?: ($record->email ?: 'Guru123'))
+                            ->required()
+                            ->minLength(6)
+                            ->regex('/^\S+$/')
+                            ->validationMessages([
+                                'regex' => 'Password tidak boleh mengandung spasi.',
+                            ])
+                            ->helperText('Default terisi NIP. Pengguna wajib mengganti password saat login pertama kali.'),
+                    ])
+                    ->action(function (User $record, array $data): void {
+                        $newPass = trim($data['new_password']);
+                        $record->update([
+                            'password'             => Hash::make($newPass),
+                            'must_change_password' => true,
+                        ]);
+                        $record->resetDevices();
+
+                        Notification::make()
+                            ->title("Password {$record->name} berhasil di-reset.")
+                            ->body("Password baru: {$newPass} (Wajib ganti password saat login).")
+                            ->success()
+                            ->send();
+                    }),
                 EditAction::make()->iconButton(),
                 DeleteAction::make()->iconButton(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
+                    BulkAction::make('bulk_reset_password')
+                        ->label('Reset Password Terpilih (ke NIP)')
+                        ->icon('heroicon-o-key')
+                        ->color('warning')
+                        ->requiresConfirmation()
+                        ->modalHeading('Reset Password Akun Terpilih?')
+                        ->modalDescription('Password seluruh guru/pegawai terpilih akan di-reset kembali ke NIP masing-masing dan ditandai wajib mengganti password saat login.')
+                        ->modalSubmitActionLabel('Ya, Reset Semua Terpilih')
+                        ->action(function (Collection $records): void {
+                            $count = 0;
+                            foreach ($records as $user) {
+                                if ($user->role === 'admin') {
+                                    continue;
+                                }
+                                $newPass = $user->nip ?: ($user->email ?: 'Guru123');
+                                $user->update([
+                                    'password'             => Hash::make($newPass),
+                                    'must_change_password' => true,
+                                ]);
+                                $user->resetDevices();
+                                $count++;
+                            }
+
+                            Notification::make()
+                                ->title("Password {$count} akun terpilih berhasil di-reset ke NIP default.")
+                                ->success()
+                                ->send();
+                        }),
                     DeleteBulkAction::make(),
                 ]),
             ])
