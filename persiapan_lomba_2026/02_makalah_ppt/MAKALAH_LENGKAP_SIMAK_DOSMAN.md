@@ -46,9 +46,9 @@ Pak Putu tinggal **mengopi teks per slide** di bawah ini langsung ke file **Powe
 
 ### 📜 SLIDE 3: PERJALANAN PENGABDIAN (Kategori: Dedikasi & Perjuangan)
 * **Timeline Pengabdian & Inovasi:**
-  * **2022 - Awal Mengabdi:** Menghadapi kompleksitas pengelolaan presensi fisik, izin siswa yang tercecer, dan kerumitan jadwal pelajaran di SMAN 1 Gianyar.
-  * **2023 - Riset & Inisiasi:** Mengidentifikasi kebutuhan sistem kolektif terpadu. Mulai merancang arsitektur database dan UI/UX aplikasi.
-  * **2024 - Pengembangan SIMAK DOSMAN:** Membangun Backend Laravel Filament Admin dan Aplikasi Mobile Flutter untuk Siswa & Guru.
+  * **2015 - Awal Mengabdi & Web Pembelajaran:** Mulai mengabdi sebagai Guru Matematika di SMAN 1 Gianyar. Menyukai dunia web development dan merancang website pembelajaran pribadi **`mathdosman.my.id`**.
+  * **2022 - Eksplorasi Web Sekolah:** Semakin menggemari dunia pemrograman web & melihat kebutuhan nyata akan sistem administrasi terpadu di SMAN 1 Gianyar.
+  * **2024 - Vibe Coding & Lahirnya SIMAK DOSMAN:** Berkat semangat *vibe coding* dan kemajuan teknologi AI, mewujudkan ide besar membangun ekosistem digital terpadu **SIMAK DOSMAN** (Laravel Filament + Flutter Mobile).
   * **2025 s/d 2026 - Penerapan Penuh & Pelayanan Terpadu:** Sistem digunakan secara rutin untuk Presensi Geolocation, Import Master Jadwal Timetables, Poin Pelanggaran, E-Voting, dan Bebas Pustaka Digital.
 
 ---
