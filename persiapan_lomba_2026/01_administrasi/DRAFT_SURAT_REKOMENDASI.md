@@ -27,7 +27,7 @@ Dengan ini memberikan rekomendasi penuh kepada:
 * **Mata Pelajaran:** Matematika
 * **Jabatan:** Guru Matematika / Inovator Digital Sekolah
 
-Bahwa yang bersangkutan merupakan guru aktif di SMAN 1 Gianyar yang memiliki integritas, dedikasi tinggi, serta rekam jejak inovasi yang nyata dalam mendukung efisiensi manajemen dan pembelajaran sekolah melalui pengembangan **Sistem Informasi Manajemen Sekolah (SIMS SMAN 1 Gianyar / SIMAK Dosman)**.
+Bahwa yang bersangkutan merupakan guru aktif di SMAN 1 Gianyar yang memiliki integritas, dedikasi tinggi, serta rekam jejak inovasi yang nyata dalam mendukung efisiensi manajemen dan pembelajaran sekolah melalui pengembangan **SIMAK DOSMAN (Sistem Informasi Manajemen Anak Kolektif Dosman)**.
 
 Demikian Surat Rekomendasi ini dibuat dengan sebenarnya untuk digunakan sebagai persyaratan mengikuti pendaftaran **Program Guru Inspiratif Astra Honda 2026**.
 

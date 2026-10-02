@@ -1,20 +1,20 @@
 # Draf Naskah Slide Makalah Presentasi (PPT)
 ## Program Guru Inspiratif Astra Honda 2026
-### Judul Inovasi: SIMS SMAN 1 Gianyar (SIMAK Dosman)
+### Judul Inovasi: SIMAK DOSMAN (Sistem Informasi Manajemen Anak Kolektif Dosman)
 
 ---
 
 ### 📌 Slide 1: Cover Presentasi
-* **Judul Inovasi:** SIMS Dosman: Ekosistem Manajemen & Pembelajaran Digital Terpadu Berbasis Web dan Mobile di SMAN 1 Gianyar
-* **Sub-Judul:** Transformasi Digital Sekolah untuk Meningkatkan Kedisiplinan, Efisiensi Administrasi, dan Kualitas Pembelajaran
-* **Penyusun:** [Nama Anda], S.Pd. (Guru SMAN 1 Gianyar)
+* **Judul Inovasi:** **SIMAK DOSMAN** *(Sistem Informasi Manajemen Anak Kolektif Dosman)*
+* **Sub-Judul:** Ekosistem Manajemen & Pembelajaran Digital Terpadu Berbasis Web dan Mobile di SMAN 1 Gianyar untuk Meningkatkan Kedisiplinan, Efisiensi Administrasi, dan Kualitas Pembelajaran
+* **Penyusun:** **I Putu Darma Putra, S.Pd.** (Guru Matematika / Inovator Digital SMAN 1 Gianyar)
 * **Logo:** SMAN 1 Gianyar, Yayasan AHM, Sinergi Bagi Negeri, Astra Motor Bali.
 
 ---
 
 ### 📌 Slide 2: Profil Guru & Perjalanan Pengabdian
-* **Nama & Unit Kerja:** [Nama Anda], SMAN 1 Gianyar, Bali.
-* **Pengabdian:** [X] Tahun Mengabdi di SMAN 1 Gianyar.
+* **Nama & Unit Kerja:** I Putu Darma Putra, S.Pd. (SMAN 1 Gianyar, Bali)
+* **Pengabdian:** Guru Matematika & Penggerak Digitalisasi Sekolah di SMAN 1 Gianyar.
 * **Motto:** *"Teknologi adalah sarana, dedikasi adalah penggerak utama untuk kemajuan pendidikan anak bangsa."*
 * **Peran:** Inovator Sistem Digital & Penggerak Literasi Teknologi Sekolah.
 
@@ -30,7 +30,7 @@
 
 ---
 
-### 📌 Slide 4: Solusi & Inovasi (SIMS SMAN 1 Gianyar)
+### 📌 Slide 4: Solusi & Inovasi (SIMAK DOSMAN)
 * **Deskripsi Inovasi:** Membangun platform web terpadu (Laravel Filament) & aplikasi mobile (Flutter) yang mengintegrasikan seluruh layanan sekolah secara realtime.
 * **Arsitektur:**
   * **Backend Web Admin:** Manajemen Guru, Siswa, Jadwal Timetables Excel, Presensi Geolocation, E-Voting, dan Sarpras.

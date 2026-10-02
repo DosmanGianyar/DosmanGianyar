@@ -1,7 +1,7 @@
 # Panduan & Strategi Lomba Guru Inspiratif Astra Honda 2026
-## Inovasi: SIMS SMAN 1 Gianyar (SIMAK Dosman)
+## Inovasi: SIMAK DOSMAN (Sistem Informasi Manajemen Anak Kolektif Dosman)
 
-Dokumen ini berisi panduan lengkap, pemetaan slide presentasi, serta strategi penyusunan makalah untuk keikutsertaan dalam **Program Guru Inspiratif Astra Honda 2026** menggunakan inovasi aplikasi **SIMS SMAN 1 Gianyar**.
+Dokumen ini berisi panduan lengkap, pemetaan slide presentasi, serta strategi penyusunan makalah untuk keikutsertaan dalam **Program Guru Inspiratif Astra Honda 2026** menggunakan inovasi aplikasi **SIMAK DOSMAN (Sistem Informasi Manajemen Anak Kolektif Dosman)**.
 
 ---
 
@@ -38,8 +38,8 @@ Dokumen ini berisi panduan lengkap, pemetaan slide presentasi, serta strategi pe
 ## 📊 3. Pemetaan Slide Presentasi (Makalah PPT Max 20 Slide)
 
 ### **Slide 1: Cover**
-* **Judul Inovasi:** *"SIMS Dosman: Ekosistem Manajemen & Pembelajaran Digital Terpadu Berbasis Web dan Mobile di SMAN 1 Gianyar"*
-* **Identitas:** Nama Guru, NIP, SMAN 1 Gianyar, Provinsi Bali.
+* **Judul Inovasi:** *"SIMAK DOSMAN: Sistem Informasi Manajemen Anak Kolektif SMAN 1 Gianyar Berbasis Web dan Mobile"*
+* **Identitas:** I Putu Darma Putra, S.Pd. (Guru Matematika), SMAN 1 Gianyar, Provinsi Bali.
 * **Elemen Visual:** Foto Guru, Logo Sekolah, Logo Yayasan AHM, Logo Sinergi Bagi Negeri, Logo Main Dealer Astra Motor Bali.
 
 ### **Slide 2: Profil Singkat Guru (Max 1 Slide)**
@@ -50,7 +50,7 @@ Dokumen ini berisi panduan lengkap, pemetaan slide presentasi, serta strategi pe
 ### **Slide 3: Perjalanan Pengabdian (Max 1 Slide)**
 * **Timeline Karir:**
   * AWAL: Awal mula mengajar dan tantangan awal di sekolah.
-  * TAHAP INOVASI: Inisiasi digitalisasi sekolah & pengembangan aplikasi SIMS.
+  * TAHAP INOVASI: Inisiasi digitalisasi sekolah & pengembangan aplikasi SIMAK DOSMAN.
   * PENGEMBANGAN: Penerapan fitur terpadu (Presensi Geolocation, Import Timetables Excel, Poin Siswa, E-Voting, Bebas Pustaka).
 
 ### **Slide 4 & 5: Kondisi Lingkungan & Tantangan (Max 3 Slide)**
@@ -61,8 +61,8 @@ Dokumen ini berisi panduan lengkap, pemetaan slide presentasi, serta strategi pe
   * Birokrasi bebas pustaka dan surat izin yang memakan waktu.
   * Pencatatan poin pelanggaran & prestasi siswa yang tercecer.
 
-### **Slide 6, 7, & 8: Inovasi SIMS SMAN 1 Gianyar (Core Inovasi - Max 3 Slide)**
-* **Nama Inovasi:** **SIMS / SIMAK Dosman (School Integrated Management System)**
+### **Slide 6, 7, & 8: Inovasi SIMAK DOSMAN (Core Inovasi - Max 3 Slide)**
+* **Nama Inovasi:** **SIMAK DOSMAN (Sistem Informasi Manajemen Anak Kolektif Dosman)**
 * **Teknologi:** Web Admin (Laravel 11/12 + Filament v3 + Livewire + Tailwind CSS) & Mobile App (Flutter).
 * **Fitur-Fitur Unggulan:**
   1. *Presensi Digital Geolocation:* Memastikan validitas lokasi kehadiran siswa/guru secara terenkripsi.
