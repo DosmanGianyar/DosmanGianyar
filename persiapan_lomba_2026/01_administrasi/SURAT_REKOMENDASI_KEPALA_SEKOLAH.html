@@ -8,7 +8,7 @@
 
   @page {
     size: A4 portrait;
-    margin: 1.5cm 2cm 1.5cm 2cm;
+    margin: 0;
   }
 
   * {
@@ -18,6 +18,8 @@
   }
 
   html, body {
+    width: 210mm;
+    height: 297mm;
     font-family: 'Times New Roman', Times, serif;
     font-size: 11pt;
     line-height: 1.4;
@@ -28,6 +30,13 @@
   }
 
   .page-container {
+    width: 210mm;
+    height: 297mm;
+    padding: 1.2cm 2cm 1.2cm 2cm;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
     width: 100%;
     max-width: 210mm;
     margin: 0 auto;
@@ -328,11 +337,10 @@
   <div class="signature-section">
     <div class="signature-box">
       <p>Gianyar, 02 Oktober 2026</p>
-      <div style="height: 6px;"></div>
-      <p><i>(tanda tangan & stempel)</i></p>
+      <p>Kepala SMAN 1 Gianyar,</p>
       <div class="signature-space"></div>
       <p class="signature-name">I Wayan Sudra Astra, S.Pd., M.Pd.</p>
-      <p>Kepala Sekolah SMAN 1 Gianyar</p>
+      <p>NIP. 19710415 199703 1 007</p>
     </div>
   </div>
 
