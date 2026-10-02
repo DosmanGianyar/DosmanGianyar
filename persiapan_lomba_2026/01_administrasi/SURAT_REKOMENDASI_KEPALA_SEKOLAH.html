@@ -2,13 +2,13 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>SURAT REKOMENDASI KEPALA SEKOLAH - SMAN 1 GIANYAR</title>
+<title>SURAT REKOMENDASI KEPALA SEKOLAH - GURU INSPIRATIF ASTRA HONDA 2026</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Times+New+Roman&display=swap');
 
   @page {
     size: A4 portrait;
-    margin: 0;
+    margin: 1.5cm 2cm 1.5cm 2cm;
   }
 
   * {
@@ -18,11 +18,9 @@
   }
 
   html, body {
-    width: 210mm;
-    height: 297mm;
     font-family: 'Times New Roman', Times, serif;
-    font-size: 12pt;
-    line-height: 1.45;
+    font-size: 11pt;
+    line-height: 1.4;
     color: #000000;
     background-color: #FFFFFF;
     -webkit-print-color-adjust: exact;
@@ -30,18 +28,16 @@
   }
 
   .page-container {
-    width: 210mm;
-    height: 297mm;
-    padding: 1.2cm 1.8cm 1.2cm 1.8cm;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+    width: 100%;
+    max-width: 210mm;
+    margin: 0 auto;
+    background: #FFFFFF;
   }
 
-  /* KOP SURAT ASLI ORIGINAL DARI GAMBAR TERIMA BERSIH BANGET */
+  /* KOP SURAT RESMI SMAN 1 GIANYAR */
   .kop-header {
     width: 100%;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
     text-align: center;
   }
 
@@ -51,15 +47,15 @@
     display: block;
   }
 
-  /* JUDUL SURAT */
+  /* JUDUL SURAT RESMI PANITIA */
   .letter-title {
     text-align: center;
-    margin-top: 6px;
-    margin-bottom: 20px;
+    margin-top: 10px;
+    margin-bottom: 16px;
   }
 
   .letter-title h2 {
-    font-size: 13.5pt;
+    font-size: 13pt;
     font-weight: bold;
     text-decoration: underline;
     text-transform: uppercase;
@@ -68,38 +64,102 @@
 
   .letter-title p {
     font-size: 11pt;
-    margin-top: 4px;
+    margin-top: 2px;
   }
 
-  .content-paragraph {
-    text-align: justify;
+  .section-text {
+    margin-bottom: 8px;
+    font-size: 11pt;
+  }
+
+  /* BULLET & DATA TABLES */
+  .data-list {
+    margin-left: 0.2in;
     margin-bottom: 12px;
-    line-height: 1.5;
   }
 
-  .table-data {
-    width: 100%;
-    margin-left: 0.25in;
-    margin-top: 6px;
-    margin-bottom: 14px;
-    border-collapse: collapse;
+  .data-row {
+    display: flex;
+    margin-bottom: 4px;
+    font-size: 11pt;
   }
 
-  .table-data td {
-    padding: 3px 0;
-    vertical-align: top;
-    font-size: 12pt;
+  .data-bullet {
+    width: 20px;
   }
 
-  .table-data td.label {
-    width: 180px;
+  .data-label {
+    width: 140px;
   }
 
-  .table-data td.colon {
-    width: 18px;
+  .data-colon {
+    width: 15px;
     text-align: center;
   }
 
+  .data-value {
+    flex: 1;
+  }
+
+  /* CHECKBOX SECTION RESMI PANITIA */
+  .checkbox-section-title {
+    font-size: 11pt;
+    font-weight: bold;
+    margin-top: 14px;
+    margin-bottom: 8px;
+  }
+
+  .checkbox-list {
+    margin-left: 0.1in;
+    margin-bottom: 16px;
+  }
+
+  .checkbox-item {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 6px;
+    font-size: 11pt;
+    line-height: 1.35;
+  }
+
+  .checkbox-box {
+    width: 15px;
+    height: 15px;
+    border: 1px solid #000;
+    margin-right: 10px;
+    margin-top: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11pt;
+    font-weight: bold;
+    flex-shrink: 0;
+  }
+
+  /* URAIAN SINGKAT REKOMENDASI */
+  .uraian-title {
+    font-size: 11.5pt;
+    font-weight: bold;
+    margin-top: 16px;
+    margin-bottom: 4px;
+  }
+
+  .uraian-subtitle {
+    font-size: 10pt;
+    font-style: italic;
+    margin-bottom: 10px;
+    color: #333333;
+  }
+
+  .uraian-content {
+    text-align: justify;
+    line-height: 1.45;
+    margin-bottom: 14px;
+    text-indent: 0.4in;
+    font-size: 11pt;
+  }
+
+  /* SIGNATURE SECTION */
   .signature-section {
     margin-top: 25px;
     width: 100%;
@@ -113,7 +173,7 @@
   }
 
   .signature-space {
-    height: 80px;
+    height: 75px;
   }
 
   .signature-name {
@@ -125,92 +185,157 @@
 <body>
 
 <div class="page-container">
-  <div>
-    <!-- KOP SURAT RESMI ORIGINAL DARI SEKOLAH -->
-    <div class="kop-header">
-      <img src="kop_sman1gianyar.png" alt="Kop Surat Resmi SMAN 1 Gianyar">
-    </div>
-
-    <!-- JUDUL SURAT (NOMOR KOSONG) -->
-    <div class="letter-title">
-      <h2>SURAT REKOMENDASI KEPALA SEKOLAH</h2>
-      <p>Nomor: ........................................................................</p>
-    </div>
-
-    <!-- ISI SURAT -->
-    <p class="content-paragraph">
-      Yang bertanda tangan di bawah ini:
-    </p>
-
-    <table class="table-data">
-      <tr>
-        <td class="label">Nama</td>
-        <td class="colon">:</td>
-        <td><b>I Wayan Sudra Astra, S.Pd., M.Pd.</b></td>
-      </tr>
-      <tr>
-        <td class="label">NIP</td>
-        <td class="colon">:</td>
-        <td>19710415 199703 1 007</td>
-      </tr>
-      <tr>
-        <td class="label">Jabatan</td>
-        <td class="colon">:</td>
-        <td>Kepala SMAN 1 Gianyar</td>
-      </tr>
-      <tr>
-        <td class="label">Unit Kerja</td>
-        <td class="colon">:</td>
-        <td>SMAN 1 Gianyar, Kabupaten Gianyar, Provinsi Bali</td>
-      </tr>
-    </table>
-
-    <p class="content-paragraph">
-      Dengan ini memberikan rekomendasi penuh kepada:
-    </p>
-
-    <table class="table-data">
-      <tr>
-        <td class="label">Nama Lengkap</td>
-        <td class="colon">:</td>
-        <td><b>I Putu Darma Putra, S.Pd.</b></td>
-      </tr>
-      <tr>
-        <td class="label">NIP</td>
-        <td class="colon">:</td>
-        <td>19880930 202221 1 001</td>
-      </tr>
-      <tr>
-        <td class="label">Mata Pelajaran</td>
-        <td class="colon">:</td>
-        <td>Matematika</td>
-      </tr>
-      <tr>
-        <td class="label">Jabatan</td>
-        <td class="colon">:</td>
-        <td>Guru Matematika / Inovator Digital Sekolah</td>
-      </tr>
-    </table>
-
-    <p class="content-paragraph" style="text-indent: 0.4in;">
-      Bahwa yang bersangkutan merupakan guru aktif di SMAN 1 Gianyar yang memiliki integritas, dedikasi tinggi, serta rekam jejak inovasi yang nyata dalam mendukung efisiensi manajemen dan pembelajaran sekolah melalui pengembangan <b>SIMAK DOSMAN (Sistem Informasi Manajemen Anak Kolektif Dosman)</b>.
-    </p>
-
-    <p class="content-paragraph" style="text-indent: 0.4in;">
-      Demikian Surat Rekomendasi ini dibuat dengan sebenarnya untuk digunakan sebagai salah satu persyaratan administratif mengikuti seleksi <b>Program Guru Inspiratif Astra Honda 2026</b>.
-    </p>
+  
+  <!-- KOP SEKOLAH RESMI SMAN 1 GIANYAR -->
+  <div class="kop-header">
+    <img src="kop_sman1gianyar.png" alt="Kop Sekolah SMAN 1 Gianyar">
   </div>
 
-  <!-- TANDA TANGAN (TANGGAL 02 OKTOBER 2026) -->
+  <!-- JUDUL SURAT REKOMENDASI -->
+  <div class="letter-title">
+    <h2>SURAT REKOMENDASI</h2>
+    <p>Nomor : ................................................................</p>
+  </div>
+
+  <!-- KEPALA SEKOLAH (YANG BERTANDA TANGAN DI BAWAH INI) -->
+  <p class="section-text">Yang bertanda tangan di bawah ini:</p>
+  
+  <div class="data-list">
+    <div class="data-row">
+      <div class="data-bullet">•</div>
+      <div class="data-label">Nama</div>
+      <div class="data-colon">:</div>
+      <div class="data-value"><b>I Wayan Sudra Astra, S.Pd., M.Pd.</b></div>
+    </div>
+    <div class="data-row">
+      <div class="data-bullet">•</div>
+      <div class="data-label">NIP/NUPTK</div>
+      <div class="data-colon">:</div>
+      <div class="data-value">19710415 199703 1 007</div>
+    </div>
+    <div class="data-row">
+      <div class="data-bullet">•</div>
+      <div class="data-label">Jabatan</div>
+      <div class="data-colon">:</div>
+      <div class="data-value">Kepala Sekolah</div>
+    </div>
+    <div class="data-row">
+      <div class="data-bullet">•</div>
+      <div class="data-label">Nama Sekolah</div>
+      <div class="data-colon">:</div>
+      <div class="data-value">SMAN 1 Gianyar</div>
+    </div>
+    <div class="data-row">
+      <div class="data-bullet">•</div>
+      <div class="data-label">Alamat</div>
+      <div class="data-colon">:</div>
+      <div class="data-value">Jalan Ratna, Tegal Tugu Gianyar (80511), Bali</div>
+    </div>
+  </div>
+
+  <!-- GURU YANG DIREKOMENDASIKAN -->
+  <p class="section-text">dengan ini memberikan rekomendasi kepada:</p>
+
+  <div class="data-list">
+    <div class="data-row">
+      <div class="data-bullet">•</div>
+      <div class="data-label">Nama Guru</div>
+      <div class="data-colon">:</div>
+      <div class="data-value"><b>I Putu Darma Putra, S.Pd.</b></div>
+    </div>
+    <div class="data-row">
+      <div class="data-bullet">•</div>
+      <div class="data-label">NIP/NUPTK</div>
+      <div class="data-colon">:</div>
+      <div class="data-value">19880930 202221 1 001</div>
+    </div>
+    <div class="data-row">
+      <div class="data-bullet">•</div>
+      <div class="data-label">Mata Pelajaran</div>
+      <div class="data-colon">:</div>
+      <div class="data-value">Matematika</div>
+    </div>
+    <div class="data-row">
+      <div class="data-bullet">•</div>
+      <div class="data-label">Jenjang</div>
+      <div class="data-colon">:</div>
+      <div class="data-value">SMA</div>
+    </div>
+    <div class="data-row">
+      <div class="data-bullet">•</div>
+      <div class="data-label">Masa Mengajar</div>
+      <div class="data-colon">:</div>
+      <div class="data-value">11 tahun</div>
+    </div>
+  </div>
+
+  <p class="section-text" style="margin-bottom: 12px;">
+    untuk mengikuti <b>Program Guru Inspiratif Astra Honda 2026</b> yang diselenggarakan oleh Yayasan Astra Honda Motor.
+  </p>
+
+  <!-- PENYATAAN KEPALA SEKOLAH (CHECKBOXES RESMI PANITIA) -->
+  <p class="checkbox-section-title">Kepala Sekolah menyatakan bahwa guru tersebut:</p>
+
+  <div class="checkbox-list">
+    <div class="checkbox-item">
+      <div class="checkbox-box">✓</div>
+      <div>Merupakan guru aktif di sekolah kami.</div>
+    </div>
+    <div class="checkbox-item">
+      <div class="checkbox-box">✓</div>
+      <div>Memiliki masa mengajar minimal 5 tahun.</div>
+    </div>
+    <div class="checkbox-item">
+      <div class="checkbox-box">✓</div>
+      <div>Memiliki dedikasi, integritas, dan komitmen tinggi dalam menjalankan tugas sebagai pendidik.</div>
+    </div>
+    <div class="checkbox-item">
+      <div class="checkbox-box">✓</div>
+      <div>Memiliki keteladanan dan menjadi panutan bagi peserta didik maupun lingkungan sekolah.</div>
+    </div>
+    <div class="checkbox-item">
+      <div class="checkbox-box">✓</div>
+      <div>Memiliki inovasi pembelajaran yang memberikan manfaat bagi peserta didik/sekolah.</div>
+    </div>
+    <div class="checkbox-item">
+      <div class="checkbox-box">✓</div>
+      <div>Tidak pernah melakukan pelanggaran hukum maupun pelanggaran etik/profesional sepanjang pengetahuan kami.</div>
+    </div>
+    <div class="checkbox-item">
+      <div class="checkbox-box">✓</div>
+      <div>Layak dan kami rekomendasikan sebagai peserta Program Guru Inspiratif Astra Honda 2026.</div>
+    </div>
+  </div>
+
+  <!-- URAIAN SINGKAT REKOMENDASI KEPALA SEKOLAH -->
+  <p class="uraian-title">Uraian Singkat Rekomendasi Kepala Sekolah</p>
+  <p class="uraian-subtitle">(diisi 1–2 paragraf yang berisi prestasi/apresiasi/capaian/kontribusi yang guru terkait)</p>
+
+  <p class="uraian-content">
+    Berdasarkan pengamatan dan penilaian kami, Sdr. <b>I Putu Darma Putra, S.Pd.</b> merupakan pendidik berdedikasi tinggi yang secara mandiri merancang dan mengembangkan <b>SIMAK DOSMAN (Sistem Informasi Manajemen Anak Kolektif Dosman)</b> berbasis Web (Laravel Filament) dan Mobile (Flutter). Inovasi ini telah berhasil mentransformasi sistem presensi geolocation, efisiensi jadwal master Excel, serta administrasi bebas pustaka digital di SMAN 1 Gianyar secara signifikan.
+  </p>
+
+  <p class="uraian-content">
+    Selain berprestasi di bidang inovasi teknologi pendidikan, yang bersangkutan juga aktif membimbing sesama guru dalam literasi digital dan senantiasa menjadi teladan kedisiplinan serta integritas bagi peserta didik maupun lingkungan sekolah.
+  </p>
+
+  <!-- PENUTUP SURAT -->
+  <p class="section-text" style="margin-top: 14px; margin-bottom: 16px;">
+    Demikian surat rekomendasi ini dibuat dengan sebenarnya untuk digunakan sebagai persyaratan mengikuti Program Guru Inspiratif Astra Honda 2026.
+  </p>
+
+  <!-- TANDA TANGAN & STEMPEL -->
   <div class="signature-section">
     <div class="signature-box">
       <p>Gianyar, 02 Oktober 2026</p>
-      <p>Kepala SMAN 1 Gianyar,</p>
+      <div style="height: 6px;"></div>
+      <p><i>(tanda tangan & stempel)</i></p>
       <div class="signature-space"></div>
       <p class="signature-name">I Wayan Sudra Astra, S.Pd., M.Pd.</p>
-      <p>NIP. 19710415 199703 1 007</p>
+      <p>Kepala Sekolah SMAN 1 Gianyar</p>
     </div>
   </div>
+
 </div>
 
 </body>
