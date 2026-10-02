@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <title>SURAT REKOMENDASI KEPALA SEKOLAH - SMAN 1 GIANYAR</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Times+New+Roman&family=Noto+Serif+Balinese&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Times+New+Roman&display=swap');
 
   @page {
     size: A4 portrait;
@@ -38,7 +38,7 @@
     justify-content: space-between;
   }
 
-  /* NATIVE PROPORSIONAL KOP SURAT DENGAN AKSARA BALI */
+  /* NATIVE PROPORSIONAL KOP SURAT DENGAN CROP AKSARA BALI ASLI */
   .kop-header {
     width: 100%;
     display: flex;
@@ -65,50 +65,70 @@
   .kop-center-text {
     flex: 1;
     text-align: center;
-    padding: 0 10px;
+    padding: 0 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
 
-  .aksara-bali {
-    font-family: 'Noto Serif Balinese', serif;
-    font-size: 11pt;
-    line-height: 1.1;
-    color: #000000;
+  /* CROPPED AKSARA BALI ASLI DARIPADA FONT TERPOTONG */
+  .aksara-crop {
+    background-image: url('kop_sman1gianyar.png');
+    background-repeat: no-repeat;
+    display: block;
+    margin: 0 auto;
+  }
+
+  .aksara-line1 {
+    width: 375px;
+    height: 38px;
+    background-position: -308px -8px;
+    background-size: 984px 191px;
     margin-bottom: 1px;
   }
 
-  .aksara-besar {
-    font-size: 13pt;
-    font-weight: bold;
+  .aksara-line2 {
+    width: 350px;
+    height: 34px;
+    background-position: -320px -71px;
+    background-size: 984px 191px;
+    margin-bottom: 1px;
   }
 
-  .aksara-kecil {
-    font-size: 9.5pt;
+  .aksara-line3 {
+    width: 610px;
+    height: 35px;
+    background-position: -187px -115px;
+    background-size: 984px 191px;
+    margin-bottom: 1px;
   }
 
   .kop-center-text .pemprov {
-    font-size: 12.5pt;
+    font-size: 13.5pt;
     font-weight: bold;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     line-height: 1.15;
+    margin-bottom: 2px;
   }
 
   .kop-center-text .sekolah {
-    font-size: 15.5pt;
+    font-size: 16.5pt;
     font-weight: bold;
     text-transform: uppercase;
     letter-spacing: 1px;
-    margin: 2px 0 1px 0;
+    margin: 2px 0;
     line-height: 1.15;
   }
 
   .kop-center-text .alamat {
-    font-size: 9pt;
+    font-size: 9.5pt;
     line-height: 1.25;
+    margin-top: 1px;
   }
 
   .kop-center-text .laman {
-    font-size: 9pt;
+    font-size: 9.5pt;
     line-height: 1.25;
   }
 
@@ -202,15 +222,15 @@
 
 <div class="page-container">
   <div>
-    <!-- KOP SURAT NATIVE LENGKAP AKSARA BALI PROPORSIONAL -->
+    <!-- KOP SURAT PROPORSIONAL DENGAN AKSARA BALI ASLI SLICED PERFEKTIF -->
     <div class="kop-header">
       <img class="kop-logo-left" src="logo-pemprov-bali.png" alt="Logo Pemprov Bali">
       <div class="kop-center-text">
-        <div class="aksara-bali">ᬧᬾᬫᬾᬭᬶᬦᭀᬢᬄ ᬧᭀᬭᭀᬯᬶᬙᬶ ᬩᬮᬶ</div>
+        <div class="aksara-crop aksara-line1"></div>
         <div class="pemprov">PEMERINTAH PROVINSI BALI</div>
-        <div class="aksara-bali aksara-besar">ᬲᭀᬫᬦᬾᬕᬾᬭᬶ ᭑ ᬕᬶᬬᬜᬃ</div>
+        <div class="aksara-crop aksara-line2"></div>
         <div class="sekolah">SMA NEGERI 1 GIANYAR</div>
-        <div class="aksara-bali aksara-kecil">ᬚᬮᬦ᭄ ᬭᬢᭀᬦ, ᬢᬾᬕᬮ᭄ ᬢᬸᬕᬸ ᬕᬶᬬᬜᬃ (᭠ᭀᭅ᭑᭑), ᬢᬾᬮᬾᬧᭀᬦ᭄ : (᭠ᭌ᭎᭑) ᭟᭓᭎ᭀ᭓᭔</div>
+        <div class="aksara-crop aksara-line3"></div>
         <div class="alamat">Jalan Ratna, Tegal Tugu Gianyar (80511), Telepon : (0361) 943034</div>
         <div class="laman">Laman : www.sman1-gianyar.sch.id, Pos-el : sman1.gianyar1963@gmail.com</div>
       </div>
