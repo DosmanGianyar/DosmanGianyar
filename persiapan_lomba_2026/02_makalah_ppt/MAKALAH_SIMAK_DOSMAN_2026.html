@@ -19,8 +19,8 @@
 
   body {
     font-family: 'Plus Jakarta Sans', sans-serif;
-    background-color: #0F172A;
-    color: #F8FAFC;
+    background-color: #F4F6F9;
+    color: #0F172A;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
@@ -32,7 +32,7 @@
     page-break-inside: avoid;
     position: relative;
     overflow: hidden;
-    background: #0F172A;
+    background: #F4F6F9;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -41,16 +41,13 @@
 
   /* Slide Background Themes */
   .slide-cover {
-    background: linear-gradient(135deg, #0F172A 0%, #1E1B4B 50%, #881337 100%);
+    background: linear-gradient(135deg, #FFFFFF 0%, #F1F5F9 100%);
+    border-top: 20px solid #E60012;
   }
 
-  .slide-light {
-    background: #F8FAFC;
+  .slide-formal {
+    background: #F4F6F9;
     color: #0F172A;
-  }
-
-  .slide-accent {
-    background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
   }
 
   /* Header Components */
@@ -59,23 +56,19 @@
     justify-content: space-between;
     align-items: center;
     border-bottom: 3px solid #E60012;
-    padding-bottom: 0.25in;
+    padding-bottom: 0.2in;
     margin-bottom: 0.3in;
   }
 
   .slide-title {
-    font-size: 32pt;
+    font-size: 30pt;
     font-weight: 800;
     letter-spacing: -0.5px;
-    color: #FFFFFF;
-  }
-
-  .slide-light .slide-title {
     color: #0F172A;
   }
 
   .slide-category {
-    font-size: 14pt;
+    font-size: 13pt;
     font-weight: 700;
     text-transform: uppercase;
     background: #E60012;
@@ -90,14 +83,9 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    border-top: 1px solid #CBD5E1;
     padding-top: 0.2in;
     font-size: 13pt;
-    color: #94A3B8;
-  }
-
-  .slide-light .slide-footer {
-    border-top-color: rgba(15, 23, 42, 0.15);
     color: #64748B;
   }
 
@@ -116,23 +104,15 @@
 
   .col-full { flex: 1; }
   .col-half { flex: 1; }
-  .col-1-3 { flex: 1; }
-  .col-2-3 { flex: 2; }
 
   /* Cards & Containers */
   .card {
-    background: rgba(30, 41, 59, 0.7);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 16px;
-    padding: 0.3in;
-    backdrop-filter: blur(10px);
-    margin-bottom: 0.2in;
-  }
-
-  .slide-light .card {
     background: #FFFFFF;
-    border-color: #E2E8F0;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    border: 1px solid #E2E8F0;
+    border-radius: 14px;
+    padding: 0.3in;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+    margin-bottom: 0.2in;
   }
 
   .card-highlight {
@@ -140,27 +120,19 @@
   }
 
   .card-gold {
-    border-left: 6px solid #F59E0B;
+    border-left: 6px solid #D97706;
   }
 
   .card-title {
-    font-size: 20pt;
+    font-size: 19pt;
     font-weight: 700;
     margin-bottom: 0.15in;
-    color: #38BDF8;
-  }
-
-  .slide-light .card-title {
-    color: #0284C7;
+    color: #0369A1;
   }
 
   .card-text {
-    font-size: 15pt;
+    font-size: 14pt;
     line-height: 1.6;
-    color: #CBD5E1;
-  }
-
-  .slide-light .card-text {
     color: #334155;
   }
 
@@ -173,8 +145,9 @@
     position: relative;
     padding-left: 0.35in;
     margin-bottom: 0.15in;
-    font-size: 15pt;
+    font-size: 14pt;
     line-height: 1.5;
+    color: #1E293B;
   }
 
   ul.styled-list li::before {
@@ -182,7 +155,7 @@
     position: absolute;
     left: 0;
     color: #E60012;
-    font-size: 14pt;
+    font-size: 13pt;
   }
 
   /* Badges & Pills */
@@ -190,13 +163,13 @@
     display: inline-block;
     padding: 6px 14px;
     border-radius: 8px;
-    font-size: 13pt;
+    font-size: 12pt;
     font-weight: 700;
     margin-right: 8px;
     margin-bottom: 8px;
-    background: rgba(230, 0, 18, 0.2);
-    color: #FF6B6B;
-    border: 1px solid rgba(230, 0, 18, 0.4);
+    background: #FEE2E2;
+    color: #991B1B;
+    border: 1px solid #FCA5A5;
   }
 
   /* Tables */
@@ -217,12 +190,6 @@
 
   table.custom-table td {
     padding: 12px 16px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    background: rgba(30, 41, 59, 0.5);
-    color: #E2E8F0;
-  }
-
-  .slide-light table.custom-table td {
     border-bottom: 1px solid #E2E8F0;
     background: #FFFFFF;
     color: #1E293B;
@@ -232,35 +199,36 @@
   .screenshot-box {
     width: 100%;
     height: 100%;
-    min-height: 4in;
-    background: rgba(15, 23, 42, 0.6);
-    border: 2px dashed #38BDF8;
-    border-radius: 16px;
+    min-height: 4.2in;
+    background: #FFFFFF;
+    border: 2px dashed #0284C7;
+    border-radius: 14px;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     text-align: center;
     padding: 0.4in;
-    color: #94A3B8;
+    color: #475569;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
   }
 
   .screenshot-box h3 {
     font-size: 20pt;
-    color: #38BDF8;
+    color: #0284C7;
     margin-bottom: 0.1in;
   }
 
   .quote-box {
-    font-size: 22pt;
+    font-size: 20pt;
     font-style: italic;
     line-height: 1.6;
-    color: #F1F5F9;
-    background: rgba(230, 0, 18, 0.15);
+    color: #0F172A;
+    background: #FEF2F2;
     border-left: 8px solid #E60012;
     padding: 0.4in;
     border-radius: 12px;
-    margin-top: 0.2in;
+    margin-top: 0.1in;
   }
 </style>
 </head>
@@ -271,34 +239,34 @@
   <div>
     <div style="display: flex; gap: 12px; margin-bottom: 0.3in;">
       <span class="badge" style="background:#E60012; color:#FFF;">GURU INSPIRATIF ASTRA HONDA 2026</span>
-      <span class="badge" style="background:rgba(255,255,255,0.2); color:#FFF;">MAIN DEALER: ASTRA MOTOR BALI</span>
+      <span class="badge" style="background:#E2E8F0; color:#0F172A; border-color:#CBD5E1;">MAIN DEALER: ASTRA MOTOR BALI</span>
     </div>
-    <h1 style="font-size: 54pt; font-weight: 800; color: #FFFFFF; line-height: 1.1; margin-bottom: 0.2in;">
+    <h1 style="font-size: 52pt; font-weight: 800; color: #0F172A; line-height: 1.1; margin-bottom: 0.15in;">
       SIMAK DOSMAN
     </h1>
-    <h2 style="font-size: 24pt; font-weight: 600; color: #FCA5A5; margin-bottom: 0.4in;">
+    <h2 style="font-size: 22pt; font-weight: 700; color: #DC2626; margin-bottom: 0.35in;">
       (Sistem Informasi Manajemen Anak Kolektif Dosman)
     </h2>
-    <p style="font-size: 18pt; color: #E2E8F0; max-width: 12in; line-height: 1.5;">
+    <p style="font-size: 17pt; color: #334155; max-width: 12in; line-height: 1.5;">
       Ekosistem Digital Terpadu Berbasis Web & Mobile di SMAN 1 Gianyar untuk Meningkatkan Kedisiplinan, Efisiensi Administrasi, dan Kualitas Pembelajaran
     </p>
   </div>
   
-  <div style="display: flex; justify-content: space-between; align-items: flex-end; border-top: 2px solid rgba(255,255,255,0.2); padding-top: 0.3in;">
+  <div style="display: flex; justify-content: space-between; align-items: flex-end; border-top: 2px solid #E2E8F0; padding-top: 0.25in;">
     <div>
-      <p style="font-size: 14pt; color: #94A3B8; text-transform: uppercase;">Penyusun / Inovator:</p>
-      <p style="font-size: 22pt; font-weight: 800; color: #FFFFFF;">I Putu Darma Putra, S.Pd.</p>
-      <p style="font-size: 14pt; color: #CBD5E1;">Guru Matematika | NIP. 19880930 202221 1 001</p>
+      <p style="font-size: 13pt; color: #64748B; text-transform: uppercase;">Penyusun / Inovator:</p>
+      <p style="font-size: 20pt; font-weight: 800; color: #0F172A;">I Putu Darma Putra, S.Pd.</p>
+      <p style="font-size: 13pt; color: #475569;">Guru Matematika | NIP. 19880930 202221 1 001</p>
     </div>
     <div style="text-align: right;">
-      <p style="font-size: 18pt; font-weight: 700; color: #FFFFFF;">SMAN 1 GIANYAR</p>
-      <p style="font-size: 14pt; color: #94A3B8;">Kabupaten Gianyar, Provinsi Bali</p>
+      <p style="font-size: 18pt; font-weight: 800; color: #0F172A;">SMAN 1 GIANYAR</p>
+      <p style="font-size: 13pt; color: #64748B;">Kabupaten Gianyar, Provinsi Bali</p>
     </div>
   </div>
 </div>
 
 <!-- SLIDE 2: PROFIL GURU -->
-<div class="slide slide-accent">
+<div class="slide slide-formal">
   <div class="slide-header">
     <div class="slide-title">1. Profil Singkat Guru</div>
     <div class="slide-category">Profil & Dedikasi</div>
@@ -325,7 +293,7 @@
     <div class="col-half">
       <div class="quote-box">
         "Teknologi adalah sarana, dedikasi adalah penggerak utama. Matematika mengajarkan presisi, dan teknologi mewujudkan presisi itu dalam pengelolaan sekolah."
-        <div style="font-size: 14pt; font-style: normal; margin-top: 15px; color: #FCA5A5; font-weight: 700;">
+        <div style="font-size: 13pt; font-style: normal; margin-top: 15px; color: #DC2626; font-weight: 700;">
           — I Putu Darma Putra, S.Pd.
         </div>
       </div>
@@ -338,7 +306,7 @@
 </div>
 
 <!-- SLIDE 3: PERJALANAN PENGABDIAN -->
-<div class="slide slide-accent">
+<div class="slide slide-formal">
   <div class="slide-header">
     <div class="slide-title">2. Perjalanan Pengabdian & Inovasi</div>
     <div class="slide-category">Timeline Karir</div>
@@ -346,23 +314,23 @@
   <div class="content-body" style="flex-direction: column; justify-content: center;">
     <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.3in;">
       <div class="card card-highlight">
-        <div style="font-size: 24pt; font-weight: 800; color: #E60012; margin-bottom: 8px;">2015</div>
-        <div style="font-size: 16pt; font-weight: 700; color: #FFF; margin-bottom: 10px;">Awal Mengabdi & Web</div>
+        <div style="font-size: 24pt; font-weight: 800; color: #E60012; margin-bottom: 6px;">2015</div>
+        <div style="font-size: 15pt; font-weight: 700; color: #0F172A; margin-bottom: 8px;">Awal Mengabdi & Web</div>
         <p class="card-text" style="font-size: 13pt;">Mulai mengabdi sebagai Guru Matematika di SMAN 1 Gianyar & membangun web pembelajaran pribadi <b>mathdosman.my.id</b>.</p>
       </div>
       <div class="card card-gold">
-        <div style="font-size: 24pt; font-weight: 800; color: #F59E0B; margin-bottom: 8px;">2022</div>
-        <div style="font-size: 16pt; font-weight: 700; color: #FFF; margin-bottom: 10px;">Eksplorasi Web Sekolah</div>
+        <div style="font-size: 24pt; font-weight: 800; color: #D97706; margin-bottom: 6px;">2022</div>
+        <div style="font-size: 15pt; font-weight: 700; color: #0F172A; margin-bottom: 8px;">Eksplorasi Web Sekolah</div>
         <p class="card-text" style="font-size: 13pt;">Ketertarikan mendalam dalam merancang web sekolah & melihat peluang transformasi digital administrasi.</p>
       </div>
-      <div class="card" style="border-left: 6px solid #38BDF8;">
-        <div style="font-size: 24pt; font-weight: 800; color: #38BDF8; margin-bottom: 8px;">2024</div>
-        <div style="font-size: 16pt; font-weight: 700; color: #FFF; margin-bottom: 10px;">Vibe Coding & SIMAK</div>
+      <div class="card" style="border-left: 6px solid #0284C7;">
+        <div style="font-size: 24pt; font-weight: 800; color: #0284C7; margin-bottom: 6px;">2024</div>
+        <div style="font-size: 15pt; font-weight: 700; color: #0F172A; margin-bottom: 8px;">Vibe Coding & SIMAK</div>
         <p class="card-text" style="font-size: 13pt;">Berkat semangat <i>vibe coding</i>, mewujudkan ekosistem digital <b>SIMAK DOSMAN</b> (Laravel Filament & Flutter Mobile).</p>
       </div>
-      <div class="card" style="border-left: 6px solid #10B981;">
-        <div style="font-size: 24pt; font-weight: 800; color: #10B981; margin-bottom: 8px;">2025-2026</div>
-        <div style="font-size: 16pt; font-weight: 700; color: #FFF; margin-bottom: 10px;">Penerapan Penuh</div>
+      <div class="card" style="border-left: 6px solid #059669;">
+        <div style="font-size: 24pt; font-weight: 800; color: #059669; margin-bottom: 6px;">2025-2026</div>
+        <div style="font-size: 15pt; font-weight: 700; color: #0F172A; margin-bottom: 8px;">Penerapan Penuh</div>
         <p class="card-text" style="font-size: 13pt;">Pemanfaatan terpadu: Presensi Geolocation, Import Excel Master Jadwal, E-Voting, dan Bebas Pustaka.</p>
       </div>
     </div>
@@ -374,7 +342,7 @@
 </div>
 
 <!-- SLIDE 4: KONDISI GURU & LINGKUNGAN -->
-<div class="slide slide-accent">
+<div class="slide slide-formal">
   <div class="slide-header">
     <div class="slide-title">3. Kondisi Guru & Lingkungan Mengajar</div>
     <div class="slide-category">Konteks Sekolah</div>
@@ -428,7 +396,7 @@
 </div>
 
 <!-- SLIDE 5: TANTANGAN YANG DIHADAPI -->
-<div class="slide slide-accent">
+<div class="slide slide-formal">
   <div class="slide-header">
     <div class="slide-title">4. Tantangan Utama Sebelum Ada Inovasi</div>
     <div class="slide-category">Permasalahan</div>
@@ -436,19 +404,19 @@
   <div class="content-body">
     <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.3in; width: 100%;">
       <div class="card card-highlight">
-        <div style="font-size: 18pt; font-weight: 700; color: #FCA5A5; margin-bottom: 8px;">1. Presensi Manual Menyita Waktu</div>
-        <p class="card-text">Pencatatan kehadiran fisik menyita 15-20 menit di awal kelas, mengurangi waktu efektif KBM dan berisiko tidak akurat.</p>
+        <div style="font-size: 17pt; font-weight: 700; color: #DC2626; margin-bottom: 8px;">1. Presensi Manual Menyita Waktu</div>
+        <p class="card-text">Pencatatan kehadiran fisik menyita 15-20 menit di awal kelas, mengurangi waktu efektif KBM dan berisiko kurang akurat.</p>
       </div>
       <div class="card card-gold">
-        <div style="font-size: 18pt; font-weight: 700; color: #FCD34D; margin-bottom: 8px;">2. Rumitnya Penyusunan Jadwal Master</div>
+        <div style="font-size: 17pt; font-weight: 700; color: #D97706; margin-bottom: 8px;">2. Rumitnya Penyusunan Jadwal Master</div>
         <p class="card-text">Penyusunan dan pembagian jadwal dari master Excel aSc Timetables ke seluruh kelas memakan waktu berhari-hari.</p>
       </div>
-      <div class="card" style="border-left: 6px solid #38BDF8;">
-        <div style="font-size: 18pt; font-weight: 700; color: #7DD3FC; margin-bottom: 8px;">3. Catatan Pelanggaran Tercecer</div>
+      <div class="card" style="border-left: 6px solid #0284C7;">
+        <div style="font-size: 17pt; font-weight: 700; color: #0284C7; margin-bottom: 8px;">3. Catatan Pelanggaran Tercecer</div>
         <p class="card-text">Poin kedisiplinan dan prestasi siswa dicatat di buku fisik terpisah yang rentan hilang atau lambat direkap.</p>
       </div>
-      <div class="card" style="border-left: 6px solid #F43F5E;">
-        <div style="font-size: 18pt; font-weight: 700; color: #FDA4AF; margin-bottom: 8px;">4. Birokrasi Fisik & Kertas</div>
+      <div class="card" style="border-left: 6px solid #E11D48;">
+        <div style="font-size: 17pt; font-weight: 700; color: #E11D48; margin-bottom: 8px;">4. Birokrasi Fisik & Kertas</div>
         <p class="card-text">Pengurusan surat izin, bebas pustaka perpustakaan, dan peminjaman sarpras membutuhkan antrean dan tumpukan kertas.</p>
       </div>
     </div>
@@ -460,7 +428,7 @@
 </div>
 
 <!-- SLIDE 6: INOVASI SIMAK DOSMAN PART 1 -->
-<div class="slide slide-accent">
+<div class="slide slide-formal">
   <div class="slide-header">
     <div class="slide-title">5. Inovasi: SIMAK DOSMAN</div>
     <div class="slide-category">Solusi Terpadu</div>
@@ -469,7 +437,7 @@
     <div class="col-half">
       <div class="card card-highlight">
         <div class="card-title">Apa itu SIMAK DOSMAN?</div>
-        <p class="card-text" style="font-size: 16pt; line-height: 1.6;">
+        <p class="card-text" style="font-size: 15pt; line-height: 1.6;">
           <b>SIMAK DOSMAN</b> (<i>Sistem Informasi Manajemen Anak Kolektif Dosman</i>) adalah platform ekosistem digital terpadu berbasis Web & Mobile yang dirancang untuk mengintegrasikan seluruh administrasi, presensi, dan layanan siswa di SMAN 1 Gianyar.
         </p>
       </div>
@@ -492,7 +460,7 @@
 </div>
 
 <!-- SLIDE 7: FITUR UNGGULAN PART 2 -->
-<div class="slide slide-accent">
+<div class="slide slide-formal">
   <div class="slide-header">
     <div class="slide-title">6. Fitur-Fitur Unggulan Sistem</div>
     <div class="slide-category">Ekosistem Fitur</div>
@@ -500,27 +468,27 @@
   <div class="content-body">
     <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.25in; width: 100%;">
       <div class="card card-highlight">
-        <div style="font-size: 16pt; font-weight: 700; color: #E60012; margin-bottom: 8px;">📍 Presensi Geolocation</div>
+        <div style="font-size: 15pt; font-weight: 700; color: #DC2626; margin-bottom: 8px;">📍 Presensi Geolocation</div>
         <p class="card-text" style="font-size: 13pt;">Presensi realtime siswa & guru berbasis koordinat lokasi terenkripsi via Smartphone.</p>
       </div>
       <div class="card card-gold">
-        <div style="font-size: 16pt; font-weight: 700; color: #F59E0B; margin-bottom: 8px;">📅 Import Excel Jadwal</div>
+        <div style="font-size: 15pt; font-weight: 700; color: #D97706; margin-bottom: 8px;">📅 Import Excel Jadwal</div>
         <p class="card-text" style="font-size: 13pt;">Matching otomatis nama guru & mapel dari file Excel master aSc Timetables.</p>
       </div>
-      <div class="card" style="border-left: 6px solid #38BDF8;">
-        <div style="font-size: 16pt; font-weight: 700; color: #38BDF8; margin-bottom: 8px;">⚖️ Poin & Prestasi</div>
+      <div class="card" style="border-left: 6px solid #0284C7;">
+        <div style="font-size: 15pt; font-weight: 700; color: #0284C7; margin-bottom: 8px;">⚖️ Poin & Prestasi</div>
         <p class="card-text" style="font-size: 13pt;">Pencatatan poin pelanggaran (Conduct Log) dan apresiasi prestasi siswa secara terbuka.</p>
       </div>
-      <div class="card" style="border-left: 6px solid #10B981;">
-        <div style="font-size: 16pt; font-weight: 700; color: #10B981; margin-bottom: 8px;">📚 Bebas Pustaka Digital</div>
+      <div class="card" style="border-left: 6px solid #059669;">
+        <div style="font-size: 15pt; font-weight: 700; color: #059669; margin-bottom: 8px;">📚 Bebas Pustaka Digital</div>
         <p class="card-text" style="font-size: 13pt;">Permohonan bebas pustaka & inventaris sarpras secara mandiri tanpa kertas.</p>
       </div>
-      <div class="card" style="border-left: 6px solid #8B5CF6;">
-        <div style="font-size: 16pt; font-weight: 700; color: #8B5CF6; margin-bottom: 8px;">💳 Kartu Pelajar Digital</div>
+      <div class="card" style="border-left: 6px solid #7C3AED;">
+        <div style="font-size: 15pt; font-weight: 700; color: #7C3AED; margin-bottom: 8px;">💳 Kartu Pelajar Digital</div>
         <p class="card-text" style="font-size: 13pt;">Identitas digital siswa terintegrasi pada aplikasi Mobile Flutter.</p>
       </div>
-      <div class="card" style="border-left: 6px solid #EC4899;">
-        <div style="font-size: 16pt; font-weight: 700; color: #EC4899; margin-bottom: 8px;">🗳️ E-Voting & Ekskul</div>
+      <div class="card" style="border-left: 6px solid #DB2777;">
+        <div style="font-size: 15pt; font-weight: 700; color: #DB2777; margin-bottom: 8px;">🗳️ E-Voting & Ekskul</div>
         <p class="card-text" style="font-size: 13pt;">Pemilihan ketua OSIS & pendaftaran anggota ekstrakurikuler secara terdigitalisasi.</p>
       </div>
     </div>
@@ -532,7 +500,7 @@
 </div>
 
 <!-- SLIDE 8: IMPLEMENTASI & ADAPTASI -->
-<div class="slide slide-accent">
+<div class="slide slide-formal">
   <div class="slide-header">
     <div class="slide-title">7. Implementasi & Pendekatan</div>
     <div class="slide-category">Proses Adopsi</div>
@@ -568,7 +536,7 @@
 </div>
 
 <!-- SLIDE 9: DAMPAK & MANFAAT -->
-<div class="slide slide-accent">
+<div class="slide slide-formal">
   <div class="slide-header">
     <div class="slide-title">8. Dampak & Manfaat Nyata</div>
     <div class="slide-category">Manfaat Stakeholder</div>
@@ -583,11 +551,11 @@
         <div class="card-title">Bagi Peserta Didik</div>
         <p class="card-text">Kedisiplinan meningkat, pengurusan izin & bebas pustaka lebih cepat tanpa antrean birokrasi kertas.</p>
       </div>
-      <div class="card" style="border-left: 6px solid #10B981;">
+      <div class="card" style="border-left: 6px solid #059669;">
         <div class="card-title">Bagi Manajemen Sekolah</div>
         <p class="card-text">Penghematan kertas (paperless), keputusan berbasis data akurat (data-driven decision), serta transparansi publik.</p>
       </div>
-      <div class="card" style="border-left: 6px solid #8B5CF6;">
+      <div class="card" style="border-left: 6px solid #7C3AED;">
         <div class="card-title">Bagi Orang Tua Siswa</div>
         <p class="card-text">Ketenangan pikiran melalui kepastian kehadiran dan pemantauan rekam jejak perilaku/prestasi anak.</p>
       </div>
@@ -600,7 +568,7 @@
 </div>
 
 <!-- SLIDE 10: BUKTI PERBANDINGAN BEFORE VS AFTER -->
-<div class="slide slide-light">
+<div class="slide slide-formal">
   <div class="slide-header">
     <div class="slide-title">9. Bukti Dampak: Before vs After</div>
     <div class="slide-category">Data Dampak</div>
@@ -611,7 +579,7 @@
         <thead>
           <tr>
             <th style="width: 25%;">Indikator</th>
-            <th style="width: 37.5%; background: #94A3B8;">Sebelum Ada SIMAK DOSMAN</th>
+            <th style="width: 37.5%; background: #64748B;">Sebelum Ada SIMAK DOSMAN</th>
             <th style="width: 37.5%; background: #E60012;">Sesudah Ada SIMAK DOSMAN</th>
           </tr>
         </thead>
@@ -647,7 +615,7 @@
 </div>
 
 <!-- SLIDE 11: KEBERLANJUTAN INOVASI -->
-<div class="slide slide-accent">
+<div class="slide slide-formal">
   <div class="slide-header">
     <div class="slide-title">10. Keberlanjutan & Replikasi</div>
     <div class="slide-category">Skalabilitas</div>
@@ -678,7 +646,7 @@
 </div>
 
 <!-- SLIDE 12: KETELADANAN GURU PART 1 -->
-<div class="slide slide-accent">
+<div class="slide slide-formal">
   <div class="slide-header">
     <div class="slide-title">11. Keteladanan & Kepemimpinan (Part 1)</div>
     <div class="slide-category">Guru Penggerak</div>
@@ -708,7 +676,7 @@
 </div>
 
 <!-- SLIDE 13: KETELADANAN GURU PART 2 -->
-<div class="slide slide-accent">
+<div class="slide slide-formal">
   <div class="slide-header">
     <div class="slide-title">12. Peran di Luar Kelas (Part 2)</div>
     <div class="slide-category">Pengabdian</div>
@@ -738,15 +706,15 @@
 </div>
 
 <!-- SLIDE 14: REFLEKSI PRIBADI -->
-<div class="slide slide-accent">
+<div class="slide slide-formal">
   <div class="slide-header">
     <div class="slide-title">13. Refleksi Pribadi</div>
     <div class="slide-category">Refleksi Guru</div>
   </div>
   <div class="content-body" style="flex-direction: column; justify-content: center;">
-    <div class="quote-box" style="font-size: 24pt; line-height: 1.7;">
+    <div class="quote-box" style="font-size: 22pt; line-height: 1.7;">
       "Mengabdi sebagai guru bukan hanya tentang menyampaikan rumus matematika di atas papan tulis, melainkan tentang membangun ekosistem yang memudahkan setiap anak dan rekan sejawat untuk tumbuh. SIMAK DOSMAN adalah wujud nyata cinta dan pengabdian saya untuk SMAN 1 Gianyar."
-      <div style="font-size: 16pt; font-style: normal; margin-top: 20px; color: #FCA5A5; font-weight: 700;">
+      <div style="font-size: 15pt; font-style: normal; margin-top: 20px; color: #DC2626; font-weight: 700;">
         — I Putu Darma Putra, S.Pd.
       </div>
     </div>
@@ -758,7 +726,7 @@
 </div>
 
 <!-- SLIDE 15: KESIMPULAN -->
-<div class="slide slide-accent">
+<div class="slide slide-formal">
   <div class="slide-header">
     <div class="slide-title">14. Kesimpulan Utama</div>
     <div class="slide-category">Rangkuman</div>
@@ -766,19 +734,19 @@
   <div class="content-body">
     <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.3in; width: 100%;">
       <div class="card card-highlight">
-        <div style="font-size: 18pt; font-weight: 700; color: #E60012; margin-bottom: 8px;">1. Dedikasi Pengabdian</div>
+        <div style="font-size: 17pt; font-weight: 700; color: #DC2626; margin-bottom: 8px;">1. Dedikasi Pengabdian</div>
         <p class="card-text">Komitmen penuh dalam menjawab tantangan administrasi sekolah melalui karya inovasi mandiri.</p>
       </div>
       <div class="card card-gold">
-        <div style="font-size: 18pt; font-weight: 700; color: #F59E0B; margin-bottom: 8px;">2. Inovasi Tepat Guna</div>
+        <div style="font-size: 17pt; font-weight: 700; color: #D97706; margin-bottom: 8px;">2. Inovasi Tepat Guna</div>
         <p class="card-text">SIMAK DOSMAN sukses menyatukan presensi Geolocation, jadwal master Excel, dan bebas pustaka digital.</p>
       </div>
-      <div class="card" style="border-left: 6px solid #10B981;">
-        <div style="font-size: 18pt; font-weight: 700; color: #10B981; margin-bottom: 8px;">3. Dampak Terukur</div>
+      <div class="card" style="border-left: 6px solid #059669;">
+        <div style="font-size: 17pt; font-weight: 700; color: #059669; margin-bottom: 8px;">3. Dampak Terukur</div>
         <p class="card-text">Menghemat waktu presensi KBM, efisiensi jadwal <5 menit, dan mewujudkan ekosistem paperless.</p>
       </div>
-      <div class="card" style="border-left: 6px solid #38BDF8;">
-        <div style="font-size: 18pt; font-weight: 700; color: #38BDF8; margin-bottom: 8px;">4. Harapan Masa Depan</div>
+      <div class="card" style="border-left: 6px solid #0284C7;">
+        <div style="font-size: 17pt; font-weight: 700; color: #0284C7; margin-bottom: 8px;">4. Harapan Masa Depan</div>
         <p class="card-text">Menjadi inspirasi transformasi digital bagi sekolah-sekolah di Bali dan Indonesia.</p>
       </div>
     </div>
@@ -790,7 +758,7 @@
 </div>
 
 <!-- SLIDE 16: LAMPIRAN WEB ADMIN -->
-<div class="slide slide-accent">
+<div class="slide slide-formal">
   <div class="slide-header">
     <div class="slide-title">15. Lampiran: Dashboard Web Filament Admin</div>
     <div class="slide-category">Bukti UI Web</div>
@@ -799,7 +767,7 @@
     <div class="col-full">
       <div class="screenshot-box">
         <h3>[ TAMPILAN DASHBOARD FILAMENT ADMIN WEB ]</h3>
-        <p style="font-size: 15pt; color: #CBD5E1;">Menampilkan Overview Statistik Sekolah, Import Jadwal Master Excel aSc Timetables, dan Manajemen Presensi Geolocation.</p>
+        <p style="font-size: 15pt; color: #475569;">Menampilkan Overview Statistik Sekolah, Import Jadwal Master Excel aSc Timetables, dan Manajemen Presensi Geolocation.</p>
       </div>
     </div>
   </div>
@@ -810,7 +778,7 @@
 </div>
 
 <!-- SLIDE 17: LAMPIRAN MOBILE APP FLUTTER -->
-<div class="slide slide-accent">
+<div class="slide slide-formal">
   <div class="slide-header">
     <div class="slide-title">16. Lampiran: Tampilan Mobile App Flutter</div>
     <div class="slide-category">Bukti UI Mobile</div>
@@ -819,7 +787,7 @@
     <div class="col-full">
       <div class="screenshot-box">
         <h3>[ TAMPILAN APLIKASI MOBILE FLUTTER SISWA & GURU ]</h3>
-        <p style="font-size: 15pt; color: #CBD5E1;">Menampilkan Kartu Pelajar Digital, Presensi Geolocation Mobile, Poin Perilaku, dan Bebas Pustaka.</p>
+        <p style="font-size: 15pt; color: #475569;">Menampilkan Kartu Pelajar Digital, Presensi Geolocation Mobile, Poin Perilaku, dan Bebas Pustaka.</p>
       </div>
     </div>
   </div>
@@ -830,16 +798,16 @@
 </div>
 
 <!-- SLIDE 18: DOKUMENTASI LAPANGAN -->
-<div class="slide slide-accent">
+<div class="slide slide-formal">
   <div class="slide-header">
     <div class="slide-title">17. Lampiran: Dokumentasi Kegiatan Sekolah</div>
     <div class="slide-category">Dokumentasi</div>
   </div>
   <div class="content-body">
     <div class="col-full">
-      <div class="screenshot-box" style="border-color: #F59E0B;">
-        <h3 style="color: #F59E0B;">[ FOTO KEGIATAN PENGGUNAAN APLIKASI DI SMAN 1 GIANYAR ]</h3>
-        <p style="font-size: 15pt; color: #CBD5E1;">Dokumentasi foto Siswa melakukan presensi Geolocation dan Guru saat mengelola sistem SIMAK DOSMAN.</p>
+      <div class="screenshot-box" style="border-color: #D97706;">
+        <h3 style="color: #D97706;">[ FOTO KEGIATAN PENGGUNAAN APLIKASI DI SMAN 1 GIANYAR ]</h3>
+        <p style="font-size: 15pt; color: #475569;">Dokumentasi foto Siswa melakukan presensi Geolocation dan Guru saat mengelola sistem SIMAK DOSMAN.</p>
       </div>
     </div>
   </div>
@@ -850,7 +818,7 @@
 </div>
 
 <!-- SLIDE 19: DOKUMEN LEGALITAS -->
-<div class="slide slide-accent">
+<div class="slide slide-formal">
   <div class="slide-header">
     <div class="slide-title">18. Lampiran: Surat Rekomendasi & Legalitas</div>
     <div class="slide-category">Legalitas</div>
@@ -881,16 +849,16 @@
 
 <!-- SLIDE 20: PENUTUP -->
 <div class="slide slide-cover" style="text-align: center; justify-content: center; align-items: center;">
-  <span class="badge" style="background:#E60012; color:#FFF; font-size:16pt; padding:10px 24px;">SINERGI BAGI NEGERI</span>
-  <h1 style="font-size: 52pt; font-weight: 800; color: #FFFFFF; margin-top: 0.2in; margin-bottom: 0.2in;">
+  <span class="badge" style="background:#E60012; color:#FFF; font-size:15pt; padding:10px 24px;">SINERGI BAGI NEGERI</span>
+  <h1 style="font-size: 50pt; font-weight: 800; color: #0F172A; margin-top: 0.2in; margin-bottom: 0.2in;">
     TERIMA KASIH
   </h1>
-  <p style="font-size: 22pt; color: #FCA5A5; max-width: 10in; line-height: 1.6; margin-bottom: 0.4in;">
+  <p style="font-size: 20pt; color: #DC2626; max-width: 10in; line-height: 1.6; margin-bottom: 0.4in; font-weight: 600;">
     "Guru Menginspirasi, Menggerakkan Negeri. Bersama Astra Honda, Kita Wujudkan Transformasi Digital Pendidikan Indonesia!"
   </p>
-  <div style="border-top: 1px solid rgba(255,255,255,0.2); padding-top: 0.3in; width: 80%;">
-    <p style="font-size: 20pt; font-weight: 700; color: #FFFFFF;">I Putu Darma Putra, S.Pd.</p>
-    <p style="font-size: 15pt; color: #CBD5E1;">SMAN 1 Gianyar, Bali | admin@dosmangianyar.sch.id</p>
+  <div style="border-top: 2px solid #E2E8F0; padding-top: 0.25in; width: 80%;">
+    <p style="font-size: 19pt; font-weight: 800; color: #0F172A;">I Putu Darma Putra, S.Pd.</p>
+    <p style="font-size: 14pt; color: #475569;">SMAN 1 Gianyar, Bali | admin@dosmangianyar.sch.id</p>
   </div>
 </div>
 
