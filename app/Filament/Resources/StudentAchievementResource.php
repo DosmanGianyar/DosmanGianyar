@@ -373,27 +373,44 @@ class StudentAchievementResource extends Resource
                     ->width('40px'),
 
                 TextColumn::make('student.name')
-                    ->label('Siswa & Kelas')
+                    ->label('Siswa / Tim')
                     ->searchable(query: function (Builder $query, string $search): Builder {
-                        return $query->whereHas('student', fn (Builder $q) => $q->where('name', 'like', "%{$search}%")->orWhere('nisn', 'like', "%{$search}%")->orWhere('nis', 'like', "%{$search}%"));
+                        return $query->where(function ($q) use ($search) {
+                            $q->whereHas('student', fn (Builder $s) => $s->where('name', 'like', "%{$search}%")->orWhere('nisn', 'like', "%{$search}%")->orWhere('nis', 'like', "%{$search}%"))
+                              ->orWhereIn('team_code', function ($sub) use ($search) {
+                                  $sub->select('team_code')
+                                      ->from('student_achievements')
+                                      ->join('users', 'users.id', '=', 'student_achievements.student_id')
+                                      ->where('users.name', 'like', "%{$search}%")
+                                      ->orWhere('users.nisn', 'like', "%{$search}%")
+                                      ->orWhere('users.nis', 'like', "%{$search}%");
+                              });
+                        });
                     })
-                    ->icon('heroicon-o-user')
-                    ->color('primary')
+                    ->icon(fn (StudentAchievement $record): string => $record->isBeregu() ? 'heroicon-o-user-group' : 'heroicon-o-user')
+                    ->color(fn (StudentAchievement $record): string => $record->isBeregu() ? 'warning' : 'primary')
                     ->weight('bold')
                     ->wrap()
+                    ->formatStateUsing(function (StudentAchievement $record): string {
+                        if ($record->isBeregu()) {
+                            $count = $record->team_members->count();
+                            $name = $record->student?->name ?? 'Siswa';
+                            return "Tim: {$name} dkk. ({$count} Siswa)";
+                        }
+                        return $record->student?->name ?? '—';
+                    })
                     ->description(function (StudentAchievement $record): ?string {
                         $parts = [];
                         if ($record->student?->schoolClass?->name) {
                             $parts[] = 'Kelas ' . $record->student->schoolClass->name;
                         }
                         if ($record->isBeregu()) {
-                            $parts[] = '👥 Beregu (' . $record->team_members->count() . ' Siswa)';
+                            $parts[] = '👥 Lomba Beregu (' . $record->team_members->count() . ' Siswa)';
                         }
                         return count($parts) ? implode(' • ', $parts) : null;
                     })
-                    ->url(fn (StudentAchievement $record): ?string => $record->student_id ? UserResource::getUrl('view', ['record' => $record->student_id]) : null)
-                    ->openUrlInNewTab()
-                    ->tooltip('Klik untuk lihat profil siswa'),
+                    ->url(fn (StudentAchievement $record): ?string => static::getUrl('view', ['record' => $record]))
+                    ->tooltip('Klik untuk lihat detail prestasi & seluruh anggota tim'),
 
                 TextColumn::make('student.schoolClass.name')
                     ->label('Kelas')
@@ -621,6 +638,18 @@ class StudentAchievementResource extends Resource
             ])
             ->actionsColumnLabel('Aksi')
             ->bulkActions([BulkActionGroup::make([DeleteBulkAction::make()])]);
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+
+        $representativeIds = static::getModel()::query()
+            ->selectRaw('MIN(id) as id')
+            ->groupByRaw('CASE WHEN participation_type = "beregu" AND team_code IS NOT NULL AND team_code != "" THEN team_code WHEN participation_type = "beregu" THEN CONCAT(title, "|", COALESCE(achievement_date, "")) ELSE CAST(id AS CHAR) END')
+            ->pluck('id');
+
+        return $query->whereIn('id', $representativeIds);
     }
 
     public static function getPages(): array
