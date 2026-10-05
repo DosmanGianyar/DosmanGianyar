@@ -459,6 +459,13 @@ class StudentAchievementResource extends Resource
                         return count($desc) ? implode(' • ', $desc) : null;
                     }),
 
+                TextColumn::make('achievement_date')
+                    ->label('Tanggal & Bulan')
+                    ->formatStateUsing(fn ($state) => $state ? \Carbon\Carbon::parse($state)->translatedFormat('d F Y') : '—')
+                    ->description(fn ($state) => $state ? '🗓️ Bulan ' . \Carbon\Carbon::parse($state)->translatedFormat('F Y') : null)
+                    ->width('140px')
+                    ->sortable(),
+
                 TextColumn::make('organizer')
                     ->label('Penyelenggara')
                     ->searchable()
@@ -521,13 +528,6 @@ class StudentAchievementResource extends Resource
                         'rejected' => 'Ditolak',
                         default    => $record->curation_status === 'revision' ? 'Perlu Revisi' : 'Menunggu',
                     }),
-
-                TextColumn::make('achievement_date')
-                    ->label('Tanggal & Bulan')
-                    ->formatStateUsing(fn ($state) => $state ? \Carbon\Carbon::parse($state)->translatedFormat('d F Y') : '—')
-                    ->description(fn ($state) => $state ? '🗓️ Bulan ' . \Carbon\Carbon::parse($state)->translatedFormat('F Y') : null)
-                    ->width('140px')
-                    ->sortable(),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([

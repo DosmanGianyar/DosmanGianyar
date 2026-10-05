@@ -16,8 +16,10 @@ class AchievementStatsOverview extends BaseWidget
     protected function getStats(): array
     {
         $grade = $this->filters['grade'] ?? 'all';
-        $from  = $this->tableFilters['date_range']['from'] ?? ($this->filters['from'] ?? now()->startOfYear()->toDateString());
-        $until = $this->tableFilters['date_range']['until'] ?? ($this->filters['until'] ?? now()->toDateString());
+        $from  = $this->tableFilters['date_range']['from'] ?? ($this->filters['from'] ?? null);
+        $until = $this->tableFilters['date_range']['until'] ?? ($this->filters['until'] ?? null);
+        $month = $this->tableFilters['month']['value'] ?? ($this->filters['month'] ?? null);
+        $year  = $this->tableFilters['year']['value'] ?? ($this->filters['year'] ?? null);
 
         $approvedQuery = StudentAchievement::query()
             ->where(function ($q) {
@@ -25,7 +27,9 @@ class AchievementStatsOverview extends BaseWidget
                   ->orWhereIn('curation_status', ['curated', 'not_curatable']);
             })
             ->when($from, fn ($q) => $q->whereDate('achievement_date', '>=', $from))
-            ->when($until, fn ($q) => $q->whereDate('achievement_date', '<=', $until));
+            ->when($until, fn ($q) => $q->whereDate('achievement_date', '<=', $until))
+            ->when($month, fn ($q) => $q->whereMonth('achievement_date', $month))
+            ->when($year, fn ($q) => $q->whereYear('achievement_date', $year));
 
         if ($grade !== 'all') {
             $approvedQuery->whereHas('student.schoolClass', fn ($q) => $q->where('grade', (string) $grade));

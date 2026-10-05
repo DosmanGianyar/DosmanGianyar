@@ -57,6 +57,7 @@ class AchievementReportPage extends Page implements HasTable
                     'field_category'  => $this->tableFilters['field_category']['value'] ?? null,
                     'class_id'        => $this->tableFilters['class_id']['value'] ?? null,
                     'year'            => $this->tableFilters['year']['value'] ?? null,
+                    'month'           => $this->tableFilters['month']['value'] ?? null,
                     'from'            => $this->tableFilters['date_range']['from'] ?? null,
                     'until'           => $this->tableFilters['date_range']['until'] ?? null,
                 ]))
@@ -72,6 +73,7 @@ class AchievementReportPage extends Page implements HasTable
                     'field_category'  => $this->tableFilters['field_category']['value'] ?? null,
                     'class_id'        => $this->tableFilters['class_id']['value'] ?? null,
                     'year'            => $this->tableFilters['year']['value'] ?? null,
+                    'month'           => $this->tableFilters['month']['value'] ?? null,
                     'from'            => $this->tableFilters['date_range']['from'] ?? null,
                     'until'           => $this->tableFilters['date_range']['until'] ?? null,
                 ]))
@@ -161,6 +163,12 @@ class AchievementReportPage extends Page implements HasTable
                         return count($desc) ? implode(' • ', $desc) : null;
                     }),
 
+                TextColumn::make('achievement_date')
+                    ->label('Tanggal & Bulan')
+                    ->formatStateUsing(fn ($state) => $state ? \Carbon\Carbon::parse($state)->translatedFormat('d F Y') : '—')
+                    ->description(fn ($state) => $state ? '🗓️ Bulan ' . \Carbon\Carbon::parse($state)->translatedFormat('F Y') : null)
+                    ->sortable(),
+
                 TextColumn::make('field_category')
                     ->label('Rumpun')
                     ->badge()
@@ -208,12 +216,6 @@ class AchievementReportPage extends Page implements HasTable
                     ->badge()
                     ->color(fn (StudentAchievement $record): string => $record->curationStatusColor())
                     ->formatStateUsing(fn (StudentAchievement $record): string => $record->curationStatusLabel()),
-
-                TextColumn::make('achievement_date')
-                    ->label('Tanggal & Bulan')
-                    ->formatStateUsing(fn ($state) => $state ? \Carbon\Carbon::parse($state)->translatedFormat('d F Y') : '—')
-                    ->description(fn ($state) => $state ? '🗓️ Bulan ' . \Carbon\Carbon::parse($state)->translatedFormat('F Y') : null)
-                    ->sortable(),
             ])
             ->actions([
                 Action::make('view_detail')
