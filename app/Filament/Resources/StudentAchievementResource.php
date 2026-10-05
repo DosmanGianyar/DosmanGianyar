@@ -523,9 +523,10 @@ class StudentAchievementResource extends Resource
                     }),
 
                 TextColumn::make('achievement_date')
-                    ->label('Tanggal')
-                    ->formatStateUsing(fn ($state) => $state ? \Carbon\Carbon::parse($state)->translatedFormat('d M Y') : '—')
-                    ->width('110px')
+                    ->label('Tanggal & Bulan')
+                    ->formatStateUsing(fn ($state) => $state ? \Carbon\Carbon::parse($state)->translatedFormat('d F Y') : '—')
+                    ->description(fn ($state) => $state ? '🗓️ Bulan ' . \Carbon\Carbon::parse($state)->translatedFormat('F Y') : null)
+                    ->width('140px')
                     ->sortable(),
             ])
             ->defaultSort('created_at', 'desc')
@@ -564,6 +565,27 @@ class StudentAchievementResource extends Resource
                             $indicators[] = 'Perolehan Sampai: ' . \Carbon\Carbon::parse($data['until'])->translatedFormat('d F Y');
                         }
                         return $indicators;
+                    }),
+
+                SelectFilter::make('month')
+                    ->label('Bulan Perolehan')
+                    ->options([
+                        '1'  => 'Januari',
+                        '2'  => 'Februari',
+                        '3'  => 'Maret',
+                        '4'  => 'April',
+                        '5'  => 'Mei',
+                        '6'  => 'Juni',
+                        '7'  => 'Juli',
+                        '8'  => 'Agustus',
+                        '9'  => 'September',
+                        '10' => 'Oktober',
+                        '11' => 'November',
+                        '12' => 'Desember',
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (blank($data['value'])) return $query;
+                        return $query->whereMonth('achievement_date', $data['value']);
                     }),
 
                 SelectFilter::make('is_curation')
