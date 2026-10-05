@@ -226,14 +226,16 @@ class AchievementReportPage extends Page implements HasTable
             ->defaultSort('achievement_date', 'desc')
             ->filters([
                 Filter::make('date_range')
-                    ->label('Periode Tanggal Prestasi')
+                    ->label('📅 Rentang Tanggal Perolehan Prestasi')
                     ->form([
                         DatePicker::make('from')
-                            ->label('Dari Tanggal')
+                            ->label('Dari Tanggal Perolehan')
+                            ->placeholder('dd/mm/yyyy')
                             ->native(false)
                             ->displayFormat('d/m/Y'),
                         DatePicker::make('until')
-                            ->label('Sampai Tanggal')
+                            ->label('Sampai Tanggal Perolehan')
+                            ->placeholder('dd/mm/yyyy')
                             ->native(false)
                             ->displayFormat('d/m/Y'),
                     ])
@@ -251,10 +253,10 @@ class AchievementReportPage extends Page implements HasTable
                     ->indicateUsing(function (array $data): array {
                         $indicators = [];
                         if ($data['from'] ?? null) {
-                            $indicators[] = 'Dari: ' . \Carbon\Carbon::parse($data['from'])->translatedFormat('d F Y');
+                            $indicators[] = 'Perolehan Dari: ' . \Carbon\Carbon::parse($data['from'])->translatedFormat('d F Y');
                         }
                         if ($data['until'] ?? null) {
-                            $indicators[] = 'Sampai: ' . \Carbon\Carbon::parse($data['until'])->translatedFormat('d F Y');
+                            $indicators[] = 'Perolehan Sampai: ' . \Carbon\Carbon::parse($data['until'])->translatedFormat('d F Y');
                         }
                         return $indicators;
                     }),
