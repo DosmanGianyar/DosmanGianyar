@@ -8,10 +8,9 @@ use App\Filament\Support\AdminAccess;
 use App\Filament\Widgets\AchievementStatsOverview;
 use App\Models\SchoolClass;
 use App\Models\StudentAchievement;
-use Filament\Actions\Action as HeaderAction;
+use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Pages\Page;
-use Filament\Tables\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
@@ -48,7 +47,7 @@ class AchievementReportPage extends Page implements HasTable
     protected function getHeaderActions(): array
     {
         return [
-            HeaderAction::make('export_pdf')
+            Action::make('export_pdf')
                 ->label('Cetak PDF Laporan')
                 ->icon('heroicon-o-printer')
                 ->color('danger')
@@ -63,7 +62,7 @@ class AchievementReportPage extends Page implements HasTable
                 ]))
                 ->openUrlInNewTab(),
 
-            HeaderAction::make('export_excel')
+            Action::make('export_excel')
                 ->label('Export CSV / Excel')
                 ->icon('heroicon-o-arrow-down-tray')
                 ->color('success')
