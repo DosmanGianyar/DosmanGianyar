@@ -2,14 +2,16 @@
 
 namespace App\Filament\Pages;
 
+use App\Filament\Resources\StudentAchievementResource;
 use App\Filament\Resources\UserResource;
 use App\Filament\Support\AdminAccess;
 use App\Filament\Widgets\AchievementStatsOverview;
 use App\Models\SchoolClass;
 use App\Models\StudentAchievement;
-use Filament\Actions\Action;
+use Filament\Actions\Action as HeaderAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Pages\Page;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
@@ -24,9 +26,10 @@ class AchievementReportPage extends Page implements HasTable
 
     protected static string|\BackedEnum|null $navigationIcon  = 'heroicon-o-trophy';
     protected static string|\UnitEnum|null   $navigationGroup = 'Prestasi & Ekskul';
-    protected static ?string                 $navigationLabel = 'Rekap Prestasi Disetujui (PDF/Excel)';
+    protected static ?string                 $navigationLabel = '🏆 Rekap Prestasi Disetujui';
+    protected static ?string                 $title           = 'Rekapitulasi & Detail Prestasi Disetujui';
     protected static ?string                 $slug            = 'achievement-report';
-    protected static ?int                    $navigationSort  = 13;
+    protected static ?int                    $navigationSort  = 11;
 
     protected string $view = 'filament.pages.achievement-report';
 
@@ -45,7 +48,7 @@ class AchievementReportPage extends Page implements HasTable
     protected function getHeaderActions(): array
     {
         return [
-            Action::make('export_pdf')
+            HeaderAction::make('export_pdf')
                 ->label('Cetak PDF Laporan')
                 ->icon('heroicon-o-printer')
                 ->color('danger')
@@ -60,7 +63,7 @@ class AchievementReportPage extends Page implements HasTable
                 ]))
                 ->openUrlInNewTab(),
 
-            Action::make('export_excel')
+            HeaderAction::make('export_excel')
                 ->label('Export CSV / Excel')
                 ->icon('heroicon-o-arrow-down-tray')
                 ->color('success')
@@ -79,28 +82,63 @@ class AchievementReportPage extends Page implements HasTable
 
     public function table(Table $table): Table
     {
+        $representativeIds = StudentAchievement::where('status', 'approved')
+            ->selectRaw('MIN(id) as id')
+            ->groupByRaw('CASE WHEN participation_type = "beregu" AND team_code IS NOT NULL AND team_code != "" THEN team_code WHEN participation_type = "beregu" THEN CONCAT(title, "|", COALESCE(achievement_date, "")) ELSE CAST(id AS CHAR) END')
+            ->pluck('id');
+
         return $table
             ->query(
                 StudentAchievement::query()
-                    ->whereIn('curation_status', ['curated', 'not_curatable'])
+                    ->whereIn('id', $representativeIds)
                     ->with(['student.schoolClass'])
             )
             ->columns([
                 TextColumn::make('row_num')
                     ->label('No')
-                    ->rowIndex(),
+                    ->rowIndex()
+                    ->alignCenter()
+                    ->width('40px'),
 
                 TextColumn::make('student.name')
-                    ->label('Nama Siswa')
+                    ->label('Siswa / Tim')
                     ->searchable(query: function (Builder $query, string $search): Builder {
-                        return $query->whereHas('student', fn (Builder $q) => $q->where('name', 'like', "%{$search}%")->orWhere('nisn', 'like', "%{$search}%"));
+                        return $query->where(function ($q) use ($search) {
+                            $q->whereHas('student', fn (Builder $s) => $s->where('name', 'like', "%{$search}%")->orWhere('nisn', 'like', "%{$search}%")->orWhere('nis', 'like', "%{$search}%"))
+                              ->orWhereIn('team_code', function ($sub) use ($search) {
+                                  $sub->select('team_code')
+                                      ->from('student_achievements')
+                                      ->join('users', 'users.id', '=', 'student_achievements.student_id')
+                                      ->where('users.name', 'like', "%{$search}%")
+                                      ->orWhere('users.nisn', 'like', "%{$search}%")
+                                      ->orWhere('users.nis', 'like', "%{$search}%");
+                              });
+                        });
                     })
-                    ->icon('heroicon-o-user')
-                    ->color('primary')
+                    ->icon(fn (StudentAchievement $record): string => $record->isBeregu() ? 'heroicon-o-user-group' : 'heroicon-o-user')
+                    ->color(fn (StudentAchievement $record): string => $record->isBeregu() ? 'warning' : 'primary')
                     ->weight('bold')
-                    ->url(fn (StudentAchievement $record): ?string => $record->student_id ? UserResource::getUrl('view', ['record' => $record->student_id]) : null)
-                    ->openUrlInNewTab()
-                    ->tooltip('Klik untuk melihat profil siswa'),
+                    ->wrap()
+                    ->formatStateUsing(function (StudentAchievement $record): string {
+                        if ($record->isBeregu()) {
+                            $count = $record->team_members->count();
+                            $name = $record->student?->name ?? 'Siswa';
+                            return "Tim: {$name} dkk. ({$count} Siswa)";
+                        }
+                        return $record->student?->name ?? '—';
+                    })
+                    ->description(function (StudentAchievement $record): ?string {
+                        $parts = [];
+                        if ($record->student?->schoolClass?->name) {
+                            $parts[] = 'Kelas ' . $record->student->schoolClass->name;
+                        }
+                        if ($record->isBeregu()) {
+                            $parts[] = '👥 Lomba Beregu (' . $record->team_members->count() . ' Siswa)';
+                        }
+                        return count($parts) ? implode(' • ', $parts) : null;
+                    })
+                    ->url(fn (StudentAchievement $record): ?string => StudentAchievementResource::getUrl('view', ['record' => $record]))
+                    ->tooltip('Klik untuk lihat detail prestasi & seluruh anggota tim'),
 
                 TextColumn::make('student.schoolClass.name')
                     ->label('Kelas')
@@ -108,41 +146,21 @@ class AchievementReportPage extends Page implements HasTable
                     ->color('info')
                     ->placeholder('—'),
 
-                TextColumn::make('student.phone')
-                    ->label('No. HP')
-                    ->icon('heroicon-o-chat-bubble-left-ellipsis')
-                    ->color('success')
-                    ->formatStateUsing(function (StudentAchievement $record): string {
-                        $p = $record->student?->phone;
-                        if (filled($p)) return $p;
-                        $pp = $record->student?->parent_phone;
-                        return filled($pp) ? $pp . ' (Ortu)' : '—';
-                    })
-                    ->url(function (StudentAchievement $record): ?string {
-                        $phone = $record->student?->phone ?: $record->student?->parent_phone;
-                        if (blank($phone)) return null;
-                        $clean = preg_replace('/[^0-9]/', '', $phone);
-                        if (str_starts_with($clean, '0')) $clean = '62' . substr($clean, 1);
-                        return 'https://wa.me/' . $clean;
-                    })
-                    ->openUrlInNewTab()
-                    ->tooltip('Klik untuk WhatsApp'),
-
                 TextColumn::make('title')
                     ->label('Judul Prestasi / Kejuaraan')
                     ->searchable()
                     ->weight('semibold')
-                    ->wrap(),
-
-                TextColumn::make('event_name')
-                    ->label('Event / Penyelenggara')
-                    ->searchable()
-                    ->formatStateUsing(function (StudentAchievement $record): string {
-                        $event = $record->event_name ?: '—';
-                        $org = $record->organizer ? " ({$record->organizer})" : '';
-                        return $event . $org;
-                    })
-                    ->wrap(),
+                    ->wrap()
+                    ->description(function (StudentAchievement $record): ?string {
+                        $desc = [];
+                        if ($record->event_name) {
+                            $desc[] = 'Ajang: ' . $record->event_name;
+                        }
+                        if ($record->organizer) {
+                            $desc[] = 'Penyelenggara: ' . $record->organizer;
+                        }
+                        return count($desc) ? implode(' • ', $desc) : null;
+                    }),
 
                 TextColumn::make('field_category')
                     ->label('Rumpun')
@@ -150,35 +168,40 @@ class AchievementReportPage extends Page implements HasTable
                     ->color('info')
                     ->formatStateUsing(fn (StudentAchievement $record): string => $record->fieldCategoryLabel()),
 
-                TextColumn::make('participation_type')
-                    ->label('Jenis')
-                    ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'beregu' => 'purple',
-                        default  => 'gray',
-                    })
-                    ->formatStateUsing(fn (StudentAchievement $record): string => match ($record->participation_type) {
-                        'beregu' => 'Beregu',
-                        default  => 'Perorangan',
-                    }),
-
                 TextColumn::make('level')
-                    ->label('Tingkat')
-                    ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'sekolah'       => 'gray',
-                        'kabupaten'     => 'info',
-                        'provinsi'      => 'warning',
-                        'nasional'      => 'success',
-                        'internasional' => 'danger',
-                        default         => 'gray',
-                    })
-                    ->formatStateUsing(fn (StudentAchievement $record): string => $record->levelLabel()),
+                    ->label('Tingkat & Partisipasi')
+                    ->html()
+                    ->formatStateUsing(function (StudentAchievement $record): string {
+                        $levelLabel = e($record->levelLabel());
+                        $levelColors = match ($record->level) {
+                            'sekolah'       => 'background: rgba(148, 163, 184, 0.2); color: #cbd5e1; border: 1px solid rgba(148, 163, 184, 0.4);',
+                            'kabupaten'     => 'background: rgba(56, 189, 248, 0.2); color: #7dd3fc; border: 1px solid rgba(56, 189, 248, 0.4);',
+                            'provinsi'      => 'background: rgba(245, 158, 11, 0.2); color: #fde68a; border: 1px solid rgba(245, 158, 11, 0.4);',
+                            'nasional'      => 'background: rgba(16, 185, 129, 0.2); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.4);',
+                            'internasional' => 'background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.4);',
+                            default         => 'background: rgba(148, 163, 184, 0.2); color: #cbd5e1; border: 1px solid rgba(148, 163, 184, 0.4);',
+                        };
+
+                        if ($record->isBeregu()) {
+                            $teamCount = $record->team_members->count();
+                            $names = e($record->team_members->pluck('student.name')->filter()->implode(', '));
+                            $tooltipAttr = $names ? "title=\"Anggota Tim: {$names}\"" : '';
+                            $partBadge = "<span {$tooltipAttr} style=\"display: inline-block; padding: 2px 7px; border-radius: 6px; font-size: 0.68rem; font-weight: 700; background: rgba(168, 85, 247, 0.2); color: #d8b4fe; border: 1px solid rgba(168, 85, 247, 0.4); white-space: nowrap;\">👥 Beregu ({$teamCount})</span>";
+                        } else {
+                            $partBadge = "<span style=\"display: inline-block; padding: 2px 7px; border-radius: 6px; font-size: 0.68rem; font-weight: 700; background: rgba(100, 116, 139, 0.2); color: #94a3b8; border: 1px solid rgba(100, 116, 139, 0.3); white-space: nowrap;\">👤 Perorangan</span>";
+                        }
+
+                        return "<div style=\"display: inline-flex; flex-direction: column; align-items: flex-start; gap: 4px;\">
+                            <span style=\"display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 0.72rem; font-weight: 700; {$levelColors}\">{$levelLabel}</span>
+                            {$partBadge}
+                        </div>";
+                    }),
 
                 TextColumn::make('rank')
                     ->label('Peringkat')
                     ->badge()
                     ->color('warning')
+                    ->icon('heroicon-o-trophy')
                     ->placeholder('—'),
 
                 TextColumn::make('curation_status')
@@ -191,13 +214,15 @@ class AchievementReportPage extends Page implements HasTable
                     ->label('Tanggal')
                     ->date('d M Y')
                     ->sortable(),
-
-                TextColumn::make('certificate')
-                    ->label('Berkas')
-                    ->formatStateUsing(fn ($state) => $state ? '📄 Sertifikat' : '—')
-                    ->url(fn (StudentAchievement $record): ?string => $record->certificateUrl())
-                    ->openUrlInNewTab()
-                    ->color('primary'),
+            ])
+            ->actions([
+                Action::make('view_detail')
+                    ->label('Lihat Detail & Berkas')
+                    ->icon('heroicon-o-eye')
+                    ->color('primary')
+                    ->button()
+                    ->size('sm')
+                    ->url(fn (StudentAchievement $record): string => StudentAchievementResource::getUrl('view', ['record' => $record])),
             ])
             ->defaultSort('achievement_date', 'desc')
             ->filters([
@@ -207,13 +232,11 @@ class AchievementReportPage extends Page implements HasTable
                         DatePicker::make('from')
                             ->label('Dari Tanggal')
                             ->native(false)
-                            ->displayFormat('d/m/Y')
-                            ->default(now()->startOfYear()->toDateString()),
+                            ->displayFormat('d/m/Y'),
                         DatePicker::make('until')
                             ->label('Sampai Tanggal')
                             ->native(false)
-                            ->displayFormat('d/m/Y')
-                            ->default(now()->toDateString()),
+                            ->displayFormat('d/m/Y'),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
@@ -284,7 +307,7 @@ class AchievementReportPage extends Page implements HasTable
                 SelectFilter::make('year')
                     ->label('Tahun Prestasi')
                     ->options(function () {
-                        $years = StudentAchievement::where('curation_status', 'curated')
+                        $years = StudentAchievement::where('status', 'approved')
                             ->whereNotNull('achievement_date')
                             ->selectRaw('YEAR(achievement_date) as year')
                             ->distinct()
