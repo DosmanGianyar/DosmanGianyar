@@ -70,17 +70,19 @@ Pak Putu tinggal **mengopi teks per slide** di bawah ini langsung ke file **Powe
 * **Latar Belakang Permasalahan (Sebelum Ada SIMAK DOSMAN):**
   1. **Presensi Manual & Rentan Kecurangan:** Pencatatan kehadiran fisik menyita waktu jam pelajaran 15-20 menit di awal kelas dan rawan manipulasi.
   2. **Kerumitan Penyusunan Jadwal Master:** Distribusi jadwal dari file Excel aSc Timetables ke seluruh guru dan kelas memakan waktu berhari-hari.
-  3. **Catatan Pelanggaran Tercecer:** Poin kedisiplinan dan prestasi siswa dicatat di buku fisik yang rentan hilang/rusak.
-  4. **Birokrasi Bebas Pustaka & Izin yang Lambat:** Pengurusan surat izin dan bebas pustaka perpustakaan membutuhkan berkas fisik bertumpuk.
+  3. **Catatan Pelanggaran & Prestasi Tercecer:** Poin kedisiplinan dan prestasi siswa dicatat di buku fisik terpisah yang rentan hilang/rusak.
+  4. **Keterbatasan Akses Orang Tua:** Orang tua tidak dapat memantau secara langsung kehadiran harian, poin kedisiplinan, maupun rekam prestasi anak di sekolah (hanya mengetahui saat pemanggilan atau penerimaan rapor).
+  5. **Birokrasi Bebas Pustaka & Izin yang Lambat:** Pengurusan surat izin dan bebas pustaka perpustakaan membutuhkan berkas fisik bertumpuk.
 
 ---
 
 ### 💡 SLIDE 6: INOVASI PEMBELAJARAN & MANAJEMEN — "SIMAK DOSMAN" (Kategori: Inovasi Part 1)
 * **Nama Inovasi:** **SIMAK DOSMAN** *(Sistem Informasi Manajemen Anak Kolektif Dosman)*
-* **Tujuan Inovasi:** Menghadirkan ekosistem manajemen sekolah terpadu berbasis Web & Mobile untuk menciptakan transparansi, akurasi data, dan efisiensi waktu mengajar.
+* **Tujuan Inovasi:** Menghadirkan ekosistem manajemen sekolah terpadu berbasis Web & Mobile untuk menciptakan transparansi, akurasi data, efisiensi waktu mengajar, serta keterlibatan aktif orang tua siswa.
 * **Nilai Kebaruan & Keunikan (Novelty):**
-  * **Arsitektur Hybrid Modern:** Kombinasi Laravel 11/12 + Filament v3 Dashboard (Admin) dan Flutter Cross-Platform (Mobile App Siswa & Guru).
+  * **Arsitektur Hybrid Modern:** Kombinasi Laravel 11/12 + Filament v3 Dashboard (Admin) dan Flutter Cross-Platform (Mobile App Siswa, Guru & Orang Tua).
   * **Enkripsi Presensi Geolocation:** Validasi koordinat GPS realtime sehingga presensi tidak dapat dipalsukan.
+  * **Portal Pemantauan Orang Tua Realtime (Parent Monitoring Hub):** Akses langsung bagi orang tua siswa untuk memantau kondisi absen di sekolah, riwayat pelanggaran/kedisiplinan, serta apresiasi prestasi anak secara transparan.
   * **Auto-Matching Timetable:** Parser otomatis yang mengimpor jadwal master Excel aSc Timetables langsung ke sistem harian.
 
 ---
@@ -88,33 +90,34 @@ Pak Putu tinggal **mengopi teks per slide** di bawah ini langsung ke file **Powe
 ### 🛠️ SLIDE 7: FITUR UNGGULAN SIMAK DOSMAN (Kategori: Inovasi Part 2)
 * **Fitur Utama Sistem:**
   1. 📍 **Presensi Geolocation Enkripsi:** Siswa & Guru melakukan presensi berbasis lokasi presisi via Smartphone.
-  2. 📅 **Import Timetables Excel:** Import sekali klik jadwal pelajaran per guru dan per kelas dari file Excel master.
-  3. ⚖️ **Manajemen Poin Perilaku & Prestasi:** Catatan pelanggaran (Conduct Log) dan apresiasi prestasi siswa secara transparan.
-  4. 📚 **Bebas Pustaka & Sarpras Digital:** Permohonan surat bebas pustaka dan peminjaman inventaris sekolah secara *paperless*.
-  5. 🗳️ **E-Voting & Kartu Pelajar Digital:** Pemilihan OSIS/Ekskul dan identitas digital siswa dalam satu genggaman.
+  2. 👨‍👩‍👧‍👦 **Portal Pemantauan Orang Tua Realtime:** Orang tua siswa dapat memantau secara *realtime* kondisi absen siswa di sekolah, riwayat poin pelanggaran/kedisiplinan (Conduct Log), serta capaian prestasi akademik/non-akademik siswa.
+  3. 📅 **Import Timetables Excel:** Import sekali klik jadwal pelajaran per guru dan per kelas dari file Excel master.
+  4. ⚖️ **Manajemen Poin Perilaku & Prestasi:** Catatan pelanggaran (Conduct Log) dan apresiasi prestasi siswa secara transparan dan terukur.
+  5. 📚 **Bebas Pustaka & Sarpras Digital:** Permohonan surat bebas pustaka dan peminjaman inventaris sekolah secara *paperless*.
+  6. 🗳️ **E-Voting & Kartu Pelajar Digital:** Pemilihan OSIS/Ekskul dan identitas digital siswa dalam satu genggaman.
 
 ---
 
 ### 🔄 SLIDE 8: PROSES IMPLEMENTASI & ADAPTASI (Kategori: Inovasi Part 3)
 * **Alur Pelaksanaan Inovasi:**
   ```
-  [Sosialisasi & Input Data] ➔ [Uji Coba Presensi & Jadwal] ➔ [Penerapan Penuh di Sekolah] ➔ [Evaluasi & Maintenance]
+  [Sosialisasi & Input Data] ➔ [Uji Coba Presensi & Portal Ortu] ➔ [Penerapan Penuh di Sekolah] ➔ [Evaluasi & Maintenance]
   ```
 * **Metode Pendekatan:**
   * Pelatihan singkat bagi guru wali kelas dan staf tata usaha.
-  * Pendampingan bagi siswa dalam mengunduh dan menggunakan aplikasi mobile Flutter.
+  * Pendampingan bagi siswa dan orang tua murid dalam mengunduh serta mengakses fitur pemantauan pada aplikasi mobile Flutter.
 * **Kendala & Solusi:**
-  * *Kendala:* Beberapa smartphone siswa memiliki akurasi GPS berbeda.
-  * *Solusi:* Penambahan toleransi radius Geolocation dan fallback lokasi terenkripsi.
+  * *Kendala:* Variasi tipe smartphone dan pemahaman teknologi pada orang tua murid.
+  * *Solusi:* Antarmuka pengguna (UI/UX) dirancang sangat sederhana, disertai panduan bergambar & notifikasi otomatis.
 
 ---
 
 ### 📈 SLIDE 9: DAMPAK & MANFAAT INOVASI (Kategori: Dampak & Manfaat)
 * **Dampak Nyata bagi Berbagai Pihak:**
-  * **Bagi Siswa:** Kedisiplinan meningkat, proses permohonan izin & bebas pustaka lebih cepat tanpa antre.
-  * **Bagi Guru:** Waktu efektif mengajar bertambah (tidak terbuang untuk presensi manual), jadwal mengajar terintegrasi di HP.
-  * **Bagi Sekolah & Manajemen:** Penghematan kertas (*paperless*), keputusan berbasis data akurat (*data-driven decision*).
-  * **Bagi Orang Tua:** Transparansi kehadiran dan rekam jejak perilaku/prestasi anak di sekolah.
+  * **Bagi Siswa:** Kedisiplinan meningkat, motivasi berprestasi tinggi karena tercatat transparan, proses permohonan izin & bebas pustaka lebih cepat tanpa antre.
+  * **Bagi Guru:** Waktu efektif mengajar bertambah (tidak terbuang untuk presensi manual), jadwal mengajar terintegrasi di HP, penanganan kedisiplinan siswa lebih objektif.
+  * **Bagi Sekolah & Manajemen:** Penghematan kertas (*paperless*), keputusan berbasis data akurat (*data-driven decision*), serta terwujudnya transparansi publik.
+  * **Bagi Orang Tua:** Ketenangan pikiran melalui pemantauan langsung kondisi absen siswa di sekolah setiap hari, serta akses cepat mengetahui riwayat pelanggaran maupun raihan prestasi anak secara realtime.
 
 ---
 
@@ -124,9 +127,10 @@ Pak Putu tinggal **mengopi teks per slide** di bawah ini langsung ke file **Powe
 | Parameter | Sebelum Ada SIMAK DOSMAN | Sesudah Ada SIMAK DOSMAN |
 | :--- | :--- | :--- |
 | **Waktu Presensi KBM** | 15 - 20 Menit terbuang per kelas | 1 - 2 Menit via Aplikasi Mobile |
+| **Pemantauan Orang Tua** | Pasif & baru tahu saat pemanggilan/rapor | Realtime 24/7 memantau Absen, Pelanggaran & Prestasi |
 | **Penyusunan Jadwal** | 3 - 5 Hari kerja manual | < 5 Menit via Import Excel Timetables |
 | **Birokrasi Bebas Pustaka** | Antre & Berkas Berlapis | Serba Digital & Otomatis (Paperless) |
-| **Transparansi Poin Siswa** | Lambat & Sering Masuk Klaim | Realtime Terbaca oleh Siswa & Guru |
+| **Transparansi Poin & Prestasi**| Lambat & Sering Masuk Klaim | Realtime Terbaca oleh Siswa, Guru & Orang Tua |
 
 ---
 

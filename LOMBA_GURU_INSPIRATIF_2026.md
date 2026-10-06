@@ -57,6 +57,7 @@ Dokumen ini berisi panduan lengkap, pemetaan slide presentasi, serta strategi pe
 * **Kondisi Sekolah:** Profil SMAN 1 Gianyar (jumlah siswa, guru, sarpras).
 * **Tantangan Sebelum Ada Inovasi:**
   * Pencatatan presensi manual yang kurang efisien dan rentan tidak akurat.
+  * Orang tua siswa tidak dapat memantau kehadiran harian, poin pelanggaran, dan prestasi anak secara langsung.
   * Penyusunan & distribusi jadwal pelajaran yang rumit.
   * Birokrasi bebas pustaka dan surat izin yang memakan waktu.
   * Pencatatan poin pelanggaran & prestasi siswa yang tercecer.
@@ -66,17 +67,18 @@ Dokumen ini berisi panduan lengkap, pemetaan slide presentasi, serta strategi pe
 * **Teknologi:** Web Admin (Laravel 11/12 + Filament v3 + Livewire + Tailwind CSS) & Mobile App (Flutter).
 * **Fitur-Fitur Unggulan:**
   1. *Presensi Digital Geolocation:* Memastikan validitas lokasi kehadiran siswa/guru secara terenkripsi.
-  2. *Automated Import Master Schedule:* Matching otomatis nama guru & mapel dari file Excel aSc Timetables.
-  3. *Manajemen Kesiswaan:* E-Voting, Catatan Poin Pelanggaran & Prestasi Siswa.
-  4. *Pelayanan Prasarana & Perpustakaan:* Peminjaman aset, inventarisasi, dan Bebas Pustaka Digital.
-  5. *Kartu Pelajar Digital & Force Update System* pada aplikasi Mobile.
+  2. *Portal Pemantauan Orang Tua Realtime:* Fitur khusus orang tua/wali siswa memantau langsung kondisi absen siswa di sekolah, riwayat poin pelanggaran/kedisiplinan, serta raihan prestasi siswa.
+  3. *Automated Import Master Schedule:* Matching otomatis nama guru & mapel dari file Excel aSc Timetables.
+  4. *Manajemen Kesiswaan:* E-Voting, Catatan Poin Pelanggaran & Prestasi Siswa terintegrasi.
+  5. *Pelayanan Prasarana & Perpustakaan:* Peminjaman aset, inventarisasi, dan Bebas Pustaka Digital.
+  6. *Kartu Pelajar Digital & Force Update System* pada aplikasi Mobile.
 
 ### **Slide 9 & 10: Dampak, Manfaat & Bukti (Max 2 Slide)**
 * **Before vs After (Kuantitatif & Kualitatif):**
   * *Efisiensi Waktu:* Rekapitulasi kehadiran berkurang dari beberapa hari menjadi hitungan detik.
-  * *Kedisiplinan:* Tingkat kehadiran siswa terpantau 100% realtime oleh guru & wali.
+  * *Kedisiplinan & Pemantauan Ortu:* Kehadiran harian, riwayat pelanggaran, dan raihan prestasi siswa terpantau 100% realtime oleh guru & orang tua murid.
   * *Kertas & Birokrasi:* Penghematan kertas (paperless) untuk izin, bebas pustaka, dan voting.
-* **Bukti Visual:** Tangkapan layar (*screenshot*) Dashboard Admin Filament & Aplikasi Mobile Flutter.
+* **Bukti Visual:** Tangkapan layar (*screenshot*) Dashboard Admin Filament & Aplikasi Mobile Flutter (Portal Siswa/Ortu).
 
 ### **Slide 11: Keberlanjutan Inovasi (Max 1 Slide)**
 * **Pengembangan Masa Depan:**

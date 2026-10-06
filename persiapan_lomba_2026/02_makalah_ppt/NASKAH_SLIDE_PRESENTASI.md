@@ -24,35 +24,38 @@
 * **Profil SMAN 1 Gianyar:** Sekolah rujukan di Bali dengan jumlah siswa dan aktivitas yang padat.
 * **Kondisi Sebelum Inovasi (Masalah):**
   1. Presensi manual yang menyita waktu dan berisiko kurang akurat.
-  2. Penyusunan jadwal pelajaran dari master Excel yang rumit & sulit disinkronkan.
-  3. Proses birokrasi izin siswa & surat bebas pustaka yang memakan waktu berhari-hari.
-  4. Catatan poin pelanggaran & prestasi siswa yang masih menggunakan buku fisik terpisah.
+  2. Orang tua siswa tidak dapat memantau kondisi presensi/absen harian anak di sekolah secara langsung.
+  3. Penyusunan jadwal pelajaran dari master Excel yang rumit & sulit disinkronkan.
+  4. Catatan poin pelanggaran & prestasi siswa tercecer di buku fisik dan lambat diinformasikan ke orang tua.
+  5. Proses birokrasi izin siswa & surat bebas pustaka yang memakan waktu berhari-hari.
 
 ---
 
 ### 📌 Slide 4: Solusi & Inovasi (SIMAK DOSMAN)
-* **Deskripsi Inovasi:** Membangun platform web terpadu (Laravel Filament) & aplikasi mobile (Flutter) yang mengintegrasikan seluruh layanan sekolah secara realtime.
+* **Deskripsi Inovasi:** Membangun platform web terpadu (Laravel Filament) & aplikasi mobile (Flutter) yang mengintegrasikan seluruh layanan sekolah serta menghubungkan sekolah dengan orang tua siswa secara realtime.
 * **Arsitektur:**
   * **Backend Web Admin:** Manajemen Guru, Siswa, Jadwal Timetables Excel, Presensi Geolocation, E-Voting, dan Sarpras.
-  * **Mobile App Siswa & Guru:** Kartu Pelajar Digital, Presensi Geolocation Mobile, dan Notifikasi.
+  * **Mobile App (Siswa, Guru & Orang Tua):** Presensi Geolocation, Portal Monitoring Ortu (Absen, Pelanggaran, Prestasi), Kartu Pelajar Digital, dan Notifikasi.
 
 ---
 
 ### 📌 Slide 5: Fitur-Fitur Unggulan Sistem
-1. **Presensi Geolocation Enkripsi:** Memastikan kehadiran siswa/guru sesuai koordinat sekolah.
-2. **Automated Timetable Import:** Matching otomatis Excel aSc Timetables ke dalam jadwal harian.
-3. **Poin Perilaku & Prestasi Realtime:** Transparansi catatan disiplin dan prestasi siswa.
-4. **Pelayanan Bebas Pustaka & Sarpras Digital:** Layanan mandiri siswa tanpa antrean birokrasi.
+1. **Presensi Geolocation Enkripsi:** Memastikan kehadiran siswa/guru sesuai koordinat lokasi sekolah.
+2. **Portal Monitoring Orang Tua Realtime:** Orang tua siswa memantau langsung kondisi absen harian, rekam poin pelanggaran (kedisiplinan), dan apresiasi prestasi anak.
+3. **Automated Timetable Import:** Matching otomatis Excel aSc Timetables ke dalam jadwal harian.
+4. **Poin Perilaku & Prestasi Realtime:** Transparansi catatan disiplin dan prestasi siswa bagi sekolah dan orang tua.
+5. **Pelayanan Bebas Pustaka & Sarpras Digital:** Layanan mandiri siswa tanpa antrean birokrasi.
 
 ---
 
 ### 📌 Slide 6: Dampak & Manfaat Nyata (Before vs After)
-| Parameter | Sebelum (Manual) | Sesudah (SIMS Dosman) |
+| Parameter | Sebelum (Manual) | Sesudah (SIMAK DOSMAN) |
 | :--- | :--- | :--- |
 | **Rekap Presensi** | Butuh 2-3 Hari | Realtime / Hitungan Detik |
+| **Pemantauan Orang Tua**| Pasif & tunggu panggilan/rapor | Realtime 24/7 (Absen, Pelanggaran, Prestasi) |
 | **Penyusunan Jadwal** | Rumit & Rentan Bentrok | Import Otomatis via Master Excel |
 | **Bebas Pustaka & Izin** | Antre & Berkas Kertas | Layanan Mandiri Digital (Paperless) |
-| **Akurasi Data** | Terpisah di Buku Fisik | Terpusat dalam 1 Database Enkripsi |
+| **Poin & Prestasi Siswa**| Terpisah di Buku Fisik | Transparan Terbaca oleh Siswa, Guru & Orang Tua |
 
 ---
 

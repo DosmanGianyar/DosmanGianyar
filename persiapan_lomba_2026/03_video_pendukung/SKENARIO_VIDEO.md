@@ -38,9 +38,9 @@
 * **Visual Klip:**
   * Close-up Pak Putu bekerja di depan laptop mengembangkan sistem.
   * Tampilan layar Web Admin Filament (Import Excel Timetables & Presensi Geolocation).
-  * Footage siswa melakukan presensi Geolocation menggunakan Smartphone di lingkungan sekolah.
+  * Footage siswa melakukan presensi Geolocation dan orang tua memantau dashboard via Smartphone.
 * **Voice-Over (Pak Putu):**
-  > *"Berawal dari hobi membuat website pembelajaran di mathdosman.my.id dan terinspirasi oleh semangat vibe coding, saya merancang dan membangun SIMAK DOSMAN — Sistem Informasi Manajemen Anak Kolektif. Sebuah ekosistem digital terpadu berbasis Web dan Mobile Flutter yang menghadirkan presensi geolocation presisi, impor otomatis jadwal master Excel, hingga layanan bebas pustaka digital."*
+  > *"Berawal dari hobi membuat website pembelajaran di mathdosman.my.id dan terinspirasi oleh semangat vibe coding, saya merancang dan membangun SIMAK DOSMAN — Sistem Informasi Manajemen Anak Kolektif. Sebuah ekosistem digital terpadu berbasis Web dan Mobile Flutter yang menghadirkan presensi geolocation presisi, portal pemantauan orang tua untuk absensi, poin pelanggaran, dan prestasi anak, hingga layanan bebas pustaka digital."*
 
 ---
 
@@ -48,10 +48,12 @@
 * **Visual Klip:**
   * **Guru/Wali Kelas:** Memberikan kalimat singkat di ruang guru.
     > *"Sejak ada SIMAK DOSMAN, rekap presensi dan pembagian jadwal jauh lebih cepat. Waktu mengajar di kelas jadi jauh lebih maksimal."*
+  * **Orang Tua Siswa:** Tersenyum memperlihatkan aplikasi mobile di Smartphone.
+    > *"Sebagai orang tua, kami merasa tenang karena bisa langsung memantau kondisi absen harian anak di sekolah, serta riwayat prestasi maupun poin kedisiplinannya secara realtime!"*
   * **Siswa SMAN 1 Gianyar:** Memperlihatkan Kartu Pelajar Digital di HP.
     > *"Pengurusan izin dan bebas pustaka sekarang serba digital dan tanpa antre kertas fisik!"*
 * **Voice-Over (Pak Putu):**
-  > *"Dampaknya sangat nyata. Presensi KBM yang dulu menyita 20 menit, kini selesai dalam 1 menit. Pengadaan jadwal master yang butuh berhari-hari, kini selesai dalam hitungan detik."*
+  > *"Dampaknya sangat nyata. Presensi KBM yang dulu menyita 20 menit, kini selesai dalam 1 menit. Pengawasan siswa kini terhubung erat antara sekolah dan orang tua murid secara realtime."*
 
 ---
 
