@@ -8,7 +8,7 @@
 
   @page {
     size: A4 portrait;
-    margin: 0;
+    margin: 0.8cm 1.8cm 0.8cm 1.8cm;
   }
 
   * {
@@ -18,49 +18,49 @@
   }
 
   html, body {
-    width: 210mm;
-    height: 297mm;
+    width: 100%;
     font-family: 'Times New Roman', Times, serif;
-    font-size: 11pt;
-    line-height: 1.4;
+    font-size: 10.5pt;
+    line-height: 1.25;
     color: #000000;
-    background-color: #FFFFFF;
+    background-color: #F4F5F7;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
 
   .page-container {
     width: 210mm;
-    height: 297mm;
-    padding: 1.2cm 2cm 1.2cm 2cm;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+    min-height: 297mm;
+    margin: 20px auto;
+    padding: 0.8cm 1.8cm 0.8cm 1.8cm;
     background: #FFFFFF;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-radius: 2px;
   }
 
   /* KOP SURAT RESMI SMAN 1 GIANYAR */
   .kop-header {
     width: 100%;
-    margin-bottom: 10px;
+    margin-bottom: 2px;
     text-align: center;
   }
 
   .kop-header img {
-    width: 100%;
+    width: 98%;
     height: auto;
     display: block;
+    margin: 0 auto;
   }
 
   /* JUDUL SURAT RESMI PANITIA */
   .letter-title {
     text-align: center;
-    margin-top: 10px;
-    margin-bottom: 16px;
+    margin-top: 2px;
+    margin-bottom: 6px;
   }
 
   .letter-title h2 {
-    font-size: 13pt;
+    font-size: 12pt;
     font-weight: bold;
     text-decoration: underline;
     text-transform: uppercase;
@@ -68,33 +68,35 @@
   }
 
   .letter-title p {
-    font-size: 11pt;
-    margin-top: 2px;
+    font-size: 10.5pt;
+    margin-top: 1px;
   }
 
   .section-text {
-    margin-bottom: 8px;
-    font-size: 11pt;
+    margin-bottom: 3px;
+    font-size: 10.5pt;
   }
 
   /* BULLET & DATA TABLES */
   .data-list {
     margin-left: 0.2in;
-    margin-bottom: 12px;
+    margin-bottom: 4px;
+    break-inside: avoid;
+    page-break-inside: avoid;
   }
 
   .data-row {
     display: flex;
-    margin-bottom: 4px;
-    font-size: 11pt;
+    margin-bottom: 1.5px;
+    font-size: 10.5pt;
   }
 
   .data-bullet {
-    width: 20px;
+    width: 18px;
   }
 
   .data-label {
-    width: 140px;
+    width: 135px;
   }
 
   .data-colon {
@@ -108,68 +110,78 @@
 
   /* CHECKBOX SECTION RESMI PANITIA */
   .checkbox-section-title {
-    font-size: 11pt;
+    font-size: 10.5pt;
     font-weight: bold;
-    margin-top: 14px;
-    margin-bottom: 8px;
+    margin-top: 4px;
+    margin-bottom: 2px;
+    break-after: avoid;
+    page-break-after: avoid;
   }
 
   .checkbox-list {
     margin-left: 0.1in;
-    margin-bottom: 16px;
+    margin-bottom: 4px;
+    break-inside: avoid;
+    page-break-inside: avoid;
   }
 
   .checkbox-item {
     display: flex;
     align-items: flex-start;
-    margin-bottom: 6px;
-    font-size: 11pt;
-    line-height: 1.35;
+    margin-bottom: 2px;
+    font-size: 10.5pt;
+    line-height: 1.2;
   }
 
   .checkbox-box {
-    width: 15px;
-    height: 15px;
+    width: 13px;
+    height: 13px;
     border: 1px solid #000;
-    margin-right: 10px;
-    margin-top: 2px;
+    margin-right: 8px;
+    margin-top: 1px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 11pt;
+    font-size: 9.5pt;
     font-weight: bold;
     flex-shrink: 0;
   }
 
   /* URAIAN SINGKAT REKOMENDASI */
   .uraian-title {
-    font-size: 11.5pt;
+    font-size: 10.5pt;
     font-weight: bold;
-    margin-top: 16px;
-    margin-bottom: 4px;
+    margin-top: 4px;
+    margin-bottom: 1px;
+    break-after: avoid;
+    page-break-after: avoid;
   }
 
   .uraian-subtitle {
-    font-size: 10pt;
+    font-size: 9pt;
     font-style: italic;
-    margin-bottom: 10px;
+    margin-bottom: 2px;
     color: #333333;
+    break-after: avoid;
+    page-break-after: avoid;
   }
 
   .uraian-content {
     text-align: justify;
-    line-height: 1.45;
-    margin-bottom: 14px;
-    text-indent: 0.4in;
-    font-size: 11pt;
+    line-height: 1.25;
+    margin-bottom: 3px;
+    text-indent: 0.3in;
+    font-size: 10.5pt;
   }
 
   /* SIGNATURE SECTION */
   .signature-section {
-    margin-top: 25px;
+    margin-top: 6px;
     width: 100%;
     display: flex;
     justify-content: flex-end;
+    break-inside: avoid;
+    page-break-inside: avoid;
   }
 
   .signature-box {
@@ -178,12 +190,34 @@
   }
 
   .signature-space {
-    height: 75px;
+    height: 42px;
   }
 
   .signature-name {
     font-weight: bold;
     text-decoration: underline;
+  }
+
+  /* MEDIA PRINT SPECIFIC RULES */
+  @media print {
+    html, body {
+      background-color: #FFFFFF;
+      width: 100%;
+      height: auto;
+      min-height: auto;
+    }
+
+    .page-container {
+      width: 100%;
+      max-width: 100%;
+      height: auto;
+      min-height: auto;
+      margin: 0;
+      padding: 0;
+      box-shadow: none;
+      border-radius: 0;
+      background: transparent;
+    }
   }
 </style>
 </head>
