@@ -108,6 +108,23 @@ class UserResource extends Resource
                     ->helperText('Pengguna dapat memperbarui password setelah login pertama kali.'),
             ])->columns(2),
 
+            Section::make('Akun & Pemantauan Orang Tua (Parent Portal)')
+                ->description('Nomor HP yang diinput di sini otomatis menjadi Username dan Password bagi Orang Tua saat login ke SIMAK DOSMAN (Web & Mobile).')
+                ->schema([
+                    TextInput::make('parent_name')
+                        ->label('Nama Orang Tua / Wali')
+                        ->maxLength(100)
+                        ->placeholder('Contoh: I Made Sudarma')
+                        ->helperText('Nama ayah/ibu/wali yang akan ditampilkan pada akun orang tua.'),
+
+                    TextInput::make('parent_phone')
+                        ->label('Nomor HP Orang Tua (Username & Password Akun Ortu)')
+                        ->tel()
+                        ->maxLength(20)
+                        ->placeholder('Contoh: 081234567890')
+                        ->helperText('📱 Nomor HP ini otomatis menjadi USERNAME dan PASSWORD default untuk login Orang Tua di Web & Mobile. Mendukung format 08xxx atau 62xxx.'),
+                ])->columns(2),
+
             Section::make('A. Keterangan Tentang Diri Siswa')
                 ->schema([
                     TextInput::make('nisn')
@@ -571,12 +588,14 @@ class UserResource extends Resource
                     ->width('130px'),
 
                 TextColumn::make('parent_phone')
-                    ->label('No. HP Ortu')
+                    ->label('No. HP Ortu (Login)')
                     ->placeholder('—')
                     ->searchable()
+                    ->copyable()
+                    ->description(fn (User $record): ?string => $record->parent_name ?: null)
                     ->toggleable()
                     ->wrap()
-                    ->width('130px'),
+                    ->width('140px'),
 
                 TextColumn::make('role')
                     ->label('Role')
@@ -754,6 +773,70 @@ class UserResource extends Resource
                     ->url(fn (User $record): string => route('admin.buku-induk.print', $record->id))
                     ->openUrlInNewTab(),
                 EditAction::make()->iconButton(),
+                Action::make('manageParentAccount')
+                    ->label('Akun Ortu')
+                    ->icon('heroicon-o-user-group')
+                    ->color('info')
+                    ->iconButton()
+                    ->tooltip('Kelola No HP Ortu (Username) & Password Akun Ortu')
+                    ->visible(fn (User $record): bool => in_array($record->role, ['siswa', 'pengelola']))
+                    ->modalHeading(fn (User $record): string => "Kelola Akun Orang Tua: {$record->name}")
+                    ->modalDescription(fn (User $record): string => "Atur nomor HP orang tua yang digunakan sebagai Username & Password login di aplikasi SIMAK DOSMAN (Web & Mobile).")
+                    ->modalSubmitActionLabel('Simpan Akun Ortu')
+                    ->form([
+                        TextInput::make('parent_name')
+                            ->label('Nama Orang Tua / Wali')
+                            ->default(fn (User $record): ?string => $record->parent_name)
+                            ->placeholder('Contoh: I Made Sudarma'),
+
+                        TextInput::make('parent_phone')
+                            ->label('Nomor HP Orang Tua (Username Login)')
+                            ->default(fn (User $record): ?string => $record->parent_phone)
+                            ->tel()
+                            ->required()
+                            ->placeholder('Contoh: 081234567890')
+                            ->helperText('Nomor HP ini digunakan orang tua saat login. Password default sama dengan nomor HP ini.'),
+
+                        TextInput::make('new_password')
+                            ->label('Password Baru Akun Ortu (Opsional)')
+                            ->password()
+                            ->revealable()
+                            ->minLength(6)
+                            ->helperText('Kosongkan jika ingin password tetap sama dengan nomor HP atau tidak diubah.'),
+                    ])
+                    ->action(function (User $record, array $data): void {
+                        $parentName  = trim($data['parent_name'] ?? '');
+                        $parentPhone = trim($data['parent_phone'] ?? '');
+                        $newPassword = trim($data['new_password'] ?? '');
+
+                        $record->update([
+                            'parent_name'  => $parentName ?: null,
+                            'parent_phone' => $parentPhone ?: null,
+                        ]);
+
+                        // Sinkronkan akun orang tua
+                        $normalized = \App\Services\OrangtuaSyncService::normalizePhone($parentPhone);
+                        if ($normalized) {
+                            $parent = \App\Models\User::where('role', 'orangtua')->where('phone', $normalized)->first();
+                            if ($parent) {
+                                if ($parentName && ($parent->name === 'Orangtua ' . $record->name || empty($parent->name))) {
+                                    $parent->update(['name' => $parentName]);
+                                }
+                                if (filled($newPassword)) {
+                                    $parent->update([
+                                        'password'             => Hash::make($newPassword),
+                                        'must_change_password' => false,
+                                    ]);
+                                }
+                            }
+                        }
+
+                        Notification::make()
+                            ->title("Akun Orang Tua {$record->name} berhasil diperbarui.")
+                            ->body("Username Login: {$parentPhone}" . (filled($newPassword) ? " | Password kustom telah disimpan." : " | Password default: sama dengan Nomor HP."))
+                            ->success()
+                            ->send();
+                    }),
                 Action::make('padSingleNisn')
                     ->label('Fix NISN (+0)')
                     ->icon('heroicon-o-plus-circle')

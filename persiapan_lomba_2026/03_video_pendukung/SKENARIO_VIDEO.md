@@ -7,7 +7,7 @@
 
 ## 🎬 RINGKASAN KONSEP VIDEO
 * **Durasi:** 2 hingga 3 Menit (120 - 180 Detik)
-* **Lokasi Pengambilan Gambar:** Gerbang SMAN 1 Gianyar, Ruang Guru, Ruang Kelas, Perpustakaan, Lapangan Sekolah.
+* **Lokasi Pengambilan Gambar:** Gerbang SMAN 1 Gianyar, Ruang Guru, Ruang Kelas, Perpustakaan.
 * **Perangkat Rekam:** Smartphone (Kamera Full HD / 4K, posisi mendatar / *Landscape* 16:9).
 * **Format Suara:** Voice-Over (VO) jernih dengan musik latar (*backsound*) instrumental yang menginspirasi.
 
@@ -59,7 +59,9 @@
 
 ### 🎬 SCENE 5: CLOSING & SINERGI BAGI NEGERI (02:30 - 03:00)
 * **Visual Klip:**
-  * Pak Putu bersama siswa dan rekan guru di halaman sekolah berseru atau tersenyum penuh semangat.
+  * Suasana di dalam ruang kelas: Pak Putu sedang mendampingi siswa belajar dengan antusias menggunakan media digital.
+  * Pak Putu berdiri di depan kelas, tersenyum hangat dan ramah menatap ke arah kamera.
+  * Kamera perlahan bergerak mundur (slow zoom-out) memperlihatkan suasana kelas yang hidup dan interaktif.
   * Tampilan Logo SMAN 1 Gianyar, Yayasan Astra Honda Motor, Sinergi Bagi Negeri, Astra Motor Bali.
 * **Voice-Over (Pak Putu):**
   > *"Mari terus berinovasi dan mentransformasi pendidikan Indonesia dari hal terkecil di sekolah kita. Guru Menginspirasi, Menggerakkan Negeri. Bersama Astra Honda, kita wujudkan Sinergi Bagi Negeri. SMAN 1 Gianyar, Bisa!"*
