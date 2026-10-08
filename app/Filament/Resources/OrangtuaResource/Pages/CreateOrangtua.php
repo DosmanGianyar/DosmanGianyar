@@ -37,10 +37,13 @@ class CreateOrangtua extends CreateRecord
     {
         /** @var User $record */
         $record = $this->record;
+        $studentIds = $this->data['children'] ?? [];
 
-        // Sinkronkan nama dan nomor telepon ke profil siswa yang terhubung
-        foreach ($record->children as $child) {
-            $child->update([
+        if (! empty($studentIds)) {
+            $record->children()->sync($studentIds);
+
+            // Sinkronkan nama dan nomor telepon ke profil siswa yang terhubung
+            User::whereIn('id', $studentIds)->update([
                 'parent_name'  => $record->name,
                 'parent_phone' => $record->phone,
             ]);

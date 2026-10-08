@@ -10,7 +10,6 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
@@ -82,14 +81,26 @@ class OrangtuaResource extends Resource
 
                 Select::make('children')
                     ->label('Siswa Terhubung (Anak)')
-                    ->relationship(
-                        'children',
-                        'name',
-                        fn (Builder $q) => $q->whereIn('role', ['siswa', 'pengelola'])->orderBy('name')
-                    )
                     ->multiple()
                     ->searchable()
                     ->preload()
+                    ->options(function () {
+                        return User::whereIn('role', ['siswa', 'pengelola'])
+                            ->with('schoolClass')
+                            ->orderBy('name')
+                            ->get()
+                            ->mapWithKeys(function (User $s) {
+                                $className = $s->schoolClass?->name ? ' (' . $s->schoolClass->name . ')' : '';
+                                return [$s->id => $s->name . $className];
+                            })
+                            ->toArray();
+                    })
+                    ->afterStateHydrated(function (Select $component, ?User $record) {
+                        if ($record && $record->exists) {
+                            $component->state($record->children()->pluck('users.id')->toArray());
+                        }
+                    })
+                    ->dehydrated(false)
                     ->helperText('Pilih satu atau lebih siswa yang merupakan anak dari orang tua ini.'),
             ])->columns(2),
         ]);
@@ -122,12 +133,15 @@ class OrangtuaResource extends Resource
                     ->width('160px')
                     ->tooltip('Klik untuk menyalin No. HP / Username'),
 
-                TextColumn::make('children.name')
+                TextColumn::make('children_names')
                     ->label('Siswa Terhubung (Anak)')
+                    ->getStateUsing(function (User $record): string {
+                        return $record->children
+                            ->map(fn ($c) => $c->name . ($c->schoolClass ? ' (' . $c->schoolClass->name . ')' : ''))
+                            ->join(', ') ?: '—';
+                    })
                     ->badge()
-                    ->color('success')
-                    ->separator(', ')
-                    ->placeholder('Belum terhubung ke siswa')
+                    ->color(fn (string $state) => $state === '—' ? 'gray' : 'success')
                     ->wrap(),
 
                 TextColumn::make('email')

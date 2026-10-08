@@ -33,10 +33,13 @@ class EditOrangtua extends EditRecord
     {
         /** @var User $record */
         $record = $this->record;
+        $studentIds = $this->data['children'] ?? [];
 
-        // Sinkronkan nama dan nomor telepon ke profil siswa yang terhubung
-        foreach ($record->children as $child) {
-            $child->update([
+        $record->children()->sync($studentIds);
+
+        if (! empty($studentIds)) {
+            // Sinkronkan nama dan nomor telepon ke profil siswa yang terhubung
+            User::whereIn('id', $studentIds)->update([
                 'parent_name'  => $record->name,
                 'parent_phone' => $record->phone,
             ]);
