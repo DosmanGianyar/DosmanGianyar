@@ -62,13 +62,19 @@ class OrangtuaResource extends Resource
                     ->tel()
                     ->required()
                     ->maxLength(20)
-                    ->unique(ignoreRecord: true)
+                    ->unique(
+                        table: 'users',
+                        column: 'phone',
+                        ignoreRecord: true,
+                        modifyRuleUsing: fn (\Illuminate\Validation\Rules\Unique $rule) => $rule->where('role', 'orangtua')
+                    )
                     ->placeholder('Contoh: 081234567890')
                     ->helperText('📱 Nomor HP ini digunakan sebagai USERNAME dan PASSWORD default untuk login Orang Tua di aplikasi SIMAK DOSMAN (Web & Mobile).'),
 
                 TextInput::make('email')
                     ->label('Email Akun')
                     ->email()
+                    ->unique(ignoreRecord: true)
                     ->placeholder('Otomatis: nomorHP@ortu.sims.sch.id')
                     ->helperText('Boleh dikosongkan, sistem akan otomatis menghasilkan email internal.'),
 

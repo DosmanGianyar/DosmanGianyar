@@ -19,6 +19,10 @@ class EditOrangtua extends EditRecord
             $data['phone'] = OrangtuaSyncService::normalizePhone($data['phone']) ?? trim($data['phone']);
         }
 
+        if (empty($data['email']) && filled($data['phone'] ?? null)) {
+            $data['email'] = $data['phone'] . '@ortu.sims.sch.id';
+        }
+
         if (filled($data['password'] ?? null)) {
             $data['password'] = Hash::make($data['password']);
             $data['must_change_password'] = false;
