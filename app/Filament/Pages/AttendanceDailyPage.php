@@ -102,8 +102,13 @@ class AttendanceDailyPage extends Page
             $hasEarlyCheckout = isset($earlyCheckouts[$student->id]);
             $permit           = $permits->get($student->id);
 
+            $isOffDay = \App\Models\Holiday::isOffDayFor($date, $this->classId);
+
             if ($att) {
                 $status   = $att->effectiveStatus($hasEarlyCheckout);
+                if ($isOffDay && $status === 'alpa') {
+                    $status = 'libur';
+                }
                 $checkIn  = $att->check_in_time ? substr($att->check_in_time, 0, 5) : null;
                 $checkOut = $att->check_out_time ? substr($att->check_out_time, 0, 5) : null;
             } elseif ($permit) {
@@ -111,7 +116,7 @@ class AttendanceDailyPage extends Page
                 $checkIn  = null;
                 $checkOut = null;
             } else {
-                $status   = \App\Models\Holiday::isOffDayFor($date, $this->classId) ? 'libur' : 'alpa';
+                $status   = $isOffDay ? 'libur' : 'alpa';
                 $checkIn  = null;
                 $checkOut = null;
             }

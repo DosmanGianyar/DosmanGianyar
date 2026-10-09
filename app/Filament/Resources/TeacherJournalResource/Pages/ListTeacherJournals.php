@@ -18,9 +18,10 @@ class ListTeacherJournals extends ListRecords
     {
         return [
             Action::make('printTeacherJournal')
-                ->label('Cetak Jurnal Guru (PDF)')
+                ->label('Cetak Jurnal (PDF)')
                 ->icon('heroicon-o-printer')
                 ->color('primary')
+                ->modalTitle('Cetak Jurnal Mengajar (A4 Landscape)')
                 ->form([
                     Select::make('teacher_id')
                         ->label('Pilih Guru')
@@ -31,6 +32,10 @@ class ListTeacherJournals extends ListRecords
                         ->label('Kelas (Opsional)')
                         ->options(SchoolClass::orderBy('name')->pluck('name', 'id'))
                         ->searchable(),
+                    DatePicker::make('start_date')
+                        ->label('Dari Tanggal (Opsional)'),
+                    DatePicker::make('end_date')
+                        ->label('Sampai Tanggal (Opsional)'),
                     Select::make('month')
                         ->label('Bulan (Opsional)')
                         ->options([
@@ -57,32 +62,11 @@ class ListTeacherJournals extends ListRecords
                     $this->js("window.open('{$url}', '_blank');");
                 }),
 
-            Action::make('printWeeklyJournal')
-                ->label('Cetak Perminggu')
-                ->icon('heroicon-o-document-text')
-                ->color('info')
-                ->form([
-                    Select::make('teacher_id')
-                        ->label('Pilih Guru')
-                        ->options(User::where('role', 'guru')->orderBy('name')->pluck('name', 'id'))
-                        ->searchable()
-                        ->required(),
-                    DatePicker::make('week_date')
-                        ->label('Tanggal Minggu (Opsional)'),
-                    Select::make('class_id')
-                        ->label('Kelas (Opsional)')
-                        ->options(SchoolClass::orderBy('name')->pluck('name', 'id')),
-                ])
-                ->action(function (array $data) {
-                    $params = array_filter($data);
-                    $url = route('guru.journal.print-weekly', $params);
-                    $this->js("window.open('{$url}', '_blank');");
-                }),
-
             Action::make('printWeeklyAttendance')
                 ->label('Cetak Rekap Absen')
                 ->icon('heroicon-o-user-group')
                 ->color('success')
+                ->modalTitle('Cetak Rekap Absensi Siswa')
                 ->form([
                     Select::make('teacher_id')
                         ->label('Pilih Guru')

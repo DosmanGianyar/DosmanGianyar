@@ -18,14 +18,18 @@ class EarlyCheckoutController extends Controller
             ->latest()
             ->get()
             ->map(fn($r) => [
-                'id'             => $r->id,
-                'date'           => $r->date->toDateString(),
-                'requested_time' => substr((string) $r->requested_time, 0, 5),
-                'reason'         => $r->reason,
-                'status'         => $r->status,
-                'status_label'   => $this->statusLabel($r->status),
-                'reviewer_note'  => $r->reviewer_note,
-                'created_at'     => $r->created_at->toIso8601String(),
+                'id'               => $r->id,
+                'date'             => $r->date->toDateString(),
+                'requested_time'   => substr((string) $r->requested_time, 0, 5),
+                'reason'           => $r->reason,
+                'type'             => $r->type ?? 'dengan_absen',
+                'absence_category' => $r->absence_category,
+                'type_label'       => $r->typeLabel(),
+                'status'           => $r->status,
+                'status_label'     => $this->statusLabel($r->status),
+                'reviewer_note'    => $r->reviewer_note,
+                'checked_out_at'   => $r->checked_out_at?->toIso8601String(),
+                'created_at'       => $r->created_at->toIso8601String(),
             ]);
 
         return response()->json(['requests' => $requests]);
@@ -34,9 +38,14 @@ class EarlyCheckoutController extends Controller
     public function store(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'date'           => 'required|date|after_or_equal:today|before_or_equal:' . now()->addDays(7)->toDateString(),
-            'requested_time' => 'required|date_format:H:i',
-            'reason'         => 'required|string|max:500',
+            'date'             => 'required|date|after_or_equal:today|before_or_equal:' . now()->addDays(7)->toDateString(),
+            'requested_time'   => 'required|date_format:H:i',
+            'reason'           => 'required|string|max:500',
+            'type'             => 'required|in:dengan_absen,tanpa_absen',
+            'absence_category' => 'required_if:type,tanpa_absen|nullable|in:izin,sakit',
+        ], [
+            'type.required'             => 'Pilih mode pulang lebih awal (dengan absen atau tanpa absen).',
+            'absence_category.required_if' => 'Pilih keterangan izin atau sakit jika memilih mode tanpa absen.',
         ]);
 
         /** @var \App\Models\User $student */
@@ -54,17 +63,21 @@ class EarlyCheckoutController extends Controller
         }
 
         $r = EarlyCheckoutRequest::create([
-            'student_id'     => $student->id,
-            'date'           => $data['date'],
-            'requested_time' => $data['requested_time'] . ':00',
-            'reason'         => $data['reason'],
-            'status'         => 'pending',
+            'student_id'       => $student->id,
+            'date'             => $data['date'],
+            'requested_time'   => $data['requested_time'] . ':00',
+            'reason'           => $data['reason'],
+            'type'             => $data['type'],
+            'absence_category' => $data['type'] === 'tanpa_absen' ? $data['absence_category'] : null,
+            'status'           => 'pending',
         ]);
+
+        $modeLabel = $r->typeLabel();
 
         NotificationService::notifyHomeroomTeacher(
             $student,
             'Pengajuan Pulang Cepat Siswa',
-            $student->name . ' mengajukan izin pulang cepat jam ' . $data['requested_time'],
+            "{$student->name} mengajukan izin pulang cepat jam {$data['requested_time']} [{$modeLabel}].",
             'warning',
             'guru/early-checkouts'
         );
@@ -72,7 +85,7 @@ class EarlyCheckoutController extends Controller
         NotificationService::notifyParentsOfStudent(
             $student,
             'Pengajuan Pulang Cepat Anak',
-            'Anak Anda ' . $student->name . ' mengajukan izin pulang lebih awal jam ' . $data['requested_time'],
+            "Anak Anda {$student->name} mengajukan izin pulang lebih awal jam {$data['requested_time']} [{$modeLabel}].",
             'warning',
             'orangtua/early-checkouts'
         );
@@ -80,13 +93,16 @@ class EarlyCheckoutController extends Controller
         return response()->json([
             'message' => 'Pengajuan izin pulang lebih awal berhasil dikirim. Menunggu persetujuan guru.',
             'request' => [
-                'id'             => $r->id,
-                'date'           => $r->date->toDateString(),
-                'requested_time' => $data['requested_time'],
-                'reason'         => $r->reason,
-                'status'         => $r->status,
-                'status_label'   => $this->statusLabel($r->status),
-                'created_at'     => $r->created_at->toIso8601String(),
+                'id'               => $r->id,
+                'date'             => $r->date->toDateString(),
+                'requested_time'   => $data['requested_time'],
+                'reason'           => $r->reason,
+                'type'             => $r->type,
+                'absence_category' => $r->absence_category,
+                'type_label'       => $r->typeLabel(),
+                'status'           => $r->status,
+                'status_label'     => $this->statusLabel($r->status),
+                'created_at'       => $r->created_at->toIso8601String(),
             ],
         ], 201);
     }

@@ -52,11 +52,16 @@ class AttendanceController extends Controller
             'dispensasi' => 0,
         ];
 
+        $isOffDay = Holiday::isOffDayFor(Carbon::parse($date), $selectedClassId);
+
         $effectiveStatuses = [];
         foreach ($students as $student) {
             $att = $student->attendances->first();
             $hasEarlyApproval = isset($approvedEarlyCheckouts[$student->id]);
-            $status = $att ? $att->effectiveStatus($hasEarlyApproval) : 'alpa';
+            $status = $att ? $att->effectiveStatus($hasEarlyApproval) : ($isOffDay ? 'libur' : 'alpa');
+            if ($isOffDay && $status === 'alpa') {
+                $status = 'libur';
+            }
             $effectiveStatuses[$student->id] = $status;
             if (isset($summary[$status])) {
                 $summary[$status]++;

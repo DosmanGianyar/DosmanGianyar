@@ -39,7 +39,7 @@ class PermitController extends Controller
     {
         $data = $request->validate([
             'type'       => 'required|in:izin,sakit,dispensasi',
-            'start_date' => 'required|date|after_or_equal:today',
+            'start_date' => 'required|date',
             'end_date'   => 'required|date|after_or_equal:start_date',
             'reason'     => 'required|string|max:500',
             'file'       => 'required|file|mimes:pdf,jpg,jpeg,png,webp|max:5120',

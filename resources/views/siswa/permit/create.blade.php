@@ -79,7 +79,6 @@
                 <label for="start_date" class="block text-sm font-medium text-gray-700 mb-1">Dari Tanggal</label>
                 <input type="date" id="start_date" name="start_date"
                     value="{{ old('start_date', date('Y-m-d')) }}"
-                    min="{{ date('Y-m-d') }}"
                     class="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500
                         @error('start_date') border-red-400 @enderror"
                     onchange="updateMinEndDate(this.value)">
@@ -91,7 +90,6 @@
                 <label for="end_date" class="block text-sm font-medium text-gray-700 mb-1">Sampai Tanggal</label>
                 <input type="date" id="end_date" name="end_date"
                     value="{{ old('end_date', date('Y-m-d')) }}"
-                    min="{{ date('Y-m-d') }}"
                     class="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500
                         @error('end_date') border-red-400 @enderror">
                 @error('end_date')

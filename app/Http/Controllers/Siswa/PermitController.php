@@ -94,7 +94,7 @@ class PermitController extends Controller
 
     private function validatePermit(Request $request, bool $isUpdate = false, bool $hasFile = false): array
     {
-        $dateRule = $isUpdate ? 'required|date' : 'required|date|after_or_equal:today';
+        $dateRule = 'required|date';
         $fileRule = ($isUpdate && $hasFile)
             ? 'nullable|file|mimes:pdf,jpg,jpeg,png,webp|max:5120'
             : 'required|file|mimes:pdf,jpg,jpeg,png,webp|max:5120';

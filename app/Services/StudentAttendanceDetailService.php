@@ -75,7 +75,8 @@ class StudentAttendanceDetailService
 
             $isSchoolDay = Holiday::isSchoolDay($d, $holidays, $specialDays);
             if (! $isSchoolDay) {
-                if (! $att || $att->status === 'alpa') {
+                $effStatus = $att ? $att->effectiveStatus((bool)$early) : 'alpa';
+                if (! $att || $att->status === 'alpa' || $effStatus === 'alpa') {
                     $counts['libur']++;
                     $dailyLogs[] = [
                         'date'           => $d->toDateString(),

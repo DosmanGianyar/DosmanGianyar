@@ -62,9 +62,13 @@ class StudentDataService
         $specialDays   = Holiday::getSpecialSchoolDates($start, $end, $student->class_id);
         $today         = today();
 
-        $records = $rows->reject(function ($r) use ($holidays, $specialDays) {
+        $records = $rows->reject(function ($r) use ($holidays, $specialDays, $approvedDates) {
             $isSchool = Holiday::isSchoolDay($r->date, $holidays, $specialDays);
-            return ! $isSchool && $r->status === 'alpa';
+            if (! $isSchool) {
+                $effStatus = $r->effectiveStatus(isset($approvedDates[$r->date->format('Y-m-d')]));
+                return $r->status === 'alpa' || $effStatus === 'alpa';
+            }
+            return false;
         })->map(fn ($r) => [
             'date'                => $r->date->format('Y-m-d'),
             'check_in_time'       => $r->check_in_time,

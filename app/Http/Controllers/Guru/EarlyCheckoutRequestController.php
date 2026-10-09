@@ -43,15 +43,33 @@ class EarlyCheckoutRequestController extends Controller
             'reviewer_note' => $data['reviewer_note'] ?? null,
         ]);
 
-        NotificationService::send(
-            userId: $earlyCheckout->student_id,
-            title:  'Izin Pulang Awal Disetujui',
-            body:   'Pengajuan pulang lebih awal tanggal ' . $earlyCheckout->date->isoFormat('D MMMM Y') . ' pukul ' . $earlyCheckout->requestedTimeFormatted() . ' telah disetujui.',
-            type:   'success',
-            url:    route('siswa.early-checkout.index'),
-        );
+        if ($earlyCheckout->isTanpaAbsen()) {
+            $category = $earlyCheckout->absence_category ?? 'izin';
+            \App\Models\Attendance::updateOrCreate(
+                ['user_id' => $earlyCheckout->student_id, 'date' => $earlyCheckout->date],
+                [
+                    'status' => $category,
+                ]
+            );
 
-        return back()->with('success', 'Pengajuan disetujui. Siswa dapat melakukan absen pulang lebih awal.');
+            NotificationService::send(
+                userId: $earlyCheckout->student_id,
+                title:  'Pengajuan Pulang Awal (' . ucfirst($category) . ') Disetujui',
+                body:   'Pengajuan pulang lebih awal tanggal ' . $earlyCheckout->date->isoFormat('D MMMM Y') . ' disetujui. Status absensi dicatat sebagai ' . ucfirst($category) . '.',
+                type:   'success',
+                url:    route('siswa.early-checkout.index'),
+            );
+        } else {
+            NotificationService::send(
+                userId: $earlyCheckout->student_id,
+                title:  'Izin Pulang Awal Disetujui',
+                body:   'Pengajuan pulang lebih awal tanggal ' . $earlyCheckout->date->isoFormat('D MMMM Y') . ' pukul ' . $earlyCheckout->requestedTimeFormatted() . ' telah disetujui.',
+                type:   'success',
+                url:    route('siswa.early-checkout.index'),
+            );
+        }
+
+        return back()->with('success', 'Pengajuan disetujui.');
     }
 
     public function reject(Request $request, EarlyCheckoutRequest $earlyCheckout): RedirectResponse

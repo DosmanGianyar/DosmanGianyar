@@ -158,11 +158,12 @@ class _CreatePermitSheetState extends State<_CreatePermitSheet> {
 
   Future<void> _pickDate({required bool isStart}) async {
     final now   = DateTime.now();
-    final first = isStart ? now : (_startDate ?? now);
+    final initial = isStart ? (_startDate ?? now) : (_endDate ?? _startDate ?? now);
+    final first = isStart ? DateTime(now.year - 1) : (_startDate ?? DateTime(now.year - 1));
     final picked = await showDatePicker(
       context:      context,
-      initialDate:  first,
-      firstDate:    now,
+      initialDate:  initial.isBefore(first) ? first : initial,
+      firstDate:    first,
       lastDate:     now.add(const Duration(days: 60)),
     );
     if (picked == null || !mounted) return;

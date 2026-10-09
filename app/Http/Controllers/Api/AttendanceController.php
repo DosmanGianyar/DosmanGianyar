@@ -30,6 +30,10 @@ class AttendanceController extends Controller
 
         $today     = $user->todayAttendance()->first();
         $isHoliday = Holiday::isOffDayFor(today(), $user->class_id);
+        $approvedEarlyCheckout = EarlyCheckoutRequest::where('student_id', $user->id)
+            ->whereDate('date', today())
+            ->where('status', 'approved')
+            ->first();
 
         return response()->json([
             'server_time' => $now->toIso8601String(),
@@ -47,6 +51,11 @@ class AttendanceController extends Controller
                 'is_fake_gps'          => $today->is_fake_gps,
                 'check_in_photo_url'   => $today->photo_url,
                 'check_out_photo_url'  => $today->check_out_photo_url,
+            ] : null,
+            'early_checkout' => $approvedEarlyCheckout ? [
+                'type'             => $approvedEarlyCheckout->type,
+                'absence_category' => $approvedEarlyCheckout->absence_category,
+                'type_label'       => $approvedEarlyCheckout->typeLabel(),
             ] : null,
             'can_checkin'   => $this->canCheckIn($today, $times, $now, $isHoliday),
             'can_checkout'  => $this->canCheckOut($today, $user->id, $times, $now),
@@ -182,8 +191,8 @@ class AttendanceController extends Controller
             return response()->json(['message' => 'Kamu sudah absen pulang hari ini.', 'code' => 'ALREADY_CHECKED_OUT'], 422);
         }
 
-        // Cek waktu checkout (bypass jika ada izin pulang awal)
-        $hasEarlyApproval = EarlyCheckoutRequest::approvedToday($user->id);
+        // Cek waktu checkout (bypass jika ada izin pulang awal dengan absen)
+        $hasEarlyApproval = EarlyCheckoutRequest::approvedWithCheckoutToday($user->id);
         if (! $hasEarlyApproval && $now->lt(Carbon::today()->setTimeFromTimeString($times['check_out_open']))) {
             return response()->json([
                 'message' => 'Absen pulang belum dibuka. Mulai pukul ' . substr($times['check_out_open'], 0, 5) . '.',
@@ -213,6 +222,13 @@ class AttendanceController extends Controller
             'check_out_time'  => $now->format('H:i:s'),
             'check_out_photo' => $filename,
         ]);
+
+        // Catat waktu checkout di EarlyCheckoutRequest jika ada pengajuan pulang awal dengan absen
+        EarlyCheckoutRequest::where('student_id', $user->id)
+            ->whereDate('date', today())
+            ->where('status', 'approved')
+            ->where('type', 'dengan_absen')
+            ->update(['checked_out_at' => $now]);
 
         \App\Services\NotificationService::notifyParentsOfStudent(
             $user,
@@ -266,7 +282,7 @@ class AttendanceController extends Controller
     {
         if (! $today || ! in_array($today->status, ['hadir', 'terlambat'])) return false;
         if ($today->check_out_time) return false;
-        if (EarlyCheckoutRequest::approvedToday($userId)) return true;
+        if (EarlyCheckoutRequest::approvedWithCheckoutToday($userId)) return true;
         return $now->gte(Carbon::today()->setTimeFromTimeString($times['check_out_open']));
     }
 }

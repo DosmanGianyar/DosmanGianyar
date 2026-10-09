@@ -74,6 +74,10 @@ class GuruController extends Controller
                 ])->values()
             ])->values();
 
+        $selectedPeriod = request()->integer('period', 0) ?: null;
+        $selectedDay    = request()->integer('day', 0) ?: null;
+        $liveMonitoring = \App\Services\SchoolPeriodService::getLiveMonitoringData($selectedDay, $selectedPeriod);
+
         return response()->json([
             'status' => 'success',
             'data' => [
@@ -81,6 +85,7 @@ class GuruController extends Controller
                 'extracurriculars' => $extracurriculars,
                 'gurus' => $gurus,
                 'piket_schedule' => $piketSchedule,
+                'live_monitoring' => $liveMonitoring,
             ]
         ]);
     }
@@ -644,15 +649,18 @@ class GuruController extends Controller
 
         return response()->json([
             'data' => $paginated->map(fn($r) => [
-                'id'             => $r->id,
-                'student_name'   => $r->student?->name ?? '—',
-                'class_name'     => $r->student?->schoolClass?->name ?? '—',
-                'date'           => $r->date?->toDateString(),
-                'requested_time' => $r->requested_time,
-                'reason'         => $r->reason,
-                'status'         => $r->status,
-                'reviewer_note'  => $r->reviewer_note,
-                'reviewed_at'    => $r->reviewed_at?->toDateTimeString(),
+                'id'               => $r->id,
+                'student_name'     => $r->student?->name ?? '—',
+                'class_name'       => $r->student?->schoolClass?->name ?? '—',
+                'date'             => $r->date?->toDateString(),
+                'requested_time'   => $r->requested_time,
+                'type'             => $r->type ?? 'dengan_absen',
+                'absence_category' => $r->absence_category,
+                'type_label'       => $r->typeLabel(),
+                'reason'           => $r->reason,
+                'status'           => $r->status,
+                'reviewer_note'    => $r->reviewer_note,
+                'reviewed_at'      => $r->reviewed_at?->toDateTimeString(),
             ]),
             'meta' => [
                 'current_page' => $paginated->currentPage(),
@@ -677,12 +685,30 @@ class GuruController extends Controller
             'reviewer_note' => $data['reviewer_note'] ?? null,
         ]);
 
-        NotificationService::send(
-            $earlyCheckout->student_id,
-            'Izin Pulang Awal Disetujui',
-            'Pengajuan pulang lebih awal tanggal ' . $earlyCheckout->date->isoFormat('D MMMM Y') . ' telah disetujui.',
-            'success',
-        );
+        if ($earlyCheckout->isTanpaAbsen()) {
+            // Tanpa absen: langsung catat di rekap absensi sebagai Izin/Sakit
+            $category = $earlyCheckout->absence_category ?? 'izin';
+            \App\Models\Attendance::updateOrCreate(
+                ['user_id' => $earlyCheckout->student_id, 'date' => $earlyCheckout->date],
+                [
+                    'status' => $category,
+                ]
+            );
+
+            NotificationService::send(
+                $earlyCheckout->student_id,
+                'Pengajuan Pulang Awal (' . ucfirst($category) . ') Disetujui',
+                'Pengajuan pulang lebih awal tanggal ' . $earlyCheckout->date->isoFormat('D MMMM Y') . ' telah disetujui. Status absensi Anda telah dicatat sebagai ' . ucfirst($category) . '.',
+                'success',
+            );
+        } else {
+            NotificationService::send(
+                $earlyCheckout->student_id,
+                'Izin Pulang Awal Disetujui',
+                'Pengajuan pulang lebih awal tanggal ' . $earlyCheckout->date->isoFormat('D MMMM Y') . ' telah disetujui. Silakan lakukan absen pulang sebelum meninggalkan sekolah.',
+                'success',
+            );
+        }
 
         return response()->json(['message' => 'Pengajuan disetujui.']);
     }
@@ -745,12 +771,16 @@ class GuruController extends Controller
     {
         $guru = Auth::user();
 
-        $extraIds = Extracurricular::where('pembina_id', $guru->id)
-            ->orWhereHas('teachers', fn($q) => $q->where('users.id', $guru->id))
-            ->pluck('id');
+        if (in_array($guru->role, ['admin', 'admin_kesiswaan'])) {
+            $extraIds = Extracurricular::pluck('id');
+        } else {
+            $extraIds = Extracurricular::where('pembina_id', $guru->id)
+                ->orWhereHas('teachers', fn($q) => $q->where('users.id', $guru->id))
+                ->pluck('id');
+        }
 
         $pendingMembers = ExtracurricularMember::whereIn('extracurricular_id', $extraIds)
-            ->whereIn('status', ['pending_join', 'pending_leave'])
+            ->whereIn('status', ['pending_join', 'pending_leave', 'pending'])
             ->with(['student:id,name,class_id,nis', 'student.schoolClass:id,name', 'extracurricular:id,name'])
             ->latest()
             ->get()
@@ -763,7 +793,7 @@ class GuruController extends Controller
                 'student_nis'          => $m->student?->nis,
                 'class_name'           => $m->student?->schoolClass?->name ?? '—',
                 'status'               => $m->status,
-                'status_label'         => $m->status === 'pending_join' ? 'Pengajuan Masuk' : 'Pengajuan Keluar',
+                'status_label'         => in_array($m->status, ['pending_join', 'pending']) ? 'Pengajuan Masuk' : 'Pengajuan Keluar',
                 'requested_at'         => $m->created_at->toIso8601String(),
             ]);
 
@@ -775,16 +805,28 @@ class GuruController extends Controller
         $guru   = Auth::user();
         $member = ExtracurricularMember::with(['extracurricular', 'student'])->findOrFail($id);
 
-        if (!in_array($member->status, ['pending_join', 'pending_leave'])) {
+        if (!in_array($member->status, ['pending_join', 'pending_leave', 'pending'])) {
             return response()->json(['message' => 'Pengajuan ini sudah diproses.'], 422);
         }
 
-        if ($member->status === 'pending_join') {
+        $isPembina = $member->extracurricular?->isTeacherPembina($guru->id) ?? false;
+        $isAdmin   = in_array($guru->role, ['admin', 'admin_kesiswaan']);
+        if (!$isPembina && !$isAdmin) {
+            return response()->json(['message' => 'Anda tidak memiliki hak akses sebagai pembina dari ekstrakurikuler ini.'], 403);
+        }
+
+        if (in_array($member->status, ['pending_join', 'pending'])) {
             $member->update([
                 'status'      => 'active',
                 'approved_by' => $guru->id,
                 'approved_at' => now(),
             ]);
+
+            \Illuminate\Support\Facades\DB::table('extracurricular_students')->updateOrInsert(
+                ['extracurricular_id' => $member->extracurricular_id, 'student_id' => $member->user_id],
+                ['updated_at' => now(), 'created_at' => now()]
+            );
+
             $msg = 'Pendaftaran ekstrakurikuler ' . $member->extracurricular?->name . ' disetujui.';
             if ($member->student) {
                 NotificationService::send(
@@ -800,6 +842,12 @@ class GuruController extends Controller
                 'approved_by' => $guru->id,
                 'approved_at' => now(),
             ]);
+
+            \Illuminate\Support\Facades\DB::table('extracurricular_students')
+                ->where('extracurricular_id', $member->extracurricular_id)
+                ->where('student_id', $member->user_id)
+                ->delete();
+
             $msg = 'Pengajuan keluar dari ekstrakurikuler ' . $member->extracurricular?->name . ' disetujui.';
             if ($member->student) {
                 NotificationService::send(
@@ -819,11 +867,17 @@ class GuruController extends Controller
         $guru   = Auth::user();
         $member = ExtracurricularMember::with(['extracurricular', 'student'])->findOrFail($id);
 
-        if (!in_array($member->status, ['pending_join', 'pending_leave'])) {
+        if (!in_array($member->status, ['pending_join', 'pending_leave', 'pending'])) {
             return response()->json(['message' => 'Pengajuan ini sudah diproses.'], 422);
         }
 
-        if ($member->status === 'pending_join') {
+        $isPembina = $member->extracurricular?->isTeacherPembina($guru->id) ?? false;
+        $isAdmin   = in_array($guru->role, ['admin', 'admin_kesiswaan']);
+        if (!$isPembina && !$isAdmin) {
+            return response()->json(['message' => 'Anda tidak memiliki hak akses sebagai pembina dari ekstrakurikuler ini.'], 403);
+        }
+
+        if (in_array($member->status, ['pending_join', 'pending'])) {
             $member->update([
                 'status'      => 'rejected',
                 'approved_by' => $guru->id,
@@ -844,7 +898,21 @@ class GuruController extends Controller
                 'approved_by' => $guru->id,
                 'approved_at' => now(),
             ]);
+
+            \Illuminate\Support\Facades\DB::table('extracurricular_students')->updateOrInsert(
+                ['extracurricular_id' => $member->extracurricular_id, 'student_id' => $member->user_id],
+                ['updated_at' => now(), 'created_at' => now()]
+            );
+
             $msg = 'Pengajuan keluar dari ekstrakurikuler ditolak.';
+            if ($member->student) {
+                NotificationService::send(
+                    $member->user_id,
+                    'Pengajuan Keluar Ekstra Ditolak',
+                    "Pengajuan keluar Anda dari ekstrakurikuler {$member->extracurricular?->name} tidak disetujui.",
+                    'warning'
+                );
+            }
         }
 
         return response()->json(['message' => $msg]);

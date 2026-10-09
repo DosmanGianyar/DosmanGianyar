@@ -234,6 +234,9 @@ class GuruEarlyCheckout {
   final String className;
   final String date;
   final String requestedTime;
+  final String type;            // 'dengan_absen' or 'tanpa_absen'
+  final String? absenceCategory; // 'izin' or 'sakit'
+  final String typeLabel;
   final String reason;
   final String status;
   final String? reviewerNote;
@@ -244,6 +247,9 @@ class GuruEarlyCheckout {
     required this.className,
     required this.date,
     required this.requestedTime,
+    this.type = 'dengan_absen',
+    this.absenceCategory,
+    this.typeLabel = 'Dengan Absen Pulang',
     required this.reason,
     required this.status,
     this.reviewerNote,
@@ -252,16 +258,21 @@ class GuruEarlyCheckout {
   bool get isPending  => status == 'pending';
   bool get isApproved => status == 'approved';
   bool get isRejected => status == 'rejected';
+  bool get isDenganAbsen => type == 'dengan_absen';
+  bool get isTanpaAbsen => type == 'tanpa_absen';
 
   factory GuruEarlyCheckout.fromJson(Map<String, dynamic> json) => GuruEarlyCheckout(
-    id:            json['id'] as int,
-    studentName:   json['student_name'] as String,
-    className:     json['class_name'] as String,
-    date:          json['date'] as String,
-    requestedTime: json['requested_time'] as String? ?? '',
-    reason:        json['reason'] as String? ?? '',
-    status:        json['status'] as String,
-    reviewerNote:  json['reviewer_note'] as String?,
+    id:              json['id'] as int,
+    studentName:     json['student_name'] as String,
+    className:       json['class_name'] as String,
+    date:            json['date'] as String,
+    requestedTime:   json['requested_time'] as String? ?? '',
+    type:            json['type'] as String? ?? 'dengan_absen',
+    absenceCategory: json['absence_category'] as String?,
+    typeLabel:       json['type_label'] as String? ?? 'Dengan Absen Pulang',
+    reason:          json['reason'] as String? ?? '',
+    status:          json['status'] as String,
+    reviewerNote:    json['reviewer_note'] as String?,
   );
 }
 

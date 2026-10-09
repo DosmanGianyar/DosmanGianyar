@@ -272,81 +272,59 @@ class JournalController extends Controller
             ? (User::where('role', 'guru')->find($request->input('teacher_id')) ?: Auth::user())
             : Auth::user();
 
-        $month   = $request->filled('month') ? (int) $request->input('month') : null;
-        $year    = $request->filled('year') ? (int) $request->input('year') : null;
-        $classId = $request->input('class_id');
+        $startDate = $request->input('start_date');
+        $endDate   = $request->input('end_date');
+        $month     = $request->filled('month') ? (int) $request->input('month') : null;
+        $year      = $request->filled('year') ? (int) $request->input('year') : null;
+        $classId   = $request->input('class_id');
 
         $query = TeacherJournal::where('teacher_id', $teacher->id)
             ->with(['schoolClass:id,name', 'subject:id,name', 'tp:id,code,description', 'absences.student:id,name,nis'])
             ->orderBy('date')
             ->orderBy('period');
 
-        if ($month && $year) {
+        if ($startDate && $endDate) {
+            $query->whereBetween('date', [$startDate, $endDate]);
+            $sDate = \Illuminate\Support\Carbon::parse($startDate);
+            $eDate = \Illuminate\Support\Carbon::parse($endDate);
+            $periodLabel = $sDate->isoFormat('D MMMM Y') . ' s/d ' . $eDate->isoFormat('D MMMM Y');
+        } elseif ($month && $year) {
             $firstDay = \Illuminate\Support\Carbon::create($year, $month, 1)->startOfDay();
             $lastDay  = $firstDay->copy()->endOfMonth()->endOfDay();
             $query->whereBetween('date', [$firstDay->toDateString(), $lastDay->toDateString()]);
+            $periodLabel = 'Bulan ' . $firstDay->isoFormat('MMMM Y');
         } elseif ($month) {
-            $query->whereMonth('date', $month);
-            $firstDay = \Illuminate\Support\Carbon::create(now()->year, $month, 1)->startOfDay();
+            $y = now()->year;
+            $firstDay = \Illuminate\Support\Carbon::create($y, $month, 1)->startOfDay();
             $lastDay  = $firstDay->copy()->endOfMonth()->endOfDay();
+            $query->whereBetween('date', [$firstDay->toDateString(), $lastDay->toDateString()]);
+            $periodLabel = 'Bulan ' . $firstDay->isoFormat('MMMM Y');
         } elseif ($year) {
             $query->whereYear('date', $year);
-            $firstDay = \Illuminate\Support\Carbon::create($year, 1, 1)->startOfDay();
-            $lastDay  = \Illuminate\Support\Carbon::create($year, 12, 31)->endOfDay();
+            $periodLabel = 'Tahun ' . $year;
+        } else {
+            $m = now()->month;
+            $y = now()->year;
+            $firstDay = \Illuminate\Support\Carbon::create($y, $m, 1)->startOfDay();
+            $lastDay  = $firstDay->copy()->endOfMonth()->endOfDay();
+            $query->whereBetween('date', [$firstDay->toDateString(), $lastDay->toDateString()]);
+            $month = $m;
+            $year  = $y;
+            $periodLabel = 'Bulan ' . $firstDay->isoFormat('MMMM Y');
         }
 
         if ($classId) {
             $query->where('class_id', $classId);
         }
 
-        $allJournals = $query->get();
-
-        if (!isset($firstDay) || !isset($lastDay)) {
-            if ($allJournals->isNotEmpty()) {
-                $firstDay = \Illuminate\Support\Carbon::parse($allJournals->min('date'))->startOfDay();
-                $lastDay  = \Illuminate\Support\Carbon::parse($allJournals->max('date'))->endOfDay();
-            } else {
-                $firstDay = now()->startOfMonth()->startOfDay();
-                $lastDay  = now()->endOfMonth()->endOfDay();
-            }
-        }
-
-        // Bagi jurnal perhalaman baru perminggu (Minggu 1, Minggu 2, Minggu 3, dst.)
-        $weeklyGroups = [];
-        $currStart = $firstDay->copy()->startOfWeek(\Illuminate\Support\Carbon::MONDAY);
-        $weekIndex = 1;
-
-        while ($currStart->lte($lastDay)) {
-            $currEnd = $currStart->copy()->addDays(5); // Senin - Sabtu
-
-            $weekJournals = $allJournals->filter(function ($j) use ($currStart, $currEnd) {
-                if (! $j->date) return false;
-                $dt = $j->date instanceof \Illuminate\Support\Carbon ? $j->date : \Illuminate\Support\Carbon::parse($j->date);
-                return $dt->gte($currStart->startOfDay()) && $dt->lte($currEnd->endOfDay());
-            })->values();
-
-            if ($weekJournals->isNotEmpty() || ($month && $year)) {
-                $weeklyGroups[] = [
-                    'week_number'     => $weekIndex,
-                    'start_date'      => $currStart->copy(),
-                    'end_date'        => $currEnd->copy(),
-                    'period_label'    => $currStart->isoFormat('D MMMM Y') . ' s/d ' . $currEnd->isoFormat('D MMMM Y'),
-                    'journals'        => $weekJournals,
-                    'total_pertemuan' => $weekJournals->count(),
-                    'total_absen'     => $weekJournals->sum(fn ($j) => $j->absences->count()),
-                ];
-                $weekIndex++;
-            }
-
-            $currStart->addWeek();
-        }
-
+        $journals  = $query->get();
         $classes   = SchoolClass::orderBy('name')->get();
+        $teachers  = User::where('role', 'guru')->orderBy('name')->get(['id', 'name']);
         $className = $classId ? SchoolClass::find($classId)?->name : null;
 
         return view('guru.journal.print', compact(
-            'teacher', 'weeklyGroups', 'classes',
-            'month', 'year', 'classId', 'className'
+            'teacher', 'journals', 'classes', 'teachers', 'classId', 'className',
+            'periodLabel', 'startDate', 'endDate', 'month', 'year'
         ));
     }
 

@@ -18,19 +18,26 @@ class Holiday extends Model
     protected static function booted(): void
     {
         static::saved(function (Holiday $holiday) {
-            if ($holiday->type === 'libur') {
-                $query = Attendance::whereDate('date', $holiday->date)
-                    ->where('status', 'alpa');
-
-                if ($holiday->applies_to === 'kelas_tertentu') {
-                    $classIds  = $holiday->schoolClasses()->pluck('classes.id');
-                    $studentIds = User::whereIn('class_id', $classIds)->pluck('id');
-                    $query->whereIn('user_id', $studentIds);
-                }
-
-                $query->delete();
-            }
+            static::purgeAlpaForHoliday($holiday);
         });
+    }
+
+    public static function purgeAlpaForHoliday(Holiday $holiday): void
+    {
+        if ($holiday->type !== 'libur') return;
+
+        $query = Attendance::whereDate('date', $holiday->date)
+            ->where('status', 'alpa');
+
+        if ($holiday->applies_to === 'kelas_tertentu') {
+            $classIds = $holiday->schoolClasses()->pluck('classes.id');
+            if ($classIds->isNotEmpty()) {
+                $studentIds = User::whereIn('class_id', $classIds)->pluck('id');
+                $query->whereIn('user_id', $studentIds);
+            }
+        }
+
+        $query->delete();
     }
 
     public function schoolClasses(): BelongsToMany

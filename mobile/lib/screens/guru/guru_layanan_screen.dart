@@ -19,6 +19,7 @@ class _GuruLayananScreenState extends State<GuruLayananScreen> with SingleTicker
   List<dynamic> _extracurriculars = [];
   List<dynamic> _gurus = [];
   List<dynamic> _piketSchedule = [];
+  Map<String, dynamic>? _liveMonitoring;
 
   @override
   void initState() {
@@ -39,6 +40,7 @@ class _GuruLayananScreenState extends State<GuruLayananScreen> with SingleTicker
             _extracurriculars = d['extracurriculars'] ?? [];
             _gurus = d['gurus'] ?? [];
             _piketSchedule = d['piket_schedule'] ?? [];
+            _liveMonitoring = d['live_monitoring'] as Map<String, dynamic>?;
             _isLoading = false;
           });
         }
@@ -292,94 +294,304 @@ class _GuruLayananScreenState extends State<GuruLayananScreen> with SingleTicker
   }
 
   Widget _buildPiketScheduleList() {
-    if (_piketSchedule.isEmpty) {
-      return const Center(child: Text('Belum ada jadwal mengajar/piket tercatat (Senin - Sabtu)', style: TextStyle(fontSize: 12, color: AppColors.gray400)));
-    }
+    final live = _liveMonitoring;
+    final activeInfo = live?['active_info'] as Map<String, dynamic>?;
+    final monitoringList = (live?['monitoring_list'] as List? ?? []).where((item) {
+      if (_searchQuery.isEmpty) return true;
+      final cName = (item['class_name'] ?? '').toString().toLowerCase();
+      final tName = (item['teacher_name'] ?? '').toString().toLowerCase();
+      final sName = (item['subject_name'] ?? '').toString().toLowerCase();
+      return cName.contains(_searchQuery) || tName.contains(_searchQuery) || sName.contains(_searchQuery);
+    }).toList();
 
-    return ListView.separated(
+    return ListView(
       padding: const EdgeInsets.all(16),
-      itemCount: _piketSchedule.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 14),
-      itemBuilder: (_, i) {
-        final dayData = _piketSchedule[i];
-        final dayName = dayData['day_name'] ?? '—';
-        final sessions = (dayData['sessions'] as List? ?? []).where((s) {
-          final tName = (s['teacher_name'] ?? '').toString().toLowerCase();
-          final sub = (s['subject'] ?? '').toString().toLowerCase();
-          final cls = (s['class_name'] ?? '').toString().toLowerCase();
-          return tName.contains(_searchQuery) || sub.contains(_searchQuery) || cls.contains(_searchQuery);
-        }).toList();
-
-        return Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: AppColors.gray200),
-          ),
-          padding: const EdgeInsets.all(14),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    '🗓️ Hari $dayName',
-                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.gray900),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: AppColors.blue50,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      '${sessions.length} Sesi',
-                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.blue700),
-                    ),
-                  ),
-                ],
+      children: [
+        // Live Period Banner
+        if (live != null && activeInfo != null) ...[
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFF0F2460), Color(0xFF1E3A8A)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
-              const SizedBox(height: 10),
-              if (sessions.isEmpty)
-                const Text('Tidak ada jadwal sesuai pencarian', style: TextStyle(fontSize: 11, color: AppColors.gray400))
-              else
-                ...sessions.take(6).map((s) => Padding(
-                  padding: const EdgeInsets.only(bottom: 6),
-                  child: Row(
-                    children: [
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF0F2460).withOpacity(0.3),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: Colors.emerald.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: Colors.emerald.withOpacity(0.4)),
+                      ),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.access_time_rounded, size: 12, color: Colors.emeraldAccent),
+                          SizedBox(width: 4),
+                          Text(
+                            'Jam Berjalan',
+                            style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.emeraldAccent),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Spacer(),
+                    Text(
+                      'Hari ${live['day_name']}',
+                      style: const TextStyle(fontSize: 11, color: Colors.white70),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  activeInfo['label'] ?? 'Jam Berjalan',
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Waktu KBM: ${activeInfo['time_range'] ?? '—'} WITA',
+                  style: const TextStyle(fontSize: 11, color: Colors.white70),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    _buildStatChip('Total Kelas', '${live['total_classes'] ?? 0}', Colors.white24),
+                    const SizedBox(width: 8),
+                    _buildStatChip('Terjadwal', '${live['filled_schedules'] ?? 0}', Colors.emerald.withOpacity(0.3)),
+                    const SizedBox(width: 8),
+                    _buildStatChip('Belum Input', '${live['missing_schedules'] ?? 0}', Colors.amber.withOpacity(0.3)),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                '🏫 Pengajar Jam Ke-${live['selected_period'] ?? 1}',
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.gray900),
+              ),
+              Text(
+                '${monitoringList.length} Kelas',
+                style: const TextStyle(fontSize: 11, color: AppColors.gray500),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          if (monitoringList.isEmpty)
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 12),
+              child: Text('Tidak ada kelas sesuai filter', style: TextStyle(fontSize: 12, color: AppColors.gray400)),
+            )
+          else
+            ...monitoringList.map((item) {
+              final bool hasSch = item['has_schedule'] as bool? ?? false;
+              final bool hasJrnl = item['has_journal'] as bool? ?? false;
+              return Container(
+                margin: const EdgeInsets.only(bottom: 8),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: hasSch ? AppColors.gray200 : AppColors.amber200,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF0F2460),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        item['class_name'] ?? '—',
+                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: hasSch
+                          ? Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  item['teacher_name'] ?? '—',
+                                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.gray800),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                Text(
+                                  item['subject_name'] ?? '—',
+                                  style: const TextStyle(fontSize: 11, color: AppColors.blue600),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            )
+                          : const Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Jadwal belum di-input',
+                                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.amber800),
+                                ),
+                                Text(
+                                  'Belum ada guru terjadwal di jam ini',
+                                  style: TextStyle(fontSize: 10, color: AppColors.gray400),
+                                ),
+                              ],
+                            ),
+                    ),
+                    if (hasSch)
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: AppColors.gray100,
+                          color: hasJrnl ? AppColors.green50 : AppColors.amber50,
                           borderRadius: BorderRadius.circular(6),
+                          border: Border.all(
+                            color: hasJrnl ? AppColors.green200 : AppColors.amber200,
+                          ),
                         ),
                         child: Text(
-                          'Jam ${s['period']}',
-                          style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.gray700),
+                          hasJrnl ? '✓ Jurnal' : '⏳ Belum Jurnal',
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            color: hasJrnl ? AppColors.green700 : AppColors.amber800,
+                          ),
                         ),
                       ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          '${s['teacher_name']} (${s['subject']})',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.gray800),
-                        ),
-                      ),
-                      const SizedBox(width: 4),
+                  ],
+                ),
+              );
+            }),
+          const SizedBox(height: 18),
+          const Divider(),
+          const SizedBox(height: 10),
+          const Text(
+            '🗓️ Sesi Mengajar Lengkap Per Hari',
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.gray900),
+          ),
+          const SizedBox(height: 10),
+        ],
+
+        if (_piketSchedule.isEmpty)
+          const Center(child: Text('Belum ada jadwal mengajar/piket tercatat', style: TextStyle(fontSize: 12, color: AppColors.gray400)))
+        else
+          ..._piketSchedule.map((dayData) {
+            final dayName = dayData['day_name'] ?? '—';
+            final sessions = (dayData['sessions'] as List? ?? []).where((s) {
+              final tName = (s['teacher_name'] ?? '').toString().toLowerCase();
+              final sub = (s['subject'] ?? '').toString().toLowerCase();
+              final cls = (s['class_name'] ?? '').toString().toLowerCase();
+              return tName.contains(_searchQuery) || sub.contains(_searchQuery) || cls.contains(_searchQuery);
+            }).toList();
+
+            return Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: AppColors.gray200),
+              ),
+              padding: const EdgeInsets.all(14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
                       Text(
-                        '${s['class_name']}',
-                        style: const TextStyle(fontSize: 11, color: AppColors.blue600, fontWeight: FontWeight.bold),
+                        '🗓️ Hari $dayName',
+                        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.gray900),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: AppColors.blue50,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          '${sessions.length} Sesi',
+                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.blue700),
+                        ),
                       ),
                     ],
                   ),
-                )),
-            ],
-          ),
-        );
-      },
+                  const SizedBox(height: 10),
+                  if (sessions.isEmpty)
+                    const Text('Tidak ada jadwal sesuai pencarian', style: TextStyle(fontSize: 11, color: AppColors.gray400))
+                  else
+                    ...sessions.take(6).map((s) => Padding(
+                      padding: const EdgeInsets.only(bottom: 6),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: AppColors.gray100,
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              'Jam ${s['period']}',
+                              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.gray700),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              '${s['teacher_name']} (${s['subject']} - ${s['class_name']})',
+                              style: const TextStyle(fontSize: 11, color: AppColors.gray800),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )),
+                ],
+              ),
+            );
+          }),
+      ],
+    );
+  }
+
+  Widget _buildStatChip(String label, String value, Color bg) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        decoration: BoxDecoration(
+          color: bg,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Column(
+          children: [
+            Text(label, style: const TextStyle(fontSize: 9, color: Colors.white70)),
+            const SizedBox(height: 2),
+            Text(value, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white)),
+          ],
+        ),
+      ),
     );
   }
 

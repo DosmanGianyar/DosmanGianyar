@@ -125,10 +125,11 @@ class DashboardController extends Controller
         foreach ($monthlyRecs as $rec) {
             $ds = $rec->date->format('Y-m-d');
             $isSchool = Holiday::isSchoolDay($rec->date, $monthlyHolidays, $monthlySpecial);
-            if (! $isSchool && $rec->status === 'alpa') continue;
+            $effStatus = $rec->effectiveStatus(isset($monthlyApproved[$ds]));
+            if (! $isSchool && ($rec->status === 'alpa' || $effStatus === 'alpa')) continue;
 
             $recordedDates[$ds] = true;
-            $monthlyByDate[$ds] = $rec->effectiveStatus(isset($monthlyApproved[$ds]));
+            $monthlyByDate[$ds] = $effStatus;
         }
 
         // Add permit status or alpa for past school days with no record

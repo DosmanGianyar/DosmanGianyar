@@ -34,7 +34,11 @@ class KesiswaanController extends Controller
 
         $validMonthlyRecs = $monthlyRecs->reject(function ($r) use ($monthlyHolidays, $monthlySpecial) {
             $isSchool = Holiday::isSchoolDay($r->date, $monthlyHolidays, $monthlySpecial);
-            return ! $isSchool && $r->status === 'alpa';
+            if (! $isSchool) {
+                $effStatus = $r->effectiveStatus();
+                return $r->status === 'alpa' || $effStatus === 'alpa';
+            }
+            return false;
         });
 
         $absensi = $validMonthlyRecs->groupBy('status')->map->count();

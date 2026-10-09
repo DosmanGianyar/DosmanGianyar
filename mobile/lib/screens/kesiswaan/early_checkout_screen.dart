@@ -136,6 +136,8 @@ class _CreateSheetState extends State<_CreateSheet> {
   DateTime? _date;
   TimeOfDay _time = const TimeOfDay(hour: 12, minute: 0);
   bool _timePicked = false;
+  String _type = 'dengan_absen';
+  String _absenceCategory = 'izin';
   final _reasonCtrl = TextEditingController();
   bool _isSaving    = false;
 
@@ -172,9 +174,11 @@ class _CreateSheetState extends State<_CreateSheet> {
     final timeStr = '${_time.hour.toString().padLeft(2,'0')}:${_time.minute.toString().padLeft(2,'0')}';
     try {
       await ApiClient.post('/early-checkout', data: {
-        'date':           dateStr,
-        'requested_time': timeStr,
-        'reason':         _reasonCtrl.text.trim(),
+        'date':             dateStr,
+        'requested_time':   timeStr,
+        'type':             _type,
+        if (_type == 'tanpa_absen') 'absence_category': _absenceCategory,
+        'reason':           _reasonCtrl.text.trim(),
       });
       widget.onCreated();
     } catch (e) {
@@ -201,88 +205,200 @@ class _CreateSheetState extends State<_CreateSheet> {
         borderRadius: BorderRadius.all(Radius.circular(20)),
       ),
       padding: EdgeInsets.fromLTRB(20, 20, 20, 20 + bottom + safeBot),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Center(child: Container(
-            width: 40, height: 4,
-            decoration: BoxDecoration(color: AppColors.gray200, borderRadius: BorderRadius.circular(2)),
-          )),
-          const SizedBox(height: 16),
-          const Text('Ajukan Izin Pulang Lebih Awal',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.gray800)),
-          const SizedBox(height: 4),
-          const Text('Perlu persetujuan guru atau admin.',
-            style: TextStyle(fontSize: 11, color: AppColors.gray400)),
-          const SizedBox(height: 16),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Center(child: Container(
+              width: 40, height: 4,
+              decoration: BoxDecoration(color: AppColors.gray200, borderRadius: BorderRadius.circular(2)),
+            )),
+            const SizedBox(height: 16),
+            const Text('Ajukan Izin Pulang Lebih Awal',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.gray800)),
+            const SizedBox(height: 4),
+            const Text('Perlu persetujuan guru atau admin.',
+              style: TextStyle(fontSize: 11, color: AppColors.gray400)),
+            const SizedBox(height: 16),
 
-          // Date + Time row
-          Row(children: [
-            Expanded(
-              child: GestureDetector(
-                onTap: _pickDate,
-                child: _PickerField(
-                  icon: Icons.calendar_today_rounded,
-                  iconColor: AppColors.emerald600,
-                  label: 'Tanggal',
-                  value: _date != null ? _fmtDate(_date!) : 'Pilih tanggal',
-                  hasValue: _date != null,
+            // Mode selection
+            const Text('Jenis Pulang Awal',
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppColors.gray600)),
+            const SizedBox(height: 8),
+            InkWell(
+              onTap: () => setState(() => _type = 'dengan_absen'),
+              borderRadius: BorderRadius.circular(10),
+              child: Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: _type == 'dengan_absen' ? AppColors.emerald50 : AppColors.gray50,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: _type == 'dengan_absen' ? AppColors.emerald500 : AppColors.gray200,
+                    width: _type == 'dengan_absen' ? 1.5 : 1,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Radio<String>(
+                      value: 'dengan_absen',
+                      groupValue: _type,
+                      activeColor: AppColors.emerald600,
+                      onChanged: (v) => setState(() => _type = v!),
+                    ),
+                    const Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Dengan Absen Pulang (Hadir)',
+                            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.gray800)),
+                          SizedBox(height: 2),
+                          Text('Rekap tercatat Hadir. Harus selfie absen pulang saat meninggalkan sekolah.',
+                            style: TextStyle(fontSize: 11, color: AppColors.gray500)),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: GestureDetector(
-                onTap: _pickTime,
-                child: _PickerField(
-                  icon: Icons.access_time_rounded,
-                  iconColor: AppColors.emerald600,
-                  label: 'Jam Pulang',
-                  value: _timePicked
-                      ? '${_time.hour.toString().padLeft(2,'0')}:${_time.minute.toString().padLeft(2,'0')}'
-                      : 'Pilih jam',
-                  hasValue: _timePicked,
+            const SizedBox(height: 8),
+            InkWell(
+              onTap: () => setState(() => _type = 'tanpa_absen'),
+              borderRadius: BorderRadius.circular(10),
+              child: Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: _type == 'tanpa_absen' ? AppColors.amber50 : AppColors.gray50,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: _type == 'tanpa_absen' ? AppColors.amber500 : AppColors.gray200,
+                    width: _type == 'tanpa_absen' ? 1.5 : 1,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Radio<String>(
+                      value: 'tanpa_absen',
+                      groupValue: _type,
+                      activeColor: AppColors.amber600,
+                      onChanged: (v) => setState(() => _type = v!),
+                    ),
+                    const Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Tanpa Absen Pulang (Izin / Sakit)',
+                            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.gray800)),
+                          SizedBox(height: 2),
+                          Text('Rekap otomatis menjadi Izin/Sakit setelah disetujui. Tanpa selfie pulang.',
+                            style: TextStyle(fontSize: 11, color: AppColors.gray500)),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
-          ]),
-          const SizedBox(height: 14),
+            const SizedBox(height: 12),
 
-          // Reason
-          const Text('Alasan', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppColors.gray600)),
-          const SizedBox(height: 6),
-          TextField(
-            controller: _reasonCtrl,
-            maxLines: 3,
-            maxLength: 500,
-            style: const TextStyle(fontSize: 13, color: AppColors.gray700),
-            decoration: InputDecoration(
-              hintText: 'Tuliskan alasan pulang lebih awal...',
-              hintStyle: const TextStyle(color: AppColors.gray400, fontSize: 12),
-              filled: true, fillColor: AppColors.gray50,
-              counterStyle: const TextStyle(fontSize: 10),
-              contentPadding: const EdgeInsets.all(12),
-              border: OutlineInputBorder(borderRadius: AppRadius.input, borderSide: const BorderSide(color: AppColors.gray200)),
-              enabledBorder: OutlineInputBorder(borderRadius: AppRadius.input, borderSide: const BorderSide(color: AppColors.gray200)),
-              focusedBorder: OutlineInputBorder(borderRadius: AppRadius.input, borderSide: const BorderSide(color: AppColors.emerald600, width: 2)),
-            ),
-          ),
-          const SizedBox(height: 16),
+            // If tanpa_absen, show category selector (Izin / Sakit)
+            if (_type == 'tanpa_absen') ...[
+              const Text('Kategori Presensi',
+                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppColors.gray600)),
+              const SizedBox(height: 6),
+              Row(
+                children: [
+                  Expanded(
+                    child: ChoiceChip(
+                      label: const Center(child: Text('Izin')),
+                      selected: _absenceCategory == 'izin',
+                      selectedColor: AppColors.amber100,
+                      onSelected: (val) { if (val) setState(() => _absenceCategory = 'izin'); },
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: ChoiceChip(
+                      label: const Center(child: Text('Sakit')),
+                      selected: _absenceCategory == 'sakit',
+                      selectedColor: AppColors.red100,
+                      onSelected: (val) { if (val) setState(() => _absenceCategory = 'sakit'); },
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 14),
+            ],
 
-          FilledButton(
-            onPressed: _isSaving ? null : _submit,
-            style: FilledButton.styleFrom(
-              backgroundColor: AppColors.emerald600,
-              padding: const EdgeInsets.symmetric(vertical: 14),
-              shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
+            // Date + Time row
+            Row(children: [
+              Expanded(
+                child: GestureDetector(
+                  onTap: _pickDate,
+                  child: _PickerField(
+                    icon: Icons.calendar_today_rounded,
+                    iconColor: AppColors.emerald600,
+                    label: 'Tanggal',
+                    value: _date != null ? _fmtDate(_date!) : 'Pilih tanggal',
+                    hasValue: _date != null,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: GestureDetector(
+                  onTap: _pickTime,
+                  child: _PickerField(
+                    icon: Icons.access_time_rounded,
+                    iconColor: AppColors.emerald600,
+                    label: 'Jam Pulang',
+                    value: _timePicked
+                        ? '${_time.hour.toString().padLeft(2,'0')}:${_time.minute.toString().padLeft(2,'0')}'
+                        : 'Pilih jam',
+                    hasValue: _timePicked,
+                  ),
+                ),
+              ),
+            ]),
+            const SizedBox(height: 14),
+
+            // Reason
+            const Text('Alasan', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppColors.gray600)),
+            const SizedBox(height: 6),
+            TextField(
+              controller: _reasonCtrl,
+              maxLines: 3,
+              maxLength: 500,
+              style: const TextStyle(fontSize: 13, color: AppColors.gray700),
+              decoration: InputDecoration(
+                hintText: 'Tuliskan alasan pulang lebih awal...',
+                hintStyle: const TextStyle(color: AppColors.gray400, fontSize: 12),
+                filled: true, fillColor: AppColors.gray50,
+                counterStyle: const TextStyle(fontSize: 10),
+                contentPadding: const EdgeInsets.all(12),
+                border: OutlineInputBorder(borderRadius: AppRadius.input, borderSide: const BorderSide(color: AppColors.gray200)),
+                enabledBorder: OutlineInputBorder(borderRadius: AppRadius.input, borderSide: const BorderSide(color: AppColors.gray200)),
+                focusedBorder: OutlineInputBorder(borderRadius: AppRadius.input, borderSide: const BorderSide(color: AppColors.emerald600, width: 2)),
+              ),
             ),
-            child: _isSaving
-                ? const SizedBox(width: 18, height: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                : const Text('Kirim Pengajuan', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
-          ),
-        ],
+            const SizedBox(height: 16),
+
+            FilledButton(
+              onPressed: _isSaving ? null : _submit,
+              style: FilledButton.styleFrom(
+                backgroundColor: AppColors.emerald600,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
+              ),
+              child: _isSaving
+                  ? const SizedBox(width: 18, height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                  : const Text('Kirim Pengajuan', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -372,6 +488,25 @@ class _ItemCard extends StatelessWidget {
             ),
           ],
         ]),
+        const SizedBox(height: 6),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+          decoration: BoxDecoration(
+            color: item.isDenganAbsen ? AppColors.blue50 : AppColors.amber50,
+            borderRadius: BorderRadius.circular(6),
+            border: Border.all(color: item.isDenganAbsen ? AppColors.blue200 : AppColors.amber200),
+          ),
+          child: Text(
+            item.isDenganAbsen
+                ? 'Dengan Absen (Hadir)'
+                : 'Tanpa Absen (${item.absenceCategory?.toUpperCase() ?? 'IZIN'})',
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+              color: item.isDenganAbsen ? AppColors.blue700 : AppColors.amber800,
+            ),
+          ),
+        ),
         const SizedBox(height: 6),
         Text(item.reason,
           style: const TextStyle(fontSize: 12, color: AppColors.gray500),

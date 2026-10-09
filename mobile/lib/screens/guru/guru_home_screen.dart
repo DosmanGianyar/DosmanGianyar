@@ -1635,7 +1635,7 @@ class _PendingExtraMembersSheetState extends State<_PendingExtraMembersSheet> {
     } catch (e) {
       if (mounted) {
         setState(() {
-          _error = 'Gagal memuat daftar pengajuan.';
+          _error = ApiClient.extractError(e);
           _loading = false;
         });
       }
@@ -1658,7 +1658,10 @@ class _PendingExtraMembersSheetState extends State<_PendingExtraMembersSheet> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Gagal memproses pengajuan.'), backgroundColor: AppColors.rose600),
+          SnackBar(
+            content: Text(ApiClient.extractError(e)),
+            backgroundColor: AppColors.rose600,
+          ),
         );
       }
     }
@@ -1706,7 +1709,7 @@ class _PendingExtraMembersSheetState extends State<_PendingExtraMembersSheet> {
             Center(
               child: Padding(
                 padding: const EdgeInsets.all(24),
-                child: Text(_error!, style: const TextStyle(color: AppColors.rose600, fontSize: 13)),
+                child: Text(_error!, style: const TextStyle(color: AppColors.rose600, fontSize: 13), textAlign: TextAlign.center),
               ),
             )
           else if (_items.isEmpty)
@@ -1728,7 +1731,7 @@ class _PendingExtraMembersSheetState extends State<_PendingExtraMembersSheet> {
                 separatorBuilder: (_, __) => const SizedBox(height: 12),
                 itemBuilder: (ctx, i) {
                   final item = _items[i];
-                  final isJoin = item['status'] == 'pending_join';
+                  final isJoin = item['status'] == 'pending_join' || item['status'] == 'pending';
 
                   return Container(
                     padding: const EdgeInsets.all(14),

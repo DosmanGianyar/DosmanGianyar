@@ -45,12 +45,18 @@ class LayananController extends Controller
             ->get()
             ->groupBy('day');
 
+        // 6. Monitoring Jam Berjalan (Live Period Monitoring)
+        $selectedPeriod = $request->integer('period', 0) ?: null;
+        $selectedDay    = $request->integer('day', 0) ?: null;
+        $liveMonitoring = \App\Services\SchoolPeriodService::getLiveMonitoringData($selectedDay, $selectedPeriod);
+
         return view('guru.layanan.index', compact(
             'waliKelas',
             'extracurriculars',
             'gurus',
             'guruBk',
-            'piketSchedule'
+            'piketSchedule',
+            'liveMonitoring'
         ));
     }
 }

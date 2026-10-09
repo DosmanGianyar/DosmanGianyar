@@ -351,6 +351,25 @@ class _GuruEarlyCheckoutScreenState extends State<GuruEarlyCheckoutScreen> {
                 item.date,
                 style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppColors.gray700),
               ),
+              const Spacer(),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: item.isDenganAbsen ? AppColors.blue50 : AppColors.amber50,
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(color: item.isDenganAbsen ? AppColors.blue200 : AppColors.amber200),
+                ),
+                child: Text(
+                  item.isDenganAbsen
+                      ? 'Dengan Absen (Hadir)'
+                      : 'Tanpa Absen (${item.absenceCategory?.toUpperCase() ?? 'IZIN'})',
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
+                    color: item.isDenganAbsen ? AppColors.blue700 : AppColors.amber800,
+                  ),
+                ),
+              ),
             ],
           ),
           if (item.reason.isNotEmpty) ...[
