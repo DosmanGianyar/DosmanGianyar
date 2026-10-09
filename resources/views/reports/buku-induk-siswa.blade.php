@@ -551,6 +551,25 @@
             <div class="field-value">{{ $siswa->transfer_reason ?: '-' }}</div>
         </div>
 
+        @php
+            $admissionGradeDisplay = $siswa->admission_grade;
+            if (!$admissionGradeDisplay && $siswa->schoolClass) {
+                $gradeName = $siswa->schoolClass->name;
+                if (str_starts_with($gradeName, 'X-') || str_starts_with($gradeName, 'X ') || str_starts_with($gradeName, 'X_')) {
+                    $admissionGradeDisplay = 'Kelas X (Sepuluh)';
+                } elseif (str_starts_with($gradeName, 'XI-') || str_starts_with($gradeName, 'XI ') || str_starts_with($gradeName, 'XI_')) {
+                    $admissionGradeDisplay = 'Kelas XI (Sebelas)';
+                } elseif (str_starts_with($gradeName, 'XII-') || str_starts_with($gradeName, 'XII ') || str_starts_with($gradeName, 'XII_')) {
+                    $admissionGradeDisplay = 'Kelas XII (Dua Belas)';
+                } else {
+                    $admissionGradeDisplay = 'Kelas X (Sepuluh)';
+                }
+            }
+            if (!$admissionGradeDisplay) {
+                $admissionGradeDisplay = 'Kelas X (Sepuluh)';
+            }
+        @endphp
+
         <div class="field-row">
             <div class="field-num">22.</div>
             <div class="field-label">Diterima di sekolah ini</div>
@@ -559,27 +578,27 @@
         </div>
         <div class="field-row">
             <div class="field-num"></div>
-            <div class="sub-label">a. Di Tingkat</div>
+            <div class="sub-label">a. Di Tingkat / Kelas</div>
             <div class="field-colon">:</div>
-            <div class="field-value">{{ $siswa->admission_grade ?: '-' }}</div>
+            <div class="field-value"><strong>{{ $admissionGradeDisplay }}</strong></div>
         </div>
         <div class="field-row">
             <div class="field-num"></div>
-            <div class="sub-label">b. Kelompok</div>
+            <div class="sub-label">b. Kelompok / Rombel</div>
             <div class="field-colon">:</div>
-            <div class="field-value">{{ $siswa->admission_class_group ?: $siswa->schoolClass?->name ?: '-' }}</div>
+            <div class="field-value">{{ $siswa->admission_class_group ?: ($siswa->schoolClass?->name ?? '—') }}</div>
         </div>
         <div class="field-row">
             <div class="field-num"></div>
-            <div class="sub-label">c. Jurusan</div>
+            <div class="sub-label">c. Jurusan / Kurikulum</div>
             <div class="field-colon">:</div>
-            <div class="field-value">{{ $siswa->admission_major ?: '-' }}</div>
+            <div class="field-value">{{ $siswa->admission_major ?: 'Kurikulum Merdeka' }}</div>
         </div>
         <div class="field-row">
             <div class="field-num"></div>
-            <div class="sub-label">d. Tanggal</div>
+            <div class="sub-label">d. Tanggal Diterima</div>
             <div class="field-colon">:</div>
-            <div class="field-value">{{ $siswa->admission_date ? $siswa->admission_date->translatedFormat('d F Y') : '-' }}</div>
+            <div class="field-value">{{ $siswa->admission_date ? $siswa->admission_date->translatedFormat('d F Y') : ($siswa->created_at ? $siswa->created_at->translatedFormat('d F Y') : '-') }}</div>
         </div>
 
         <!-- E. KETERANGAN TENTANG AYAH KANDUNG -->
