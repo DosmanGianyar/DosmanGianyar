@@ -21,7 +21,7 @@ class ListTeacherJournals extends ListRecords
                 ->label('Cetak Jurnal (PDF)')
                 ->icon('heroicon-o-printer')
                 ->color('primary')
-                ->modalTitle('Cetak Jurnal Mengajar (A4 Landscape)')
+                ->modalHeading('Cetak Jurnal Mengajar (A4 Landscape)')
                 ->form([
                     Select::make('teacher_id')
                         ->label('Pilih Guru')
@@ -66,7 +66,7 @@ class ListTeacherJournals extends ListRecords
                 ->label('Cetak Rekap Absen')
                 ->icon('heroicon-o-user-group')
                 ->color('success')
-                ->modalTitle('Cetak Rekap Absensi Siswa')
+                ->modalHeading('Cetak Rekap Absensi Siswa')
                 ->form([
                     Select::make('teacher_id')
                         ->label('Pilih Guru')
