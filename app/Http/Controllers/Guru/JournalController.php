@@ -28,7 +28,14 @@ class JournalController extends Controller
         $classId = $request->input('class_id');
 
         $query = TeacherJournal::where('teacher_id', $teacher->id)
-            ->with(['schoolClass:id,name', 'subject:id,name', 'tp:id,code,description', 'absences'])
+            ->with([
+                'teacher:id,name',
+                'schoolClass:id,name',
+                'schoolClass.students:id,class_id',
+                'subject:id,name',
+                'tp:id,code,description',
+                'absences.student:id,name,nis'
+            ])
             ->whereMonth('date', $month)
             ->whereYear('date', $year)
             ->orderByDesc('date')

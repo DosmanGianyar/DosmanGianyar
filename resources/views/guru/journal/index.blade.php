@@ -114,6 +114,48 @@
                 </div>
             </div>
             <div class="flex items-center gap-2 shrink-0">
+                @php
+                    $totalStudents = $journal->schoolClass?->students?->count() ?? 0;
+                    $absentCount   = $journal->absences->count();
+                    $presentCount  = max(0, $totalStudents - $absentCount);
+
+                    $absencesList = $journal->absences->map(function($abs) {
+                        $statusLabel = match($abs->status) {
+                            'sakit'      => 'Sakit',
+                            'izin'       => 'Izin',
+                            'dispensasi' => 'Dispensasi',
+                            'alpa', 'tidak_hadir' => 'Alpa',
+                            default      => ucfirst($abs->status),
+                        };
+                        return [
+                            'student_name' => $abs->student?->name ?? 'Siswa',
+                            'status_label' => $statusLabel,
+                        ];
+                    })->values();
+
+                    $waPayload = [
+                        'teacher_name'   => $journal->teacher?->name ?? auth()->user()->name,
+                        'date_formatted' => $journal->date?->isoFormat('dddd, D MMMM Y') ?? '-',
+                        'class_name'     => $journal->schoolClass?->name ?? '-',
+                        'period'         => $journal->period ? ($journal->period . ($journal->period_end && $journal->period_end > $journal->period ? '–'.$journal->period_end : '')) : null,
+                        'subject_name'   => $journal->subject?->name ?? null,
+                        'total_students' => $totalStudents,
+                        'present_count'  => $presentCount,
+                        'absent_count'   => $absentCount,
+                        'absences'       => $absencesList,
+                        'notes'          => $journal->notes ?? '',
+                    ];
+                @endphp
+                <button type="button"
+                    onclick="copyWaReport(this)"
+                    data-journal="{{ json_encode($waPayload) }}"
+                    title="Salin Laporan WA Kehadiran Siswa"
+                    class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-xs transition-colors shrink-0">
+                    <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                        <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l.199.317-1.157 4.226 4.323-1.134.378.258z"/>
+                    </svg>
+                    <span>Salin WA</span>
+                </button>
                 @if($journal->absences->count() > 0)
                 <span class="px-2 py-0.5 rounded-lg text-xs font-semibold bg-red-100 text-red-600">
                     {{ $journal->absences->count() }} absen
@@ -210,4 +252,90 @@
     @endforelse
 
 </div>
+
+<script>
+function copyWaReport(btn) {
+    let data;
+    try {
+        data = JSON.parse(btn.dataset.journal);
+    } catch(e) {
+        alert('Gagal membaca data jurnal.');
+        return;
+    }
+
+    let text = `📚 *LAPORAN KEHADIRAN SISWA*\n`;
+    text += `🏫 *SMA Negeri 1 Gianyar*\n\n`;
+    text += `👤 *Guru Pengajar:* ${data.teacher_name}\n`;
+    text += `📅 *Hari/Tgl:* ${data.date_formatted}\n`;
+    text += `🏫 *Kelas:* ${data.class_name}\n`;
+    if (data.period) {
+        text += `⏰ *Jam Ke:* ${data.period}\n`;
+    }
+    if (data.subject_name) {
+        text += `📖 *Mata Pelajaran:* ${data.subject_name}\n`;
+    }
+
+    text += `\n📊 *Ringkasan Kehadiran:*\n`;
+    if (data.total_students > 0) {
+        text += `• Total Siswa: ${data.total_students} Siswa\n`;
+        text += `• Hadir: ${data.present_count} Siswa\n`;
+        text += `• Tidak Hadir: ${data.absent_count} Siswa\n`;
+    } else {
+        text += `• Tidak Hadir: ${data.absent_count} Siswa\n`;
+    }
+
+    text += `\n❌ *Daftar Siswa Tidak Hadir:*\n`;
+    if (data.absences && data.absences.length > 0) {
+        data.absences.forEach((abs, idx) => {
+            text += `${idx + 1}. ${abs.student_name} (${abs.status_label})\n`;
+        });
+    } else {
+        text += `✅ Hadir Lengkap (NIHIL)\n`;
+    }
+
+    if (data.notes && data.notes.trim() !== '') {
+        text += `\n📝 *Catatan Khusus:*\n${data.notes.trim()}\n`;
+    }
+
+    text += `\n--\n_Dikirim via SIMS SMAN 1 Gianyar_`;
+
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(() => {
+            showToast('Laporan WA berhasil disalin ke clipboard!');
+        }).catch(err => {
+            fallbackCopyText(text);
+        });
+    } else {
+        fallbackCopyText(text);
+    }
+}
+
+function fallbackCopyText(text) {
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    textArea.style.top = "0";
+    textArea.style.left = "0";
+    textArea.style.position = "fixed";
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    try {
+        document.execCommand('copy');
+        showToast('Laporan WA berhasil disalin!');
+    } catch (err) {
+        alert('Gagal menyalin. Silakan salin secara manual.');
+    }
+    document.body.removeChild(textArea);
+}
+
+function showToast(message) {
+    const toast = document.createElement('div');
+    toast.className = 'fixed bottom-5 right-5 z-50 bg-slate-900 text-white px-4 py-3 rounded-2xl shadow-xl flex items-center gap-2 text-sm font-semibold transition-all duration-300';
+    toast.innerHTML = `<svg class="w-5 h-5 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> <span>${message}</span>`;
+    document.body.appendChild(toast);
+    setTimeout(() => {
+        toast.remove();
+    }, 3500);
+}
+</script>
 @endsection

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import '../../models/guru_models.dart';
+import '../../providers/auth_provider.dart';
 import '../../services/api_client.dart';
 import '../../services/guru_service.dart';
 import '../../theme/app_colors.dart';
@@ -982,6 +985,80 @@ class _SessionCard extends StatelessWidget {
     required this.onDelete,
   });
 
+  void _copyWaReport(BuildContext context) {
+    final user = Provider.of<AuthProvider>(context, listen: false).user;
+    final teacherName = user?.name ?? 'Guru Pengajar';
+    final dateStr = DateFormat('EEEE, d MMMM y', 'id_ID')
+        .format(DateTime.tryParse(session.date) ?? DateTime.now());
+
+    final buffer = StringBuffer();
+    buffer.writeln('📚 *LAPORAN KEHADIRAN SISWA*');
+    buffer.writeln('🏫 *SMA Negeri 1 Gianyar*\n');
+    buffer.writeln('👤 *Guru Pengajar:* $teacherName');
+    buffer.writeln('📅 *Hari/Tgl:* $dateStr');
+    buffer.writeln('🏫 *Kelas:* ${session.className}');
+    if (session.displayPeriodLabel.isNotEmpty) {
+      buffer.writeln('⏰ *Jam Ke:* ${session.displayPeriodLabel}');
+    }
+    if (session.subjectName.isNotEmpty && session.subjectName != '—') {
+      buffer.writeln('📖 *Mata Pelajaran:* ${session.subjectName}');
+    }
+
+    buffer.writeln('\n📊 *Ringkasan Kehadiran:*');
+    if (session.total > 0) {
+      buffer.writeln('• Total Siswa: ${session.total} Siswa');
+      buffer.writeln('• Hadir: ${session.hadir} Siswa');
+      buffer.writeln('• Tidak Hadir: ${session.absentCount} Siswa');
+    } else {
+      buffer.writeln('• Tidak Hadir: ${session.absentCount} Siswa');
+    }
+
+    buffer.writeln('\n❌ *Daftar Siswa Tidak Hadir:*');
+    if (session.absences.isNotEmpty) {
+      for (int i = 0; i < session.absences.length; i++) {
+        final abs = session.absences[i];
+        final name = abs.studentName.isNotEmpty ? abs.studentName : 'Siswa';
+        final statusLabel = _formatStatusLabel(abs.status);
+        buffer.writeln('${i + 1}. $name ($statusLabel)');
+      }
+    } else {
+      buffer.writeln('✅ Hadir Lengkap (NIHIL)');
+    }
+
+    if (session.notes != null && session.notes!.trim().isNotEmpty) {
+      buffer.writeln('\n📝 *Catatan Khusus:*\n${session.notes!.trim()}');
+    }
+
+    buffer.writeln('\n--\n_Dikirim via SIMS SMAN 1 Gianyar_');
+
+    Clipboard.setData(ClipboardData(text: buffer.toString()));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Row(
+          children: [
+            Icon(Icons.check_circle_rounded, color: Colors.white, size: 18),
+            SizedBox(width: 8),
+            Text('Laporan WA berhasil disalin ke clipboard!'),
+          ],
+        ),
+        backgroundColor: AppColors.emerald600,
+        behavior: SnackBarBehavior.floating,
+        duration: Duration(seconds: 3),
+      ),
+    );
+  }
+
+  String _formatStatusLabel(String status) {
+    switch (status) {
+      case 'sakit': return 'Sakit';
+      case 'izin': return 'Izin';
+      case 'dispensasi': return 'Dispensasi';
+      case 'alpa':
+      case 'tidak_hadir': return 'Alpa';
+      default: return status;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final date = DateFormat('EEE, d MMM y', 'id_ID')
@@ -1019,6 +1096,29 @@ class _SessionCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
+              InkWell(
+                onTap: () => _copyWaReport(context),
+                borderRadius: BorderRadius.circular(6),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: AppColors.emerald600,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.copy_rounded, size: 12, color: Colors.white),
+                      SizedBox(width: 4),
+                      Text(
+                        'Salin WA',
+                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(width: 4),
               IconButton(
                 icon: const Icon(Icons.edit_outlined, size: 18, color: AppColors.blue600),
                 tooltip: 'Edit Jurnal',
