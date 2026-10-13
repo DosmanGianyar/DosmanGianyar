@@ -550,6 +550,10 @@ class TeachingSession {
     if (periodEnd != null && periodEnd! > period!) return 'Jam ke-$period - $periodEnd';
     return 'Jam ke-$period';
   }
+
+  int get absentCount => (total > 0 && hadir >= 0) ? (total - hadir) : (alpha + izin + sakit + dispen);
+  List<SessionStudentRow> get absences => students.where((s) => s.status != 'hadir').toList();
+  String? get notes => catatan;
 }
 
 class SessionStudentRow {
@@ -561,6 +565,8 @@ class SessionStudentRow {
   String? morningStatus;
   String? morningStatusLabel;
   bool viaLupaAbsen;
+
+  String get studentName => name;
 
   SessionStudentRow({
     required this.studentId,

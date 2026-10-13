@@ -334,18 +334,18 @@ class _GuruLayananScreenState extends State<GuruLayananScreen> with SingleTicker
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(
-                        color: Colors.emerald.withOpacity(0.2),
+                        color: AppColors.emerald500.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: Colors.emerald.withOpacity(0.4)),
+                        border: Border.all(color: AppColors.emerald500.withValues(alpha: 0.4)),
                       ),
                       child: const Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.access_time_rounded, size: 12, color: Colors.emeraldAccent),
+                          Icon(Icons.access_time_rounded, size: 12, color: AppColors.emerald200),
                           SizedBox(width: 4),
                           Text(
                             'Jam Berjalan',
-                            style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.emeraldAccent),
+                            style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.emerald200),
                           ),
                         ],
                       ),
@@ -372,7 +372,7 @@ class _GuruLayananScreenState extends State<GuruLayananScreen> with SingleTicker
                   children: [
                     _buildStatChip('Total Kelas', '${live['total_classes'] ?? 0}', Colors.white24),
                     const SizedBox(width: 8),
-                    _buildStatChip('Terjadwal', '${live['filled_schedules'] ?? 0}', Colors.emerald.withOpacity(0.3)),
+                    _buildStatChip('Terjadwal', '${live['filled_schedules'] ?? 0}', AppColors.emerald500.withValues(alpha: 0.3)),
                     const SizedBox(width: 8),
                     _buildStatChip('Belum Input', '${live['missing_schedules'] ?? 0}', Colors.amber.withOpacity(0.3)),
                   ],
