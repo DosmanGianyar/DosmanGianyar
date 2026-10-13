@@ -23,7 +23,9 @@ Homestead.json
 Homestead.yaml
 Thumbs.db
 /scratch
+~$*
 composer.phar
 *.sqlite
 plink.exe
-
+persiapan_lomba_2026/02_makalah_ppt/assets/video/*.mp4
+persiapan_lomba_2026/02_makalah_ppt/assets/screenshots/video_frames/

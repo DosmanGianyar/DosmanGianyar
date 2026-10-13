@@ -195,28 +195,118 @@
     color: #1E293B;
   }
 
-  /* Placeholder Screenshot Box */
-  .screenshot-box {
-    width: 100%;
-    height: 100%;
-    min-height: 4.2in;
+  /* Web Browser & Mobile App UI Showcase Styles */
+  .web-browser-frame {
     background: #FFFFFF;
-    border: 2px dashed #0284C7;
-    border-radius: 14px;
+    border: 1px solid #CBD5E1;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    padding: 0.4in;
-    color: #475569;
-    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+    margin-bottom: 0.12in;
   }
 
-  .screenshot-box h3 {
-    font-size: 20pt;
-    color: #0284C7;
-    margin-bottom: 0.1in;
+  .browser-header {
+    background: #F1F5F9;
+    padding: 6px 12px;
+    border-bottom: 1px solid #E2E8F0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .browser-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  .dot-red { background: #EF4444; }
+  .dot-yellow { background: #F59E0B; }
+  .dot-green { background: #10B981; }
+
+  .browser-address {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 6px;
+    padding: 2px 10px;
+    font-size: 10pt;
+    font-weight: 600;
+    color: #475569;
+    margin-left: 8px;
+    flex: 1;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .web-img-container {
+    overflow: hidden;
+    background: #F8FAFC;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .web-img-container img {
+    width: 100%;
+    display: block;
+  }
+
+  .mobile-showcase-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.22in;
+    width: 100%;
+    align-items: stretch;
+  }
+
+  .mobile-card {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 14px;
+    padding: 0.16in;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+    text-align: center;
+  }
+
+  .phone-screen-frame {
+    background: #0F172A;
+    border: 3px solid #1E293B;
+    border-radius: 16px;
+    overflow: hidden;
+    height: 4.45in;
+    box-shadow: 0 6px 14px rgba(0,0,0,0.12);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    position: relative;
+    margin-bottom: 0.12in;
+  }
+
+  .phone-screen-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+    display: block;
+  }
+
+  .phone-title {
+    font-size: 13pt;
+    font-weight: 700;
+    color: #0F172A;
+    margin-bottom: 4px;
+  }
+
+  .phone-desc {
+    font-size: 10.5pt;
+    color: #475569;
+    line-height: 1.4;
   }
 
   .quote-box {
@@ -236,31 +326,68 @@
 
 <!-- SLIDE 1: COVER -->
 <div class="slide slide-cover">
-  <div>
-    <div style="display: flex; gap: 12px; margin-bottom: 0.3in;">
-      <span class="badge" style="background:#E60012; color:#FFF;">GURU INSPIRATIF ASTRA HONDA 2026</span>
-      <span class="badge" style="background:#E2E8F0; color:#0F172A; border-color:#CBD5E1;">MAIN DEALER: ASTRA MOTOR BALI</span>
+  <!-- Top Header Logos Bar -->
+  <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #E2E8F0; padding-bottom: 0.18in; margin-bottom: 0.22in;">
+    <!-- School & Pemprov Bali -->
+    <div style="display: flex; align-items: center; gap: 14px;">
+      <img src="assets/logos/logo-pemprov-bali.png" alt="Pemprov Bali" style="height: 0.62in; width: auto; object-fit: contain;">
+      <img src="assets/logos/logo_sekolah.png" alt="SMAN 1 Gianyar" style="height: 0.65in; width: auto; object-fit: contain;">
+      <div style="border-left: 2px solid #CBD5E1; padding-left: 12px;">
+        <div style="font-size: 11pt; font-weight: 700; color: #64748B; letter-spacing: 0.5px;">PEMERINTAH PROVINSI BALI</div>
+        <div style="font-size: 14.5pt; font-weight: 800; color: #0F172A; letter-spacing: -0.2px;">SMAN 1 GIANYAR</div>
+      </div>
     </div>
-    <h1 style="font-size: 52pt; font-weight: 800; color: #0F172A; line-height: 1.1; margin-bottom: 0.15in;">
-      SIMAK DOSMAN
-    </h1>
-    <h2 style="font-size: 22pt; font-weight: 700; color: #DC2626; margin-bottom: 0.35in;">
-      (Sistem Informasi Manajemen Anak Kolektif Dosman)
-    </h2>
-    <p style="font-size: 17pt; color: #334155; max-width: 12in; line-height: 1.5;">
-      Ekosistem Digital Terpadu Berbasis Web & Mobile di SMAN 1 Gianyar untuk Meningkatkan Kedisiplinan, Efisiensi Administrasi, dan Kualitas Pembelajaran
-    </p>
+    <!-- Astra Honda Group Logos -->
+    <div style="display: flex; align-items: center; gap: 20px;">
+      <img src="assets/logos/logo_yayasan_ahm.png" alt="Yayasan Astra Honda Motor" style="height: 0.52in; width: auto; object-fit: contain;">
+      <img src="assets/logos/logo_honda_one_heart.png" alt="Honda One HEART" style="height: 0.52in; width: auto; border-radius: 4px; object-fit: contain;">
+      <img src="assets/logos/logo_sinergi_bagi_negeri.png" alt="Sinergi Bagi Negeri" style="height: 0.48in; width: auto; object-fit: contain;">
+    </div>
+  </div>
+
+  <!-- Hero Content Body -->
+  <div style="flex: 1; display: flex; align-items: center; justify-content: space-between; gap: 0.5in;">
+    <!-- Left: Title & Descriptions -->
+    <div style="flex: 1.25;">
+      <div style="display: flex; gap: 10px; margin-bottom: 0.18in; flex-wrap: wrap;">
+        <span class="badge" style="background:#E60012; color:#FFF; font-size:12pt; padding:6px 16px;">PROGRAM GURU INSPIRATIF ASTRA HONDA 2026</span>
+        <span class="badge" style="background:#0F172A; color:#FFF; font-size:12pt; padding:6px 16px;">KATEGORI: GURU SMA/SMK</span>
+        <span class="badge" style="background:#E2E8F0; color:#0F172A; border-color:#CBD5E1; font-size:12pt; padding:6px 16px;">MAIN DEALER: ASTRA MOTOR BALI</span>
+      </div>
+      <h1 style="font-size: 48pt; font-weight: 800; color: #0F172A; line-height: 1.08; margin-bottom: 0.12in; letter-spacing: -1px;">
+        SIMAK DOSMAN
+      </h1>
+      <h2 style="font-size: 21pt; font-weight: 700; color: #DC2626; margin-bottom: 0.22in;">
+        (Sistem Informasi Manajemen Anak Kolektif Dosman)
+      </h2>
+      <p style="font-size: 15.5pt; color: #334155; line-height: 1.55; max-width: 9.8in;">
+        Ekosistem Digital Terpadu Berbasis <b>Web (Laravel Filament)</b> &amp; <b>Mobile (Flutter Geolocation)</b> di SMAN 1 Gianyar untuk Mentransformasi Kedisiplinan Siswa, Efisiensi Administrasi Guru, dan Transparansi Orang Tua.
+      </p>
+    </div>
+
+    <!-- Right: Official 3D Mascot Badge Logo -->
+    <div style="flex: 0.75; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 18px; padding: 0.25in 0.3in; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);">
+      <img src="assets/logos/logo_guru_inspiratif_2026.png" alt="Logo Guru Inspiratif Astra Honda 2026" style="width: 100%; max-width: 3.6in; height: auto; object-fit: contain; filter: drop-shadow(0 6px 12px rgba(230, 0, 18, 0.15));">
+      <div style="margin-top: 12px; font-size: 13pt; font-weight: 800; color: #0F172A; letter-spacing: 0.3px;">
+        GURU MENGINSPIRASI, MENGGERAKKAN NEGERI
+      </div>
+      <div style="font-size: 11pt; color: #64748B; margin-top: 4px;">
+        Praktik Baik Guru Inovatif &amp; Berdampak Nyata
+      </div>
+    </div>
   </div>
   
-  <div style="display: flex; justify-content: space-between; align-items: flex-end; border-top: 2px solid #E2E8F0; padding-top: 0.25in;">
+  <!-- Bottom Info Footer -->
+  <div style="display: flex; justify-content: space-between; align-items: flex-end; border-top: 2px solid #E2E8F0; padding-top: 0.18in; margin-top: 0.15in;">
     <div>
-      <p style="font-size: 13pt; color: #64748B; text-transform: uppercase;">Penyusun / Inovator:</p>
-      <p style="font-size: 20pt; font-weight: 800; color: #0F172A;">I Putu Darma Putra, S.Pd.</p>
-      <p style="font-size: 13pt; color: #475569;">Guru Matematika | NIP. 19880930 202221 1 001</p>
+      <p style="font-size: 11.5pt; color: #64748B; text-transform: uppercase; font-weight: 600;">Penyusun / Inovator:</p>
+      <p style="font-size: 19pt; font-weight: 800; color: #0F172A; margin: 2px 0;">I Putu Darma Putra, S.Pd.</p>
+      <p style="font-size: 12.5pt; color: #475569;">Guru Matematika | NIP. 19880930 202221 1 001</p>
     </div>
     <div style="text-align: right;">
-      <p style="font-size: 18pt; font-weight: 800; color: #0F172A;">SMAN 1 GIANYAR</p>
-      <p style="font-size: 13pt; color: #64748B;">Kabupaten Gianyar, Provinsi Bali</p>
+      <p style="font-size: 11.5pt; color: #64748B; text-transform: uppercase; font-weight: 600;">Unit Kerja &amp; Wilayah:</p>
+      <p style="font-size: 18pt; font-weight: 800; color: #0F172A; margin: 2px 0;">SMAN 1 GIANYAR</p>
+      <p style="font-size: 12.5pt; color: #64748B;">Jl. Ratna No. 1 Gianyar, Bali | dosmangianyar.sch.id</p>
     </div>
   </div>
 </div>
@@ -290,18 +417,39 @@
         </p>
       </div>
     </div>
-    <div class="col-half">
-      <div class="quote-box">
-        "Teknologi adalah sarana, dedikasi adalah penggerak utama. Matematika mengajarkan presisi, dan teknologi mewujudkan presisi itu dalam pengelolaan sekolah."
-        <div style="font-size: 13pt; font-style: normal; margin-top: 15px; color: #DC2626; font-weight: 700;">
-          — I Putu Darma Putra, S.Pd.
+    <div class="col-half" style="display: flex; gap: 0.3in; align-items: stretch;">
+      <div style="flex: 1; display: flex; flex-direction: column; background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 14px; overflow: hidden; box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05); text-align: center;">
+        <div style="flex: 1; overflow: hidden; position: relative; min-height: 3.8in;">
+          <img src="assets/foto/foto_profil_guru_edit.jpg" alt="I Putu Darma Putra, S.Pd." style="width: 100%; height: 100%; object-fit: cover; object-position: center 20%; display: block;">
+        </div>
+        <div style="padding: 12px 14px; background: #FFFFFF; border-top: 1px solid #F1F5F9;">
+          <div style="font-size: 13.5pt; font-weight: 800; color: #0F172A;">I Putu Darma Putra, S.Pd.</div>
+          <div style="font-size: 10.5pt; color: #E60012; font-weight: 700; margin-top: 2px;">Inovator SIMAK DOSMAN</div>
+        </div>
+      </div>
+      <div style="flex: 1.1; display: flex; flex-direction: column; justify-content: space-between;">
+        <div class="quote-box" style="margin-top: 0; font-size: 16.5pt; padding: 0.35in; height: 100%; display: flex; flex-direction: column; justify-content: center;">
+          "Teknologi adalah sarana, dedikasi adalah penggerak utama. Matematika mengajarkan presisi, dan teknologi mewujudkan presisi itu dalam pengelolaan sekolah."
+          <div style="font-size: 12.5pt; font-style: normal; margin-top: 16px; color: #DC2626; font-weight: 700;">
+            — I Putu Darma Putra, S.Pd.
+          </div>
+        </div>
+        <div class="badge" style="background:#FEF3C7; color:#92400E; margin-top: 14px; font-size: 11pt; padding: 10px 14px; text-align: center; border-color:#FDE68A; margin-right: 0;">
+          ★ Penggerak Transformasi Digital SMAN 1 Gianyar
         </div>
       </div>
     </div>
   </div>
   <div class="slide-footer">
-    <div>Program Guru Inspiratif Astra Honda 2026</div>
-    <div class="footer-brand">SIMAK DOSMAN - SMAN 1 GIANYAR</div>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <img src="assets/logos/logo_yayasan_ahm.png" alt="Yayasan AHM" style="height: 18px; width: auto; object-fit: contain;">
+      <span style="color: #CBD5E1;">|</span>
+      <span>Program Guru Inspiratif Astra Honda 2026</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <span class="footer-brand">SIMAK DOSMAN - SMAN 1 GIANYAR</span>
+      <img src="assets/logos/logo_sekolah.png" alt="SMAN 1 Gianyar" style="height: 20px; width: auto; object-fit: contain;">
+    </div>
   </div>
 </div>
 
@@ -336,8 +484,15 @@
     </div>
   </div>
   <div class="slide-footer">
-    <div>Program Guru Inspiratif Astra Honda 2026</div>
-    <div class="footer-brand">SIMAK DOSMAN - SMAN 1 GIANYAR</div>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <img src="assets/logos/logo_yayasan_ahm.png" alt="Yayasan AHM" style="height: 18px; width: auto; object-fit: contain;">
+      <span style="color: #CBD5E1;">|</span>
+      <span>Program Guru Inspiratif Astra Honda 2026</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <span class="footer-brand">SIMAK DOSMAN - SMAN 1 GIANYAR</span>
+      <img src="assets/logos/logo_sekolah.png" alt="SMAN 1 Gianyar" style="height: 20px; width: auto; object-fit: contain;">
+    </div>
   </div>
 </div>
 
@@ -390,8 +545,15 @@
     </div>
   </div>
   <div class="slide-footer">
-    <div>Program Guru Inspiratif Astra Honda 2026</div>
-    <div class="footer-brand">SIMAK DOSMAN - SMAN 1 GIANYAR</div>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <img src="assets/logos/logo_yayasan_ahm.png" alt="Yayasan AHM" style="height: 18px; width: auto; object-fit: contain;">
+      <span style="color: #CBD5E1;">|</span>
+      <span>Program Guru Inspiratif Astra Honda 2026</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <span class="footer-brand">SIMAK DOSMAN - SMAN 1 GIANYAR</span>
+      <img src="assets/logos/logo_sekolah.png" alt="SMAN 1 Gianyar" style="height: 20px; width: auto; object-fit: contain;">
+    </div>
   </div>
 </div>
 
@@ -422,8 +584,15 @@
     </div>
   </div>
   <div class="slide-footer">
-    <div>Program Guru Inspiratif Astra Honda 2026</div>
-    <div class="footer-brand">SIMAK DOSMAN - SMAN 1 GIANYAR</div>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <img src="assets/logos/logo_yayasan_ahm.png" alt="Yayasan AHM" style="height: 18px; width: auto; object-fit: contain;">
+      <span style="color: #CBD5E1;">|</span>
+      <span>Program Guru Inspiratif Astra Honda 2026</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <span class="footer-brand">SIMAK DOSMAN - SMAN 1 GIANYAR</span>
+      <img src="assets/logos/logo_sekolah.png" alt="SMAN 1 Gianyar" style="height: 20px; width: auto; object-fit: contain;">
+    </div>
   </div>
 </div>
 
@@ -447,6 +616,7 @@
         <div class="card-title">Keunikan & Kebaruan (Novelty)</div>
         <ul class="styled-list">
           <li><b>Arsitektur Hybrid Modern:</b> Web Admin (Laravel 11/12 + Filament v3) & Mobile App (Flutter).</li>
+          <li><b>Resmi di Play Store & App Store:</b> Aplikasi mobile resmi dirilis di Google Play Store (500+ unduhan) & Apple App Store (iOS), bukan file APK sideloading.</li>
           <li><b>Enkripsi Geolocation:</b> Presensi berbasis koordinat lokasi tepat untuk mencegah kecurangan.</li>
           <li><b>Portal Pemantauan Orang Tua:</b> Akses realtime bagi orang tua murid memantau kondisi absen, poin pelanggaran, dan raihan prestasi anak.</li>
           <li><b>Auto-Matching Timetable:</b> Impor otomatis master Excel aSc Timetables langsung ke jadwal harian.</li>
@@ -455,8 +625,15 @@
     </div>
   </div>
   <div class="slide-footer">
-    <div>Program Guru Inspiratif Astra Honda 2026</div>
-    <div class="footer-brand">SIMAK DOSMAN - SMAN 1 GIANYAR</div>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <img src="assets/logos/logo_yayasan_ahm.png" alt="Yayasan AHM" style="height: 18px; width: auto; object-fit: contain;">
+      <span style="color: #CBD5E1;">|</span>
+      <span>Program Guru Inspiratif Astra Honda 2026</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <span class="footer-brand">SIMAK DOSMAN - SMAN 1 GIANYAR</span>
+      <img src="assets/logos/logo_sekolah.png" alt="SMAN 1 Gianyar" style="height: 20px; width: auto; object-fit: contain;">
+    </div>
   </div>
 </div>
 
@@ -495,8 +672,15 @@
     </div>
   </div>
   <div class="slide-footer">
-    <div>Program Guru Inspiratif Astra Honda 2026</div>
-    <div class="footer-brand">SIMAK DOSMAN - SMAN 1 GIANYAR</div>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <img src="assets/logos/logo_yayasan_ahm.png" alt="Yayasan AHM" style="height: 18px; width: auto; object-fit: contain;">
+      <span style="color: #CBD5E1;">|</span>
+      <span>Program Guru Inspiratif Astra Honda 2026</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <span class="footer-brand">SIMAK DOSMAN - SMAN 1 GIANYAR</span>
+      <img src="assets/logos/logo_sekolah.png" alt="SMAN 1 Gianyar" style="height: 20px; width: auto; object-fit: contain;">
+    </div>
   </div>
 </div>
 
@@ -531,8 +715,15 @@
     </div>
   </div>
   <div class="slide-footer">
-    <div>Program Guru Inspiratif Astra Honda 2026</div>
-    <div class="footer-brand">SIMAK DOSMAN - SMAN 1 GIANYAR</div>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <img src="assets/logos/logo_yayasan_ahm.png" alt="Yayasan AHM" style="height: 18px; width: auto; object-fit: contain;">
+      <span style="color: #CBD5E1;">|</span>
+      <span>Program Guru Inspiratif Astra Honda 2026</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <span class="footer-brand">SIMAK DOSMAN - SMAN 1 GIANYAR</span>
+      <img src="assets/logos/logo_sekolah.png" alt="SMAN 1 Gianyar" style="height: 20px; width: auto; object-fit: contain;">
+    </div>
   </div>
 </div>
 
@@ -563,8 +754,15 @@
     </div>
   </div>
   <div class="slide-footer">
-    <div>Program Guru Inspiratif Astra Honda 2026</div>
-    <div class="footer-brand">SIMAK DOSMAN - SMAN 1 GIANYAR</div>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <img src="assets/logos/logo_yayasan_ahm.png" alt="Yayasan AHM" style="height: 18px; width: auto; object-fit: contain;">
+      <span style="color: #CBD5E1;">|</span>
+      <span>Program Guru Inspiratif Astra Honda 2026</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <span class="footer-brand">SIMAK DOSMAN - SMAN 1 GIANYAR</span>
+      <img src="assets/logos/logo_sekolah.png" alt="SMAN 1 Gianyar" style="height: 20px; width: auto; object-fit: contain;">
+    </div>
   </div>
 </div>
 
@@ -615,8 +813,15 @@
     </div>
   </div>
   <div class="slide-footer">
-    <div>Program Guru Inspiratif Astra Honda 2026</div>
-    <div class="footer-brand">SIMAK DOSMAN - SMAN 1 GIANYAR</div>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <img src="assets/logos/logo_yayasan_ahm.png" alt="Yayasan AHM" style="height: 18px; width: auto; object-fit: contain;">
+      <span style="color: #CBD5E1;">|</span>
+      <span>Program Guru Inspiratif Astra Honda 2026</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <span class="footer-brand">SIMAK DOSMAN - SMAN 1 GIANYAR</span>
+      <img src="assets/logos/logo_sekolah.png" alt="SMAN 1 Gianyar" style="height: 20px; width: auto; object-fit: contain;">
+    </div>
   </div>
 </div>
 
@@ -632,7 +837,8 @@
         <div class="card-title">Kemandirian & Pemeliharaan</div>
         <ul class="styled-list">
           <li><b>Server Mandiri:</b> Berjalan stabil di lingkungan server sekolah (`webdosman`) dengan script deployment otomatis.</li>
-          <li><b>Pembaruan Berkelanjutan:</b> Pemeliharaan rutin kode Laravel & Flutter disesuaikan dengan Kurikulum Merdeka.</li>
+          <li><b>Distribusi Resmi Multi-Platform:</b> Terbit resmi di <b>Google Play Store</b> &amp; <b>Apple App Store</b> memudahkan instalasi mandiri yang aman bagi ribuan warga sekolah.</li>
+          <li><b>Pembaruan Berkelanjutan:</b> Pemeliharaan rutin kode Laravel &amp; Flutter disesuaikan dengan Kurikulum Merdeka.</li>
         </ul>
       </div>
     </div>
@@ -646,8 +852,15 @@
     </div>
   </div>
   <div class="slide-footer">
-    <div>Program Guru Inspiratif Astra Honda 2026</div>
-    <div class="footer-brand">SIMAK DOSMAN - SMAN 1 GIANYAR</div>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <img src="assets/logos/logo_yayasan_ahm.png" alt="Yayasan AHM" style="height: 18px; width: auto; object-fit: contain;">
+      <span style="color: #CBD5E1;">|</span>
+      <span>Program Guru Inspiratif Astra Honda 2026</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <span class="footer-brand">SIMAK DOSMAN - SMAN 1 GIANYAR</span>
+      <img src="assets/logos/logo_sekolah.png" alt="SMAN 1 Gianyar" style="height: 20px; width: auto; object-fit: contain;">
+    </div>
   </div>
 </div>
 
@@ -676,8 +889,15 @@
     </div>
   </div>
   <div class="slide-footer">
-    <div>Program Guru Inspiratif Astra Honda 2026</div>
-    <div class="footer-brand">SIMAK DOSMAN - SMAN 1 GIANYAR</div>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <img src="assets/logos/logo_yayasan_ahm.png" alt="Yayasan AHM" style="height: 18px; width: auto; object-fit: contain;">
+      <span style="color: #CBD5E1;">|</span>
+      <span>Program Guru Inspiratif Astra Honda 2026</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <span class="footer-brand">SIMAK DOSMAN - SMAN 1 GIANYAR</span>
+      <img src="assets/logos/logo_sekolah.png" alt="SMAN 1 Gianyar" style="height: 20px; width: auto; object-fit: contain;">
+    </div>
   </div>
 </div>
 
@@ -706,8 +926,15 @@
     </div>
   </div>
   <div class="slide-footer">
-    <div>Program Guru Inspiratif Astra Honda 2026</div>
-    <div class="footer-brand">SIMAK DOSMAN - SMAN 1 GIANYAR</div>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <img src="assets/logos/logo_yayasan_ahm.png" alt="Yayasan AHM" style="height: 18px; width: auto; object-fit: contain;">
+      <span style="color: #CBD5E1;">|</span>
+      <span>Program Guru Inspiratif Astra Honda 2026</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <span class="footer-brand">SIMAK DOSMAN - SMAN 1 GIANYAR</span>
+      <img src="assets/logos/logo_sekolah.png" alt="SMAN 1 Gianyar" style="height: 20px; width: auto; object-fit: contain;">
+    </div>
   </div>
 </div>
 
@@ -726,8 +953,15 @@
     </div>
   </div>
   <div class="slide-footer">
-    <div>Program Guru Inspiratif Astra Honda 2026</div>
-    <div class="footer-brand">SIMAK DOSMAN - SMAN 1 GIANYAR</div>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <img src="assets/logos/logo_yayasan_ahm.png" alt="Yayasan AHM" style="height: 18px; width: auto; object-fit: contain;">
+      <span style="color: #CBD5E1;">|</span>
+      <span>Program Guru Inspiratif Astra Honda 2026</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <span class="footer-brand">SIMAK DOSMAN - SMAN 1 GIANYAR</span>
+      <img src="assets/logos/logo_sekolah.png" alt="SMAN 1 Gianyar" style="height: 20px; width: auto; object-fit: contain;">
+    </div>
   </div>
 </div>
 
@@ -758,113 +992,334 @@
     </div>
   </div>
   <div class="slide-footer">
-    <div>Program Guru Inspiratif Astra Honda 2026</div>
-    <div class="footer-brand">SIMAK DOSMAN - SMAN 1 GIANYAR</div>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <img src="assets/logos/logo_yayasan_ahm.png" alt="Yayasan AHM" style="height: 18px; width: auto; object-fit: contain;">
+      <span style="color: #CBD5E1;">|</span>
+      <span>Program Guru Inspiratif Astra Honda 2026</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <span class="footer-brand">SIMAK DOSMAN - SMAN 1 GIANYAR</span>
+      <img src="assets/logos/logo_sekolah.png" alt="SMAN 1 Gianyar" style="height: 20px; width: auto; object-fit: contain;">
+    </div>
   </div>
 </div>
 
 <!-- SLIDE 16: LAMPIRAN WEB ADMIN -->
 <div class="slide slide-formal">
   <div class="slide-header">
-    <div class="slide-title">15. Lampiran: Dashboard Web Filament Admin</div>
-    <div class="slide-category">Bukti UI Web</div>
+    <div class="slide-title">15. Lampiran: Ekosistem Web Filament Admin</div>
+    <div class="slide-category">Bukti UI Web Admin</div>
   </div>
-  <div class="content-body">
-    <div class="col-full">
-      <div class="screenshot-box">
-        <h3>[ TAMPILAN DASHBOARD FILAMENT ADMIN WEB ]</h3>
-        <p style="font-size: 15pt; color: #475569;">Menampilkan Overview Statistik Sekolah, Import Jadwal Master Excel aSc Timetables, dan Manajemen Presensi Geolocation.</p>
+  <div class="content-body" style="gap: 0.35in;">
+    <!-- Kolom Kiri: Dashboard Utama (Hero) -->
+    <div style="flex: 1.35; display: flex; flex-direction: column;">
+      <div class="web-browser-frame" style="flex: 1;">
+        <div class="browser-header">
+          <span class="browser-dot dot-red"></span>
+          <span class="browser-dot dot-yellow"></span>
+          <span class="browser-dot dot-green"></span>
+          <span class="browser-address">https://dosmangianyar.sch.id/admin (Dashboard Utama)</span>
+          <span class="badge" style="background:#DC2626; color:#FFF; font-size:9pt; padding:3px 8px; margin:0;">LIVE PRODUCTION</span>
+        </div>
+        <div class="web-img-container" style="max-height: 3.8in; overflow: hidden;">
+          <img src="assets/screenshots/dashboard.png" alt="Dashboard Utama Web Filament Admin" style="object-position: top; object-fit: cover;">
+        </div>
+      </div>
+      <div class="card" style="padding: 0.15in 0.25in; margin: 0; border-left: 5px solid #E60012;">
+        <div style="font-size: 13pt; font-weight: 700; color: #0F172A; margin-bottom: 3px;">Pusat Kendali & Overview Manajemen Sekolah</div>
+        <p style="font-size: 11pt; color: #475569; line-height: 1.4;">
+          Menampilkan total data siswa, guru, rekapitulasi kehadiran real-time, grafik statistik presensi harian, serta menu navigasi modular (Manajemen Akademik, Presensi GPS, Prestasi & Sarpras).
+        </p>
+      </div>
+    </div>
+
+    <!-- Kolom Kanan: 2 Fitur Unggulan (Import Excel & Rekap Presensi) -->
+    <div style="flex: 1; display: flex; flex-direction: column; gap: 0.2in;">
+      <!-- Fitur 1: Import Jadwal -->
+      <div style="display: flex; flex-direction: column; flex: 1;">
+        <div class="web-browser-frame" style="margin-bottom: 6px;">
+          <div class="browser-header">
+            <span class="browser-dot dot-red"></span>
+            <span class="browser-dot dot-yellow"></span>
+            <span class="browser-dot dot-green"></span>
+            <span class="browser-address">Import Master Jadwal Excel aSc Timetables</span>
+          </div>
+          <div class="web-img-container" style="max-height: 1.85in; overflow: hidden;">
+            <img src="assets/screenshots/import jadwal.png" alt="Import Jadwal Master Excel" style="object-position: top; object-fit: cover;">
+          </div>
+        </div>
+        <div style="font-size: 11.5pt; font-weight: 700; color: #0369A1;">⚡ Auto-Matching Jadwal Pelajaran</div>
+        <div style="font-size: 10pt; color: #475569; line-height: 1.3;">Sinkronisasi instan ribuan slot jadwal guru & kelas dari file master aSc Timetables ke database (&lt; 5 menit).</div>
+      </div>
+
+      <!-- Fitur 2: Rekap Absen -->
+      <div style="display: flex; flex-direction: column; flex: 1;">
+        <div class="web-browser-frame" style="margin-bottom: 6px;">
+          <div class="browser-header">
+            <span class="browser-dot dot-red"></span>
+            <span class="browser-dot dot-yellow"></span>
+            <span class="browser-dot dot-green"></span>
+            <span class="browser-address">Rekapitulasi Presensi & Ekspor Laporan</span>
+          </div>
+          <div class="web-img-container" style="max-height: 1.85in; overflow: hidden;">
+            <img src="assets/screenshots/rekap bisa di simpan.png" alt="Rekap Absen Siap Simpan" style="object-position: top; object-fit: cover;">
+          </div>
+        </div>
+        <div style="font-size: 11.5pt; font-weight: 700; color: #059669;">📊 Laporan Presensi Otomatis & Paperless</div>
+        <div style="font-size: 10pt; color: #475569; line-height: 1.3;">Filter berdasarkan tanggal, kelas, dan status (Hadir, Sakit, Izin, Alpha) yang dapat langsung disimpan/diekspor.</div>
       </div>
     </div>
   </div>
   <div class="slide-footer">
-    <div>Program Guru Inspiratif Astra Honda 2026</div>
-    <div class="footer-brand">SIMAK DOSMAN - SMAN 1 GIANYAR</div>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <img src="assets/logos/logo_yayasan_ahm.png" alt="Yayasan AHM" style="height: 18px; width: auto; object-fit: contain;">
+      <span style="color: #CBD5E1;">|</span>
+      <span>Program Guru Inspiratif Astra Honda 2026</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <span class="footer-brand">SIMAK DOSMAN - SMAN 1 GIANYAR</span>
+      <img src="assets/logos/logo_sekolah.png" alt="SMAN 1 Gianyar" style="height: 20px; width: auto; object-fit: contain;">
+    </div>
   </div>
 </div>
 
-<!-- SLIDE 17: LAMPIRAN MOBILE APP FLUTTER -->
+<!-- SLIDE 17: LAMPIRAN DISTRIBUSI RESMI & MOBILE APP FLUTTER -->
 <div class="slide slide-formal">
   <div class="slide-header">
-    <div class="slide-title">16. Lampiran: Tampilan Mobile App Flutter</div>
-    <div class="slide-category">Bukti UI Mobile</div>
+    <div class="slide-title">16. Lampiran: Distribusi Resmi (Play Store & App Store) & Mobile App</div>
+    <div class="slide-category">Play Store & App Store</div>
   </div>
   <div class="content-body">
-    <div class="col-full">
-      <div class="screenshot-box">
-        <h3>[ TAMPILAN APLIKASI MOBILE FLUTTER SISWA & GURU ]</h3>
-        <p style="font-size: 15pt; color: #475569;">Menampilkan Kartu Pelajar Digital, Presensi Geolocation Mobile, Poin Perilaku, dan Bebas Pustaka.</p>
+    <div class="mobile-showcase-grid">
+      <!-- 1. Google Play Store -->
+      <div class="mobile-card" style="border-top: 4px solid #059669;">
+        <div class="phone-screen-frame">
+          <img src="assets/screenshots/playstore.jpeg" alt="Tersedia di Google Play Store">
+        </div>
+        <div class="phone-title" style="color:#059669;">Google Play Store (Android)</div>
+        <div class="phone-desc"><b>Rating 4.5 ★ | 500+ Unduhan</b><br>Rilis resmi di Android, lolos verifikasi Google Play Protect untuk seluruh warga SMAN 1 Gianyar.</div>
+      </div>
+
+      <!-- 2. Apple App Store -->
+      <div class="mobile-card" style="border-top: 4px solid #0284C7;">
+        <div class="phone-screen-frame">
+          <img src="assets/screenshots/appstore.jpg" alt="Tersedia di Apple App Store">
+        </div>
+        <div class="phone-title" style="color:#0284C7;">Apple App Store (iOS)</div>
+        <div class="phone-desc"><b>Kategori Education | Lolos Review Apple</b><br>Resmi terdaftar di App Store bagi pengguna iPhone tanpa kendala teknis / sideloading.</div>
+      </div>
+
+      <!-- 3. Absen Datang (Mobile UI) -->
+      <div class="mobile-card" style="border-top: 4px solid #DC2626;">
+        <div class="phone-screen-frame">
+          <img src="assets/screenshots/absen datang.png" alt="Presensi Datang Mobile">
+        </div>
+        <div class="phone-title" style="color:#DC2626;">Presensi Geolocation GPS</div>
+        <div class="phone-desc"><b>Validasi Radius Sekolah</b><br>Deteksi jam datang/pulang tepat waktu secara realtime dengan titik GPS terenkripsi.</div>
+      </div>
+
+      <!-- 4. Dashboard Guru (Mobile UI) -->
+      <div class="mobile-card" style="border-top: 4px solid #D97706;">
+        <div class="phone-screen-frame">
+          <img src="assets/screenshots/dashboard guru.jpeg" alt="Dashboard Aplikasi Guru">
+        </div>
+        <div class="phone-title" style="color:#D97706;">Dashboard & Jadwal Guru</div>
+        <div class="phone-desc"><b>Sinkron Master Timetable</b><br>Guru mengakses urutan jam mengajar harian, status kehadiran kelas, dan jurnal KBM.</div>
       </div>
     </div>
   </div>
   <div class="slide-footer">
-    <div>Program Guru Inspiratif Astra Honda 2026</div>
-    <div class="footer-brand">SIMAK DOSMAN - SMAN 1 GIANYAR</div>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <img src="assets/logos/logo_yayasan_ahm.png" alt="Yayasan AHM" style="height: 18px; width: auto; object-fit: contain;">
+      <span style="color: #CBD5E1;">|</span>
+      <span>Program Guru Inspiratif Astra Honda 2026</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <span class="footer-brand">SIMAK DOSMAN - SMAN 1 GIANYAR</span>
+      <img src="assets/logos/logo_sekolah.png" alt="SMAN 1 Gianyar" style="height: 20px; width: auto; object-fit: contain;">
+    </div>
   </div>
 </div>
 
-<!-- SLIDE 18: DOKUMENTASI LAPANGAN -->
+<!-- SLIDE 18: DOKUMENTASI KEGIATAN PRESENSI SISWA & MONITORING ORANG TUA -->
 <div class="slide slide-formal">
   <div class="slide-header">
-    <div class="slide-title">17. Lampiran: Dokumentasi Kegiatan Sekolah</div>
-    <div class="slide-category">Dokumentasi</div>
+    <div class="slide-title">17. Lampiran: Dokumentasi Praktik Presensi Siswa &amp; Pantauan Ortu</div>
+    <div class="slide-category">Bukti Lapangan Siswa</div>
   </div>
   <div class="content-body">
-    <div class="col-full">
-      <div class="screenshot-box" style="border-color: #D97706;">
-        <h3 style="color: #D97706;">[ FOTO KEGIATAN PENGGUNAAN APLIKASI DI SMAN 1 GIANYAR ]</h3>
-        <p style="font-size: 15pt; color: #475569;">Dokumentasi foto Siswa melakukan presensi Geolocation dan Guru saat mengelola sistem SIMAK DOSMAN.</p>
+    <div class="mobile-showcase-grid">
+      <!-- 1. Foto Siswi Absen -->
+      <div class="mobile-card" style="border-top: 4px solid #E60012;">
+        <div class="phone-screen-frame">
+          <img src="assets/screenshots/foto_absen_siswi.jpg" alt="Siswi Melakukan Presensi di Kelas" style="object-position: center 15%;">
+        </div>
+        <div class="phone-title" style="color:#DC2626;">Praktik Presensi Siswi</div>
+        <div class="phone-desc"><b>Status Hadir Tepat Waktu</b><br>Siswi SMAN 1 Gianyar tersenyum bangga menunjukkan kalender &amp; status presensi mandiri di kelas.</div>
+      </div>
+
+      <!-- 2. Foto Siswa Adat Absen -->
+      <div class="mobile-card" style="border-top: 4px solid #D97706;">
+        <div class="phone-screen-frame">
+          <img src="assets/screenshots/foto_absen_siswa_adat.jpg" alt="Siswa Busana Adat Bali Melakukan Presensi" style="object-position: center 15%;">
+        </div>
+        <div class="phone-title" style="color:#D97706;">Siswa Busana Adat Bali</div>
+        <div class="phone-desc"><b>Budaya &amp; Teknologi</b><br>Siswa berbusana adat Bali (Udeng) di samping bendera Merah Putih mengoperasikan presensi di HP.</div>
+      </div>
+
+      <!-- 3. Foto Deteksi GPS Radius -->
+      <div class="mobile-card" style="border-top: 4px solid #0284C7;">
+        <div class="phone-screen-frame">
+          <img src="assets/screenshots/foto_deteksi_gps_siswa.jpg" alt="Validasi GPS Radius Sekolah" style="object-position: center 30%;">
+        </div>
+        <div class="phone-title" style="color:#0284C7;">Validasi Radius GPS (20m)</div>
+        <div class="phone-desc"><b>Anti-Kecurangan Geolocation</b><br>Sistem memverifikasi posisi siswa tepat di area sekolah sebelum tombol presensi aktif.</div>
+      </div>
+
+      <!-- 4. Terhubung Langsung ke Orang Tua -->
+      <div class="mobile-card" style="border-top: 4px solid #059669;">
+        <div class="phone-screen-frame">
+          <img src="assets/screenshots/absen siswa di ortu.jpg" alt="Pantauan Presensi Siswa di HP Orang Tua">
+        </div>
+        <div class="phone-title" style="color:#059669;">Pantauan Realtime Ortu</div>
+        <div class="phone-desc"><b>Transparansi 24/7</b><br>Status kehadiran anak langsung terkirim dan terpantau oleh orang tua di rumah pada detik yang sama.</div>
       </div>
     </div>
   </div>
   <div class="slide-footer">
-    <div>Program Guru Inspiratif Astra Honda 2026</div>
-    <div class="footer-brand">SIMAK DOSMAN - SMAN 1 GIANYAR</div>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <img src="assets/logos/logo_yayasan_ahm.png" alt="Yayasan AHM" style="height: 18px; width: auto; object-fit: contain;">
+      <span style="color: #CBD5E1;">|</span>
+      <span>Program Guru Inspiratif Astra Honda 2026</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <span class="footer-brand">SIMAK DOSMAN - SMAN 1 GIANYAR</span>
+      <img src="assets/logos/logo_sekolah.png" alt="SMAN 1 Gianyar" style="height: 20px; width: auto; object-fit: contain;">
+    </div>
   </div>
 </div>
 
-<!-- SLIDE 19: DOKUMEN LEGALITAS -->
+<!-- SLIDE 19: DOKUMEN LEGALITAS & REKOMENDASI -->
 <div class="slide slide-formal">
   <div class="slide-header">
     <div class="slide-title">18. Lampiran: Surat Rekomendasi & Legalitas</div>
-    <div class="slide-category">Legalitas</div>
+    <div class="slide-category">Legalitas Resmi</div>
   </div>
-  <div class="content-body">
+  <div class="content-body" style="gap: 0.35in;">
     <div class="col-half">
-      <div class="card card-highlight">
-        <div class="card-title">Surat Rekomendasi Kepala Sekolah</div>
-        <p class="card-text">
-          Telah direkomendasikan secara resmi oleh Kepala SMAN 1 Gianyar (I Wayan Sudra Astra, S.Pd., M.Pd.) sebagai guru aktif berintegritas dan pengembang inovasi SIMAK DOSMAN.
-        </p>
+      <div class="card card-highlight" style="height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 0.15in;">
+            <img src="../01_administrasi/logo_sekolah.png" alt="Logo SMAN 1 Gianyar" style="height: 48px; width: auto;">
+            <div>
+              <div class="card-title" style="margin-bottom: 2px;">Surat Rekomendasi Kepala Sekolah</div>
+              <div style="font-size: 11pt; color: #64748B;">SMAN 1 Gianyar, Kabupaten Gianyar, Bali</div>
+            </div>
+          </div>
+          <p class="card-text" style="font-size: 13.5pt; line-height: 1.6; margin-bottom: 12px;">
+            Diterbitkan dan ditandatangani langsung oleh <b>Kepala SMAN 1 Gianyar</b> (<b>I Wayan Sudra Astra, S.Pd., M.Pd.</b>), merekomendasikan <b>I Putu Darma Putra, S.Pd.</b> sebagai pendidik berintegritas tinggi serta pencipta inovasi <b>SIMAK DOSMAN</b>.
+          </p>
+          <ul class="styled-list" style="font-size: 12.5pt;">
+            <li>Status Kepegawaian &amp; NIP resmi terverifikasi aktif (NIP. 19880930 202221 1 001).</li>
+            <li>Inovasi terbukti berdampak langsung bagi kemajuan SMAN 1 Gianyar.</li>
+          </ul>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #F1F5F9; padding-top: 12px; margin-top: 10px;">
+          <div class="badge" style="background:#FEE2E2; color:#991B1B; margin: 0; font-size: 11.5pt; padding: 8px 16px;">
+            ✓ Dokumen Rekomendasi Terverifikasi Resmi
+          </div>
+          <div style="font-size: 11pt; color: #64748B; font-weight: 600;">
+            *Surat fisik bertanda tangan &amp; stempel terlampir pada berkas administrasi
+          </div>
+        </div>
       </div>
     </div>
     <div class="col-half">
-      <div class="card card-gold">
-        <div class="card-title">SK Inovasi & Penetapan</div>
-        <p class="card-text">
-          Diakui sebagai ekosistem pendukung manajemen dan kedisiplinan resmi di SMAN 1 Gianyar, Bali.
-        </p>
+      <div class="card card-gold" style="height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+          <div class="card-title" style="color: #B45309;">SK Penetapan Inovasi & Hak Cipta Sekolah</div>
+          <p class="card-text" style="font-size: 13.5pt; line-height: 1.6; margin-bottom: 12px;">
+            <b>SIMAK DOSMAN</b> secara resmi telah diadopsi dan ditetapkan sebagai sistem operasional tata kelola presensi, jadwal, dan kesiswaan di lingkungan SMAN 1 Gianyar, Bali.
+          </p>
+          <table class="custom-table" style="font-size: 12pt; margin-top: 10px;">
+            <tbody>
+              <tr>
+                <td style="width: 35%; padding: 8px 12px;"><b>Server Production</b></td>
+                <td style="padding: 8px 12px;">Server Mandiri Sekolah (webdosman)</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 12px;"><b>Domain Resmi</b></td>
+                <td style="padding: 8px 12px;">dosmangianyar.sch.id</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 12px;"><b>Pengguna Aktif</b></td>
+                <td style="padding: 8px 12px;">Guru, Siswa, Tendik, &amp; Wali Murid</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="badge" style="background:#FEF3C7; color:#92400E; align-self: flex-start; margin-top: 10px;">
+          ✓ Sistem Berjalan Mandiri, Berkelanjutan &amp; Siap Direplikasi
+        </div>
       </div>
     </div>
   </div>
   <div class="slide-footer">
-    <div>Program Guru Inspiratif Astra Honda 2026</div>
-    <div class="footer-brand">SIMAK DOSMAN - SMAN 1 GIANYAR</div>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <img src="assets/logos/logo_yayasan_ahm.png" alt="Yayasan AHM" style="height: 18px; width: auto; object-fit: contain;">
+      <span style="color: #CBD5E1;">|</span>
+      <span>Program Guru Inspiratif Astra Honda 2026</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <span class="footer-brand">SIMAK DOSMAN - SMAN 1 GIANYAR</span>
+      <img src="assets/logos/logo_sekolah.png" alt="SMAN 1 Gianyar" style="height: 20px; width: auto; object-fit: contain;">
+    </div>
   </div>
 </div>
 
 <!-- SLIDE 20: PENUTUP -->
-<div class="slide slide-cover" style="text-align: center; justify-content: center; align-items: center;">
-  <span class="badge" style="background:#E60012; color:#FFF; font-size:15pt; padding:10px 24px;">SINERGI BAGI NEGERI</span>
-  <h1 style="font-size: 50pt; font-weight: 800; color: #0F172A; margin-top: 0.2in; margin-bottom: 0.2in;">
-    TERIMA KASIH
-  </h1>
-  <p style="font-size: 20pt; color: #DC2626; max-width: 10in; line-height: 1.6; margin-bottom: 0.4in; font-weight: 600;">
-    "Guru Menginspirasi, Menggerakkan Negeri. Bersama Astra Honda, Kita Wujudkan Transformasi Digital Pendidikan Indonesia!"
-  </p>
-  <div style="border-top: 2px solid #E2E8F0; padding-top: 0.25in; width: 80%;">
-    <p style="font-size: 19pt; font-weight: 800; color: #0F172A;">I Putu Darma Putra, S.Pd.</p>
-    <p style="font-size: 14pt; color: #475569;">SMAN 1 Gianyar, Bali | admin@dosmangianyar.sch.id</p>
+<div class="slide slide-cover" style="justify-content: space-between;">
+  <!-- Top Header Logos Bar -->
+  <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #E2E8F0; padding-bottom: 0.18in; margin-bottom: 0.2in;">
+    <div style="display: flex; align-items: center; gap: 14px;">
+      <img src="assets/logos/logo-pemprov-bali.png" alt="Pemprov Bali" style="height: 0.55in; width: auto; object-fit: contain;">
+      <img src="assets/logos/logo_sekolah.png" alt="SMAN 1 Gianyar" style="height: 0.58in; width: auto; object-fit: contain;">
+      <div style="border-left: 2px solid #CBD5E1; padding-left: 12px;">
+        <div style="font-size: 11pt; font-weight: 700; color: #64748B;">PEMERINTAH PROVINSI BALI</div>
+        <div style="font-size: 13.5pt; font-weight: 800; color: #0F172A;">SMAN 1 GIANYAR</div>
+      </div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 20px;">
+      <img src="assets/logos/logo_yayasan_ahm.png" alt="Yayasan Astra Honda Motor" style="height: 0.48in; width: auto; object-fit: contain;">
+      <img src="assets/logos/logo_honda_one_heart.png" alt="Honda One HEART" style="height: 0.48in; width: auto; border-radius: 4px; object-fit: contain;">
+    </div>
+  </div>
+
+  <!-- Center Content Body -->
+  <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 0.1in 0;">
+    <img src="assets/logos/logo_guru_inspiratif_2026.png" alt="Guru Inspiratif Astra Honda 2026" style="height: 2.1in; width: auto; object-fit: contain; filter: drop-shadow(0 8px 16px rgba(230, 0, 18, 0.18)); margin-bottom: 0.15in;">
+    <h1 style="font-size: 46pt; font-weight: 800; color: #0F172A; margin-bottom: 0.12in; letter-spacing: -0.5px;">
+      TERIMA KASIH
+    </h1>
+    <p style="font-size: 18pt; color: #DC2626; max-width: 10.5in; line-height: 1.5; margin-bottom: 0.22in; font-weight: 700;">
+      &ldquo;Guru Menginspirasi, Menggerakkan Negeri. Bersama Astra Honda, Kita Wujudkan Transformasi Digital Pendidikan Berkarakter &amp; Berkelanjutan!&rdquo;
+    </p>
+    <div style="display: flex; gap: 12px;">
+      <span class="badge" style="background:#E60012; color:#FFF; font-size:12pt; padding:6px 18px;">SINERGI BAGI NEGERI</span>
+      <span class="badge" style="background:#0F172A; color:#FFF; font-size:12pt; padding:6px 18px;">SATU HATI MAJU BERSAMA</span>
+      <span class="badge" style="background:#0284C7; color:#FFF; font-size:12pt; padding:6px 18px;">SIMAK DOSMAN</span>
+    </div>
+  </div>
+
+  <!-- Bottom Info Footer with Sinergi Bagi Negeri Logo -->
+  <div style="display: flex; justify-content: space-between; align-items: center; border-top: 2px solid #E2E8F0; padding-top: 0.18in; margin-top: 0.15in;">
+    <div>
+      <p style="font-size: 18pt; font-weight: 800; color: #0F172A;">I Putu Darma Putra, S.Pd.</p>
+      <p style="font-size: 13pt; color: #475569;">Guru Matematika SMAN 1 Gianyar | putu.darma.math@gmail.com | dosmangianyar.sch.id</p>
+    </div>
+    <div>
+      <img src="assets/logos/logo_sinergi_bagi_negeri.png" alt="Sinergi Bagi Negeri" style="height: 0.65in; width: auto; object-fit: contain;">
+    </div>
   </div>
 </div>
 

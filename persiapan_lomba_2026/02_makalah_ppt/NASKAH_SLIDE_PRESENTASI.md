@@ -65,5 +65,21 @@
 
 ---
 
-### 📌 Slide 8 - 20: (Dapat Diisi Foto Screenshot UI & Dokumentasi Kegiatan)
-* Silakan masukkan gambar screenshot dari `02_makalah_ppt/screenshots/` ke slide PPT PowerPoint Anda.
+### 📌 Slide 8 - 15: Narasi Dampak, Kepemimpinan & Refleksi
+* **Slide 8:** Implementasi & Pendekatan Adopsi di Sekolah
+* **Slide 9:** Dampak Konkret bagi Siswa, Guru, Sekolah & Orang Tua
+* **Slide 10:** Tabel Perbandingan Before vs After (Angka & Efisiensi)
+* **Slide 11:** Keberlanjutan & Potensi Replikasi Sistem
+* **Slide 12:** Keteladanan Guru Part 1 (Integrasi Matematika & Teknologi)
+* **Slide 13:** Keteladanan Guru Part 2 (Mentoring & Penggerak Komunitas)
+* **Slide 14:** Refleksi Pribadi & Dedikasi Guru
+* **Slide 15:** Kesimpulan Utama
+
+---
+
+### 📌 Slide 16 - 20: Lampiran Screenshot UI & Legalitas
+* **Slide 16 (Bukti Web Admin):** `assets/screenshots/dashboard.png`, `import jadwal.png`, `rekap bisa di simpan.png`.
+* **Slide 17 (Distribusi Resmi & Mobile):** `assets/screenshots/playstore.jpeg` (Google Play), `assets/screenshots/appstore.jpg` (App Store), `absen datang.png`, `dashboard guru.jpeg`.
+* **Slide 18 (Praktik Presensi Siswa):** `assets/screenshots/foto_absen_siswi.jpg`, `foto_absen_siswa_adat.jpg`, `foto_deteksi_gps_siswa.jpg`, `absen siswa di ortu.jpg`.
+* **Slide 19 (Legalitas & Rekomendasi):** Surat Rekomendasi Kepala SMAN 1 Gianyar & SK Penetapan Inovasi.
+* **Slide 20 (Penutup):** Salam penutup, komitmen Sinergi Bagi Negeri, dan kontak resmi.

@@ -23,9 +23,11 @@ Pak Putu tinggal **mengopi teks per slide** di bawah ini langsung ke file **Powe
   * **Mata Pelajaran:** Matematika
   * **Sekolah:** SMAN 1 Gianyar
   * **Wilayah:** Kabupaten Gianyar, Provinsi Bali (Main Dealer: Astra Motor Bali)
-* **Elemen Visual:** 
-  * Foto Profil Guru (Seragam PGRI/Khaki)
-  * Logo SMAN 1 Gianyar, Logo Yayasan Astra Honda Motor, Logo Sinergi Bagi Negeri, Logo Astra Motor Bali.
+* **Elemen Visual & Logo Resmi (Diekstrak Langsung dari Buku Panduan AHM 2026):** 
+  * **Header Kiri:** Logo Pemprov Bali (`assets/logos/logo-pemprov-bali.png`) & Logo SMAN 1 Gianyar (`assets/logos/logo_sekolah.png`)
+  * **Header Kanan:** Logo Yayasan Astra Honda Motor (`assets/logos/logo_yayasan_ahm.png`), Logo Honda One HEART (`assets/logos/logo_honda_one_heart.png`), dan Logo Sinergi Bagi Negeri (`assets/logos/logo_sinergi_bagi_negeri.png`)
+  * **Maskot Utama:** Logo 3D Badge Resmi Guru Inspiratif Astra Honda 2026 (`assets/logos/logo_guru_inspiratif_2026.png`)
+  * **Footer Slide 2-19:** Branded dual footer dengan mini logo Yayasan AHM di kiri dan SMAN 1 Gianyar di kanan.
 
 ---
 
@@ -81,6 +83,7 @@ Pak Putu tinggal **mengopi teks per slide** di bawah ini langsung ke file **Powe
 * **Tujuan Inovasi:** Menghadirkan ekosistem manajemen sekolah terpadu berbasis Web & Mobile untuk menciptakan transparansi, akurasi data, efisiensi waktu mengajar, serta keterlibatan aktif orang tua siswa.
 * **Nilai Kebaruan & Keunikan (Novelty):**
   * **Arsitektur Hybrid Modern:** Kombinasi Laravel 11/12 + Filament v3 Dashboard (Admin) dan Flutter Cross-Platform (Mobile App Siswa, Guru & Orang Tua).
+  * **Tersedia Resmi di Google Play Store & Apple App Store:** Bukan sekadar instalasi file APK mentah / sideloading, melainkan terbit resmi di dua toko aplikasi global (Play Store 500+ unduhan & App Store iOS), menjamin keamanan, kepatuhan privasi, dan kemudahan akses bagi seluruh warga sekolah.
   * **Enkripsi Presensi Geolocation:** Validasi koordinat GPS realtime sehingga presensi tidak dapat dipalsukan.
   * **Portal Pemantauan Orang Tua Realtime (Parent Monitoring Hub):** Akses langsung bagi orang tua siswa untuk memantau kondisi absen di sekolah, riwayat pelanggaran/kedisiplinan, serta apresiasi prestasi anak secara transparan.
   * **Auto-Matching Timetable:** Parser otomatis yang mengimpor jadwal master Excel aSc Timetables langsung ke sistem harian.
@@ -177,41 +180,74 @@ Pak Putu tinggal **mengopi teks per slide** di bawah ini langsung ke file **Powe
 
 ### 📷 SLIDE 16: LAMPIRAN — TAMPILAN WEB FILAMENT ADMIN (Tampilan Admin)
 * **Tangkapan Layar UI Web Admin:**
-  * Screenshot **Dashboard Utama Filament Admin** (Overview Statistik & Hero Widget).
-  * Screenshot **Import Jadwal Master Excel (aSc Timetables)**.
-  * Screenshot **Halaman Bebas Pustaka & Presensi Geolocation**.
+  1. **Dashboard Utama Filament Admin:**
+     * File: `assets/screenshots/dashboard.png`
+     * Deskripsi: Menampilkan statistik kehadiran realtime, chart tren presensi siswa & guru, widget overview sekolah, dan navigasi modular lengkap.
+  2. **Import Master Jadwal Excel (aSc Timetables):**
+     * File: `assets/screenshots/import jadwal.png`
+     * Deskripsi: Fitur otomasi parser Excel untuk memetakan nama guru, mata pelajaran, dan jadwal kelas secara instan (< 5 menit).
+  3. **Rekapitulasi Presensi Siap Simpan/Ekspor:**
+     * File: `assets/screenshots/rekap bisa di simpan.png` (serta `rekap absen.png`)
+     * Deskripsi: Laporan kehadiran siswa otomatis dengan multi-filter per tanggal dan rombel, siap diekspor tanpa rekap manual berhari-hari.
+  4. **Manajemen Data Siswa & Prestasi:**
+     * File: `assets/screenshots/data siswa.png`, `detail siswa.png`, `prestasi.png`
+     * Deskripsi: Basis data profil kesiswaan dan pencatatan capaian prestasi yang transparan.
 
 ---
 
-### 📱 SLIDE 17: LAMPIRAN — TAMPILAN MOBILE APP FLUTTER (Tampilan Mobile)
-* **Tangkapan Layar UI Aplikasi Mobile Flutter:**
-  * Screenshot **Halaman Home Siswa/Guru**.
-  * Screenshot **Kartu Pelajar Digital**.
-  * Screenshot **Presensi Geolocation Mobile**.
+### 📱 SLIDE 17: LAMPIRAN — DISTRIBUSI RESMI (PLAY STORE & APP STORE) & MOBILE APP FLUTTER
+* **Tangkapan Layar Distribusi Resmi & UI Mobile Flutter:**
+  1. **Tersedia di Google Play Store (Android):**
+     * File: `assets/screenshots/playstore.jpeg`
+     * Deskripsi: Resmi beredar di Play Store dengan rating **4.5 ★**, 500+ unduhan, dan lolos Google Play Protect untuk seluruh guru dan siswa.
+  2. **Tersedia di Apple App Store (iOS):**
+     * File: `assets/screenshots/appstore.jpg` (atau `apsstore.jpg`)
+     * Deskripsi: Lolos kurasi ketat Apple Developer Program dalam kategori *Education*, memudahkan pengguna iPhone/iPad di SMAN 1 Gianyar tanpa kendala sideloading.
+  3. **Presensi Geolocation Datang (GPS):**
+     * File: `assets/screenshots/absen datang.png`
+     * Deskripsi: Validasi radius koordinat GPS sekolah, deteksi jam hadir tepat waktu, dan enkripsi koordinat lokasi.
+  4. **Dashboard & Jadwal KBM Guru:**
+     * File: `assets/screenshots/dashboard guru.jpeg` (serta `jadwal guru.jpeg` & `jurnal guru.jpeg`)
+     * Deskripsi: Beranda guru yang memuat jadwal mengajar harian, status kehadiran rombel, dan jurnal refleksi KBM paperless.
 
 ---
 
-### 📸 SLIDE 18: LAMPIRAN — DOKUMENTASI KEGIATAN PENGGUNAAN APLIKASI
-* **Foto-Foto Kegiatan Lapangan:**
-  * Foto Siswa saat melakukan Presensi Geolocation di lingkungan SMAN 1 Gianyar.
-  * Foto Guru saat menggunakan Dashboard SIMAK DOSMAN di ruang guru/kelas.
-  * Foto Sosialisasi/Penggunaan Aplikasi di Sekolah.
+### 📸 SLIDE 18: LAMPIRAN — DOKUMENTASI PRAKTIK PRESENSI SISWA & PANTAUAN ORTU
+* **Tangkapan Layar & Foto Lapangan Siswa:**
+  1. **Praktik Presensi Siswi di Ruang Kelas (Status Hadir):**
+     * File: `assets/screenshots/foto_absen_siswi.jpg`
+     * Deskripsi: Siswi SMAN 1 Gianyar tersenyum bangga dan mengacungkan jempol menunjukkan status "Hadir" dan kalender presensi pada smartphone miliknya di kelas.
+  2. **Siswa Busana Adat Bali Melakukan Presensi Mandiri:**
+     * File: `assets/screenshots/foto_absen_siswa_adat.jpg`
+     * Deskripsi: Siswa mengenakan busana adat Bali (Udeng & baju putih) di samping bendera Merah Putih saat menekan tombol presensi pada aplikasi SIMAK DOSMAN.
+  3. **Validasi Radius GPS Sekolah Realtime (20 Meter):**
+     * File: `assets/screenshots/foto_deteksi_gps_siswa.jpg`
+     * Deskripsi: Sistem memvalidasi koordinat lokasi nyata ("Mendeteksi Lokasi Anda... Jarak dengan radius 20 m") untuk menjamin presensi anti-kecurangan.
+  4. **Koneksi Transparan ke HP Orang Tua:**
+     * File: `assets/screenshots/absen siswa di ortu.jpg` (serta `dashboard ortu.jpg`)
+     * Deskripsi: Kehadiran siswa yang baru saja diabsen di kelas langsung terkirim dan terbaca secara realtime oleh orang tua di rumah detik itu juga.
 
 ---
 
-### 📜 SLIDE 19: LAMPIRAN — DOKUMEN LEGALITAS & SK
+### 📜 SLIDE 19: LAMPIRAN — DOKUMEN LEGALITAS & REKOMENDASI SEKOLAH
 * **Dokumen Pendukung:**
-  * Surat Rekomendasi Kepala SMAN 1 Gianyar.
-  * SK Tugas Guru & Penetapan Inovasi Sekolah.
-  * Sertifikat / Piagam Penghargaan (jika ada).
+  1. **Surat Rekomendasi Resmi Kepala SMAN 1 Gianyar:**
+     * Ditandatangani langsung oleh Kepala SMAN 1 Gianyar (I Wayan Sudra Astra, S.Pd., M.Pd.).
+     * Rekomendasi keikutsertaan lomba Guru Inspiratif AHM 2026.
+  2. **SK Penetapan & Keberlanjutan Inovasi:**
+     * Penetapan SIMAK DOSMAN sebagai sistem manajemen terpadu resmi sekolah.
+     * Berjalan mandiri pada server lokal sekolah (`webdosman`) dan domain resmi `dosmangianyar.sch.id`.
 
 ---
 
 ### 🙏 SLIDE 20: PENUTUP & UCAPAN TERIMA KASIH
 * **Pesan Penutup:**
-  * *"Guru Menginspirasi, Menggerakkan Negeri. Bersama Astra Honda, Kita Wujudkan Sinergi Bagi Negeri!"*
+  * *"Guru Menginspirasi, Menggerakkan Negeri. Bersama Astra Honda, Kita Wujudkan Transformasi Digital Pendidikan Berkarakter & Berkelanjutan!"*
+* **Badge Kampanye:** `SINERGI BAGI NEGERI` | `SATU HATI MAJU BERSAMA` | `SIMAK DOSMAN`
 * **Kontak & Identitas:**
   * **I Putu Darma Putra, S.Pd.**
-  * SMAN 1 Gianyar, Bali
-  * Email: admin@dosmangianyar.sch.id
-* **Logo:** Logo SMAN 1 Gianyar, Yayasan AHM, Sinergi Bagi Negeri, Astra Motor Bali.
+  * Guru Matematika SMAN 1 Gianyar | Email: putu.darma.math@gmail.com | Portal: dosmangianyar.sch.id
+* **Penempatan Logo Resmi:**
+  * **Header Atas:** Logo Pemprov Bali, Logo SMAN 1 Gianyar, Logo Yayasan AHM, Logo Honda One HEART.
+  * **Tengah:** 3D Mascot Badge Logo Guru Inspiratif Astra Honda 2026.
+  * **Footer Kanan:** Logo Sinergi Bagi Negeri (*Satu HATI. Maju Bersama*).
