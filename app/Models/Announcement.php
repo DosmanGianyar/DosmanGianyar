@@ -41,7 +41,26 @@ class Announcement extends Model
             return $this->image;
         }
 
-        return asset('storage/' . ltrim($this->image, '/'));
+        $cleanPath = ltrim($this->image, '/');
+
+        // Auto-heal: Jika file tersimpan di disk private/local, salin otomatis ke disk public
+        try {
+            $publicDisk = \Illuminate\Support\Facades\Storage::disk('public');
+            if (! $publicDisk->exists($cleanPath)) {
+                $localDisk = \Illuminate\Support\Facades\Storage::disk('local');
+                if ($localDisk->exists($cleanPath)) {
+                    $publicDisk->put($cleanPath, $localDisk->get($cleanPath));
+                } elseif (file_exists(storage_path('app/private/' . $cleanPath))) {
+                    $publicDisk->put($cleanPath, file_get_contents(storage_path('app/private/' . $cleanPath)));
+                } elseif (file_exists(storage_path('app/' . $cleanPath))) {
+                    $publicDisk->put($cleanPath, file_get_contents(storage_path('app/' . $cleanPath)));
+                }
+            }
+        } catch (\Throwable $e) {
+            // silent fallback
+        }
+
+        return asset('storage/' . $cleanPath);
     }
 
     public function scopePublished(Builder $query): Builder

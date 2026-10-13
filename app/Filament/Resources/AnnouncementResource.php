@@ -56,6 +56,8 @@ class AnnouncementResource extends Resource
 
             FileUpload::make('image')
                 ->label('Gambar / Poster Pengumuman (Opsional)')
+                ->disk('public')
+                ->visibility('public')
                 ->image()
                 ->directory('announcements')
                 ->nullable()
