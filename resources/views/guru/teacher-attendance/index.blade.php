@@ -279,6 +279,7 @@ const STATUS_OPTIONS = [
     { value: 'tidak_hadir', label: 'Tidak Hadir',  cls: 'bg-red-100 text-red-700 border-red-300' },
     { value: 'izin',        label: 'Izin',         cls: 'bg-blue-100 text-blue-700 border-blue-300' },
     { value: 'sakit',       label: 'Sakit',        cls: 'bg-purple-100 text-purple-700 border-purple-300' },
+    { value: 'dispensasi',  label: 'Dispen',       cls: 'bg-teal-100 text-teal-700 border-teal-300' },
 ];
 
 function toggleManual() {

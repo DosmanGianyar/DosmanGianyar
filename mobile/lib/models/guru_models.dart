@@ -487,6 +487,9 @@ class TeachingSession {
   final int     total;
   final int     hadir;
   final int     alpha;
+  final int     izin;
+  final int     sakit;
+  final int     dispen;
   final List<SessionStudentRow> students;
 
   const TeachingSession({
@@ -508,6 +511,9 @@ class TeachingSession {
     required this.total,
     required this.hadir,
     required this.alpha,
+    this.izin = 0,
+    this.sakit = 0,
+    this.dispen = 0,
     this.students = const [],
   });
 
@@ -530,6 +536,9 @@ class TeachingSession {
     total:         json['total'] as int? ?? 0,
     hadir:         json['hadir'] as int? ?? 0,
     alpha:         json['alpha'] as int? ?? 0,
+    izin:          json['izin'] as int? ?? 0,
+    sakit:         json['sakit'] as int? ?? 0,
+    dispen:        json['dispen'] as int? ?? 0,
     students:      (json['students'] as List<dynamic>? ?? [])
         .map((e) => SessionStudentRow.fromJson(e as Map<String, dynamic>))
         .toList(),

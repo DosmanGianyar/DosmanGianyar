@@ -17,6 +17,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 use App\Models\Schedule;
+use App\Models\SessionAttendance;
+use App\Models\TeacherAttendance;
 
 class JournalController extends Controller
 {
@@ -149,13 +151,16 @@ class JournalController extends Controller
 
             foreach ($request->input('absent_students', []) as $abs) {
                 if (!empty($abs['student_id']) && !empty($abs['status'])) {
+                    $status = in_array($abs['status'], ['alpa', 'tidak_hadir']) ? 'tidak_hadir' : $abs['status'];
                     TeacherJournalAbsence::create([
                         'journal_id' => $journal->id,
                         'student_id' => $abs['student_id'],
-                        'status'     => $abs['status'],
+                        'status'     => $status,
                     ]);
                 }
             }
+
+            $this->syncSessionAttendance($journal, $request->input('absent_students', []));
 
             DB::commit();
             return redirect()->route('guru.journal.index')
@@ -255,7 +260,7 @@ class JournalController extends Controller
 
             foreach ($request->input('absent_students', []) as $abs) {
                 if (!empty($abs['student_id']) && !empty($abs['status'])) {
-                    $status = $abs['status'] === 'alpa' ? 'tidak_hadir' : $abs['status'];
+                    $status = in_array($abs['status'], ['alpa', 'tidak_hadir']) ? 'tidak_hadir' : $abs['status'];
                     TeacherJournalAbsence::create([
                         'journal_id' => $journal->id,
                         'student_id' => $abs['student_id'],
@@ -263,6 +268,8 @@ class JournalController extends Controller
                     ]);
                 }
             }
+
+            $this->syncSessionAttendance($journal, $request->input('absent_students', []));
 
             DB::commit();
             return redirect()->route('guru.journal.index')
@@ -610,5 +617,62 @@ class JournalController extends Controller
         });
 
         return response()->json($result);
+    }
+
+    private function syncSessionAttendance(TeacherJournal $journal, array $absentStudents): void
+    {
+        if (! $journal->period || ! $journal->class_id) {
+            return;
+        }
+
+        $dateStr = $journal->date ? $journal->date->format('Y-m-d') : null;
+        if (! $dateStr) {
+            return;
+        }
+
+        $pStart = (int) $journal->period;
+        $pEnd   = (int) ($journal->period_end ?: $pStart);
+
+        $absMap = [];
+        foreach ($absentStudents as $abs) {
+            if (!empty($abs['student_id']) && !empty($abs['status'])) {
+                $absMap[$abs['student_id']] = in_array($abs['status'], ['alpa', 'tidak_hadir']) ? 'tidak_hadir' : $abs['status'];
+            }
+        }
+
+        $students = User::where('role', 'siswa')->where('class_id', $journal->class_id)->get(['id']);
+
+        for ($p = $pStart; $p <= $pEnd; $p++) {
+            $tAtt = TeacherAttendance::updateOrCreate(
+                [
+                    'teacher_id' => $journal->teacher_id,
+                    'class_id'   => $journal->class_id,
+                    'date'       => $dateStr,
+                    'period'     => $p,
+                ],
+                [
+                    'subject_id' => $journal->subject_id,
+                    'status'     => 'hadir',
+                    'note'       => $journal->notes,
+                ]
+            );
+
+            foreach ($students as $st) {
+                $stStatus = $absMap[$st->id] ?? 'hadir';
+                SessionAttendance::updateOrCreate(
+                    [
+                        'student_id' => $st->id,
+                        'date'       => $dateStr,
+                        'period'     => $p,
+                    ],
+                    [
+                        'teacher_attendance_id' => $tAtt->id,
+                        'class_id'              => $journal->class_id,
+                        'subject_id'            => $journal->subject_id,
+                        'status'                => $stStatus,
+                    ]
+                );
+            }
+        }
     }
 }

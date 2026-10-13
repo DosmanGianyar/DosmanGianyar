@@ -43,6 +43,7 @@ class SessionAttendance extends Model
             'tidak_hadir' => 'Tidak Hadir',
             'izin'        => 'Izin',
             'sakit'       => 'Sakit',
+            'dispensasi'  => 'Dispensasi',
             default       => ucfirst($this->status),
         };
     }

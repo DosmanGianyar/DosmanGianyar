@@ -430,6 +430,47 @@ class _CreateSessionTabState extends State<_CreateSessionTab> {
           _buildPeriodGrid(),
           const SizedBox(height: 20),
 
+          // ── Absensi Siswa (Daftar Siswa) ───────────────────────────
+          if (_loadingStudents)
+            const Center(child: Padding(padding: EdgeInsets.all(24), child: CircularProgressIndicator()))
+          else if (_students.isNotEmpty) ...[
+            Row(
+              children: [
+                _label('Absensi Siswa (${_students.length})'),
+                const Spacer(),
+                _QuickMarkButton(
+                  label: 'Semua Hadir',
+                  onTap: () => setState(() {
+                    for (final s in _students) { s.status = 'hadir'; }
+                  }),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Container(
+              decoration: BoxDecoration(
+                color: AppColors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.gray100),
+              ),
+              child: ListView.separated(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: _students.length,
+                separatorBuilder: (_, __) => const Divider(height: 1, color: AppColors.gray100),
+                itemBuilder: (_, i) => _StudentAttRow(
+                  student: _students[i],
+                  onStatusChanged: (s) => setState(() => _students[i].status = s),
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+
+            // Summary chips
+            _buildSummaryBar(),
+            const SizedBox(height: 20),
+          ],
+
           // ── Jurnal Mengajar (Pembelajaran) ─────────────────────────
           Container(
             padding: const EdgeInsets.all(14),
@@ -515,46 +556,8 @@ class _CreateSessionTabState extends State<_CreateSessionTab> {
           ),
           const SizedBox(height: 20),
 
-          // ── Daftar Siswa ───────────────────────────────────────────
-          if (_loadingStudents)
-            const Center(child: Padding(padding: EdgeInsets.all(24), child: CircularProgressIndicator()))
-          else if (_students.isNotEmpty) ...[
-            Row(
-              children: [
-                _label('Daftar Siswa (${_students.length})'),
-                const Spacer(),
-                _QuickMarkButton(
-                  label: 'Semua Hadir',
-                  onTap: () => setState(() {
-                    for (final s in _students) { s.status = 'hadir'; }
-                  }),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Container(
-              decoration: BoxDecoration(
-                color: AppColors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.gray100),
-              ),
-              child: ListView.separated(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: _students.length,
-                separatorBuilder: (_, __) => const Divider(height: 1, color: AppColors.gray100),
-                itemBuilder: (_, i) => _StudentAttRow(
-                  student: _students[i],
-                  onStatusChanged: (s) => setState(() => _students[i].status = s),
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-
-            // Summary chips
-            _buildSummaryBar(),
-            const SizedBox(height: 20),
-
+          // Tombol Simpan
+          if (_students.isNotEmpty) ...[
             SizedBox(
               width: double.infinity,
               child: FilledButton.icon(
@@ -562,7 +565,7 @@ class _CreateSessionTabState extends State<_CreateSessionTab> {
                 icon: _submitting
                     ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                     : const Icon(Icons.save_rounded, size: 18),
-                label: Text(_submitting ? 'Menyimpan...' : 'Simpan Absensi'),
+                label: Text(_submitting ? 'Menyimpan...' : 'Simpan Jurnal & Absensi'),
                 style: FilledButton.styleFrom(
                   backgroundColor: AppColors.blue600,
                   padding: const EdgeInsets.symmetric(vertical: 14),
@@ -756,17 +759,23 @@ class _CreateSessionTabState extends State<_CreateSessionTab> {
     final alpha  = _students.where((s) => s.status == 'tidak_hadir').length;
     final izin   = _students.where((s) => s.status == 'izin').length;
     final sakit  = _students.where((s) => s.status == 'sakit').length;
+    final dispen = _students.where((s) => s.status == 'dispensasi').length;
 
-    return Row(
-      children: [
-        _SumChip(label: 'Hadir',  count: hadir, color: AppColors.green600),
-        const SizedBox(width: 6),
-        _SumChip(label: 'Alpha',  count: alpha, color: AppColors.red500),
-        const SizedBox(width: 6),
-        _SumChip(label: 'Izin',   count: izin,  color: AppColors.sky600),
-        const SizedBox(width: 6),
-        _SumChip(label: 'Sakit',  count: sakit, color: AppColors.purple500),
-      ],
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: [
+          _SumChip(label: 'Hadir',  count: hadir,  color: AppColors.green600),
+          const SizedBox(width: 6),
+          _SumChip(label: 'Alpha',  count: alpha,  color: AppColors.red500),
+          const SizedBox(width: 6),
+          _SumChip(label: 'Izin',   count: izin,   color: AppColors.sky600),
+          const SizedBox(width: 6),
+          _SumChip(label: 'Sakit',  count: sakit,  color: AppColors.purple500),
+          const SizedBox(width: 6),
+          _SumChip(label: 'Dispen', count: dispen, color: AppColors.teal600),
+        ],
+      ),
     );
   }
 
@@ -1149,12 +1158,18 @@ class _SessionCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 10),
-          Row(
+          Wrap(
+            spacing: 6,
+            runSpacing: 4,
             children: [
               _StatusPill(label: '${session.hadir} Hadir',              color: AppColors.green600,  bg: AppColors.green100),
-              const SizedBox(width: 6),
               _StatusPill(label: '${session.alpha} Alpha',              color: AppColors.red500,    bg: AppColors.red100),
-              const SizedBox(width: 6),
+              if (session.izin > 0)
+                _StatusPill(label: '${session.izin} Izin',              color: AppColors.sky600,    bg: AppColors.sky100),
+              if (session.sakit > 0)
+                _StatusPill(label: '${session.sakit} Sakit',            color: AppColors.purple500, bg: AppColors.violet100),
+              if (session.dispen > 0)
+                _StatusPill(label: '${session.dispen} Dispen',          color: AppColors.teal600,   bg: const Color(0xFFCCFBF1)),
               _StatusPill(label: '${session.total} Siswa',              color: AppColors.gray600,   bg: AppColors.gray100),
             ],
           ),
@@ -1616,6 +1631,37 @@ class _EditSessionBottomSheetState extends State<_EditSessionBottomSheet> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            Row(
+                              children: [
+                                const Text('Absensi Siswa', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.gray800)),
+                                const SizedBox(width: 6),
+                                Text('(${_students.length} Siswa)', style: const TextStyle(fontSize: 12, color: AppColors.gray500)),
+                                const Spacer(),
+                                _QuickMarkButton(
+                                  label: 'Semua Hadir',
+                                  onTap: () => setState(() {
+                                    for (final s in _students) { s.status = 'hadir'; }
+                                  }),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            ListView.separated(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: _students.length,
+                              separatorBuilder: (_, __) => const Divider(height: 1),
+                              itemBuilder: (_, i) {
+                                final st = _students[i];
+                                return _StudentAttRow(
+                                  student: st,
+                                  onStatusChanged: (newStatus) {
+                                    setState(() => st.status = newStatus);
+                                  },
+                                );
+                              },
+                            ),
+                            const SizedBox(height: 18),
                             const Text('Materi Pembelajaran', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.gray700)),
                             const SizedBox(height: 6),
                             TextField(
@@ -1649,30 +1695,6 @@ class _EditSessionBottomSheetState extends State<_EditSessionBottomSheet> {
                                 border: OutlineInputBorder(),
                                 contentPadding: EdgeInsets.all(10),
                               ),
-                            ),
-                            const SizedBox(height: 18),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                const Text('Absensi Siswa', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.gray800)),
-                                Text('${_students.length} Siswa', style: const TextStyle(fontSize: 12, color: AppColors.gray500)),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            ListView.separated(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              itemCount: _students.length,
-                              separatorBuilder: (_, __) => const Divider(height: 1),
-                              itemBuilder: (_, i) {
-                                final st = _students[i];
-                                return _StudentAttRow(
-                                  student: st,
-                                  onStatusChanged: (newStatus) {
-                                    setState(() => st.status = newStatus);
-                                  },
-                                );
-                              },
                             ),
                           ],
                         ),

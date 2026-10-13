@@ -68,7 +68,7 @@ class TeacherAttendanceController extends Controller
             'attendances.*.note'              => 'nullable|string|max:255',
             'attendances.*.students'          => 'nullable|array',
             'attendances.*.students.*.id'     => 'required|exists:users,id',
-            'attendances.*.students.*.status' => 'required|in:hadir,tidak_hadir,izin,sakit',
+            'attendances.*.students.*.status' => 'required|in:hadir,tidak_hadir,izin,sakit,dispensasi',
             'attendances.*.students.*.note'   => 'nullable|string|max:255',
         ]);
 
@@ -138,7 +138,7 @@ class TeacherAttendanceController extends Controller
             'note'       => 'nullable|string|max:255',
             'students'            => 'nullable|array',
             'students.*.id'       => 'required|exists:users,id',
-            'students.*.status'   => 'required|in:hadir,tidak_hadir,izin,sakit',
+            'students.*.status'   => 'required|in:hadir,tidak_hadir,izin,sakit,dispensasi',
             'students.*.note'     => 'nullable|string|max:255',
         ]);
 

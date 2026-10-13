@@ -101,7 +101,30 @@
             @endif
         </div>
 
-        {{-- ─── Materi & Aktivitas --}}
+        {{-- ─── 1. Absensi Siswa (Diisi Dahulu) ─── --}}
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 space-y-3 mt-3">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold text-gray-700 uppercase tracking-wide flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-blue-600"></span>
+                        Absensi Siswa & Intervensi Kehadiran
+                    </p>
+                    <p class="text-[11px] text-gray-400 mt-0.5">Tandai siswa yang tidak hadir / izin / sakit / dispen sebelum mengisi materi.</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button type="button" onclick="markAllPresent()" class="text-[11px] font-semibold text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-2.5 py-1 rounded-lg transition-colors">
+                        Semua Hadir
+                    </button>
+                    <span id="absent-count-badge" class="hidden px-2 py-0.5 rounded-lg text-xs font-semibold bg-red-100 text-red-600"></span>
+                </div>
+            </div>
+            <div id="student-list-wrap">
+                <p class="text-xs text-gray-400">Pilih kelas terlebih dahulu.</p>
+            </div>
+            <div id="absent-hidden-inputs"></div>
+        </div>
+
+        {{-- ─── 2. Materi & Aktivitas Pembelajaran ─── --}}
         <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 space-y-4 mt-3">
             <div>
                 <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">Materi *</label>
@@ -125,18 +148,6 @@
             </div>
         </div>
 
-        {{-- ─── Siswa Tidak Hadir --}}
-        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 space-y-3 mt-3">
-            <div class="flex items-center justify-between">
-                <p class="text-xs font-semibold text-gray-600 uppercase tracking-wide">Siswa Tidak Hadir</p>
-                <span id="absent-count-badge" class="hidden px-2 py-0.5 rounded-lg text-xs font-semibold bg-red-100 text-red-600"></span>
-            </div>
-            <div id="student-list-wrap">
-                <p class="text-xs text-gray-400">Pilih kelas terlebih dahulu.</p>
-            </div>
-            <div id="absent-hidden-inputs"></div>
-        </div>
-
         {{-- ─── Buttons --}}
         <div class="flex gap-3 mt-4 pb-8">
             <a href="{{ route('guru.journal.index') }}"
@@ -155,11 +166,33 @@
     </form>
 </div>
 
+<style>
+.abs-btn-active-tidak_hadir, .abs-btn-active-alpa { background-color: #dc2626 !important; border-color: #dc2626 !important; color: #ffffff !important; }
+.abs-btn-active-izin { background-color: #0284c7 !important; border-color: #0284c7 !important; color: #ffffff !important; }
+.abs-btn-active-sakit { background-color: #9333ea !important; border-color: #9333ea !important; color: #ffffff !important; }
+.abs-btn-active-dispensasi { background-color: #0d9488 !important; border-color: #0d9488 !important; color: #ffffff !important; }
+</style>
+
 <script>
 const AJAX_URL = '{{ route("guru.journal.api.students") }}';
 let _selectedPeriod = {{ old('period') ?: 'null' }};
 let _periodCount    = 1;
-let _absentMap      = {};  // { studentId: 'tidak_hadir'|'izin'|'sakit' }
+let _absentMap      = {};  // { studentId: 'tidak_hadir'|'izin'|'sakit'|'dispensasi' }
+
+const STATUS_ITEMS = [
+    { st: 'tidak_hadir', label: 'A', title: 'Alpa / Tidak Hadir', activeClass: 'abs-btn-active-tidak_hadir' },
+    { st: 'izin',        label: 'I', title: 'Izin',                activeClass: 'abs-btn-active-izin' },
+    { st: 'sakit',       label: 'S', title: 'Sakit',               activeClass: 'abs-btn-active-sakit' },
+    { st: 'dispensasi',  label: 'D', title: 'Dispensasi',          activeClass: 'abs-btn-active-dispensasi' }
+];
+
+function markAllPresent() {
+    _absentMap = {};
+    document.querySelectorAll('.absent-btn').forEach(b => {
+        b.className = 'w-7 h-7 rounded-lg border text-xs font-bold transition-colors absent-btn bg-gray-50 border-gray-200 text-gray-400 hover:border-gray-400';
+    });
+    renderAbsentInputs();
+}
 
 function loadStudents(classId) {
     const wrap = document.getElementById('student-list-wrap');
@@ -202,17 +235,13 @@ function loadStudents(classId) {
                         </span>
                     </div>
                     <div class="flex gap-1 shrink-0">
-                        ${[
-                            {st: 'tidak_hadir', label: 'A', color: 'red'},
-                            {st: 'izin',        label: 'I', color: 'sky'},
-                            {st: 'sakit',       label: 'S', color: 'purple'},
-                            {st: 'dispensasi',  label: 'D', color: 'teal'}
-                        ].map(item => {
-                            const isSelected = _absentMap[s.id] === item.st;
+                        ${STATUS_ITEMS.map(item => {
+                            const isSelected = _absentMap[s.id] === item.st || (_absentMap[s.id] === 'tidak_hadir' && item.st === 'alpa');
                             return `<button type="button" onclick="toggleAbsent(${s.id},'${item.st}',this)"
                                 data-status="${item.st}"
+                                title="${item.title}"
                                 class="w-7 h-7 rounded-lg border text-xs font-bold transition-colors absent-btn
-                                    ${isSelected ? `bg-${item.color}-600 border-${item.color}-600 text-white` : `bg-gray-50 border-gray-200 text-gray-400 hover:border-${item.color}-400`}">
+                                    ${isSelected ? item.activeClass : 'bg-gray-50 border-gray-200 text-gray-400 hover:border-gray-400'}">
                                 ${item.label}
                             </button>`;
                         }).join('')}
@@ -231,22 +260,23 @@ function loadStudents(classId) {
 function toggleAbsent(studentId, status, btn) {
     const row = btn.closest('[data-student-id]');
     const btns = row.querySelectorAll('.absent-btn');
-    const colors = { 'tidak_hadir': 'red', 'izin': 'sky', 'sakit': 'purple', 'dispensasi': 'teal' };
+    const currentSaved = _absentMap[studentId];
+    const isAlreadySelected = (currentSaved === status || (status === 'alpa' && currentSaved === 'tidak_hadir') || (status === 'tidak_hadir' && currentSaved === 'alpa'));
 
-    if (_absentMap[studentId] === status) {
+    if (isAlreadySelected) {
         delete _absentMap[studentId];
         btns.forEach(b => {
-            b.className = 'w-7 h-7 rounded-lg border text-xs font-bold transition-colors absent-btn bg-gray-50 border-gray-200 text-gray-400';
+            b.className = 'w-7 h-7 rounded-lg border text-xs font-bold transition-colors absent-btn bg-gray-50 border-gray-200 text-gray-400 hover:border-gray-400';
         });
     } else {
-        _absentMap[studentId] = status;
+        _absentMap[studentId] = (status === 'alpa') ? 'tidak_hadir' : status;
         btns.forEach(b => {
             const s = b.dataset.status;
-            const c = colors[s];
-            if (s === status) {
-                b.className = `w-7 h-7 rounded-lg border text-xs font-bold transition-colors absent-btn bg-${c}-600 border-${c}-600 text-white`;
+            const item = STATUS_ITEMS.find(it => it.st === s);
+            if (s === status && item) {
+                b.className = `w-7 h-7 rounded-lg border text-xs font-bold transition-colors absent-btn ${item.activeClass}`;
             } else {
-                b.className = `w-7 h-7 rounded-lg border text-xs font-bold transition-colors absent-btn bg-gray-50 border-gray-200 text-gray-400`;
+                b.className = 'w-7 h-7 rounded-lg border text-xs font-bold transition-colors absent-btn bg-gray-50 border-gray-200 text-gray-400 hover:border-gray-400';
             }
         });
     }
@@ -259,6 +289,10 @@ function renderAbsentInputs() {
     container.innerHTML = '';
     const entries = Object.entries(_absentMap);
     entries.forEach(([sid, status], i) => {
+        container.innerHTML += `
+            <input type="hidden" name="absent_students[${i}][student_id]" value="${sid}">
+            <input type="hidden" name="absent_students[${i}][status]" value="${status}">`;
+    });
         container.innerHTML += `
             <input type="hidden" name="absent_students[${i}][student_id]" value="${sid}">
             <input type="hidden" name="absent_students[${i}][status]" value="${status}">`;

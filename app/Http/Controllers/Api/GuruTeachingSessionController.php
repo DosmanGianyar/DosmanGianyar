@@ -120,9 +120,12 @@ class GuruTeachingSessionController extends Controller
             $minPeriod = min($group['periods']);
             $maxPeriod = max($group['periods']);
 
-            $total = $group['attendances']->count();
-            $hadir = $group['attendances']->where('status', 'hadir')->count();
-            $alpha = $group['attendances']->where('status', 'tidak_hadir')->count();
+            $total  = $group['attendances']->count();
+            $hadir  = $group['attendances']->where('status', 'hadir')->count();
+            $alpha  = $group['attendances']->where('status', 'tidak_hadir')->count();
+            $izin   = $group['attendances']->where('status', 'izin')->count();
+            $sakit  = $group['attendances']->where('status', 'sakit')->count();
+            $dispen = $group['attendances']->where('status', 'dispensasi')->count();
 
             return [
                 'id'             => $primary->id,
@@ -142,6 +145,9 @@ class GuruTeachingSessionController extends Controller
                 'total'          => $total,
                 'hadir'          => $hadir,
                 'alpha'          => $alpha,
+                'izin'           => $izin,
+                'sakit'          => $sakit,
+                'dispen'         => $dispen,
             ];
         })->values();
 
@@ -261,20 +267,32 @@ class GuruTeachingSessionController extends Controller
                 );
 
                 foreach ($request->attendances as $att) {
-                    SessionAttendance::updateOrCreate(
-                        [
-                            'student_id' => $att['student_id'],
-                            'date'       => $request->date,
-                            'period'     => $p,
-                        ],
-                        [
+                    $status = in_array($att['status'], ['alpa', 'tidak_hadir']) ? 'tidak_hadir' : $att['status'];
+                    $record = SessionAttendance::where('student_id', $att['student_id'])
+                        ->whereDate('date', $request->date)
+                        ->where('period', $p)
+                        ->first();
+
+                    if ($record) {
+                        $record->update([
                             'teacher_attendance_id' => $session->id,
                             'class_id'              => $request->class_id,
                             'subject_id'            => $request->subject_id,
-                            'status'                => $att['status'],
+                            'status'                => $status,
                             'note'                  => $att['note'] ?? null,
-                        ]
-                    );
+                        ]);
+                    } else {
+                        SessionAttendance::create([
+                            'student_id'            => $att['student_id'],
+                            'date'                  => $request->date,
+                            'period'                => $p,
+                            'teacher_attendance_id' => $session->id,
+                            'class_id'              => $request->class_id,
+                            'subject_id'            => $request->subject_id,
+                            'status'                => $status,
+                            'note'                  => $att['note'] ?? null,
+                        ]);
+                    }
                 }
 
                 $createdIds[] = $session->id;
@@ -282,16 +300,17 @@ class GuruTeachingSessionController extends Controller
 
             DB::commit();
 
-            // Notifikasi ke Orangtua jika ada siswa Sakit, Izin, atau Alpa pada jam pelajaran ini
+            // Notifikasi ke Orangtua jika ada siswa Sakit, Izin, Dispensasi, atau Alpa pada jam pelajaran ini
             $subjectName = \App\Models\Subject::find($request->subject_id)?->name ?? 'Mata Pelajaran';
             $periodStr   = implode(', ', $periods);
             foreach ($request->attendances as $att) {
-                if (in_array($att['status'], ['sakit', 'izin', 'tidak_hadir'], true)) {
+                if (in_array($att['status'], ['sakit', 'izin', 'tidak_hadir', 'dispensasi'], true)) {
                     $student = User::find($att['student_id']);
                     if ($student) {
                         $statusLabel = match ($att['status']) {
                             'sakit'       => 'SAKIT',
                             'izin'        => 'IZIN',
+                            'dispensasi'  => 'DISPENSASI',
                             'tidak_hadir' => 'ALPA',
                             default       => strtoupper($att['status']),
                         };
@@ -357,23 +376,41 @@ class GuruTeachingSessionController extends Controller
             ]);
 
             if (isset($validated['attendances']) && is_array($validated['attendances'])) {
-                $dateStr = $session->date ? $session->date->format('Y-m-d') : now()->toDateString();
                 foreach ($validated['attendances'] as $att) {
                     $status = in_array($att['status'], ['alpa', 'tidak_hadir']) ? 'tidak_hadir' : $att['status'];
-                    SessionAttendance::updateOrCreate(
-                        [
-                            'student_id' => $att['student_id'],
-                            'date'       => $dateStr,
-                            'period'     => $session->period,
-                        ],
-                        [
+                    $finalStatus = in_array($status, ['hadir', 'tidak_hadir', 'izin', 'sakit', 'dispensasi']) ? $status : 'tidak_hadir';
+
+                    $record = SessionAttendance::where('teacher_attendance_id', $session->id)
+                        ->where('student_id', $att['student_id'])
+                        ->first();
+
+                    if (! $record) {
+                        $record = SessionAttendance::where('student_id', $att['student_id'])
+                            ->whereDate('date', $session->date)
+                            ->where('period', $session->period)
+                            ->first();
+                    }
+
+                    if ($record) {
+                        $record->update([
                             'teacher_attendance_id' => $session->id,
                             'class_id'              => $session->class_id,
                             'subject_id'            => $session->subject_id,
-                            'status'                => in_array($status, ['hadir', 'tidak_hadir', 'izin', 'sakit']) ? $status : 'tidak_hadir',
+                            'status'                => $finalStatus,
                             'note'                  => $att['note'] ?? null,
-                        ]
-                    );
+                        ]);
+                    } else {
+                        SessionAttendance::create([
+                            'student_id'            => $att['student_id'],
+                            'date'                  => $session->date,
+                            'period'                => $session->period,
+                            'teacher_attendance_id' => $session->id,
+                            'class_id'              => $session->class_id,
+                            'subject_id'            => $session->subject_id,
+                            'status'                => $finalStatus,
+                            'note'                  => $att['note'] ?? null,
+                        ]);
+                    }
                 }
             }
 
@@ -616,6 +653,9 @@ class GuruTeachingSessionController extends Controller
         $total  = $s->sessionAttendances->count();
         $hadir  = $s->sessionAttendances->where('status', 'hadir')->count();
         $alpha  = $s->sessionAttendances->where('status', 'tidak_hadir')->count();
+        $izin   = $s->sessionAttendances->where('status', 'izin')->count();
+        $sakit  = $s->sessionAttendances->where('status', 'sakit')->count();
+        $dispen = $s->sessionAttendances->where('status', 'dispensasi')->count();
 
         $data = [
             'id'           => $s->id,
@@ -632,6 +672,9 @@ class GuruTeachingSessionController extends Controller
             'total'        => $total,
             'hadir'        => $hadir,
             'alpha'        => $alpha,
+            'izin'         => $izin,
+            'sakit'        => $sakit,
+            'dispen'       => $dispen,
         ];
 
         if ($withStudents) {

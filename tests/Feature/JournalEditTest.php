@@ -114,4 +114,78 @@ class JournalEditTest extends TestCase
             'status'     => 'sakit',
         ]);
     }
+
+    public function test_guru_can_set_absence_to_dispensasi(): void
+    {
+        $teacher = User::factory()->create(['role' => 'guru']);
+        $class   = SchoolClass::create(['name' => 'XI MIPA 2', 'grade' => 11]);
+        $student = User::factory()->create(['role' => 'siswa', 'class_id' => $class->id]);
+
+        $journal = TeacherJournal::create([
+            'teacher_id' => $teacher->id,
+            'class_id'   => $class->id,
+            'date'       => now()->toDateString(),
+            'material'   => 'Latihan Olimpiade',
+            'activity'   => 'Bimbingan',
+        ]);
+
+        $response = $this->actingAs($teacher)->put(route('guru.journal.update', $journal), [
+            'class_id'   => $class->id,
+            'date'       => now()->toDateString(),
+            'material'   => 'Latihan Olimpiade',
+            'activity'   => 'Bimbingan',
+            'absent_students' => [
+                ['student_id' => $student->id, 'status' => 'dispensasi'],
+            ],
+        ]);
+
+        $response->assertRedirect(route('guru.journal.index'));
+        $this->assertDatabaseHas('teacher_journal_absences', [
+            'journal_id' => $journal->id,
+            'student_id' => $student->id,
+            'status'     => 'dispensasi',
+        ]);
+    }
+
+    public function test_api_guru_can_save_and_update_dispensasi_attendance(): void
+    {
+        $teacher = User::factory()->create(['role' => 'guru']);
+        $class   = SchoolClass::create(['name' => 'XII IPS 1', 'grade' => 12]);
+        $student = User::factory()->create(['role' => 'siswa', 'class_id' => $class->id]);
+
+        $headers = ['X-Device-ID' => 'test-device-123'];
+
+        // API store session
+        $storeResponse = $this->actingAs($teacher)->postJson('/api/v1/guru/teaching-sessions', [
+            'class_id'    => $class->id,
+            'date'        => now()->toDateString(),
+            'periods'     => [1, 2],
+            'attendances' => [
+                ['student_id' => $student->id, 'status' => 'dispensasi'],
+            ],
+        ], $headers);
+
+        $storeResponse->assertStatus(201);
+        $sessionId = $storeResponse->json('ids.0');
+
+        $this->assertDatabaseHas('session_attendances', [
+            'teacher_attendance_id' => $sessionId,
+            'student_id'            => $student->id,
+            'status'                => 'dispensasi',
+        ]);
+
+        // API update session
+        $updateResponse = $this->actingAs($teacher)->putJson("/api/v1/guru/teaching-sessions/{$sessionId}", [
+            'attendances' => [
+                ['student_id' => $student->id, 'status' => 'dispensasi'],
+            ],
+        ], $headers);
+
+        $updateResponse->assertStatus(200);
+        $this->assertDatabaseHas('session_attendances', [
+            'teacher_attendance_id' => $sessionId,
+            'student_id'            => $student->id,
+            'status'                => 'dispensasi',
+        ]);
+    }
 }
