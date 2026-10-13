@@ -236,7 +236,7 @@ Pak Putu tinggal **mengopi teks per slide** di bawah ini langsung ke file **Powe
      * Rekomendasi keikutsertaan lomba Guru Inspiratif AHM 2026.
   2. **SK Penetapan & Keberlanjutan Inovasi:**
      * Penetapan SIMAK DOSMAN sebagai sistem manajemen terpadu resmi sekolah.
-     * Berjalan mandiri pada server lokal sekolah (`webdosman`) dan domain resmi `dosmangianyar.sch.id`.
+     * Berjalan mandiri pada server lokal sekolah (`webdosman`) dan domain resmi `sman1-gianyar.sch.id`.
 
 ---
 
@@ -246,7 +246,7 @@ Pak Putu tinggal **mengopi teks per slide** di bawah ini langsung ke file **Powe
 * **Badge Kampanye:** `SINERGI BAGI NEGERI` | `SATU HATI MAJU BERSAMA` | `SIMAK DOSMAN`
 * **Kontak & Identitas:**
   * **I Putu Darma Putra, S.Pd.**
-  * Guru Matematika SMAN 1 Gianyar | Email: putu.darma.math@gmail.com | Portal: dosmangianyar.sch.id
+  * Guru Matematika SMAN 1 Gianyar | Email: iputudarmaputra@gmail.com | Portal: sman1-gianyar.sch.id
 * **Penempatan Logo Resmi:**
   * **Header Atas:** Logo Pemprov Bali, Logo SMAN 1 Gianyar, Logo Yayasan AHM, Logo Honda One HEART.
   * **Tengah:** 3D Mascot Badge Logo Guru Inspiratif Astra Honda 2026.
