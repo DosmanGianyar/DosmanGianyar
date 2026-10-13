@@ -25,17 +25,23 @@ class ScanEventController extends Controller
 
     public function scan(Request $request, ScanEvent $scanEvent): JsonResponse
     {
-        $request->validate(['identifier' => 'required|string|max:50']);
+        $request->validate(['identifier' => 'required|string|max:255']);
 
         $identifier = trim($request->identifier);
 
         // Ekstrak token dari URL jika input berupa URL
         if (str_contains($identifier, '/verifikasi/kartu-pelajar/')) {
-            preg_match('#/verifikasi/kartu-pelajar/([^/?#]+)#', $identifier, $m);
-            $identifier = $m[1] ?? $identifier;
+            $parts = explode('/verifikasi/kartu-pelajar/', $identifier);
+            $after = end($parts);
+            $identifier = explode('?', explode('#', $after)[0])[0];
         } elseif (str_contains($identifier, '/biodata/')) {
-            preg_match('#/biodata/([^/?#]+)#', $identifier, $m);
-            $identifier = $m[1] ?? $identifier;
+            $parts = explode('/biodata/', $identifier);
+            $after = end($parts);
+            $identifier = explode('?', explode('#', $after)[0])[0];
+        } elseif (str_contains($identifier, '/')) {
+            $parts = explode('/', rtrim($identifier, '/'));
+            $after = end($parts);
+            $identifier = explode('?', explode('#', $after)[0])[0];
         }
 
         $student = User::where(function ($q) use ($identifier) {
@@ -46,7 +52,10 @@ class ScanEventController extends Controller
                     $q->orWhere('id', (int) $identifier);
                 }
             })
-            ->where('role', 'like', 'siswa%')
+            ->where(function ($q) {
+                $q->where('role', 'like', 'siswa%')
+                  ->orWhere('role', 'pengelola');
+            })
             ->with('schoolClass')
             ->first();
 

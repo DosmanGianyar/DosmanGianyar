@@ -61,7 +61,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', fn() => redirect()->route('login'));
 
 // ─── Verifikasi Keabsahan Kartu Pelajar (Public Scan) ───────────────────────
-Route::get('/verifikasi/kartu-pelajar/{identifier}', [StudentCardVerificationController::class, 'verify'])->name('student-card.verify');
+Route::get('/verifikasi/kartu-pelajar/{identifier?}', [StudentCardVerificationController::class, 'verify'])->name('student-card.verify');
 
 // ─── Biodata Siswa (wajib login demi keamanan data) ───────────────────────────
 Route::get('/biodata/{identifier}', [PublicBiodataController::class, 'show'])->name('public.biodata')->middleware('auth');

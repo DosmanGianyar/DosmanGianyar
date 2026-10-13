@@ -97,7 +97,7 @@
                             </p>
 
                             @php
-                            $verifyUrl = url('/verifikasi/kartu-pelajar/' . ($siswa->nis ?? $siswa->id));
+                            $verifyUrl = $siswa->student_card_verify_url;
                             $qrKepsekSvg = (new \chillerlan\QRCode\QRCode(new \chillerlan\QRCode\QROptions(['outputType' => 'svg', 'scale' => 2])))->render($verifyUrl);
 
                             $rows = [
@@ -137,7 +137,9 @@
                                 </p>
 
                                 {{-- Barcode / QR Code Verifikasi Keabsahan Kepsek --}}
-                                <div style="width: 6.5cqw; max-width: 28px; aspect-ratio: 1; margin: 1px auto 2px auto; padding: 1px; background: #ffffff; border: 0.8px solid #cbd5e1; border-radius: 3px; box-shadow: 0 1px 2px rgba(0,0,0,0.06);" title="Scan untuk verifikasi keabsahan kartu pelajar">
+                                <div style="width: 6.5cqw; max-width: 28px; aspect-ratio: 1; margin: 1px auto 2px auto; padding: 1px; background: #ffffff; border: 0.8px solid #cbd5e1; border-radius: 3px; box-shadow: 0 1px 2px rgba(0,0,0,0.06); cursor: pointer;"
+                                     title="Scan atau ketuk untuk verifikasi keabsahan kartu pelajar"
+                                     @click.stop="window.open('{{ $verifyUrl }}', '_blank')">
                                     <img src="{{ $qrKepsekSvg }}" alt="QR Verifikasi Resmi" style="width: 100%; height: 100%; object-fit: contain; display: block;">
                                 </div>
 
@@ -178,7 +180,9 @@
                 {{-- Body Tengah Belakang (QR Code & Detail) --}}
                 <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4%; text-align: center; overflow: hidden;">
                     @if(isset($qrSvg))
-                    <div style="width: 32%; aspect-ratio: 1; border: 1px solid #e5e7eb; border-radius: 8px; padding: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); background: #ffffff;">
+                    <div style="width: 32%; aspect-ratio: 1; border: 1px solid #e5e7eb; border-radius: 8px; padding: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); background: #ffffff; cursor: pointer;"
+                         title="Scan atau ketuk untuk verifikasi keabsahan kartu pelajar"
+                         @click.stop="window.open('{{ $siswa->student_card_verify_url }}', '_blank')">
                         <img src="{{ $qrSvg }}" alt="QR Code" style="width: 100%; height: 100%; object-fit: contain; display: block;">
                     </div>
                     @endif

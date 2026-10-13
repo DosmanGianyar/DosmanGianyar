@@ -69,7 +69,77 @@
                 <p class="text-blue-100 text-[11px] mt-1 font-medium">Dispen</p>
             </div>
         </div>
+
+        {{-- Stat Pengajuan Lupa Absen --}}
+        <div class="mt-2.5 bg-white/15 backdrop-blur-md rounded-xl p-2.5 px-3 border border-white/10 flex items-center justify-between text-xs text-white">
+            <div class="flex items-center gap-2">
+                <span class="text-amber-300 text-sm">📝</span>
+                <div>
+                    <span class="text-blue-100 font-medium">Pengajuan Lupa Absen:</span>
+                    <strong class="text-white ml-1">{{ $summary['lupa_absen'] ?? 0 }} Kali</strong>
+                </div>
+            </div>
+            <div class="text-[11px] text-blue-100">
+                <span class="text-emerald-300 font-semibold">{{ $summary['lupa_absen_approved'] ?? 0 }} Disetujui</span>
+                @if(($summary['lupa_absen_pending'] ?? 0) > 0)
+                    • <span class="text-amber-300 font-semibold">{{ $summary['lupa_absen_pending'] }} Menunggu</span>
+                @endif
+                @if(($summary['lupa_absen_rejected'] ?? 0) > 0)
+                    • <span class="text-rose-300 font-semibold">{{ $summary['lupa_absen_rejected'] }} Ditolak</span>
+                @endif
+            </div>
+        </div>
     </div>
+
+    {{-- ─── Rincian Pengajuan Lupa Absen (Jika Ada) ───────────────────────── --}}
+    @if(!empty($forgotRequests) && count($forgotRequests) > 0)
+    <div class="bg-white rounded-2xl shadow-sm border border-amber-200/80 p-4 space-y-3">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <span class="text-base">📝</span>
+                <h2 class="text-xs font-bold text-gray-800 uppercase tracking-wide">Pengajuan Lupa Absen Bulan Ini ({{ count($forgotRequests) }})</h2>
+            </div>
+            <span class="text-[11px] font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+                Pantauan Orang Tua
+            </span>
+        </div>
+
+        <div class="divide-y divide-gray-100">
+            @foreach($forgotRequests as $fr)
+            @php
+                $statusBadge = match($fr['status']) {
+                    'approved' => 'bg-emerald-100 text-emerald-800 border-emerald-200',
+                    'rejected' => 'bg-rose-100 text-rose-800 border-rose-200',
+                    default    => 'bg-amber-100 text-amber-800 border-amber-200',
+                };
+            @endphp
+            <div class="py-2.5 first:pt-0 last:pb-0 space-y-1 text-xs">
+                <div class="flex items-center justify-between gap-2">
+                    <div class="flex items-center gap-2">
+                        <span class="font-bold text-gray-800">
+                            {{ \Illuminate\Support\Carbon::parse($fr['date'])->isoFormat('dddd, D MMM Y') }}
+                        </span>
+                        <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 text-slate-700">
+                            {{ $fr['type_label'] }}
+                        </span>
+                    </div>
+                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border shrink-0 {{ $statusBadge }}">
+                        {{ $fr['status_label'] }}
+                    </span>
+                </div>
+                <p class="text-gray-600 text-[11px]">
+                    <span class="text-gray-400">Alasan:</span> {{ $fr['reason'] }}
+                </p>
+                @if(!empty($fr['teacher_note']))
+                <p class="text-[11px] text-blue-700 bg-blue-50/70 p-1.5 rounded-lg border border-blue-100">
+                    <span class="font-semibold">Catatan Guru:</span> {{ $fr['teacher_note'] }}
+                </p>
+                @endif
+            </div>
+            @endforeach
+        </div>
+    </div>
+    @endif
 
     {{-- ─── Daftar Presensi ─────────────────────────────────────────────── --}}
     <div class="space-y-3">
@@ -122,11 +192,19 @@
                     </div>
                 </div>
 
-                @if($rec['is_fake_gps'])
-                <span class="text-[11px] font-bold text-rose-600 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded-md">
-                    ⚠️ Fake GPS
-                </span>
-                @endif
+                <div class="flex items-center gap-1.5 flex-wrap justify-end">
+                    @if(!empty($rec['via_lupa_absen']))
+                    <span class="text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-md flex items-center gap-1">
+                        📝 Via Lupa Absen ({{ match($rec['lupa_absen_type']) { 'pulang' => 'Pulang', 'keduanya' => 'Datang & Pulang', default => 'Datang' } }})
+                    </span>
+                    @endif
+
+                    @if($rec['is_fake_gps'])
+                    <span class="text-[11px] font-bold text-rose-600 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded-md">
+                        ⚠️ Fake GPS
+                    </span>
+                    @endif
+                </div>
             </div>
 
             {{-- Photos Display Section --}}

@@ -23,7 +23,7 @@ class ProfileController extends Controller
 
         $canEditProfile = \App\Models\AppSetting::canStudentEditProfile();
 
-        $qrContent = url('/verifikasi/kartu-pelajar/' . $siswa->qr_token);
+        $qrContent = $siswa->student_card_verify_url;
         $options   = new QROptions(['outputType' => 'svg']);
         $qrSvg     = (new QRCode($options))->render($qrContent);
 

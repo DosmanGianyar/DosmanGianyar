@@ -173,6 +173,29 @@ class User extends Authenticatable implements FilamentUser
         return $this->attributes['qr_code_token'];
     }
 
+    /**
+     * URL verifikasi keabsahan kartu pelajar resmi.
+     * Secara cerdas menggunakan IP LAN mesin jika diakses via localhost/127.0.0.1
+     * sehingga saat discan oleh kamera smartphone di jaringan Wi-Fi lokal, halaman langsung terbuka tanpa connection refused.
+     */
+    public function getStudentCardVerifyUrlAttribute(): string
+    {
+        $token = $this->qr_token;
+        $request = request();
+
+        if ($request && in_array($request->getHost(), ['localhost', '127.0.0.1'])) {
+            $localIp = gethostbyname(gethostname());
+            $port = $request->getPort();
+            $scheme = $request->getScheme();
+            $portStr = ($port && !in_array($port, [80, 443])) ? ":{$port}" : '';
+            if ($localIp && $localIp !== '127.0.0.1') {
+                return "{$scheme}://{$localIp}{$portStr}/verifikasi/kartu-pelajar/{$token}";
+            }
+        }
+
+        return url('/verifikasi/kartu-pelajar/' . $token);
+    }
+
     public function isGuru(): bool            { return $this->role === 'guru'; }
     public function isPegawai(): bool         { return $this->role === 'pegawai'; }
     public function isGuruOrPegawai(): bool   { return in_array($this->role, ['guru', 'pegawai']); }

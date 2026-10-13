@@ -161,6 +161,27 @@
                 </div>
             </div>
 
+            {{-- Pengajuan Lupa Absen Info --}}
+            <div class="mt-2.5 pt-2 border-t border-gray-100 flex items-center justify-between bg-amber-50/60 border border-amber-100 rounded-xl px-3 py-2 text-xs">
+                <div class="flex items-center gap-2">
+                    <span class="w-6 h-6 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center text-xs font-bold shrink-0">📝</span>
+                    <div>
+                        <span class="font-bold text-gray-800">Pengajuan Lupa Absen:</span>
+                        <span class="text-gray-600 ml-1">
+                            @if(($summary['lupa_absen'] ?? 0) > 0)
+                                <strong class="text-amber-800">{{ $summary['lupa_absen'] }} kali diajukan</strong>
+                                <span class="text-[11px] text-gray-500">({{ $summary['lupa_absen_approved'] ?? 0 }} disetujui{{ ($summary['lupa_absen_pending'] ?? 0) > 0 ? ', ' . $summary['lupa_absen_pending'] . ' menunggu' : '' }})</span>
+                            @else
+                                <span class="text-gray-500 font-medium">0 kali (tidak ada)</span>
+                            @endif
+                        </span>
+                    </div>
+                </div>
+                <span class="text-[11px] font-semibold text-amber-700 shrink-0">
+                    Detail &rarr;
+                </span>
+            </div>
+
             {{-- Alert for Alpa or Terlambat --}}
             @if($summary['alpa'] > 0 || $summary['terlambat'] >= 3)
             <div class="mt-2.5 p-2.5 bg-rose-50 border border-rose-200 rounded-xl flex items-start gap-2 text-xs text-rose-800">

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verifikasi Keabsahan Kartu Pelajar — {{ strtoupper($siswa->name) }}</title>
+    <title>{{ $siswa ? 'Verifikasi Keabsahan Kartu Pelajar — ' . strtoupper($siswa->name) : 'Verifikasi Kartu Pelajar — Data Tidak Ditemukan' }}</title>
     <meta name="robots" content="noindex,nofollow">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Cinzel:wght@700;800&display=swap" rel="stylesheet">
@@ -16,7 +16,8 @@
 
     <div class="max-w-2xl w-full bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden my-auto">
         
-        {{-- Header Banner Status --}}
+        @if($siswa)
+        {{-- Header Banner Status Valid --}}
         <div class="bg-emerald-600 text-white px-6 py-3 flex items-center justify-between">
             <div class="flex items-center gap-2">
                 <div class="w-6 h-6 rounded-full bg-emerald-500/80 flex items-center justify-center shrink-0">
@@ -30,6 +31,22 @@
                 Sistem SIMS Live
             </span>
         </div>
+        @else
+        {{-- Header Banner Status Tidak Ditemukan --}}
+        <div class="bg-rose-600 text-white px-6 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <div class="w-6 h-6 rounded-full bg-rose-500/80 flex items-center justify-center shrink-0">
+                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </div>
+                <span class="text-xs font-bold uppercase tracking-wider">Data Kartu Siswa Tidak Ditemukan</span>
+            </div>
+            <span class="text-[11px] font-semibold bg-rose-700/60 px-2.5 py-1 rounded-full border border-rose-400/40">
+                Hasil Pemindaian
+            </span>
+        </div>
+        @endif
 
         <div class="p-6 md:p-8">
             {{-- Kop Surat Resmi Sekolah --}}
@@ -44,6 +61,7 @@
             </div>
             <div class="h-0.5 bg-slate-800 mb-6"></div>
 
+            @if($siswa)
             {{-- Judul Surat Keterangan --}}
             <div class="text-center mb-6">
                 <h4 class="text-sm font-extrabold text-slate-900 uppercase tracking-wide underline decoration-slate-400 underline-offset-4">
@@ -134,16 +152,46 @@
                     </p>
                 </div>
             </div>
+            @else
+            {{-- Tampilan Saat Siswa / Kartu Tidak Ditemukan --}}
+            <div class="py-8 text-center space-y-4">
+                <div class="w-16 h-16 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto text-2xl font-bold">
+                    ⚠️
+                </div>
+                <div>
+                    <h3 class="text-base font-extrabold text-slate-800">Kartu Pelajar Tidak Terdaftar</h3>
+                    <p class="text-xs text-slate-500 max-w-md mx-auto mt-1 leading-relaxed">
+                        Kode barcode / identitas siswa <code class="px-2 py-0.5 bg-slate-100 rounded text-rose-600 font-mono">{{ $identifier ?: '—' }}</code> tidak terdaftar pada pangkalan data resmi SIMS SMA Negeri 1 Gianyar.
+                    </p>
+                </div>
+
+                <div class="max-w-md mx-auto bg-slate-50 border border-slate-200 rounded-xl p-4 text-left space-y-3">
+                    <p class="text-xs font-bold text-slate-700">Cari Ulang dengan NIS / NISN / Token:</p>
+                    <form action="{{ url('/verifikasi/kartu-pelajar') }}" method="GET" class="flex gap-2" onsubmit="event.preventDefault(); window.location.href = '{{ url('/verifikasi/kartu-pelajar') }}/' + encodeURIComponent(this.querySelector('input').value.trim());">
+                        <input type="text" placeholder="Masukkan NIS atau NISN..." required
+                               class="flex-1 px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        <button type="submit" class="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg transition">
+                            Cek Kartu
+                        </button>
+                    </form>
+                    <p class="text-[11px] text-slate-400">
+                        *Pastikan kartu pelajar yang discan merupakan kartu resmi yang aktif dan terdaftar pada tahun ajaran berjalan.
+                    </p>
+                </div>
+            </div>
+            @endif
 
             {{-- Footer Action Buttons --}}
             <div class="mt-8 pt-4 border-t border-slate-200 flex items-center justify-between text-xs">
                 <a href="{{ route('login') }}" class="text-blue-600 hover:text-blue-800 font-bold flex items-center gap-1">
                     ← Kembali ke Aplikasi SIMS
                 </a>
+                @if($siswa)
                 <button onclick="window.print()" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
                     Cetak Bukti Verifikasi
                 </button>
+                @endif
             </div>
 
         </div>

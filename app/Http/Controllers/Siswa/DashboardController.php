@@ -151,7 +151,7 @@ class DashboardController extends Controller
             if (isset($monthlySummary[$effStatus])) $monthlySummary[$effStatus]++;
         }
 
-        $qrContent = url('/verifikasi/kartu-pelajar/' . $siswa->qr_token);
+        $qrContent = $siswa->student_card_verify_url;
         $options   = new \chillerlan\QRCode\QROptions(['outputType' => 'svg']);
         $qrSvg     = (new \chillerlan\QRCode\QRCode($options))->render($qrContent);
 

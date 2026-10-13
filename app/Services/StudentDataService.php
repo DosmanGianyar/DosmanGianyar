@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Attendance;
 use App\Models\ConductLog;
 use App\Models\EarlyCheckoutRequest;
+use App\Models\ForgotAttendanceRequest;
 use App\Models\Holiday;
 use App\Models\StudentAchievement;
 use App\Models\User;
@@ -28,7 +29,7 @@ class StudentDataService
         $rows = Attendance::where('user_id', $student->id)
             ->whereBetween('date', [$start, $end])
             ->orderBy('date', 'desc')
-            ->get(['date', 'check_in_time', 'check_out_time', 'status', 'is_fake_gps', 'photo', 'check_out_photo', 'updated_at']);
+            ->get(['date', 'check_in_time', 'check_out_time', 'status', 'is_fake_gps', 'photo', 'check_out_photo', 'updated_at', 'via_lupa_absen', 'lupa_absen_type']);
 
         $approvedDates = EarlyCheckoutRequest::where('student_id', $student->id)
             ->whereBetween('date', [$start, $end])
@@ -75,6 +76,8 @@ class StudentDataService
             'check_out_time'      => $r->check_out_time,
             'status'              => $r->effectiveStatus(isset($approvedDates[$r->date->format('Y-m-d')])),
             'is_fake_gps'         => (bool) $r->is_fake_gps,
+            'via_lupa_absen'      => (bool) $r->via_lupa_absen,
+            'lupa_absen_type'     => $r->lupa_absen_type,
             'check_in_photo_url'  => $r->photo_url,
             'check_out_photo_url' => $r->check_out_photo_url,
         ]);
@@ -95,6 +98,8 @@ class StudentDataService
                 'check_out_time'      => null,
                 'status'              => $status,
                 'is_fake_gps'         => false,
+                'via_lupa_absen'      => false,
+                'lupa_absen_type'     => null,
                 'check_in_photo_url'  => null,
                 'check_out_photo_url' => null,
             ]);
@@ -102,13 +107,22 @@ class StudentDataService
 
         $all = $synthetic->concat($records)->sortByDesc('date')->values();
 
+        $forgotRequests = ForgotAttendanceRequest::where('student_id', $student->id)
+            ->whereBetween('date', [$start, $end])
+            ->orderByDesc('date')
+            ->get();
+
         $summary = [
-            'hadir'      => $all->where('status', 'hadir')->count(),
-            'terlambat'  => $all->where('status', 'terlambat')->count(),
-            'izin'       => $all->where('status', 'izin')->count(),
-            'sakit'      => $all->where('status', 'sakit')->count(),
-            'alpa'       => $all->where('status', 'alpa')->count(),
-            'dispensasi' => $all->where('status', 'dispensasi')->count(),
+            'hadir'               => $all->where('status', 'hadir')->count(),
+            'terlambat'           => $all->where('status', 'terlambat')->count(),
+            'izin'                => $all->where('status', 'izin')->count(),
+            'sakit'               => $all->where('status', 'sakit')->count(),
+            'alpa'                => $all->where('status', 'alpa')->count(),
+            'dispensasi'          => $all->where('status', 'dispensasi')->count(),
+            'lupa_absen'          => $forgotRequests->count(),
+            'lupa_absen_approved' => $forgotRequests->where('status', 'approved')->count(),
+            'lupa_absen_pending'  => $forgotRequests->where('status', 'pending')->count(),
+            'lupa_absen_rejected' => $forgotRequests->where('status', 'rejected')->count(),
         ];
 
         $totalDays = count($all);
@@ -122,6 +136,17 @@ class StudentDataService
             'total_days'            => $totalDays,
             'attendance_percentage' => $attendancePercentage,
             'records'               => $all,
+            'forgot_requests'       => $forgotRequests->map(fn ($f) => [
+                'id'           => $f->id,
+                'date'         => $f->date->format('Y-m-d'),
+                'type'         => $f->type,
+                'type_label'   => $f->typeLabel(),
+                'reason'       => $f->reason,
+                'status'       => $f->status,
+                'status_label' => $f->statusLabel(),
+                'teacher_note' => $f->teacher_note,
+                'reviewed_at'  => $f->reviewed_at?->isoFormat('D MMM Y, HH:mm'),
+            ])->values(),
             'server_time'           => now()->toIso8601String(),
         ];
     }

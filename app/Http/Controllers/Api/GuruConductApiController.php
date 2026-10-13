@@ -65,12 +65,24 @@ class GuruConductApiController extends Controller
             return response()->json(['success' => false, 'message' => 'Kode scan barcode kosong.'], 400);
         }
 
-        if (str_contains($code, '/')) {
+        if (str_contains($code, '/verifikasi/kartu-pelajar/')) {
+            $parts = explode('/verifikasi/kartu-pelajar/', $code);
+            $after = end($parts);
+            $code = explode('?', explode('#', $after)[0])[0];
+        } elseif (str_contains($code, '/biodata/')) {
+            $parts = explode('/biodata/', $code);
+            $after = end($parts);
+            $code = explode('?', explode('#', $after)[0])[0];
+        } elseif (str_contains($code, '/')) {
             $parts = explode('/', rtrim($code, '/'));
-            $code = end($parts);
+            $after = end($parts);
+            $code = explode('?', explode('#', $after)[0])[0];
         }
 
-        $student = User::where('role', 'like', 'siswa%')
+        $student = User::where(function ($q) {
+                $q->where('role', 'like', 'siswa%')
+                  ->orWhere('role', 'pengelola');
+            })
             ->where(function ($q) use ($code) {
                 $q->where('qr_code_token', $code)
                   ->orWhere('nisn', $code)
