@@ -176,7 +176,22 @@ class AnnouncementResource extends Resource
                     ->label('Target')
                     ->options(['all' => 'Semua', 'siswa' => 'Siswa', 'guru' => 'Guru']),
             ])
-            ->actions([EditAction::make(), DeleteAction::make()])
+            ->actions([
+                Action::make('preview')
+                    ->label('Review Tampilan')
+                    ->icon('heroicon-o-eye')
+                    ->color('info')
+                    ->tooltip('Lihat simulasi tampilan pengumuman (Pop-Up & Detail)')
+                    ->modalHeading(fn (Announcement $record): string => 'Review Tampilan: ' . $record->title)
+                    ->modalWidth('3xl')
+                    ->modalContent(fn (Announcement $record) => view('filament.components.announcement-preview-modal', [
+                        'announcement' => $record,
+                    ]))
+                    ->modalSubmitAction(false)
+                    ->modalCancelActionLabel('Tutup'),
+                EditAction::make(),
+                DeleteAction::make(),
+            ])
             ->bulkActions([BulkActionGroup::make([DeleteBulkAction::make()])]);
     }
 

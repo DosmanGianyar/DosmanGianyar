@@ -22,6 +22,10 @@ class Announcement extends Model
         'target_class_ids' => 'array',
     ];
 
+    protected $appends = [
+        'image_url',
+    ];
+
     public function author(): BelongsTo
     {
         return $this->belongsTo(User::class, 'author_id');
@@ -29,8 +33,15 @@ class Announcement extends Model
 
     public function getImageUrlAttribute(): ?string
     {
-        if (! $this->image) return null;
-        return \Illuminate\Support\Facades\Storage::disk('public')->url($this->image);
+        if (! $this->image || trim($this->image) === '') {
+            return null;
+        }
+
+        if (str_starts_with($this->image, 'http://') || str_starts_with($this->image, 'https://')) {
+            return $this->image;
+        }
+
+        return asset('storage/' . ltrim($this->image, '/'));
     }
 
     public function scopePublished(Builder $query): Builder

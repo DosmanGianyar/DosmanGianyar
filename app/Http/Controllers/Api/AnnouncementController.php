@@ -23,7 +23,7 @@ class AnnouncementController extends Controller
             ->orderByDesc('published_at')
             ->limit(5)
             ->with('author:id,name')
-            ->get(['id', 'title', 'body', 'is_pinned', 'published_at', 'author_id']);
+            ->get(['id', 'title', 'body', 'image', 'is_pinned', 'published_at', 'author_id']);
 
         return response()->json([
             'announcements' => $announcements->map(fn ($a) => $this->format($a)),
@@ -43,7 +43,7 @@ class AnnouncementController extends Controller
             ->orderByDesc('is_pinned')
             ->orderByDesc('published_at')
             ->with('author:id,name')
-            ->paginate(20, ['id', 'title', 'body', 'is_pinned', 'published_at', 'author_id']);
+            ->paginate(20, ['id', 'title', 'body', 'image', 'is_pinned', 'published_at', 'author_id']);
 
         return response()->json([
             'announcements' => collect($paginator->items())->map(fn ($a) => $this->format($a)),

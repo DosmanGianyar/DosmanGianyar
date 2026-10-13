@@ -1339,52 +1339,75 @@ class _AnnouncementTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: Row(
-        children: [
-          Container(
-            width: 36, height: 36,
-            decoration: const BoxDecoration(
-              color:  AppColors.blue50,
-              shape:  BoxShape.circle,
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => AnnouncementDetailScreen(item: item)),
+        );
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Row(
+          children: [
+            Container(
+              width: 36, height: 36,
+              decoration: const BoxDecoration(
+                color:  AppColors.blue50,
+                shape:  BoxShape.circle,
+              ),
+              child: const Icon(Icons.campaign_rounded,
+                size: 18, color: AppColors.blue600),
             ),
-            child: const Icon(Icons.campaign_rounded,
-              size: 18, color: AppColors.blue600),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    if (item.isPinned) ...[
-                      const Icon(Icons.push_pin_rounded,
-                        size: 11, color: AppColors.blue600),
-                      const SizedBox(width: 3),
-                    ],
-                    Expanded(
-                      child: Text(item.title,
-                        style: const TextStyle(
-                          fontSize:   13,
-                          fontWeight: FontWeight.w500,
-                          color:      AppColors.gray800,
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      if (item.isPinned) ...[
+                        const Icon(Icons.push_pin_rounded,
+                          size: 11, color: AppColors.blue600),
+                        const SizedBox(width: 3),
+                      ],
+                      Expanded(
+                        child: Text(item.title,
+                          style: const TextStyle(
+                            fontSize:   13,
+                            fontWeight: FontWeight.w500,
+                            color:      AppColors.gray800,
+                          ),
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        overflow: TextOverflow.ellipsis,
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  DateFormat('d MMM y', 'id_ID').format(item.publishedAt.toLocal()),
-                  style: const TextStyle(fontSize: 11, color: AppColors.gray400),
-                ),
-              ],
+                    ],
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    DateFormat('d MMM y', 'id_ID').format(item.publishedAt.toLocal()),
+                    style: const TextStyle(fontSize: 11, color: AppColors.gray400),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+            if (item.imageUrl != null && item.imageUrl!.isNotEmpty) ...[
+              const SizedBox(width: 8),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(6),
+                child: Image.network(
+                  item.imageUrl!,
+                  width: 36,
+                  height: 36,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                ),
+              ),
+            ],
+            const SizedBox(width: 4),
+            const Icon(Icons.chevron_right, size: 16, color: AppColors.gray300),
+          ],
+        ),
       ),
     );
   }

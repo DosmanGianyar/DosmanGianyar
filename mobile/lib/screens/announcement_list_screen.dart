@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import '../models/announcement.dart';
 import '../services/api_client.dart';
 import '../theme/app_colors.dart';
+import '../widgets/image_viewer_dialog.dart';
 
 class AnnouncementListScreen extends StatefulWidget {
   const AnnouncementListScreen({super.key});
@@ -78,7 +79,7 @@ class _AnnouncementListScreenState extends State<AnnouncementListScreen> {
   void _openDetail(AnnouncementItem item) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => _AnnouncementDetailScreen(item: item)),
+      MaterialPageRoute(builder: (_) => AnnouncementDetailScreen(item: item)),
     );
   }
 
@@ -193,6 +194,19 @@ class _AnnouncementTile extends StatelessWidget {
                 style: const TextStyle(fontSize: 10, color: AppColors.gray400)),
             ]),
           ])),
+          if (item.imageUrl != null && item.imageUrl!.isNotEmpty) ...[
+            const SizedBox(width: 8),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.network(
+                item.imageUrl!,
+                width: 48,
+                height: 48,
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+              ),
+            ),
+          ],
           const SizedBox(width: 8),
           const Icon(Icons.chevron_right, color: AppColors.gray300, size: 16),
         ]),
@@ -203,9 +217,9 @@ class _AnnouncementTile extends StatelessWidget {
 
 // ─── Detail Screen ────────────────────────────────────────────────────────────
 
-class _AnnouncementDetailScreen extends StatelessWidget {
+class AnnouncementDetailScreen extends StatelessWidget {
   final AnnouncementItem item;
-  const _AnnouncementDetailScreen({required this.item});
+  const AnnouncementDetailScreen({super.key, required this.item});
 
   @override
   Widget build(BuildContext context) {
@@ -258,6 +272,79 @@ class _AnnouncementDetailScreen extends StatelessWidget {
                 style: const TextStyle(fontSize: 12, color: AppColors.gray500)),
             ]),
             const SizedBox(height: 16),
+            if (item.imageUrl != null && item.imageUrl!.isNotEmpty) ...[
+              GestureDetector(
+                onTap: () => ImageViewerDialog.show(
+                  context,
+                  imageUrl: item.imageUrl!,
+                  title: item.title,
+                ),
+                child: Container(
+                  width: double.infinity,
+                  constraints: const BoxConstraints(maxHeight: 320),
+                  margin: const EdgeInsets.only(bottom: 16),
+                  decoration: BoxDecoration(
+                    color: Colors.black,
+                    borderRadius: BorderRadius.circular(14),
+                    boxShadow: AppShadow.sm,
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Image.network(
+                        item.imageUrl!,
+                        width: double.infinity,
+                        fit: BoxFit.contain,
+                        loadingBuilder: (_, child, progress) {
+                          if (progress == null) return child;
+                          return Container(
+                            height: 180,
+                            color: AppColors.gray100,
+                            child: const Center(
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            ),
+                          );
+                        },
+                        errorBuilder: (_, __, ___) => Container(
+                          height: 140,
+                          color: AppColors.gray100,
+                          child: const Center(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.broken_image_rounded, size: 36, color: AppColors.gray400),
+                                SizedBox(height: 4),
+                                Text('Gagal memuat gambar poster', style: TextStyle(fontSize: 11, color: AppColors.gray400)),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        right: 8,
+                        bottom: 8,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.65),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.zoom_in_rounded, size: 14, color: Colors.white),
+                              SizedBox(width: 4),
+                              Text('Ketuk untuk perbesar', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w600)),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
             const Divider(color: AppColors.gray100),
             const SizedBox(height: 16),
             SelectableText(item.body,

@@ -123,7 +123,7 @@ class HumasScreen extends StatelessWidget {
                     final a = announcements[i];
                     return Column(children: [
                       GestureDetector(
-                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AnnouncementListScreen())),
+                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => AnnouncementDetailScreen(item: a))),
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                         child: Row(children: [
@@ -144,6 +144,21 @@ class HumasScreen extends StatelessWidget {
                             Text(_formatDate(a.publishedAt),
                               style: const TextStyle(fontSize: 11, color: AppColors.gray400)),
                           ])),
+                          if (a.imageUrl != null && a.imageUrl!.isNotEmpty) ...[
+                            const SizedBox(width: 8),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(6),
+                              child: Image.network(
+                                a.imageUrl!,
+                                width: 36,
+                                height: 36,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                              ),
+                            ),
+                          ],
+                          const SizedBox(width: 4),
+                          const Icon(Icons.chevron_right, size: 16, color: AppColors.gray300),
                         ]),
                       )),
                       if (i < (announcements.length > 5 ? 4 : announcements.length - 1))
