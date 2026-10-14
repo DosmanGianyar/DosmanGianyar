@@ -3,6 +3,7 @@ import '../../models/guru_models.dart';
 import '../../theme/app_colors.dart';
 import 'guru_conduct_screen.dart';
 import 'guru_gate_verification_screen.dart';
+import '../kesiswaan/school_regulation_screen.dart';
 
 class GuruKesiswaanScreen extends StatelessWidget {
   final List<GuruClass> classes;
@@ -59,6 +60,18 @@ class GuruKesiswaanScreen extends StatelessWidget {
                     )),
                   )
                 : null,
+          ),
+          _buildMenuCard(
+            context,
+            icon: Icons.balance_rounded,
+            label: 'Tata Tertib Siswa',
+            subtitle: 'Pedoman peraturan, sanksi, hak & kewajiban siswa',
+            color: const Color(0xFF7C3AED),
+            bg: const Color(0xFFF5F3FF),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const SchoolRegulationScreen()),
+            ),
           ),
           _buildMenuCard(
             context,

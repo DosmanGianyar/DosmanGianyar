@@ -5,10 +5,12 @@ import '../services/api_client.dart';
 
 class RegulationProvider extends ChangeNotifier {
   List<RegulationGroup> _groups    = [];
+  String?               _pdfUrl;
   bool                  _isLoading = false;
   String?               _error;
 
   List<RegulationGroup> get groups    => _groups;
+  String?               get pdfUrl    => _pdfUrl;
   bool                  get isLoading => _isLoading;
   String?               get error     => _error;
   bool                  get isEmpty   => !_isLoading && _groups.isEmpty && _error == null;
@@ -20,9 +22,11 @@ class RegulationProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      _groups = await RegulationService.fetchAll();
+      final res = await RegulationService.fetchAll();
+      _groups   = res.groups;
+      _pdfUrl   = res.pdfUrl;
     } catch (e) {
-      _error = ApiClient.extractError(e);
+      _error = ApiClient.extractErrorMessage(e);
     } finally {
       _isLoading = false;
       notifyListeners();

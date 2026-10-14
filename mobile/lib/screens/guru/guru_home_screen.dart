@@ -14,7 +14,8 @@ import 'guru_qr_scanner_screen.dart';
 import 'guru_input_nilai_screen.dart';
 import 'guru_permit_screen.dart';
 import 'guru_sarpras_screen.dart';
-import '../prasarana/library_screen.dart';
+import 'guru_homeroom_consultation_screen.dart';
+import '../kesiswaan/school_regulation_screen.dart';
 import 'guru_teaching_session_screen.dart';
 import 'guru_layanan_screen.dart';
 import 'guru_gate_verification_screen.dart';
@@ -797,12 +798,28 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
         'onTap': () => Navigator.push(context, MaterialPageRoute(builder: (_) => const GuruSarprasScreen())),
       },
       {
+        'title': 'Tata Tertib',
+        'subtitle': 'Aturan & Sanksi',
+        'icon': Icons.balance_rounded,
+        'color': const Color(0xFF7C3AED),
+        'bg': const Color(0xFFF5F3FF),
+        'onTap': () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SchoolRegulationScreen())),
+      },
+      {
         'title': 'Layanan & Direktori',
         'subtitle': 'Wali Kelas, Ekstra, Piket',
         'icon': Icons.business_center_rounded,
         'color': AppColors.indigo600,
         'bg': const Color(0xFFE0E7FF),
         'onTap': () => Navigator.push(context, MaterialPageRoute(builder: (_) => const GuruLayananScreen())),
+      },
+      {
+        'title': 'Konsultasi BK',
+        'subtitle': 'Bimbingan Siswa',
+        'icon': Icons.record_voice_over_rounded,
+        'color': const Color(0xFF0284C7),
+        'bg': const Color(0xFFE0F2FE),
+        'onTap': () => Navigator.push(context, MaterialPageRoute(builder: (_) => const GuruHomeroomConsultationScreen())),
       },
     ];
 

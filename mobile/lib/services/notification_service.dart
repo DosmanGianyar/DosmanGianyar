@@ -43,4 +43,18 @@ class NotificationService {
         .map((e) => AnnouncementItem.fromJson(e as Map<String, dynamic>))
         .toList();
   }
+
+  /// Mengambil pengumuman aktif berstatus pop-up modal untuk ditampilkan otomatis saat buka aplikasi
+  static Future<AnnouncementItem?> fetchPopupAnnouncement() async {
+    try {
+      final body = await ApiClient.get('/announcements/popup');
+      final raw = body['announcement'];
+      if (raw != null && raw is Map<String, dynamic>) {
+        return AnnouncementItem.fromJson(raw);
+      }
+      return null;
+    } catch (_) {
+      return null;
+    }
+  }
 }

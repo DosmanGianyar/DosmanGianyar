@@ -9,7 +9,7 @@ import '../../theme/app_colors.dart';
 import '../notifications_screen.dart';
 import '../profile_screen.dart';
 import 'guru_absensi_harian_screen.dart';
-import 'guru_bk_screen.dart';
+import '../kesiswaan/school_regulation_screen.dart';
 import 'guru_conduct_screen.dart';
 import 'guru_early_checkout_screen.dart';
 import 'guru_forgot_attendance_screen.dart';
@@ -22,6 +22,7 @@ import 'guru_rekap_screen.dart';
 import 'guru_sarpras_screen.dart';
 import 'guru_teaching_session_screen.dart';
 import 'guru_tp_screen.dart';
+import '../../widgets/announcement_popup_dialog.dart';
 
 class GuruShell extends StatefulWidget {
   const GuruShell({super.key});
@@ -33,6 +34,7 @@ class GuruShell extends StatefulWidget {
 class _GuruShellState extends State<GuruShell> {
   int _currentIndex = 0;
   List<GuruClass> _classes = [];
+  bool _popupChecked = false;
 
   @override
   void initState() {
@@ -40,7 +42,31 @@ class _GuruShellState extends State<GuruShell> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<NotificationProvider>().fetchUnreadCount();
       _loadClasses();
+      _checkPopupAnnouncement();
     });
+  }
+
+  Future<void> _checkPopupAnnouncement() async {
+    if (!mounted || _popupChecked) return;
+    _popupChecked = true;
+
+    try {
+      final authProv  = context.read<AuthProvider>();
+      final notifProv = context.read<NotificationProvider>();
+      final userId    = authProv.user?.id;
+
+      final popup = await notifProv.fetchPopupAnnouncement(userId: userId);
+      if (popup != null && mounted) {
+        await AnnouncementPopupDialog.show(
+          context,
+          announcement: popup,
+          userId: userId,
+          onDismissForever: () {
+            notifProv.dismissPopupForever(popup.id, userId: userId);
+          },
+        );
+      }
+    } catch (_) {}
   }
 
   Future<void> _loadClasses() async {
@@ -422,6 +448,17 @@ class _GuruServicesTab extends StatelessWidget {
           const SizedBox(height: 12),
 
           _buildHubCard(
+            title: 'Tata Tertib Peserta Didik',
+            subtitle: 'Pedoman peraturan, sanksi kedisiplinan, & hak kewajiban siswa',
+            icon: Icons.balance_rounded,
+            color: const Color(0xFF7C3AED),
+            bg: const Color(0xFFF5F3FF),
+            badge: 'Pedoman Sekolah',
+            onTap: () => onNavigate(const SchoolRegulationScreen()),
+          ),
+          const SizedBox(height: 12),
+
+          _buildHubCard(
             title: 'Persetujuan Surat Izin Siswa',
             subtitle: 'Verifikasi pengajuan izin sakit / dispensasi siswa kelas perwalian',
             icon: Icons.mark_email_unread_rounded,
@@ -490,6 +527,7 @@ class _GuruServicesTab extends StatelessWidget {
     required IconData icon,
     required Color color,
     required Color bg,
+    String? badge,
     required VoidCallback onTap,
   }) {
     return GestureDetector(
@@ -518,9 +556,28 @@ class _GuruServicesTab extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    title,
-                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.gray800),
+                  Wrap(
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: 6,
+                    runSpacing: 4,
+                    children: [
+                      Text(
+                        title,
+                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.gray800),
+                      ),
+                      if (badge != null)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: color.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            badge,
+                            style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: color),
+                          ),
+                        ),
+                    ],
                   ),
                   const SizedBox(height: 4),
                   Text(

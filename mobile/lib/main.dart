@@ -171,6 +171,7 @@ class _AppGateState extends State<_AppGate> {
         }
         setState(() => _checkingVersion = false);
         context.read<AuthProvider>().checkAuth();
+        PushNotificationService.requestPermissionIfNeeded(context);
       }
     });
   }

@@ -8,6 +8,7 @@ import 'change_password_required_screen.dart';
 import 'guru/guru_shell.dart';
 import 'orangtua/orangtua_shell.dart';
 import 'forgot_password_screen.dart';
+import '../services/push_notification_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -28,6 +29,9 @@ class _LoginScreenState extends State<LoginScreen> {
   void initState() {
     super.initState();
     _loadSavedCredentials();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      PushNotificationService.requestPermissionIfNeeded(context);
+    });
   }
 
   Future<void> _loadSavedCredentials() async {

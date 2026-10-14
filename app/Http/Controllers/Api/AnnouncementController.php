@@ -16,9 +16,10 @@ class AnnouncementController extends Controller
     {
         /** @var \App\Models\User $user */
         $user = $request->user();
+        $role = $user->isPengelola() ? 'siswa' : $user->role;
 
         $announcements = Announcement::published()
-            ->forRole($user->role)
+            ->forRole($role, $user->class_id)
             ->orderByDesc('is_pinned')
             ->orderByDesc('published_at')
             ->limit(5)
@@ -37,9 +38,10 @@ class AnnouncementController extends Controller
     {
         /** @var \App\Models\User $user */
         $user = $request->user();
+        $role = $user->isPengelola() ? 'siswa' : $user->role;
 
         $paginator = Announcement::published()
-            ->forRole($user->role)
+            ->forRole($role, $user->class_id)
             ->orderByDesc('is_pinned')
             ->orderByDesc('published_at')
             ->with('author:id,name')
@@ -59,9 +61,10 @@ class AnnouncementController extends Controller
     {
         /** @var \App\Models\User $user */
         $user = $request->user();
+        $role = $user->isPengelola() ? 'siswa' : $user->role;
 
         $announcement = Announcement::published()
-            ->forRole($user->role)
+            ->forRole($role, $user->class_id)
             ->with('author:id,name')
             ->findOrFail($id);
 
@@ -75,8 +78,9 @@ class AnnouncementController extends Controller
     {
         /** @var \App\Models\User $user */
         $user = $request->user();
+        $role = $user->isPengelola() ? 'siswa' : $user->role;
 
-        $announcement = Announcement::activeModal($user->role, $user->class_id)
+        $announcement = Announcement::activeModal($role, $user->class_id)
             ->with('author:id,name')
             ->first();
 

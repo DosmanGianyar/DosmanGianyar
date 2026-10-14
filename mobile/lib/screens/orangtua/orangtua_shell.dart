@@ -4,11 +4,14 @@ import '../../models/user.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/orangtua_provider.dart';
 import '../../theme/app_colors.dart';
+import '../../providers/notification_provider.dart';
+import '../../widgets/announcement_popup_dialog.dart';
 import '../login_screen.dart';
 import '../profile_screen.dart';
 import 'orangtua_achievement_screen.dart';
 import 'orangtua_attendance_screen.dart';
 import 'orangtua_conduct_screen.dart';
+import '../kesiswaan/school_regulation_screen.dart';
 
 class OrangtuaShell extends StatefulWidget {
   const OrangtuaShell({super.key});
@@ -18,6 +21,8 @@ class OrangtuaShell extends StatefulWidget {
 }
 
 class _OrangtuaShellState extends State<OrangtuaShell> {
+  bool _popupChecked = false;
+
   @override
   void initState() {
     super.initState();
@@ -25,7 +30,31 @@ class _OrangtuaShellState extends State<OrangtuaShell> {
       final user = context.read<AuthProvider>().user;
       context.read<OrangtuaProvider>().initFromUser(user?.children ?? []);
       context.read<OrangtuaProvider>().refreshChildren();
+      _checkPopupAnnouncement();
     });
+  }
+
+  Future<void> _checkPopupAnnouncement() async {
+    if (!mounted || _popupChecked) return;
+    _popupChecked = true;
+
+    try {
+      final authProv  = context.read<AuthProvider>();
+      final notifProv = context.read<NotificationProvider>();
+      final userId    = authProv.user?.id;
+
+      final popup = await notifProv.fetchPopupAnnouncement(userId: userId);
+      if (popup != null && mounted) {
+        await AnnouncementPopupDialog.show(
+          context,
+          announcement: popup,
+          userId: userId,
+          onDismissForever: () {
+            notifProv.dismissPopupForever(popup.id, userId: userId);
+          },
+        );
+      }
+    } catch (_) {}
   }
 
   Future<void> _logout() async {
@@ -170,6 +199,21 @@ class _EmptyState extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
           ),
+          const SizedBox(height: 18),
+          OutlinedButton.icon(
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const SchoolRegulationScreen()),
+            ),
+            icon: const Icon(Icons.balance_rounded, size: 18),
+            label: const Text('Lihat Tata Tertib Sekolah'),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: const Color(0xFF7C3AED),
+              side: const BorderSide(color: Color(0xFFC4B5FD)),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+          ),
         ],
       ),
     );
@@ -300,6 +344,17 @@ class _MenuGrid extends StatelessWidget {
           subtitle: 'Daftar prestasi yang tercatat',
           onTap: () => Navigator.push(context, MaterialPageRoute(
             builder: (_) => OrangtuaAchievementScreen(studentId: child.id, studentName: child.name),
+          )),
+        ),
+        const SizedBox(height: 10),
+        _MenuTile(
+          icon: Icons.balance_rounded,
+          iconBg: const Color(0xFFF5F3FF),
+          iconColor: const Color(0xFF7C3AED),
+          title: 'Tata Tertib Sekolah',
+          subtitle: 'Pedoman peraturan, sanksi, hak & kewajiban siswa',
+          onTap: () => Navigator.push(context, MaterialPageRoute(
+            builder: (_) => const SchoolRegulationScreen(),
           )),
         ),
       ],

@@ -9,6 +9,8 @@ class AnnouncementItem {
   final DateTime publishedAt;
   final String?  authorName;
 
+  final bool     showAsModal;
+
   const AnnouncementItem({
     required this.id,
     required this.title,
@@ -17,6 +19,7 @@ class AnnouncementItem {
     required this.isPinned,
     required this.publishedAt,
     this.authorName,
+    this.showAsModal = false,
   });
 
   static String? resolveImageUrl(dynamic raw) {
@@ -47,14 +50,20 @@ class AnnouncementItem {
   }
 
   factory AnnouncementItem.fromJson(Map<String, dynamic> json) {
+    final rawId = json['id'];
+    final id = rawId is int ? rawId : (int.tryParse(rawId?.toString() ?? '') ?? 0);
+    final rawDate = json['published_at']?.toString() ?? '';
+    final publishedAt = DateTime.tryParse(rawDate) ?? DateTime.now();
+
     return AnnouncementItem(
-      id:          json['id']           as int,
-      title:       json['title']        as String,
-      body:        json['body']         as String,
+      id:          id,
+      title:       json['title']?.toString() ?? '',
+      body:        json['body']?.toString() ?? '',
       imageUrl:    resolveImageUrl(json['image_url']),
-      isPinned:    json['is_pinned']    as bool? ?? false,
-      publishedAt: DateTime.parse(json['published_at'] as String),
-      authorName:  json['author_name']  as String?,
+      isPinned:    json['is_pinned'] == true || json['is_pinned'] == 1 || json['is_pinned'] == '1',
+      publishedAt: publishedAt,
+      authorName:  json['author_name'] as String?,
+      showAsModal: json['show_as_modal'] == true || json['show_as_modal'] == 1 || json['show_as_modal'] == '1',
     );
   }
 }

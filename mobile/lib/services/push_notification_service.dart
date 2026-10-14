@@ -3,8 +3,10 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'api_client.dart';
 import '../screens/notifications_screen.dart';
+import '../theme/app_colors.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -157,6 +159,101 @@ class PushNotificationService {
     } catch (e) {
       debugPrint('[FCM] Initialization note: $e');
     }
+  }
+
+  /// Meminta izin notifikasi langsung ke sistem (seperti WhatsApp) saat aplikasi dibuka.
+  /// Jika pada Android 13+ belum diizinkan, ini akan memicu dialog pop-up resmi Android:
+  /// "Izinkan SIMS SMAN 1 Gianyar mengirimkan notifikasi?".
+  static Future<bool> requestPermissionIfNeeded([BuildContext? context]) async {
+    try {
+      // 1. Cek status izin saat ini via permission_handler
+      final status = await Permission.notification.status;
+      if (status.isGranted) {
+        await _ensureNotificationChannel();
+        return true;
+      }
+
+      // 2. Minta izin secara eksplisit ke OS (seperti WhatsApp)
+      final requestResult = await Permission.notification.request();
+
+      if (requestResult.isGranted) {
+        debugPrint('[FCM] Notification permission GRANTED by user.');
+        await _ensureNotificationChannel();
+        await registerToken();
+        return true;
+      } else if (requestResult.isPermanentlyDenied && context != null && context.mounted) {
+        debugPrint('[FCM] Notification permission permanently denied.');
+        _showSettingsGuideDialog(context);
+      }
+      return false;
+    } catch (e) {
+      debugPrint('[FCM] requestPermissionIfNeeded error: $e');
+      return false;
+    }
+  }
+
+  /// Memastikan channel notifikasi berprioritas tinggi (heads-up banner + sound) aktif di OS
+  static Future<void> _ensureNotificationChannel() async {
+    try {
+      const AndroidNotificationChannel channel = AndroidNotificationChannel(
+        'sims_alert_v3_channel',
+        'Notifikasi Alert SIMS',
+        description: 'Notifikasi penting presensi, pengumuman, dan alert SMAN 1 Gianyar',
+        importance: Importance.max,
+        playSound: true,
+        enableVibration: true,
+        enableLights: true,
+      );
+
+      final androidPlugin = _localNotifications
+          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+
+      if (androidPlugin != null) {
+        await androidPlugin.createNotificationChannel(channel);
+      }
+    } catch (e) {
+      debugPrint('[FCM] _ensureNotificationChannel error: $e');
+    }
+  }
+
+  /// Panduan lembut jika pengguna sebelumnya pernah memilih "Jangan tanya lagi"
+  static void _showSettingsGuideDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Row(
+          children: [
+            Icon(Icons.notifications_active_rounded, color: AppColors.blue600, size: 26),
+            SizedBox(width: 10),
+            Text('Aktifkan Notifikasi', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          ],
+        ),
+        content: const Text(
+          'Izin notifikasi SIMS belum aktif di HP Anda.\n\n'
+          'Agar Anda mendapatkan info pengumuman sekolah dan pengingat presensi langsung melayang di atas layar dengan suara dering seperti WhatsApp, silakan aktifkan notifikasi.',
+          style: TextStyle(fontSize: 13.5, color: AppColors.gray700, height: 1.45),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Nanti Saja', style: TextStyle(color: AppColors.gray600)),
+          ),
+          FilledButton.icon(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              openAppSettings();
+            },
+            icon: const Icon(Icons.settings, size: 16),
+            label: const Text('Buka Pengaturan', style: TextStyle(fontWeight: FontWeight.bold)),
+            style: FilledButton.styleFrom(
+              backgroundColor: AppColors.blue600,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   /// Register FCM Token ke server Laravel saat user login.

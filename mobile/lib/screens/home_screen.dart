@@ -21,6 +21,8 @@ import 'prasarana/prasarana_screen.dart';
 import 'humas/humas_screen.dart';
 import 'profile_screen.dart';
 import 'announcement_list_screen.dart';
+import '../widgets/announcement_popup_dialog.dart';
+import '../services/push_notification_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -32,18 +34,44 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   // -1 = beranda (dashboard); 0-3 = Kesiswaan/Kurikulum/Prasarana/Humas
   int _selectedTab = -1;
+  bool _popupChecked = false;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final attProv  = context.read<AttendanceProvider>();
+      final attProv   = context.read<AttendanceProvider>();
       final notifProv = context.read<NotificationProvider>();
       attProv.fetchStatus();
       attProv.fetchCurrentMonthDots();
       notifProv.fetchUnreadCount();
       notifProv.fetchAnnouncements();
+      _checkPopupAnnouncement();
+      PushNotificationService.requestPermissionIfNeeded(context);
     });
+  }
+
+  Future<void> _checkPopupAnnouncement() async {
+    if (!mounted || _popupChecked) return;
+    _popupChecked = true;
+
+    try {
+      final authProv  = context.read<AuthProvider>();
+      final notifProv = context.read<NotificationProvider>();
+      final userId    = authProv.user?.id;
+
+      final popup = await notifProv.fetchPopupAnnouncement(userId: userId);
+      if (popup != null && mounted) {
+        await AnnouncementPopupDialog.show(
+          context,
+          announcement: popup,
+          userId: userId,
+          onDismissForever: () {
+            notifProv.dismissPopupForever(popup.id, userId: userId);
+          },
+        );
+      }
+    } catch (_) {}
   }
 
   void _onTabTap(int i) {
