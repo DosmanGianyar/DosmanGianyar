@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Hash;
 class PlayStoreDemoSeeder extends Seeder
 {
     private const EMAIL    = 'playstore.demo@sims.sch.id';
-    private const PASSWORD = 'PlayReview123';
+    private const PASSWORD = 'PlayStore123!';
 
     public function run(): void
     {
@@ -27,18 +27,22 @@ class PlayStoreDemoSeeder extends Seeder
                 'role'                 => 'siswa',
                 'password'             => Hash::make(self::PASSWORD),
                 'must_change_password' => false,
-                'nis'                  => '0000000001',
-                'nisn'                 => '0000000001',
+                'nis'                  => '0000000002',
+                'nisn'                 => '0000000002',
                 'class_id'             => $kelas?->id,
                 'gender'               => 'L',
                 'birth_date'           => '2008-01-01',
                 'parent_name'          => 'Orang Tua Demo',
                 'parent_phone'         => '081234567890',
+                'device_id'            => null,
+                'device_locked_at'     => null,
             ]
         );
 
-        // Reset device binding supaya reviewer bisa login dari device manapun.
-        $user->resetDevices();
+        $user->update([
+            'device_id'        => null,
+            'device_locked_at' => null,
+        ]);
 
         $this->command->info('Akun demo Play Store siap:');
         $this->command->table(
