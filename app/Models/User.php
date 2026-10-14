@@ -307,6 +307,15 @@ class User extends Authenticatable implements FilamentUser
             return true;
         }
 
+        // Belum terdaftar → akun demo reviewer tidak dibatasi kuota device
+        if (str_contains($this->email, 'demo')) {
+            $this->devices()->create([
+                'device_id'     => $deviceId,
+                'last_login_at' => now(),
+            ]);
+            return true;
+        }
+
         // Belum terdaftar → cek kuota
         if ($this->deviceCount() >= self::MAX_DEVICES) {
             return false;

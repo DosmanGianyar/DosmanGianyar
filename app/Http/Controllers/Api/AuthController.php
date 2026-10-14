@@ -34,8 +34,8 @@ class AuthController extends Controller
             ? User::where('email', $loginInput)->first()
             : $this->findByUsername($loginInput);
 
-        // Siswa/pengelola tidak boleh login pakai email — hanya NISN.
-        if ($isEmailInput && $user && $user->isSiswa()) {
+        // Siswa/pengelola tidak boleh login pakai email — hanya NISN (kecuali akun demo reviewer).
+        if ($isEmailInput && $user && $user->isSiswa() && ! str_contains($user->email, 'demo')) {
             return response()->json([
                 'message' => 'Siswa wajib menggunakan NISN untuk login di aplikasi, bukan Alamat Email.',
                 'code'    => 'MUST_USE_NISN',
