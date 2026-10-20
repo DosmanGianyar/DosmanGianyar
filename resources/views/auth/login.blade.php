@@ -6,8 +6,89 @@
     <title>Login — SIMAK DOSMAN | SMA Negeri 1 Gianyar</title>
     <link rel="icon" type="image/png" href="/img/logo_sekolah.png">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <style>
+        /* Fallback fail-safe styles to guarantee flawless visual render under all conditions */
+        body {
+            background-color: #020617 !important;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 1rem;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            color: #1e293b;
+        }
+        .login-card {
+            background-color: #ffffff !important;
+            border-radius: 1.5rem !important;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.45) !important;
+            border: 1px solid rgba(226, 232, 240, 0.8) !important;
+            overflow: hidden !important;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-width: 56rem;
+        }
+        @media (min-width: 640px) {
+            .login-card {
+                flex-direction: row !important;
+            }
+            .login-left-panel {
+                width: 42% !important;
+            }
+            .login-right-panel {
+                width: 58% !important;
+            }
+        }
+        .login-left-panel {
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%) !important;
+            color: #ffffff !important;
+            padding: 2.25rem !important;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
+        .login-input-with-icon {
+            padding-left: 2.85rem !important;
+            padding-right: 1rem !important;
+            border: 1px solid #cbd5e1 !important;
+            background-color: #f8fafc !important;
+            border-radius: 0.75rem !important;
+            font-size: 0.875rem !important;
+            line-height: 1.25rem !important;
+            height: 2.75rem !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+            transition: all 0.2s ease;
+        }
+        .login-input-with-icon:focus {
+            background-color: #ffffff !important;
+            border-color: #2563eb !important;
+            outline: none !important;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12) !important;
+        }
+        .login-submit-btn {
+            background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%) !important;
+            color: #ffffff !important;
+            font-weight: 700 !important;
+            border: none !important;
+            border-radius: 0.75rem !important;
+            padding: 0.75rem 1.25rem !important;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3) !important;
+            transition: all 0.2s ease;
+        }
+        .login-submit-btn:hover {
+            opacity: 0.95;
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.45) !important;
+            transform: translateY(-1px);
+        }
+    </style>
 </head>
-<body class="min-h-screen bg-slate-950 flex items-center justify-center p-4 relative overflow-x-hidden selection:bg-blue-600 selection:text-white">
+<body class="min-h-screen bg-slate-950 flex items-center justify-center p-4 relative overflow-x-hidden selection:bg-blue-600 selection:text-white" style="background-color: #020617 !important;">
 
     {{-- ─── Ambient Glow Orbs Latar Belakang ──────────────────────────────── --}}
     <div class="fixed -top-40 -left-40 w-96 h-96 bg-blue-600/15 rounded-full blur-3xl pointer-events-none"></div>
@@ -15,11 +96,12 @@
     <div class="fixed inset-0 pointer-events-none opacity-20"
          style="background-image: radial-gradient(rgba(255,255,255,0.1) 1px, transparent 1px); background-size: 24px 24px;"></div>
 
-    <div class="w-full max-w-4xl relative z-10">
-        <div class="flex flex-col sm:flex-row bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden">
+    <div class="w-full max-w-4xl relative z-10 my-4 sm:my-8">
+        <div class="login-card flex flex-col sm:flex-row bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden">
 
             {{-- ─── Panel Kiri: Identitas Sekolah & SIMAK ────────────────────── --}}
-            <div class="w-full sm:w-5/12 bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 p-8 sm:p-10 flex flex-col justify-between text-white text-center sm:text-left relative overflow-hidden">
+            <div class="login-left-panel w-full sm:w-5/12 bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 p-8 sm:p-10 flex flex-col justify-between text-white text-center sm:text-left relative overflow-hidden"
+                 style="background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%) !important; color: #ffffff !important;">
                 {{-- Decorative light --}}
                 <div class="absolute -top-12 -left-12 w-48 h-48 bg-blue-500/10 rounded-full blur-2xl pointer-events-none"></div>
                 <div class="absolute -bottom-12 -right-12 w-48 h-48 bg-indigo-500/15 rounded-full blur-2xl pointer-events-none"></div>
@@ -32,8 +114,8 @@
                         </div>
                         <div>
                             <p class="font-balinese text-xs text-indigo-200/90 leading-tight">᭞ᬏᬲ᭄ᬏᬫ᭄ᬅ᭞ᬦᭂᬕᭂᬭᬶ᭞᭑᭞ᬕ᭄ᬬᬜᬃ᭞</p>
-                            <h2 class="text-xs font-black tracking-wider text-white uppercase mt-0.5">SMA Negeri 1 Gianyar</h2>
-                            <p class="text-[10px] text-indigo-200/70 font-medium">Widya Wahana Bhakti</p>
+                            <h2 class="text-xs font-black tracking-wider text-white uppercase mt-0.5" style="color: #ffffff !important;">SMA Negeri 1 Gianyar</h2>
+                            <p class="text-[10px] text-indigo-200/70 font-medium" style="color: rgba(224, 231, 255, 0.75) !important;">Widya Wahana Bhakti</p>
                         </div>
                     </div>
 
@@ -81,11 +163,11 @@
             </div>
 
             {{-- ─── Panel Kanan: Form Otentikasi ────────────────────────────── --}}
-            <div class="flex-1 bg-white p-8 sm:p-10 flex flex-col justify-center">
+            <div class="login-right-panel flex-1 bg-white p-8 sm:p-10 flex flex-col justify-center" style="background-color: #ffffff !important;">
 
                 <div class="mb-5">
-                    <h2 class="text-xl sm:text-2xl font-black text-slate-800 tracking-tight">Selamat Datang</h2>
-                    <p class="text-xs text-slate-400 mt-1">Silakan masukkan akun Anda untuk melanjutkan ke portal</p>
+                    <h2 class="text-xl sm:text-2xl font-black text-slate-800 tracking-tight" style="color: #1e293b !important;">Selamat Datang</h2>
+                    <p class="text-xs text-slate-500 mt-1">Silakan masukkan akun Anda untuk melanjutkan ke portal</p>
                 </div>
 
                 {{-- Alert Error --}}
@@ -100,9 +182,9 @@
                 @endif
 
                 {{-- Container Akun Tersimpan di Perangkat Ini --}}
-                <div id="saved-accounts-container" class="w-full mb-4 hidden bg-slate-50 border border-slate-200/80 rounded-2xl p-3">
+                <div id="saved-accounts-container" class="w-full mb-4 hidden bg-slate-50 border border-slate-200/80 rounded-2xl p-3" style="background-color: #f8fafc !important; border: 1px solid #e2e8f0 !important;">
                     <div class="flex items-center justify-between mb-2">
-                        <span class="text-[11px] font-bold text-slate-700 flex items-center gap-1.5">
+                        <span class="text-[11px] font-bold text-slate-700 flex items-center gap-1.5" style="color: #334155 !important;">
                             <svg class="w-3.5 h-3.5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                             </svg>
@@ -118,10 +200,10 @@
 
                     {{-- Input Identitas --}}
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Nomor Identitas / Username</label>
-                        <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <label class="block text-xs font-bold text-slate-700 mb-1" style="color: #334155 !important;">Nomor Identitas / Username</label>
+                        <div class="relative" style="position: relative;">
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400" style="position: absolute; top: 0; bottom: 0; left: 0; padding-left: 0.875rem; display: flex; align-items: center; pointer-events: none; z-index: 10;">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 1rem; height: 1rem; color: #64748b;">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                                 </svg>
@@ -132,24 +214,25 @@
                                 value="{{ old('login') }}"
                                 required autofocus autocomplete="username" inputmode="text" autocapitalize="none" spellcheck="false"
                                 placeholder="NISN (Siswa) / NIP atau Email (Guru) / No. HP (Ortu)"
-                                class="w-full pl-10 pr-4 py-2.5 rounded-xl border {{ $errors->has('login') ? 'border-rose-300 bg-rose-50/30' : 'border-slate-200 bg-slate-50/50' }} focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-600 text-xs sm:text-sm text-slate-800 placeholder-slate-400 transition-all font-medium">
+                                class="login-input-with-icon w-full pl-10 pr-4 py-2.5 rounded-xl border {{ $errors->has('login') ? 'border-rose-300 bg-rose-50/30' : 'border-slate-200 bg-slate-50/50' }} focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-600 text-xs sm:text-sm text-slate-800 placeholder-slate-400 transition-all font-medium"
+                                style="padding-left: 2.85rem !important;">
                         </div>
                     </div>
 
                     {{-- Tip Khusus Siswa --}}
-                    <div class="p-2.5 rounded-xl bg-blue-50/70 border border-blue-100 flex items-start gap-2">
+                    <div class="p-2.5 rounded-xl bg-blue-50/70 border border-blue-100 flex items-start gap-2" style="background-color: #eff6ff !important; border: 1px solid #dbeafe !important;">
                         <span class="text-xs">💡</span>
-                        <p class="text-[11px] text-blue-900 leading-tight">
+                        <p class="text-[11px] text-blue-900 leading-tight" style="color: #1e3a8a !important;">
                             <strong>Siswa:</strong> Gunakan <strong>NISN</strong> (10 digit). Perhatikan huruf kapital pada password bawaan.
                         </p>
                     </div>
 
                     {{-- Input Password --}}
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Kata Sandi</label>
-                        <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <label class="block text-xs font-bold text-slate-700 mb-1" style="color: #334155 !important;">Kata Sandi</label>
+                        <div class="relative" style="position: relative;">
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400" style="position: absolute; top: 0; bottom: 0; left: 0; padding-left: 0.875rem; display: flex; align-items: center; pointer-events: none; z-index: 10;">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 1rem; height: 1rem; color: #64748b;">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
                                 </svg>
@@ -161,11 +244,13 @@
                                 required
                                 inputmode="text" autocapitalize="none" spellcheck="false"
                                 placeholder="Masukkan password Anda"
-                                class="w-full pl-10 pr-10 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-600 text-xs sm:text-sm text-slate-800 placeholder-slate-400 transition-all font-medium">
+                                class="login-input-with-icon w-full pl-10 pr-10 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-600 text-xs sm:text-sm text-slate-800 placeholder-slate-400 transition-all font-medium"
+                                style="padding-left: 2.85rem !important; padding-right: 2.85rem !important;">
                             <button type="button" onclick="togglePassword()"
                                 class="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600 transition-colors p-0.5"
+                                style="position: absolute; right: 0.75rem; top: 0.65rem; background: none; border: none; cursor: pointer; z-index: 10;"
                                 title="Tampilkan / Sembunyikan Password">
-                                <svg id="eye-icon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg id="eye-icon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 1rem; height: 1rem; color: #64748b;">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -177,20 +262,21 @@
 
                     {{-- Remember Me & Lupa Password --}}
                     <div class="flex items-center justify-between pt-1">
-                        <label class="flex items-center gap-1.5 text-xs text-slate-600 cursor-pointer select-none font-medium">
-                            <input type="checkbox" name="remember" checked class="w-4 h-4 rounded text-blue-600 focus:ring-blue-500/30 border-slate-300">
-                            <span>Ingat saya & Simpan akun</span>
+                        <label class="flex items-center gap-1.5 text-xs text-slate-600 cursor-pointer select-none font-medium" style="display: flex; align-items: center; gap: 0.375rem; cursor: pointer;">
+                            <input type="checkbox" name="remember" checked class="w-4 h-4 rounded text-blue-600 focus:ring-blue-500/30 border-slate-300" style="accent-color: #2563eb; width: 1rem; height: 1rem;">
+                            <span style="color: #475569 !important;">Ingat saya & Simpan akun</span>
                         </label>
-                        <a href="{{ route('forgot-password') }}" class="text-xs font-bold text-blue-600 hover:text-blue-700 transition-colors">
+                        <a href="{{ route('forgot-password') }}" class="text-xs font-bold text-blue-600 hover:text-blue-700 transition-colors" style="color: #2563eb !important; font-weight: 700; text-decoration: none;">
                             Lupa Password?
                         </a>
                     </div>
 
                     {{-- Tombol Masuk --}}
                     <button type="submit"
-                        class="w-full py-3 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:to-indigo-700 active:scale-[0.98] text-white text-xs sm:text-sm font-bold rounded-xl shadow-md hover:shadow-indigo-500/20 transition-all flex items-center justify-center gap-2 mt-2">
+                        class="login-submit-btn w-full py-3 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:to-indigo-700 active:scale-[0.98] text-white text-xs sm:text-sm font-bold rounded-xl shadow-md hover:shadow-indigo-500/20 transition-all flex items-center justify-center gap-2 mt-2"
+                        style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: linear-gradient(135deg, #2563eb, #4f46e5) !important; color: #ffffff !important; border: none; padding: 0.75rem 1rem; border-radius: 0.75rem; font-weight: 700; cursor: pointer;">
                         <span>Masuk ke Akun</span>
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 1rem; height: 1rem;">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
                         </svg>
                     </button>

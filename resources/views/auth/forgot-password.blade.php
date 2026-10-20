@@ -6,8 +6,49 @@
     <title>Lupa Password — SIMAK DOSMAN | SMA Negeri 1 Gianyar</title>
     <link rel="icon" type="image/png" href="/img/logo_sekolah.png">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <style>
+        body {
+            background-color: #020617 !important;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 1rem;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            color: #1e293b;
+        }
+        .auth-card {
+            background-color: #ffffff !important;
+            border-radius: 1.5rem !important;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.45) !important;
+            border: 1px solid rgba(226, 232, 240, 0.8) !important;
+            overflow: hidden !important;
+        }
+        .auth-header {
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%) !important;
+            color: #ffffff !important;
+        }
+        .login-input-with-icon {
+            padding-left: 2.85rem !important;
+            padding-right: 1rem !important;
+            border: 1px solid #cbd5e1 !important;
+            background-color: #f8fafc !important;
+            border-radius: 0.75rem !important;
+            font-size: 0.875rem !important;
+            height: 2.75rem !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        .login-input-with-icon:focus {
+            background-color: #ffffff !important;
+            border-color: #2563eb !important;
+            outline: none !important;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12) !important;
+        }
+    </style>
 </head>
-<body class="min-h-screen bg-slate-950 flex items-center justify-center p-4 relative overflow-x-hidden selection:bg-blue-600 selection:text-white">
+<body class="min-h-screen bg-slate-950 flex items-center justify-center p-4 relative overflow-x-hidden selection:bg-blue-600 selection:text-white" style="background-color: #020617 !important;">
 
     {{-- ─── Ambient Glow Orbs Latar Belakang ──────────────────────────────── --}}
     <div class="fixed -top-40 -left-40 w-96 h-96 bg-blue-600/15 rounded-full blur-3xl pointer-events-none"></div>
@@ -16,22 +57,23 @@
          style="background-image: radial-gradient(rgba(255,255,255,0.1) 1px, transparent 1px); background-size: 24px 24px;"></div>
 
     <div class="w-full max-w-md relative z-10">
-        <div class="bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden">
+        <div class="auth-card bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden">
 
             {{-- ─── Header Card ─────────────────────────────────────────── --}}
-            <div class="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 px-8 pt-8 pb-6 text-center text-white relative overflow-hidden">
+            <div class="auth-header bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 px-8 pt-8 pb-6 text-center text-white relative overflow-hidden"
+                 style="background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%) !important; color: #ffffff !important;">
                 <div class="relative z-10 flex flex-col items-center">
                     <div class="w-14 h-14 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 p-2.5 flex items-center justify-center mb-3 shadow-inner">
                         <img src="/img/logo_sekolah.png" alt="Logo SMAN 1 Gianyar" class="w-full h-full object-contain">
                     </div>
                     <p class="font-balinese text-xs text-indigo-200/90 leading-tight mb-0.5">᭞ᬏᬲ᭄ᬏᬫ᭄ᬅ᭞ᬦᭂᬕᭂᬭᬶ᭞᭑᭞ᬕ᭄ᬬᬜᬃ᭞</p>
-                    <h1 class="text-lg font-bold text-white tracking-tight">Permintaan Reset Password</h1>
-                    <p class="text-xs text-indigo-200/80 mt-0.5 font-medium">SIMAK DOSMAN &middot; SMAN 1 Gianyar</p>
+                    <h1 class="text-lg font-bold text-white tracking-tight" style="color: #ffffff !important;">Permintaan Reset Password</h1>
+                    <p class="text-xs text-indigo-200/80 mt-0.5 font-medium" style="color: rgba(224, 231, 255, 0.8) !important;">SIMAK DOSMAN &middot; SMAN 1 Gianyar</p>
                 </div>
             </div>
 
             {{-- ─── Body Form ────────────────────────────────────────────── --}}
-            <div class="p-6 sm:p-8">
+            <div class="p-6 sm:p-8" style="background-color: #ffffff !important;">
                 <p class="text-xs text-slate-500 mb-5 text-center leading-relaxed">
                     Masukkan <strong>NISN / NIP / No. HP</strong> beserta <strong>Tanggal Lahir</strong> Anda yang terdaftar untuk mengajukan reset kata sandi ke Admin Sekolah.
                 </p>
@@ -61,10 +103,10 @@
                     @csrf
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Nomor Pengenal Akun</label>
-                        <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <label class="block text-xs font-bold text-slate-700 mb-1" style="color: #334155 !important;">Nomor Pengenal Akun</label>
+                        <div class="relative" style="position: relative;">
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400" style="position: absolute; top: 0; bottom: 0; left: 0; padding-left: 0.875rem; display: flex; align-items: center; pointer-events: none; z-index: 10;">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 1rem; height: 1rem; color: #64748b;">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                                 </svg>
@@ -75,15 +117,16 @@
                                 value="{{ old('identifier') }}"
                                 required autofocus
                                 placeholder="NISN / NIP / Nomor HP"
-                                class="w-full pl-10 pr-4 py-2.5 rounded-xl border {{ $errors->has('identifier') ? 'border-rose-300 bg-rose-50/30' : 'border-slate-200 bg-slate-50/50' }} focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-600 text-xs sm:text-sm text-slate-800 placeholder-slate-400 transition-all font-medium">
+                                class="login-input-with-icon w-full pl-10 pr-4 py-2.5 rounded-xl border {{ $errors->has('identifier') ? 'border-rose-300 bg-rose-50/30' : 'border-slate-200 bg-slate-50/50' }} focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-600 text-xs sm:text-sm text-slate-800 placeholder-slate-400 transition-all font-medium"
+                                style="padding-left: 2.85rem !important;">
                         </div>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Tanggal Lahir Terdaftar</label>
-                        <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <label class="block text-xs font-bold text-slate-700 mb-1" style="color: #334155 !important;">Tanggal Lahir Terdaftar</label>
+                        <div class="relative" style="position: relative;">
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400" style="position: absolute; top: 0; bottom: 0; left: 0; padding-left: 0.875rem; display: flex; align-items: center; pointer-events: none; z-index: 10;">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 1rem; height: 1rem; color: #64748b;">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                                 </svg>
@@ -93,14 +136,16 @@
                                 name="birth_date"
                                 value="{{ old('birth_date') }}"
                                 required
-                                class="w-full pl-10 pr-4 py-2.5 rounded-xl border {{ $errors->has('birth_date') ? 'border-rose-300 bg-rose-50/30' : 'border-slate-200 bg-slate-50/50' }} focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-600 text-xs sm:text-sm text-slate-800 transition-all font-medium">
+                                class="login-input-with-icon w-full pl-10 pr-4 py-2.5 rounded-xl border {{ $errors->has('birth_date') ? 'border-rose-300 bg-rose-50/30' : 'border-slate-200 bg-slate-50/50' }} focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-600 text-xs sm:text-sm text-slate-800 transition-all font-medium"
+                                style="padding-left: 2.85rem !important;">
                         </div>
                     </div>
 
                     <button type="submit"
-                        class="w-full py-3 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:to-indigo-700 active:scale-[0.98] text-white text-xs sm:text-sm font-bold rounded-xl shadow-md hover:shadow-indigo-500/20 transition-all flex items-center justify-center gap-2 mt-2">
+                        class="w-full py-3 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:to-indigo-700 active:scale-[0.98] text-white text-xs sm:text-sm font-bold rounded-xl shadow-md hover:shadow-indigo-500/20 transition-all flex items-center justify-center gap-2 mt-2"
+                        style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: linear-gradient(135deg, #2563eb, #4f46e5) !important; color: #ffffff !important; border: none; padding: 0.75rem 1rem; border-radius: 0.75rem; font-weight: 700; cursor: pointer;">
                         <span>Kirim Permintaan Reset</span>
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 1rem; height: 1rem;">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
                         </svg>
                     </button>
