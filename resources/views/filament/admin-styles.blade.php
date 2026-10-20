@@ -257,8 +257,9 @@
     right: 0 !important;
     z-index: 10 !important;
     background: #0f1d33 !important;
-    box-shadow: -6px 0 16px rgba(0, 0, 0, 0.45) !important;
-    min-width: 140px !important;
+    border-left: 1px solid rgba(255, 255, 255, 0.08) !important;
+    box-shadow: -8px 0 16px -2px rgba(0, 0, 0, 0.5) !important;
+    min-width: 130px !important;
     text-align: center !important;
 }
 
@@ -268,13 +269,103 @@
     right: 0 !important;
     z-index: 5 !important;
     background: #0f1d33 !important;
-    box-shadow: -6px 0 16px rgba(0, 0, 0, 0.45) !important;
-    min-width: 140px !important;
+    border-left: 1px solid rgba(255, 255, 255, 0.08) !important;
+    box-shadow: -8px 0 16px -2px rgba(0, 0, 0, 0.5) !important;
+    min-width: 130px !important;
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+    text-align: center !important;
 }
 
 .fi-ta-table tr:hover td.fi-ta-actions-cell,
 .fi-ta-table tr:hover td.fi-ta-cell:has(.fi-ta-actions) {
     background: #172a4a !important;
+}
+
+/* ─── Modern Table Action Buttons Styling ────────────────────── */
+.fi-ta-actions {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.35rem !important;
+    flex-wrap: nowrap !important;
+    white-space: nowrap !important;
+}
+
+/* Primary View / Periksa Action Button: Sleek Glass Pill */
+.fi-ta-actions .fi-btn {
+    border-radius: 9999px !important;
+    font-size: 0.72rem !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.02em !important;
+    padding: 0.25rem 0.65rem !important;
+    line-height: 1rem !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.25rem !important;
+}
+
+.fi-ta-actions .fi-btn svg {
+    width: 0.95rem !important;
+    height: 0.95rem !important;
+    flex-shrink: 0 !important;
+}
+
+/* Info Outlined Button */
+.fi-ta-actions .fi-btn-color-info {
+    background: rgba(56, 189, 248, 0.1) !important;
+    border: 1px solid rgba(56, 189, 248, 0.35) !important;
+    color: #7dd3fc !important;
+}
+
+.fi-ta-actions .fi-btn-color-info:hover {
+    background: rgba(56, 189, 248, 0.22) !important;
+    border-color: rgba(56, 189, 248, 0.65) !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 10px rgba(56, 189, 248, 0.3) !important;
+    transform: translateY(-1px) !important;
+}
+
+/* Primary Outlined Button */
+.fi-ta-actions .fi-btn-color-primary {
+    background: rgba(99, 102, 241, 0.12) !important;
+    border: 1px solid rgba(99, 102, 241, 0.35) !important;
+    color: #a5b4fc !important;
+}
+
+.fi-ta-actions .fi-btn-color-primary:hover {
+    background: rgba(99, 102, 241, 0.25) !important;
+    border-color: rgba(99, 102, 241, 0.65) !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 10px rgba(99, 102, 241, 0.3) !important;
+    transform: translateY(-1px) !important;
+}
+
+/* Secondary ActionGroup Ellipsis Button */
+.fi-ta-actions .fi-icon-btn,
+.fi-ta-actions .fi-ta-action-group .fi-icon-btn,
+.fi-ta-actions .fi-ta-action-group button {
+    border-radius: 9999px !important;
+    background: rgba(148, 163, 184, 0.08) !important;
+    border: 1px solid rgba(148, 163, 184, 0.22) !important;
+    color: #94a3b8 !important;
+    width: 1.85rem !important;
+    height: 1.85rem !important;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.fi-ta-actions .fi-icon-btn:hover,
+.fi-ta-actions .fi-ta-action-group .fi-icon-btn:hover,
+.fi-ta-actions .fi-ta-action-group button:hover {
+    background: rgba(148, 163, 184, 0.2) !important;
+    border-color: rgba(148, 163, 184, 0.45) !important;
+    color: #f8fafc !important;
+    transform: translateY(-1px) !important;
 }
 
 .fi-dropdown-panel,

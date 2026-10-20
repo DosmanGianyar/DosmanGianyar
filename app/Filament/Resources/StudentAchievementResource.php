@@ -656,11 +656,12 @@ class StudentAchievementResource extends Resource
             ->recordUrl(fn (StudentAchievement $record): string => static::getUrl('view', ['record' => $record]))
             ->actions([
                 ViewAction::make()
-                    ->label('Periksa Ajuan')
+                    ->label('Periksa')
+                    ->tooltip('Periksa Berkas & Detail Prestasi')
                     ->icon('heroicon-o-eye')
-                    ->button()
-                    ->color('primary')
-                    ->size('sm'),
+                    ->color('info')
+                    ->size('xs')
+                    ->outlined(),
 
                 ActionGroup::make([
                     Action::make('link_to_team')
@@ -755,7 +756,7 @@ class StudentAchievementResource extends Resource
                         ->modalDescription('Apakah Anda yakin ingin menghapus data ajuan prestasi ini secara permanen? Data yang dihapus tidak dapat dikembalikan.'),
                 ])
                     ->icon('heroicon-m-ellipsis-vertical')
-                    ->size('sm')
+                    ->size('xs')
                     ->color('gray')
                     ->tooltip('Opsi Lainnya'),
             ])

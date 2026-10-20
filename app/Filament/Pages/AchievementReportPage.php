@@ -229,11 +229,12 @@ class AchievementReportPage extends Page implements HasTable
             ])
             ->actions([
                 Action::make('view_detail')
-                    ->label('Lihat Detail & Berkas')
+                    ->label('Periksa')
+                    ->tooltip('Periksa Berkas & Detail Prestasi')
                     ->icon('heroicon-o-eye')
-                    ->color('primary')
-                    ->button()
-                    ->size('sm')
+                    ->color('info')
+                    ->size('xs')
+                    ->outlined()
                     ->url(fn (StudentAchievement $record): string => StudentAchievementResource::getUrl('view', ['record' => $record])),
             ])
             ->defaultSort('achievement_date', 'desc')
