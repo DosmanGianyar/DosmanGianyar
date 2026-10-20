@@ -251,14 +251,14 @@
     overflow-x: auto !important;
 }
 
-/* ─── Sticky Action Column in Tables ─────────────────────────── */
+/* ─── Sticky Action Column in Tables (Seamless without harsh floating shadow) ─── */
 .fi-ta-table th.fi-ta-actions-header-cell {
     position: sticky !important;
     right: 0 !important;
     z-index: 10 !important;
     background: #0f1d33 !important;
-    border-left: 1px solid rgba(255, 255, 255, 0.08) !important;
-    box-shadow: -8px 0 16px -2px rgba(0, 0, 0, 0.5) !important;
+    border-left: 1px solid rgba(255, 255, 255, 0.04) !important;
+    box-shadow: none !important;
     min-width: 130px !important;
     text-align: center !important;
 }
@@ -269,8 +269,8 @@
     right: 0 !important;
     z-index: 5 !important;
     background: #0f1d33 !important;
-    border-left: 1px solid rgba(255, 255, 255, 0.08) !important;
-    box-shadow: -8px 0 16px -2px rgba(0, 0, 0, 0.5) !important;
+    border-left: 1px solid rgba(255, 255, 255, 0.04) !important;
+    box-shadow: none !important;
     min-width: 130px !important;
     padding-left: 0.5rem !important;
     padding-right: 0.5rem !important;
@@ -632,22 +632,27 @@
     width: 100% !important;
 }
 
-/* ─── Data Siswa: tombol aksi horizontal satu baris (single row nowrap, jarak rapi) ─── */
+/* ─── Data Siswa: tombol aksi grid 3x3 rapi, jarak lega & proporsional ─── */
 body.sims-users-actions-grid .fi-ta-actions {
-    display: inline-flex !important;
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
+    display: grid !important;
+    grid-template-columns: repeat(3, 2.1rem) !important;
+    grid-auto-flow: row !important;
     align-items: center !important;
     justify-content: center !important;
-    gap: 0.35rem !important;
-    width: auto !important;
+    gap: 0.55rem 0.55rem !important;
+    width: fit-content !important;
+    margin: 0 auto !important;
+    padding: 0.35rem 0 !important;
 }
 
 body.sims-users-actions-grid .fi-ta-table th.fi-ta-actions-header-cell,
 body.sims-users-actions-grid .fi-ta-table td.fi-ta-actions-cell,
 body.sims-users-actions-grid .fi-ta-table td.fi-ta-cell:has(.fi-ta-actions) {
-    min-width: 290px !important;
+    min-width: 145px !important;
+    max-width: 165px !important;
     text-align: center !important;
+    box-shadow: none !important;
+    border-left: 1px solid rgba(255, 255, 255, 0.04) !important;
 }
 /* ─── Dashboard Hero Banner — Explicit CSS (No Tailwind Dependency) ─── */
 .sims-dashboard-hero {
