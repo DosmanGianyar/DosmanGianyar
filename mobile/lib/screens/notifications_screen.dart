@@ -11,6 +11,7 @@ import '../services/push_notification_service.dart';
 import 'announcement_list_screen.dart';
 import 'chat/chat_list_screen.dart';
 import 'chat/student_chat_entry.dart';
+import '../widgets/rich_content_view.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -595,7 +596,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               Padding(
                 padding: const EdgeInsets.fromLTRB(14, 2, 14, 8),
                 child: Text(
-                  item.body,
+                  RichContentView.stripHtml(item.body),
                   style: TextStyle(
                     fontSize: 13,
                     color: isUnread ? const Color(0xFF1E293B) : const Color(0xFF64748B),

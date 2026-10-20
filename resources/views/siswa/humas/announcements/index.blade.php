@@ -37,7 +37,7 @@
             </div>
 
             <h3 class="text-base font-bold text-gray-900 leading-snug mb-1.5">{{ $ann->title }}</h3>
-            <p class="text-xs text-gray-600 line-clamp-3 leading-relaxed">{{ $ann->body }}</p>
+            <p class="text-xs text-gray-600 line-clamp-3 leading-relaxed">{{ Str::limit(strip_tags($ann->body), 150) }}</p>
 
             <div class="mt-3 pt-2.5 border-t border-gray-50 flex items-center justify-end">
                 <span class="text-xs font-bold text-orange-600 hover:underline">Baca Selengkapnya →</span>

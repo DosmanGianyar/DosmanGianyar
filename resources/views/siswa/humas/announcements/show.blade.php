@@ -33,10 +33,30 @@
             </div>
         @endif
 
-        <div class="text-sm text-gray-800 whitespace-pre-line leading-relaxed pt-2">
-            {!! nl2br(e($announcement->body)) !!}
+        @php
+            $hasHtml = $announcement->body !== strip_tags($announcement->body);
+        @endphp
+        <div class="announcement-content text-sm text-gray-800 leading-relaxed pt-2">
+            @if($hasHtml)
+                {!! $announcement->body !!}
+            @else
+                {!! nl2br(e($announcement->body)) !!}
+            @endif
         </div>
     </div>
+
+    <style>
+    .announcement-content p { margin-bottom: 0.75rem; }
+    .announcement-content h1, .announcement-content h2, .announcement-content h3 { font-weight: 800; margin-top: 1.25rem; margin-bottom: 0.5rem; color: #0f172a; }
+    .announcement-content ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 0.75rem; }
+    .announcement-content ol { list-style-type: decimal; padding-left: 1.5rem; margin-bottom: 0.75rem; }
+    .announcement-content li { margin-bottom: 0.25rem; }
+    .announcement-content blockquote { border-left: 4px solid #ea580c; padding-left: 1rem; font-style: italic; color: #475569; margin: 0.75rem 0; background: #fff7ed; padding-top: 0.5rem; padding-bottom: 0.5rem; border-radius: 0 8px 8px 0; }
+    .announcement-content a { color: #ea580c; text-decoration: underline; font-weight: 600; }
+    .announcement-content table { width: 100%; border-collapse: collapse; margin-bottom: 0.75rem; border-radius: 8px; overflow: hidden; }
+    .announcement-content th, .announcement-content td { border: 1px solid #e2e8f0; padding: 8px 12px; font-size: 13px; }
+    .announcement-content th { background-color: #f1f5f9; font-weight: 700; color: #1e293b; }
+    </style>
 
     {{-- Pengumuman Lainnya --}}
     @if($otherAnnouncements->isNotEmpty())

@@ -4,6 +4,7 @@ import '../models/announcement.dart';
 import '../services/announcement_popup_storage.dart';
 import '../theme/app_colors.dart';
 import 'image_viewer_dialog.dart';
+import 'rich_content_view.dart';
 
 /// Modal Dialog Pengumuman Sekolah Otomatis untuk Siswa.
 /// Perilaku:
@@ -328,9 +329,9 @@ class AnnouncementPopupDialog extends StatelessWidget {
                           borderRadius: BorderRadius.circular(14),
                           border: Border.all(color: AppColors.gray200),
                         ),
-                        child: Text(
-                          announcement.body,
-                          style: const TextStyle(
+                        child: RichContentView(
+                          content: announcement.body,
+                          baseStyle: const TextStyle(
                             fontSize: 13.5,
                             color: AppColors.gray800,
                             height: 1.55,

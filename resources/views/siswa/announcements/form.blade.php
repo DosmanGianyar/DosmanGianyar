@@ -23,10 +23,12 @@
 
     <div>
         <label class="block text-xs font-semibold text-gray-600 mb-1">Isi Pengumuman <span class="text-red-500">*</span></label>
-        <textarea name="body" rows="8"
-            placeholder="Tulis isi pengumuman di sini..."
-            required
-            class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none @error('body') border-red-300 @enderror">{{ old('body', $announcement?->body) }}</textarea>
+        <div class="border border-gray-200 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 bg-white">
+            <div id="quill-editor" style="min-height: 220px; font-size: 14px;">
+                {!! old('body', $announcement?->body) !!}
+            </div>
+        </div>
+        <textarea name="body" id="body-hidden" class="hidden" required>{{ old('body', $announcement?->body) }}</textarea>
         @error('body') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
     </div>
 
@@ -80,9 +82,48 @@
     </label>
 
     <button type="submit"
-        class="w-full bg-blue-600 text-white font-semibold py-3.5 rounded-xl text-sm">
+        class="w-full bg-blue-600 text-white font-semibold py-3.5 rounded-xl text-sm shadow-md hover:bg-blue-700 active:scale-95 transition-all">
         {{ $announcement ? 'Simpan Perubahan' : 'Terbitkan Pengumuman' }}
     </button>
 </form>
+
+{{-- Open-Source Rich Text Editor (Quill.js) --}}
+<link href="https://cdn.jsdelivr.net/npm/quill@2/dist/quill.snow.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/quill@2/dist/quill.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const quill = new Quill('#quill-editor', {
+            theme: 'snow',
+            placeholder: 'Tulis isi pengumuman lengkap dengan format teks (tebal, miring, daftar, link, dsb)...',
+            modules: {
+                toolbar: [
+                    [{ 'header': [1, 2, 3, false] }],
+                    ['bold', 'italic', 'underline', 'strike'],
+                    [{ 'color': [] }, { 'background': [] }],
+                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                    ['blockquote', 'code-block'],
+                    ['link', 'clean']
+                ]
+            }
+        });
+
+        const hiddenInput = document.getElementById('body-hidden');
+
+        // Sinkronisasi teks saat pengguna mengetik
+        quill.on('text-change', function() {
+            const html = quill.root.innerHTML;
+            hiddenInput.value = (html === '<p><br></p>' || html.trim() === '') ? '' : html;
+        });
+
+        // Sinkronisasi saat form di-submit
+        const form = document.querySelector('form');
+        if (form) {
+            form.addEventListener('submit', function() {
+                const html = quill.root.innerHTML;
+                hiddenInput.value = (html === '<p><br></p>' || html.trim() === '') ? '' : html;
+            });
+        }
+    });
+</script>
 
 @endsection

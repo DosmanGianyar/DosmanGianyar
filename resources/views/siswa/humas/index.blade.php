@@ -107,7 +107,7 @@
                     <span class="text-[10px] text-slate-400 font-medium">{{ $ann->published_at?->isoFormat('D MMMM Y') }}</span>
                 </div>
                 <h3 class="text-xs font-bold text-slate-800 line-clamp-1 leading-snug">{{ $ann->title }}</h3>
-                <p class="text-[11px] text-slate-500 line-clamp-2 mt-0.5 leading-relaxed">{{ $ann->body }}</p>
+                <p class="text-[11px] text-slate-500 line-clamp-2 mt-0.5 leading-relaxed">{{ Str::limit(strip_tags($ann->body), 120) }}</p>
             </div>
             <svg class="w-4 h-4 text-slate-300 shrink-0 self-center" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>

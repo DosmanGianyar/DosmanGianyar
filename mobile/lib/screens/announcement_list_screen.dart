@@ -4,6 +4,7 @@ import '../models/announcement.dart';
 import '../services/api_client.dart';
 import '../theme/app_colors.dart';
 import '../widgets/image_viewer_dialog.dart';
+import '../widgets/rich_content_view.dart';
 
 class AnnouncementListScreen extends StatefulWidget {
   const AnnouncementListScreen({super.key});
@@ -179,9 +180,12 @@ class _AnnouncementTile extends StatelessWidget {
               style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.gray800),
               maxLines: 2, overflow: TextOverflow.ellipsis),
             const SizedBox(height: 4),
-            Text(item.body,
+            Text(
+              RichContentView.stripHtml(item.body),
               style: const TextStyle(fontSize: 12, color: AppColors.gray500),
-              maxLines: 2, overflow: TextOverflow.ellipsis),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
             const SizedBox(height: 6),
             Row(children: [
               const Icon(Icons.person_outline_rounded, size: 11, color: AppColors.gray400),
@@ -347,8 +351,10 @@ class AnnouncementDetailScreen extends StatelessWidget {
             ],
             const Divider(color: AppColors.gray100),
             const SizedBox(height: 16),
-            SelectableText(item.body,
-              style: const TextStyle(fontSize: 14, color: AppColors.gray700, height: 1.6)),
+            RichContentView(
+              content: item.body,
+              baseStyle: const TextStyle(fontSize: 14, color: AppColors.gray700, height: 1.6),
+            ),
           ]),
         ),
       ),

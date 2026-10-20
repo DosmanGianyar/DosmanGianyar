@@ -12,8 +12,8 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
@@ -48,10 +48,24 @@ class AnnouncementResource extends Resource
                 ->placeholder('Contoh: Pengumuman Hari Libur Nasional')
                 ->columnSpanFull(),
 
-            Textarea::make('body')
-                ->label('Isi / Deskripsi Pengumuman')
-                ->rows(5)
+            RichEditor::make('body')
+                ->label('Isi / Deskripsi Pengumuman (Teks Kaya)')
                 ->required()
+                ->toolbarButtons([
+                    'bold',
+                    'italic',
+                    'underline',
+                    'strike',
+                    'link',
+                    'heading',
+                    'blockquote',
+                    'bulletList',
+                    'orderedList',
+                    'table',
+                    'undo',
+                    'redo',
+                ])
+                ->placeholder('Tulis pengumuman dengan format teks kaya (tebal, miring, daftar, tabel, link)...')
                 ->columnSpanFull(),
 
             FileUpload::make('image')
