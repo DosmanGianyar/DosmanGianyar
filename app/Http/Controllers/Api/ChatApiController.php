@@ -17,15 +17,15 @@ class ChatApiController extends Controller
     }
 
     /**
-     * GET /api/v1/chat/rooms?type=trio|parent_teacher
+     * GET /api/v1/chat/rooms?type=trio|parent_teacher|class_group
      * Daftar ruang obrolan sesuai user login
      */
     public function rooms(Request $request): JsonResponse
     {
         $user = auth()->user();
         $type = $request->query('type');
-        if ($user->isSiswa()) {
-            $type = 'trio';
+        if ($user->isSiswa() && $type === 'parent_teacher') {
+            $type = null;
         }
 
         $rooms = $this->chatService->getRoomsForUser($user, $type);
@@ -34,19 +34,21 @@ class ChatApiController extends Controller
             $student = $room->student;
             $class = $room->schoolClass;
             $unread = $room->unreadCountFor($user->id);
+            $isGroup = $room->isClassGroup();
 
             return [
                 'id'                    => $room->id,
                 'name'                  => $room->name,
                 'type'                  => $room->type ?? 'trio',
                 'is_private'            => $room->isParentTeacher(),
+                'is_group'              => $isGroup,
                 'student_id'            => $student?->id,
-                'student_name'          => $student?->name ?? $room->name,
+                'student_name'          => $isGroup ? ($room->name) : ($student?->name ?? $room->name),
                 'student_nis'           => $student?->nis ?? '',
                 'student_photo'         => $student?->photo_url ?? null,
                 'class_name'            => $class?->name ?? '',
                 'homeroom_teacher_name' => $class?->homeroomTeacher?->name ?? 'Belum ditentukan',
-                'parent_names'          => $student?->parentAccounts->pluck('name')->implode(', ') ?: 'Belum terhubung',
+                'parent_names'          => $isGroup ? ('Seluruh Siswa ' . ($class?->name ?? '')) : ($student?->parentAccounts->pluck('name')->implode(', ') ?: 'Belum terhubung'),
                 'unread_count'          => $unread,
                 'last_message'          => $room->last_message_text ?? '',
                 'last_message_at'       => $room->last_message_at?->toIso8601String() ?? null,
@@ -73,10 +75,19 @@ class ChatApiController extends Controller
             return response()->json(['success' => false, 'message' => 'Unauthorized: Private room'], 403);
         }
 
+        // Blokir jika orang tua mencoba membuka ruang grup kelas
+        if ($user->isOrangtua() && $room->isClassGroup()) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized: Class group is for students and homeroom teacher only'], 403);
+        }
+
         $isParticipant = $room->participants()->where('user_id', $user->id)->exists();
         if (! $isParticipant) {
             // Coba sinkronisasi otomatis jika relasi valid
-            if ($user->isSiswa() && $room->student_id === $user->id && $room->isTrio()) {
+            if ($room->isClassGroup() && $user->isSiswa() && $user->class_id === $room->school_class_id) {
+                $this->chatService->syncClassGroupParticipants($room, $room->schoolClass);
+            } elseif ($room->isClassGroup() && $user->isGuru() && $user->homeroomClass?->id === $room->school_class_id) {
+                $this->chatService->syncClassGroupParticipants($room, $room->schoolClass);
+            } elseif ($user->isSiswa() && $room->student_id === $user->id && $room->isTrio()) {
                 $this->chatService->syncRoomParticipants($room, $user);
             } elseif ($user->isOrangtua() && $user->children->contains('id', $room->student_id)) {
                 $this->chatService->syncRoomParticipants($room, $room->student);

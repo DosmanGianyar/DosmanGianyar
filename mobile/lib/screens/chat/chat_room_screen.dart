@@ -199,123 +199,151 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
   }
 
   void _showParticipantsSheet() {
+    final isGroup = _room?.isClassGroup ?? false;
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (ctx) {
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Center(
-                  child: Container(
-                    width: 40, height: 4,
-                    decoration: BoxDecoration(color: AppColors.gray200, borderRadius: BorderRadius.circular(2)),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Row(
+        return DraggableScrollableSheet(
+          initialChildSize: 0.65,
+          minChildSize: 0.4,
+          maxChildSize: 0.92,
+          expand: false,
+          builder: (context, scrollCtrl) {
+            return SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(color: AppColors.blue50, borderRadius: BorderRadius.circular(12)),
-                      child: const Icon(Icons.groups_rounded, color: AppColors.blue600, size: 24),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            _room?.name ?? 'Konsultasi Segitiga',
-                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.gray900),
-                          ),
-                          Text(
-                            'Kelas: ${_room?.className ?? "-"}',
-                            style: const TextStyle(fontSize: 12, color: AppColors.gray500),
-                          ),
-                        ],
+                    Center(
+                      child: Container(
+                        width: 40,
+                        height: 4,
+                        decoration: BoxDecoration(color: AppColors.gray200, borderRadius: BorderRadius.circular(2)),
                       ),
                     ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                const Divider(height: 1, color: AppColors.gray200),
-                const SizedBox(height: 12),
-                const Text('Anggota Ruang Obrolan:', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.gray700)),
-                const SizedBox(height: 10),
-                ..._participants.map((p) {
-                  final (badgeColor, badgeBg, roleIcon) = switch (p.role) {
-                    'Wali Kelas' => (const Color(0xFF6D28D9), const Color(0xFFEDE9FE), Icons.school_rounded),
-                    'Orang Tua'  => (const Color(0xFFB45309), const Color(0xFFFEF3C7), Icons.family_restroom_rounded),
-                    'Siswa'      => (const Color(0xFF047857), const Color(0xFFD1FAE5), Icons.face_rounded),
-                    _            => (AppColors.blue600, AppColors.blue50, Icons.person_rounded),
-                  };
-
-                  return Container(
-                    margin: const EdgeInsets.only(bottom: 10),
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: AppColors.gray50,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppColors.gray100),
-                    ),
-                    child: Row(
+                    const SizedBox(height: 16),
+                    Row(
                       children: [
                         Container(
-                          width: 38, height: 38,
-                          decoration: BoxDecoration(color: badgeBg, shape: BoxShape.circle),
-                          child: Icon(roleIcon, color: badgeColor, size: 20),
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: isGroup ? const Color(0xFFD1FAE5) : AppColors.blue50,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Icon(
+                            isGroup ? Icons.groups_3_rounded : Icons.groups_rounded,
+                            color: isGroup ? const Color(0xFF047857) : AppColors.blue600,
+                            size: 24,
+                          ),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      p.name,
-                                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.gray800),
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                    decoration: BoxDecoration(color: badgeBg, borderRadius: BorderRadius.circular(10)),
-                                    child: Text(
-                                      p.role,
-                                      style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: badgeColor),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 2),
                               Text(
-                                p.statusText,
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  color: p.statusText.contains('sekarang') ? AppColors.green600 : AppColors.gray400,
-                                  fontWeight: p.statusText.contains('sekarang') ? FontWeight.w600 : FontWeight.normal,
-                                ),
+                                _room?.name ?? (isGroup ? 'Grup Kelas' : 'Konsultasi Segitiga'),
+                                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.gray900),
+                              ),
+                              Text(
+                                isGroup ? 'Komunitas Siswa & Wali Kelas' : 'Kelas: ${_room?.className ?? "-"}',
+                                style: const TextStyle(fontSize: 12, color: AppColors.gray500),
                               ),
                             ],
                           ),
                         ),
                       ],
                     ),
-                  );
-                }),
-              ],
-            ),
-          ),
+                    const SizedBox(height: 16),
+                    const Divider(height: 1, color: AppColors.gray200),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Anggota Ruang Obrolan (${_participants.length}):',
+                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.gray700),
+                    ),
+                    const SizedBox(height: 10),
+                    Expanded(
+                      child: ListView.builder(
+                        controller: scrollCtrl,
+                        itemCount: _participants.length,
+                        itemBuilder: (ctx, i) {
+                          final p = _participants[i];
+                          final (badgeColor, badgeBg, roleIcon) = switch (p.role) {
+                            'Wali Kelas' => (const Color(0xFF6D28D9), const Color(0xFFEDE9FE), Icons.school_rounded),
+                            'Orang Tua'  => (const Color(0xFFB45309), const Color(0xFFFEF3C7), Icons.family_restroom_rounded),
+                            'Siswa'      => (const Color(0xFF047857), const Color(0xFFD1FAE5), Icons.face_rounded),
+                            _            => (AppColors.blue600, AppColors.blue50, Icons.person_rounded),
+                          };
+
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 10),
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: AppColors.gray50,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: AppColors.gray100),
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 38,
+                                  height: 38,
+                                  decoration: BoxDecoration(color: badgeBg, shape: BoxShape.circle),
+                                  child: Icon(roleIcon, color: badgeColor, size: 20),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: Text(
+                                              p.name,
+                                              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.gray800),
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                            decoration: BoxDecoration(color: badgeBg, borderRadius: BorderRadius.circular(10)),
+                                            child: Text(
+                                              p.role,
+                                              style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: badgeColor),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        p.statusText,
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          color: p.statusText.contains('sekarang') ? AppColors.green600 : AppColors.gray400,
+                                          fontWeight: p.statusText.contains('sekarang') ? FontWeight.w600 : FontWeight.normal,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
         );
       },
     );
@@ -328,23 +356,29 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
     // Subtitle ringkasan nama Wali Kelas, Siswa, Ortu
     String subtitle = '';
     if (_room != null) {
-      final parts = <String>[];
-      if (_room!.homeroomTeacherName.isNotEmpty && _room!.homeroomTeacherName != 'Belum ditentukan') {
-        parts.add('Wali: ${_room!.homeroomTeacherName}');
+      if (_room!.isClassGroup) {
+        subtitle = 'Komunitas Kelas • ${_participants.isNotEmpty ? "${_participants.length} Anggota" : "Siswa & Wali Kelas"}';
+      } else {
+        final parts = <String>[];
+        if (_room!.homeroomTeacherName.isNotEmpty && _room!.homeroomTeacherName != 'Belum ditentukan') {
+          parts.add('Wali: ${_room!.homeroomTeacherName}');
+        }
+        if (_room!.studentName.isNotEmpty) {
+          parts.add('Siswa: ${_room!.studentName}');
+        }
+        if (_room!.parentNames.isNotEmpty && _room!.parentNames != 'Belum terhubung') {
+          parts.add('Ortu: ${_room!.parentNames}');
+        }
+        subtitle = parts.join(' • ');
       }
-      if (_room!.studentName.isNotEmpty) {
-        parts.add('Siswa: ${_room!.studentName}');
-      }
-      if (_room!.parentNames.isNotEmpty && _room!.parentNames != 'Belum terhubung') {
-        parts.add('Ortu: ${_room!.parentNames}');
-      }
-      subtitle = parts.join(' • ');
     }
+
+    final isGroup = _room?.isClassGroup ?? false;
 
     return Scaffold(
       backgroundColor: const Color(0xFFEBE5DF), // WhatsApp / Telegram light background
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0F2460),
+        backgroundColor: isGroup ? const Color(0xFF064E3B) : const Color(0xFF0F2460),
         foregroundColor: Colors.white,
         elevation: 1,
         titleSpacing: 0,
@@ -358,7 +392,11 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                 CircleAvatar(
                   radius: 19,
                   backgroundColor: Colors.white.withValues(alpha: 0.20),
-                  child: const Icon(Icons.groups_rounded, color: Colors.white, size: 22),
+                  child: Icon(
+                    isGroup ? Icons.groups_3_rounded : Icons.groups_rounded,
+                    color: Colors.white,
+                    size: 22,
+                  ),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
@@ -402,18 +440,28 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // ─── Header Info Banner: Segitiga Konsultasi ───
+            // ─── Header Info Banner ───
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-              color: const Color(0xFFFEF3C7),
+              color: isGroup ? const Color(0xFFD1FAE5) : const Color(0xFFFEF3C7),
               child: Row(
                 children: [
-                  const Icon(Icons.security_rounded, size: 16, color: Color(0xFFB45309)),
+                  Icon(
+                    isGroup ? Icons.groups_3_rounded : Icons.security_rounded,
+                    size: 16,
+                    color: isGroup ? const Color(0xFF047857) : const Color(0xFFB45309),
+                  ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'Ruang konsultasi resmi: Siswa, Orang Tua, & Wali Kelas (${_room?.className ?? "Kelas"}).',
-                      style: const TextStyle(fontSize: 11, color: Color(0xFF92400E), fontWeight: FontWeight.w600),
+                      isGroup
+                          ? 'Ruang diskusi terbuka siswa & wali kelas (${_room?.className ?? "Kelas"}).'
+                          : 'Ruang konsultasi resmi: Siswa, Orang Tua, & Wali Kelas (${_room?.className ?? "Kelas"}).',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: isGroup ? const Color(0xFF065F46) : const Color(0xFF92400E),
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ],

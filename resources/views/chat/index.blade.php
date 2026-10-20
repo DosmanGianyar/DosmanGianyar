@@ -27,19 +27,39 @@
                 </div>
             </div>
         </div>
+    @elseif($activeTab === 'class_group')
+        {{-- Banner Grup Kelas --}}
+        <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-emerald-950 to-slate-900 p-4 sm:p-5 text-white shadow-sm">
+            <div class="relative z-10 flex items-center justify-between gap-4">
+                <div>
+                    <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/10 backdrop-blur-md text-[11px] font-bold text-emerald-200 border border-white/15 mb-2">
+                        <span>👥</span> Komunitas Kelas
+                    </div>
+                    <h1 class="text-base sm:text-lg font-bold tracking-tight text-white flex items-center gap-2">
+                        Grup Chat Teman Sekelas & Wali Kelas
+                    </h1>
+                    <p class="text-emerald-200/90 text-xs mt-1 max-w-xl leading-relaxed">
+                        Wadah resmi diskusi akademik, tugas harian, dan informasi perwalian bersama seluruh teman sekelas.
+                    </p>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-white/10 border border-white/15 backdrop-blur-md flex items-center justify-center text-2xl shrink-0 shadow-inner">
+                    👥
+                </div>
+            </div>
+        </div>
     @else
         {{-- Banner Ruang Bersama Siswa --}}
         <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-teal-950 p-4 sm:p-5 text-white shadow-sm">
             <div class="relative z-10 flex items-center justify-between gap-4">
                 <div>
                     <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/10 backdrop-blur-md text-[11px] font-bold text-teal-200 border border-white/15 mb-2">
-                        <span>💬</span> Ruang Konsultasi Bersama
+                        <span>💬</span> Ruang Komunikasi Resmi
                     </div>
                     <h1 class="text-base sm:text-lg font-bold tracking-tight text-white">
-                        Chat Siswa, Orang Tua & Wali Kelas
+                        Obrolan & Konsultasi Perwalian
                     </h1>
                     <p class="text-teal-200/90 text-xs mt-1 max-w-xl leading-relaxed">
-                        Forum komunikasi terpadu dan transparan antara Wali Kelas, Orang Tua, dan Siswa terkait pendampingan belajar.
+                        Komunikasi terarah antara Wali Kelas, Siswa, dan Orang Tua untuk mendukung kelancaran pembelajaran.
                     </p>
                 </div>
                 <div class="w-12 h-12 rounded-xl bg-white/10 border border-white/15 backdrop-blur-md flex items-center justify-center text-2xl shrink-0 shadow-inner">
@@ -49,11 +69,75 @@
         </div>
     @endif
 
-    {{-- ─── 2. Tab Switcher (Khusus Wali Kelas & Orang Tua) ──────────────── --}}
-    @if(!auth()->user()->isSiswa())
+    {{-- ─── 2. Tab Switcher ──────────────────────────────────────────────── --}}
+    @if(auth()->user()->isGuru())
         <div class="bg-white p-1 rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-1">
-            {{-- Tab 1: Ruang Bersama --}}
-            <a href="{{ route(auth()->user()->role . '.chat.index', ['tab' => 'trio']) }}"
+            <a href="{{ route('guru.chat.index', ['tab' => 'class_group']) }}"
+               class="flex-1 py-2 px-3 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all
+                      {{ $activeTab === 'class_group' ? 'bg-emerald-600 text-white shadow-xs' : 'text-slate-600 hover:bg-slate-50' }}">
+                <span>👥 Grup Kelas</span>
+                @if(($unreadStats['class_group'] ?? 0) > 0)
+                    <span class="px-2 py-0.5 rounded-full text-[10px] font-black {{ $activeTab === 'class_group' ? 'bg-white text-emerald-700' : 'bg-rose-500 text-white' }} animate-pulse">
+                        {{ $unreadStats['class_group'] }}
+                    </span>
+                @endif
+            </a>
+
+            <a href="{{ route('guru.chat.index', ['tab' => 'trio']) }}"
+               class="flex-1 py-2 px-3 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all
+                      {{ $activeTab === 'trio' ? 'bg-teal-600 text-white shadow-xs' : 'text-slate-600 hover:bg-slate-50' }}">
+                <span>👨‍👩‍👧 Konsultasi Siswa</span>
+                @if(($unreadStats['trio'] ?? 0) > 0)
+                    <span class="px-2 py-0.5 rounded-full text-[10px] font-black {{ $activeTab === 'trio' ? 'bg-white text-teal-700' : 'bg-rose-500 text-white' }} animate-pulse">
+                        {{ $unreadStats['trio'] }}
+                    </span>
+                @endif
+            </a>
+
+            <a href="{{ route('guru.chat.index', ['tab' => 'parent_teacher']) }}"
+               class="flex-1 py-2 px-3 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all
+                      {{ $activeTab === 'parent_teacher' ? 'bg-indigo-700 text-white shadow-xs' : 'text-slate-600 hover:bg-slate-50' }}">
+                <span>🔒 Privat Ortu</span>
+                @if(($unreadStats['parent_teacher'] ?? 0) > 0)
+                    <span class="px-2 py-0.5 rounded-full text-[10px] font-black {{ $activeTab === 'parent_teacher' ? 'bg-white text-indigo-700' : 'bg-rose-500 text-white' }} animate-pulse">
+                        {{ $unreadStats['parent_teacher'] }}
+                    </span>
+                @endif
+            </a>
+        </div>
+    @elseif(auth()->user()->isSiswa())
+        <div class="bg-white p-1 rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-1">
+            <a href="{{ route('siswa.chat.index', ['tab' => 'all']) }}"
+               class="flex-1 py-2 px-3 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all
+                      {{ $activeTab === 'all' ? 'bg-slate-800 text-white shadow-xs' : 'text-slate-600 hover:bg-slate-50' }}">
+                <span>Semua Obrolan</span>
+            </a>
+
+            <a href="{{ route('siswa.chat.index', ['tab' => 'class_group']) }}"
+               class="flex-1 py-2 px-3 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all
+                      {{ $activeTab === 'class_group' ? 'bg-emerald-600 text-white shadow-xs' : 'text-slate-600 hover:bg-slate-50' }}">
+                <span>👥 Grup Kelas</span>
+                @if(($unreadStats['class_group'] ?? 0) > 0)
+                    <span class="px-2 py-0.5 rounded-full text-[10px] font-black {{ $activeTab === 'class_group' ? 'bg-white text-emerald-700' : 'bg-rose-500 text-white' }} animate-pulse">
+                        {{ $unreadStats['class_group'] }}
+                    </span>
+                @endif
+            </a>
+
+            <a href="{{ route('siswa.chat.index', ['tab' => 'trio']) }}"
+               class="flex-1 py-2 px-3 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all
+                      {{ $activeTab === 'trio' ? 'bg-teal-600 text-white shadow-xs' : 'text-slate-600 hover:bg-slate-50' }}">
+                <span>👨‍👩‍👧 Konsultasi Segitiga</span>
+                @if(($unreadStats['trio'] ?? 0) > 0)
+                    <span class="px-2 py-0.5 rounded-full text-[10px] font-black {{ $activeTab === 'trio' ? 'bg-white text-teal-700' : 'bg-rose-500 text-white' }} animate-pulse">
+                        {{ $unreadStats['trio'] }}
+                    </span>
+                @endif
+            </a>
+        </div>
+    @elseif(auth()->user()->isOrangtua())
+        <div class="bg-white p-1 rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-1">
+            <a href="{{ route('orangtua.chat.index', ['tab' => 'trio']) }}"
                class="flex-1 py-2 px-3 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all
                       {{ $activeTab === 'trio' ? 'bg-teal-600 text-white shadow-xs' : 'text-slate-600 hover:bg-slate-50' }}">
                 <span>👥 Bersama Siswa</span>
@@ -64,8 +148,7 @@
                 @endif
             </a>
 
-            {{-- Tab 2: Ruang Privat Ortu & Wali --}}
-            <a href="{{ route(auth()->user()->role . '.chat.index', ['tab' => 'parent_teacher']) }}"
+            <a href="{{ route('orangtua.chat.index', ['tab' => 'parent_teacher']) }}"
                class="flex-1 py-2 px-3 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all
                       {{ $activeTab === 'parent_teacher' ? 'bg-indigo-700 text-white shadow-xs' : 'text-slate-600 hover:bg-slate-50' }}">
                 <span>🔒 Privat Ortu & Wali</span>
@@ -82,7 +165,7 @@
     @if($roomData->count() > 3)
     <div class="relative">
         <input type="text" id="chatSearchInput" placeholder="Cari nama siswa atau kelas..."
-               class="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200/80 rounded-2xl text-xs sm:text-sm focus:ring-2 {{ $activeTab === 'parent_teacher' ? 'focus:ring-indigo-500 focus:border-indigo-500' : 'focus:ring-teal-500 focus:border-teal-500' }} shadow-xs transition-all">
+               class="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200/80 rounded-2xl text-xs sm:text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 shadow-xs transition-all">
         <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
         </svg>
@@ -99,6 +182,7 @@
                 $unread    = $item['unread_count'];
                 $lastMsg   = $item['last_message'];
                 $lastTime  = $item['last_time'];
+                $isGroup   = $room->isClassGroup();
                 $isPrivate = $room->isParentTeacher();
 
                 $chatUrl = match(auth()->user()->role) {
@@ -112,15 +196,19 @@
             <a href="{{ $chatUrl }}"
                class="chat-room-card block bg-white rounded-2xl border p-3.5 transition-all group
                       {{ $unread > 0
-                         ? ($isPrivate ? 'border-indigo-300 ring-2 ring-indigo-500/20 bg-indigo-50/20 shadow-xs' : 'border-teal-300 ring-2 ring-teal-500/20 bg-teal-50/20 shadow-xs')
+                         ? ($isGroup ? 'border-emerald-300 ring-2 ring-emerald-500/20 bg-emerald-50/20 shadow-xs' : ($isPrivate ? 'border-indigo-300 ring-2 ring-indigo-500/20 bg-indigo-50/20 shadow-xs' : 'border-teal-300 ring-2 ring-teal-500/20 bg-teal-50/20 shadow-xs'))
                          : 'border-slate-200/80 hover:border-slate-300 shadow-2xs' }}
-                      {{ $isPrivate ? 'hover:border-indigo-400 hover:shadow-xs' : 'hover:border-teal-400 hover:shadow-xs' }}"
-               data-student-name="{{ strtolower($student?->name ?? '') }}"
+                      {{ $isGroup ? 'hover:border-emerald-400 hover:shadow-xs' : ($isPrivate ? 'hover:border-indigo-400 hover:shadow-xs' : 'hover:border-teal-400 hover:shadow-xs') }}"
+               data-student-name="{{ strtolower($student?->name ?? $room->name) }}"
                data-class-name="{{ strtolower($class?->name ?? '') }}">
                 <div class="flex items-center gap-3">
-                    {{-- Avatar Siswa --}}
+                    {{-- Avatar Siswa / Grup --}}
                     <div class="relative shrink-0">
-                        @if($student?->photo)
+                        @if($isGroup)
+                            <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-700 text-white font-bold text-lg flex items-center justify-center shadow-xs">
+                                👥
+                            </div>
+                        @elseif($student?->photo)
                             <img src="{{ $student->photo_url }}" alt="{{ $student->name }}"
                                  class="w-11 h-11 rounded-xl object-cover ring-2 {{ $isPrivate ? 'ring-indigo-100 group-hover:ring-indigo-300' : 'ring-slate-100 group-hover:ring-teal-300' }} transition-all">
                         @else
@@ -139,9 +227,13 @@
                     {{-- Info Siswa & Pesan Terakhir --}}
                     <div class="flex-1 min-w-0">
                         <div class="flex items-center justify-between gap-2 mb-0.5">
-                            <h3 class="font-bold text-slate-800 text-xs sm:text-sm truncate {{ $isPrivate ? 'group-hover:text-indigo-700' : 'group-hover:text-teal-700' }} transition-colors flex items-center gap-1.5">
-                                <span>{{ $student?->name ?? $room->name }}</span>
-                                @if($isPrivate)
+                            <h3 class="font-bold text-slate-800 text-xs sm:text-sm truncate {{ $isGroup ? 'group-hover:text-emerald-700' : ($isPrivate ? 'group-hover:text-indigo-700' : 'group-hover:text-teal-700') }} transition-colors flex items-center gap-1.5">
+                                <span>{{ $isGroup ? $room->name : ($student?->name ?? $room->name) }}</span>
+                                @if($isGroup)
+                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0">
+                                        👥 Grup Kelas
+                                    </span>
+                                @elseif($isPrivate)
                                     <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200 shrink-0">
                                         🔒 Privat
                                     </span>
@@ -156,9 +248,9 @@
 
                         <div class="flex items-center gap-2 mb-1">
                             <span class="inline-flex items-center px-1.5 py-0.2 rounded-md text-[9px] font-bold bg-slate-100 text-slate-600 border border-slate-200">
-                                Kelas {{ $class?->name ?? '—' }}
+                                {{ $isGroup ? 'Seluruh Siswa & Wali' : ('Kelas ' . ($class?->name ?? '—')) }}
                             </span>
-                            @if(auth()->user()->isOrangtua() && $class?->homeroomTeacher)
+                            @if(!$isGroup && auth()->user()->isOrangtua() && $class?->homeroomTeacher)
                                 <span class="text-[10px] text-slate-500 truncate">
                                     Wali: <strong class="text-slate-700">{{ $class->homeroomTeacher->name }}</strong>
                                 </span>
@@ -167,9 +259,9 @@
 
                         <p class="text-xs {{ $unread > 0 ? 'text-slate-900 font-bold' : 'text-slate-500' }} truncate flex items-center gap-1.5">
                             @if($unread > 0)
-                                <span class="w-1.5 h-1.5 rounded-full {{ $isPrivate ? 'bg-indigo-600' : 'bg-teal-500' }} shrink-0"></span>
+                                <span class="w-1.5 h-1.5 rounded-full {{ $isGroup ? 'bg-emerald-600' : ($isPrivate ? 'bg-indigo-600' : 'bg-teal-500') }} shrink-0"></span>
                             @endif
-                            <span class="truncate">{{ $lastMsg ?: ($isPrivate ? 'Belum ada obrolan privat dengan wali/ortu. Mulai sekarang.' : 'Belum ada percakapan. Mulai obrolan sekarang.') }}</span>
+                            <span class="truncate">{{ $lastMsg ?: ($isGroup ? 'Belum ada obrolan di grup kelas ini. Sapa teman-teman sekarang!' : ($isPrivate ? 'Belum ada obrolan privat dengan wali/ortu. Mulai sekarang.' : 'Belum ada percakapan. Mulai obrolan sekarang.')) }}</span>
                         </p>
                     </div>
 

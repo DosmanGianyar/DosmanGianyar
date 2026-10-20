@@ -1,8 +1,9 @@
 class ChatRoomModel {
   final int id;
   final String name;
-  final String type; // 'trio' | 'parent_teacher'
+  final String type; // 'trio' | 'parent_teacher' | 'class_group'
   final bool isPrivate;
+  final bool isGroup;
   final int? studentId;
   final String studentName;
   final String studentNis;
@@ -15,11 +16,14 @@ class ChatRoomModel {
   final String? lastMessageAt;
   final String lastTimeHuman;
 
+  bool get isClassGroup => type == 'class_group' || isGroup;
+
   const ChatRoomModel({
     required this.id,
     required this.name,
     required this.type,
     required this.isPrivate,
+    this.isGroup = false,
     this.studentId,
     required this.studentName,
     required this.studentNis,
@@ -39,6 +43,7 @@ class ChatRoomModel {
       name: json['name']?.toString() ?? '',
       type: json['type']?.toString() ?? 'trio',
       isPrivate: json['is_private'] == true,
+      isGroup: json['is_group'] == true || json['type']?.toString() == 'class_group',
       studentId: json['student_id'] != null ? int.tryParse(json['student_id'].toString()) : null,
       studentName: json['student_name']?.toString() ?? json['name']?.toString() ?? 'Siswa',
       studentNis: json['student_nis']?.toString() ?? '',

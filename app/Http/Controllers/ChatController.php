@@ -23,20 +23,20 @@ class ChatController extends Controller
     {
         $user = auth()->user();
 
-        // Jika siswa, hanya punya akses ke room miliknya yang bertipe 'trio'
-        if ($user->isSiswa()) {
-            $rooms = $this->chatService->getRoomsForUser($user, 'trio');
-            if ($rooms->isNotEmpty()) {
-                return redirect()->route('siswa.chat.show', $rooms->first()->id);
-            }
+        $allowedTabs = match ($user->role) {
+            'siswa'    => ['all', 'class_group', 'trio'],
+            'orangtua' => ['all', 'trio', 'parent_teacher'],
+            default    => ['all', 'class_group', 'trio', 'parent_teacher'],
+        };
+
+        $defaultTab = $user->isSiswa() ? 'all' : 'trio';
+        $activeTab = $request->query('tab', $defaultTab);
+        if (! in_array($activeTab, $allowedTabs)) {
+            $activeTab = $defaultTab;
         }
 
-        $activeTab = $request->query('tab', 'trio');
-        if (! in_array($activeTab, ['trio', 'parent_teacher'])) {
-            $activeTab = 'trio';
-        }
-
-        $rooms = $this->chatService->getRoomsForUser($user, $activeTab);
+        $typeFilter = $activeTab === 'all' ? null : $activeTab;
+        $rooms = $this->chatService->getRoomsForUser($user, $typeFilter);
         $unreadStats = $this->chatService->getUnreadCountsByType($user);
 
         // Tentukan layout berdasarkan role
@@ -80,11 +80,20 @@ class ChatController extends Controller
             abort(403, 'Akses ditolak. Ruang obrolan ini bersifat privat khusus Orang Tua dan Wali Kelas.');
         }
 
+        // 2. Orang Tua tidak boleh mengakses grup kelas siswa
+        if ($user->isOrangtua() && $room->isClassGroup()) {
+            abort(403, 'Akses ditolak. Grup kelas ini dikhususkan untuk siswa dan wali kelas.');
+        }
+
         // Validasi partisipan
         $isParticipant = $room->participants()->where('user_id', $user->id)->exists();
         if (! $isParticipant) {
             // Coba sinkronisasi jika relasi valid
-            if ($user->isSiswa() && $room->student_id === $user->id && $room->isTrio()) {
+            if ($room->isClassGroup() && $user->isSiswa() && $user->class_id === $room->school_class_id) {
+                $this->chatService->syncClassGroupParticipants($room, $room->schoolClass);
+            } elseif ($room->isClassGroup() && $user->isGuru() && $user->homeroomClass?->id === $room->school_class_id) {
+                $this->chatService->syncClassGroupParticipants($room, $room->schoolClass);
+            } elseif ($user->isSiswa() && $room->student_id === $user->id && $room->isTrio()) {
                 $this->chatService->syncRoomParticipants($room, $user);
             } elseif ($user->isOrangtua() && $user->children->contains('id', $room->student_id)) {
                 $this->chatService->syncRoomParticipants($room, $room->student);

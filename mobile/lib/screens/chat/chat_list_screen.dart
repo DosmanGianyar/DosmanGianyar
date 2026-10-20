@@ -99,18 +99,23 @@ class _ChatListScreenState extends State<ChatListScreen> {
             ),
           ),
 
-          // ─── Filter Tabs (Semua, Trio, Privat) ───
+          // ─── Filter Tabs (Semua, Grup Kelas, Trio, Privat) ───
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             color: Colors.white,
-            child: Row(
-              children: [
-                _buildTab('all', 'Semua'),
-                const SizedBox(width: 8),
-                _buildTab('trio', 'Trio (Siswa & Ortu)'),
-                const SizedBox(width: 8),
-                _buildTab('parent_teacher', 'Privat Ortu'),
-              ],
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  _buildTab('all', 'Semua'),
+                  const SizedBox(width: 8),
+                  _buildTab('class_group', '👥 Grup Kelas'),
+                  const SizedBox(width: 8),
+                  _buildTab('trio', 'Trio (Siswa & Ortu)'),
+                  const SizedBox(width: 8),
+                  _buildTab('parent_teacher', 'Privat Ortu'),
+                ],
+              ),
             ),
           ),
           const Divider(height: 1, color: AppColors.gray200),
@@ -165,6 +170,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
 
   Widget _buildRoomTile(ChatRoomModel room) {
     final hasUnread = room.unreadCount > 0;
+    final isGroup = room.isClassGroup;
 
     return InkWell(
       onTap: () {
@@ -178,10 +184,10 @@ class _ChatListScreenState extends State<ChatListScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: hasUnread ? const Color(0xFFEFF6FF) : Colors.white,
+          color: hasUnread ? (isGroup ? const Color(0xFFECFDF5) : const Color(0xFFEFF6FF)) : Colors.white,
           border: Border(
             left: BorderSide(
-              color: hasUnread ? const Color(0xFF2563EB) : const Color(0xFFE2E8F0),
+              color: hasUnread ? (isGroup ? const Color(0xFF059669) : const Color(0xFF2563EB)) : const Color(0xFFE2E8F0),
               width: hasUnread ? 5.0 : 2.5,
             ),
             bottom: const BorderSide(color: Color(0xFFF1F5F9), width: 1.0),
@@ -193,12 +199,18 @@ class _ChatListScreenState extends State<ChatListScreen> {
             // Avatar
             CircleAvatar(
               radius: 24,
-              backgroundColor: room.isPrivate ? const Color(0xFFFEF3C7) : AppColors.blue100,
-              backgroundImage: room.studentPhoto != null ? NetworkImage(room.studentPhoto!) : null,
-              child: room.studentPhoto == null
+              backgroundColor: isGroup
+                  ? const Color(0xFFD1FAE5)
+                  : (room.isPrivate ? const Color(0xFFFEF3C7) : AppColors.blue100),
+              backgroundImage: (!isGroup && room.studentPhoto != null) ? NetworkImage(room.studentPhoto!) : null,
+              child: (isGroup || room.studentPhoto == null)
                   ? Icon(
-                      room.isPrivate ? Icons.lock_person_rounded : Icons.groups_rounded,
-                      color: room.isPrivate ? const Color(0xFFB45309) : AppColors.blue700,
+                      isGroup
+                          ? Icons.groups_3_rounded
+                          : (room.isPrivate ? Icons.lock_person_rounded : Icons.groups_rounded),
+                      color: isGroup
+                          ? const Color(0xFF047857)
+                          : (room.isPrivate ? const Color(0xFFB45309) : AppColors.blue700),
                       size: 24,
                     )
                   : null,
@@ -214,7 +226,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
                     children: [
                       Expanded(
                         child: Text(
-                          room.studentName,
+                          isGroup ? room.name : room.studentName,
                           style: TextStyle(
                             fontSize: 14.5,
                             fontWeight: hasUnread ? FontWeight.w900 : FontWeight.w700,
@@ -229,7 +241,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
                           room.lastTimeHuman,
                           style: TextStyle(
                             fontSize: 10.5,
-                            color: hasUnread ? const Color(0xFF2563EB) : AppColors.gray400,
+                            color: hasUnread ? (isGroup ? const Color(0xFF059669) : const Color(0xFF2563EB)) : AppColors.gray400,
                             fontWeight: hasUnread ? FontWeight.w900 : FontWeight.normal,
                           ),
                         ),
@@ -243,16 +255,33 @@ class _ChatListScreenState extends State<ChatListScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
                         decoration: BoxDecoration(
-                          color: AppColors.gray100,
+                          color: isGroup ? const Color(0xFFD1FAE5) : AppColors.gray100,
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
                           room.className.isNotEmpty ? room.className : 'Kelas',
-                          style: const TextStyle(fontSize: 9.5, fontWeight: FontWeight.bold, color: AppColors.gray700),
+                          style: TextStyle(
+                            fontSize: 9.5,
+                            fontWeight: FontWeight.bold,
+                            color: isGroup ? const Color(0xFF047857) : AppColors.gray700,
+                          ),
                         ),
                       ),
                       const SizedBox(width: 6),
-                      if (room.isPrivate) ...[
+                      if (isGroup) ...[
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFD1FAE5),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: const Text(
+                            '👥 Grup Kelas',
+                            style: TextStyle(fontSize: 9.5, fontWeight: FontWeight.bold, color: Color(0xFF047857)),
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                      ] else if (room.isPrivate) ...[
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
                           decoration: BoxDecoration(
@@ -268,8 +297,12 @@ class _ChatListScreenState extends State<ChatListScreen> {
                       ],
                       Expanded(
                         child: Text(
-                          'Wali: ${room.homeroomTeacherName}',
-                          style: const TextStyle(fontSize: 10.5, color: Color(0xFF6D28D9), fontWeight: FontWeight.w600),
+                          isGroup ? 'Seluruh Siswa & Wali Kelas' : 'Wali: ${room.homeroomTeacherName}',
+                          style: TextStyle(
+                            fontSize: 10.5,
+                            color: isGroup ? const Color(0xFF059669) : const Color(0xFF6D28D9),
+                            fontWeight: FontWeight.w600,
+                          ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),

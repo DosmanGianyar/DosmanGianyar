@@ -33,6 +33,11 @@ class ChatRoom extends Model
         return ($this->type ?? '') === 'parent_teacher';
     }
 
+    public function isClassGroup(): bool
+    {
+        return ($this->type ?? '') === 'class_group';
+    }
+
     public function scopeTrio($query)
     {
         return $query->where('type', 'trio');
@@ -41,6 +46,11 @@ class ChatRoom extends Model
     public function scopeParentTeacher($query)
     {
         return $query->where('type', 'parent_teacher');
+    }
+
+    public function scopeClassGroup($query)
+    {
+        return $query->where('type', 'class_group');
     }
 
     public function student(): BelongsTo

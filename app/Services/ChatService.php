@@ -17,8 +17,50 @@ use Illuminate\Support\Str;
 class ChatService
 {
     /**
-     * Dapatkan atau buat ruang konsultasi segitiga untuk seorang siswa
+     * Dapatkan atau buat ruang obrolan grup untuk satu kelas
      */
+    public function getOrCreateClassGroupRoom(SchoolClass $class): ?ChatRoom
+    {
+        $room = ChatRoom::firstOrCreate(
+            [
+                'school_class_id' => $class->id,
+                'type'            => 'class_group',
+            ],
+            [
+                'student_id' => null,
+                'name'       => 'Grup Kelas ' . $class->name,
+            ]
+        );
+
+        $this->syncClassGroupParticipants($room, $class);
+
+        return $room;
+    }
+
+    /**
+     * Sinkronkan anggota grup kelas (seluruh siswa kelas + Wali Kelas)
+     */
+    public function syncClassGroupParticipants(ChatRoom $room, SchoolClass $class): void
+    {
+        // 1. Siswa dalam kelas
+        $students = $class->students()->get();
+        foreach ($students as $student) {
+            ChatRoomParticipant::firstOrCreate(
+                ['chat_room_id' => $room->id, 'user_id' => $student->id],
+                ['role' => 'siswa']
+            );
+        }
+
+        // 2. Wali Kelas
+        $homeroomTeacher = $class->homeroomTeacher;
+        if ($homeroomTeacher) {
+            ChatRoomParticipant::firstOrCreate(
+                ['chat_room_id' => $room->id, 'user_id' => $homeroomTeacher->id],
+                ['role' => 'guru']
+            );
+        }
+    }
+
     /**
      * Dapatkan atau buat ruang konsultasi untuk seorang siswa
      * @param string $type 'trio' (Bersama Siswa, Ortu, Wali) | 'parent_teacher' (Privat Ortu & Wali)
@@ -106,19 +148,41 @@ class ChatService
     public function getRoomsForUser(User $user, ?string $type = null): Collection
     {
         if ($user->isSiswa()) {
-            // Siswa HANYA memiliki akses ke ruang 'trio'
+            // Siswa tidak memiliki akses ke ruang privat orang tua & wali
             if ($type === 'parent_teacher') {
                 return collect();
             }
-            $room = $this->getOrCreateRoomForStudent($user, 'trio');
-            return $room ? collect([$room]) : collect();
+
+            $rooms = collect();
+            $class = $user->schoolClass;
+
+            // 1. Grup Kelas (jika siswa terdaftar di kelas)
+            if ($class && ($type === null || $type === 'all' || $type === 'class_group')) {
+                $groupRoom = $this->getOrCreateClassGroupRoom($class);
+                if ($groupRoom) {
+                    $rooms->push($groupRoom);
+                }
+            }
+
+            // 2. Ruang Konsultasi Segitiga (Pribadi)
+            if ($type === null || $type === 'all' || $type === 'trio') {
+                $trioRoom = $this->getOrCreateRoomForStudent($user, 'trio');
+                if ($trioRoom) {
+                    $rooms->push($trioRoom);
+                }
+            }
+
+            return $rooms->sortByDesc(fn($r) => $r->last_message_at ?? $r->updated_at)->values();
         }
 
-        $typesToFetch = $type ? [$type] : ['trio', 'parent_teacher'];
-
         if ($user->isOrangtua()) {
+            if ($type === 'class_group') {
+                return collect();
+            }
             $children = $user->children;
             $rooms = collect();
+            $typesToFetch = ($type && $type !== 'all') ? array_intersect([$type], ['trio', 'parent_teacher']) : ['trio', 'parent_teacher'];
+
             foreach ($children as $child) {
                 foreach ($typesToFetch as $t) {
                     $room = $this->getOrCreateRoomForStudent($child, $t);
@@ -137,11 +201,28 @@ class ChatService
                 return collect();
             }
 
+            $rooms = collect();
+
+            // 1. Grup Kelas Binaan Wali Kelas
+            if ($type === null || $type === 'all' || $type === 'class_group') {
+                $groupRoom = $this->getOrCreateClassGroupRoom($homeroomClass);
+                if ($groupRoom) {
+                    $rooms->push($groupRoom);
+                }
+            }
+
+            // Jika filter hanya class_group, cukup kembalikan grup kelas
+            if ($type === 'class_group') {
+                return $rooms;
+            }
+
+            // 2. Konsultasi Individual Siswa
             $students = $homeroomClass->students()
                 ->orderBy('name')
                 ->get();
 
-            $rooms = collect();
+            $typesToFetch = ($type && $type !== 'all') ? [$type] : ['trio', 'parent_teacher'];
+
             foreach ($students as $student) {
                 foreach ($typesToFetch as $t) {
                     $room = $this->getOrCreateRoomForStudent($student, $t);
@@ -325,21 +406,24 @@ class ChatService
     }
 
     /**
-     * Hitung total pesan belum dibaca per tipe (trio dan privat)
+     * Hitung total pesan belum dibaca per tipe (trio, privat, grup kelas)
      */
     public function getUnreadCountsByType(User $user): array
     {
         if ($user->isSiswa()) {
             $trioCount = $this->getTotalUnreadCount($user, 'trio');
+            $groupCount = $this->getTotalUnreadCount($user, 'class_group');
             return [
                 'trio'           => $trioCount,
+                'class_group'    => $groupCount,
                 'parent_teacher' => 0,
-                'total'          => $trioCount,
+                'total'          => $trioCount + $groupCount,
             ];
         }
 
         $trioRooms = $this->getRoomsForUser($user, 'trio');
         $privateRooms = $this->getRoomsForUser($user, 'parent_teacher');
+        $groupRooms = $this->getRoomsForUser($user, 'class_group');
 
         $trioCount = 0;
         foreach ($trioRooms as $r) {
@@ -351,10 +435,16 @@ class ChatService
             $privateCount += $r->unreadCountFor($user->id);
         }
 
+        $groupCount = 0;
+        foreach ($groupRooms as $r) {
+            $groupCount += $r->unreadCountFor($user->id);
+        }
+
         return [
             'trio'           => $trioCount,
             'parent_teacher' => $privateCount,
-            'total'          => $trioCount + $privateCount,
+            'class_group'    => $groupCount,
+            'total'          => $trioCount + $privateCount + $groupCount,
         ];
     }
 
@@ -384,8 +474,9 @@ class ChatService
         };
 
         $senderTitle = "{$sender->name} ({$roleLabel})";
+        $isGroup = $room->isClassGroup();
         $isPrivate = $room->isParentTeacher();
-        $titlePrefix = $isPrivate ? "🔒 [Privat] " : "";
+        $titlePrefix = $isGroup ? "👥 [Grup {$room->schoolClass?->name}] " : ($isPrivate ? "🔒 [Privat] " : "");
         $preview = Str::limit($text, 60);
 
         // Cari partisipan lain di room
@@ -405,12 +496,14 @@ class ChatService
                 default    => url('/'),
             };
 
-            $chatType = match ($sender->role) {
-                'orangtua' => 'chat_orangtua',
-                'siswa'    => 'chat_siswa',
-                'guru'     => 'chat_guru',
-                default    => 'chat',
-            };
+            $chatType = $isGroup
+                ? 'chat_kelas'
+                : match ($sender->role) {
+                    'orangtua' => 'chat_orangtua',
+                    'siswa'    => 'chat_siswa',
+                    'guru'     => 'chat_guru',
+                    default    => 'chat',
+                };
 
             \App\Services\NotificationService::send(
                 $targetUser->id,
