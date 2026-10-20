@@ -152,7 +152,7 @@ class AchievementExportController extends Controller
             fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
 
             fputcsv($file, [
-                'No', 'Nama Siswa', 'NISN', 'NIS', 'Kelas', 'No HP Siswa', 'No HP Ortu',
+                'No', 'Kode Prestasi', 'Kode Tim', 'Nama Siswa', 'NISN', 'NIS', 'Kelas', 'No HP Siswa', 'No HP Ortu',
                 'Judul Prestasi', 'Event / Lomba', 'Penyelenggara', 'Rumpun Bidang',
                 'Tingkat Kejuaraan', 'Peringkat', 'Jenis Partisipasi', 'Tanggal Prestasi',
                 'Status Kurasi', 'Verifikator'
@@ -161,6 +161,8 @@ class AchievementExportController extends Controller
             foreach ($achievements as $index => $item) {
                 fputcsv($file, [
                     $index + 1,
+                    $item->achievement_code ?? '—',
+                    $item->team_code ?? '—',
                     $item->student?->name ?? '—',
                     $item->student?->nisn ?? '—',
                     $item->student?->nis ?? '—',

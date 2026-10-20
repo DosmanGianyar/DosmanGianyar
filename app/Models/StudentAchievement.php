@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class StudentAchievement extends Model
 {
     protected $fillable = [
+        'achievement_code',
         'student_id', 'category_id', 'title', 'description',
         'event_name', 'organizer', 'field_category', 'participation_type', 'team_code',
         'achievement_date', 'level', 'rank', 'photo', 'certificate',
@@ -21,6 +22,34 @@ class StudentAchievement extends Model
         'infrastructure_type', 'infrastructure_file',
         'reward_types', 'reward_certificate_file', 'reward_photo_file', 'reward_recap_file',
     ];
+
+    protected static function booted(): void
+    {
+        static::creating(function (StudentAchievement $achievement) {
+            if (empty($achievement->achievement_code)) {
+                $year = $achievement->achievement_date
+                    ? (int) \Carbon\Carbon::parse($achievement->achievement_date)->format('Y')
+                    : (int) date('Y');
+                $achievement->achievement_code = static::generateUniqueCode($year);
+            }
+        });
+    }
+
+    public static function generateUniqueCode(?int $year = null): string
+    {
+        $year = $year ?: (int) date('Y');
+        $chars = '23456789ABCDEFGHJKMNPQRSTUVWXYZ';
+
+        do {
+            $rand = '';
+            for ($i = 0; $i < 4; $i++) {
+                $rand .= $chars[random_int(0, strlen($chars) - 1)];
+            }
+            $code = "PRS-{$year}-{$rand}";
+        } while (static::where('achievement_code', $code)->exists());
+
+        return $code;
+    }
 
     protected $casts = [
         'achievement_date'       => 'date',

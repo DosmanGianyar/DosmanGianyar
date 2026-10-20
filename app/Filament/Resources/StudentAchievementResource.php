@@ -7,6 +7,7 @@ use App\Filament\Resources\UserResource;
 use App\Models\StudentAchievement;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
+use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -14,6 +15,7 @@ use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
+use Filament\Notifications\Notification;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -31,6 +33,8 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Str;
 
 class StudentAchievementResource extends Resource
 {
@@ -377,11 +381,22 @@ class StudentAchievementResource extends Resource
                     ->alignCenter()
                     ->width('40px'),
 
+                TextColumn::make('achievement_code')
+                    ->label('Kode')
+                    ->badge()
+                    ->color('gray')
+                    ->searchable()
+                    ->copyable()
+                    ->copyMessage('Kode prestasi berhasil disalin')
+                    ->tooltip('Klik untuk salin kode unik prestasi')
+                    ->sortable(),
+
                 TextColumn::make('student.name')
                     ->label('Siswa / Tim')
                     ->searchable(query: function (Builder $query, string $search): Builder {
                         return $query->where(function ($q) use ($search) {
                             $q->whereHas('student', fn (Builder $s) => $s->where('name', 'like', "%{$search}%")->orWhere('nisn', 'like', "%{$search}%")->orWhere('nis', 'like', "%{$search}%"))
+                              ->orWhere('achievement_code', 'like', "%{$search}%")
                               ->orWhereIn('team_code', function ($sub) use ($search) {
                                   $sub->select('team_code')
                                       ->from('student_achievements')
@@ -460,6 +475,9 @@ class StudentAchievementResource extends Resource
                         }
                         if ($record->organizer) {
                             $desc[] = 'Penyelenggara: ' . $record->organizer;
+                        }
+                        if ($record->isBeregu() && $record->team_code) {
+                            $desc[] = 'Kode Tim: ' . $record->team_code;
                         }
                         return count($desc) ? implode(' • ', $desc) : null;
                     }),
@@ -645,6 +663,82 @@ class StudentAchievementResource extends Resource
                     ->size('sm'),
 
                 ActionGroup::make([
+                    Action::make('link_to_team')
+                        ->label('Gabungkan ke Tim / Prestasi Lain')
+                        ->icon('heroicon-o-link')
+                        ->color('warning')
+                        ->modalHeading(fn (StudentAchievement $record) => "Gabungkan Prestasi: {$record->student?->name}")
+                        ->modalDescription('Pilih prestasi rekan satu tim yang sudah terdaftar untuk disatukan dalam 1 kejuaraan beregu yang sama.')
+                        ->modalSubmitActionLabel('Hubungkan ke Tim')
+                        ->form([
+                            Select::make('target_achievement_id')
+                                ->label('Pilih Prestasi Rekan Tim / Event Utama')
+                                ->options(function (StudentAchievement $record) {
+                                    return StudentAchievement::where('id', '!=', $record->id)
+                                        ->latest('id')
+                                        ->limit(60)
+                                        ->get()
+                                        ->mapWithKeys(fn (StudentAchievement $a) => [
+                                            $a->id => "{$a->student?->name} ({$a->student?->schoolClass?->name}) - {$a->title} [" . ($a->achievement_code ?: "#{$a->id}") . "]"
+                                        ]);
+                                })
+                                ->searchable()
+                                ->preload()
+                                ->required()
+                                ->helperText('Cari berdasarkan nama siswa atau judul lomba rekan satu tim.'),
+                        ])
+                        ->action(function (StudentAchievement $record, array $data) {
+                            $target = StudentAchievement::find($data['target_achievement_id']);
+                            if (! $target) return;
+
+                            $teamCode = $target->team_code ?: ('TEAM-' . ($target->achievement_code ?: Str::upper(Str::random(6))));
+
+                            $target->update([
+                                'participation_type' => 'beregu',
+                                'team_code'          => $teamCode,
+                            ]);
+
+                            $record->update([
+                                'participation_type' => 'beregu',
+                                'team_code'          => $teamCode,
+                                'title'              => $target->title,
+                                'event_name'         => $target->event_name,
+                                'organizer'          => $target->organizer,
+                                'level'              => $target->level,
+                                'rank'               => $target->rank,
+                                'achievement_date'   => $target->achievement_date,
+                                'field_category'     => $target->field_category,
+                            ]);
+
+                            Notification::make()
+                                ->title('Prestasi Berhasil Dihubungkan ke Tim!')
+                                ->body("Prestasi {$record->student?->name} kini terhubung dengan {$target->student?->name} (Kode Tim: {$teamCode}).")
+                                ->success()
+                                ->send();
+                        })
+                        ->visible(fn (StudentAchievement $record) => auth()->user()?->role === 'admin' || \App\Filament\Support\AdminAccess::can('Prestasi & Ekskul')),
+
+                    Action::make('unlink_from_team')
+                        ->label('Pisahkan dari Tim (Jadikan Individu)')
+                        ->icon('heroicon-o-link-slash')
+                        ->color('danger')
+                        ->requiresConfirmation()
+                        ->modalHeading('Pisahkan Prestasi dari Tim?')
+                        ->modalDescription('Prestasi ini akan dipisahkan dari grup tim dan diubah menjadi prestasi perorangan mandiri.')
+                        ->action(function (StudentAchievement $record) {
+                            $record->update([
+                                'participation_type' => 'individu',
+                                'team_code'          => null,
+                            ]);
+
+                            Notification::make()
+                                ->title('Prestasi Dipisahkan')
+                                ->body("Prestasi {$record->student?->name} kini menjadi prestasi perorangan mandiri.")
+                                ->info()
+                                ->send();
+                        })
+                        ->visible(fn (StudentAchievement $record) => $record->isBeregu()),
+
                     Action::make('student_profile')
                         ->label('Buka Profil Siswa')
                         ->tooltip('Buka Profil Lengkap Siswa')
@@ -666,7 +760,61 @@ class StudentAchievementResource extends Resource
                     ->tooltip('Opsi Lainnya'),
             ])
             ->actionsColumnLabel('Aksi')
-            ->bulkActions([BulkActionGroup::make([DeleteBulkAction::make()])]);
+            ->bulkActions([
+                BulkActionGroup::make([
+                    BulkAction::make('merge_as_team')
+                        ->label('Gabungkan Sebagai Tim / Beregu')
+                        ->icon('heroicon-o-user-group')
+                        ->color('warning')
+                        ->modalHeading('Gabungkan Prestasi Terpilih Menjadi 1 Tim Beregu')
+                        ->modalDescription('Prestasi yang dipilih akan disatukan dalam satu grup tim (berbagi judul lomba, ajang, dan kode tim yang sama). Di rekapitulasi sekolah akan dihitung sebagai 1 perolehan kejuaraan/piala dengan banyak siswa anggota tim.')
+                        ->modalSubmitActionLabel('Konfirmasi & Satukan Tim')
+                        ->form(function (Collection $records) {
+                            return [
+                                Select::make('primary_id')
+                                    ->label('Pilih Prestasi / Siswa Rujukan Data')
+                                    ->options($records->mapWithKeys(fn (StudentAchievement $r) => [
+                                        $r->id => "{$r->student?->name} ({$r->student?->schoolClass?->name}) - {$r->title} [" . ($r->achievement_code ?: "#{$r->id}") . "]"
+                                    ]))
+                                    ->default($records->first()?->id)
+                                    ->required()
+                                    ->helperText('Data judul lomba, ajang, penyelenggara, tanggal, bidang, dan tingkat dari prestasi rujukan ini akan disinkronkan ke seluruh anggota tim.'),
+                            ];
+                        })
+                        ->action(function (Collection $records, array $data) {
+                            if ($records->count() < 2) {
+                                Notification::make()->title('Pilih minimal 2 prestasi untuk digabungkan.')->warning()->send();
+                                return;
+                            }
+
+                            /** @var StudentAchievement $primary */
+                            $primary = $records->firstWhere('id', $data['primary_id']) ?: $records->first();
+                            $teamCode = $primary->team_code ?: ('TEAM-' . ($primary->achievement_code ?: Str::upper(Str::random(6))));
+
+                            foreach ($records as $record) {
+                                $record->update([
+                                    'participation_type' => 'beregu',
+                                    'team_code'          => $teamCode,
+                                    'title'              => $primary->title,
+                                    'event_name'         => $primary->event_name,
+                                    'organizer'          => $primary->organizer,
+                                    'level'              => $primary->level,
+                                    'rank'               => $primary->rank,
+                                    'achievement_date'   => $primary->achievement_date,
+                                    'field_category'     => $primary->field_category,
+                                ]);
+                            }
+
+                            Notification::make()
+                                ->title('Berhasil Menggabungkan Tim!')
+                                ->body("{$records->count()} prestasi telah disatukan ke dalam 1 tim beregu (Kode Tim: {$teamCode}).")
+                                ->success()
+                                ->send();
+                        }),
+
+                    DeleteBulkAction::make(),
+                ]),
+            ]);
     }
 
     public static function getEloquentQuery(): Builder

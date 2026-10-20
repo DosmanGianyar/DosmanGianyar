@@ -42,12 +42,88 @@ class ViewStudentAchievement extends ViewRecord
         $rank = $record->rank ? " • 🏆 {$record->rank}" : '';
         $level = $record->levelLabel() ? " (Tingkat {$record->levelLabel()})" : '';
 
-        return "{$studentName}" . ($className ? " ({$className})" : '') . " • {$type}{$rank}{$level}";
+        $code = $record->achievement_code ? "🏷️ [{$record->achievement_code}] " : '';
+        $team = ($record->isBeregu() && $record->team_code) ? " (Tim: {$record->team_code})" : '';
+
+        return "{$code}{$studentName}" . ($className ? " ({$className})" : '') . " • {$type}{$team}{$rank}{$level}";
+    }
+
+    public function getSimilarAchievements(): \Illuminate\Database\Eloquent\Collection
+    {
+        /** @var StudentAchievement $record */
+        $record = $this->getRecord();
+        if (! $record || empty($record->title)) return new \Illuminate\Database\Eloquent\Collection();
+
+        $cleanTitle = trim($record->title);
+
+        return StudentAchievement::where('id', '!=', $record->id)
+            ->where(function ($q) use ($record, $cleanTitle) {
+                $q->where('title', 'like', "%{$cleanTitle}%");
+                if (! empty($record->event_name)) {
+                    $q->orWhere('event_name', 'like', "%{$record->event_name}%");
+                }
+            })
+            ->when($record->team_code, fn ($q) => $q->where(fn ($sub) => $sub->whereNull('team_code')->orWhere('team_code', '!=', $record->team_code)))
+            ->with(['student.schoolClass'])
+            ->limit(10)
+            ->get();
     }
 
     protected function getHeaderActions(): array
     {
         return [
+            Action::make('detect_similar_team')
+                ->label(fn () => '💡 Terdeteksi ' . $this->getSimilarAchievements()->count() . ' Ajuan Serupa (Satukan Tim)')
+                ->icon('heroicon-o-user-group')
+                ->color('warning')
+                ->visible(fn () => $this->getSimilarAchievements()->isNotEmpty())
+                ->modalHeading('Hubungkan Prestasi Serupa Menjadi 1 Tim')
+                ->modalDescription('Sistem mendeteksi prestasi dengan judul/ajang yang serupa dari siswa lain. Centang siswa yang ingin disatukan ke dalam 1 tim beregu yang sama.')
+                ->modalSubmitActionLabel('Satukan Menjadi 1 Tim')
+                ->form(function () {
+                    $similar = $this->getSimilarAchievements();
+                    return [
+                        \Filament\Forms\Components\CheckboxList::make('achievement_ids')
+                            ->label('Pilih Prestasi Rekan Tim yang Ingin Disatukan')
+                            ->options($similar->mapWithKeys(fn (StudentAchievement $s) => [
+                                $s->id => "{$s->student?->name} ({$s->student?->schoolClass?->name}) - {$s->title} [" . ($s->achievement_code ?: "#{$s->id}") . "]"
+                            ]))
+                            ->default($similar->pluck('id')->toArray())
+                            ->required(),
+                    ];
+                })
+                ->action(function (array $data) {
+                    /** @var StudentAchievement $record */
+                    $record = $this->getRecord();
+                    $targetIds = $data['achievement_ids'] ?? [];
+                    if (empty($targetIds)) return;
+
+                    $teamCode = $record->team_code ?: ('TEAM-' . ($record->achievement_code ?: \Illuminate\Support\Str::upper(\Illuminate\Support\Str::random(6))));
+
+                    $record->update([
+                        'participation_type' => 'beregu',
+                        'team_code'          => $teamCode,
+                    ]);
+
+                    StudentAchievement::whereIn('id', $targetIds)->update([
+                        'participation_type' => 'beregu',
+                        'team_code'          => $teamCode,
+                        'title'              => $record->title,
+                        'event_name'         => $record->event_name,
+                        'organizer'          => $record->organizer,
+                        'level'              => $record->level,
+                        'rank'               => $record->rank,
+                        'achievement_date'   => $record->achievement_date,
+                        'field_category'     => $record->field_category,
+                    ]);
+
+                    Notification::make()
+                        ->title('Berhasil Menyatukan Tim!')
+                        ->body(count($targetIds) + 1 . " siswa kini berada dalam 1 grup tim (Kode: {$teamCode}).")
+                        ->success()
+                        ->send();
+                }),
+
             Action::make('back')
                 ->label('Kembali ke Daftar')
                 ->icon('heroicon-o-arrow-left')

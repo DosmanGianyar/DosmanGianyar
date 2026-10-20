@@ -158,7 +158,15 @@
           <span style="font-size: 8pt; color: #4b5563;">NISN: {{ $item->student?->nisn ?? '—' }}</span>
         </td>
         <td class="text-center">{{ $item->student?->schoolClass?->name ?? '—' }}</td>
-        <td>{{ $item->title }}</td>
+        <td>
+          @if($item->achievement_code)
+            <span style="font-size: 7.5pt; font-family: monospace; font-weight: bold; color: #1e3a8a;">[{{ $item->achievement_code }}]</span><br>
+          @endif
+          {{ $item->title }}
+          @if($item->isBeregu() && $item->team_code)
+            <br><span style="font-size: 7.5pt; color: #7c3aed;">👥 Tim: {{ $item->team_code }}</span>
+          @endif
+        </td>
         <td>
           {{ $item->event_name ?? '—' }}<br>
           @if($item->organizer)

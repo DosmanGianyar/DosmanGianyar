@@ -101,6 +101,16 @@ class AchievementReportPage extends Page implements HasTable
                     ->alignCenter()
                     ->width('40px'),
 
+                TextColumn::make('achievement_code')
+                    ->label('Kode')
+                    ->badge()
+                    ->color('gray')
+                    ->searchable()
+                    ->copyable()
+                    ->copyMessage('Kode disalin')
+                    ->placeholder('—')
+                    ->description(fn (StudentAchievement $record): ?string => $record->team_code ? 'Tim: ' . $record->team_code : null),
+
                 TextColumn::make('student.name')
                     ->label('Siswa / Tim')
                     ->searchable(query: function (Builder $query, string $search): Builder {
