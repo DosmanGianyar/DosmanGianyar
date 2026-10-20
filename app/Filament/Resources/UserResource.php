@@ -32,6 +32,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
+use Filament\Support\Enums\IconPosition;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -554,6 +555,8 @@ class UserResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->recordActionsColumnLabel('Aksi')
+            ->recordActionsAlignment('center')
             ->columns([
                 TextColumn::make('no_urut')
                     ->label('No.')
@@ -920,9 +923,13 @@ class UserResource extends Resource
                         ->label('Hapus Siswa')
                         ->modalHeading('Hapus Data Siswa Ini?'),
                 ])
-                ->icon('heroicon-m-ellipsis-vertical')
-                ->tooltip('Menu Aksi Lainnya')
-                ->iconButton(),
+                ->label('Aksi')
+                ->icon('heroicon-m-chevron-down')
+                ->iconPosition(IconPosition::After)
+                ->color('info')
+                ->size('sm')
+                ->outlined()
+                ->button(),
             ])
             ->bulkActions([
                 BulkActionGroup::make([
