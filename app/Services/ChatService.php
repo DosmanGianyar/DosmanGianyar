@@ -138,7 +138,6 @@ class ChatService
             }
 
             $students = $homeroomClass->students()
-                ->where('status', 'aktif')
                 ->orderBy('name')
                 ->get();
 
