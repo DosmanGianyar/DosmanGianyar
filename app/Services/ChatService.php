@@ -19,27 +19,36 @@ class ChatService
     /**
      * Dapatkan atau buat ruang konsultasi segitiga untuk seorang siswa
      */
-    public function getOrCreateRoomForStudent(User $student): ?ChatRoom
+    /**
+     * Dapatkan atau buat ruang konsultasi untuk seorang siswa
+     * @param string $type 'trio' (Bersama Siswa, Ortu, Wali) | 'parent_teacher' (Privat Ortu & Wali)
+     */
+    public function getOrCreateRoomForStudent(User $student, string $type = 'trio'): ?ChatRoom
     {
         if (! $student->isSiswa()) {
             return null;
         }
 
+        $type = in_array($type, ['trio', 'parent_teacher']) ? $type : 'trio';
         $class = $student->schoolClass;
         $className = $class ? ' (' . $class->name . ')' : '';
 
+        $roomName = $type === 'parent_teacher'
+            ? 'Privat Ortu & Wali: ' . $student->name . $className
+            : 'Konsultasi: ' . $student->name . $className;
+
         $room = ChatRoom::firstOrCreate(
-            ['student_id' => $student->id],
+            ['student_id' => $student->id, 'type' => $type],
             [
                 'school_class_id' => $class?->id,
-                'name'            => 'Konsultasi: ' . $student->name . $className,
+                'name'            => $roomName,
             ]
         );
 
         if ($class && $room->school_class_id !== $class->id) {
             $room->update([
                 'school_class_id' => $class->id,
-                'name'            => 'Konsultasi: ' . $student->name . $className,
+                'name'            => $roomName,
             ]);
         }
 
@@ -57,12 +66,21 @@ class ChatService
         $class = $class ?? $student->schoolClass;
         $homeroomTeacher = $class?->homeroomTeacher;
         $parents = $student->parentAccounts;
+        $isPrivate = ($room->type ?? 'trio') === 'parent_teacher';
 
-        // 1. Siswa
-        ChatRoomParticipant::firstOrCreate(
-            ['chat_room_id' => $room->id, 'user_id' => $student->id],
-            ['role' => 'siswa']
-        );
+        // 1. Siswa: HANYA dimasukkan jika room bertipe 'trio'.
+        // Siswa SAMA SEKALI DILARANG masuk ke room 'parent_teacher'.
+        if (! $isPrivate) {
+            ChatRoomParticipant::firstOrCreate(
+                ['chat_room_id' => $room->id, 'user_id' => $student->id],
+                ['role' => 'siswa']
+            );
+        } else {
+            // Pastikan jika ada record siswa di room privat sebelumnya, langsung dihapus
+            ChatRoomParticipant::where('chat_room_id', $room->id)
+                ->where('user_id', $student->id)
+                ->delete();
+        }
 
         // 2. Wali Kelas
         if ($homeroomTeacher) {
@@ -83,21 +101,30 @@ class ChatService
 
     /**
      * Ambil daftar ruang obrolan untuk pengguna yang sedang login
+     * @param string|null $type 'trio' | 'parent_teacher' | null (semua)
      */
-    public function getRoomsForUser(User $user): Collection
+    public function getRoomsForUser(User $user, ?string $type = null): Collection
     {
         if ($user->isSiswa()) {
-            $room = $this->getOrCreateRoomForStudent($user);
+            // Siswa HANYA memiliki akses ke ruang 'trio'
+            if ($type === 'parent_teacher') {
+                return collect();
+            }
+            $room = $this->getOrCreateRoomForStudent($user, 'trio');
             return $room ? collect([$room]) : collect();
         }
+
+        $typesToFetch = $type ? [$type] : ['trio', 'parent_teacher'];
 
         if ($user->isOrangtua()) {
             $children = $user->children;
             $rooms = collect();
             foreach ($children as $child) {
-                $room = $this->getOrCreateRoomForStudent($child);
-                if ($room) {
-                    $rooms->push($room);
+                foreach ($typesToFetch as $t) {
+                    $room = $this->getOrCreateRoomForStudent($child, $t);
+                    if ($room) {
+                        $rooms->push($room);
+                    }
                 }
             }
             return $rooms->sortByDesc(fn($r) => $r->last_message_at ?? $r->updated_at)->values();
@@ -117,9 +144,11 @@ class ChatService
 
             $rooms = collect();
             foreach ($students as $student) {
-                $room = $this->getOrCreateRoomForStudent($student);
-                if ($room) {
-                    $rooms->push($room);
+                foreach ($typesToFetch as $t) {
+                    $room = $this->getOrCreateRoomForStudent($student, $t);
+                    if ($room) {
+                        $rooms->push($room);
+                    }
                 }
             }
 
@@ -284,11 +313,58 @@ class ChatService
     }
 
     /**
+     * Dapatkan ruang saudara (sibling) untuk beralih antara Trio dan Privat Ortu-Wali
+     */
+    public function getSiblingRoom(ChatRoom $room): ?ChatRoom
+    {
+        if (! $room->student) {
+            return null;
+        }
+
+        $targetType = $room->isParentTeacher() ? 'trio' : 'parent_teacher';
+        return $this->getOrCreateRoomForStudent($room->student, $targetType);
+    }
+
+    /**
+     * Hitung total pesan belum dibaca per tipe (trio dan privat)
+     */
+    public function getUnreadCountsByType(User $user): array
+    {
+        if ($user->isSiswa()) {
+            $trioCount = $this->getTotalUnreadCount($user, 'trio');
+            return [
+                'trio'           => $trioCount,
+                'parent_teacher' => 0,
+                'total'          => $trioCount,
+            ];
+        }
+
+        $trioRooms = $this->getRoomsForUser($user, 'trio');
+        $privateRooms = $this->getRoomsForUser($user, 'parent_teacher');
+
+        $trioCount = 0;
+        foreach ($trioRooms as $r) {
+            $trioCount += $r->unreadCountFor($user->id);
+        }
+
+        $privateCount = 0;
+        foreach ($privateRooms as $r) {
+            $privateCount += $r->unreadCountFor($user->id);
+        }
+
+        return [
+            'trio'           => $trioCount,
+            'parent_teacher' => $privateCount,
+            'total'          => $trioCount + $privateCount,
+        ];
+    }
+
+    /**
      * Hitung total pesan belum dibaca untuk user di seluruh ruang chat miliknya
      */
-    public function getTotalUnreadCount(User $user): int
+    public function getTotalUnreadCount(User $user, ?string $type = null): int
     {
-        $rooms = $this->getRoomsForUser($user);
+        $rooms = $this->getRoomsForUser($user, $type);
         $total = 0;
         foreach ($rooms as $room) {
             $total += $room->unreadCountFor($user->id);
@@ -309,6 +385,8 @@ class ChatService
         };
 
         $senderTitle = "{$sender->name} ({$roleLabel})";
+        $isPrivate = $room->isParentTeacher();
+        $titlePrefix = $isPrivate ? "🔒 [Privat] " : "";
         $preview = Str::limit($text, 60);
 
         // Cari partisipan lain di room
@@ -330,7 +408,7 @@ class ChatService
 
             \App\Services\NotificationService::send(
                 $targetUser->id,
-                "Pesan Baru dari {$senderTitle}",
+                "{$titlePrefix}Pesan Baru dari {$senderTitle}",
                 $preview ?: 'Mengirim sebuah lampiran',
                 'chat',
                 $route

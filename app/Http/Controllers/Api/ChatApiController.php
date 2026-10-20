@@ -17,13 +17,18 @@ class ChatApiController extends Controller
     }
 
     /**
-     * GET /api/v1/chat/rooms
+     * GET /api/v1/chat/rooms?type=trio|parent_teacher
      * Daftar ruang obrolan sesuai user login
      */
     public function rooms(Request $request): JsonResponse
     {
         $user = auth()->user();
-        $rooms = $this->chatService->getRoomsForUser($user);
+        $type = $request->query('type');
+        if ($user->isSiswa()) {
+            $type = 'trio';
+        }
+
+        $rooms = $this->chatService->getRoomsForUser($user, $type);
 
         $payload = $rooms->map(function (ChatRoom $room) use ($user) {
             $student = $room->student;
@@ -33,6 +38,8 @@ class ChatApiController extends Controller
             return [
                 'id'              => $room->id,
                 'name'            => $room->name,
+                'type'            => $room->type ?? 'trio',
+                'is_private'      => $room->isParentTeacher(),
                 'student_id'      => $student?->id,
                 'student_name'    => $student?->name ?? $room->name,
                 'student_nis'     => $student?->nis ?? '',
@@ -59,10 +66,15 @@ class ChatApiController extends Controller
     {
         $user = auth()->user();
 
+        // Blokir jika siswa mencoba membuka room privat
+        if ($user->isSiswa() && $room->isParentTeacher()) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized: Private room'], 403);
+        }
+
         $isParticipant = $room->participants()->where('user_id', $user->id)->exists();
         if (! $isParticipant) {
             // Coba sinkronisasi otomatis jika relasi valid
-            if ($user->isSiswa() && $room->student_id === $user->id) {
+            if ($user->isSiswa() && $room->student_id === $user->id && $room->isTrio()) {
                 $this->chatService->syncRoomParticipants($room, $user);
             } elseif ($user->isOrangtua() && $user->children->contains('id', $room->student_id)) {
                 $this->chatService->syncRoomParticipants($room, $room->student);

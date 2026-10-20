@@ -12,6 +12,7 @@ class ChatRoom extends Model
     protected $fillable = [
         'student_id',
         'school_class_id',
+        'type',
         'name',
         'last_message_at',
         'last_message_text',
@@ -21,6 +22,26 @@ class ChatRoom extends Model
     protected $casts = [
         'last_message_at' => 'datetime',
     ];
+
+    public function isTrio(): bool
+    {
+        return ($this->type ?? 'trio') === 'trio';
+    }
+
+    public function isParentTeacher(): bool
+    {
+        return ($this->type ?? '') === 'parent_teacher';
+    }
+
+    public function scopeTrio($query)
+    {
+        return $query->where('type', 'trio');
+    }
+
+    public function scopeParentTeacher($query)
+    {
+        return $query->where('type', 'parent_teacher');
+    }
 
     public function student(): BelongsTo
     {

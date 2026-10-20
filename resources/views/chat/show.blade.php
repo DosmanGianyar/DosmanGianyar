@@ -7,7 +7,7 @@
 <div class="max-w-4xl mx-auto flex flex-col h-[calc(100vh-8.5rem)] sm:h-[calc(100vh-7.5rem)] bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden relative">
 
     {{-- ─── 1. Header Chat ──────────────────────────────────────────────── --}}
-    <div class="bg-slate-900 text-white px-4 py-3 shrink-0 flex items-center justify-between gap-3 shadow-md z-10">
+    <div class="{{ $room->isParentTeacher() ? 'bg-indigo-950 border-b border-indigo-900' : 'bg-slate-900' }} text-white px-4 py-3 shrink-0 flex items-center justify-between gap-3 shadow-md z-10 transition-colors">
         <div class="flex items-center gap-3 min-w-0">
             <a href="{{ $backUrl }}"
                class="w-8 h-8 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors shrink-0"
@@ -20,20 +20,29 @@
             {{-- Avatar Siswa --}}
             <div class="relative shrink-0">
                 @if($room->student?->photo)
-                    <img src="{{ $room->student->photo_url }}" class="w-10 h-10 rounded-xl object-cover ring-2 ring-emerald-500/50">
+                    <img src="{{ $room->student->photo_url }}" class="w-10 h-10 rounded-xl object-cover ring-2 {{ $room->isParentTeacher() ? 'ring-indigo-400/60' : 'ring-emerald-500/50' }}">
                 @else
-                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-600 text-white font-bold flex items-center justify-center text-sm shadow-xs">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr {{ $room->isParentTeacher() ? 'from-indigo-600 to-blue-700' : 'from-emerald-500 to-teal-600' }} text-white font-bold flex items-center justify-center text-sm shadow-xs">
                         {{ $room->student?->initials ?? 'S' }}
                     </div>
                 @endif
-                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 ring-2 ring-slate-900 absolute -bottom-0.5 -right-0.5"></span>
+                <span class="w-2.5 h-2.5 rounded-full {{ $room->isParentTeacher() ? 'bg-indigo-400' : 'bg-emerald-400' }} ring-2 ring-slate-900 absolute -bottom-0.5 -right-0.5"></span>
             </div>
 
             <div class="min-w-0">
                 <h2 class="font-bold text-sm sm:text-base text-white truncate flex items-center gap-2">
                     <span>{{ $room->student?->name ?? $room->name }}</span>
+                    @if($room->isParentTeacher())
+                        <span class="text-[10px] font-extrabold px-1.5 py-0.5 rounded-md bg-indigo-500/30 text-indigo-200 border border-indigo-400/30 shrink-0">
+                            🔒 Privat Ortu & Wali
+                        </span>
+                    @else
+                        <span class="text-[10px] font-extrabold px-1.5 py-0.5 rounded-md bg-emerald-500/30 text-emerald-200 border border-emerald-400/30 shrink-0">
+                            👥 Bersama Siswa
+                        </span>
+                    @endif
                     @if($room->schoolClass)
-                        <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-500/30 text-emerald-200 border border-emerald-400/30">
+                        <span class="hidden sm:inline-block text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-white/10 text-slate-200 border border-white/20">
                             {{ $room->schoolClass->name }}
                         </span>
                     @endif
@@ -45,7 +54,7 @@
                         @if($ls['user_id'] !== auth()->id())
                             <span class="truncate">
                                 <strong class="text-white">{{ $ls['role'] }}:</strong>
-                                <span class="{{ str_contains($ls['status_text'], 'sekarang') ? 'text-emerald-400 font-bold' : 'text-slate-300' }}">{{ $ls['status_text'] }}</span>{{ !$loop->last ? ' ·' : '' }}
+                                <span class="{{ str_contains($ls['status_text'], 'sekarang') ? ($room->isParentTeacher() ? 'text-indigo-300 font-bold' : 'text-emerald-400 font-bold') : 'text-slate-300' }}">{{ $ls['status_text'] }}</span>{{ !$loop->last ? ' ·' : '' }}
                             </span>
                         @endif
                     @endforeach
@@ -53,8 +62,23 @@
             </div>
         </div>
 
-        {{-- Header Actions: Search & Audio Toggle --}}
+        {{-- Header Actions: Switch Room, Search & Audio Toggle --}}
         <div class="flex items-center gap-2 shrink-0">
+            {{-- Tombol Pintasan Beralih Room (Khusus Guru & Orang Tua) --}}
+            @if($siblingRoom)
+                @php
+                    $siblingUrl = route(auth()->user()->role . '.chat.show', $siblingRoom->id);
+                @endphp
+                <a href="{{ $siblingUrl }}"
+                   class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all shadow-xs
+                          {{ $room->isParentTeacher()
+                             ? 'bg-emerald-600 hover:bg-emerald-500 text-white'
+                             : 'bg-indigo-700 hover:bg-indigo-600 text-white' }}"
+                   title="{{ $room->isParentTeacher() ? 'Beralih ke Ruang Bersama Siswa' : 'Beralih ke Ruang Privat Ortu & Wali' }}">
+                    <span>{{ $room->isParentTeacher() ? '👥 Ke Ruang Bersama' : '🔒 Ke Ruang Privat' }}</span>
+                </a>
+            @endif
+
             {{-- Tombol Toggle Pencarian Pesan --}}
             <button type="button" id="btnToggleSearch"
                     class="w-8 h-8 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
@@ -91,12 +115,20 @@
          class="flex-1 overflow-y-auto p-4 space-y-3 bg-[#efeae2] dark:bg-slate-900"
          style="background-image: radial-gradient(rgba(0,0,0,0.04) 1px, transparent 1px); background-size: 16px 16px;">
 
-        {{-- Disclaimer Banner --}}
-        <div class="max-w-md mx-auto my-2 p-2.5 rounded-xl bg-amber-50/90 border border-amber-200 text-center shadow-2xs">
-            <p class="text-[11px] font-semibold text-amber-800 leading-tight">
-                🔒 Ruang obrolan ini hanya dapat dilihat oleh <strong>Wali Kelas</strong>, <strong>Orang Tua</strong>, dan <strong>Siswa</strong> terkait. Gunakan bahasa yang santun dan kondusif.
-            </p>
-        </div>
+        {{-- Disclaimer Banner Sesuai Tipe Ruang --}}
+        @if($room->isParentTeacher())
+            <div class="max-w-md mx-auto my-2 p-2.5 rounded-xl bg-indigo-50/95 border border-indigo-200 text-center shadow-2xs">
+                <p class="text-[11px] font-semibold text-indigo-900 leading-tight">
+                    🔒 <strong>Ruang Diskusi Privat Tertutup:</strong> Hanya dapat diakses oleh <strong>Wali Kelas</strong> dan <strong>Orang Tua</strong>. Siswa tidak dapat melihat obrolan di sini.
+                </p>
+            </div>
+        @else
+            <div class="max-w-md mx-auto my-2 p-2.5 rounded-xl bg-amber-50/90 border border-amber-200 text-center shadow-2xs">
+                <p class="text-[11px] font-semibold text-amber-800 leading-tight">
+                    👥 <strong>Ruang Konsultasi Bersama:</strong> Dapat dilihat oleh <strong>Wali Kelas</strong>, <strong>Orang Tua</strong>, dan <strong>Siswa</strong> terkait. Gunakan bahasa yang santun dan kondusif.
+                </p>
+            </div>
+        @endif
 
         {{-- List Pesan --}}
         @php
@@ -240,22 +272,41 @@
         <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider shrink-0 flex items-center gap-1">
             <span>⚡</span> Cepat:
         </span>
-        <button type="button" class="quick-chip text-[11px] px-2.5 py-1 rounded-full bg-white hover:bg-emerald-50 text-gray-700 hover:text-emerald-700 border border-gray-200 hover:border-emerald-300 font-medium whitespace-nowrap shadow-2xs transition-all"
-                data-text="Izin menginformasikan putra/putri kami sakit hari ini dan tidak dapat hadir ke sekolah.">
-            🩺 Izin Sakit
-        </button>
-        <button type="button" class="quick-chip text-[11px] px-2.5 py-1 rounded-full bg-white hover:bg-emerald-50 text-gray-700 hover:text-emerald-700 border border-gray-200 hover:border-emerald-300 font-medium whitespace-nowrap shadow-2xs transition-all"
-                data-text="Selamat pagi/siang Bapak/Ibu Wali Kelas, mohon informasi terkait perkembangan belajar siswa di kelas.">
-            📖 Info Belajar
-        </button>
-        <button type="button" class="quick-chip text-[11px] px-2.5 py-1 rounded-full bg-white hover:bg-emerald-50 text-gray-700 hover:text-emerald-700 border border-gray-200 hover:border-emerald-300 font-medium whitespace-nowrap shadow-2xs transition-all"
-                data-text="Izin bertanya terkait jadwal kegiatan dan tugas sekolah yang perlu dipersiapkan.">
-            📋 Jadwal & Tugas
-        </button>
-        <button type="button" class="quick-chip text-[11px] px-2.5 py-1 rounded-full bg-white hover:bg-emerald-50 text-gray-700 hover:text-emerald-700 border border-gray-200 hover:border-emerald-300 font-medium whitespace-nowrap shadow-2xs transition-all"
-                data-text="Terima kasih banyak atas perhatian dan bimbingannya, Bapak/Ibu Wali Kelas. 🙏">
-            🙏 Terima Kasih
-        </button>
+        @if($room->isParentTeacher())
+            <button type="button" class="quick-chip text-[11px] px-2.5 py-1 rounded-full bg-white hover:bg-indigo-50 text-gray-700 hover:text-indigo-700 border border-gray-200 hover:border-indigo-300 font-medium whitespace-nowrap shadow-2xs transition-all"
+                    data-text="Selamat pagi/siang Bapak/Ibu, mohon izin mendiskusikan catatan perkembangan ananda secara pribadi.">
+                🔒 Diskusi Pribadi
+            </button>
+            <button type="button" class="quick-chip text-[11px] px-2.5 py-1 rounded-full bg-white hover:bg-indigo-50 text-gray-700 hover:text-indigo-700 border border-gray-200 hover:border-indigo-300 font-medium whitespace-nowrap shadow-2xs transition-all"
+                    data-text="Mohon izin mengonfirmasi terkait ketidakhadiran ananda karena adanya urusan keluarga penting.">
+                🏡 Urusan Keluarga
+            </button>
+            <button type="button" class="quick-chip text-[11px] px-2.5 py-1 rounded-full bg-white hover:bg-indigo-50 text-gray-700 hover:text-indigo-700 border border-gray-200 hover:border-indigo-300 font-medium whitespace-nowrap shadow-2xs transition-all"
+                    data-text="Izin berkonsultasi mengenai kendala belajar dan motivasi ananda di rumah.">
+                💡 Kendala Belajar
+            </button>
+            <button type="button" class="quick-chip text-[11px] px-2.5 py-1 rounded-full bg-white hover:bg-indigo-50 text-gray-700 hover:text-indigo-700 border border-gray-200 hover:border-indigo-300 font-medium whitespace-nowrap shadow-2xs transition-all"
+                    data-text="Terima kasih banyak atas waktu, perhatian, dan kerja samanya Bapak/Ibu. 🙏">
+                🙏 Terima Kasih
+            </button>
+        @else
+            <button type="button" class="quick-chip text-[11px] px-2.5 py-1 rounded-full bg-white hover:bg-emerald-50 text-gray-700 hover:text-emerald-700 border border-gray-200 hover:border-emerald-300 font-medium whitespace-nowrap shadow-2xs transition-all"
+                    data-text="Izin menginformasikan putra/putri kami sakit hari ini dan tidak dapat hadir ke sekolah.">
+                🩺 Izin Sakit
+            </button>
+            <button type="button" class="quick-chip text-[11px] px-2.5 py-1 rounded-full bg-white hover:bg-emerald-50 text-gray-700 hover:text-emerald-700 border border-gray-200 hover:border-emerald-300 font-medium whitespace-nowrap shadow-2xs transition-all"
+                    data-text="Selamat pagi/siang Bapak/Ibu Wali Kelas, mohon informasi terkait perkembangan belajar siswa di kelas.">
+                📖 Info Belajar
+            </button>
+            <button type="button" class="quick-chip text-[11px] px-2.5 py-1 rounded-full bg-white hover:bg-emerald-50 text-gray-700 hover:text-emerald-700 border border-gray-200 hover:border-emerald-300 font-medium whitespace-nowrap shadow-2xs transition-all"
+                    data-text="Izin bertanya terkait jadwal kegiatan dan tugas sekolah yang perlu dipersiapkan.">
+                📋 Jadwal & Tugas
+            </button>
+            <button type="button" class="quick-chip text-[11px] px-2.5 py-1 rounded-full bg-white hover:bg-emerald-50 text-gray-700 hover:text-emerald-700 border border-gray-200 hover:border-emerald-300 font-medium whitespace-nowrap shadow-2xs transition-all"
+                    data-text="Terima kasih banyak atas perhatian dan bimbingannya, Bapak/Ibu Wali Kelas. 🙏">
+                🙏 Terima Kasih
+            </button>
+        @endif
     </div>
 
     {{-- ─── 4. Form Input Pesan ────────────────────────────────────────── --}}
@@ -286,13 +337,13 @@
             {{-- Input Teks Pesan --}}
             <div class="flex-1 relative">
                 <textarea id="chatInputMessage" name="message" rows="1"
-                          placeholder="Ketik pesan..."
-                          class="w-full bg-white border border-gray-200 rounded-2xl px-4 py-2.5 text-xs sm:text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 resize-none max-h-24 shadow-2xs transition-all leading-normal"></textarea>
+                          placeholder="{{ $room->isParentTeacher() ? 'Ketik pesan privat ke wali/orang tua...' : 'Ketik pesan...' }}"
+                          class="w-full bg-white border border-gray-200 rounded-2xl px-4 py-2.5 text-xs sm:text-sm focus:ring-2 {{ $room->isParentTeacher() ? 'focus:ring-indigo-500 focus:border-indigo-500' : 'focus:ring-emerald-500 focus:border-emerald-500' }} resize-none max-h-24 shadow-2xs transition-all leading-normal"></textarea>
             </div>
 
             {{-- Tombol Kirim --}}
             <button type="submit" id="btnSendMessage"
-                    class="w-10 h-10 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center transition-all shrink-0 shadow-md hover:scale-105 active:scale-95 disabled:opacity-50">
+                    class="w-10 h-10 rounded-2xl {{ $room->isParentTeacher() ? 'bg-indigo-700 hover:bg-indigo-800' : 'bg-emerald-600 hover:bg-emerald-700' }} text-white flex items-center justify-center transition-all shrink-0 shadow-md hover:scale-105 active:scale-95 disabled:opacity-50">
                 <svg class="w-5 h-5 -rotate-45 relative left-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
                 </svg>

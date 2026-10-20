@@ -22,12 +22,22 @@ class ChatController extends Controller
     public function index(Request $request)
     {
         $user = auth()->user();
-        $rooms = $this->chatService->getRoomsForUser($user);
 
-        // Jika siswa dan punya room, langsung arahkan ke room miliknya
-        if ($user->isSiswa() && $rooms->isNotEmpty()) {
-            return redirect()->route('siswa.chat.show', $rooms->first()->id);
+        // Jika siswa, hanya punya akses ke room miliknya yang bertipe 'trio'
+        if ($user->isSiswa()) {
+            $rooms = $this->chatService->getRoomsForUser($user, 'trio');
+            if ($rooms->isNotEmpty()) {
+                return redirect()->route('siswa.chat.show', $rooms->first()->id);
+            }
         }
+
+        $activeTab = $request->query('tab', 'trio');
+        if (! in_array($activeTab, ['trio', 'parent_teacher'])) {
+            $activeTab = 'trio';
+        }
+
+        $rooms = $this->chatService->getRoomsForUser($user, $activeTab);
+        $unreadStats = $this->chatService->getUnreadCountsByType($user);
 
         // Tentukan layout berdasarkan role
         $layout = match ($user->role) {
@@ -50,9 +60,11 @@ class ChatController extends Controller
         });
 
         return view('chat.index', [
-            'layout'   => $layout,
-            'roomData' => $roomData,
-            'user'     => $user,
+            'layout'      => $layout,
+            'roomData'    => $roomData,
+            'user'        => $user,
+            'activeTab'   => $activeTab,
+            'unreadStats' => $unreadStats,
         ]);
     }
 
@@ -63,11 +75,16 @@ class ChatController extends Controller
     {
         $user = auth()->user();
 
+        // 1. Larangan keras: Siswa SAMA SEKALI TIDAK BOLEH mengakses room 'parent_teacher'
+        if ($user->isSiswa() && $room->isParentTeacher()) {
+            abort(403, 'Akses ditolak. Ruang obrolan ini bersifat privat khusus Orang Tua dan Wali Kelas.');
+        }
+
         // Validasi partisipan
         $isParticipant = $room->participants()->where('user_id', $user->id)->exists();
         if (! $isParticipant) {
-            // Coba sinkronisasi jika kemungkinan baru ditambahkan
-            if ($user->isSiswa() && $room->student_id === $user->id) {
+            // Coba sinkronisasi jika relasi valid
+            if ($user->isSiswa() && $room->student_id === $user->id && $room->isTrio()) {
                 $this->chatService->syncRoomParticipants($room, $user);
             } elseif ($user->isOrangtua() && $user->children->contains('id', $room->student_id)) {
                 $this->chatService->syncRoomParticipants($room, $room->student);
@@ -81,7 +98,7 @@ class ChatController extends Controller
         // Tandai sudah dibaca
         $this->chatService->markAsRead($room, $user);
 
-        // Muat riwayat pesan terakhir (50 pesan)
+        // Muat riwayat pesan terakhir (100 pesan)
         $messages = $room->messages()
             ->with(['sender', 'reads'])
             ->orderBy('id', 'asc')
@@ -99,8 +116,8 @@ class ChatController extends Controller
         };
 
         $backUrl = match ($user->role) {
-            'guru'     => route('guru.chat.index'),
-            'orangtua' => route('orangtua.chat.index'),
+            'guru'     => route('guru.chat.index', ['tab' => $room->type]),
+            'orangtua' => route('orangtua.chat.index', ['tab' => $room->type]),
             'siswa'    => route('siswa.dashboard'),
             default    => url('/'),
         };
@@ -108,9 +125,13 @@ class ChatController extends Controller
         // Info status terakhir dilihat
         $participantLastSeen = $this->chatService->getParticipantLastSeen($room);
 
+        // Sibling room untuk beralih antara trio dan privat (khusus guru & orangtua)
+        $siblingRoom = (! $user->isSiswa()) ? $this->chatService->getSiblingRoom($room) : null;
+
         return view('chat.show', [
             'layout'              => $layout,
             'room'                => $room,
+            'siblingRoom'         => $siblingRoom,
             'messages'            => $messages,
             'participants'        => $participants,
             'participantLastSeen' => $participantLastSeen,
