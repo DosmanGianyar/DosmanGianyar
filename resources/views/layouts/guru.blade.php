@@ -48,9 +48,9 @@
     class="fixed inset-y-0 left-0 w-64 bg-white shadow-xl lg:shadow-md z-30 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 flex flex-col overflow-hidden border-r border-slate-200">
 
     {{-- Logo / Branding SIMAK_DOSMAN --}}
-    <div class="shrink-0 h-20 flex items-center gap-3 px-4 pt-2.5 border-b border-slate-100 bg-gradient-to-r from-slate-900 via-slate-850 to-indigo-950 text-white">
+    <div class="shrink-0 h-20 flex items-center gap-3 px-4 pt-2 border-b border-slate-100 bg-gradient-to-r from-slate-950 via-slate-900 to-indigo-950 text-white">
         <img src="/img/logo_sekolah.png" alt="Logo SMAN 1 Gianyar"
-            class="w-9 h-9 rounded-xl object-contain shrink-0 ring-2 ring-blue-400/40 bg-white/10 p-0.5">
+            class="w-9 h-9 rounded-xl object-contain shrink-0 ring-2 ring-blue-400/30 bg-white/10 p-0.5">
         <div class="overflow-hidden">
             <p class="text-white font-black text-base tracking-wider truncate leading-none">SIMAK_DOSMAN</p>
             <p class="text-blue-300 text-[10.5px] font-semibold tracking-tight truncate mt-1">Portal Guru SMAN 1 Gianyar</p>
@@ -58,11 +58,11 @@
     </div>
 
     {{-- User Card Profile Sidebar --}}
-    <div class="shrink-0 px-3 py-3 border-b border-slate-100 bg-slate-50/50">
-        <a href="{{ route('guru.profile') }}" class="flex items-center gap-3 bg-white border border-slate-200/80 rounded-2xl p-2.5 shadow-2xs hover:border-blue-300 transition-all group">
+    <div class="shrink-0 px-3 py-3 border-b border-slate-100 bg-slate-50/60">
+        <a href="{{ route('guru.profile') }}" class="flex items-center gap-3 bg-white border border-slate-200/80 rounded-2xl p-2.5 shadow-2xs hover:border-blue-300 hover:shadow-xs transition-all group">
             <div class="relative shrink-0">
                 @if(auth()->user()->photo)
-                    <img src="{{ auth()->user()->photo_url }}" class="w-9 h-9 rounded-xl object-cover ring-2 ring-blue-500/30 group-hover:ring-blue-500">
+                    <img src="{{ auth()->user()->photo_url }}" class="w-9 h-9 rounded-xl object-cover ring-2 ring-blue-500/30 group-hover:ring-blue-500 transition-all">
                 @else
                     <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white font-black text-xs ring-2 ring-blue-500/30">
                         {{ auth()->user()->initials }}
@@ -78,7 +78,7 @@
     </div>
 
     {{-- Nav Items --}}
-    <nav class="px-2 py-3"
+    <nav class="px-2.5 py-3 space-y-1"
         style="flex:1 1 0%;min-height:0;overflow-y:scroll;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;">
         @php
             $pendingPermits          = \App\Models\Permit::where('status', 'pending')->count();
@@ -131,7 +131,7 @@
 
         @foreach($navGroups as $group)
             @if($group['label'])
-                <p class="px-3 pt-4 pb-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                <p class="px-3 pt-3.5 pb-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                     {{ $group['label'] }}
                 </p>
             @endif
@@ -142,19 +142,19 @@
                     $itemBadge = $item['badge'] ?? 0;
                 @endphp
                 <a href="{{ route($item['route']) }}"
-                    class="group flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold transition-all duration-150 mb-1
-                        {{ $active ? 'bg-blue-600 text-white shadow-sm shadow-blue-200' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
+                    class="group flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold transition-all duration-150 mb-0.5
+                        {{ $active ? 'bg-blue-600 text-white shadow-xs shadow-blue-500/20' : 'text-slate-600 hover:bg-slate-100/80 hover:text-slate-900' }}">
                     <svg class="w-4.5 h-4.5 shrink-0 {{ $active ? 'text-white' : 'text-slate-400 group-hover:text-slate-600' }}"
                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $item['icon'] }}"/>
                     </svg>
                     <span class="truncate flex-1">{{ $item['label'] }}</span>
                     @if($item['route'] === 'guru.chat.index')
-                        <span class="chat-unread-badge {{ $itemBadge > 0 ? '' : 'hidden' }} text-[10px] font-black px-2 py-0.5 rounded-full shrink-0 {{ $active ? 'bg-white text-blue-600' : 'bg-red-500 text-white' }}">
+                        <span class="chat-unread-badge {{ $itemBadge > 0 ? '' : 'hidden' }} text-[10px] font-black px-2 py-0.5 rounded-full shrink-0 {{ $active ? 'bg-white text-blue-600' : 'bg-emerald-50 text-emerald-700 border border-emerald-200' }}">
                             {{ $itemBadge }}
                         </span>
                     @elseif($itemBadge > 0)
-                        <span class="text-[10px] font-black px-2 py-0.5 rounded-full shrink-0 {{ $active ? 'bg-white text-blue-600' : 'bg-red-500 text-white' }}">
+                        <span class="text-[10px] font-black px-2 py-0.5 rounded-full shrink-0 {{ $active ? 'bg-white text-blue-600' : 'bg-rose-50 text-rose-700 border border-rose-200' }}">
                             {{ $itemBadge }}
                         </span>
                     @endif
@@ -167,7 +167,7 @@
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
                 <button type="submit"
-                    class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold text-slate-500 hover:bg-red-50 hover:text-red-600 transition-all duration-150">
+                    class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold text-slate-500 hover:bg-rose-50 hover:text-rose-600 transition-all duration-150">
                     <svg class="w-4.5 h-4.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
