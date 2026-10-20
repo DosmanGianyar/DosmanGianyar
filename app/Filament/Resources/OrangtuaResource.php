@@ -85,6 +85,8 @@ class OrangtuaResource extends Resource
                     ->label('Password Baru')
                     ->password()
                     ->revealable()
+                    ->autocomplete('new-password')
+                    ->extraInputAttributes(['autocomplete' => 'new-password'])
                     ->placeholder('Kosongkan untuk menyamakan dengan Nomor HP')
                     ->helperText('Jika dikosongkan pada pembuatan baru, otomatis sama dengan nomor HP. Pada edit, kosongkan jika tidak ingin mengubah password.'),
 

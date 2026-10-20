@@ -17,6 +17,7 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\ImageEntry;
 use Filament\Infolists\Components\TextEntry;
@@ -24,6 +25,7 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
@@ -797,17 +799,28 @@ class UserResource extends Resource
                             ->placeholder('Contoh: 081234567890')
                             ->helperText('Nomor HP ini digunakan orang tua saat login. Password default sama dengan nomor HP ini.'),
 
+                        Toggle::make('custom_password_toggle')
+                            ->label('Ubah Password Manual (Opsional)')
+                            ->default(false)
+                            ->live()
+                            ->helperText('Secara default password akun orang tua otomatis sama dengan No HP. Aktifkan saklar ini hanya jika ingin membuat password kustom.'),
+
                         TextInput::make('new_password')
-                            ->label('Password Baru Akun Ortu (Opsional)')
+                            ->label('Password Kustom Akun Ortu')
                             ->password()
                             ->revealable()
+                            ->autocomplete('new-password')
+                            ->extraInputAttributes(['autocomplete' => 'new-password'])
+                            ->visible(fn (Get $get): bool => (bool) $get('custom_password_toggle'))
+                            ->required(fn (Get $get): bool => (bool) $get('custom_password_toggle'))
                             ->minLength(6)
-                            ->helperText('Kosongkan jika ingin password tetap sama dengan nomor HP atau tidak diubah.'),
+                            ->helperText('Minimal 6 karakter.'),
                     ])
                     ->action(function (User $record, array $data): void {
-                        $parentName  = trim($data['parent_name'] ?? '');
-                        $parentPhone = trim($data['parent_phone'] ?? '');
-                        $newPassword = trim($data['new_password'] ?? '');
+                        $parentName           = trim($data['parent_name'] ?? '');
+                        $parentPhone          = trim($data['parent_phone'] ?? '');
+                        $customPasswordToggle = (bool) ($data['custom_password_toggle'] ?? false);
+                        $newPassword          = trim($data['new_password'] ?? '');
 
                         $record->update([
                             'parent_name'  => $parentName ?: null,
@@ -822,7 +835,7 @@ class UserResource extends Resource
                                 if ($parentName && ($parent->name === 'Orangtua ' . $record->name || empty($parent->name))) {
                                     $parent->update(['name' => $parentName]);
                                 }
-                                if (filled($newPassword)) {
+                                if ($customPasswordToggle && filled($newPassword)) {
                                     $parent->update([
                                         'password'             => Hash::make($newPassword),
                                         'must_change_password' => false,
