@@ -20,6 +20,22 @@ class SchoolClass extends Model
                   ->orWhere('grade', '!=', '0');
             });
         });
+
+        static::updated(function (SchoolClass $class) {
+            if ($class->wasChanged('name')) {
+                // Perbarui nama ruang obrolan grup kelas
+                ChatRoom::where('school_class_id', $class->id)
+                    ->where('type', 'class_group')
+                    ->update(['name' => 'Grup Kelas ' . $class->name]);
+            }
+        });
+
+        static::deleting(function (SchoolClass $class) {
+            // Hapus ruang obrolan grup kelas jika kelas dihapus
+            ChatRoom::where('school_class_id', $class->id)
+                ->where('type', 'class_group')
+                ->delete();
+        });
     }
 
     public function homeroomTeacher(): BelongsTo

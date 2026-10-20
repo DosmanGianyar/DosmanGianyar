@@ -92,6 +92,31 @@ class User extends Authenticatable implements FilamentUser
             if ($user->isSiswa() && ($user->wasRecentlyCreated || $user->wasChanged('parent_phone'))) {
                 \App\Services\OrangtuaSyncService::resyncStudent($user);
             }
+
+            if ($user->isSiswa() && $user->wasChanged('class_id')) {
+                // Keluarkan siswa dari grup chat kelas lama
+                $oldClassId = $user->getOriginal('class_id');
+                if ($oldClassId) {
+                    $oldGroupRoom = \App\Models\ChatRoom::where('school_class_id', $oldClassId)
+                        ->where('type', 'class_group')
+                        ->first();
+                    if ($oldGroupRoom) {
+                        \App\Models\ChatRoomParticipant::where('chat_room_id', $oldGroupRoom->id)
+                            ->where('user_id', $user->id)
+                            ->delete();
+                    }
+                }
+
+                // Daftarkan ke grup kelas baru dan perbarui ruang konsultasi segitiga
+                if ($user->class_id) {
+                    $newClass = \App\Models\SchoolClass::find($user->class_id);
+                    if ($newClass) {
+                        $chatService = app(\App\Services\ChatService::class);
+                        $chatService->getOrCreateClassGroupRoom($newClass);
+                        $chatService->getOrCreateRoomForStudent($user, 'trio');
+                    }
+                }
+            }
         });
     }
 

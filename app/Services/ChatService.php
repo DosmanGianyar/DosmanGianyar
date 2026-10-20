@@ -21,6 +21,8 @@ class ChatService
      */
     public function getOrCreateClassGroupRoom(SchoolClass $class): ?ChatRoom
     {
+        $expectedName = 'Grup Kelas ' . $class->name;
+
         $room = ChatRoom::firstOrCreate(
             [
                 'school_class_id' => $class->id,
@@ -28,9 +30,14 @@ class ChatService
             ],
             [
                 'student_id' => null,
-                'name'       => 'Grup Kelas ' . $class->name,
+                'name'       => $expectedName,
             ]
         );
+
+        // Jika nama kelas di database diubah, otomatis perbarui nama room obrolan
+        if ($room->name !== $expectedName) {
+            $room->update(['name' => $expectedName]);
+        }
 
         $this->syncClassGroupParticipants($room, $class);
 
@@ -39,17 +46,24 @@ class ChatService
 
     /**
      * Sinkronkan anggota grup kelas (seluruh siswa kelas + Wali Kelas)
+     * Otomatis mengeluarkan siswa yang pindah kelas dan menyesuaikan wali kelas baru
      */
     public function syncClassGroupParticipants(ChatRoom $room, SchoolClass $class): void
     {
-        // 1. Siswa dalam kelas
-        $students = $class->students()->get();
-        foreach ($students as $student) {
+        // 1. Siswa dalam kelas saat ini
+        $currentStudentIds = $class->students()->pluck('id')->all();
+        foreach ($currentStudentIds as $studentId) {
             ChatRoomParticipant::firstOrCreate(
-                ['chat_room_id' => $room->id, 'user_id' => $student->id],
+                ['chat_room_id' => $room->id, 'user_id' => $studentId],
                 ['role' => 'siswa']
             );
         }
+
+        // Otomatis keluarkan siswa yang sudah pindah kelas dari grup kelas ini
+        ChatRoomParticipant::where('chat_room_id', $room->id)
+            ->where('role', 'siswa')
+            ->whereNotIn('user_id', $currentStudentIds)
+            ->delete();
 
         // 2. Wali Kelas
         $homeroomTeacher = $class->homeroomTeacher;
@@ -58,6 +72,17 @@ class ChatService
                 ['chat_room_id' => $room->id, 'user_id' => $homeroomTeacher->id],
                 ['role' => 'guru']
             );
+
+            // Keluarkan guru yang bukan lagi wali kelas dari grup ini
+            ChatRoomParticipant::where('chat_room_id', $room->id)
+                ->where('role', 'guru')
+                ->where('user_id', '!=', $homeroomTeacher->id)
+                ->delete();
+        } else {
+            // Jika kelas belum/tidak memiliki wali kelas, bersihkan entri guru
+            ChatRoomParticipant::where('chat_room_id', $room->id)
+                ->where('role', 'guru')
+                ->delete();
         }
     }
 
@@ -72,7 +97,7 @@ class ChatService
         }
 
         $type = in_array($type, ['trio', 'parent_teacher']) ? $type : 'trio';
-        $class = $student->schoolClass;
+        $class = $student->class_id ? SchoolClass::find($student->class_id) : $student->schoolClass;
         $className = $class ? ' (' . $class->name . ')' : '';
 
         $roomName = $type === 'parent_teacher'
@@ -87,9 +112,10 @@ class ChatService
             ]
         );
 
-        if ($class && $room->school_class_id !== $class->id) {
+        // Jika siswa pindah kelas atau nama kelas diubah, perbarui ruang konsultasi
+        if ($room->school_class_id !== $class?->id || $room->name !== $roomName) {
             $room->update([
-                'school_class_id' => $class->id,
+                'school_class_id' => $class?->id,
                 'name'            => $roomName,
             ]);
         }
@@ -124,20 +150,37 @@ class ChatService
                 ->delete();
         }
 
-        // 2. Wali Kelas
+        // 2. Wali Kelas (jika siswa pindah kelas, wali kelas lama otomatis digantikan oleh wali kelas baru)
         if ($homeroomTeacher) {
             ChatRoomParticipant::firstOrCreate(
                 ['chat_room_id' => $room->id, 'user_id' => $homeroomTeacher->id],
                 ['role' => 'guru']
             );
+
+            ChatRoomParticipant::where('chat_room_id', $room->id)
+                ->where('role', 'guru')
+                ->where('user_id', '!=', $homeroomTeacher->id)
+                ->delete();
+        } else {
+            ChatRoomParticipant::where('chat_room_id', $room->id)
+                ->where('role', 'guru')
+                ->delete();
         }
 
         // 3. Orang Tua
+        $parentIds = $parents->pluck('id')->all();
         foreach ($parents as $parent) {
             ChatRoomParticipant::firstOrCreate(
                 ['chat_room_id' => $room->id, 'user_id' => $parent->id],
                 ['role' => 'orangtua']
             );
+        }
+
+        if (! empty($parentIds)) {
+            ChatRoomParticipant::where('chat_room_id', $room->id)
+                ->where('role', 'orangtua')
+                ->whereNotIn('user_id', $parentIds)
+                ->delete();
         }
     }
 
