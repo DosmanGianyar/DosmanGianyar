@@ -755,16 +755,16 @@ class UserResource extends Resource
                 : null
             )
             ->recordActions([
-                ViewAction::make()
-                    ->iconButton()
-                    ->tooltip('Lihat Detail Siswa')
-                    ->visible(fn (User $record): bool => in_array($record->role, ['siswa', 'pengelola'])),
-
-                EditAction::make()
-                    ->iconButton()
-                    ->tooltip('Edit Data Siswa'),
-
                 ActionGroup::make([
+                    ViewAction::make()
+                        ->label('Lihat Detail Siswa')
+                        ->icon('heroicon-o-eye')
+                        ->visible(fn (User $record): bool => in_array($record->role, ['siswa', 'pengelola'])),
+
+                    EditAction::make()
+                        ->label('Edit Data Siswa')
+                        ->icon('heroicon-o-pencil-square'),
+
                     Action::make('downloadStudentCard')
                         ->label('Cetak / Unduh Kartu Pelajar')
                         ->icon('heroicon-o-identification')
