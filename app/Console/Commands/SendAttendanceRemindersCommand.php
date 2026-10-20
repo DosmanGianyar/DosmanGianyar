@@ -26,7 +26,7 @@ class SendAttendanceRemindersCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Kirim notifikasi pengingat presensi masuk (07:05) atau presensi pulang (14:00) ke siswa';
+    protected $description = 'Kirim notifikasi pengingat presensi masuk (07:00 WITA) atau presensi pulang (13:45 WITA) ke siswa';
 
     /**
      * Execute the console command.
@@ -42,7 +42,7 @@ class SendAttendanceRemindersCommand extends Command
         $today = Carbon::now('Asia/Makassar'); // WITA timezone for SMAN 1 Gianyar
         $todayStr = $today->toDateString();
 
-        $this->info("Menjalankan pengingat presensi [$type] tanggal: " . $todayStr);
+        $this->info("Menjalankan pengingat presensi [$type] tanggal: " . $todayStr . " (WITA)");
 
         if ($type === 'checkin') {
             $this->sendCheckInReminders($today);
@@ -56,6 +56,13 @@ class SendAttendanceRemindersCommand extends Command
     private function sendCheckInReminders(Carbon $today)
     {
         $todayStr = $today->toDateString();
+
+        // 1. Cek apakah hari ini disetel sebagai hari libur khusus oleh admin untuk seluruh sekolah
+        if (Holiday::holidayExistsFor($today, null)) {
+            $this->info("Hari ini disetel sebagai Hari Libur Khusus oleh Admin. Pengingat presensi masuk dilewati.");
+            Log::info("[SendAttendanceRemindersCommand] CheckIn reminder skipped: Global holiday set by admin on " . $todayStr);
+            return;
+        }
 
         // Ambil semua siswa aktif
         $students = User::whereIn('role', ['siswa', 'pengelola'])->get();
@@ -76,7 +83,7 @@ class SendAttendanceRemindersCommand extends Command
         $targetUserIds = [];
 
         foreach ($students as $student) {
-            // Check holiday or weekend off-day
+            // Check holiday or weekend off-day (admin setting libur khusus / kelas tertentu)
             if (Holiday::isOffDayFor($today, $student->class_id)) {
                 continue;
             }
@@ -90,12 +97,12 @@ class SendAttendanceRemindersCommand extends Command
         }
 
         if (empty($targetUserIds)) {
-            $this->info("Tidak ada siswa yang perlu diberi pengingat presensi masuk.");
+            $this->info("Tidak ada siswa yang perlu diberi pengingat presensi masuk (semua sudah absen, izin, atau libur).");
             return;
         }
 
         $title = '🔔 Pengingat Presensi Masuk';
-        $body  = 'Halo, jangan lupa melakukan presensi masuk hari ini sebelum jam 08:00 WITA! 🏫';
+        $body  = 'Halo! Jangan lupa melakukan presensi masuk hari ini sebelum jam 08:00 WITA. Selamat belajar & beraktivitas! 🏫';
 
         // 1. Simpan ke database AppNotification (History di App)
         foreach ($targetUserIds as $userId) {
@@ -118,6 +125,13 @@ class SendAttendanceRemindersCommand extends Command
     private function sendCheckOutReminders(Carbon $today)
     {
         $todayStr = $today->toDateString();
+
+        // 1. Cek apakah hari ini disetel sebagai hari libur khusus oleh admin untuk seluruh sekolah
+        if (Holiday::holidayExistsFor($today, null)) {
+            $this->info("Hari ini disetel sebagai Hari Libur Khusus oleh Admin. Pengingat presensi pulang dilewati.");
+            Log::info("[SendAttendanceRemindersCommand] CheckOut reminder skipped: Global holiday set by admin on " . $todayStr);
+            return;
+        }
 
         // Siswa yang sudah check-in hari ini
         $todayAttendances = Attendance::whereDate('date', $todayStr)
@@ -147,7 +161,7 @@ class SendAttendanceRemindersCommand extends Command
             $student = $attendance->user;
             if (!$student) continue;
 
-            // Check holiday or weekend off-day
+            // Check holiday or weekend off-day (admin setting libur khusus / kelas tertentu)
             if (Holiday::isOffDayFor($today, $student->class_id)) {
                 continue;
             }
@@ -161,12 +175,12 @@ class SendAttendanceRemindersCommand extends Command
         }
 
         if (empty($targetUserIds)) {
-            $this->info("Tidak ada siswa yang perlu diberi pengingat presensi pulang.");
+            $this->info("Tidak ada siswa yang perlu diberi pengingat presensi pulang (semua sudah absen pulang atau memiliki izin).");
             return;
         }
 
         $title = '🔔 Pengingat Presensi Pulang';
-        $body  = 'Halo, sudah jam 14:00 WITA dan waktunya presensi pulang. Jangan lupa absen pulang ya! 👋';
+        $body  = 'Halo! Sekarang sudah jam 13:45 WITA dan waktunya presensi pulang. Jangan lupa absen pulang melalui aplikasi ya! 👋';
 
         // 1. Simpan ke AppNotification
         foreach ($targetUserIds as $userId) {
