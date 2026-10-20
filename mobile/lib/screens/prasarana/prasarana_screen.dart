@@ -29,12 +29,14 @@ class _PrasaranaScreenState extends State<PrasaranaScreen> {
   }
 
   Future<void> _loadData() async {
+    if (!mounted) return;
     setState(() => _loading = true);
     try {
       final summary = await ApiClient.get('/siswa/sarpras/summary');
       final loans   = await ApiClient.get('/siswa/sarpras/loans');
       final damage  = await ApiClient.get('/siswa/sarpras/damage-reports');
 
+      if (!mounted) return;
       setState(() {
         _activeLoansCount   = summary['active_loans'] ?? 0;
         _returnedLoansCount = summary['returned_loans'] ?? 0;
@@ -46,6 +48,7 @@ class _PrasaranaScreenState extends State<PrasaranaScreen> {
         _loading       = false;
       });
     } catch (_) {
+      if (!mounted) return;
       setState(() => _loading = false);
     }
   }
