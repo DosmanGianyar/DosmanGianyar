@@ -12,6 +12,7 @@ import 'orangtua_achievement_screen.dart';
 import 'orangtua_attendance_screen.dart';
 import 'orangtua_conduct_screen.dart';
 import '../kesiswaan/school_regulation_screen.dart';
+import '../chat/chat_list_screen.dart';
 
 class OrangtuaShell extends StatefulWidget {
   const OrangtuaShell({super.key});
@@ -89,6 +90,13 @@ class _OrangtuaShellState extends State<OrangtuaShell> {
     Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileScreen()));
   }
 
+  void _openChat() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const ChatListScreen(filterType: 'all')),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final user = context.watch<AuthProvider>().user;
@@ -104,7 +112,12 @@ class _OrangtuaShellState extends State<OrangtuaShell> {
           child: ListView(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
             children: [
-              _TopBar(userName: user?.name ?? '', onProfile: _openProfile, onLogout: _logout),
+              _TopBar(
+                userName: user?.name ?? '',
+                onProfile: _openProfile,
+                onChat: _openChat,
+                onLogout: _logout,
+              ),
               const SizedBox(height: 16),
               if (prov.isLoading && prov.children.isEmpty)
                 const Padding(
@@ -138,8 +151,15 @@ class _OrangtuaShellState extends State<OrangtuaShell> {
 class _TopBar extends StatelessWidget {
   final String       userName;
   final VoidCallback onProfile;
+  final VoidCallback onChat;
   final VoidCallback onLogout;
-  const _TopBar({required this.userName, required this.onProfile, required this.onLogout});
+
+  const _TopBar({
+    required this.userName,
+    required this.onProfile,
+    required this.onChat,
+    required this.onLogout,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -159,6 +179,11 @@ class _TopBar extends StatelessWidget {
                   overflow: TextOverflow.ellipsis),
               ],
             ),
+          ),
+          IconButton(
+            onPressed: onChat,
+            icon: const Icon(Icons.forum_outlined, color: Colors.white, size: 22),
+            tooltip: 'Chat Konsultasi',
           ),
           IconButton(
             onPressed: onProfile,
@@ -333,6 +358,17 @@ class _MenuGrid extends StatelessWidget {
           subtitle: 'Apresiasi & catatan kedisiplinan anak',
           onTap: () => Navigator.push(context, MaterialPageRoute(
             builder: (_) => OrangtuaConductScreen(studentId: child.id, studentName: child.name),
+          )),
+        ),
+        const SizedBox(height: 10),
+        _MenuTile(
+          icon: Icons.forum_rounded,
+          iconBg: const Color(0xFFEEF2FF),
+          iconColor: const Color(0xFF4F46E5),
+          title: 'Konsultasi Wali Kelas',
+          subtitle: 'Obrolan segitiga bersama anak & wali kelas',
+          onTap: () => Navigator.push(context, MaterialPageRoute(
+            builder: (_) => const ChatListScreen(filterType: 'all'),
           )),
         ),
         const SizedBox(height: 10),

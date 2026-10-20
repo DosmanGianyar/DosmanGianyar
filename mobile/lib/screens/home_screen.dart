@@ -21,6 +21,7 @@ import 'prasarana/prasarana_screen.dart';
 import 'humas/humas_screen.dart';
 import 'profile_screen.dart';
 import 'announcement_list_screen.dart';
+import 'chat/student_chat_entry.dart';
 import '../widgets/announcement_popup_dialog.dart';
 import '../services/push_notification_service.dart';
 
@@ -162,6 +163,13 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  void _openChat() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const StudentChatEntryScreen()),
+    );
+  }
+
   Widget _buildBody() {
     if (_selectedTab < 0) {
       return RefreshIndicator(
@@ -220,6 +228,7 @@ class _HomeScreenState extends State<HomeScreen> {
               title:         _currentTitle,
               onLogout:      _logout,
               onNotifTap:    _openNotifications,
+              onChatTap:     _openChat,
               onProfileTap:  _openProfile,
               onHomeTap:     _goHome,
             ),
@@ -243,6 +252,7 @@ class _TopHeader extends StatelessWidget {
   final String       title;
   final VoidCallback onLogout;
   final VoidCallback onNotifTap;
+  final VoidCallback onChatTap;
   final VoidCallback onProfileTap;
   final VoidCallback onHomeTap;
 
@@ -251,6 +261,7 @@ class _TopHeader extends StatelessWidget {
     required this.title,
     required this.onLogout,
     required this.onNotifTap,
+    required this.onChatTap,
     required this.onProfileTap,
     required this.onHomeTap,
   });
@@ -339,9 +350,33 @@ class _TopHeader extends StatelessWidget {
             ),
           ),
 
-          // ── Kanan: Bell + Avatar ─────────────────────────────────
+          // ── Kanan: Chat + Bell + Avatar ─────────────────────────────────
           Row(
             children: [
+              // Chat button
+              GestureDetector(
+                onTap: onChatTap,
+                child: SizedBox(
+                  width: 36, height: 36,
+                  child: Center(
+                    child: Container(
+                      width: 32, height: 32,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.10),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Icon(
+                        Icons.forum_outlined,
+                        size: 19,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 4),
+
+              // Notification bell
               GestureDetector(
                 onTap: onNotifTap,
                 child: SizedBox(
@@ -499,6 +534,10 @@ class _DashboardBody extends StatelessWidget {
 
           // ── Kartu Pelajar Digital ───────────────────────────────────────────
           StudentIdCard(user: user),
+          const SizedBox(height: 12),
+
+          // ── Card Konsultasi Segitiga (Wali Kelas & Ortu) ────────────────────
+          _StudentConsultationCard(user: user),
           const SizedBox(height: 12),
 
           // ── Card SIPINTER (diantara Kartu Siswa & Kalender Kehadiran) ──────
@@ -753,6 +792,105 @@ class _StatBadgeItem extends StatelessWidget {
                 fontWeight: FontWeight.w900,
               ),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Consultation Card (Chat Siswa, Wali Kelas & Ortu) ────────────────────────
+
+class _StudentConsultationCard extends StatelessWidget {
+  final User? user;
+  const _StudentConsultationCard({this.user});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const StudentChatEntryScreen()),
+        );
+      },
+      borderRadius: AppRadius.card,
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xFF1E1B4B), Color(0xFF3730A3), Color(0xFF4338CA)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: AppRadius.card,
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF312E81).withValues(alpha: 0.35),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        padding: const EdgeInsets.all(14),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.25)),
+              ),
+              child: const Icon(Icons.forum_rounded, color: Color(0xFFFDE047), size: 24),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Expanded(
+                        child: Text(
+                          'Konsultasi Segitiga',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF22C55E),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Text(
+                          'Chat Aktif',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 9,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 3),
+                  const Text(
+                    'Obrolan resmi siswa bersama Wali Kelas & Orang Tua',
+                    style: TextStyle(
+                      color: Color(0xFFE0E7FF),
+                      fontSize: 11,
+                      height: 1.25,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 6),
+            const Icon(Icons.chevron_right_rounded, color: Colors.white70, size: 22),
           ],
         ),
       ),

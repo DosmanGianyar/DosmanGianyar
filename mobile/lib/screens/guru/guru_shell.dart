@@ -22,6 +22,7 @@ import 'guru_rekap_screen.dart';
 import 'guru_sarpras_screen.dart';
 import 'guru_teaching_session_screen.dart';
 import 'guru_tp_screen.dart';
+import '../chat/chat_list_screen.dart';
 import '../../widgets/announcement_popup_dialog.dart';
 
 class GuruShell extends StatefulWidget {
@@ -227,6 +228,18 @@ class _GuruTopBar extends StatelessWidget {
                 ),
               ],
             ),
+          ),
+
+          // Chat Konsultasi
+          IconButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const ChatListScreen()),
+              );
+            },
+            icon: const Icon(Icons.forum_outlined, color: Colors.white, size: 22),
+            tooltip: 'Konsultasi Perwalian',
           ),
 
           // Notification Bell
@@ -485,6 +498,17 @@ class _GuruServicesTab extends StatelessWidget {
             color: AppColors.blue600,
             bg: AppColors.blue50,
             onTap: () => onNavigate(const GuruForgotAttendanceScreen()),
+          ),
+          const SizedBox(height: 12),
+
+          _buildHubCard(
+            title: '💬 Chat Konsultasi Segitiga',
+            subtitle: 'Obrolan perwalian real-time dengan siswa & orang tua murid',
+            icon: Icons.forum_rounded,
+            color: const Color(0xFF2563EB),
+            bg: const Color(0xFFEFF6FF),
+            badge: 'Chat Siswa & Ortu',
+            onTap: () => onNavigate(const ChatListScreen()),
           ),
           const SizedBox(height: 12),
 
