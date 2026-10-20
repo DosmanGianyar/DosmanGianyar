@@ -112,7 +112,7 @@ class _ChangePasswordRequiredScreenState extends State<ChangePasswordRequiredScr
       content: Text(msg),
       backgroundColor: AppColors.red500,
       behavior: SnackBarBehavior.floating,
-      shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
+      shape: const RoundedRectangleBorder(borderRadius: AppRadius.button),
     ));
   }
 
@@ -150,9 +150,9 @@ class _ChangePasswordRequiredScreenState extends State<ChangePasswordRequiredScr
                     border:       Border.all(color: const Color(0xFFFCD34D)),
                   ),
                   padding: const EdgeInsets.all(12),
-                  child: Column(
+                  child: const Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
+                    children: [
                       Row(
                         children: [
                           Icon(Icons.info_outline_rounded, color: Color(0xFFD97706), size: 16),
@@ -227,7 +227,7 @@ class _ChangePasswordRequiredScreenState extends State<ChangePasswordRequiredScr
                           style: FilledButton.styleFrom(
                             backgroundColor: AppColors.blue600,
                             padding: const EdgeInsets.symmetric(vertical: 12),
-                            shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
+                            shape: const RoundedRectangleBorder(borderRadius: AppRadius.button),
                           ),
                           child: _saving
                               ? const SizedBox(width: 18, height: 18,
@@ -285,9 +285,9 @@ class _PasswordField extends StatelessWidget {
             filled:         true,
             fillColor:      AppColors.gray50,
             contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-            border: OutlineInputBorder(
+            border: const OutlineInputBorder(
               borderRadius: AppRadius.input,
-              borderSide:   const BorderSide(color: AppColors.gray200),
+              borderSide:   BorderSide(color: AppColors.gray200),
             ),
           ),
         ),

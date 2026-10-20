@@ -36,7 +36,8 @@ return [
     ],
 
     'firebase' => [
-        'server_key' => env('FCM_SERVER_KEY'),
+        'server_key'  => env('FCM_SERVER_KEY'),
+        'credentials' => env('FIREBASE_CREDENTIALS'),
     ],
 
 ];

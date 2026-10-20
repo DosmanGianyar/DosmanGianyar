@@ -68,12 +68,11 @@ class FcmTokenController extends Controller
 
         // 1. Simpan pesan notifikasi ke database agar terbaca di daftar notifikasi
         try {
-            \App\Models\Notification::create([
+            \App\Models\AppNotification::create([
                 'user_id'    => $user->id,
                 'title'      => '🔔 Uji Coba Push Notifikasi SIMS',
-                'body'       => 'Halo ' . $user->name . ', notifikasi uji coba berhasil dikirim & terbaca pada sistem.',
+                'body'       => 'Halo ' . $user->name . ', notifikasi uji coba berhasil disimpan pada sistem.',
                 'type'       => 'success',
-                'is_read'    => false,
                 'created_at' => now(),
             ]);
         } catch (\Throwable $e) {
@@ -87,9 +86,16 @@ class FcmTokenController extends Controller
             ['type' => 'test']
         );
 
+        $tokenCount = UserFcmToken::where('user_id', $user->id)->count();
+
         return response()->json([
-            'success' => true,
-            'message' => 'Test push notification sent!',
+            'success'     => $sent,
+            'token_count' => $tokenCount,
+            'message'     => $sent 
+                ? 'Push notification berhasil dikirim ke perangkat Anda.'
+                : ($tokenCount === 0 
+                    ? 'Token perangkat belum terdaftar di server. Pastikan izin notifikasi aktif di HP.'
+                    : 'Gagal mengirim melalui Firebase Cloud Messaging (cek konfigurasi Firebase di server).'),
         ]);
     }
 }

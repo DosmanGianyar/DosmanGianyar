@@ -140,7 +140,7 @@ class _SessionAppBar extends StatelessWidget {
                 children: [
                   Text(
                     session.extracurricularName,
-                    style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 12),
+                    style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 12),
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -319,7 +319,7 @@ class _KetuaActions extends StatelessWidget {
                 foregroundColor: isOpen ? AppColors.red500 : AppColors.green500,
                 side: BorderSide(color: isOpen ? AppColors.red500 : AppColors.green500),
                 padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
+                shape: const RoundedRectangleBorder(borderRadius: AppRadius.button),
               ),
             ),
           );
@@ -366,9 +366,9 @@ class _MemberTile extends StatelessWidget {
         borderRadius: AppRadius.card,
         border: Border.all(
           color: isHadir
-              ? AppColors.green500.withOpacity(0.3)
+              ? AppColors.green500.withValues(alpha: 0.3)
               : isAlpa
-                  ? AppColors.red500.withOpacity(0.3)
+                  ? AppColors.red500.withValues(alpha: 0.3)
                   : AppColors.gray200,
         ),
       ),
@@ -489,7 +489,7 @@ class _SaveButton extends StatelessWidget {
             label: const Text('Simpan Kehadiran', style: TextStyle(fontSize: 15)),
             style: FilledButton.styleFrom(
               backgroundColor: AppColors.blue600,
-              shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
+              shape: const RoundedRectangleBorder(borderRadius: AppRadius.button),
             ),
           ),
         );

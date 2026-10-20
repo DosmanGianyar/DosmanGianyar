@@ -32,14 +32,13 @@ class _GuruTpScreenState extends State<GuruTpScreen> {
     try {
       final list = await GuruService.getTpList();
       final subList = await GuruService.getSubjects();
+      if (!mounted) return;
       final userSubs = context.read<AuthProvider>().user?.subjects ?? [];
-      if (mounted) {
-        setState(() {
-          _tpList = list;
-          _subjects = subList.isNotEmpty ? subList : userSubs;
-          _loading = false;
-        });
-      }
+      setState(() {
+        _tpList = list;
+        _subjects = subList.isNotEmpty ? subList : userSubs;
+        _loading = false;
+      });
     } catch (e) {
       if (mounted) setState(() { _error = e.toString(); _loading = false; });
     }

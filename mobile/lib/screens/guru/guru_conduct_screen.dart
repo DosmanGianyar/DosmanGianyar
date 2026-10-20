@@ -542,17 +542,17 @@ class _StudentConductDetailSheetState extends State<_StudentConductDetailSheet> 
               ),
               borderRadius: BorderRadius.circular(18),
               boxShadow: [
-                BoxShadow(color: Colors.black.withOpacity(0.15), blurRadius: 10, offset: const Offset(0, 4))
+                BoxShadow(color: Colors.black.withValues(alpha: 0.15), blurRadius: 10, offset: const Offset(0, 4))
               ],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
+                const Row(
                   children: [
-                    const Icon(Icons.remove_red_eye_rounded, size: 14, color: Color(0xFF94A3B8)),
-                    const SizedBox(width: 6),
-                    const Text(
+                    Icon(Icons.remove_red_eye_rounded, size: 14, color: Color(0xFF94A3B8)),
+                    SizedBox(width: 6),
+                    Text(
                       'AMATI CATATAN PERILAKU SISWA',
                       style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: Color(0xFF94A3B8), letterSpacing: 0.8),
                     ),
@@ -594,9 +594,9 @@ class _StudentConductDetailSheetState extends State<_StudentConductDetailSheet> 
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: Colors.red.withOpacity(0.2),
+                        color: Colors.red.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.red.withOpacity(0.4)),
+                        border: Border.all(color: Colors.red.withValues(alpha: 0.4)),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -614,9 +614,9 @@ class _StudentConductDetailSheetState extends State<_StudentConductDetailSheet> 
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: Colors.green.withOpacity(0.2),
+                        color: Colors.green.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.green.withOpacity(0.4)),
+                        border: Border.all(color: Colors.green.withValues(alpha: 0.4)),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -778,7 +778,7 @@ class _StudentConductDetailSheetState extends State<_StudentConductDetailSheet> 
               ),
               const Spacer(),
               Text(
-                item.dateLabel ?? item.date,
+                item.dateLabel.isNotEmpty ? item.dateLabel : item.date,
                 style: const TextStyle(fontSize: 11, color: AppColors.gray400),
               ),
             ],

@@ -31,18 +31,30 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       body: 'Selamat! Spanduk, nada alert, dan pesan notifikasi di HP Infinix Anda berfungsi 100%.',
     );
     try {
-      await ApiClient.post('/fcm-token/test');
-    } catch (_) {}
-    await notifProv.fetchAll();
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('⚡ Push Notifikasi alert + nada berhasil dikirim & dibaca!'),
-          backgroundColor: AppColors.green500,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      final res = await ApiClient.post('/fcm-token/test');
+      final isOk = res['success'] == true;
+      final msg = res['message']?.toString() ?? 'Uji coba selesai.';
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(msg),
+            backgroundColor: isOk ? AppColors.green500 : const Color(0xFFD97706),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Koneksi ke server: ${ApiClient.extractError(e)}'),
+            backgroundColor: AppColors.red500,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
     }
+    await notifProv.fetchAll();
   }
 
   @override

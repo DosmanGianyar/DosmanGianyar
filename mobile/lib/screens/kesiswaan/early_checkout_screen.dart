@@ -70,7 +70,7 @@ class _EarlyCheckoutScreenState extends State<EarlyCheckoutScreen> {
       content: Text(msg),
       backgroundColor: success ? AppColors.green500 : AppColors.red500,
       behavior: SnackBarBehavior.floating,
-      shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
+      shape: const RoundedRectangleBorder(borderRadius: AppRadius.button),
     ));
   }
 
@@ -226,79 +226,85 @@ class _CreateSheetState extends State<_CreateSheet> {
             const Text('Jenis Pulang Awal',
               style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppColors.gray600)),
             const SizedBox(height: 8),
-            InkWell(
-              onTap: () => setState(() => _type = 'dengan_absen'),
-              borderRadius: BorderRadius.circular(10),
-              child: Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: _type == 'dengan_absen' ? AppColors.emerald50 : AppColors.gray50,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
-                    color: _type == 'dengan_absen' ? AppColors.emerald500 : AppColors.gray200,
-                    width: _type == 'dengan_absen' ? 1.5 : 1,
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    Radio<String>(
-                      value: 'dengan_absen',
-                      groupValue: _type,
-                      activeColor: AppColors.emerald600,
-                      onChanged: (v) => setState(() => _type = v!),
-                    ),
-                    const Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+            RadioGroup<String>(
+              groupValue: _type,
+              onChanged: (v) {
+                if (v != null) setState(() => _type = v);
+              },
+              child: Column(
+                children: [
+                  InkWell(
+                    onTap: () => setState(() => _type = 'dengan_absen'),
+                    borderRadius: BorderRadius.circular(10),
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: _type == 'dengan_absen' ? AppColors.emerald50 : AppColors.gray50,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: _type == 'dengan_absen' ? AppColors.emerald500 : AppColors.gray200,
+                          width: _type == 'dengan_absen' ? 1.5 : 1,
+                        ),
+                      ),
+                      child: const Row(
                         children: [
-                          Text('Dengan Absen Pulang (Hadir)',
-                            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.gray800)),
-                          SizedBox(height: 2),
-                          Text('Rekap tercatat Hadir. Harus selfie absen pulang saat meninggalkan sekolah.',
-                            style: TextStyle(fontSize: 11, color: AppColors.gray500)),
+                          Radio<String>(
+                            value: 'dengan_absen',
+                            activeColor: AppColors.emerald600,
+                          ),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('Dengan Absen Pulang (Hadir)',
+                                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.gray800)),
+                                SizedBox(height: 2),
+                                Text('Rekap tercatat Hadir. Harus selfie absen pulang saat meninggalkan sekolah.',
+                                  style: TextStyle(fontSize: 11, color: AppColors.gray500)),
+                              ],
+                            ),
+                          ),
                         ],
                       ),
                     ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 8),
-            InkWell(
-              onTap: () => setState(() => _type = 'tanpa_absen'),
-              borderRadius: BorderRadius.circular(10),
-              child: Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: _type == 'tanpa_absen' ? AppColors.amber50 : AppColors.gray50,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
-                    color: _type == 'tanpa_absen' ? AppColors.amber500 : AppColors.gray200,
-                    width: _type == 'tanpa_absen' ? 1.5 : 1,
                   ),
-                ),
-                child: Row(
-                  children: [
-                    Radio<String>(
-                      value: 'tanpa_absen',
-                      groupValue: _type,
-                      activeColor: AppColors.amber600,
-                      onChanged: (v) => setState(() => _type = v!),
-                    ),
-                    const Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                  const SizedBox(height: 8),
+                  InkWell(
+                    onTap: () => setState(() => _type = 'tanpa_absen'),
+                    borderRadius: BorderRadius.circular(10),
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: _type == 'tanpa_absen' ? AppColors.amber50 : AppColors.gray50,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: _type == 'tanpa_absen' ? AppColors.amber500 : AppColors.gray200,
+                          width: _type == 'tanpa_absen' ? 1.5 : 1,
+                        ),
+                      ),
+                      child: const Row(
                         children: [
-                          Text('Tanpa Absen Pulang (Izin / Sakit)',
-                            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.gray800)),
-                          SizedBox(height: 2),
-                          Text('Rekap otomatis menjadi Izin/Sakit setelah disetujui. Tanpa selfie pulang.',
-                            style: TextStyle(fontSize: 11, color: AppColors.gray500)),
+                          Radio<String>(
+                            value: 'tanpa_absen',
+                            activeColor: AppColors.amber600,
+                          ),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('Tanpa Absen Pulang (Izin / Sakit)',
+                                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.gray800)),
+                                SizedBox(height: 2),
+                                Text('Rekap otomatis menjadi Izin/Sakit setelah disetujui. Tanpa selfie pulang.',
+                                  style: TextStyle(fontSize: 11, color: AppColors.gray500)),
+                              ],
+                            ),
+                          ),
                         ],
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 12),
@@ -372,15 +378,15 @@ class _CreateSheetState extends State<_CreateSheet> {
               maxLines: 3,
               maxLength: 500,
               style: const TextStyle(fontSize: 13, color: AppColors.gray700),
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 hintText: 'Tuliskan alasan pulang lebih awal...',
-                hintStyle: const TextStyle(color: AppColors.gray400, fontSize: 12),
+                hintStyle: TextStyle(color: AppColors.gray400, fontSize: 12),
                 filled: true, fillColor: AppColors.gray50,
-                counterStyle: const TextStyle(fontSize: 10),
-                contentPadding: const EdgeInsets.all(12),
-                border: OutlineInputBorder(borderRadius: AppRadius.input, borderSide: const BorderSide(color: AppColors.gray200)),
-                enabledBorder: OutlineInputBorder(borderRadius: AppRadius.input, borderSide: const BorderSide(color: AppColors.gray200)),
-                focusedBorder: OutlineInputBorder(borderRadius: AppRadius.input, borderSide: const BorderSide(color: AppColors.emerald600, width: 2)),
+                counterStyle: TextStyle(fontSize: 10),
+                contentPadding: EdgeInsets.all(12),
+                border: OutlineInputBorder(borderRadius: AppRadius.input, borderSide: BorderSide(color: AppColors.gray200)),
+                enabledBorder: OutlineInputBorder(borderRadius: AppRadius.input, borderSide: BorderSide(color: AppColors.gray200)),
+                focusedBorder: OutlineInputBorder(borderRadius: AppRadius.input, borderSide: BorderSide(color: AppColors.emerald600, width: 2)),
               ),
             ),
             const SizedBox(height: 16),
@@ -390,7 +396,7 @@ class _CreateSheetState extends State<_CreateSheet> {
               style: FilledButton.styleFrom(
                 backgroundColor: AppColors.emerald600,
                 padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
+                shape: const RoundedRectangleBorder(borderRadius: AppRadius.button),
               ),
               child: _isSaving
                   ? const SizedBox(width: 18, height: 18,

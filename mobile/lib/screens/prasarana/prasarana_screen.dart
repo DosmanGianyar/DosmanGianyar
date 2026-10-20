@@ -94,7 +94,7 @@ class _PrasaranaScreenState extends State<PrasaranaScreen> {
           children: [
             // ─── Header ──────────────────────────────────────────────────
             Container(
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 gradient: AppColors.prasaranaGradient,
                 borderRadius: AppRadius.card,
               ),
@@ -211,7 +211,7 @@ class _PrasaranaScreenState extends State<PrasaranaScreen> {
                 child: GestureDetector(
                   onTap: _openCatalogAndBorrowModal,
                   child: Container(
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       gradient: AppColors.prasaranaGradient,
                       borderRadius: AppRadius.card,
                     ),
@@ -539,8 +539,8 @@ class _BorrowAssetModalState extends State<_BorrowAssetModal> {
   bool _submitting = false;
   List<Map<String, dynamic>> _assets = [];
   int? _selectedAssetId;
-  DateTime _loanDate   = DateTime.now();
-  DateTime _returnDate = DateTime.now().add(const Duration(days: 1));
+  final DateTime _loanDate   = DateTime.now();
+  final DateTime _returnDate = DateTime.now().add(const Duration(days: 1));
   final _notesCtrl = TextEditingController();
 
   @override
@@ -616,7 +616,7 @@ class _BorrowAssetModalState extends State<_BorrowAssetModal> {
               const Text('Pilih Barang', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.gray700)),
               const SizedBox(height: 6),
               DropdownButtonFormField<int>(
-                value: _selectedAssetId,
+                initialValue: _selectedAssetId,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                   contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),

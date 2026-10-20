@@ -170,6 +170,7 @@ class PushNotificationService {
       final status = await Permission.notification.status;
       if (status.isGranted) {
         await _ensureNotificationChannel();
+        await registerToken();
         return true;
       }
 

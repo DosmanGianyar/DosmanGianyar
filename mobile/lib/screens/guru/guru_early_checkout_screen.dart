@@ -159,7 +159,7 @@ class _GuruEarlyCheckoutScreenState extends State<GuruEarlyCheckoutScreen> {
                   decoration: BoxDecoration(
                     color: AppColors.emerald50,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.emerald600.withOpacity(0.3)),
+                    border: Border.all(color: AppColors.emerald600.withValues(alpha: 0.3)),
                   ),
                   child: const Row(
                     mainAxisSize: MainAxisSize.min,

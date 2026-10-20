@@ -121,7 +121,7 @@ class _KesiswaanScreenState extends State<KesiswaanScreen>
       content: Text('$title — fitur segera hadir.'),
       backgroundColor: AppColors.gray700,
       behavior: SnackBarBehavior.floating,
-      shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
+      shape: const RoundedRectangleBorder(borderRadius: AppRadius.button),
     ));
   }
 
@@ -465,35 +465,6 @@ class _KesiswaanScreenState extends State<KesiswaanScreen>
   }
 }
 
-// ─── Rekap Cell ───────────────────────────────────────────────────────────────
-
-class _RekapCell extends StatelessWidget {
-  final String label;
-  final int    count;
-  final Color  color;
-  const _RekapCell({required this.label, required this.count, required this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text('$count',
-            style: TextStyle(color: color, fontSize: 22, fontWeight: FontWeight.bold, height: 1)),
-          const SizedBox(height: 4),
-          Text(label,
-            style: const TextStyle(color: Color(0xFFBFDBFE), fontSize: 10, fontWeight: FontWeight.w500)),
-        ],
-      ),
-    );
-  }
-}
-
 // ─── Presensi Tab ─────────────────────────────────────────────────────────────
 
 class _PresensiTab extends StatelessWidget {
@@ -743,7 +714,7 @@ class _PrestasiLombaTab extends StatelessWidget {
             foregroundColor: AppColors.yellow600,
             side: const BorderSide(color: AppColors.yellow600),
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-            shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
+            shape: const RoundedRectangleBorder(borderRadius: AppRadius.button),
           ),
           child: const Text('Laporkan Prestasi',
             style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),

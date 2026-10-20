@@ -30,7 +30,6 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
     with SingleTickerProviderStateMixin {
   late final TabController _tabCtrl;
 
-  List<ConductCategory>      _prestasiCats = [];
   List<SimpleStudent>        _students     = [];
   List<Map<String, dynamic>> _classes      = [];
 
@@ -103,15 +102,9 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
 
   Future<void> _loadInitial() async {
     try {
-      final results = await Future.wait([
-        GuruService.getConductCategories(),
-        GuruService.getConductClasses(),
-      ]);
-      final cats    = results[0] as Map<String, List<ConductCategory>>;
-      final classes = results[1] as List<Map<String, dynamic>>;
+      final classes = await GuruService.getConductClasses();
       if (mounted) {
         setState(() {
-          _prestasiCats = cats['prestasi'] ?? [];
           _classes      = classes;
           _loadingCats  = false;
           if (widget.initialCode != null && widget.initialCode!.isNotEmpty) {
@@ -280,7 +273,7 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
           _sectionLabel('2. Jenis Catatan'),
           const SizedBox(height: 8),
           DropdownButtonFormField<String>(
-            value: _selectedConductType,
+            initialValue: _selectedConductType,
             decoration: InputDecoration(
               filled: true,
               fillColor: AppColors.white,

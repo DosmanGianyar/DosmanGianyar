@@ -85,8 +85,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (!canCheckin && !canCheckout) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Saat ini bukan waktu absensi.'),
+        const SnackBar(
+          content: Text('Saat ini bukan waktu absensi.'),
           backgroundColor: AppColors.amber500,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
@@ -102,6 +102,7 @@ class _HomeScreenState extends State<HomeScreen> {
       context,
       MaterialPageRoute(builder: (_) => AttendanceScreen(isCheckOut: isCheckOut)),
     ).then((_) {
+      if (!mounted) return;
       final attProv = context.read<AttendanceProvider>();
       attProv.fetchStatus();
       attProv.fetchCurrentMonthDots();
@@ -154,7 +155,11 @@ class _HomeScreenState extends State<HomeScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => const NotificationsScreen()),
-    ).then((_) => context.read<NotificationProvider>().fetchUnreadCount());
+    ).then((_) {
+      if (mounted) {
+        context.read<NotificationProvider>().fetchUnreadCount();
+      }
+    });
   }
 
   Widget _buildBody() {
@@ -276,8 +281,8 @@ class _TopHeader extends StatelessWidget {
                 width: 38, height: 38,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(8),
-                  color:  Colors.white.withOpacity(0.15),
-                  border: Border.all(color: Colors.white.withOpacity(0.25)),
+                  color:  Colors.white.withValues(alpha: 0.15),
+                  border: Border.all(color: Colors.white.withValues(alpha: 0.25)),
                 ),
                 clipBehavior: Clip.antiAlias,
                 child: Padding(
@@ -294,10 +299,10 @@ class _TopHeader extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 10),
-              Column(
+              const Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
+                children: [
                   Text('SMA N 1 Gianyar',
                     style: TextStyle(
                       color:       Colors.white,
@@ -347,7 +352,7 @@ class _TopHeader extends StatelessWidget {
                         child: Container(
                           width: 32, height: 32,
                           decoration: BoxDecoration(
-                            color:        Colors.white.withOpacity(0.10),
+                            color:        Colors.white.withValues(alpha: 0.10),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: const Icon(Icons.notifications_none_rounded,
@@ -390,7 +395,7 @@ class _TopHeader extends StatelessWidget {
                   width: 32, height: 32,
                   decoration: BoxDecoration(
                     shape:  BoxShape.circle,
-                    border: Border.all(color: Colors.white.withOpacity(0.40), width: 2),
+                    border: Border.all(color: Colors.white.withValues(alpha: 0.40), width: 2),
                   ),
                   clipBehavior: Clip.antiAlias,
                   child: _UserAvatar(user: user, size: 32),
@@ -575,7 +580,7 @@ class _GreetingCard extends StatelessWidget {
           colors: [Color(0xFF0A3880), Color(0xFF1565C0), Color(0xFF1D4ED8)],
         ),
         borderRadius: AppRadius.card,
-        border: Border.all(color: Colors.white.withOpacity(0.25)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.25)),
         boxShadow: const [
           BoxShadow(
             color: Color(0x33000000),
@@ -595,9 +600,9 @@ class _GreetingCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.20),
+                  color: Colors.white.withValues(alpha: 0.20),
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: Colors.white.withOpacity(0.30)),
+                  border: Border.all(color: Colors.white.withValues(alpha: 0.30)),
                 ),
                 child: Text(
                   '📅  $dateStr',
@@ -611,9 +616,9 @@ class _GreetingCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.25),
+                  color: Colors.black.withValues(alpha: 0.25),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFFFBBF24).withOpacity(0.4)),
+                  border: Border.all(color: const Color(0xFFFBBF24).withValues(alpha: 0.4)),
                 ),
                 child: const Text(
                   'REKAP BULAN INI',
@@ -660,9 +665,9 @@ class _GreetingCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF59E0B).withOpacity(0.30),
+                    color: const Color(0xFFF59E0B).withValues(alpha: 0.30),
                     borderRadius: BorderRadius.circular(4),
-                    border: Border.all(color: const Color(0xFFFBBF24).withOpacity(0.5)),
+                    border: Border.all(color: const Color(0xFFFBBF24).withValues(alpha: 0.5)),
                   ),
                   child: Text(
                     user!.angkatan!,
@@ -727,7 +732,7 @@ class _StatBadgeItem extends StatelessWidget {
         decoration: BoxDecoration(
           color: bg,
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: color.withOpacity(0.4)),
+          border: Border.all(color: color.withValues(alpha: 0.4)),
         ),
         child: Column(
           children: [
@@ -753,10 +758,6 @@ class _StatBadgeItem extends StatelessWidget {
       ),
     );
   }
-}
-
-extension _StringX on String {
-  String ifEmpty(String fallback) => isEmpty ? fallback : this;
 }
 
 // ─── Mini Calendar ────────────────────────────────────────────────────────────
@@ -1151,7 +1152,7 @@ class _PhotoBox extends StatelessWidget {
       width: 56, height: 56,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
-        color:        Colors.white.withOpacity(0.50),
+        color:        Colors.white.withValues(alpha: 0.50),
         border:       Border.all(color: borderColor),
       ),
       clipBehavior: Clip.antiAlias,
@@ -1216,7 +1217,7 @@ class _ErrorBanner extends StatelessWidget {
       decoration: BoxDecoration(
         color:        AppColors.red100,
         borderRadius: AppRadius.card,
-        border:       Border.all(color: AppColors.red500.withOpacity(0.40)),
+        border:       Border.all(color: AppColors.red500.withValues(alpha: 0.40)),
       ),
       padding: const EdgeInsets.all(14),
       child: Row(
@@ -1499,7 +1500,7 @@ class _BottomNav extends StatelessWidget {
                             border:    Border.all(color: AppColors.white, width: 4),
                             boxShadow: [
                               BoxShadow(
-                                color:      AppColors.blue600.withOpacity(0.40),
+                                color:      AppColors.blue600.withValues(alpha: 0.40),
                                 blurRadius: 12,
                                 offset:     const Offset(0, 4),
                               ),
@@ -1648,7 +1649,7 @@ class _ConductDashboardCardState extends State<_ConductDashboardCard> {
             border: Border.all(color: AppColors.gray200),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.02),
+                color: Colors.black.withValues(alpha: 0.02),
                 blurRadius: 6,
                 offset: const Offset(0, 2),
               )
@@ -1658,10 +1659,10 @@ class _ConductDashboardCardState extends State<_ConductDashboardCard> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
+              const Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Row(
+                  Row(
                     children: [
                       Text('🛡️ ', style: TextStyle(fontSize: 14)),
                       Text(
@@ -1674,7 +1675,7 @@ class _ConductDashboardCardState extends State<_ConductDashboardCard> {
                       ),
                     ],
                   ),
-                  const Text(
+                  Text(
                     'Lihat Detail →',
                     style: TextStyle(
                       fontSize: 12,

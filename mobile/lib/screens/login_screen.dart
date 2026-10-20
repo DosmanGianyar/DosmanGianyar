@@ -91,6 +91,7 @@ class _LoginScreenState extends State<LoginScreen> {
       } else {
         await ApiClient.removeSavedAccount(_loginCtrl.text.trim());
       }
+      if (!mounted) return;
 
       final user = context.read<AuthProvider>().user;
       final role = user?.role;
@@ -116,7 +117,7 @@ class _LoginScreenState extends State<LoginScreen> {
           content: Text(auth.error ?? 'Login gagal.'),
           backgroundColor: AppColors.red500,
           behavior:        SnackBarBehavior.floating,
-          shape:           RoundedRectangleBorder(borderRadius: AppRadius.button),
+          shape:           const RoundedRectangleBorder(borderRadius: AppRadius.button),
         ),
       );
     }
@@ -138,7 +139,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 borderRadius: AppRadius.card,
                 boxShadow: [
                   BoxShadow(
-                    color:  Colors.black.withOpacity(0.15),
+                    color:  Colors.black.withValues(alpha: 0.15),
                     blurRadius: 32,
                     offset: const Offset(0, 8),
                   ),
@@ -185,10 +186,10 @@ class _BluePanelTop extends StatelessWidget {
         alignment: Alignment.topCenter,
         children: [
           // Dekorasi lingkaran blur background
-          Positioned(top: -30, left: -30,  child: _BlurCircle(size: 140, opacity: 0.08)),
-          Positioned(top:  20, right: -20, child: _BlurCircle(size:  80, opacity: 0.06)),
-          Positioned(bottom: -20, left: 40, child: _BlurCircle(size: 100, opacity: 0.07)),
-          Positioned(bottom: -10, right: -10, child: _BlurCircle(size: 70, opacity: 0.09)),
+          const Positioned(top: -30, left: -30,  child: _BlurCircle(size: 140, opacity: 0.08)),
+          const Positioned(top:  20, right: -20, child: _BlurCircle(size:  80, opacity: 0.06)),
+          const Positioned(bottom: -20, left: 40, child: _BlurCircle(size: 100, opacity: 0.07)),
+          const Positioned(bottom: -10, right: -10, child: _BlurCircle(size: 70, opacity: 0.09)),
 
           // Konten utama
           Column(
@@ -283,7 +284,7 @@ class _BlurCircle extends StatelessWidget {
       width: size, height: size,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: Colors.white.withOpacity(opacity),
+        color: Colors.white.withValues(alpha: opacity),
       ),
     );
   }
@@ -353,7 +354,7 @@ class _DosmanBrand extends StatelessWidget {
             const SizedBox(width: 6),
             Container(
               width: 5, height: 5,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color:  AppColors.blue600,
                 shape:  BoxShape.circle,
               ),
@@ -432,8 +433,8 @@ class _WhitePanelBottom extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: const [
+          const Row(
+            children: [
               Icon(Icons.account_circle_outlined, size: 14, color: AppColors.blue600),
               SizedBox(width: 5),
               Text(
@@ -521,8 +522,8 @@ class _WhitePanelBottom extends StatelessWidget {
           Row(
             children: [
               Expanded(child: Container(height: 1, color: AppColors.gray100)),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 12),
                 child: Text(
                   'Masuk ke akun Anda',
                   style: TextStyle(fontSize: 11, color: AppColors.gray400, fontWeight: FontWeight.w500),
@@ -671,21 +672,21 @@ class _SIMSInput extends StatelessWidget {
         filled:            true,
         fillColor:         AppColors.gray50,
         contentPadding:    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        border: OutlineInputBorder(
+        border: const OutlineInputBorder(
           borderRadius: AppRadius.input,
-          borderSide:   const BorderSide(color: AppColors.gray200),
+          borderSide:   BorderSide(color: AppColors.gray200),
         ),
-        enabledBorder: OutlineInputBorder(
+        enabledBorder: const OutlineInputBorder(
           borderRadius: AppRadius.input,
-          borderSide:   const BorderSide(color: AppColors.gray200),
+          borderSide:   BorderSide(color: AppColors.gray200),
         ),
-        focusedBorder: OutlineInputBorder(
+        focusedBorder: const OutlineInputBorder(
           borderRadius: AppRadius.input,
-          borderSide:   const BorderSide(color: AppColors.blue600, width: 2),
+          borderSide:   BorderSide(color: AppColors.blue600, width: 2),
         ),
-        errorBorder: OutlineInputBorder(
+        errorBorder: const OutlineInputBorder(
           borderRadius: AppRadius.input,
-          borderSide:   const BorderSide(color: AppColors.red500),
+          borderSide:   BorderSide(color: AppColors.red500),
         ),
       ),
     );
@@ -709,7 +710,7 @@ class _GradientButton extends StatelessWidget {
         borderRadius: AppRadius.button,
         boxShadow: onPressed != null ? [
           BoxShadow(
-            color:  AppColors.blue600.withOpacity(0.35),
+            color:  AppColors.blue600.withValues(alpha: 0.35),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),

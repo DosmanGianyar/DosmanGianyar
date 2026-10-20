@@ -214,7 +214,7 @@ class _AttendanceScreenState extends State<AttendanceScreen>
     showDialog<void>(
       context: context,
       builder: (_) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: AppRadius.card),
+        shape: const RoundedRectangleBorder(borderRadius: AppRadius.card),
         title: Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
         content: Text(message, style: const TextStyle(fontSize: 13, color: AppColors.gray500, height: 1.5)),
         actions: [
@@ -299,7 +299,7 @@ class _AttendanceScreenState extends State<AttendanceScreen>
         content:         Text(msg),
         backgroundColor: AppColors.red500,
         behavior:        SnackBarBehavior.floating,
-        shape:           RoundedRectangleBorder(borderRadius: AppRadius.button),
+        shape:           const RoundedRectangleBorder(borderRadius: AppRadius.button),
       ),
     );
   }
@@ -317,7 +317,7 @@ class _AttendanceScreenState extends State<AttendanceScreen>
       context: context,
       barrierDismissible: false,
       builder: (_) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: AppRadius.card),
+        shape: const RoundedRectangleBorder(borderRadius: AppRadius.card),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -356,7 +356,7 @@ class _AttendanceScreenState extends State<AttendanceScreen>
             onPressed: finish,
             style: FilledButton.styleFrom(
               backgroundColor: isSuccess ? AppColors.blue600 : AppColors.gray500,
-              shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
+              shape: const RoundedRectangleBorder(borderRadius: AppRadius.button),
               padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
             ),
             child: const Text('OK'),
@@ -508,7 +508,7 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                           style: FilledButton.styleFrom(
                             backgroundColor: AppColors.blue600,
                             padding: const EdgeInsets.symmetric(vertical: 14),
-                            shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
+                            shape: const RoundedRectangleBorder(borderRadius: AppRadius.button),
                           ),
                         ),
                       ),
@@ -527,7 +527,7 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                               ? AppColors.gray500
                               : AppColors.blue600,
                           padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
+                          shape: const RoundedRectangleBorder(borderRadius: AppRadius.button),
                         ),
                       ),
                     ),
@@ -542,7 +542,7 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                           foregroundColor: AppColors.gray500,
                           side:    const BorderSide(color: AppColors.gray200),
                           padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape:   RoundedRectangleBorder(borderRadius: AppRadius.button),
+                          shape:   const RoundedRectangleBorder(borderRadius: AppRadius.button),
                         ),
                         child: const Text('Kembali'),
                       ),
@@ -628,8 +628,8 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                         borderRadius: AppRadius.card,
                         border:       Border.all(color: AppColors.blue100),
                       ),
-                      child: Row(
-                        children: const [
+                      child: const Row(
+                        children: [
                           Icon(Icons.info_outline_rounded,
                             size: 16, color: AppColors.blue600),
                           SizedBox(width: 8),
@@ -654,7 +654,7 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                           borderRadius: AppRadius.button,
                           boxShadow: [
                             BoxShadow(
-                              color:      AppColors.blue600.withOpacity(0.35),
+                              color:      AppColors.blue600.withValues(alpha: 0.35),
                               blurRadius: 12,
                               offset:     const Offset(0, 4),
                             ),
@@ -839,7 +839,7 @@ class _PulsingIconState extends State<_PulsingIcon>
         width: 88, height: 88,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: widget.color.withOpacity(0.12),
+          color: widget.color.withValues(alpha: 0.12),
         ),
         child: Icon(widget.icon, size: 44, color: widget.color),
       ),
@@ -981,7 +981,7 @@ class _LocationMap extends StatelessWidget {
                 point:             school,
                 radius:            location.radiusMeters.toDouble(),
                 useRadiusInMeter:  true,
-                color:             AppColors.red500.withOpacity(0.15),
+                color:             AppColors.red500.withValues(alpha: 0.15),
                 borderColor:       AppColors.red500,
                 borderStrokeWidth: 2,
               ),
@@ -996,7 +996,7 @@ class _LocationMap extends StatelessWidget {
                     shape:     BoxShape.circle,
                     color:     AppColors.blue600,
                     border:    Border.all(color: Colors.white, width: 3),
-                    boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.35), blurRadius: 6)],
+                    boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.35), blurRadius: 6)],
                   ),
                   child: const Icon(Icons.school_rounded, color: Colors.white, size: 16),
                 ),
@@ -1010,7 +1010,7 @@ class _LocationMap extends StatelessWidget {
                     shape:     BoxShape.circle,
                     color:     AppColors.red500,
                     border:    Border.all(color: Colors.white, width: 3),
-                    boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.35), blurRadius: 6)],
+                    boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.35), blurRadius: 6)],
                   ),
                 ),
               ),
@@ -1067,7 +1067,7 @@ class _FaceOvalOverlay extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(120),
             border: Border.all(
-              color: Colors.white.withOpacity(0.60),
+              color: Colors.white.withValues(alpha: 0.60),
               width: 2,
             ),
           ),
@@ -1086,7 +1086,7 @@ class _GpsBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
       decoration: BoxDecoration(
-        color:        AppColors.green500.withOpacity(0.85),
+        color:        AppColors.green500.withValues(alpha: 0.85),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
@@ -1126,7 +1126,7 @@ class _CaptureButton extends StatelessWidget {
           borderRadius: AppRadius.button,
           boxShadow: [
             BoxShadow(
-              color:      accent.withOpacity(0.45),
+              color:      accent.withValues(alpha: 0.45),
               blurRadius: 12,
               offset:     const Offset(0, 4),
             ),

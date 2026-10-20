@@ -336,10 +336,10 @@ class _LibraryCatalogScreenState extends State<LibraryCatalogScreen> {
             child: _loading
                 ? const Center(child: CircularProgressIndicator())
                 : _books.isEmpty
-                    ? Center(
+                    ? const Center(
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
-                          children: const [
+                          children: [
                             Icon(Icons.menu_book_rounded, size: 56, color: AppColors.slate400),
                             SizedBox(height: 12),
                             Text('Tidak ada buku ditemukan', style: TextStyle(fontSize: 13, color: AppColors.slate500, fontWeight: FontWeight.bold)),

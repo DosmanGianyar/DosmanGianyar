@@ -74,7 +74,7 @@ class _PermitScreenState extends State<PermitScreen> {
       content: Text(msg),
       backgroundColor: success ? AppColors.green500 : AppColors.red500,
       behavior: SnackBarBehavior.floating,
-      shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
+      shape: const RoundedRectangleBorder(borderRadius: AppRadius.button),
     ));
   }
 
@@ -316,24 +316,24 @@ class _CreatePermitSheetState extends State<_CreatePermitSheet> {
             maxLines:    3,
             maxLength:   500,
             style: const TextStyle(fontSize: 13, color: AppColors.gray700),
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               hintText:       'Tuliskan alasan...',
-              hintStyle:      const TextStyle(color: AppColors.gray400, fontSize: 13),
+              hintStyle:      TextStyle(color: AppColors.gray400, fontSize: 13),
               filled:         true,
               fillColor:      AppColors.gray50,
-              counterStyle:   const TextStyle(fontSize: 10, color: AppColors.gray400),
-              contentPadding: const EdgeInsets.all(12),
+              counterStyle:   TextStyle(fontSize: 10, color: AppColors.gray400),
+              contentPadding: EdgeInsets.all(12),
               border: OutlineInputBorder(
                 borderRadius: AppRadius.input,
-                borderSide: const BorderSide(color: AppColors.gray200),
+                borderSide: BorderSide(color: AppColors.gray200),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: AppRadius.input,
-                borderSide: const BorderSide(color: AppColors.gray200),
+                borderSide: BorderSide(color: AppColors.gray200),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: AppRadius.input,
-                borderSide: const BorderSide(color: AppColors.blue600, width: 2),
+                borderSide: BorderSide(color: AppColors.blue600, width: 2),
               ),
             ),
           ),
@@ -354,7 +354,7 @@ class _CreatePermitSheetState extends State<_CreatePermitSheet> {
             style: FilledButton.styleFrom(
               backgroundColor: AppColors.blue600,
               padding:         const EdgeInsets.symmetric(vertical: 14),
-              shape:           RoundedRectangleBorder(borderRadius: AppRadius.button),
+              shape:           const RoundedRectangleBorder(borderRadius: AppRadius.button),
             ),
             child: _isSaving
                 ? const SizedBox(width: 18, height: 18,

@@ -33,6 +33,7 @@ class AuthProvider extends ChangeNotifier {
     try {
       _user  = await AuthService.fetchMe();
       _state = AuthState.authenticated;
+      PushNotificationService.registerToken();
     } catch (e) {
       final is401 = e is DioException && e.response?.statusCode == 401;
       if (is401) {
@@ -45,6 +46,7 @@ class AuthProvider extends ChangeNotifier {
         if (cached != null) {
           _user  = cached;
           _state = AuthState.authenticated;
+          PushNotificationService.registerToken();
         } else {
           _state = AuthState.unauthenticated;
         }

@@ -65,7 +65,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       content: Text(msg),
       backgroundColor: success ? AppColors.green500 : AppColors.red500,
       behavior: SnackBarBehavior.floating,
-      shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
+      shape: const RoundedRectangleBorder(borderRadius: AppRadius.button),
     ));
   }
 
@@ -99,10 +99,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   keyboardType: TextInputType.text,
                   textInputAction: TextInputAction.next,
                   validator: (v) => (v == null || v.trim().isEmpty) ? 'NISN / NIP wajib diisi' : null,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     labelText: 'NISN / NIP',
                     hintText: 'Masukkan NISN atau NIP',
-                    prefixIcon: const Icon(Icons.badge_outlined, size: 18, color: AppColors.gray400),
+                    prefixIcon: Icon(Icons.badge_outlined, size: 18, color: AppColors.gray400),
                     filled: true,
                     fillColor: Colors.white,
                     border: OutlineInputBorder(borderRadius: AppRadius.button, borderSide: BorderSide(color: AppColors.gray100)),
@@ -125,8 +125,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                     ),
                     filled: true,
                     fillColor: Colors.white,
-                    border: OutlineInputBorder(borderRadius: AppRadius.button, borderSide: BorderSide(color: AppColors.gray100)),
-                    enabledBorder: OutlineInputBorder(borderRadius: AppRadius.button, borderSide: BorderSide(color: AppColors.gray100)),
+                    border: const OutlineInputBorder(borderRadius: AppRadius.button, borderSide: BorderSide(color: AppColors.gray100)),
+                    enabledBorder: const OutlineInputBorder(borderRadius: AppRadius.button, borderSide: BorderSide(color: AppColors.gray100)),
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -136,7 +136,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                     onPressed: _isLoading ? null : _submit,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.blue600,
-                      shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
+                      shape: const RoundedRectangleBorder(borderRadius: AppRadius.button),
                     ),
                     child: _isLoading
                         ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))

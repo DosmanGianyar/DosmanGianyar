@@ -67,7 +67,7 @@ class _ExtracurricularScreenState extends State<ExtracurricularScreen>
                         const SizedBox(height: 2),
                         Text(
                           'Kegiatan ekstrakurikuler sekolah',
-                          style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 12),
+                          style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 12),
                         ),
                       ],
                     ),
@@ -363,7 +363,7 @@ class _BrowseCard extends StatelessWidget {
                           ),
                           if (item.isFull) ...[
                             const SizedBox(width: 6),
-                            _Badge(label: 'Penuh', color: AppColors.red500, bg: AppColors.red100),
+                            const _Badge(label: 'Penuh', color: AppColors.red500, bg: AppColors.red100),
                           ],
                         ],
                       ),
@@ -408,7 +408,7 @@ class _JoinLeaveButton extends StatelessWidget {
           return Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(vertical: 10),
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: AppColors.gray100,
               borderRadius: AppRadius.button,
             ),
@@ -424,7 +424,7 @@ class _JoinLeaveButton extends StatelessWidget {
           return Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(vertical: 10),
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: AppColors.red100,
               borderRadius: AppRadius.button,
             ),
@@ -445,7 +445,7 @@ class _JoinLeaveButton extends StatelessWidget {
             style: FilledButton.styleFrom(
               backgroundColor: AppColors.blue600,
               padding: const EdgeInsets.symmetric(vertical: 10),
-              shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
+              shape: const RoundedRectangleBorder(borderRadius: AppRadius.button),
             ),
           ),
         );
@@ -642,7 +642,7 @@ class _SessionCard extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
-                      color: statusColor.withOpacity(0.12),
+                      color: statusColor.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Row(
@@ -742,7 +742,7 @@ class _AttendancePill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(

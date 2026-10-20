@@ -82,8 +82,8 @@ class _LibraryVisitScreenState extends State<LibraryVisitScreen> {
             children: [
               // ─── Top Banner ─────────────────────────────────────────────
               Container(
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
                     colors: [Color(0xFF0284C7), Color(0xFF2563EB), Color(0xFF4F46E5)],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
@@ -474,7 +474,7 @@ class _VisitFormModalState extends State<_VisitFormModal> {
               // Waktu Kunjungan Picker
               ListTile(
                 contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: BorderSide(color: AppColors.slate300)),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: const BorderSide(color: AppColors.slate300)),
                 leading: const Icon(Icons.calendar_today_rounded, color: AppColors.indigo700),
                 title: const Text('Waktu Kunjungan', style: TextStyle(fontSize: 12, color: AppColors.slate600)),
                 subtitle: Text(DateFormat('dd MMMM yyyy, HH:mm').format(_visitedAt), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.slate900)),
@@ -486,30 +486,29 @@ class _VisitFormModalState extends State<_VisitFormModal> {
                     firstDate: DateTime(2025),
                     lastDate: DateTime.now().add(const Duration(days: 1)),
                   );
-                  if (pickedDate != null && mounted) {
-                    final pickedTime = await showTimePicker(
-                      context: context,
-                      initialTime: TimeOfDay.fromDateTime(_visitedAt),
+                  if (pickedDate == null || !context.mounted) return;
+                  final pickedTime = await showTimePicker(
+                    context: context,
+                    initialTime: TimeOfDay.fromDateTime(_visitedAt),
+                  );
+                  if (pickedTime == null) return;
+                  if (!mounted) return;
+                  setState(() {
+                    _visitedAt = DateTime(
+                      pickedDate.year,
+                      pickedDate.month,
+                      pickedDate.day,
+                      pickedTime.hour,
+                      pickedTime.minute,
                     );
-                    if (pickedTime != null && mounted) {
-                      setState(() {
-                        _visitedAt = DateTime(
-                          pickedDate.year,
-                          pickedDate.month,
-                          pickedDate.day,
-                          pickedTime.hour,
-                          pickedTime.minute,
-                        );
-                      });
-                    }
-                  }
+                  });
                 },
               ),
               const SizedBox(height: 12),
 
               // Keperluan Dropdown
               DropdownButtonFormField<String>(
-                value: _selectedPurpose,
+                initialValue: _selectedPurpose,
                 decoration: InputDecoration(
                   labelText: 'Keperluan Membaca *',
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),

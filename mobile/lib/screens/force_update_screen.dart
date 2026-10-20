@@ -28,7 +28,7 @@ class ForceUpdateScreen extends StatelessWidget {
                   borderRadius: AppRadius.card,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.12),
+                      color: Colors.black.withValues(alpha: 0.12),
                       blurRadius: 24,
                       offset: const Offset(0, 8),
                     ),
@@ -47,7 +47,7 @@ class ForceUpdateScreen extends StatelessWidget {
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.blue600.withOpacity(0.35),
+                            color: AppColors.blue600.withValues(alpha: 0.35),
                             blurRadius: 20,
                             offset: const Offset(0, 8),
                           ),
@@ -132,14 +132,14 @@ class ForceUpdateScreen extends StatelessWidget {
                         onPressed: () => VersionService.launchPlayStore(result.updateUrl),
                         style: ElevatedButton.styleFrom(
                           padding: EdgeInsets.zero,
-                          shape: RoundedRectangleBorder(
+                          shape: const RoundedRectangleBorder(
                             borderRadius: AppRadius.button,
                           ),
                           elevation: 4,
-                          shadowColor: AppColors.blue600.withOpacity(0.4),
+                          shadowColor: AppColors.blue600.withValues(alpha: 0.4),
                         ),
                         child: Ink(
-                          decoration: BoxDecoration(
+                          decoration: const BoxDecoration(
                             gradient: AppColors.loginGradient,
                             borderRadius: AppRadius.button,
                           ),

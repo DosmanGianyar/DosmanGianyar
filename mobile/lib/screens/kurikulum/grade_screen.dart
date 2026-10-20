@@ -200,9 +200,9 @@ class _TableHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 6),
-      child: Row(children: const [
+    return const Padding(
+      padding: EdgeInsets.fromLTRB(16, 0, 16, 6),
+      child: Row(children: [
         Expanded(flex: 3, child: Text('Mata Pelajaran',
           style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: AppColors.gray500))),
         SizedBox(width: 4),

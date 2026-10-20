@@ -88,7 +88,6 @@ class SimsApp extends StatelessWidget {
             primary:     AppColors.blue600,
             secondary:   AppColors.indigo700,
             surface:     AppColors.white,
-            background:  AppColors.slate100,
             error:       AppColors.red500,
             onPrimary:   Colors.white,
             onSurface:   AppColors.gray800,
@@ -107,26 +106,26 @@ class SimsApp extends StatelessWidget {
               color:      AppColors.gray800,
             ),
           ),
-          inputDecorationTheme: InputDecorationTheme(
+          inputDecorationTheme: const InputDecorationTheme(
             filled:    true,
             fillColor: AppColors.gray50,
             border:    OutlineInputBorder(
               borderRadius: AppRadius.input,
-              borderSide:   const BorderSide(color: AppColors.gray200),
+              borderSide:   BorderSide(color: AppColors.gray200),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: AppRadius.input,
-              borderSide:   const BorderSide(color: AppColors.gray200),
+              borderSide:   BorderSide(color: AppColors.gray200),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: AppRadius.input,
-              borderSide:   const BorderSide(color: AppColors.blue600, width: 2),
+              borderSide:   BorderSide(color: AppColors.blue600, width: 2),
             ),
           ),
           filledButtonTheme: FilledButtonThemeData(
             style: FilledButton.styleFrom(
               backgroundColor: AppColors.blue600,
-              shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
+              shape: const RoundedRectangleBorder(borderRadius: AppRadius.button),
             ),
           ),
           cardTheme: const CardThemeData(

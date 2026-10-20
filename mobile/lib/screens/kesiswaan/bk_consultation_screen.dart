@@ -90,7 +90,7 @@ class _BkConsultationScreenState extends State<BkConsultationScreen> {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           title: const Text('Ganti Guru BK'),
           content: DropdownButtonFormField<int>(
-            value: selectedId,
+            initialValue: selectedId,
             decoration: InputDecoration(
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
               contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -526,7 +526,7 @@ class _CreateSheetState extends State<_CreateSheet> {
               key: _formKey,
               child: Column(children: [
                 DropdownButtonFormField<int>(
-                  value: _selectedTeacherId,
+                  initialValue: _selectedTeacherId,
                   decoration: InputDecoration(
                     labelText: 'Guru BK *',
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),

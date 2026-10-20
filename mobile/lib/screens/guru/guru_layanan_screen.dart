@@ -320,7 +320,7 @@ class _GuruLayananScreenState extends State<GuruLayananScreen> with SingleTicker
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF0F2460).withOpacity(0.3),
+                  color: const Color(0xFF0F2460).withValues(alpha: 0.3),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
@@ -374,7 +374,7 @@ class _GuruLayananScreenState extends State<GuruLayananScreen> with SingleTicker
                     const SizedBox(width: 8),
                     _buildStatChip('Terjadwal', '${live['filled_schedules'] ?? 0}', AppColors.emerald500.withValues(alpha: 0.3)),
                     const SizedBox(width: 8),
-                    _buildStatChip('Belum Input', '${live['missing_schedules'] ?? 0}', Colors.amber.withOpacity(0.3)),
+                    _buildStatChip('Belum Input', '${live['missing_schedules'] ?? 0}', Colors.amber.withValues(alpha: 0.3)),
                   ],
                 ),
               ],

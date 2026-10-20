@@ -659,6 +659,14 @@ class _CreateSessionTabState extends State<_CreateSessionTab> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        if (_loadingOccupied)
+          const Padding(
+            padding: EdgeInsets.only(bottom: 8),
+            child: ClipRRect(
+              borderRadius: BorderRadius.all(Radius.circular(2)),
+              child: LinearProgressIndicator(minHeight: 2),
+            ),
+          ),
         Wrap(
           spacing: 8, runSpacing: 8,
           children: List.generate(10, (i) {
@@ -684,7 +692,7 @@ class _CreateSessionTabState extends State<_CreateSessionTab> {
               borderColor = AppColors.blue600;
               textColor = Colors.white;
             } else if (isOccupiedBySelf) {
-              bgColor = AppColors.emerald500.withOpacity(0.15);
+              bgColor = AppColors.emerald500.withValues(alpha: 0.15);
               borderColor = AppColors.emerald500;
               textColor = AppColors.emerald600;
             }

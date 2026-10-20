@@ -63,7 +63,7 @@ class _KurikulumScreenState extends State<KurikulumScreen>
         children: [
           // ─── Header ──────────────────────────────────────────────────
           Container(
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               gradient: AppColors.kurikulumGradient,
               borderRadius: AppRadius.card,
             ),
@@ -272,7 +272,7 @@ class _GuruWaliCard extends StatelessWidget {
           child: const Icon(Icons.person_outline_rounded, color: AppColors.gray400, size: 20),
         ),
         const SizedBox(width: 12),
-        Column(crossAxisAlignment: CrossAxisAlignment.start, children: const [
+        const Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text('Guru Wali',
             style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.gray400)),
           Text('Belum memiliki Guru Wali',

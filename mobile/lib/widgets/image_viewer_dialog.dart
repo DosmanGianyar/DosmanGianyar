@@ -14,7 +14,7 @@ class ImageViewerDialog extends StatelessWidget {
     if (imageUrl.isEmpty) return;
     showDialog(
       context: context,
-      barrierColor: Colors.black.withOpacity(0.9),
+      barrierColor: Colors.black.withValues(alpha: 0.9),
       builder: (_) => ImageViewerDialog(imageUrl: imageUrl, title: title),
     );
   }

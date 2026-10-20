@@ -70,18 +70,18 @@ class _ConductScreenState extends State<ConductScreen> {
                             Container(
                               margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
                               padding: const EdgeInsets.all(14),
-                              decoration: BoxDecoration(
-                                gradient: const LinearGradient(
+                              decoration: const BoxDecoration(
+                                gradient: LinearGradient(
                                   colors: [Color(0xFFF59E0B), Color(0xFFD97706)],
                                 ),
                                 borderRadius: AppRadius.card,
                               ),
                               child: Row(
                                 children: [
-                                  Expanded(
+                                  const Expanded(
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: const [
+                                      children: [
                                         Text(
                                           '⚡ Terlambat / Lapor Pembinaan Mandiri?',
                                           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
@@ -152,10 +152,10 @@ class _ConductScreenState extends State<ConductScreen> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (ctx) => StatefulBuilder(
-        builder: (context, setModalState) => Padding(
+        builder: (modalCtx, setModalState) => Padding(
           padding: EdgeInsets.only(
             left: 20, right: 20, top: 20,
-            bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+            bottom: MediaQuery.of(modalCtx).viewInsets.bottom + 20,
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -164,8 +164,8 @@ class _ConductScreenState extends State<ConductScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    children: const [
+                  const Row(
+                    children: [
                       Icon(Icons.flash_on_rounded, color: Color(0xFFD97706), size: 20),
                       SizedBox(width: 8),
                       Text('Lapor Pembinaan Mandiri',
@@ -174,7 +174,7 @@ class _ConductScreenState extends State<ConductScreen> {
                   ),
                   IconButton(
                     icon: const Icon(Icons.close, size: 20, color: AppColors.gray400),
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: () => Navigator.pop(modalCtx),
                   ),
                 ],
               ),
@@ -183,7 +183,7 @@ class _ConductScreenState extends State<ConductScreen> {
                   style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.gray700)),
               const SizedBox(height: 6),
               DropdownButtonFormField<String>(
-                value: selectedReason,
+                initialValue: selectedReason,
                 decoration: InputDecoration(
                   contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.gray200)),
@@ -223,8 +223,10 @@ class _ConductScreenState extends State<ConductScreen> {
                         'reason': selectedReason,
                         'description': descController.text,
                       });
+                      if (modalCtx.mounted) {
+                        Navigator.pop(modalCtx);
+                      }
                       if (mounted) {
-                        Navigator.pop(context);
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                             content: Text('Pengajuan pembinaan mandiri berhasil dikirim. Tunjukkan ke Guru Piket.'),
@@ -235,9 +237,11 @@ class _ConductScreenState extends State<ConductScreen> {
                       }
                     } catch (e) {
                       setModalState(() => isSubmitting = false);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(ApiClient.extractError(e)), backgroundColor: AppColors.red500),
-                      );
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(ApiClient.extractError(e)), backgroundColor: AppColors.red500),
+                        );
+                      }
                     }
                   },
                   style: ElevatedButton.styleFrom(

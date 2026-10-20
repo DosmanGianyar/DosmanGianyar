@@ -245,7 +245,7 @@ class _CreateSheet extends StatefulWidget {
 }
 
 class _CreateSheetState extends State<_CreateSheet> {
-  bool _isCuration = false;
+  final bool _isCuration = false;
 
   final _titleCtrl            = TextEditingController();
   final _eventNameCtrl        = TextEditingController();
@@ -277,9 +277,9 @@ class _CreateSheetState extends State<_CreateSheet> {
   XFile? _rewardPhotoFile;
   XFile? _rewardRecapFile;
 
-  String _selectionLevel       = '3_tingkat';
-  String _frequencyConsistency = 'berturut_3';
-  String _infrastructureType   = 'utama_pendukung';
+  final String _selectionLevel       = '3_tingkat';
+  final String _frequencyConsistency = 'berturut_3';
+  final String _infrastructureType   = 'utama_pendukung';
 
   final List<String> _docStandardChecklist = [];
   final List<String> _rewardTypes          = [];
@@ -293,7 +293,7 @@ class _CreateSheetState extends State<_CreateSheet> {
     AchievementCategory(id: 6, name: 'Keagamaan'),
     AchievementCategory(id: 7, name: 'Lainnya'),
   ];
-  List<Map<String, dynamic>> _selectedTeamMembers = [];
+  final List<Map<String, dynamic>> _selectedTeamMembers = [];
   bool                     _loadingCats       = false;
   bool                     _isSaving          = false;
 
@@ -651,7 +651,7 @@ class _CreateSheetState extends State<_CreateSheet> {
                 const _Label('Rumpun Bidang *', subText: 'Pilih rumpun lomba'),
                 const SizedBox(height: 6),
                 DropdownButtonFormField<String>(
-                  value: _fieldCategory,
+                  initialValue: _fieldCategory,
                   items: _fieldCategories.map((fc) => DropdownMenuItem(
                     value: fc.$1, child: Text(fc.$2, style: const TextStyle(fontSize: 12)),
                   )).toList(),
@@ -669,7 +669,7 @@ class _CreateSheetState extends State<_CreateSheet> {
                 const _Label('Keikutsertaan *', subText: 'Individu / Tim'),
                 const SizedBox(height: 6),
                 DropdownButtonFormField<String>(
-                  value: _participationType,
+                  initialValue: _participationType,
                   items: const [
                     DropdownMenuItem(value: 'individu', child: Text('Individu', style: TextStyle(fontSize: 12))),
                     DropdownMenuItem(value: 'beregu', child: Text('Beregu (Tim)', style: TextStyle(fontSize: 12))),
@@ -745,7 +745,7 @@ class _CreateSheetState extends State<_CreateSheet> {
               const Center(child: SizedBox(height: 36, width: 36, child: CircularProgressIndicator(strokeWidth: 2)))
             else
               DropdownButtonFormField<int>(
-                value: _categoryId,
+                initialValue: _categoryId,
                 hint: const Text('Pilih kategori', style: TextStyle(fontSize: 13, color: AppColors.gray400)),
                 items: _categories.map((c) => DropdownMenuItem(
                   value: c.id,
@@ -878,7 +878,7 @@ class _CreateSheetState extends State<_CreateSheet> {
               style: FilledButton.styleFrom(
                 backgroundColor: AppColors.blue600,
                 padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
+                shape: const RoundedRectangleBorder(borderRadius: AppRadius.button),
               ),
               child: _isSaving
                   ? const SizedBox(width: 18, height: 18,
@@ -932,9 +932,9 @@ class _InputField extends StatelessWidget {
       hintStyle: const TextStyle(color: AppColors.gray400, fontSize: 12),
       filled: true, fillColor: AppColors.gray50,
       contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-      border: OutlineInputBorder(borderRadius: AppRadius.input, borderSide: const BorderSide(color: AppColors.gray200)),
-      enabledBorder: OutlineInputBorder(borderRadius: AppRadius.input, borderSide: const BorderSide(color: AppColors.gray200)),
-      focusedBorder: OutlineInputBorder(borderRadius: AppRadius.input, borderSide: const BorderSide(color: AppColors.yellow600, width: 2)),
+      border: const OutlineInputBorder(borderRadius: AppRadius.input, borderSide: BorderSide(color: AppColors.gray200)),
+      enabledBorder: const OutlineInputBorder(borderRadius: AppRadius.input, borderSide: BorderSide(color: AppColors.gray200)),
+      focusedBorder: const OutlineInputBorder(borderRadius: AppRadius.input, borderSide: BorderSide(color: AppColors.yellow600, width: 2)),
     ),
   );
 }

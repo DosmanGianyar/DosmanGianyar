@@ -117,8 +117,8 @@ class _LibraryScreenState extends State<LibraryScreen> {
             children: [
               // ─── Header Banner ─────────────────────────────────────────
               Container(
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
                     colors: [Color(0xFF1D4ED8), Color(0xFF4338CA), Color(0xFF6D28D9)],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,

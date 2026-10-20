@@ -70,7 +70,7 @@ class _ForgotAttendanceScreenState extends State<ForgotAttendanceScreen> {
       content: Text(msg),
       backgroundColor: success ? AppColors.green500 : AppColors.red500,
       behavior: SnackBarBehavior.floating,
-      shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
+      shape: const RoundedRectangleBorder(borderRadius: AppRadius.button),
     ));
   }
 
@@ -209,14 +209,18 @@ class _CreateSheetState extends State<_CreateSheet> {
             const Text('Jenis Lupa Absen',
               style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppColors.gray600)),
             const SizedBox(height: 6),
-            Column(
-              children: [
-                _buildTypeTile('masuk', '🟢 Lupa Absen Pagi (Datang)', 'Lupa scan pada jam masuk pagi'),
-                const SizedBox(height: 6),
-                _buildTypeTile('pulang', '🟠 Lupa Absen Sore (Pulang)', 'Lupa scan pada jam pulang sore'),
-                const SizedBox(height: 6),
-                _buildTypeTile('keduanya', '🟣 Lupa Absen Pagi & Sore', 'Lupa scan pada jam pagi dan sore'),
-              ],
+            RadioGroup<String>(
+              groupValue: _type,
+              onChanged: (v) { if (v != null) setState(() => _type = v); },
+              child: Column(
+                children: [
+                  _buildTypeTile('masuk', '🟢 Lupa Absen Pagi (Datang)', 'Lupa scan pada jam masuk pagi'),
+                  const SizedBox(height: 6),
+                  _buildTypeTile('pulang', '🟠 Lupa Absen Sore (Pulang)', 'Lupa scan pada jam pulang sore'),
+                  const SizedBox(height: 6),
+                  _buildTypeTile('keduanya', '🟣 Lupa Absen Pagi & Sore', 'Lupa scan pada jam pagi dan sore'),
+                ],
+              ),
             ),
             const SizedBox(height: 14),
 
@@ -256,15 +260,15 @@ class _CreateSheetState extends State<_CreateSheet> {
               maxLines: 3,
               maxLength: 500,
               style: const TextStyle(fontSize: 13, color: AppColors.gray700),
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 hintText: 'Contoh: Handphone mati saat jam pulang...',
-                hintStyle: const TextStyle(color: AppColors.gray400, fontSize: 12),
+                hintStyle: TextStyle(color: AppColors.gray400, fontSize: 12),
                 filled: true, fillColor: AppColors.gray50,
-                counterStyle: const TextStyle(fontSize: 10),
-                contentPadding: const EdgeInsets.all(12),
-                border: OutlineInputBorder(borderRadius: AppRadius.input, borderSide: const BorderSide(color: AppColors.gray200)),
-                enabledBorder: OutlineInputBorder(borderRadius: AppRadius.input, borderSide: const BorderSide(color: AppColors.gray200)),
-                focusedBorder: OutlineInputBorder(borderRadius: AppRadius.input, borderSide: const BorderSide(color: AppColors.amber500, width: 2)),
+                counterStyle: TextStyle(fontSize: 10),
+                contentPadding: EdgeInsets.all(12),
+                border: OutlineInputBorder(borderRadius: AppRadius.input, borderSide: BorderSide(color: AppColors.gray200)),
+                enabledBorder: OutlineInputBorder(borderRadius: AppRadius.input, borderSide: BorderSide(color: AppColors.gray200)),
+                focusedBorder: OutlineInputBorder(borderRadius: AppRadius.input, borderSide: BorderSide(color: AppColors.amber500, width: 2)),
               ),
             ),
             const SizedBox(height: 16),
@@ -274,7 +278,7 @@ class _CreateSheetState extends State<_CreateSheet> {
             style: FilledButton.styleFrom(
               backgroundColor: AppColors.amber500,
               padding: const EdgeInsets.symmetric(vertical: 14),
-              shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
+              shape: const RoundedRectangleBorder(borderRadius: AppRadius.button),
             ),
             child: _isSaving
                 ? const SizedBox(width: 18, height: 18,
@@ -301,8 +305,6 @@ class _CreateSheetState extends State<_CreateSheet> {
           children: [
             Radio<String>(
               value: val,
-              groupValue: _type,
-              onChanged: (v) { if (v != null) setState(() => _type = v); },
               activeColor: AppColors.amber500,
               materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),

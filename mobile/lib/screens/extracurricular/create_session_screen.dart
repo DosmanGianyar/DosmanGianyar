@@ -61,8 +61,11 @@ class _CreateSessionScreenState extends State<CreateSessionScreen> {
     final t = await showTimePicker(context: context, initialTime: initial);
     if (t != null) {
       setState(() {
-        if (isStart) _startTime = t;
-        else          _endTime   = t;
+        if (isStart) {
+          _startTime = t;
+        } else {
+          _endTime   = t;
+        }
       });
     }
   }
@@ -97,7 +100,7 @@ class _CreateSessionScreenState extends State<CreateSessionScreen> {
     final p = context.read<ExtracurricularProvider>();
     final ok = await p.createSession(data);
 
-    if (context.mounted) {
+    if (mounted) {
       if (ok) {
         Navigator.pop(context, true);
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
@@ -145,10 +148,10 @@ class _CreateSessionScreenState extends State<CreateSessionScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _SectionLabel('Ekstrakurikuler'),
+                  const _SectionLabel('Ekstrakurikuler'),
                   _Card(
                     child: DropdownButtonFormField<int>(
-                      value: _selectedExtraId,
+                      initialValue: _selectedExtraId,
                       decoration: const InputDecoration(
                         border: InputBorder.none,
                         hintText: 'Pilih ekstrakurikuler',
@@ -165,7 +168,7 @@ class _CreateSessionScreenState extends State<CreateSessionScreen> {
                   ),
                   const SizedBox(height: 16),
 
-                  _SectionLabel('Judul Sesi'),
+                  const _SectionLabel('Judul Sesi'),
                   _Card(
                     child: TextFormField(
                       controller: _titleCtrl,
@@ -182,7 +185,7 @@ class _CreateSessionScreenState extends State<CreateSessionScreen> {
                   ),
                   const SizedBox(height: 16),
 
-                  _SectionLabel('Tanggal & Waktu'),
+                  const _SectionLabel('Tanggal & Waktu'),
                   _Card(
                     child: Column(
                       children: [
@@ -214,7 +217,7 @@ class _CreateSessionScreenState extends State<CreateSessionScreen> {
                   ),
                   const SizedBox(height: 16),
 
-                  _SectionLabel('Lokasi (Opsional)'),
+                  const _SectionLabel('Lokasi (Opsional)'),
                   _Card(
                     child: TextFormField(
                       controller: _locationCtrl,
@@ -232,7 +235,7 @@ class _CreateSessionScreenState extends State<CreateSessionScreen> {
                   ),
                   const SizedBox(height: 16),
 
-                  _SectionLabel('Catatan (Opsional)'),
+                  const _SectionLabel('Catatan (Opsional)'),
                   _Card(
                     child: TextFormField(
                       controller: _notesCtrl,
@@ -264,7 +267,7 @@ class _CreateSessionScreenState extends State<CreateSessionScreen> {
                       label: const Text('Buat Sesi', style: TextStyle(fontSize: 15)),
                       style: FilledButton.styleFrom(
                         backgroundColor: AppColors.blue600,
-                        shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
+                        shape: const RoundedRectangleBorder(borderRadius: AppRadius.button),
                       ),
                     ),
                   ),

@@ -276,7 +276,7 @@ class _SiswaProfileEditScreenState extends State<SiswaProfileEditScreen> with Si
         ]),
         const SizedBox(height: 12),
         DropdownButtonFormField<String>(
-          value: _residenceStatus,
+          initialValue: _residenceStatus,
           decoration: const InputDecoration(labelText: 'Status Tempat Tinggal', border: OutlineInputBorder()),
           items: const [
             DropdownMenuItem(value: 'bersama_orangtua', child: Text('Tinggal Bersama Orang Tua')),
@@ -288,7 +288,7 @@ class _SiswaProfileEditScreenState extends State<SiswaProfileEditScreen> with Si
         ),
         const SizedBox(height: 16),
         DropdownButtonFormField<String>(
-          value: _transportation,
+          initialValue: _transportation,
           decoration: const InputDecoration(labelText: 'Moda Transportasi Ke Sekolah', border: OutlineInputBorder()),
           items: const [
             DropdownMenuItem(value: 'sepeda_motor', child: Text('Sepeda Motor')),
@@ -345,7 +345,7 @@ class _SiswaProfileEditScreenState extends State<SiswaProfileEditScreen> with Si
       padding: const EdgeInsets.all(16),
       children: [
         DropdownButtonFormField<String>(
-          value: _bloodType,
+          initialValue: _bloodType,
           decoration: const InputDecoration(labelText: 'Golongan Darah', border: OutlineInputBorder()),
           items: const [
             DropdownMenuItem(value: 'A', child: Text('Golongan Darah A')),

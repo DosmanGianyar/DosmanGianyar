@@ -132,6 +132,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       maxWidth:     1280,
     );
     if (picked == null) return;
+    if (!mounted) return;
 
     final croppedPath = await showDialog<String>(
       context: context,
@@ -164,7 +165,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       content: Text(msg),
       backgroundColor: success ? AppColors.green500 : AppColors.red500,
       behavior: SnackBarBehavior.floating,
-      shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
+      shape: const RoundedRectangleBorder(borderRadius: AppRadius.button),
     ));
   }
 
@@ -227,7 +228,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 foregroundColor: AppColors.red500,
                 side: const BorderSide(color: AppColors.red500, width: 1.5),
                 padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(borderRadius: AppRadius.card),
+                shape: const RoundedRectangleBorder(borderRadius: AppRadius.card),
               ),
               child: const Text('Keluar dari Akun',
                 style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
@@ -541,7 +542,7 @@ class _ParentRow extends StatelessWidget {
         Container(
           width: 32, height: 32,
           decoration: BoxDecoration(
-            color:        color.withOpacity(0.10),
+            color:        color.withValues(alpha: 0.10),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(icon, size: 16, color: color),
@@ -610,7 +611,7 @@ class _EditDataCard extends StatelessWidget {
               style: FilledButton.styleFrom(
                 backgroundColor: AppColors.blue600,
                 padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
+                shape: const RoundedRectangleBorder(borderRadius: AppRadius.button),
               ),
               child: isSaving
                   ? const SizedBox(width: 18, height: 18,
@@ -678,9 +679,9 @@ class _ChangePasswordCard extends StatelessWidget {
               border: Border.all(color: const Color(0xFFFCD34D)),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Column(
+            child: const Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
+              children: [
                 Row(
                   children: [
                     Icon(Icons.info_outline_rounded, color: Color(0xFFD97706), size: 16),
@@ -748,12 +749,12 @@ class _ChangePasswordCard extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: Container(
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
                   colors: [Color(0xFF2563EB), Color(0xFF4338CA)],
                 ),
                 borderRadius: AppRadius.button,
-                boxShadow: const [
+                boxShadow: [
                   BoxShadow(color: Color(0x332563EB), blurRadius: 8, offset: Offset(0, 3)),
                 ],
               ),
@@ -763,7 +764,7 @@ class _ChangePasswordCard extends StatelessWidget {
                   backgroundColor: Colors.transparent,
                   shadowColor: Colors.transparent,
                   padding: const EdgeInsets.symmetric(vertical: 12),
-                  shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
+                  shape: const RoundedRectangleBorder(borderRadius: AppRadius.button),
                 ),
                 icon: isSaving
                     ? const SizedBox(width: 18, height: 18,
@@ -916,20 +917,20 @@ class _IdFront extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               // Nama sekolah
-              Expanded(child: Column(
+              const Expanded(child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('᭞ᬏᬲ᭄ᬏᬫ᭄ᬅ᭞ᬦᭂᬕᭂᬭᬶ᭞᭑᭞ᬕ᭄ᬬᬜᬃ᭞',
+                  Text('᭞ᬏᬲ᭄ᬏᬫ᭄ᬅ᭞ᬦᭂᬕᭂᬭᬶ᭞᭑᭞ᬕ᭄ᬬᬜᬃ᭞',
                     style: TextStyle(
                       color: Color(0xFFBFDBFE), fontSize: 11.0, fontWeight: FontWeight.normal,
                       height: 1.1)),
-                  const SizedBox(height: 2),
-                  const Text('SMA NEGERI 1 GIANYAR',
+                  SizedBox(height: 2),
+                  Text('SMA NEGERI 1 GIANYAR',
                     style: TextStyle(
                       color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.w800,
                       letterSpacing: 0.3, height: 1.1)),
-                  const SizedBox(height: 2),
-                  const Text('Jl. Ratna No.1, Gianyar, Bali 80511 · Telp. (0361) 943443',
+                  SizedBox(height: 2),
+                  Text('Jl. Ratna No.1, Gianyar, Bali 80511 · Telp. (0361) 943443',
                     style: TextStyle(color: Color(0xFFBFDBFE), fontSize: 7.5, height: 1.3)),
                 ],
               )),
@@ -1078,9 +1079,9 @@ class _IdFront extends StatelessWidget {
 
   Widget _photoPlaceholder() => Container(
     color: const Color(0xFFDCE8F8),
-    child: Column(
+    child: const Column(
       mainAxisAlignment: MainAxisAlignment.end,
-      children: const [
+      children: [
         Icon(Icons.person, size: 36, color: Color(0xFF6FA3D8)),
         SizedBox(height: 2),
       ],
@@ -1188,7 +1189,7 @@ class _IdBack extends StatelessWidget {
                   textAlign: TextAlign.center),
                 const SizedBox(height: 1),
                 Text(
-                  '${user?.className ?? ''}${user?.angkatan != null ? '  ·  ' + user!.angkatan! : ''}${(user?.genderLabel.isNotEmpty ?? false) ? '  ·  ' + user!.genderLabel : ''}',
+                  '${user?.className ?? ''}${user?.angkatan != null ? '  ·  ${user!.angkatan!}' : ''}${(user?.genderLabel.isNotEmpty ?? false) ? '  ·  ${user!.genderLabel}' : ''}',
                   style: const TextStyle(fontSize: 7.5, color: AppColors.gray500, fontWeight: FontWeight.w500),
                   textAlign: TextAlign.center),
               ],
@@ -1286,17 +1287,17 @@ class _ProfileInput extends StatelessWidget {
             filled:         true,
             fillColor:      AppColors.gray50,
             contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-            border: OutlineInputBorder(
+            border: const OutlineInputBorder(
               borderRadius: AppRadius.input,
-              borderSide:   const BorderSide(color: AppColors.gray200),
+              borderSide:   BorderSide(color: AppColors.gray200),
             ),
-            enabledBorder: OutlineInputBorder(
+            enabledBorder: const OutlineInputBorder(
               borderRadius: AppRadius.input,
-              borderSide:   const BorderSide(color: AppColors.gray200),
+              borderSide:   BorderSide(color: AppColors.gray200),
             ),
-            focusedBorder: OutlineInputBorder(
+            focusedBorder: const OutlineInputBorder(
               borderRadius: AppRadius.input,
-              borderSide:   const BorderSide(color: AppColors.blue600, width: 2),
+              borderSide:   BorderSide(color: AppColors.blue600, width: 2),
             ),
           ),
         ),

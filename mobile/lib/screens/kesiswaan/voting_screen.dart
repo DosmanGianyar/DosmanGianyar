@@ -104,16 +104,16 @@ class _VotingScreenState extends State<VotingScreen> {
     if (_sessions.isEmpty) {
       return ListView(
         padding: const EdgeInsets.all(24),
-        children: [
-          const SizedBox(height: 40),
+        children: const [
+          SizedBox(height: 40),
           Center(
             child: Column(
               children: [
                 Icon(Icons.how_to_vote_outlined, size: 64, color: AppColors.gray300),
-                const SizedBox(height: 12),
-                const Text('Belum Ada Sesi Voting', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.gray700)),
-                const SizedBox(height: 4),
-                const Text('Sesi E-Voting aktif akan muncul di halaman ini.', style: TextStyle(fontSize: 12, color: AppColors.gray400)),
+                SizedBox(height: 12),
+                Text('Belum Ada Sesi Voting', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.gray700)),
+                SizedBox(height: 4),
+                Text('Sesi E-Voting aktif akan muncul di halaman ini.', style: TextStyle(fontSize: 12, color: AppColors.gray400)),
               ],
             ),
           ),
@@ -221,11 +221,11 @@ class _VotingScreenState extends State<VotingScreen> {
                 const SizedBox(height: 14),
                 Row(
                   children: [
-                    Icon(Icons.people_outline_rounded, size: 14, color: AppColors.gray400),
+                    const Icon(Icons.people_outline_rounded, size: 14, color: AppColors.gray400),
                     const SizedBox(width: 4),
                     Text('$candidatesCount Kandidat', style: const TextStyle(fontSize: 11, color: AppColors.gray600)),
                     const SizedBox(width: 16),
-                    Icon(Icons.how_to_vote_outlined, size: 14, color: AppColors.gray400),
+                    const Icon(Icons.how_to_vote_outlined, size: 14, color: AppColors.gray400),
                     const SizedBox(width: 4),
                     Text('$totalVotes Suara Masuk', style: const TextStyle(fontSize: 11, color: AppColors.gray600)),
                     const Spacer(),

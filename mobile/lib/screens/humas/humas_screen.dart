@@ -12,7 +12,7 @@ class HumasScreen extends StatelessWidget {
       content: Text('$title — fitur segera hadir.'),
       backgroundColor: AppColors.gray700,
       behavior: SnackBarBehavior.floating,
-      shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
+      shape: const RoundedRectangleBorder(borderRadius: AppRadius.button),
     ));
   }
 
@@ -33,7 +33,7 @@ class HumasScreen extends StatelessWidget {
         children: [
           // ─── Header ──────────────────────────────────────────────────
           Container(
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               gradient: AppColors.humasGradient,
               borderRadius: AppRadius.card,
             ),
@@ -102,7 +102,7 @@ class HumasScreen extends StatelessWidget {
           const SizedBox(height: 8),
 
           if (announcements.isEmpty)
-            _EmptyBox(
+            const _EmptyBox(
               icon: Icons.campaign_outlined,
               iconColor: AppColors.orange500,
               message: 'Belum ada pengumuman',
@@ -174,7 +174,7 @@ class HumasScreen extends StatelessWidget {
           const Text('Agenda Sekolah',
             style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.gray700)),
           const SizedBox(height: 8),
-          _EmptyBox(
+          const _EmptyBox(
             icon: Icons.event_outlined,
             iconColor: AppColors.rose500,
             message: 'Belum ada agenda sekolah',
@@ -194,7 +194,7 @@ class HumasScreen extends StatelessWidget {
             ),
           ]),
           const SizedBox(height: 8),
-          _EmptyBox(
+          const _EmptyBox(
             icon: Icons.photo_library_outlined,
             iconColor: AppColors.pink500,
             message: 'Belum ada galeri',

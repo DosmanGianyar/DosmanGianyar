@@ -580,7 +580,7 @@ class _EmptyState extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(top: 40),
       child: Column(children: [
-        Icon(Icons.chat_bubble_outline_rounded, size: 48, color: AppColors.gray200),
+        const Icon(Icons.chat_bubble_outline_rounded, size: 48, color: AppColors.gray200),
         const SizedBox(height: 12),
         Text(
           filter.isEmpty ? 'Belum ada pengajuan bimbingan' : 'Tidak ada pengajuan dengan status ini',

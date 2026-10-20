@@ -224,6 +224,10 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
               _buildTodayScheduleCard(context, _dashboard!),
               _buildStatGrid(_dashboard!),
               const SizedBox(height: 16),
+              if (_dashboard!.recentAlerts.isNotEmpty) ...[
+                _buildAlertList(_dashboard!),
+                const SizedBox(height: 20),
+              ],
               _buildQuickActions(),
               const SizedBox(height: 20),
               _buildWeeklyJournals(_dashboard!),
@@ -346,7 +350,7 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
                     ],
                   ),
                 ),
-                Icon(Icons.chevron_right_rounded, color: Colors.white, size: 22),
+                const Icon(Icons.chevron_right_rounded, color: Colors.white, size: 22),
               ],
             ),
           ),
@@ -655,7 +659,7 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
                             width: double.infinity,
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
-                              color: AppColors.indigo700.withOpacity(0.08),
+                              color: AppColors.indigo700.withValues(alpha: 0.08),
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Text(
@@ -1473,9 +1477,8 @@ class _StatCard extends StatelessWidget {
     required this.icon,
     required this.iconColor,
     required this.iconBg,
-    this.highlight = false,
     this.onTap,
-  });
+  }) : highlight = false;
 
   @override
   Widget build(BuildContext context) {
@@ -1537,70 +1540,6 @@ class _StatCard extends StatelessWidget {
                 subtitle,
                 style: TextStyle(fontSize: 11, color: iconColor),
               ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ─── Quick Action Chip ────────────────────────────────────────────────────────
-
-class _QuickActionChip extends StatelessWidget {
-  final String   label;
-  final IconData icon;
-  final Color    color;
-  final Color    bg;
-  final bool     comingSoon;
-
-  const _QuickActionChip({
-    required this.label,
-    required this.icon,
-    required this.color,
-    required this.bg,
-    this.comingSoon = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: null,
-      child: Opacity(
-        opacity: comingSoon ? 0.55 : 1.0,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          decoration: BoxDecoration(
-            color: bg,
-            borderRadius: BorderRadius.circular(AppRadius.xl),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, size: 14, color: color),
-              const SizedBox(width: 6),
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: color,
-                ),
-              ),
-              if (comingSoon) ...[
-                const SizedBox(width: 6),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
-                  decoration: BoxDecoration(
-                    color: color.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Text(
-                    'Segera',
-                    style: TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: color),
-                  ),
-                ),
-              ],
             ],
           ),
         ),
@@ -1706,8 +1645,8 @@ class _PendingExtraMembersSheetState extends State<_PendingExtraMembersSheet> {
             ),
           ),
           const SizedBox(height: 16),
-          Row(
-            children: const [
+          const Row(
+            children: [
               Icon(Icons.how_to_reg_rounded, color: AppColors.blue800, size: 22),
               SizedBox(width: 8),
               Text(

@@ -190,10 +190,10 @@ class _NavBtn extends StatelessWidget {
       child: Container(
         width: 32, height: 32,
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(onTap != null ? 0.20 : 0.08),
+          color: Colors.white.withValues(alpha: onTap != null ? 0.20 : 0.08),
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Icon(icon, color: Colors.white.withOpacity(onTap != null ? 1.0 : 0.30), size: 18),
+        child: Icon(icon, color: Colors.white.withValues(alpha: onTap != null ? 1.0 : 0.30), size: 18),
       ),
     );
   }
@@ -208,7 +208,7 @@ class _SummaryCell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(color: Colors.white.withOpacity(0.15), borderRadius: BorderRadius.circular(10)),
+      decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(10)),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -234,7 +234,7 @@ class _RecordList extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.calendar_today_outlined, size: 40, color: AppColors.gray400.withOpacity(0.6)),
+              Icon(Icons.calendar_today_outlined, size: 40, color: AppColors.gray400.withValues(alpha: 0.6)),
               const SizedBox(height: 12),
               const Text('Tidak ada data presensi bulan ini',
                 style: TextStyle(color: AppColors.gray400, fontSize: 13), textAlign: TextAlign.center),
