@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\OrangtuaResource\Pages;
+use App\Models\SchoolClass;
 use App\Models\User;
 use Filament\Actions\Action;
 use Filament\Actions\BulkAction;
@@ -17,6 +18,8 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -146,6 +149,15 @@ class OrangtuaResource extends Resource
                             ->map(fn ($c) => $c->name . ($c->schoolClass ? ' (' . $c->schoolClass->name . ')' : ''))
                             ->join(', ') ?: '—';
                     })
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        return $query->whereHas('children', function (Builder $q) use ($search) {
+                            $q->where(function (Builder $sub) use ($search) {
+                                $sub->where('name', 'like', "%{$search}%")
+                                    ->orWhere('nis', 'like', "%{$search}%")
+                                    ->orWhere('nisn', 'like', "%{$search}%");
+                            });
+                        });
+                    })
                     ->badge()
                     ->color(fn (string $state) => $state === '—' ? 'gray' : 'success')
                     ->wrap(),
@@ -170,6 +182,78 @@ class OrangtuaResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
+                Filter::make('student_search')
+                    ->label('Cari Nama Siswa')
+                    ->form([
+                        TextInput::make('student_name')
+                            ->label('Nama Siswa (Anak)')
+                            ->placeholder('Ketik nama siswa atau NIS/NISN...')
+                            ->prefixIcon('heroicon-o-magnifying-glass')
+                            ->helperText('Filter akun orang tua berdasarkan nama siswa atau NIS/NISN.'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query->when(
+                            filled($data['student_name'] ?? null),
+                            function (Builder $q) use ($data) {
+                                $search = trim($data['student_name']);
+                                return $q->whereHas('children', function (Builder $sq) use ($search) {
+                                    $sq->where(function (Builder $sub) use ($search) {
+                                        $sub->where('name', 'like', "%{$search}%")
+                                            ->orWhere('nis', 'like', "%{$search}%")
+                                            ->orWhere('nisn', 'like', "%{$search}%");
+                                    });
+                                });
+                            }
+                        );
+                    })
+                    ->indicateUsing(function (array $data): array {
+                        $indicators = [];
+                        if (filled($data['student_name'] ?? null)) {
+                            $indicators[] = 'Siswa: "' . $data['student_name'] . '"';
+                        }
+                        return $indicators;
+                    }),
+
+                SelectFilter::make('grade')
+                    ->label('Filter Per Angkatan')
+                    ->options([
+                        'X'   => 'Angkatan / Kelas X',
+                        'XI'  => 'Angkatan / Kelas XI',
+                        'XII' => 'Angkatan / Kelas XII',
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        $val = $data['value'] ?? null;
+                        if (blank($val)) {
+                            return $query;
+                        }
+
+                        $grades = match ($val) {
+                            'X'   => [10, '10', 'X'],
+                            'XI'  => [11, '11', 'XI'],
+                            'XII' => [12, '12', 'XII'],
+                            default => [$val],
+                        };
+
+                        $prefix = $val . '-';
+
+                        return $query->whereHas('children.schoolClass', function (Builder $q) use ($grades, $prefix) {
+                            $q->where(function (Builder $sub) use ($grades, $prefix) {
+                                $sub->whereIn('grade', $grades)
+                                    ->orWhere('name', 'like', $prefix . '%');
+                            });
+                        });
+                    }),
+
+                SelectFilter::make('class_id')
+                    ->label('Filter Kelas Siswa')
+                    ->options(fn () => SchoolClass::orderBy('name')->pluck('name', 'id'))
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query->when(
+                            filled($data['value'] ?? null),
+                            fn (Builder $q) => $q->whereHas('children', fn ($sq) => $sq->where('class_id', $data['value']))
+                        );
+                    }),
+
                 TernaryFilter::make('has_children')
                     ->label('Koneksi Siswa')
                     ->placeholder('Semua')
