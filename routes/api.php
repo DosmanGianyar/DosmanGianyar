@@ -31,6 +31,7 @@ use App\Http\Controllers\Api\TeacherAttendanceController;
 use App\Http\Controllers\Api\SiswaVotingApiController;
 use App\Http\Controllers\Api\SiswaSarprasApiController;
 use App\Http\Controllers\Api\SiswaLibraryApiController;
+use App\Http\Controllers\Api\ChatApiController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -277,6 +278,16 @@ Route::prefix('v1')->group(function () {
             Route::get('/extracurricular-sessions/{session}',                [ExtracurricularController::class, 'sessionDetail']);
             Route::post('/extracurricular-sessions/{session}/toggle-open',   [ExtracurricularController::class, 'toggleOpen']);
             Route::post('/extracurricular-sessions/{session}/mark',          [ExtracurricularController::class, 'markAttendance']);
+
+            // Chat Konsultasi Segitiga (Siswa, Orang Tua, Wali Kelas)
+            Route::prefix('chat')->group(function () {
+                Route::get('/rooms',                     [ChatApiController::class, 'rooms']);
+                Route::get('/rooms/{room}',              [ChatApiController::class, 'show']);
+                Route::get('/rooms/{room}/messages',     [ChatApiController::class, 'messages']);
+                Route::post('/rooms/{room}/send',        [ChatApiController::class, 'send']);
+                Route::delete('/messages/{message}',     [ChatApiController::class, 'deleteMessage']);
+                Route::get('/unread-count',              [ChatApiController::class, 'unreadCount']);
+            });
         });
     });
 });

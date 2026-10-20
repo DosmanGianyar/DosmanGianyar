@@ -15,6 +15,13 @@ class ChatMessage extends Model
         'attachment_path',
         'attachment_name',
         'attachment_type',
+        'is_deleted',
+        'deleted_at',
+    ];
+
+    protected $casts = [
+        'is_deleted' => 'boolean',
+        'deleted_at' => 'datetime',
     ];
 
     public function chatRoom(): BelongsTo
@@ -38,6 +45,53 @@ class ChatMessage extends Model
     public function isReadBy(int $userId): bool
     {
         return $this->reads->contains('user_id', $userId);
+    }
+
+    /**
+     * Rincian siapa saja yang telah membaca pesan ini (khusus lawan bicara)
+     */
+    public function getReadDetailsAttribute(): array
+    {
+        return $this->reads()
+            ->where('user_id', '!=', $this->sender_id)
+            ->with('user')
+            ->get()
+            ->map(function ($read) {
+                $roleLabel = match ($read->user?->role) {
+                    'guru'     => 'Wali Kelas',
+                    'orangtua' => 'Orang Tua',
+                    'siswa'    => 'Siswa',
+                    default    => 'Pengguna',
+                };
+
+                return [
+                    'user_id'   => $read->user_id,
+                    'user_name' => $read->user?->name ?? 'Pengguna',
+                    'role'      => $roleLabel,
+                    'read_at'   => $read->read_at?->format('H:i') ?? '',
+                    'read_date' => $read->read_at?->isoFormat('D MMM Y') ?? '',
+                ];
+            })
+            ->values()
+            ->toArray();
+    }
+
+    /**
+     * Cek apakah pesan dapat ditarik oleh user tertentu
+     * (Hanya pengirim asli, belum dihapus, dan maksimal 60 menit)
+     */
+    public function canBeDeletedBy(User $user): bool
+    {
+        if ($this->is_deleted) {
+            return false;
+        }
+
+        if ($this->sender_id !== $user->id) {
+            return false;
+        }
+
+        // Batas waktu tarik pesan 60 menit
+        return $this->created_at->diffInMinutes(now()) <= 60;
     }
 
     /**

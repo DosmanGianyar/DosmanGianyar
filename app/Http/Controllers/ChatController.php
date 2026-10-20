@@ -105,18 +105,22 @@ class ChatController extends Controller
             default    => url('/'),
         };
 
+        // Info status terakhir dilihat
+        $participantLastSeen = $this->chatService->getParticipantLastSeen($room);
+
         return view('chat.show', [
-            'layout'       => $layout,
-            'room'         => $room,
-            'messages'     => $messages,
-            'participants' => $participants,
-            'user'         => $user,
-            'backUrl'      => $backUrl,
+            'layout'              => $layout,
+            'room'                => $room,
+            'messages'            => $messages,
+            'participants'        => $participants,
+            'participantLastSeen' => $participantLastSeen,
+            'user'                => $user,
+            'backUrl'             => $backUrl,
         ]);
     }
 
     /**
-     * API JSON: Polling pesan baru & status pembacaan
+     * API JSON: Polling pesan baru & status pembacaan & pesan ditarik
      */
     public function getMessages(ChatRoom $room, Request $request): JsonResponse
     {
@@ -134,7 +138,7 @@ class ChatController extends Controller
 
         // Pesan baru setelah after_id
         $newMessages = $room->messages()
-            ->with(['sender', 'reads'])
+            ->with(['sender', 'reads.user'])
             ->when($afterId > 0, fn($q) => $q->where('id', '>', $afterId))
             ->orderBy('id', 'asc')
             ->get();
@@ -143,14 +147,15 @@ class ChatController extends Controller
             return $this->formatMessagePayload($msg, $user, $room);
         });
 
-        // Ambil juga status pembacaan untuk pesan-pesan yang dikirim oleh $user agar tanda centang bisa terupdate
+        // Ambil status pembacaan untuk pesan-pesan yang dikirim oleh $user agar tanda centang bisa terupdate
         $myRecentMessages = $room->messages()
             ->where('sender_id', $user->id)
             ->where('created_at', '>=', now()->subDays(2))
-            ->with('reads')
+            ->with(['reads.user'])
             ->get();
 
         $readStatuses = [];
+        $readDetails = [];
         $otherParticipantsCount = $room->participants()->where('user_id', '!=', $user->id)->count();
 
         foreach ($myRecentMessages as $msg) {
@@ -160,11 +165,56 @@ class ChatController extends Controller
                 $status = ($otherParticipantsCount > 0 && $otherReads >= $otherParticipantsCount) ? 'read_all' : 'read';
             }
             $readStatuses[$msg->id] = $status;
+            $readDetails[$msg->id] = $msg->read_details;
         }
+
+        // Ambil ID pesan-pesan yang ditarik dalam 2 hari terakhir
+        $deletedIds = $room->messages()
+            ->where('is_deleted', true)
+            ->where('deleted_at', '>=', now()->subDays(2))
+            ->pluck('id');
 
         return response()->json([
             'messages'      => $formattedMessages,
             'read_statuses' => $readStatuses,
+            'read_details'  => $readDetails,
+            'deleted_ids'   => $deletedIds,
+        ]);
+    }
+
+    /**
+     * API JSON: Tarik / Hapus pesan oleh pengirim
+     */
+    public function deleteMessage(ChatMessage $message, Request $request): JsonResponse
+    {
+        $user = auth()->user();
+
+        if (! $message->canBeDeletedBy($user)) {
+            return response()->json(['error' => 'Pesan tidak dapat ditarik (hanya pengirim dan maksimal 60 menit setelah terkirim).'], 403);
+        }
+
+        $this->chatService->deleteMessage($message, $user);
+
+        return response()->json([
+            'success'    => true,
+            'message_id' => $message->id,
+        ]);
+    }
+
+    /**
+     * API JSON: Rincian pembaca pesan (siapa saja yang telah membaca)
+     */
+    public function getReadDetails(ChatMessage $message, Request $request): JsonResponse
+    {
+        $user = auth()->user();
+        $isParticipant = $message->chatRoom->participants()->where('user_id', $user->id)->exists();
+        if (! $isParticipant) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        return response()->json([
+            'message_id'   => $message->id,
+            'read_details' => $message->read_details,
         ]);
     }
 
@@ -250,14 +300,17 @@ class ChatController extends Controller
             'sender_name'     => $msg->sender?->name ?? 'Pengguna',
             'sender_role'     => $roleLabel,
             'is_me'           => $isMe,
-            'message'         => $msg->message,
-            'attachment_url'  => $msg->attachment_path ? Storage::url($msg->attachment_path) : null,
+            'is_deleted'      => (bool) $msg->is_deleted,
+            'can_delete'      => $msg->canBeDeletedBy($currentUser),
+            'message'         => $msg->is_deleted ? 'Pesan ini telah ditarik' : $msg->message,
+            'attachment_url'  => (! $msg->is_deleted && $msg->attachment_path) ? Storage::url($msg->attachment_path) : null,
             'attachment_name' => $msg->attachment_name,
             'attachment_type' => $msg->attachment_type,
             'time'            => $msg->created_at->format('H:i'),
             'date'            => $msg->created_at->format('d M Y'),
             'read_status'     => $readStatus, // 'sent', 'read', 'read_all'
             'reads_count'     => $otherReadsCount,
+            'read_details'    => $msg->read_details,
         ];
     }
 }

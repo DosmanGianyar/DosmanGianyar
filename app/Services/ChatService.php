@@ -215,6 +215,75 @@ class ChatService
     }
 
     /**
+     * Tarik / Hapus pesan oleh pengirimnya (delete for everyone)
+     */
+    public function deleteMessage(ChatMessage $message, User $user): bool
+    {
+        if (! $message->canBeDeletedBy($user)) {
+            return false;
+        }
+
+        // Hapus file attachment jika ada
+        if ($message->attachment_path && Storage::disk('public')->exists($message->attachment_path)) {
+            Storage::disk('public')->delete($message->attachment_path);
+        }
+
+        $message->update([
+            'is_deleted'      => true,
+            'message'         => 'Pesan ini telah ditarik',
+            'attachment_path' => null,
+            'attachment_name' => null,
+            'attachment_type' => null,
+            'deleted_at'      => now(),
+        ]);
+
+        // Jika ini pesan terakhir di room, perbarui ringkasan pesan terakhir
+        $room = $message->chatRoom;
+        $latestMsg = $room->messages()->latest('id')->first();
+        if ($latestMsg) {
+            $room->update([
+                'last_message_text' => $latestMsg->is_deleted ? 'Pesan ini telah ditarik' : Str::limit($latestMsg->message ?: '[Lampiran]', 100),
+            ]);
+        }
+
+        return true;
+    }
+
+    /**
+     * Dapatkan status terakhir dilihat (last seen) untuk semua partisipan di room
+     */
+    public function getParticipantLastSeen(ChatRoom $room): Collection
+    {
+        return $room->participants()->with('user')->get()->map(function ($p) {
+            $lastRead = $p->last_read_at;
+            $statusText = 'Belum membuka obrolan';
+
+            if ($lastRead) {
+                if ($lastRead->diffInMinutes(now()) <= 2) {
+                    $statusText = 'Aktif sekarang';
+                } else {
+                    $statusText = 'Aktif ' . $lastRead->diffForHumans();
+                }
+            }
+
+            $roleLabel = match ($p->role) {
+                'guru'     => 'Wali Kelas',
+                'orangtua' => 'Orang Tua',
+                'siswa'    => 'Siswa',
+                default    => 'Pengguna',
+            };
+
+            return [
+                'user_id'     => $p->user_id,
+                'name'        => $p->user?->name ?? 'Pengguna',
+                'role'        => $roleLabel,
+                'last_read'   => $lastRead,
+                'status_text' => $statusText,
+            ];
+        });
+    }
+
+    /**
      * Hitung total pesan belum dibaca untuk user di seluruh ruang chat miliknya
      */
     public function getTotalUnreadCount(User $user): int

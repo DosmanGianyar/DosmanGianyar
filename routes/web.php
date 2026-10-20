@@ -285,6 +285,8 @@ Route::middleware(['auth', 'role:guru,admin,pegawai'])->prefix('guru')->name('gu
         Route::get('/{room}', [ChatController::class, 'show'])->name('show');
         Route::get('/{room}/messages', [ChatController::class, 'getMessages'])->name('messages');
         Route::post('/{room}/send', [ChatController::class, 'send'])->name('send');
+        Route::delete('/messages/{message}', [ChatController::class, 'deleteMessage'])->name('messages.delete');
+        Route::get('/messages/{message}/reads', [ChatController::class, 'getReadDetails'])->name('messages.reads');
     });
 });
 
@@ -448,6 +450,8 @@ Route::middleware(['auth', 'role:siswa,pengelola', 'force.password.change'])->pr
         Route::get('/{room}', [ChatController::class, 'show'])->name('show');
         Route::get('/{room}/messages', [ChatController::class, 'getMessages'])->name('messages');
         Route::post('/{room}/send', [ChatController::class, 'send'])->name('send');
+        Route::delete('/messages/{message}', [ChatController::class, 'deleteMessage'])->name('messages.delete');
+        Route::get('/messages/{message}/reads', [ChatController::class, 'getReadDetails'])->name('messages.reads');
     });
 });
 
@@ -485,6 +489,8 @@ Route::middleware(['auth', 'role:orangtua'])->prefix('orangtua')->name('orangtua
         Route::get('/{room}', [ChatController::class, 'show'])->name('show');
         Route::get('/{room}/messages', [ChatController::class, 'getMessages'])->name('messages');
         Route::post('/{room}/send', [ChatController::class, 'send'])->name('send');
+        Route::delete('/messages/{message}', [ChatController::class, 'deleteMessage'])->name('messages.delete');
+        Route::get('/messages/{message}/reads', [ChatController::class, 'getReadDetails'])->name('messages.reads');
     });
 });
 

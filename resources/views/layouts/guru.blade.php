@@ -149,7 +149,11 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $item['icon'] }}"/>
                     </svg>
                     <span class="truncate flex-1">{{ $item['label'] }}</span>
-                    @if($itemBadge > 0)
+                    @if($item['route'] === 'guru.chat.index')
+                        <span class="chat-unread-badge {{ $itemBadge > 0 ? '' : 'hidden' }} text-[10px] font-black px-2 py-0.5 rounded-full shrink-0 {{ $active ? 'bg-white text-blue-600' : 'bg-red-500 text-white' }}">
+                            {{ $itemBadge }}
+                        </span>
+                    @elseif($itemBadge > 0)
                         <span class="text-[10px] font-black px-2 py-0.5 rounded-full shrink-0 {{ $active ? 'bg-white text-blue-600' : 'bg-red-500 text-white' }}">
                             {{ $itemBadge }}
                         </span>
@@ -298,5 +302,6 @@
     }
 </script>
 @include('components.image-lightbox')
+@include('chat.partials.unread-poller')
 </body>
 </html>
