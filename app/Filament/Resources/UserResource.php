@@ -6,6 +6,7 @@ use App\Filament\Resources\UserResource\Pages;
 use App\Models\SchoolClass;
 use App\Models\User;
 use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -754,170 +755,174 @@ class UserResource extends Resource
                 : null
             )
             ->recordActions([
-                ViewAction::make()->iconButton()
+                ViewAction::make()
+                    ->iconButton()
+                    ->tooltip('Lihat Detail Siswa')
                     ->visible(fn (User $record): bool => in_array($record->role, ['siswa', 'pengelola'])),
-                Action::make('downloadStudentCard')
-                    ->label('Kartu Pelajar')
-                    ->icon('heroicon-o-identification')
-                    ->color('info')
+
+                EditAction::make()
                     ->iconButton()
-                    ->visible(fn (User $record): bool => in_array($record->role, ['siswa', 'pengelola']))
-                    ->tooltip('Cetak/Download Kartu Pelajar Digital (Barcode/QR)')
-                    ->url(fn (User $record): string => route('admin.student-card.download', $record->id))
-                    ->openUrlInNewTab(),
-                Action::make('printBukuInduk')
-                    ->label('Buku Induk')
-                    ->icon('heroicon-o-printer')
-                    ->color('success')
-                    ->iconButton()
-                    ->visible(fn (User $record): bool => in_array($record->role, ['siswa', 'pengelola']))
-                    ->tooltip('Cetak Buku Induk Siswa (A4)')
-                    ->url(fn (User $record): string => route('admin.buku-induk.print', $record->id))
-                    ->openUrlInNewTab(),
-                EditAction::make()->iconButton(),
-                Action::make('manageParentAccount')
-                    ->label('Akun Ortu')
-                    ->icon('heroicon-o-user-group')
-                    ->color('info')
-                    ->iconButton()
-                    ->tooltip('Kelola No HP Ortu (Username) & Password Akun Ortu')
-                    ->visible(fn (User $record): bool => in_array($record->role, ['siswa', 'pengelola']))
-                    ->modalHeading(fn (User $record): string => "Kelola Akun Orang Tua: {$record->name}")
-                    ->modalDescription(fn (User $record): string => "Atur nomor HP orang tua yang digunakan sebagai Username & Password login di aplikasi SIMAK DOSMAN (Web & Mobile).")
-                    ->modalSubmitActionLabel('Simpan Akun Ortu')
-                    ->form([
-                        TextInput::make('parent_name')
-                            ->label('Nama Orang Tua / Wali')
-                            ->default(fn (User $record): ?string => $record->parent_name)
-                            ->placeholder('Contoh: I Made Sudarma'),
+                    ->tooltip('Edit Data Siswa'),
 
-                        TextInput::make('parent_phone')
-                            ->label('Nomor HP Orang Tua (Username Login)')
-                            ->default(fn (User $record): ?string => $record->parent_phone)
-                            ->tel()
-                            ->required()
-                            ->placeholder('Contoh: 081234567890')
-                            ->helperText('Nomor HP ini digunakan orang tua saat login. Password default sama dengan nomor HP ini.'),
+                ActionGroup::make([
+                    Action::make('downloadStudentCard')
+                        ->label('Cetak / Unduh Kartu Pelajar')
+                        ->icon('heroicon-o-identification')
+                        ->color('info')
+                        ->visible(fn (User $record): bool => in_array($record->role, ['siswa', 'pengelola']))
+                        ->url(fn (User $record): string => route('admin.student-card.download', $record->id))
+                        ->openUrlInNewTab(),
 
-                        Toggle::make('custom_password_toggle')
-                            ->label('Ubah Password Manual (Opsional)')
-                            ->default(false)
-                            ->live()
-                            ->helperText('Secara default password akun orang tua otomatis sama dengan No HP. Aktifkan saklar ini hanya jika ingin membuat password kustom.'),
+                    Action::make('printBukuInduk')
+                        ->label('Cetak Buku Induk Siswa (A4)')
+                        ->icon('heroicon-o-printer')
+                        ->color('success')
+                        ->visible(fn (User $record): bool => in_array($record->role, ['siswa', 'pengelola']))
+                        ->url(fn (User $record): string => route('admin.buku-induk.print', $record->id))
+                        ->openUrlInNewTab(),
 
-                        TextInput::make('new_password')
-                            ->label('Password Kustom Akun Ortu')
-                            ->password()
-                            ->revealable()
-                            ->autocomplete('new-password')
-                            ->extraInputAttributes(['autocomplete' => 'new-password'])
-                            ->visible(fn (Get $get): bool => (bool) $get('custom_password_toggle'))
-                            ->required(fn (Get $get): bool => (bool) $get('custom_password_toggle'))
-                            ->minLength(6)
-                            ->helperText('Minimal 6 karakter.'),
-                    ])
-                    ->action(function (User $record, array $data): void {
-                        $parentName           = trim($data['parent_name'] ?? '');
-                        $parentPhone          = trim($data['parent_phone'] ?? '');
-                        $customPasswordToggle = (bool) ($data['custom_password_toggle'] ?? false);
-                        $newPassword          = trim($data['new_password'] ?? '');
+                    Action::make('manageParentAccount')
+                        ->label('Kelola Akun Orang Tua')
+                        ->icon('heroicon-o-user-group')
+                        ->color('info')
+                        ->visible(fn (User $record): bool => in_array($record->role, ['siswa', 'pengelola']))
+                        ->modalHeading(fn (User $record): string => "Kelola Akun Orang Tua: {$record->name}")
+                        ->modalDescription(fn (User $record): string => "Atur nomor HP orang tua yang digunakan sebagai Username & Password login di aplikasi SIMAK DOSMAN (Web & Mobile).")
+                        ->modalSubmitActionLabel('Simpan Akun Ortu')
+                        ->form([
+                            TextInput::make('parent_name')
+                                ->label('Nama Orang Tua / Wali')
+                                ->default(fn (User $record): ?string => $record->parent_name)
+                                ->placeholder('Contoh: I Made Sudarma'),
 
-                        $record->update([
-                            'parent_name'  => $parentName ?: null,
-                            'parent_phone' => $parentPhone ?: null,
-                        ]);
+                            TextInput::make('parent_phone')
+                                ->label('Nomor HP Orang Tua (Username Login)')
+                                ->default(fn (User $record): ?string => $record->parent_phone)
+                                ->tel()
+                                ->required()
+                                ->placeholder('Contoh: 081234567890')
+                                ->helperText('Nomor HP ini digunakan orang tua saat login. Password default sama dengan nomor HP ini.'),
 
-                        // Sinkronkan akun orang tua
-                        $normalized = \App\Services\OrangtuaSyncService::normalizePhone($parentPhone);
-                        if ($normalized) {
-                            $parent = \App\Models\User::where('role', 'orangtua')->where('phone', $normalized)->first();
-                            if ($parent) {
-                                if ($parentName && ($parent->name === 'Orangtua ' . $record->name || empty($parent->name))) {
-                                    $parent->update(['name' => $parentName]);
-                                }
-                                if ($customPasswordToggle && filled($newPassword)) {
-                                    $parent->update([
-                                        'password'             => Hash::make($newPassword),
-                                        'must_change_password' => false,
-                                    ]);
+                            Toggle::make('custom_password_toggle')
+                                ->label('Ubah Password Manual (Opsional)')
+                                ->default(false)
+                                ->live()
+                                ->helperText('Secara default password akun orang tua otomatis sama dengan No HP. Aktifkan saklar ini hanya jika ingin membuat password kustom.'),
+
+                            TextInput::make('new_password')
+                                ->label('Password Kustom Akun Ortu')
+                                ->password()
+                                ->revealable()
+                                ->autocomplete('new-password')
+                                ->extraInputAttributes(['autocomplete' => 'new-password'])
+                                ->visible(fn (Get $get): bool => (bool) $get('custom_password_toggle'))
+                                ->required(fn (Get $get): bool => (bool) $get('custom_password_toggle'))
+                                ->minLength(6)
+                                ->helperText('Minimal 6 karakter.'),
+                        ])
+                        ->action(function (User $record, array $data): void {
+                            $parentName           = trim($data['parent_name'] ?? '');
+                            $parentPhone          = trim($data['parent_phone'] ?? '');
+                            $customPasswordToggle = (bool) ($data['custom_password_toggle'] ?? false);
+                            $newPassword          = trim($data['new_password'] ?? '');
+
+                            $record->update([
+                                'parent_name'  => $parentName ?: null,
+                                'parent_phone' => $parentPhone ?: null,
+                            ]);
+
+                            // Sinkronkan akun orang tua
+                            $normalized = \App\Services\OrangtuaSyncService::normalizePhone($parentPhone);
+                            if ($normalized) {
+                                $parent = \App\Models\User::where('role', 'orangtua')->where('phone', $normalized)->first();
+                                if ($parent) {
+                                    if ($parentName && ($parent->name === 'Orangtua ' . $record->name || empty($parent->name))) {
+                                        $parent->update(['name' => $parentName]);
+                                    }
+                                    if ($customPasswordToggle && filled($newPassword)) {
+                                        $parent->update([
+                                            'password'             => Hash::make($newPassword),
+                                            'must_change_password' => false,
+                                        ]);
+                                    }
                                 }
                             }
-                        }
 
-                        Notification::make()
-                            ->title("Akun Orang Tua {$record->name} berhasil diperbarui.")
-                            ->body("Username Login: {$parentPhone}" . (filled($newPassword) ? " | Password kustom telah disimpan." : " | Password default: sama dengan Nomor HP."))
-                            ->success()
-                            ->send();
-                    }),
-                Action::make('padSingleNisn')
-                    ->label('Fix NISN (+0)')
-                    ->icon('heroicon-o-plus-circle')
-                    ->color('warning')
-                    ->iconButton()
-                    ->visible(fn (User $record): bool => in_array($record->role, ['siswa', 'pengelola']) && strlen(trim((string) $record->nisn)) === 9)
-                    ->tooltip('Tambah 0 di depan NISN (menjadi 10 digit)')
-                    ->requiresConfirmation()
-                    ->modalHeading('Tambahkan angka 0 di depan NISN?')
-                    ->modalDescription(fn (User $record): string => "Ubah NISN '{$record->nisn}' milik {$record->name} menjadi '0{$record->nisn}' (10 digit)?")
-                    ->action(function (User $record): void {
-                        $oldNisn = trim((string) $record->nisn);
-                        $newNisn = '0' . $oldNisn;
-                        $record->update(['nisn' => $newNisn]);
-                        Notification::make()
-                            ->title("NISN {$record->name} berhasil diubah ke 10 digit: {$newNisn}.")
-                            ->success()
-                            ->send();
-                    }),
-                Action::make('resetDevice')
-                    ->label('Reset Perangkat')
-                    ->icon(fn (User $record): string => $record->hasDeviceLocked()
-                        ? 'heroicon-o-lock-closed'
-                        : 'heroicon-o-lock-open'
-                    )
-                    ->color(fn (User $record): string => $record->hasDeviceLocked() ? 'success' : 'gray')
-                    ->iconButton()
-                    ->disabled(fn (User $record): bool => ! $record->hasDeviceLocked())
-                    ->tooltip(fn (User $record): string => $record->hasDeviceLocked()
-                        ? 'Reset perangkat (' . $record->deviceCount() . '/' . \App\Models\User::MAX_DEVICES . ')'
-                        : 'Belum ada perangkat terdaftar'
-                    )
-                    ->requiresConfirmation()
-                    ->modalHeading('Reset Semua Perangkat?')
-                    ->modalDescription(fn (User $record): string => sprintf(
-                        '%s terdaftar di %d perangkat. Semua akan dihapus dan token dicabut.',
-                        $record->name, $record->deviceCount(),
-                    ))
-                    ->modalSubmitActionLabel('Ya, Reset Semua')
-                    ->action(function (User $record): void {
-                        $count = $record->deviceCount();
-                        $record->resetDevices();
-                        Notification::make()
-                            ->title("{$record->name}: {$count} perangkat direset.")
-                            ->success()
-                            ->send();
-                    }),
-                Action::make('deletePhoto')
-                    ->label('Hapus Foto Profil')
-                    ->icon('heroicon-o-trash')
-                    ->color('danger')
-                    ->iconButton()
-                    ->visible(fn (User $record): bool => ! empty($record->photo))
-                    ->tooltip('Hapus Foto Profil Siswa (Reset ke default)')
-                    ->requiresConfirmation()
-                    ->modalHeading('Hapus Foto Profil Siswa?')
-                    ->modalDescription(fn (User $record): string => "Apakah Anda yakin ingin menghapus foto profil milik '{$record->name}'? Foto yang melanggar aturan akan dihapus dan dikembalikan ke avatar standar UI-Avatars.")
-                    ->action(function (User $record): void {
-                        if ($record->photo && \Illuminate\Support\Facades\Storage::disk('public')->exists($record->photo)) {
-                            \Illuminate\Support\Facades\Storage::disk('public')->delete($record->photo);
-                        }
-                        $record->update(['photo' => null]);
-                        Notification::make()
-                            ->title("Foto profil {$record->name} berhasil dihapus.")
-                            ->success()
-                            ->send();
-                    }),
-                DeleteAction::make()->iconButton(),
+                            Notification::make()
+                                ->title("Akun Orang Tua {$record->name} berhasil diperbarui.")
+                                ->body("Username Login: {$parentPhone}" . (filled($newPassword) ? " | Password kustom telah disimpan." : " | Password default: sama dengan Nomor HP."))
+                                ->success()
+                                ->send();
+                        }),
+
+                    Action::make('padSingleNisn')
+                        ->label('Perbaiki NISN (+0 di Depan)')
+                        ->icon('heroicon-o-plus-circle')
+                        ->color('warning')
+                        ->visible(fn (User $record): bool => in_array($record->role, ['siswa', 'pengelola']) && strlen(trim((string) $record->nisn)) === 9)
+                        ->requiresConfirmation()
+                        ->modalHeading('Tambahkan angka 0 di depan NISN?')
+                        ->modalDescription(fn (User $record): string => "Ubah NISN '{$record->nisn}' milik {$record->name} menjadi '0{$record->nisn}' (10 digit)?")
+                        ->action(function (User $record): void {
+                            $oldNisn = trim((string) $record->nisn);
+                            $newNisn = '0' . $oldNisn;
+                            $record->update(['nisn' => $newNisn]);
+                            Notification::make()
+                                ->title("NISN {$record->name} berhasil diubah ke 10 digit: {$newNisn}.")
+                                ->success()
+                                ->send();
+                        }),
+
+                    Action::make('resetDevice')
+                        ->label('Reset Perangkat Mobile')
+                        ->icon(fn (User $record): string => $record->hasDeviceLocked()
+                            ? 'heroicon-o-lock-closed'
+                            : 'heroicon-o-lock-open'
+                        )
+                        ->color(fn (User $record): string => $record->hasDeviceLocked() ? 'warning' : 'gray')
+                        ->disabled(fn (User $record): bool => ! $record->hasDeviceLocked())
+                        ->requiresConfirmation()
+                        ->modalHeading('Reset Semua Perangkat?')
+                        ->modalDescription(fn (User $record): string => sprintf(
+                            '%s terdaftar di %d perangkat. Semua akan dihapus dan token dicabut.',
+                            $record->name, $record->deviceCount(),
+                        ))
+                        ->modalSubmitActionLabel('Ya, Reset Semua')
+                        ->action(function (User $record): void {
+                            $count = $record->deviceCount();
+                            $record->resetDevices();
+                            Notification::make()
+                                ->title("{$record->name}: {$count} perangkat direset.")
+                                ->success()
+                                ->send();
+                        }),
+
+                    Action::make('deletePhoto')
+                        ->label('Hapus Foto Profil Siswa')
+                        ->icon('heroicon-o-photo')
+                        ->color('danger')
+                        ->visible(fn (User $record): bool => ! empty($record->photo))
+                        ->requiresConfirmation()
+                        ->modalHeading('Hapus Foto Profil Siswa?')
+                        ->modalDescription(fn (User $record): string => "Apakah Anda yakin ingin menghapus foto profil milik '{$record->name}'? Foto yang melanggar aturan akan dihapus dan dikembalikan ke avatar standar UI-Avatars.")
+                        ->action(function (User $record): void {
+                            if ($record->photo && \Illuminate\Support\Facades\Storage::disk('public')->exists($record->photo)) {
+                                \Illuminate\Support\Facades\Storage::disk('public')->delete($record->photo);
+                            }
+                            $record->update(['photo' => null]);
+                            Notification::make()
+                                ->title("Foto profil {$record->name} berhasil dihapus.")
+                                ->success()
+                                ->send();
+                        }),
+
+                    DeleteAction::make()
+                        ->label('Hapus Siswa')
+                        ->modalHeading('Hapus Data Siswa Ini?'),
+                ])
+                ->icon('heroicon-m-ellipsis-vertical')
+                ->tooltip('Menu Aksi Lainnya')
+                ->iconButton(),
             ])
             ->bulkActions([
                 BulkActionGroup::make([
