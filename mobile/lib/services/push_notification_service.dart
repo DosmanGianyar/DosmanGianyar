@@ -59,13 +59,15 @@ class PushNotificationService {
 
       // 3. Setup Android & iOS local notification settings
       const AndroidNotificationChannel channel = AndroidNotificationChannel(
-        'sims_alert_v3_channel',
-        'Notifikasi Alert SIMS',
-        description: 'Notifikasi penting presensi, pengumuman, dan alert SMAN 1 Gianyar',
+        'sims_urgent_alert_v4',
+        'Pemberitahuan Utama SIMS',
+        description: 'Notifikasi penting presensi, chat, dan pengumuman SMA Negeri 1 Gianyar',
         importance: Importance.max,
         playSound: true,
         enableVibration: true,
         enableLights: true,
+        showBadge: true,
+        audioAttributesUsage: AudioAttributesUsage.notificationRingtone,
       );
 
       const AndroidInitializationSettings initializationSettingsAndroid =
@@ -96,6 +98,10 @@ class PushNotificationService {
 
       if (androidPlugin != null) {
         await androidPlugin.requestNotificationsPermission();
+        try {
+          await androidPlugin.deleteNotificationChannel('sims_alert_v3_channel');
+          await androidPlugin.deleteNotificationChannel('sims_high_importance_channel');
+        } catch (_) {}
         await androidPlugin.createNotificationChannel(channel);
       }
 
@@ -120,6 +126,11 @@ class PushNotificationService {
                 playSound: true,
                 enableVibration: true,
                 vibrationPattern: vibrationPattern,
+                category: AndroidNotificationCategory.message,
+                visibility: NotificationVisibility.public,
+                audioAttributesUsage: AudioAttributesUsage.notificationRingtone,
+                channelShowBadge: true,
+                ticker: 'Pemberitahuan SIMS SMAN 1 Gianyar',
               ),
               iOS: const DarwinNotificationDetails(
                 presentAlert: true,
@@ -197,19 +208,25 @@ class PushNotificationService {
   static Future<void> _ensureNotificationChannel() async {
     try {
       const AndroidNotificationChannel channel = AndroidNotificationChannel(
-        'sims_alert_v3_channel',
-        'Notifikasi Alert SIMS',
-        description: 'Notifikasi penting presensi, pengumuman, dan alert SMAN 1 Gianyar',
+        'sims_urgent_alert_v4',
+        'Pemberitahuan Utama SIMS',
+        description: 'Notifikasi penting presensi, chat, dan pengumuman SMA Negeri 1 Gianyar',
         importance: Importance.max,
         playSound: true,
         enableVibration: true,
         enableLights: true,
+        showBadge: true,
+        audioAttributesUsage: AudioAttributesUsage.notificationRingtone,
       );
 
       final androidPlugin = _localNotifications
           .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
 
       if (androidPlugin != null) {
+        try {
+          await androidPlugin.deleteNotificationChannel('sims_alert_v3_channel');
+          await androidPlugin.deleteNotificationChannel('sims_high_importance_channel');
+        } catch (_) {}
         await androidPlugin.createNotificationChannel(channel);
       }
     } catch (e) {
@@ -296,13 +313,15 @@ class PushNotificationService {
   }) async {
     try {
       const AndroidNotificationChannel channel = AndroidNotificationChannel(
-        'sims_alert_v3_channel',
-        'Notifikasi Alert SIMS',
-        description: 'Notifikasi penting presensi, pengumuman, dan alert SMAN 1 Gianyar',
+        'sims_urgent_alert_v4',
+        'Pemberitahuan Utama SIMS',
+        description: 'Notifikasi penting presensi, chat, dan pengumuman SMA Negeri 1 Gianyar',
         importance: Importance.max,
         playSound: true,
         enableVibration: true,
         enableLights: true,
+        showBadge: true,
+        audioAttributesUsage: AudioAttributesUsage.notificationRingtone,
       );
 
       const AndroidInitializationSettings initializationSettingsAndroid =
@@ -319,8 +338,10 @@ class PushNotificationService {
 
       if (androidPlugin != null) {
         await androidPlugin.requestNotificationsPermission();
-        // Hapus channel lama agar Android memperbarui seting nada & alert
-        await androidPlugin.deleteNotificationChannel('sims_high_importance_channel');
+        try {
+          await androidPlugin.deleteNotificationChannel('sims_alert_v3_channel');
+          await androidPlugin.deleteNotificationChannel('sims_high_importance_channel');
+        } catch (_) {}
         await androidPlugin.createNotificationChannel(channel);
       }
 
@@ -341,6 +362,11 @@ class PushNotificationService {
             playSound: true,
             enableVibration: true,
             vibrationPattern: vibrationPattern,
+            category: AndroidNotificationCategory.message,
+            visibility: NotificationVisibility.public,
+            audioAttributesUsage: AudioAttributesUsage.notificationRingtone,
+            channelShowBadge: true,
+            ticker: 'Pemberitahuan SIMS SMAN 1 Gianyar',
             styleInformation: BigTextStyleInformation(
               body,
               contentTitle: title,

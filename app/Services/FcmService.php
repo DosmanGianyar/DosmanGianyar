@@ -101,11 +101,12 @@ class FcmService
                         'android' => [
                             'priority' => 'HIGH',
                             'notification' => [
-                                'channel_id'              => 'sims_alert_v3_channel',
+                                'channel_id'              => 'sims_urgent_alert_v4',
                                 'sound'                   => 'default',
                                 'default_sound'           => true,
                                 'default_vibrate_timings' => true,
                                 'notification_priority'   => 'PRIORITY_MAX',
+                                'visibility'              => 'PUBLIC',
                             ],
                         ],
                         'data' => array_map('strval', array_merge($data, [
