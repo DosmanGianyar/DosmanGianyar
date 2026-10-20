@@ -405,11 +405,18 @@ class ChatService
                 default    => url('/'),
             };
 
+            $chatType = match ($sender->role) {
+                'orangtua' => 'chat_orangtua',
+                'siswa'    => 'chat_siswa',
+                'guru'     => 'chat_guru',
+                default    => 'chat',
+            };
+
             \App\Services\NotificationService::send(
                 $targetUser->id,
                 "{$titlePrefix}Pesan Baru dari {$senderTitle}",
                 $preview ?: 'Mengirim sebuah lampiran',
-                'chat',
+                $chatType,
                 $route
             );
         }
