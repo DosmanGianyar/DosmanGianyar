@@ -50,6 +50,23 @@
     <h2 class="text-sm font-semibold text-white tracking-wide">@yield('page-title', 'Beranda')</h2>
 
     <div class="flex items-center gap-2">
+        {{-- Chat Konsultasi Wali & Ortu --}}
+        @php
+            $chatUnreadSiswa = auth()->check() ? app(\App\Services\ChatService::class)->getTotalUnreadCount(auth()->user()) : 0;
+        @endphp
+        <a href="{{ route('siswa.chat.index') }}" title="Chat Konsultasi Wali & Ortu"
+           class="relative w-8 h-8 flex items-center justify-center rounded-xl bg-white/10 hover:bg-white/20 transition-colors">
+            <svg class="w-4.5 h-4.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+            </svg>
+            @if($chatUnreadSiswa > 0)
+            <span class="absolute -top-0.5 -right-0.5 min-w-4 h-4 bg-emerald-400 text-slate-900 text-[9px] font-black rounded-full flex items-center justify-center px-1 leading-none shadow-xs">
+                {{ $chatUnreadSiswa > 9 ? '9+' : $chatUnreadSiswa }}
+            </span>
+            @endif
+        </a>
+
         {{-- Bell notifikasi --}}
         @php
             $unreadCount = \App\Models\AppNotification::forUser(auth()->id())->unread()->count();

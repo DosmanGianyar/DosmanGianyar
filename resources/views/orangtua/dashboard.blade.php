@@ -279,6 +279,32 @@
                 <span class="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-sm">🏆</span>
             </a>
         </div>
+
+        {{-- Tombol Chat Konsultasi Wali Kelas --}}
+        @php
+            $childChatRoom = app(\App\Services\ChatService::class)->getOrCreateRoomForStudent($child);
+            $childChatUnread = $childChatRoom ? $childChatRoom->unreadCountFor(auth()->id()) : 0;
+        @endphp
+        @if($childChatRoom)
+        <a href="{{ route('orangtua.chat.show', $childChatRoom->id) }}"
+           class="flex items-center justify-between p-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold text-xs sm:text-sm shadow-sm hover:shadow-md hover:from-emerald-700 hover:to-teal-700 transition-all group">
+            <div class="flex items-center gap-2.5">
+                <span class="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center text-base shrink-0">💬</span>
+                <div class="text-left">
+                    <p class="leading-tight">Chat Wali Kelas & {{ Str::words($child->name, 2, '') }}</p>
+                    <p class="text-[10px] text-emerald-100 font-normal mt-0.5">Komunikasi langsung dengan Wali Kelas</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+                @if($childChatUnread > 0)
+                    <span class="px-2 py-0.5 bg-rose-500 text-white text-[10px] font-black rounded-full shadow-xs">
+                        {{ $childChatUnread }} baru
+                    </span>
+                @endif
+                <span class="text-white/80 group-hover:translate-x-1 transition-transform">&rarr;</span>
+            </div>
+        </a>
+        @endif
     </div>
     @empty
     <div class="bg-white rounded-3xl p-8 text-center shadow-sm border border-gray-100">

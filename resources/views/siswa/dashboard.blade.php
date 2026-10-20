@@ -84,6 +84,34 @@
 {{-- ─── 3. Kartu Pelajar Digital ───────────────────────────────────────── --}}
 @include('siswa.partials.student-card-digital')
 
+{{-- ─── Banner Chat Konsultasi Segitiga ──────────────────────────────── --}}
+<a href="{{ route('siswa.chat.index') }}"
+   class="block bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 rounded-2xl p-4 mb-3.5 text-white shadow-sm hover:shadow-md transition-all group">
+    <div class="flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3 min-w-0">
+            <div class="w-11 h-11 rounded-xl bg-white/20 border border-white/30 backdrop-blur-md flex items-center justify-center text-xl shrink-0">
+                💬
+            </div>
+            <div class="min-w-0">
+                <div class="flex items-center gap-2">
+                    <h3 class="font-black text-sm text-white">Chat Konsultasi</h3>
+                    <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-white/20 text-emerald-100 border border-white/30">
+                        Wali & Ortu
+                    </span>
+                </div>
+                <p class="text-xs text-emerald-100 mt-0.5 truncate">
+                    Ruang obrolan langsung bersama Wali Kelas & Orang Tua Anda.
+                </p>
+            </div>
+        </div>
+        <div class="w-8 h-8 rounded-full bg-white/10 group-hover:bg-white/20 flex items-center justify-center shrink-0 transition-colors">
+            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
+            </svg>
+        </div>
+    </div>
+</a>
+
 {{-- ─── 4. Card SIPINTER (Diantara Kartu Siswa & Kalender Kehadiran) ────── --}}
 <div onclick="window.location='{{ route('siswa.conduct.index') }}'" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3.5 cursor-pointer hover:border-emerald-300 hover:shadow-md transition-all">
     <div class="flex items-center justify-between mb-3">

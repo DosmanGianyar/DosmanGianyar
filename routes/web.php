@@ -55,6 +55,7 @@ use App\Http\Controllers\Orangtua\AttendanceController as OrangtuaAttendance;
 use App\Http\Controllers\Orangtua\ConductController as OrangtuaConduct;
 use App\Http\Controllers\Orangtua\AchievementController as OrangtuaAchievement;
 use App\Http\Controllers\StudentCardVerificationController;
+use App\Http\Controllers\ChatController;
 use Illuminate\Support\Facades\Route;
 
 // ─── Halaman Utama ────────────────────────────────────────────────────────────
@@ -277,6 +278,14 @@ Route::middleware(['auth', 'role:guru,admin,pegawai'])->prefix('guru')->name('gu
         Route::get('/grades/pdf', [GuruExport::class, 'gradesPdf'])->name('grades.pdf');
         Route::get('/grades/excel', [GuruExport::class, 'gradesExcel'])->name('grades.excel');
     });
+
+    // Chat Konsultasi Wali Kelas (Siswa - Ortu - Wali Kelas)
+    Route::prefix('chat')->name('chat.')->group(function () {
+        Route::get('/', [ChatController::class, 'index'])->name('index');
+        Route::get('/{room}', [ChatController::class, 'show'])->name('show');
+        Route::get('/{room}/messages', [ChatController::class, 'getMessages'])->name('messages');
+        Route::post('/{room}/send', [ChatController::class, 'send'])->name('send');
+    });
 });
 
 // ─── Siswa ────────────────────────────────────────────────────────────────────
@@ -432,6 +441,14 @@ Route::middleware(['auth', 'role:siswa,pengelola', 'force.password.change'])->pr
         Route::delete('/{extracurricular}/leave', [SiswaExtracurricular::class, 'leave'])->name('leave');
         Route::delete('/{extracurricular}/cancel-join', [SiswaExtracurricular::class, 'cancelJoin'])->name('cancel-join');
     });
+
+    // Chat Konsultasi Siswa (Siswa - Ortu - Wali Kelas)
+    Route::prefix('chat')->name('chat.')->group(function () {
+        Route::get('/', [ChatController::class, 'index'])->name('index');
+        Route::get('/{room}', [ChatController::class, 'show'])->name('show');
+        Route::get('/{room}/messages', [ChatController::class, 'getMessages'])->name('messages');
+        Route::post('/{room}/send', [ChatController::class, 'send'])->name('send');
+    });
 });
 
 Route::middleware(['auth'])->post('/admin/students/{user}/delete-photo', function (\App\Models\User $user) {
@@ -461,7 +478,17 @@ Route::middleware(['auth', 'role:orangtua'])->prefix('orangtua')->name('orangtua
     Route::get('/children/{studentId}/attendance', [OrangtuaAttendance::class, 'history'])->name('attendance.history');
     Route::get('/children/{studentId}/conduct', [OrangtuaConduct::class, 'index'])->name('conduct.index');
     Route::get('/children/{studentId}/achievements', [OrangtuaAchievement::class, 'index'])->name('achievements.index');
+
+    // Chat Konsultasi Orang Tua (Siswa - Ortu - Wali Kelas)
+    Route::prefix('chat')->name('chat.')->group(function () {
+        Route::get('/', [ChatController::class, 'index'])->name('index');
+        Route::get('/{room}', [ChatController::class, 'show'])->name('show');
+        Route::get('/{room}/messages', [ChatController::class, 'getMessages'])->name('messages');
+        Route::post('/{room}/send', [ChatController::class, 'send'])->name('send');
+    });
 });
+
+Route::middleware(['auth'])->get('/chat-unread-count', [ChatController::class, 'unreadCount'])->name('chat.unread-count');
 
 // ─── Admin Extracurricular Management ───────────────────────────────────────
 Route::middleware(['auth', 'role:admin,superadmin,pengelola'])->prefix('admin/extracurriculars')->name('admin.extracurriculars.')->group(function () {

@@ -1,0 +1,263 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\ChatMessage;
+use App\Models\ChatRoom;
+use App\Services\ChatService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\View\View;
+
+class ChatController extends Controller
+{
+    public function __construct(protected ChatService $chatService)
+    {
+    }
+
+    /**
+     * Tampilkan daftar ruang obrolan sesuai role user
+     */
+    public function index(Request $request)
+    {
+        $user = auth()->user();
+        $rooms = $this->chatService->getRoomsForUser($user);
+
+        // Jika siswa dan punya room, langsung arahkan ke room miliknya
+        if ($user->isSiswa() && $rooms->isNotEmpty()) {
+            return redirect()->route('siswa.chat.show', $rooms->first()->id);
+        }
+
+        // Tentukan layout berdasarkan role
+        $layout = match ($user->role) {
+            'guru'     => 'layouts.guru',
+            'orangtua' => 'layouts.orangtua',
+            'siswa'    => 'layouts.siswa',
+            default    => 'layouts.app',
+        };
+
+        // Siapkan data ringkasan per room
+        $roomData = $rooms->map(function (ChatRoom $room) use ($user) {
+            return [
+                'room'         => $room,
+                'student'      => $room->student,
+                'class'        => $room->schoolClass,
+                'unread_count' => $room->unreadCountFor($user->id),
+                'last_message' => $room->last_message_text,
+                'last_time'    => $room->last_message_at?->diffForHumans() ?? '',
+            ];
+        });
+
+        return view('chat.index', [
+            'layout'   => $layout,
+            'roomData' => $roomData,
+            'user'     => $user,
+        ]);
+    }
+
+    /**
+     * Tampilkan ruang obrolan tertentu
+     */
+    public function show(ChatRoom $room, Request $request)
+    {
+        $user = auth()->user();
+
+        // Validasi partisipan
+        $isParticipant = $room->participants()->where('user_id', $user->id)->exists();
+        if (! $isParticipant) {
+            // Coba sinkronisasi jika kemungkinan baru ditambahkan
+            if ($user->isSiswa() && $room->student_id === $user->id) {
+                $this->chatService->syncRoomParticipants($room, $user);
+            } elseif ($user->isOrangtua() && $user->children->contains('id', $room->student_id)) {
+                $this->chatService->syncRoomParticipants($room, $room->student);
+            } elseif ($user->isGuru() && $user->homeroomClass?->id === $room->school_class_id) {
+                $this->chatService->syncRoomParticipants($room, $room->student);
+            } else {
+                abort(403, 'Anda tidak memiliki akses ke ruang konsultasi ini.');
+            }
+        }
+
+        // Tandai sudah dibaca
+        $this->chatService->markAsRead($room, $user);
+
+        // Muat riwayat pesan terakhir (50 pesan)
+        $messages = $room->messages()
+            ->with(['sender', 'reads'])
+            ->orderBy('id', 'asc')
+            ->limit(100)
+            ->get();
+
+        // Info partisipan
+        $participants = $room->participants()->with('user')->get();
+
+        $layout = match ($user->role) {
+            'guru'     => 'layouts.guru',
+            'orangtua' => 'layouts.orangtua',
+            'siswa'    => 'layouts.siswa',
+            default    => 'layouts.app',
+        };
+
+        $backUrl = match ($user->role) {
+            'guru'     => route('guru.chat.index'),
+            'orangtua' => route('orangtua.chat.index'),
+            'siswa'    => route('siswa.dashboard'),
+            default    => url('/'),
+        };
+
+        return view('chat.show', [
+            'layout'       => $layout,
+            'room'         => $room,
+            'messages'     => $messages,
+            'participants' => $participants,
+            'user'         => $user,
+            'backUrl'      => $backUrl,
+        ]);
+    }
+
+    /**
+     * API JSON: Polling pesan baru & status pembacaan
+     */
+    public function getMessages(ChatRoom $room, Request $request): JsonResponse
+    {
+        $user = auth()->user();
+
+        $isParticipant = $room->participants()->where('user_id', $user->id)->exists();
+        if (! $isParticipant) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $afterId = (int) $request->query('after_id', 0);
+
+        // Tandai sudah dibaca
+        $this->chatService->markAsRead($room, $user);
+
+        // Pesan baru setelah after_id
+        $newMessages = $room->messages()
+            ->with(['sender', 'reads'])
+            ->when($afterId > 0, fn($q) => $q->where('id', '>', $afterId))
+            ->orderBy('id', 'asc')
+            ->get();
+
+        $formattedMessages = $newMessages->map(function (ChatMessage $msg) use ($user, $room) {
+            return $this->formatMessagePayload($msg, $user, $room);
+        });
+
+        // Ambil juga status pembacaan untuk pesan-pesan yang dikirim oleh $user agar tanda centang bisa terupdate
+        $myRecentMessages = $room->messages()
+            ->where('sender_id', $user->id)
+            ->where('created_at', '>=', now()->subDays(2))
+            ->with('reads')
+            ->get();
+
+        $readStatuses = [];
+        $otherParticipantsCount = $room->participants()->where('user_id', '!=', $user->id)->count();
+
+        foreach ($myRecentMessages as $msg) {
+            $otherReads = $msg->reads->where('user_id', '!=', $user->id)->count();
+            $status = 'sent'; // default centang 1
+            if ($otherReads > 0) {
+                $status = ($otherParticipantsCount > 0 && $otherReads >= $otherParticipantsCount) ? 'read_all' : 'read';
+            }
+            $readStatuses[$msg->id] = $status;
+        }
+
+        return response()->json([
+            'messages'      => $formattedMessages,
+            'read_statuses' => $readStatuses,
+        ]);
+    }
+
+    /**
+     * Kirim pesan baru (AJAX / POST)
+     */
+    public function send(ChatRoom $room, Request $request)
+    {
+        $user = auth()->user();
+
+        $isParticipant = $room->participants()->where('user_id', $user->id)->exists();
+        if (! $isParticipant) {
+            abort(403, 'Unauthorized');
+        }
+
+        $validated = $request->validate([
+            'message'    => 'nullable|string|max:3000',
+            'attachment' => 'nullable|file|max:10240|mimes:jpg,jpeg,png,webp,pdf,doc,docx,xls,xlsx,txt',
+        ]);
+
+        if (empty(trim($validated['message'] ?? '')) && ! $request->hasFile('attachment')) {
+            if ($request->wantsJson()) {
+                return response()->json(['error' => 'Pesan atau lampiran tidak boleh kosong.'], 422);
+            }
+            return back()->with('error', 'Pesan atau lampiran tidak boleh kosong.');
+        }
+
+        $message = $this->chatService->sendMessage(
+            $room,
+            $user,
+            $validated['message'] ?? '',
+            $request->file('attachment')
+        );
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => $this->formatMessagePayload($message, $user, $room),
+            ]);
+        }
+
+        return back();
+    }
+
+    /**
+     * API JSON: Total unread count untuk navbar badge
+     */
+    public function unreadCount(Request $request): JsonResponse
+    {
+        $user = auth()->user();
+        if (! $user) {
+            return response()->json(['unread' => 0]);
+        }
+
+        $count = $this->chatService->getTotalUnreadCount($user);
+        return response()->json(['unread' => $count]);
+    }
+
+    /**
+     * Helper payload format
+     */
+    protected function formatMessagePayload(ChatMessage $msg, $currentUser, ChatRoom $room): array
+    {
+        $isMe = $msg->sender_id === $currentUser->id;
+        $roleLabel = match ($msg->sender?->role) {
+            'guru'     => 'Wali Kelas',
+            'orangtua' => 'Orang Tua',
+            'siswa'    => 'Siswa',
+            default    => '',
+        };
+
+        $otherParticipantsCount = $room->participants()->where('user_id', '!=', $msg->sender_id)->count();
+        $otherReadsCount = $msg->reads->where('user_id', '!=', $msg->sender_id)->count();
+
+        $readStatus = 'sent';
+        if ($otherReadsCount > 0) {
+            $readStatus = ($otherParticipantsCount > 0 && $otherReadsCount >= $otherParticipantsCount) ? 'read_all' : 'read';
+        }
+
+        return [
+            'id'              => $msg->id,
+            'sender_id'       => $msg->sender_id,
+            'sender_name'     => $msg->sender?->name ?? 'Pengguna',
+            'sender_role'     => $roleLabel,
+            'is_me'           => $isMe,
+            'message'         => $msg->message,
+            'attachment_url'  => $msg->attachment_path ? Storage::url($msg->attachment_path) : null,
+            'attachment_name' => $msg->attachment_name,
+            'attachment_type' => $msg->attachment_type,
+            'time'            => $msg->created_at->format('H:i'),
+            'date'            => $msg->created_at->format('d M Y'),
+            'read_status'     => $readStatus, // 'sent', 'read', 'read_all'
+            'reads_count'     => $otherReadsCount,
+        ];
+    }
+}
