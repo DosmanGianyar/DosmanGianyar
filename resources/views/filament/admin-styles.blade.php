@@ -342,30 +342,38 @@
     transform: translateY(-1px) !important;
 }
 
-/* Secondary ActionGroup Ellipsis Button */
+/* Icon Buttons in Table Actions: Sleek modern rounded squares with subtle border */
 .fi-ta-actions .fi-icon-btn,
 .fi-ta-actions .fi-ta-action-group .fi-icon-btn,
 .fi-ta-actions .fi-ta-action-group button {
-    border-radius: 9999px !important;
-    background: rgba(148, 163, 184, 0.08) !important;
-    border: 1px solid rgba(148, 163, 184, 0.22) !important;
-    color: #94a3b8 !important;
-    width: 1.85rem !important;
-    height: 1.85rem !important;
+    border-radius: 0.5rem !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    width: 2rem !important;
+    height: 2rem !important;
+    min-width: 2rem !important;
+    min-height: 2rem !important;
     padding: 0 !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
 .fi-ta-actions .fi-icon-btn:hover,
 .fi-ta-actions .fi-ta-action-group .fi-icon-btn:hover,
 .fi-ta-actions .fi-ta-action-group button:hover {
-    background: rgba(148, 163, 184, 0.2) !important;
-    border-color: rgba(148, 163, 184, 0.45) !important;
-    color: #f8fafc !important;
-    transform: translateY(-1px) !important;
+    background: rgba(255, 255, 255, 0.15) !important;
+    border-color: rgba(255, 255, 255, 0.28) !important;
+    transform: translateY(-1.5px) !important;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35) !important;
+}
+
+.fi-ta-actions .fi-icon-btn svg,
+.fi-ta-actions .fi-ta-action-group .fi-icon-btn svg {
+    width: 1.05rem !important;
+    height: 1.05rem !important;
+    flex-shrink: 0 !important;
 }
 
 .fi-dropdown-panel,
@@ -624,18 +632,22 @@
     width: 100% !important;
 }
 
-/* ─── Data Siswa: tombol aksi grid 2x2 ───────────────────────── */
-/* Di-scope lewat class di <body> (lihat script di bawah), bukan lewat
-   request()->routeIs() -- ketahuan tidak konsisten di dalam render hook
-   Filament (kemungkinan konteks request internal Livewire berbeda). */
+/* ─── Data Siswa: tombol aksi horizontal satu baris (single row nowrap, jarak rapi) ─── */
 body.sims-users-actions-grid .fi-ta-actions {
-    display: grid !important;
-    grid-template-columns: repeat(2, minmax(1.75rem, auto)) !important;
-    grid-auto-flow: row !important;
+    display: inline-flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
     align-items: center !important;
-    justify-items: center !important;
-    gap: 0.25rem !important;
-    width: fit-content !important;
+    justify-content: center !important;
+    gap: 0.35rem !important;
+    width: auto !important;
+}
+
+body.sims-users-actions-grid .fi-ta-table th.fi-ta-actions-header-cell,
+body.sims-users-actions-grid .fi-ta-table td.fi-ta-actions-cell,
+body.sims-users-actions-grid .fi-ta-table td.fi-ta-cell:has(.fi-ta-actions) {
+    min-width: 290px !important;
+    text-align: center !important;
 }
 /* ─── Dashboard Hero Banner — Explicit CSS (No Tailwind Dependency) ─── */
 .sims-dashboard-hero {
