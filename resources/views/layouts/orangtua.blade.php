@@ -85,7 +85,7 @@
     $isConduct     = request()->routeIs('orangtua.conduct.*');
     $isAchievement = request()->routeIs('orangtua.achievements.*');
 @endphp
-<nav class="fixed bottom-0 left-0 right-0 z-20 bg-white border-t border-gray-200 safe-area-bottom">
+<nav class="fixed bottom-0 left-0 right-0 z-20 bg-white/90 backdrop-blur-md border-t border-slate-200/80 shadow-lg shadow-slate-900/5 safe-area-bottom">
     <div class="flex items-center h-16">
 
         <a href="{{ route('orangtua.dashboard') }}"

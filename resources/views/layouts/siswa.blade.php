@@ -126,8 +126,8 @@
     @yield('content')
 </main>
 
-{{-- ─── Bottom Navigation ───────────────────────────────────────────── --}}
-<nav class="fixed bottom-0 left-0 right-0 z-20 bg-white border-t border-gray-200 safe-area-bottom">
+{{-- ─── Bottom Navigation (Frosted Glass Effect) ────────────────────── --}}
+<nav class="fixed bottom-0 left-0 right-0 z-20 bg-white/90 backdrop-blur-md border-t border-slate-200/80 shadow-lg shadow-slate-900/5 safe-area-bottom">
     @php
         $isKesiswaan = request()->routeIs(
             'siswa.kesiswaan',
