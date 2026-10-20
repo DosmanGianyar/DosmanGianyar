@@ -40,6 +40,32 @@ class ExtracurricularMemberResource extends Resource
         return (bool) ($user?->isGuru() && $user->isPembinaEkstra());
     }
 
+    public static function getNavigationBadge(): ?string
+    {
+        $query = static::getModel()::whereIn('status', ['pending_join', 'pending_leave']);
+        $user  = Auth::user();
+
+        if ($user?->isGuru() && ! AdminAccess::can('Prestasi & Ekskul')) {
+            $myExtraIds = Extracurricular::where('pembina_id', $user->id)
+                ->orWhereHas('teachers', fn ($q) => $q->where('users.id', $user->id))
+                ->pluck('id');
+            $query->whereIn('extracurricular_id', $myExtraIds);
+        }
+
+        $count = $query->count();
+        return $count > 0 ? (string) $count : null;
+    }
+
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return 'warning';
+    }
+
+    public static function getNavigationBadgeTooltip(): ?string
+    {
+        return 'Pengajuan Anggota Ekstra Menunggu Persetujuan';
+    }
+
     public static function canCreate(): bool
     {
         return false;

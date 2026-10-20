@@ -47,13 +47,18 @@ class StudentAchievementResource extends Resource
 
     public static function getNavigationBadge(): ?string
     {
-        $count = static::getModel()::where('status', 'pending')->where('curation_status', '!=', 'revision')->count();
+        $count = static::getModel()::where('status', 'pending')->count();
         return $count > 0 ? (string) $count : null;
     }
 
     public static function getNavigationBadgeColor(): ?string
     {
         return 'warning';
+    }
+
+    public static function getNavigationBadgeTooltip(): ?string
+    {
+        return 'Pengajuan Prestasi Siswa Menunggu Verifikasi';
     }
 
     public static function canCreate(): bool
