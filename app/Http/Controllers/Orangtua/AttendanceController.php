@@ -33,6 +33,7 @@ class AttendanceController extends Controller
             'summary'        => $data['summary'],
             'percentage'     => $data['attendance_percentage'],
             'totalDays'      => $data['total_days'],
+            'holidays'       => $data['holidays'] ?? [],
             'forgotRequests' => $data['forgot_requests'] ?? [],
             'start'          => $start,
             'prevMonth'      => $prevMonth,

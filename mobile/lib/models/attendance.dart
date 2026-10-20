@@ -133,6 +133,8 @@ class AttendanceRecord {
   final String? checkInTime;
   final String? checkOutTime;
   final String  status;
+  final String? holidayDescription;
+  final bool    isSpecial;
   final bool    isFakeGps;
   final String? checkInPhotoUrl;
   final String? checkOutPhotoUrl;
@@ -142,6 +144,8 @@ class AttendanceRecord {
     this.checkInTime,
     this.checkOutTime,
     required this.status,
+    this.holidayDescription,
+    this.isSpecial = false,
     required this.isFakeGps,
     this.checkInPhotoUrl,
     this.checkOutPhotoUrl,
@@ -149,13 +153,15 @@ class AttendanceRecord {
 
   factory AttendanceRecord.fromJson(Map<String, dynamic> json) {
     return AttendanceRecord(
-      date:             json['date']              as String,
-      checkInTime:      json['check_in_time']     as String?,
-      checkOutTime:     json['check_out_time']    as String?,
-      status:           json['status']            as String,
-      isFakeGps:        json['is_fake_gps']       as bool? ?? false,
-      checkInPhotoUrl:  json['check_in_photo_url']  as String?,
-      checkOutPhotoUrl: json['check_out_photo_url'] as String?,
+      date:                json['date']                as String,
+      checkInTime:         json['check_in_time']       as String?,
+      checkOutTime:        json['check_out_time']      as String?,
+      status:              json['status']              as String,
+      holidayDescription:  json['holiday_description'] as String?,
+      isSpecial:           json['is_special']          as bool? ?? false,
+      isFakeGps:           json['is_fake_gps']         as bool? ?? false,
+      checkInPhotoUrl:     json['check_in_photo_url']  as String?,
+      checkOutPhotoUrl:    json['check_out_photo_url'] as String?,
     );
   }
 
@@ -166,6 +172,7 @@ class AttendanceRecord {
     'sakit'      => 'Sakit',
     'alpa'       => 'Alpa',
     'dispensasi' => 'Dispensasi',
+    'libur'      => 'Libur',
     _            => status,
   };
 }

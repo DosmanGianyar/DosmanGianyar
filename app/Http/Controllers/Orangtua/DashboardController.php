@@ -41,9 +41,25 @@ class DashboardController extends Controller
                     })
                     ->count();
 
+            $todayHoliday = \App\Models\Holiday::whereDate('date', today())
+                ->where('type', 'libur')
+                ->where(fn ($q) => $q
+                    ->where('applies_to', 'semua')
+                    ->orWhere(fn ($q2) => $q2
+                        ->where('applies_to', 'kelas_tertentu')
+                        ->whereHas('schoolClasses', fn ($q3) => $q3->where('classes.id', $child->class_id))
+                    )
+                )
+                ->first();
+
+            $isWeekend = today()->isSunday();
+
             return [
                 'student'           => $child,
                 'today_attendance'  => $todayAttendance,
+                'today_holiday'     => $todayHoliday,
+                'is_weekend'        => $isWeekend,
+                'monthly_holidays'  => $monthData['holidays'] ?? [],
                 'monthly_summary'   => $monthData['summary'],
                 'percentage'        => $monthData['attendance_percentage'],
                 'total_days'        => $monthData['total_days'],

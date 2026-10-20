@@ -63,6 +63,19 @@ class StudentDataService
         $specialDays   = Holiday::getSpecialSchoolDates($start, $end, $student->class_id);
         $today         = today();
 
+        $holidayList = Holiday::whereBetween('date', [$start, $end])
+            ->where('type', 'libur')
+            ->where(fn ($q) => $q
+                ->where('applies_to', 'semua')
+                ->orWhere(fn ($q2) => $q2
+                    ->where('applies_to', 'kelas_tertentu')
+                    ->whereHas('schoolClasses', fn ($q3) => $q3->where('classes.id', $student->class_id))
+                )
+            )
+            ->with('schoolClasses')
+            ->orderBy('date')
+            ->get();
+
         $records = $rows->reject(function ($r) use ($holidays, $specialDays, $approvedDates) {
             $isSchool = Holiday::isSchoolDay($r->date, $holidays, $specialDays);
             if (! $isSchool) {
@@ -75,6 +88,8 @@ class StudentDataService
             'check_in_time'       => $r->check_in_time,
             'check_out_time'      => $r->check_out_time,
             'status'              => $r->effectiveStatus(isset($approvedDates[$r->date->format('Y-m-d')])),
+            'holiday_description' => null,
+            'is_special'          => false,
             'is_fake_gps'         => (bool) $r->is_fake_gps,
             'via_lupa_absen'      => (bool) $r->via_lupa_absen,
             'lupa_absen_type'     => $r->lupa_absen_type,
@@ -97,6 +112,33 @@ class StudentDataService
                 'check_in_time'       => null,
                 'check_out_time'      => null,
                 'status'              => $status,
+                'holiday_description' => null,
+                'is_special'          => false,
+                'is_fake_gps'         => false,
+                'via_lupa_absen'      => false,
+                'lupa_absen_type'     => null,
+                'check_in_photo_url'  => null,
+                'check_out_photo_url' => null,
+            ]);
+        }
+
+        // Tambahkan record tanggal libur (libur khusus maupun libur sekolah) agar orangtua mengetahui alasan siswa tidak sekolah
+        foreach ($holidayList as $h) {
+            $hDateStr = $h->date->format('Y-m-d');
+            if (isset($recordedDates[$hDateStr])) {
+                $existing = $records->firstWhere('date', $hDateStr);
+                if ($existing && in_array($existing['status'], ['hadir', 'terlambat'])) {
+                    continue;
+                }
+            }
+
+            $synthetic->push([
+                'date'                => $hDateStr,
+                'check_in_time'       => null,
+                'check_out_time'      => null,
+                'status'              => 'libur',
+                'holiday_description' => $h->description,
+                'is_special'          => $h->applies_to === 'kelas_tertentu',
                 'is_fake_gps'         => false,
                 'via_lupa_absen'      => false,
                 'lupa_absen_type'     => null,
@@ -119,13 +161,16 @@ class StudentDataService
             'sakit'               => $all->where('status', 'sakit')->count(),
             'alpa'                => $all->where('status', 'alpa')->count(),
             'dispensasi'          => $all->where('status', 'dispensasi')->count(),
+            'libur'               => $all->where('status', 'libur')->count(),
             'lupa_absen'          => $forgotRequests->count(),
             'lupa_absen_approved' => $forgotRequests->where('status', 'approved')->count(),
             'lupa_absen_pending'  => $forgotRequests->where('status', 'pending')->count(),
             'lupa_absen_rejected' => $forgotRequests->where('status', 'rejected')->count(),
         ];
 
-        $totalDays = count($all);
+        // Hari efektif sekolah (tidak termasuk hari libur)
+        $effectiveDays = $all->where('status', '!=', 'libur');
+        $totalDays = $effectiveDays->count();
         $totalHadir = $summary['hadir'] + $summary['terlambat'];
         $attendancePercentage = $totalDays > 0 ? round(($totalHadir / $totalDays) * 100, 1) : 100;
 
@@ -136,6 +181,12 @@ class StudentDataService
             'total_days'            => $totalDays,
             'attendance_percentage' => $attendancePercentage,
             'records'               => $all,
+            'holidays'              => $holidayList->map(fn ($h) => [
+                'date'        => $h->date->format('Y-m-d'),
+                'description' => $h->description,
+                'applies_to'  => $h->applies_to,
+                'is_special'  => $h->applies_to === 'kelas_tertentu',
+            ])->values()->all(),
             'forgot_requests'       => $forgotRequests->map(fn ($f) => [
                 'id'           => $f->id,
                 'date'         => $f->date->format('Y-m-d'),

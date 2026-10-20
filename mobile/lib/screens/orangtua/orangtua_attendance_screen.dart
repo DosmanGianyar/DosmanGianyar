@@ -299,6 +299,21 @@ class _RecordCard extends StatelessWidget {
                     ),
                   ],
                 ),
+                if (record.status == 'libur') ...[
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      const Icon(Icons.beach_access, size: 13, color: AppColors.blue600),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          record.holidayDescription ?? 'Libur Resmi Sekolah',
+                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.blue700),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
                 if (record.checkInTime != null || record.checkOutTime != null) ...[
                   const SizedBox(height: 4),
                   Row(
@@ -347,6 +362,7 @@ class _RecordCard extends StatelessWidget {
     'izin'       => (AppColors.blue600,    AppColors.blue100,    const Color(0xFF1E40AF)),
     'sakit'      => (AppColors.purple500,  const Color(0xFFF3E8FF), const Color(0xFF581C87)),
     'dispensasi' => (AppColors.teal500,    const Color(0xFFCCFBF1), const Color(0xFF134E4A)),
+    'libur'      => (AppColors.blue500,    const Color(0xFFE0F2FE), const Color(0xFF0369A1)),
     _            => (AppColors.red500,     AppColors.red100,     const Color(0xFF7F1D1D)),
   };
 }

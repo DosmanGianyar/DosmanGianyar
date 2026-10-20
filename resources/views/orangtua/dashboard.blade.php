@@ -72,6 +72,14 @@
                     <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full {{ $st['bg'] }}">
                         {{ $st['label'] }}
                     </span>
+                @elseif(!empty($data['today_holiday']))
+                    <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-800 border border-blue-200">
+                        🏖️ Libur: {{ $data['today_holiday']->description }}
+                    </span>
+                @elseif(!empty($data['is_weekend']))
+                    <span class="text-[11px] font-medium text-slate-500 bg-slate-200/60 px-2 py-0.5 rounded-full">
+                        🏖️ Libur Akhir Pekan
+                    </span>
                 @else
                     <span class="text-[11px] font-medium text-slate-400 bg-slate-200/60 px-2 py-0.5 rounded-full">
                         Belum Absen
@@ -121,9 +129,55 @@
                 </div>
                 @endif
             @else
-                <p class="text-xs text-slate-400 italic">Ananda belum tercatat melakukan absensi hari ini.</p>
+                @if(!empty($data['today_holiday']))
+                    <div class="mt-2 bg-blue-50/80 border border-blue-100 rounded-xl p-2.5 text-xs text-blue-800 flex items-start gap-2">
+                        <span class="text-sm">📌</span>
+                        <div>
+                            <p class="font-bold">Hari ini Libur: {{ $data['today_holiday']->description }}</p>
+                            <p class="text-[11px] text-blue-600 mt-0.5">
+                                {{ $data['today_holiday']->applies_to === 'kelas_tertentu' ? 'Libur khusus untuk kelas ini.' : 'Hari libur resmi seluruh sekolah.' }} Siswa tidak ada kegiatan belajar mengajar.
+                            </p>
+                        </div>
+                    </div>
+                @elseif(!empty($data['is_weekend']))
+                    <p class="text-xs text-slate-500 italic mt-1">Hari ini hari Minggu (akhir pekan), kegiatan belajar mengajar libur.</p>
+                @else
+                    <p class="text-xs text-slate-400 italic mt-1">Ananda belum tercatat melakukan absensi hari ini.</p>
+                @endif
             @endif
         </div>
+
+        {{-- Jadwal Hari Libur & Libur Khusus Bulan Ini --}}
+        @if(!empty($data['monthly_holidays']) && count($data['monthly_holidays']) > 0)
+        <div class="bg-gradient-to-br from-blue-50/80 to-indigo-50/40 rounded-2xl p-3.5 border border-blue-100/90 space-y-2.5">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-blue-950 flex items-center gap-1.5">
+                    <span>🏖️</span> Jadwal Libur & Libur Khusus Bulan Ini ({{ count($data['monthly_holidays']) }})
+                </span>
+                <span class="text-[10px] font-semibold text-blue-700 bg-blue-100 px-2 py-0.5 rounded-full">Informasi Resmi</span>
+            </div>
+            <div class="space-y-1.5">
+                @foreach($data['monthly_holidays'] as $h)
+                <div class="bg-white/90 backdrop-blur-xs rounded-xl p-2.5 px-3 border border-blue-100 flex items-center justify-between gap-2 text-xs shadow-2xs">
+                    <div class="min-w-0">
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-gray-800">{{ \Carbon\Carbon::parse($h['date'])->isoFormat('D MMMM Y') }}</span>
+                            @if(!empty($h['is_special']))
+                                <span class="text-[9px] font-bold px-1.5 py-0.2 rounded bg-purple-100 text-purple-700 border border-purple-200">Khusus Kelas</span>
+                            @else
+                                <span class="text-[9px] font-bold px-1.5 py-0.2 rounded bg-blue-100 text-blue-700 border border-blue-200">Libur Sekolah</span>
+                            @endif
+                        </div>
+                        <p class="text-[11px] text-gray-600 truncate mt-0.5 font-medium">📌 {{ $h['description'] }}</p>
+                    </div>
+                    <span class="text-[11px] text-gray-400 font-medium shrink-0">
+                        {{ \Carbon\Carbon::parse($h['date'])->isoFormat('dddd') }}
+                    </span>
+                </div>
+                @endforeach
+            </div>
+        </div>
+        @endif
 
         {{-- Monthly Attendance Card --}}
         <div onclick="window.location='{{ route('orangtua.attendance.history', $child->id) }}'" class="bg-white rounded-2xl p-3 border border-gray-100 shadow-sm cursor-pointer hover:border-blue-200 hover:shadow-md transition-all">

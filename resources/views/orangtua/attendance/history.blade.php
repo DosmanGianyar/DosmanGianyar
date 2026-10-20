@@ -141,6 +141,45 @@
     </div>
     @endif
 
+    {{-- ─── Informasi Hari Libur & Libur Khusus Bulan Ini ─────────────────── --}}
+    @if(!empty($holidays) && count($holidays) > 0)
+    <div class="bg-gradient-to-r from-blue-50/90 to-indigo-50/80 border border-blue-200/90 rounded-2xl p-4 space-y-3">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <span class="text-lg">🏖️</span>
+                <h2 class="text-xs font-bold text-blue-950 uppercase tracking-wide">Hari Libur & Libur Khusus Bulan Ini ({{ count($holidays) }})</h2>
+            </div>
+            <span class="text-[10px] font-semibold text-blue-700 bg-blue-100/90 px-2 py-0.5 rounded-full border border-blue-200">
+                Siswa Tidak Sekolah
+            </span>
+        </div>
+
+        <div class="grid gap-2">
+            @foreach($holidays as $h)
+            <div class="bg-white/95 backdrop-blur-xs rounded-xl p-3 border border-blue-100 flex items-start justify-between gap-3 shadow-2xs">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-bold text-gray-800">
+                            {{ \Illuminate\Support\Carbon::parse($h['date'])->isoFormat('dddd, D MMMM Y') }}
+                        </span>
+                        @if(!empty($h['is_special']))
+                            <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-purple-100 text-purple-700 border border-purple-200">
+                                Libur Khusus Kelas
+                            </span>
+                        @else
+                            <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 border border-blue-200">
+                                Libur Sekolah
+                            </span>
+                        @endif
+                    </div>
+                    <p class="text-xs text-gray-700 font-medium mt-1">📌 {{ $h['description'] }}</p>
+                </div>
+            </div>
+            @endforeach
+        </div>
+    </div>
+    @endif
+
     {{-- ─── Daftar Presensi ─────────────────────────────────────────────── --}}
     <div class="space-y-3">
         <div class="flex items-center justify-between px-1">
@@ -149,6 +188,29 @@
         </div>
 
         @forelse($records as $rec)
+        @if(($rec['status'] ?? null) === 'libur')
+        {{-- Card Tanggal Libur Khusus / Libur Sekolah --}}
+        <div class="bg-blue-50/60 rounded-2xl shadow-xs border border-blue-200/70 p-4 space-y-2">
+            <div class="flex items-center justify-between gap-2 border-b border-blue-100 pb-2">
+                <div class="flex items-center gap-2">
+                    <div class="w-2.5 h-2.5 rounded-full shrink-0 bg-blue-500"></div>
+                    <p class="text-sm font-bold text-gray-800">
+                        {{ \Illuminate\Support\Carbon::parse($rec['date'])->isoFormat('dddd, D MMMM Y') }}
+                    </p>
+                </div>
+                <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full border bg-blue-100 text-blue-800 border-blue-200 shrink-0">
+                    🏖️ {{ !empty($rec['is_special']) ? 'Libur Khusus' : 'Hari Libur' }}
+                </span>
+            </div>
+            <div class="flex items-center justify-between text-xs text-gray-600">
+                <div class="flex items-center gap-1.5">
+                    <span class="text-blue-700 font-semibold">Alasan Libur:</span>
+                    <span class="font-bold text-gray-800">{{ $rec['holiday_description'] ?? 'Libur Resmi Sekolah' }}</span>
+                </div>
+                <span class="text-[11px] text-blue-600 font-medium italic">Siswa tidak bersekolah</span>
+            </div>
+        </div>
+        @else
         @php
             $color = match($rec['status']) {
                 'hadir'      => ['dot' => 'bg-emerald-500', 'badge' => 'bg-emerald-100 text-emerald-800 border-emerald-200'],
@@ -232,6 +294,7 @@
             </div>
             @endif
         </div>
+        @endif
         @empty
         <div class="bg-white rounded-3xl shadow-sm border border-gray-100 py-12 text-center">
             <svg class="w-12 h-12 text-gray-300 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
