@@ -177,7 +177,16 @@ class _ChatListScreenState extends State<ChatListScreen> {
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        color: hasUnread ? AppColors.blue50.withValues(alpha: 0.5) : Colors.transparent,
+        decoration: BoxDecoration(
+          color: hasUnread ? const Color(0xFFEFF6FF) : Colors.white,
+          border: Border(
+            left: BorderSide(
+              color: hasUnread ? const Color(0xFF2563EB) : const Color(0xFFE2E8F0),
+              width: hasUnread ? 5.0 : 2.5,
+            ),
+            bottom: const BorderSide(color: Color(0xFFF1F5F9), width: 1.0),
+          ),
+        ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -207,9 +216,9 @@ class _ChatListScreenState extends State<ChatListScreen> {
                         child: Text(
                           room.studentName,
                           style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: hasUnread ? FontWeight.w800 : FontWeight.w700,
-                            color: AppColors.gray900,
+                            fontSize: 14.5,
+                            fontWeight: hasUnread ? FontWeight.w900 : FontWeight.w700,
+                            color: hasUnread ? const Color(0xFF0F172A) : AppColors.gray800,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -219,9 +228,9 @@ class _ChatListScreenState extends State<ChatListScreen> {
                         Text(
                           room.lastTimeHuman,
                           style: TextStyle(
-                            fontSize: 10,
-                            color: hasUnread ? AppColors.blue600 : AppColors.gray400,
-                            fontWeight: hasUnread ? FontWeight.bold : FontWeight.normal,
+                            fontSize: 10.5,
+                            color: hasUnread ? const Color(0xFF2563EB) : AppColors.gray400,
+                            fontWeight: hasUnread ? FontWeight.w900 : FontWeight.normal,
                           ),
                         ),
                     ],
@@ -232,7 +241,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
                   Row(
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
                         decoration: BoxDecoration(
                           color: AppColors.gray100,
                           borderRadius: BorderRadius.circular(6),
@@ -243,9 +252,9 @@ class _ChatListScreenState extends State<ChatListScreen> {
                         ),
                       ),
                       const SizedBox(width: 6),
-                      if (room.isPrivate)
+                      if (room.isPrivate) ...[
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
                           decoration: BoxDecoration(
                             color: const Color(0xFFFEF3C7),
                             borderRadius: BorderRadius.circular(6),
@@ -255,7 +264,8 @@ class _ChatListScreenState extends State<ChatListScreen> {
                             style: TextStyle(fontSize: 9.5, fontWeight: FontWeight.bold, color: Color(0xFFB45309)),
                           ),
                         ),
-                      const SizedBox(width: 6),
+                        const SizedBox(width: 6),
+                      ],
                       Expanded(
                         child: Text(
                           'Wali: ${room.homeroomTeacherName}',
@@ -266,18 +276,22 @@ class _ChatListScreenState extends State<ChatListScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 5),
 
                   // Last Message Snippet
                   Row(
                     children: [
+                      if (!hasUnread && room.lastMessage.isNotEmpty) ...[
+                        const Icon(Icons.done_all_rounded, size: 14, color: Color(0xFF0284C7)),
+                        const SizedBox(width: 4),
+                      ],
                       Expanded(
                         child: Text(
                           room.lastMessage.isNotEmpty ? room.lastMessage : 'Belum ada percakapan',
                           style: TextStyle(
                             fontSize: 12,
-                            color: hasUnread ? AppColors.gray800 : AppColors.gray500,
-                            fontWeight: hasUnread ? FontWeight.w600 : FontWeight.normal,
+                            color: hasUnread ? const Color(0xFF0F172A) : AppColors.gray500,
+                            fontWeight: hasUnread ? FontWeight.w800 : FontWeight.normal,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -286,14 +300,22 @@ class _ChatListScreenState extends State<ChatListScreen> {
                       if (hasUnread) ...[
                         const SizedBox(width: 6),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-                          decoration: const BoxDecoration(
-                            color: Color(0xFF25D366), // WhatsApp green unread badge
-                            shape: BoxShape.circle,
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2.5),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF25D366), // WhatsApp green unread badge
+                            borderRadius: BorderRadius.circular(10),
+                            boxShadow: const [
+                              BoxShadow(color: Color(0x3325D366), blurRadius: 4, offset: Offset(0, 1)),
+                            ],
                           ),
                           child: Text(
-                            '${room.unreadCount}',
-                            style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                            '${room.unreadCount} BARU',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 9.5,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: 0.3,
+                            ),
                           ),
                         ),
                       ],

@@ -16,6 +16,8 @@ class NotificationsScreen extends StatefulWidget {
 }
 
 class _NotificationsScreenState extends State<NotificationsScreen> {
+  String _selectedFilter = 'all'; // 'all', 'unread', 'read'
+
   @override
   void initState() {
     super.initState();
@@ -126,12 +128,13 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           Consumer<NotificationProvider>(
             builder: (_, prov, __) {
               if (prov.unreadCount == 0) return const SizedBox.shrink();
-              return TextButton(
-                onPressed: () => prov.markAllRead(),
-                child: const Text(
+              return TextButton.icon(
+                icon: const Icon(Icons.done_all_rounded, size: 16, color: Color(0xFF38BDF8)),
+                label: const Text(
                   'Tandai Baca',
-                  style: TextStyle(color: AppColors.blue200, fontSize: 11, fontWeight: FontWeight.bold),
+                  style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
                 ),
+                onPressed: () => prov.markAllRead(),
               );
             },
           ),
@@ -149,7 +152,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 margin: const EdgeInsets.all(24),
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.90),
+                  color: Colors.white.withValues(alpha: 0.95),
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: const Column(
@@ -173,30 +176,127 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             );
           }
 
-          final items = prov.notifications;
+          // Filter data
+          final allItems = prov.notifications;
+          final items = allItems.where((item) {
+            if (_selectedFilter == 'unread') return !item.isRead;
+            if (_selectedFilter == 'read') return item.isRead;
+            return true;
+          }).toList();
 
-          return RefreshIndicator(
-            onRefresh: () => prov.fetchAll(),
-            child: ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-              itemCount: items.length,
-              itemBuilder: (ctx, idx) {
-                final item = items[idx];
-                final currentDateStr = _formatDateHeader(item.createdAt);
-                final prevDateStr = idx > 0 ? _formatDateHeader(items[idx - 1].createdAt) : null;
-                final showDatePill = idx == 0 || currentDateStr != prevDateStr;
+          return Column(
+            children: [
+              // ─── Filter Bar: Semua, Belum Dibaca, Sudah Dibaca ───
+              _buildFilterBar(prov.unreadCount, allItems.length - prov.unreadCount, allItems.length),
 
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    if (showDatePill) _buildDatePill(currentDateStr),
-                    _buildTelegramPostBubble(item, () => prov.markRead(item.id)),
-                  ],
-                );
-              },
-            ),
+              // ─── List Notifikasi ───
+              Expanded(
+                child: RefreshIndicator(
+                  onRefresh: () => prov.fetchAll(),
+                  child: items.isEmpty
+                      ? Center(
+                          child: Container(
+                            margin: const EdgeInsets.all(24),
+                            padding: const EdgeInsets.all(20),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.95),
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  _selectedFilter == 'unread'
+                                      ? Icons.check_circle_rounded
+                                      : Icons.inbox_rounded,
+                                  size: 40,
+                                  color: _selectedFilter == 'unread' ? const Color(0xFF059669) : AppColors.gray400,
+                                ),
+                                const SizedBox(height: 10),
+                                Text(
+                                  _selectedFilter == 'unread'
+                                      ? 'Semua Pesan Sudah Dibaca! 🎉'
+                                      : 'Tidak Ada Pesan',
+                                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.gray800),
+                                ),
+                              ],
+                            ),
+                          ),
+                        )
+                      : ListView.builder(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                          itemCount: items.length,
+                          itemBuilder: (ctx, idx) {
+                            final item = items[idx];
+                            final currentDateStr = _formatDateHeader(item.createdAt);
+                            final prevDateStr = idx > 0 ? _formatDateHeader(items[idx - 1].createdAt) : null;
+                            final showDatePill = idx == 0 || currentDateStr != prevDateStr;
+
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                if (showDatePill) _buildDatePill(currentDateStr),
+                                _buildTelegramPostBubble(item, () => prov.markRead(item.id)),
+                              ],
+                            );
+                          },
+                        ),
+                ),
+              ),
+            ],
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildFilterBar(int unreadCount, int readCount, int totalCount) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      color: Colors.white,
+      child: Row(
+        children: [
+          _buildFilterChip('all', 'Semua ($totalCount)'),
+          const SizedBox(width: 8),
+          _buildFilterChip(
+            'unread',
+            'Belum Dibaca ($unreadCount)',
+            badgeColor: unreadCount > 0 ? const Color(0xFFDC2626) : null,
+          ),
+          const SizedBox(width: 8),
+          _buildFilterChip('read', 'Sudah Dibaca ($readCount)'),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFilterChip(String filterKey, String label, {Color? badgeColor}) {
+    final isSelected = _selectedFilter == filterKey;
+    return GestureDetector(
+      onTap: () => setState(() => _selectedFilter = filterKey),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? (badgeColor ?? const Color(0xFF0F2460))
+              : const Color(0xFFF1F5F9),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected
+                ? (badgeColor ?? const Color(0xFF0F2460))
+                : const Color(0xFFE2E8F0),
+            width: isSelected ? 1.4 : 1.0,
+          ),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: isSelected ? FontWeight.w900 : FontWeight.w600,
+            color: isSelected ? Colors.white : const Color(0xFF475569),
+          ),
+        ),
       ),
     );
   }
@@ -207,7 +307,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         margin: const EdgeInsets.symmetric(vertical: 10),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
         decoration: BoxDecoration(
-          color: Colors.black.withValues(alpha: 0.22),
+          color: Colors.black.withValues(alpha: 0.28),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Text(
@@ -219,6 +319,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   }
 
   Widget _buildTelegramPostBubble(NotificationItem item, VoidCallback onTap) {
+    final isUnread = !item.isRead;
+
     final (badgeLabel, badgeColor, badgeBg, badgeIcon) = switch (item.type) {
       'reminder_checkin'  => ('PRESENSI DATANG', const Color(0xFF0284C7), const Color(0xFFE0F2FE), Icons.login_rounded),
       'reminder_checkout' => ('PRESENSI PULANG', const Color(0xFFD97706), const Color(0xFFFEF3C7), Icons.logout_rounded),
@@ -235,32 +337,58 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       child: GestureDetector(
         onTap: onTap,
         child: Container(
-          margin: const EdgeInsets.symmetric(vertical: 4),
+          margin: const EdgeInsets.symmetric(vertical: 5),
           decoration: BoxDecoration(
-            color: item.isRead ? Colors.white : const Color(0xFFF8FAFC),
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(
-              color: item.isRead ? AppColors.gray200 : AppColors.blue200,
-              width: item.isRead ? 0.8 : 1.4,
-            ),
-            boxShadow: const [
-              BoxShadow(
-                color: Color(0x0A000000),
-                blurRadius: 4,
-                offset: Offset(0, 2),
+            // WARNA SANGAT TEGAS:
+            // Belum Dibaca: Tint Biru Terang Lembut + Border Biru Kuat + Bayangan Tegas
+            // Sudah Dibaca: Putih Netral Bersih + Border Abu-Abu Lembut
+            color: isUnread ? const Color(0xFFEFF6FF) : Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border(
+              left: BorderSide(
+                color: isUnread ? const Color(0xFF1D4ED8) : const Color(0xFFCBD5E1),
+                width: isUnread ? 5.5 : 3.0, // Bilah aksen kiri tebal untuk unread
               ),
-            ],
+              top: BorderSide(
+                color: isUnread ? const Color(0xFF93C5FD) : const Color(0xFFE2E8F0),
+                width: isUnread ? 1.4 : 0.8,
+              ),
+              right: BorderSide(
+                color: isUnread ? const Color(0xFF93C5FD) : const Color(0xFFE2E8F0),
+                width: isUnread ? 1.4 : 0.8,
+              ),
+              bottom: BorderSide(
+                color: isUnread ? const Color(0xFF93C5FD) : const Color(0xFFE2E8F0),
+                width: isUnread ? 1.4 : 0.8,
+              ),
+            ),
+            boxShadow: isUnread
+                ? [
+                    const BoxShadow(
+                      color: Color(0x281D4ED8),
+                      blurRadius: 10,
+                      offset: Offset(0, 3),
+                    ),
+                  ]
+                : const [
+                    BoxShadow(
+                      color: Color(0x0A000000),
+                      blurRadius: 3,
+                      offset: Offset(0, 1),
+                    ),
+                  ],
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ─── Header Post (Saluran SMA N 1 Gianyar) ───
+              // ─── Header Post (Badge Kategori & Status Belum/Sudah Dibaca) ───
               Padding(
-                padding: const EdgeInsets.fromLTRB(12, 10, 12, 6),
+                padding: const EdgeInsets.fromLTRB(14, 12, 14, 6),
                 child: Row(
                   children: [
+                    // Badge Kategori
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3.5),
                       decoration: BoxDecoration(
                         color: badgeBg,
                         borderRadius: BorderRadius.circular(6),
@@ -283,16 +411,57 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       ),
                     ),
                     const Spacer(),
-                    if (!item.isRead)
+
+                    // BADGE STATUS TEGAS DI POJOK KANAN ATAS
+                    if (isUnread)
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3.5),
                         decoration: BoxDecoration(
-                          color: AppColors.blue600,
-                          borderRadius: BorderRadius.circular(8),
+                          color: const Color(0xFFDC2626), // Merah Menyala Tegas
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: const [
+                            BoxShadow(color: Color(0x33DC2626), blurRadius: 4, offset: Offset(0, 1)),
+                          ],
                         ),
-                        child: const Text(
-                          'BARU',
-                          style: TextStyle(color: Colors.white, fontSize: 8.5, fontWeight: FontWeight.bold),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.mark_email_unread_rounded, size: 11, color: Colors.white),
+                            SizedBox(width: 4),
+                            Text(
+                              'BELUM DIBACA',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 9.5,
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: 0.4,
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    else
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2.5),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF1F5F9),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: const Color(0xFFE2E8F0)),
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.done_all_rounded, size: 13, color: Color(0xFF0284C7)),
+                            SizedBox(width: 3),
+                            Text(
+                              'Sudah Dibaca',
+                              style: TextStyle(
+                                color: Color(0xFF64748B),
+                                fontSize: 9,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                   ],
@@ -308,7 +477,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     title: item.title,
                   ),
                   child: Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     clipBehavior: Clip.antiAlias,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
@@ -323,15 +492,15 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   ),
                 ),
 
-              // ─── Judul Pesan ───
+              // ─── Judul Pesan (Lebih Tegas untuk Unread) ───
               Padding(
-                padding: const EdgeInsets.fromLTRB(12, 4, 12, 2),
+                padding: const EdgeInsets.fromLTRB(14, 4, 14, 3),
                 child: Text(
                   item.title,
                   style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: item.isRead ? FontWeight.bold : FontWeight.w900,
-                    color: AppColors.gray900,
+                    fontSize: isUnread ? 15 : 14,
+                    fontWeight: isUnread ? FontWeight.w900 : FontWeight.w700,
+                    color: isUnread ? const Color(0xFF0F172A) : const Color(0xFF475569),
                     height: 1.3,
                   ),
                 ),
@@ -339,33 +508,84 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
               // ─── Isi Pesan Lengkap ───
               Padding(
-                padding: const EdgeInsets.fromLTRB(12, 2, 12, 8),
+                padding: const EdgeInsets.fromLTRB(14, 2, 14, 10),
                 child: Text(
                   item.body,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
-                    color: Color(0xFF334155),
+                    color: isUnread ? const Color(0xFF1E293B) : const Color(0xFF64748B),
+                    fontWeight: isUnread ? FontWeight.w500 : FontWeight.normal,
                     height: 1.45,
                   ),
                 ),
               ),
 
-              // ─── Footer: Jam & Centang Dua (WA/Telegram style) ───
-              Padding(
-                padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+              // ─── Footer: Jam & Indikator Status Tegas (WA/Telegram style) ───
+              Container(
+                padding: const EdgeInsets.fromLTRB(14, 6, 14, 8),
+                decoration: BoxDecoration(
+                  color: isUnread ? const Color(0xFFE0E7FF).withValues(alpha: 0.3) : const Color(0xFFF8FAFC),
+                  borderRadius: const BorderRadius.only(
+                    bottomLeft: Radius.circular(15),
+                    bottomRight: Radius.circular(15),
+                  ),
+                ),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     Text(
                       timeStr,
-                      style: const TextStyle(fontSize: 10, color: Color(0xFF94A3B8)),
+                      style: TextStyle(
+                        fontSize: 10.5,
+                        color: isUnread ? const Color(0xFF475569) : const Color(0xFF94A3B8),
+                        fontWeight: isUnread ? FontWeight.bold : FontWeight.normal,
+                      ),
                     ),
-                    const SizedBox(width: 4),
-                    Icon(
-                      Icons.done_all_rounded,
-                      size: 15,
-                      color: item.isRead ? const Color(0xFF38BDF8) : const Color(0xFF94A3B8), // Biru jika sudah dibaca
-                    ),
+                    const Spacer(),
+
+                    // Indikator Status Bawah
+                    if (isUnread) ...[
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFEF2F2),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: const Color(0xFFFCA5A5), width: 1),
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.fiber_manual_record, size: 7, color: Color(0xFFDC2626)),
+                            SizedBox(width: 4),
+                            Text(
+                              'Belum Dibaca',
+                              style: TextStyle(fontSize: 9.5, fontWeight: FontWeight.w900, color: Color(0xFFDC2626)),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      const Icon(Icons.done_rounded, size: 16, color: Color(0xFF94A3B8)), // Centang 1 abu-abu
+                    ] else ...[
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFE0F2FE),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: const Color(0xFFBAE6FD), width: 1),
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'Dibaca',
+                              style: TextStyle(fontSize: 9.5, fontWeight: FontWeight.w800, color: Color(0xFF0284C7)),
+                            ),
+                            SizedBox(width: 4),
+                            Icon(Icons.done_all_rounded, size: 16, color: Color(0xFF0284C7)), // Double blue tick WA
+                          ],
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),

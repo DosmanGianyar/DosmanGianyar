@@ -647,8 +647,10 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                     const SizedBox(width: 4),
                     Icon(
                       Icons.done_all_rounded,
-                      size: 15,
-                      color: msg.readStatus == 'read_all' ? const Color(0xFF38BDF8) : const Color(0xFF94A3B8), // Biru jika dibaca semua, abu jika terkirim
+                      size: 16,
+                      color: msg.readStatus == 'read_all'
+                          ? const Color(0xFF0284C7) // Biru tegas WhatsApp saat sudah dibaca
+                          : const Color(0xFF64748B), // Abu-abu netral jelas saat belum dibaca
                     ),
                   ],
                 ],
