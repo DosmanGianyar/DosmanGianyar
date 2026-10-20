@@ -52,28 +52,28 @@ class ChatMessage extends Model
      */
     public function getReadDetailsAttribute(): array
     {
-        return $this->reads()
-            ->where('user_id', '!=', $this->sender_id)
-            ->with('user')
-            ->get()
-            ->map(function ($read) {
-                $roleLabel = match ($read->user?->role) {
-                    'guru'     => 'Wali Kelas',
-                    'orangtua' => 'Orang Tua',
-                    'siswa'    => 'Siswa',
-                    default    => 'Pengguna',
-                };
+        $reads = $this->relationLoaded('reads')
+            ? $this->reads->where('user_id', '!=', $this->sender_id)
+            : $this->reads()->where('user_id', '!=', $this->sender_id)->with('user')->get();
 
-                return [
-                    'user_id'   => $read->user_id,
-                    'user_name' => $read->user?->name ?? 'Pengguna',
-                    'role'      => $roleLabel,
-                    'read_at'   => $read->read_at?->format('H:i') ?? '',
-                    'read_date' => $read->read_at?->isoFormat('D MMM Y') ?? '',
-                ];
-            })
-            ->values()
-            ->toArray();
+        return $reads->map(function ($read) {
+            $roleLabel = match ($read->user?->role) {
+                'guru'     => 'Wali Kelas',
+                'orangtua' => 'Orang Tua',
+                'siswa'    => 'Siswa',
+                default    => 'Pengguna',
+            };
+
+            return [
+                'user_id'   => $read->user_id,
+                'user_name' => $read->user?->name ?? 'Pengguna',
+                'role'      => $roleLabel,
+                'read_at'   => $read->read_at?->format('H:i') ?? '',
+                'read_date' => $read->read_at?->isoFormat('D MMM Y') ?? '',
+            ];
+        })
+        ->values()
+        ->toArray();
     }
 
     /**
@@ -102,15 +102,17 @@ class ChatMessage extends Model
      */
     public function getReadStatusAttribute(): string
     {
-        $readsCount = $this->reads()->where('user_id', '!=', $this->sender_id)->count();
+        $readsCount = $this->relationLoaded('reads')
+            ? $this->reads->where('user_id', '!=', $this->sender_id)->count()
+            : $this->reads()->where('user_id', '!=', $this->sender_id)->count();
+
         if ($readsCount === 0) {
             return 'sent'; // centang abu-abu
         }
 
         // Hitung total partisipan lain di room selain pengirim
-        $otherParticipantsCount = $this->chatRoom->participants()
-            ->where('user_id', '!=', $this->sender_id)
-            ->count();
+        $room = $this->relationLoaded('chatRoom') ? $this->chatRoom : ChatRoom::find($this->chat_room_id);
+        $otherParticipantsCount = $room ? $room->participants()->where('user_id', '!=', $this->sender_id)->count() : 0;
 
         return ($otherParticipantsCount > 0 && $readsCount >= $otherParticipantsCount)
             ? 'read_all'

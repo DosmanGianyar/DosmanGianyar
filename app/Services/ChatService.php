@@ -330,9 +330,9 @@ class ChatService
 
             \App\Services\NotificationService::send(
                 $targetUser->id,
-                'chat',
                 "Pesan Baru dari {$senderTitle}",
                 $preview ?: 'Mengirim sebuah lampiran',
+                'chat',
                 $route
             );
         }

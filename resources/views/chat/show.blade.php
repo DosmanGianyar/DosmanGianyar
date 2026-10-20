@@ -381,11 +381,13 @@
     // Toggle Sound Button
     const btnToggleSound = document.getElementById('btnToggleSound');
     const soundIcon = document.getElementById('soundIcon');
-    btnToggleSound.addEventListener('click', function () {
-        soundEnabled = !soundEnabled;
-        soundIcon.textContent = soundEnabled ? '🔔' : '🔕';
-        btnToggleSound.title = soundEnabled ? 'Suara Notifikasi Aktif' : 'Suara Notifikasi Dibisukan';
-    });
+    if (btnToggleSound && soundIcon) {
+        btnToggleSound.addEventListener('click', function () {
+            soundEnabled = !soundEnabled;
+            soundIcon.textContent = soundEnabled ? '🔔' : '🔕';
+            btnToggleSound.title = soundEnabled ? 'Suara Notifikasi Aktif' : 'Suara Notifikasi Dibisukan';
+        });
+    }
 
     // 2. Image Lightbox
     function openImagePreview(url, caption) {

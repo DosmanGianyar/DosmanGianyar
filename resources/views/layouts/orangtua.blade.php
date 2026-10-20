@@ -152,5 +152,6 @@ if ('serviceWorker' in navigator) {
 </script>
 @include('components.image-lightbox')
 @include('chat.partials.unread-poller')
+@stack('scripts')
 </body>
 </html>
