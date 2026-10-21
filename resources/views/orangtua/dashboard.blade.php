@@ -24,13 +24,23 @@
                 </span>
             </div>
 
-            <div>
-                <h1 class="text-xl font-black tracking-tight leading-tight text-white drop-shadow-xs">
-                    Selamat datang, {{ auth()->user()->name }}! 👋
-                </h1>
-                <p class="text-xs text-blue-100/90 font-medium mt-1">
-                    Pantau kehadiran, catatan kedisiplinan & prestasi putra/putri Anda secara langsung.
-                </p>
+            <div class="flex items-center justify-between gap-3 pt-1">
+                <div>
+                    <h1 class="text-xl font-black tracking-tight leading-tight text-white drop-shadow-xs">
+                        Selamat datang, {{ auth()->user()->name }}! 👋
+                    </h1>
+                    <p class="text-xs text-blue-100/90 font-medium mt-1">
+                        Pantau kehadiran, catatan kedisiplinan & prestasi putra/putri Anda secara langsung.
+                    </p>
+                </div>
+                <a href="{{ route('orangtua.profile') }}"
+                   class="shrink-0 px-3 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 active:scale-95 text-white text-xs font-bold border border-white/20 transition-all flex items-center gap-1.5 shadow-2xs"
+                   title="Buka & Edit Profil Orang Tua">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                    </svg>
+                    <span>Profil</span>
+                </a>
             </div>
         </div>
     </div>

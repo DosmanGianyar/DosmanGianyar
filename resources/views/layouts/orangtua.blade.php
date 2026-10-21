@@ -47,9 +47,15 @@
     <h2 class="text-sm font-semibold text-white tracking-wide">@yield('page-title', 'Beranda')</h2>
 
     <div class="flex items-center gap-2">
-        <div class="w-8 h-8 rounded-full bg-white/20 ring-2 ring-white/40 flex items-center justify-center text-white text-xs font-bold">
-            {{ auth()->user()->initials }}
-        </div>
+        <a href="{{ route('orangtua.profile') }}"
+           class="w-8 h-8 rounded-full bg-white/20 ring-2 ring-white/40 flex items-center justify-center text-white text-xs font-bold hover:bg-white/30 transition-all overflow-hidden shrink-0 shadow-2xs"
+           title="Profil Saya">
+            @if(auth()->user()->photo)
+                <img src="{{ auth()->user()->photo_url }}" alt="{{ auth()->user()->name }}" class="w-full h-full object-cover">
+            @else
+                {{ auth()->user()->initials }}
+            @endif
+        </a>
         <form method="POST" action="{{ route('logout') }}">
             @csrf
             <button type="submit" title="Keluar"

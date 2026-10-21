@@ -21,6 +21,7 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  final _nameCtrl    = TextEditingController();
   final _phoneCtrl   = TextEditingController();
   final _addressCtrl = TextEditingController();
   final _curPassCtrl = TextEditingController();
@@ -38,12 +39,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void initState() {
     super.initState();
     final user = context.read<AuthProvider>().user;
+    _nameCtrl.text    = user?.name    ?? '';
     _phoneCtrl.text   = user?.phone   ?? '';
     _addressCtrl.text = user?.address ?? '';
   }
 
   @override
   void dispose() {
+    _nameCtrl.dispose();
     _phoneCtrl.dispose();
     _addressCtrl.dispose();
     _curPassCtrl.dispose();
@@ -53,12 +56,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _saveProfile() async {
+    final user = context.read<AuthProvider>().user;
+    final isOrangtua = user?.role == 'orangtua';
+
+    if (isOrangtua && _nameCtrl.text.trim().isEmpty) {
+      _showSnack('Nama orang tua tidak boleh kosong.');
+      return;
+    }
+
     setState(() => _savingProfile = true);
     try {
-      final body = await ApiClient.put('/auth/profile', data: {
-        'phone':   _phoneCtrl.text.trim(),
+      final payload = <String, dynamic>{
         'address': _addressCtrl.text.trim(),
-      });
+      };
+      if (isOrangtua) {
+        payload['name'] = _nameCtrl.text.trim();
+        // Nomor HP orang tua tidak dikirim agar tidak dapat diubah
+      } else {
+        payload['phone'] = _phoneCtrl.text.trim();
+      }
+
+      final body = await ApiClient.put('/auth/profile', data: payload);
       if (!mounted) return;
       final updatedUser = User.fromJson(body['user'] as Map<String, dynamic>);
       context.read<AuthProvider>().updateUser(updatedUser);
@@ -202,6 +220,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
               const SizedBox(height: 12),
             ],
             _EditDataCard(
+              user:        user,
+              nameCtrl:    _nameCtrl,
               phoneCtrl:   _phoneCtrl,
               addressCtrl: _addressCtrl,
               isSaving:    _savingProfile,
@@ -563,12 +583,16 @@ class _ParentRow extends StatelessWidget {
 // ─── Edit Data Card ───────────────────────────────────────────────────────────
 
 class _EditDataCard extends StatelessWidget {
+  final User? user;
+  final TextEditingController nameCtrl;
   final TextEditingController phoneCtrl;
   final TextEditingController addressCtrl;
   final bool         isSaving;
   final VoidCallback onSave;
 
   const _EditDataCard({
+    this.user,
+    required this.nameCtrl,
     required this.phoneCtrl,
     required this.addressCtrl,
     required this.isSaving,
@@ -577,6 +601,8 @@ class _EditDataCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isOrangtua = user?.role == 'orangtua';
+
     return Container(
       decoration: BoxDecoration(
         color:        AppColors.white,
@@ -588,21 +614,57 @@ class _EditDataCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Edit Data Diri',
-            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.gray700)),
+          Row(
+            children: [
+              Icon(
+                isOrangtua ? Icons.badge_outlined : Icons.edit_note_rounded,
+                size: 18,
+                color: AppColors.blue600,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                isOrangtua ? 'Edit Data Profil Orang Tua' : 'Edit Data Diri',
+                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.gray700),
+              ),
+            ],
+          ),
           const SizedBox(height: 12),
-          _ProfileInput(
-            controller: phoneCtrl,
-            label:      'No. HP Siswa',
-            hint:       '08xxxxxxxxxx',
-            keyboard:   TextInputType.phone,
-          ),
-          const SizedBox(height: 10),
-          _ProfileInput(
-            controller: addressCtrl,
-            label:      'Alamat',
-            hint:       'Jl. ...',
-          ),
+          if (isOrangtua) ...[
+            _ProfileInput(
+              controller: nameCtrl,
+              label:      'Nama Lengkap Orang Tua / Wali',
+              hint:       'Masukkan nama lengkap Anda',
+            ),
+            const SizedBox(height: 10),
+            _ProfileInput(
+              controller: phoneCtrl,
+              label:      'No. HP / WhatsApp (ID Login Akun)',
+              hint:       '08xxxxxxxxxx',
+              enabled:    false,
+              helperText: 'Nomor HP digunakan sebagai ID login Anda dan terhubung ke data siswa. Nomor HP tidak dapat diubah secara mandiri.',
+              keyboard:   TextInputType.phone,
+              suffix:     const Icon(Icons.lock_rounded, size: 16, color: AppColors.gray400),
+            ),
+            const SizedBox(height: 10),
+            _ProfileInput(
+              controller: addressCtrl,
+              label:      'Alamat Tempat Tinggal',
+              hint:       'Jl. ...',
+            ),
+          ] else ...[
+            _ProfileInput(
+              controller: phoneCtrl,
+              label:      'No. HP Siswa',
+              hint:       '08xxxxxxxxxx',
+              keyboard:   TextInputType.phone,
+            ),
+            const SizedBox(height: 10),
+            _ProfileInput(
+              controller: addressCtrl,
+              label:      'Alamat',
+              hint:       'Jl. ...',
+            ),
+          ],
           const SizedBox(height: 14),
           SizedBox(
             width: double.infinity,
@@ -616,7 +678,7 @@ class _EditDataCard extends StatelessWidget {
               child: isSaving
                   ? const SizedBox(width: 18, height: 18,
                       child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                  : const Text('Simpan',
+                  : const Text('Simpan Profil',
                       style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
             ),
           ),
@@ -1254,7 +1316,9 @@ class _ProfileInput extends StatelessWidget {
   final TextEditingController controller;
   final String           label;
   final String?          hint;
+  final String?          helperText;
   final bool             obscure;
+  final bool             enabled;
   final TextInputType    keyboard;
   final Widget?          suffix;
 
@@ -1262,7 +1326,9 @@ class _ProfileInput extends StatelessWidget {
     required this.controller,
     required this.label,
     this.hint,
+    this.helperText,
     this.obscure    = false,
+    this.enabled    = true,
     this.keyboard   = TextInputType.text,
     this.suffix,
   });
@@ -1277,15 +1343,20 @@ class _ProfileInput extends StatelessWidget {
         const SizedBox(height: 4),
         TextField(
           controller:  controller,
+          enabled:     enabled,
           obscureText: obscure,
           keyboardType: keyboard,
-          style: const TextStyle(fontSize: 13, color: AppColors.gray700),
+          style: TextStyle(
+            fontSize: 13,
+            color: enabled ? AppColors.gray700 : AppColors.gray500,
+            fontWeight: enabled ? FontWeight.normal : FontWeight.w600,
+          ),
           decoration: InputDecoration(
             hintText:       hint,
             hintStyle:      const TextStyle(fontSize: 13, color: AppColors.gray400),
             suffixIcon:     suffix,
             filled:         true,
-            fillColor:      AppColors.gray50,
+            fillColor:      enabled ? AppColors.gray50 : const Color(0xFFF1F5F9),
             contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             border: const OutlineInputBorder(
               borderRadius: AppRadius.input,
@@ -1295,12 +1366,35 @@ class _ProfileInput extends StatelessWidget {
               borderRadius: AppRadius.input,
               borderSide:   BorderSide(color: AppColors.gray200),
             ),
+            disabledBorder: const OutlineInputBorder(
+              borderRadius: AppRadius.input,
+              borderSide:   BorderSide(color: Color(0xFFE2E8F0)),
+            ),
             focusedBorder: const OutlineInputBorder(
               borderRadius: AppRadius.input,
               borderSide:   BorderSide(color: AppColors.blue600, width: 2),
             ),
           ),
         ),
+        if (helperText != null) ...[
+          const SizedBox(height: 4),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Padding(
+                padding: EdgeInsets.only(top: 1),
+                child: Icon(Icons.info_outline_rounded, size: 12, color: Color(0xFFD97706)),
+              ),
+              const SizedBox(width: 4),
+              Expanded(
+                child: Text(
+                  helperText!,
+                  style: const TextStyle(fontSize: 10.5, color: Color(0xFFB45309), height: 1.3),
+                ),
+              ),
+            ],
+          ),
+        ],
       ],
     );
   }

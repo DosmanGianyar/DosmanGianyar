@@ -54,6 +54,7 @@ use App\Http\Controllers\Orangtua\DashboardController as OrangtuaDashboard;
 use App\Http\Controllers\Orangtua\AttendanceController as OrangtuaAttendance;
 use App\Http\Controllers\Orangtua\ConductController as OrangtuaConduct;
 use App\Http\Controllers\Orangtua\AchievementController as OrangtuaAchievement;
+use App\Http\Controllers\Orangtua\ProfileController as OrangtuaProfile;
 use App\Http\Controllers\StudentCardVerificationController;
 use App\Http\Controllers\ChatController;
 use Illuminate\Support\Facades\Route;
@@ -482,6 +483,12 @@ Route::middleware(['auth', 'role:orangtua'])->prefix('orangtua')->name('orangtua
     Route::get('/children/{studentId}/attendance', [OrangtuaAttendance::class, 'history'])->name('attendance.history');
     Route::get('/children/{studentId}/conduct', [OrangtuaConduct::class, 'index'])->name('conduct.index');
     Route::get('/children/{studentId}/achievements', [OrangtuaAchievement::class, 'index'])->name('achievements.index');
+
+    // Profil Orang Tua
+    Route::get('/profile', [OrangtuaProfile::class, 'show'])->name('profile');
+    Route::put('/profile', [OrangtuaProfile::class, 'update'])->name('profile.update');
+    Route::put('/profile/password', [OrangtuaProfile::class, 'updatePassword'])->name('profile.password');
+    Route::post('/profile/photo', [OrangtuaProfile::class, 'updatePhoto'])->name('profile.photo');
 
     // Chat Konsultasi Orang Tua (Siswa - Ortu - Wali Kelas)
     Route::prefix('chat')->name('chat.')->group(function () {

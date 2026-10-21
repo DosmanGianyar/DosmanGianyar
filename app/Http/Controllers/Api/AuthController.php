@@ -343,6 +343,7 @@ class AuthController extends Controller
         }
 
         $validated = $request->validate([
+            'name'                 => 'sometimes|nullable|string|max:100',
             'email'                => 'nullable|email|max:255|unique:users,email,' . $user->id,
             'phone'                => 'nullable|string|max:50',
             'nickname'             => 'nullable|string|max:50',
@@ -419,6 +420,23 @@ class AuthController extends Controller
             'admission_major'      => 'nullable|string|max:50',
             'admission_date'       => 'nullable|date',
         ]);
+
+        if ($user->isOrangtua()) {
+            // Orang tua dilarang mengganti nomor HP secara mandiri
+            unset($validated['phone']);
+
+            if (array_key_exists('name', $validated)) {
+                $trimmedName = trim((string) $validated['name']);
+                if ($trimmedName === '') {
+                    return response()->json([
+                        'message' => 'Nama lengkap orang tua tidak boleh kosong.',
+                        'errors'  => ['name' => ['Nama lengkap orang tua tidak boleh kosong.']],
+                    ], 422);
+                }
+                $validated['name'] = $trimmedName;
+                $user->children()->update(['parent_name' => $trimmedName]);
+            }
+        }
 
         $user->update($validated);
 
