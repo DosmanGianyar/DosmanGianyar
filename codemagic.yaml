@@ -17,13 +17,10 @@ workflows:
         - pattern: main
           include: false
     scripts:
-      - name: Get Flutter packages
+      - name: Prepare Flutter and dependencies
         script: |
+          flutter precache --ios
           flutter packages pub get
-      - name: Install CocoaPods dependencies
-        script: |
-          cd ios
-          pod install
       - name: Flutter build iOS (Release / Unsigned)
         script: |
           flutter build ios --release --no-codesign
