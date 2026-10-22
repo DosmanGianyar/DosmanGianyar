@@ -19,6 +19,8 @@ workflows:
     scripts:
       - name: Prepare Flutter and dependencies
         script: |
+          flutter config --no-enable-swift-package-manager
+          flutter clean
           flutter precache --ios
           flutter packages pub get
       - name: Flutter build iOS (Release / Unsigned)
