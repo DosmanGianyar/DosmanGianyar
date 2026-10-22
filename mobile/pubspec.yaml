@@ -1,6 +1,6 @@
 name: sims_mobile
 description: SIMAK DOSMAN Mobile - Smart Attendance App SMA Negeri 1 Gianyar
-version: 1.5.7+2038
+version: 1.5.8+2039
 
 environment:
   sdk: ">=3.2.0 <4.0.0"
