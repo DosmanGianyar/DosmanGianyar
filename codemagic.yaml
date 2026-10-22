@@ -1,0 +1,37 @@
+workflows:
+  ios-test-build:
+    name: iOS Build (Test / Unsigned)
+    max_build_duration: 60
+    instance_type: mac_mini_m2
+    working_directory: mobile
+    environment:
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+    # Triggering otomatis dinonaktifkan agar tidak menghabiskan kuota menit gratis setiap kali ada push Laravel/Web.
+    # Anda dapat memicu build kapan saja dengan menekan tombol "Start new build" di Codemagic.
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: main
+          include: false
+    scripts:
+      - name: Get Flutter packages
+        script: |
+          flutter packages pub get
+      - name: Install CocoaPods dependencies
+        script: |
+          cd ios
+          pod install
+      - name: Flutter build iOS (Release / Unsigned)
+        script: |
+          flutter build ios --release --no-codesign
+      - name: Compress Runner.app into ZIP
+        script: |
+          cd build/ios/iphoneos
+          zip -r -y Runner.app.zip Runner.app
+    artifacts:
+      - mobile/build/ios/iphoneos/Runner.app.zip
+      - build/ios/iphoneos/Runner.app.zip
+      - /tmp/xcodebuild_logs/*.log
