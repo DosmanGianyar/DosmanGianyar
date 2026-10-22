@@ -1,4 +1,48 @@
 workflows:
+  ios-release-testflight:
+    name: iOS Release (TestFlight / App Store)
+    max_build_duration: 60
+    instance_type: mac_mini_m2
+    working_directory: mobile
+    environment:
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.sman1gianyar.simsMobile
+    # Triggering otomatis dinonaktifkan agar hemat kuota build.
+    # Jalankan build manual via tombol "Start new build" di Codemagic.
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: main
+          include: false
+    scripts:
+      - name: Prepare Flutter and dependencies
+        script: |
+          flutter config --no-enable-swift-package-manager
+          flutter clean
+          flutter precache --ios
+          flutter packages pub get
+      - name: Set up code signing settings on Xcode project
+        script: |
+          xcode-project use-profiles
+      - name: Flutter build IPA
+        script: |
+          flutter build ipa --release \
+            --export-options-plist=/Users/builder/export_options.plist
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - mobile/build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
+        submit_to_app_store: false
+
   ios-test-build:
     name: iOS Build (Test / Unsigned)
     max_build_duration: 60
@@ -8,8 +52,6 @@ workflows:
       flutter: stable
       xcode: latest
       cocoapods: default
-    # Triggering otomatis dinonaktifkan agar tidak menghabiskan kuota menit gratis setiap kali ada push Laravel/Web.
-    # Anda dapat memicu build kapan saja dengan menekan tombol "Start new build" di Codemagic.
     triggering:
       events:
         - push
@@ -34,3 +76,4 @@ workflows:
       - mobile/build/ios/iphoneos/Runner.app.zip
       - build/ios/iphoneos/Runner.app.zip
       - /tmp/xcodebuild_logs/*.log
+
