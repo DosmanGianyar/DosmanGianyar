@@ -9,6 +9,6 @@ class AppConfig {
   static const double minGpsAccuracy = 5.0;
 
   // Nama aplikasi
-  static const String appName = 'SIMS Absensi';
+  static const String appName = 'SIMAK DOSMAN';
   static const String schoolName = 'SMA Negeri 1 Gianyar';
 }

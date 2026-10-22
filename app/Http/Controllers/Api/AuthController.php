@@ -507,7 +507,7 @@ class AuthController extends Controller
             'force_update'         => (bool) config('sims.force_mobile_update', false),
             'update_url'           => config('sims.play_store_url', 'https://play.google.com/store/apps/details?id=com.sman1gianyar.sims_mobile'),
             'title'                => 'Pembaruan Aplikasi Diperlukan',
-            'message'              => 'Versi baru aplikasi SIMS SMAN 1 Gianyar telah tersedia. Silakan perbarui aplikasi Anda untuk melanjutkan.',
+            'message'              => 'Versi baru aplikasi SIMAK DOSMAN telah tersedia. Silakan perbarui aplikasi Anda untuk melanjutkan.',
         ]);
     }
 }

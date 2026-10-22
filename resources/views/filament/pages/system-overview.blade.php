@@ -142,9 +142,9 @@
     <div class="pres-banner">
         <div class="pres-badge">
             <svg style="width: 1rem; height: 1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-            Panduan & Cheatsheet Presentasi SIMS
+            Panduan & Cheatsheet Presentasi SIMAK DOSMAN
         </div>
-        <h1 class="pres-title">SIMS SMAN 1 GIANYAR</h1>
+        <h1 class="pres-title">SIMAK DOSMAN</h1>
         <p class="pres-sub">
             Ringkasan eksekutif seluruh modul dan fitur aplikasi sebagai pengingat utama saat mempresentasikan sistem di hadapan Kepala Sekolah, Dinas Pendidikan, Guru, dan Orang Tua Siswa.
         </p>
@@ -157,7 +157,7 @@
         </div>
     </div>
 
-    {{-- Grid 6 Modul Utama SIMS --}}
+    {{-- Grid 6 Modul Utama SIMAK DOSMAN --}}
     <div class="pres-grid">
 
         {{-- Modul 1: Presensi Pintar & Pengajuan --}}

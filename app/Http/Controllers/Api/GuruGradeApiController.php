@@ -88,17 +88,67 @@ class GuruGradeApiController extends Controller
                 'name' => $s->name,
                 'nis'  => $s->nis,
                 'grades' => collect(['UH', 'UTS', 'UAS'])->flatMap(fn ($type) =>
-                    $subjects->map(fn ($sub) => [
-                        'grade_id'      => $grades->get($s->id)?->where('subject_id', $sub->id)->where('type', $type)->first()?->id,
-                        'subject_id'    => $sub->id,
-                        'subject_name'  => $sub->name,
-                        'type'          => $type,
-                        'score'         => $grades->get($s->id)?->where('subject_id', $sub->id)->where('type', $type)->first()?->score,
-                        'notes'         => $grades->get($s->id)?->where('subject_id', $sub->id)->where('type', $type)->first()?->notes,
-                    ])
+                    $subjects->map(function ($sub) use ($grades, $s, $type) {
+                        $cell = $grades->get($s->id)?->where('subject_id', $sub->id)->where('type', $type)->first();
+                        return [
+                            'grade_id'      => $cell?->id,
+                            'subject_id'    => $sub->id,
+                            'subject_name'  => $sub->name,
+                            'type'          => $type,
+                            'score'         => $cell && $cell->score !== null ? (float) $cell->score : null,
+                            'notes'         => $cell?->notes,
+                        ];
+                    })
                 )->values(),
             ]),
             'subjects' => $subjects,
+        ]);
+    }
+
+    // POST /api/v1/guru/grades/batch
+    public function storeBatch(Request $request): JsonResponse
+    {
+        $request->validate([
+            'subject_id'    => 'required|exists:subjects,id',
+            'type'          => 'required|in:UH,UTS,UAS',
+            'semester'      => 'required|in:1,2',
+            'academic_year' => 'required|string|max:9',
+            'grades'        => 'required|array',
+            'grades.*.student_id' => 'required|exists:users,id',
+            'grades.*.score'      => 'nullable|numeric|min:0|max:100',
+            'grades.*.notes'      => 'nullable|string|max:200',
+        ]);
+
+        $count = 0;
+        foreach ($request->grades as $item) {
+            $studentId = $item['student_id'] ?? null;
+            $score     = $item['score'] ?? null;
+            $notes     = $item['notes'] ?? null;
+
+            if ($studentId === null || $score === null || $score === '') {
+                continue;
+            }
+
+            StudentGrade::updateOrCreate(
+                [
+                    'student_id'    => $studentId,
+                    'subject_id'    => $request->subject_id,
+                    'type'          => $request->type,
+                    'semester'      => $request->semester,
+                    'academic_year' => $request->academic_year,
+                ],
+                [
+                    'score'       => $score,
+                    'notes'       => $notes,
+                    'recorded_by' => Auth::id(),
+                ]
+            );
+            $count++;
+        }
+
+        return response()->json([
+            'message'       => "Berhasil menyimpan {$count} nilai siswa.",
+            'updated_count' => $count,
         ]);
     }
 

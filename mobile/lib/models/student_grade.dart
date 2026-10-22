@@ -23,17 +23,23 @@ class GradeSummarySubject {
   });
 
   factory GradeSummarySubject.fromJson(Map<String, dynamic> j) {
+    double? parseD(dynamic v) {
+      if (v == null) return null;
+      if (v is num) return v.toDouble();
+      return double.tryParse(v.toString().trim().replaceAll(',', '.'));
+    }
+
     return GradeSummarySubject(
       subjectId:   j['subject_id']   as int,
       subjectName: j['subject_name'] as String,
       subjectCode: j['subject_code'] as String,
-      uhScores:    (j['uh_scores'] as List)
-          .map((e) => (e as num).toDouble())
+      uhScores:    (j['uh_scores'] as List? ?? [])
+          .map((e) => parseD(e) ?? 0.0)
           .toList(),
-      uhAvg:       (j['uh_avg']      as num?)?.toDouble(),
-      uts:         (j['uts']         as num?)?.toDouble(),
-      uas:         (j['uas']         as num?)?.toDouble(),
-      finalScore:  (j['final_score'] as num?)?.toDouble(),
+      uhAvg:       parseD(j['uh_avg']),
+      uts:         parseD(j['uts']),
+      uas:         parseD(j['uas']),
+      finalScore:  parseD(j['final_score']),
     );
   }
 

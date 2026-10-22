@@ -165,7 +165,7 @@
 </div>
 
 <div class="watermark">
-    Dokumen ini digenerate otomatis oleh SIMS — School Integrated Management System
+    Dokumen ini digenerate otomatis oleh SIMAK DOSMAN
 </div>
 
 </body>

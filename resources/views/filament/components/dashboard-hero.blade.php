@@ -24,7 +24,7 @@
         <div class="sims-hero-text-block">
             <div class="sims-hero-status-tag">
                 <span class="sims-hero-dot"></span>
-                SIMS SMAN 1 Gianyar — Live System
+                SIMAK DOSMAN — Live System
             </div>
             <h1 class="sims-hero-title">
                 Selamat Datang, {{ $user?->name ?? 'Pengguna' }} 👋

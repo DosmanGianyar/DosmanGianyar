@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Dashboard') — SIMS | SMA Negeri 1 Gianyar</title>
+    <title>@yield('title', 'Dashboard') — SIMAK DOSMAN | SMA Negeri 1 Gianyar</title>
     <link rel="icon" type="image/png" href="/img/logo_sekolah.png">
     <meta name="theme-color" content="#1e3a8a">
     <link rel="manifest" href="/manifest.json">
@@ -42,7 +42,7 @@
             </div>
             <div class="leading-tight hidden sm:block">
                 <p class="font-bold text-white text-xs leading-none tracking-wide">SMA N 1 Gianyar</p>
-                <p class="text-blue-200 text-[10px] tracking-widest uppercase">SIMS</p>
+                <p class="text-blue-200 text-[10px] tracking-widest uppercase">SIMAK DOSMAN</p>
             </div>
         </a>
     </div>
@@ -215,9 +215,9 @@
 <div id="pwa-install-banner"
     class="fixed bottom-20 left-4 right-4 z-30 bg-white rounded-2xl shadow-lg border border-blue-100 p-3 hidden">
     <div class="flex items-center gap-3">
-        <img src="/img/logo_sekolah.png" alt="SIMS" class="w-10 h-10 object-contain rounded-xl shrink-0">
+        <img src="/img/logo_sekolah.png" alt="SIMAK DOSMAN" class="w-10 h-10 object-contain rounded-xl shrink-0">
         <div class="flex-1 min-w-0">
-            <p class="text-xs font-bold text-gray-800">Pasang SIMS di Layar Utama</p>
+            <p class="text-xs font-bold text-gray-800">Pasang SIMAK DOSMAN di Layar Utama</p>
             <p class="text-[10px] text-gray-400 mt-0.5">Akses lebih cepat tanpa browser</p>
         </div>
         <button id="pwa-install-btn"

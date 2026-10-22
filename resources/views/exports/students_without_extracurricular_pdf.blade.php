@@ -153,7 +153,7 @@
 </table>
 
 <div class="footer-note">
-  Dicetak otomatis melalui SIMS (Smart Information Management System) SMA Negeri 1 Gianyar pada {{ now()->locale('id')->isoFormat('D MMMM Y HH:mm') }} WITA.
+  Dicetak otomatis melalui SIMAK DOSMAN SMA Negeri 1 Gianyar pada {{ now()->locale('id')->isoFormat('D MMMM Y HH:mm') }} WITA.
 </div>
 
 </body>

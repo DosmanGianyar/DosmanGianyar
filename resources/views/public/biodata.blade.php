@@ -289,7 +289,7 @@
 
     {{-- Footer --}}
     <div class="footer">
-        <p>Data ini bersumber dari <strong>SIMS — SMA Negeri 1 Gianyar</strong></p>
+        <p>Data ini bersumber dari <strong>SIMAK DOSMAN — SMA Negeri 1 Gianyar</strong></p>
         <p style="margin-top:4px;">Tahun Ajaran 2025/2026 · NPSN 50102079</p>
     </div>
 

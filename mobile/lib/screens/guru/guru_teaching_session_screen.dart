@@ -1002,11 +1002,24 @@ class _SessionCard extends StatelessWidget {
     required this.onDelete,
   });
 
-  void _copyWaReport(BuildContext context) {
+  Future<void> _copyWaReport(BuildContext context) async {
     final user = Provider.of<AuthProvider>(context, listen: false).user;
     final teacherName = user?.name ?? 'Guru Pengajar';
     final dateStr = DateFormat('EEEE, d MMMM y', 'id_ID')
         .format(DateTime.tryParse(session.date) ?? DateTime.now());
+
+    // Pastikan daftar siswa tidak hadir terisi, fetch jika data absensi sesi belum termuat
+    List<SessionStudentRow> absences = session.absences;
+    if (absences.isEmpty && session.absentCount > 0) {
+      try {
+        final detailed = await GuruService.getTeachingSession(session.id);
+        if (detailed.absences.isNotEmpty) {
+          absences = detailed.absences;
+        }
+      } catch (_) {
+        // Fallback jika offline
+      }
+    }
 
     final buffer = StringBuffer();
     buffer.writeln('📚 *LAPORAN KEHADIRAN SISWA*');
@@ -1031,13 +1044,16 @@ class _SessionCard extends StatelessWidget {
     }
 
     buffer.writeln('\n❌ *Daftar Siswa Tidak Hadir:*');
-    if (session.absences.isNotEmpty) {
-      for (int i = 0; i < session.absences.length; i++) {
-        final abs = session.absences[i];
+    if (absences.isNotEmpty) {
+      for (int i = 0; i < absences.length; i++) {
+        final abs = absences[i];
         final name = abs.studentName.isNotEmpty ? abs.studentName : 'Siswa';
         final statusLabel = _formatStatusLabel(abs.status);
-        buffer.writeln('${i + 1}. $name ($statusLabel)');
+        final note = (abs.note != null && abs.note!.trim().isNotEmpty) ? ' - ${abs.note!.trim()}' : '';
+        buffer.writeln('${i + 1}. $name ($statusLabel$note)');
       }
+    } else if (session.absentCount > 0) {
+      buffer.writeln('• ${session.absentCount} Siswa Tidak Hadir');
     } else {
       buffer.writeln('✅ Hadir Lengkap (NIHIL)');
     }
@@ -1046,9 +1062,10 @@ class _SessionCard extends StatelessWidget {
       buffer.writeln('\n📝 *Catatan Khusus:*\n${session.notes!.trim()}');
     }
 
-    buffer.writeln('\n--\n_Dikirim via SIMS SMAN 1 Gianyar_');
+    buffer.writeln('\n--\n_Dikirim via SIMAK DOSMAN_');
 
-    Clipboard.setData(ClipboardData(text: buffer.toString()));
+    await Clipboard.setData(ClipboardData(text: buffer.toString()));
+    if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Row(
@@ -1066,13 +1083,14 @@ class _SessionCard extends StatelessWidget {
   }
 
   String _formatStatusLabel(String status) {
-    switch (status) {
+    switch (status.toLowerCase()) {
       case 'sakit': return 'Sakit';
       case 'izin': return 'Izin';
-      case 'dispensasi': return 'Dispensasi';
+      case 'dispensasi':
+      case 'dispen': return 'Dispensasi';
       case 'alpa':
       case 'tidak_hadir': return 'Alpa';
-      default: return status;
+      default: return status.isNotEmpty ? '${status[0].toUpperCase()}${status.substring(1)}' : status;
     }
   }
 

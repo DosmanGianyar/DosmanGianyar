@@ -28,7 +28,7 @@
                 <span class="text-xs font-bold uppercase tracking-wider">Kartu Pelajar Terverifikasi Resmi</span>
             </div>
             <span class="text-[11px] font-semibold bg-emerald-700/60 px-2.5 py-1 rounded-full border border-emerald-400/40">
-                Sistem SIMS Live
+                Sistem SIMAK DOSMAN Live
             </span>
         </div>
         @else
@@ -68,14 +68,14 @@
                     SURAT KETERANGAN VERIFIKASI KEABSAHAN KARTU PELAJAR
                 </h4>
                 <p class="text-[11px] font-mono text-slate-500 mt-1">
-                    No. Reg: SIMS/VERIFY/2026/07/{{ $siswa->nis ?? $siswa->id }}
+                    No. Reg: SIMAK/VERIFY/2026/07/{{ $siswa->nis ?? $siswa->id }}
                 </p>
             </div>
 
             {{-- Teks Pernyataan Resmi --}}
             <div class="text-xs text-slate-700 leading-relaxed mb-6 space-y-2">
                 <p>
-                    Kepala SMA Negeri 1 Gianyar menerangkan dan mengonfirmasi secara resmi bahwa Kartu Pelajar Digital berikut adalah <strong>BENAR, SAH, DAN TERDAFTAR SECARA RESMI</strong> pada basis data Sistem Informasi Manajemen Sekolah (SIMS) SMA Negeri 1 Gianyar:
+                    Kepala SMA Negeri 1 Gianyar menerangkan dan mengonfirmasi secara resmi bahwa Kartu Pelajar Digital berikut adalah <strong>BENAR, SAH, DAN TERDAFTAR SECARA RESMI</strong> pada basis data Sistem Informasi & Manajemen Akademik (SIMAK DOSMAN) SMA Negeri 1 Gianyar:
                 </p>
             </div>
 
@@ -131,7 +131,7 @@
             {{-- Tanda Tangan & Stempel Resmi --}}
             <div class="flex flex-col sm:flex-row justify-between items-center sm:items-end gap-6 pt-2">
                 <div class="text-center sm:text-left text-[11px] text-slate-400 italic">
-                    <p>Dokumen ini diterbitkan secara otomatis oleh SIMS</p>
+                    <p>Dokumen ini diterbitkan secara otomatis oleh SIMAK DOSMAN</p>
                     <p>Tanggal Terbit Kartu: <strong>13 Juli 2026</strong></p>
                 </div>
 
@@ -161,7 +161,7 @@
                 <div>
                     <h3 class="text-base font-extrabold text-slate-800">Kartu Pelajar Tidak Terdaftar</h3>
                     <p class="text-xs text-slate-500 max-w-md mx-auto mt-1 leading-relaxed">
-                        Kode barcode / identitas siswa <code class="px-2 py-0.5 bg-slate-100 rounded text-rose-600 font-mono">{{ $identifier ?: '—' }}</code> tidak terdaftar pada pangkalan data resmi SIMS SMA Negeri 1 Gianyar.
+                        Kode barcode / identitas siswa <code class="px-2 py-0.5 bg-slate-100 rounded text-rose-600 font-mono">{{ $identifier ?: '—' }}</code> tidak terdaftar pada pangkalan data resmi SIMAK DOSMAN SMA Negeri 1 Gianyar.
                     </p>
                 </div>
 
@@ -184,7 +184,7 @@
             {{-- Footer Action Buttons --}}
             <div class="mt-8 pt-4 border-t border-slate-200 flex items-center justify-between text-xs">
                 <a href="{{ route('login') }}" class="text-blue-600 hover:text-blue-800 font-bold flex items-center gap-1">
-                    ← Kembali ke Aplikasi SIMS
+                    ← Kembali ke Aplikasi SIMAK DOSMAN
                 </a>
                 @if($siswa)
                 <button onclick="window.print()" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer">

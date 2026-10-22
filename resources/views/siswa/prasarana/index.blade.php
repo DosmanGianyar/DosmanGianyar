@@ -27,7 +27,7 @@
         </div>
 
         <span class="hidden sm:inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold bg-white/10 text-slate-300 border border-white/10">
-            SIMS Sarpras
+            SIMAK DOSMAN Sarpras
         </span>
     </div>
 </div>

@@ -799,12 +799,19 @@ class GradeCell {
     this.notes,
   });
 
+  static double? _parseScore(dynamic val) {
+    if (val == null) return null;
+    if (val is num) return val.toDouble();
+    final str = val.toString().trim().replaceAll(',', '.');
+    return double.tryParse(str);
+  }
+
   factory GradeCell.fromJson(Map<String, dynamic> json) => GradeCell(
     gradeId:     json['grade_id'] as int?,
     subjectId:   json['subject_id'] as int,
     subjectName: json['subject_name'] as String,
     type:        json['type'] as String,
-    score:       (json['score'] as num?)?.toDouble(),
+    score:       _parseScore(json['score']),
     notes:       json['notes'] as String?,
   );
 }

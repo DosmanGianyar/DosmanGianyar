@@ -1,9 +1,9 @@
 # ==============================================================================
-# Script Inisialisasi & Setup Lingkungan Lokal - SIMS SMAN 1 Gianyar
+# Script Inisialisasi & Setup Lingkungan Lokal - SIMAK DOSMAN
 # ==============================================================================
 
 Write-Host "==========================================================" -ForegroundColor Cyan
-Write-Host " SIMS SMAN 1 Gianyar - Local Setup Script" -ForegroundColor Cyan
+Write-Host " SIMAK DOSMAN - Local Setup Script" -ForegroundColor Cyan
 Write-Host "==========================================================" -ForegroundColor Cyan
 
 $rootDir = $PSScriptRoot

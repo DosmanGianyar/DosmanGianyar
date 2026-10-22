@@ -60,7 +60,7 @@ class PushNotificationService {
       // 3. Setup Android & iOS local notification settings
       const AndroidNotificationChannel channel = AndroidNotificationChannel(
         'sims_urgent_alert_v4',
-        'Pemberitahuan Utama SIMS',
+        'Pemberitahuan Utama SIMAK DOSMAN',
         description: 'Notifikasi penting presensi, chat, dan pengumuman SMA Negeri 1 Gianyar',
         importance: Importance.max,
         playSound: true,
@@ -130,7 +130,7 @@ class PushNotificationService {
                 visibility: NotificationVisibility.public,
                 audioAttributesUsage: AudioAttributesUsage.notificationRingtone,
                 channelShowBadge: true,
-                ticker: 'Pemberitahuan SIMS SMAN 1 Gianyar',
+                ticker: 'Pemberitahuan SIMAK DOSMAN',
               ),
               iOS: const DarwinNotificationDetails(
                 presentAlert: true,
@@ -174,7 +174,7 @@ class PushNotificationService {
 
   /// Meminta izin notifikasi langsung ke sistem (seperti WhatsApp) saat aplikasi dibuka.
   /// Jika pada Android 13+ belum diizinkan, ini akan memicu dialog pop-up resmi Android:
-  /// "Izinkan SIMS SMAN 1 Gianyar mengirimkan notifikasi?".
+  /// "Izinkan SIMAK DOSMAN mengirimkan notifikasi?".
   static Future<bool> requestPermissionIfNeeded([BuildContext? context]) async {
     try {
       // 1. Cek status izin saat ini via permission_handler
@@ -209,7 +209,7 @@ class PushNotificationService {
     try {
       const AndroidNotificationChannel channel = AndroidNotificationChannel(
         'sims_urgent_alert_v4',
-        'Pemberitahuan Utama SIMS',
+        'Pemberitahuan Utama SIMAK DOSMAN',
         description: 'Notifikasi penting presensi, chat, dan pengumuman SMA Negeri 1 Gianyar',
         importance: Importance.max,
         playSound: true,
@@ -248,7 +248,7 @@ class PushNotificationService {
           ],
         ),
         content: const Text(
-          'Izin notifikasi SIMS belum aktif di HP Anda.\n\n'
+          'Izin notifikasi SIMAK DOSMAN belum aktif di HP Anda.\n\n'
           'Agar Anda mendapatkan info pengumuman sekolah dan pengingat presensi langsung melayang di atas layar dengan suara dering seperti WhatsApp, silakan aktifkan notifikasi.',
           style: TextStyle(fontSize: 13.5, color: AppColors.gray700, height: 1.45),
         ),
@@ -308,13 +308,13 @@ class PushNotificationService {
 
   /// Trigger a local push notification test directly on the device with full alert sound & vibration
   static Future<void> showTestNotification({
-    String title = '🔔 Uji Coba Push Notifikasi SIMS',
+    String title = '🔔 Uji Coba Push Notifikasi SIMAK DOSMAN',
     String body = 'Selamat! Push Notifikasi dan nada alert di HP Anda telah aktif dan terbaca.',
   }) async {
     try {
       const AndroidNotificationChannel channel = AndroidNotificationChannel(
         'sims_urgent_alert_v4',
-        'Pemberitahuan Utama SIMS',
+        'Pemberitahuan Utama SIMAK DOSMAN',
         description: 'Notifikasi penting presensi, chat, dan pengumuman SMA Negeri 1 Gianyar',
         importance: Importance.max,
         playSound: true,
@@ -366,7 +366,7 @@ class PushNotificationService {
             visibility: NotificationVisibility.public,
             audioAttributesUsage: AudioAttributesUsage.notificationRingtone,
             channelShowBadge: true,
-            ticker: 'Pemberitahuan SIMS SMAN 1 Gianyar',
+            ticker: 'Pemberitahuan SIMAK DOSMAN',
             styleInformation: BigTextStyleInformation(
               body,
               contentTitle: title,

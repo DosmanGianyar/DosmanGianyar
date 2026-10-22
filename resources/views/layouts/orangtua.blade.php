@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Dashboard') — SIMS | SMA Negeri 1 Gianyar</title>
+    <title>@yield('title', 'Dashboard') — SIMAK DOSMAN | SMA Negeri 1 Gianyar</title>
     <link rel="icon" type="image/png" href="/img/logo_sekolah.png">
     <meta name="theme-color" content="#1e3a8a">
     <link rel="manifest" href="/manifest.json">
@@ -39,7 +39,7 @@
             </div>
             <div class="leading-tight hidden sm:block">
                 <p class="font-bold text-white text-xs leading-none tracking-wide">SMA N 1 Gianyar</p>
-                <p class="text-blue-200 text-[10px] tracking-widest uppercase">SIMS</p>
+                <p class="text-blue-200 text-[10px] tracking-widest uppercase">SIMAK DOSMAN</p>
             </div>
         </a>
     </div>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Penugasan Guru Wali — SIMS | SMA Negeri 1 Gianyar</title>
+    <title>Penugasan Guru Wali — SIMAK DOSMAN | SMA Negeri 1 Gianyar</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-gray-50 font-sans min-h-screen p-6">

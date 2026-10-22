@@ -218,6 +218,7 @@ Route::prefix('v1')->group(function () {
             Route::get('/guru/grades/subjects',                   [GuruGradeApiController::class, 'subjects']);
             Route::get('/guru/grades/export',                     [GuruGradeApiController::class, 'export']);
             Route::get('/guru/grades',                            [GuruGradeApiController::class, 'index']);
+            Route::post('/guru/grades/batch',                     [GuruGradeApiController::class, 'storeBatch']);
             Route::post('/guru/grades',                           [GuruGradeApiController::class, 'store']);
             Route::delete('/guru/grades/{id}',                    [GuruGradeApiController::class, 'destroy']);
 

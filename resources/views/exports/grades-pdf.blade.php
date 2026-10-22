@@ -97,7 +97,7 @@
 @endforeach
 
 <div class="footer">
-    SIMS — School Integrated Management System · {{ now()->format('d/m/Y H:i') }}
+    SIMAK DOSMAN · {{ now()->format('d/m/Y H:i') }}
 </div>
 </body>
 </html>

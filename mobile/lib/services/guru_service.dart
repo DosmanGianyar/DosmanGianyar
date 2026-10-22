@@ -540,6 +540,26 @@ class GuruService {
     return body['message'] as String;
   }
 
+  static Future<String> storeGradesBatch({
+    required int subjectId,
+    required String type,
+    required int semester,
+    required String academicYear,
+    required List<Map<String, dynamic>> grades,
+  }) async {
+    final body = await ApiClient.post(
+      '/guru/grades/batch',
+      data: {
+        'subject_id':    subjectId,
+        'type':          type,
+        'semester':      semester,
+        'academic_year': academicYear,
+        'grades':        grades,
+      },
+    );
+    return (body['message'] as String?) ?? 'Nilai berhasil disimpan.';
+  }
+
   static Future<Map<String, dynamic>> exportGrades({
     required int classId, required int semester, required String academicYear,
   }) async {

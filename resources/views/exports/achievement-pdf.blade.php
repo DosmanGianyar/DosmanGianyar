@@ -218,7 +218,7 @@
 </table>
 
 <div class="footer-note">
-  Dicetak otomatis melalui SIMS SMAN 1 Gianyar pada {{ now()->translatedFormat('d F Y, H:i') }} WITA.
+  Dicetak otomatis melalui SIMAK DOSMAN pada {{ now()->translatedFormat('d F Y, H:i') }} WITA.
 </div>
 
 </body>

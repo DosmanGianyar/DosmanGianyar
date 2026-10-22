@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $code }} — SIMS | SMA Negeri 1 Gianyar</title>
+    <title>{{ $code }} — SIMAK DOSMAN | SMA Negeri 1 Gianyar</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4 font-sans">
@@ -14,7 +14,7 @@
             <img src="/img/logo_sekolah.png" alt="Logo" class="w-12 h-12 object-contain">
             <div class="text-left">
                 <p class="font-bold text-blue-700 text-sm leading-tight">SMA Negeri 1 Gianyar</p>
-                <p class="text-gray-400 text-xs">SIMS</p>
+                <p class="text-gray-400 text-xs">SIMAK DOSMAN</p>
             </div>
         </div>
 

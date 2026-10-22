@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tidak Ada Koneksi — SIMS</title>
+    <title>Tidak Ada Koneksi — SIMAK DOSMAN</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -62,7 +62,7 @@
         <h1>Tidak Ada Koneksi</h1>
         <p>Periksa koneksi internet kamu, lalu coba lagi.</p>
 
-        <img src="/img/logo_sekolah.png" alt="SIMS" class="logo">
+        <img src="/img/logo_sekolah.png" alt="SIMAK DOSMAN" class="logo">
         <p class="school">SMA Negeri 1 Gianyar</p>
 
         <button onclick="window.location.reload()">Coba Lagi</button>

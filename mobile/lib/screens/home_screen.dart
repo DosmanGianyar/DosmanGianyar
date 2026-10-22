@@ -323,7 +323,7 @@ class _TopHeader extends StatelessWidget {
                       letterSpacing: 0.5,
                     ),
                   ),
-                  Text('SIMS',
+                  Text('SIMAK DOSMAN',
                     style: TextStyle(
                       color:         AppColors.blue200,
                       fontSize:      11,

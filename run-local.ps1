@@ -1,9 +1,9 @@
 # ==============================================================================
-# Script Running Server Lokal - SIMS SMAN 1 Gianyar
+# Script Running Server Lokal - SIMAK DOSMAN
 # ==============================================================================
 
 Write-Host "==========================================================" -ForegroundColor Cyan
-Write-Host " SIMS SMAN 1 Gianyar - Starting Local Development Server" -ForegroundColor Cyan
+Write-Host " SIMAK DOSMAN - Starting Local Development Server" -ForegroundColor Cyan
 Write-Host "==========================================================" -ForegroundColor Cyan
 
 $rootDir = $PSScriptRoot

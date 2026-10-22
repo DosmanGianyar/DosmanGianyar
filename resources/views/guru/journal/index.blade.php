@@ -131,16 +131,17 @@
                         $presentCount  = max(0, $totalStudents - $absentCount);
 
                         $absencesList = $journal->absences->map(function($abs) {
-                            $statusLabel = match($abs->status) {
-                                'sakit'      => 'Sakit',
-                                'izin'       => 'Izin',
-                                'dispensasi' => 'Dispensasi',
+                            $statusLabel = match(strtolower($abs->status)) {
+                                'sakit'               => 'Sakit',
+                                'izin'                => 'Izin',
+                                'dispensasi', 'dispen'=> 'Dispensasi',
                                 'alpa', 'tidak_hadir' => 'Alpa',
-                                default      => ucfirst($abs->status),
+                                default               => ucfirst($abs->status),
                             };
                             return [
                                 'student_name' => $abs->student?->name ?? 'Siswa',
                                 'status_label' => $statusLabel,
+                                'note'         => $abs->note ?? '',
                             ];
                         })->values();
 
@@ -320,8 +321,11 @@ function copyWaReport(btn) {
     text += `\n❌ *Daftar Siswa Tidak Hadir:*\n`;
     if (data.absences && data.absences.length > 0) {
         data.absences.forEach((abs, idx) => {
-            text += `${idx + 1}. ${abs.student_name} (${abs.status_label})\n`;
+            let noteStr = (abs.note && abs.note.trim() !== '') ? ` - ${abs.note.trim()}` : '';
+            text += `${idx + 1}. ${abs.student_name} (${abs.status_label}${noteStr})\n`;
         });
+    } else if (data.absent_count > 0) {
+        text += `• ${data.absent_count} Siswa Tidak Hadir\n`;
     } else {
         text += `✅ Hadir Lengkap (NIHIL)\n`;
     }
@@ -330,7 +334,7 @@ function copyWaReport(btn) {
         text += `\n📝 *Catatan Khusus:*\n${data.notes.trim()}\n`;
     }
 
-    text += `\n--\n_Dikirim via SIMS SMAN 1 Gianyar_`;
+    text += `\n--\n_Dikirim via SIMAK DOSMAN_`;
 
     if (navigator.clipboard && window.isSecureContext) {
         navigator.clipboard.writeText(text).then(() => {

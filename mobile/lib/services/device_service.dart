@@ -42,7 +42,7 @@ class DeviceService {
     }
     if (permission == LocationPermission.deniedForever) {
       throw const LocationPermissionDeniedForeverException(
-        'Izin lokasi diblokir permanen. Buka Pengaturan HP -> Izin Aplikasi -> SIMS -> Lokasi untuk mengaktifkan.',
+        'Izin lokasi diblokir permanen. Buka Pengaturan HP -> Izin Aplikasi -> SIMAK DOSMAN -> Lokasi untuk mengaktifkan.',
       );
     }
     if (permission == LocationPermission.denied) {

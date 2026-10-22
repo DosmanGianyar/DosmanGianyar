@@ -30,7 +30,7 @@
     <img class="logo" src="{{ public_path('img/logo_sekolah.png') }}">
     <div>
         <div class="school-name">SMA Negeri 1 Gianyar</div>
-        <div class="school-sub">SIMS — Sistem Informasi Manajemen Sekolah</div>
+        <div class="school-sub">SIMAK DOSMAN — Sistem Informasi & Manajemen Akademik</div>
     </div>
 </div>
 
@@ -78,6 +78,6 @@
     </tbody>
 </table>
 
-<div class="footer">Dicetak oleh SIMS — SMA Negeri 1 Gianyar · {{ now()->isoFormat('D MMMM Y HH:mm') }}</div>
+<div class="footer">Dicetak oleh SIMAK DOSMAN — SMA Negeri 1 Gianyar · {{ now()->isoFormat('D MMMM Y HH:mm') }}</div>
 </body>
 </html>

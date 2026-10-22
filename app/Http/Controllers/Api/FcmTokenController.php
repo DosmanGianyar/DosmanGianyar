@@ -70,7 +70,7 @@ class FcmTokenController extends Controller
         try {
             \App\Models\AppNotification::create([
                 'user_id'    => $user->id,
-                'title'      => '🔔 Uji Coba Push Notifikasi SIMS',
+                'title'      => '🔔 Uji Coba Push Notifikasi SIMAK DOSMAN',
                 'body'       => 'Halo ' . $user->name . ', notifikasi uji coba berhasil disimpan pada sistem.',
                 'type'       => 'success',
                 'created_at' => now(),
@@ -81,7 +81,7 @@ class FcmTokenController extends Controller
 
         $sent = FcmService::sendToUsers(
             [$user->id],
-            '🔔 Uji Coba Push Notifikasi SIMS',
+            '🔔 Uji Coba Push Notifikasi SIMAK DOSMAN',
             'Halo ' . $user->name . ', push notifikasi Firebase & alert berhasil terhubung!',
             ['type' => 'test']
         );

@@ -39,7 +39,7 @@
 <body>
 
 <div class="header">
-  <div class="school">SMA NEGERI 1 GIANYAR · SIMS</div>
+  <div class="school">SMA NEGERI 1 GIANYAR · SIMAK DOSMAN</div>
   <div class="title">Rekap Absensi Ekstrakurikuler</div>
   <div class="sub">{{ $session->extracurricular->name ?? '—' }}</div>
 </div>
@@ -118,7 +118,7 @@
 </table>
 
 <div class="footer">
-  Dicetak: {{ now()->locale('id')->isoFormat('D MMMM Y, HH:mm') }} · SIMS SMA Negeri 1 Gianyar
+  Dicetak: {{ now()->locale('id')->isoFormat('D MMMM Y, HH:mm') }} · SIMAK DOSMAN SMA Negeri 1 Gianyar
 </div>
 
 </body>

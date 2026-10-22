@@ -201,7 +201,7 @@
 {{-- ── FOOTER ─────────────────────────────────────────────────────────────── --}}
 <div style="display:flex; justify-content:space-between; margin-top:6px; padding-top:4px; border-top:0.5px solid #e5e7eb; font-size:7px; color:#9ca3af;">
     <span>Dicetak: {{ now()->isoFormat('D MMMM Y, HH:mm') }} WIB</span>
-    <span>SIMS — SMA Negeri 1 Gianyar</span>
+    <span>SIMAK DOSMAN — SMA Negeri 1 Gianyar</span>
 </div>
 
 </body>

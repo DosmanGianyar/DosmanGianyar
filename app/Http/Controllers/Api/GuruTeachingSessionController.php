@@ -76,7 +76,7 @@ class GuruTeachingSessionController extends Controller
         $teacher = Auth::user();
 
         $query = TeacherAttendance::where('teacher_id', $teacher->id)
-            ->with(['schoolClass:id,name', 'subject:id,name', 'sessionAttendances']);
+            ->with(['schoolClass:id,name', 'subject:id,name', 'sessionAttendances.student:id,name,nis']);
 
         if ($request->filled('class_id')) {
             $query->where('class_id', $request->class_id);
@@ -122,10 +122,10 @@ class GuruTeachingSessionController extends Controller
 
             $total  = $group['attendances']->count();
             $hadir  = $group['attendances']->where('status', 'hadir')->count();
-            $alpha  = $group['attendances']->where('status', 'tidak_hadir')->count();
+            $alpha  = $group['attendances']->whereIn('status', ['tidak_hadir', 'alpa'])->count();
             $izin   = $group['attendances']->where('status', 'izin')->count();
             $sakit  = $group['attendances']->where('status', 'sakit')->count();
-            $dispen = $group['attendances']->where('status', 'dispensasi')->count();
+            $dispen = $group['attendances']->whereIn('status', ['dispensasi', 'dispen'])->count();
 
             return [
                 'id'             => $primary->id,
@@ -148,6 +148,13 @@ class GuruTeachingSessionController extends Controller
                 'izin'           => $izin,
                 'sakit'          => $sakit,
                 'dispen'         => $dispen,
+                'students'       => $group['attendances']->map(fn ($att) => [
+                    'student_id'   => $att->student_id,
+                    'name'         => $att->student?->name ?? 'Siswa',
+                    'nis'          => $att->student?->nis ?? '—',
+                    'status'       => $att->status,
+                    'note'         => $att->note,
+                ])->values(),
             ];
         })->values();
 

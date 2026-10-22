@@ -157,7 +157,7 @@ class _AttendanceScreenState extends State<AttendanceScreen>
         _locationErrorTitle    = 'Izin Lokasi Diblokir';
         _locationErrorBody     =
             'Izin lokasi diblokir secara permanen.\n\n'
-            'Buka Pengaturan → Aplikasi → SIMS_DOSMAN → Izin → '
+            'Buka Pengaturan → Aplikasi → SIMAK DOSMAN → Izin → '
             'Lokasi → Izinkan saat menggunakan aplikasi.';
         _isPermDeniedForever   = true;
         _phase                 = _Phase.locationError;
@@ -196,7 +196,7 @@ class _AttendanceScreenState extends State<AttendanceScreen>
       _showSettingsDialog(
         title:   'Izin Kamera Diblokir',
         message: 'Izin kamera diblokir secara permanen.\n\n'
-                 'Buka Pengaturan → Aplikasi → SIMS_DOSMAN → Izin → Kamera → Izinkan.',
+                 'Buka Pengaturan → Aplikasi → SIMAK DOSMAN → Izin → Kamera → Izinkan.',
       );
       return;
     }

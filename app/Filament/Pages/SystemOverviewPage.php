@@ -9,7 +9,7 @@ class SystemOverviewPage extends Page
     protected static string|\BackedEnum|null $navigationIcon  = 'heroicon-o-presentation-chart-bar';
     protected static string|\UnitEnum|null   $navigationGroup = 'Panduan & Presentasi';
     protected static ?string                 $navigationLabel = 'Panduan Presentasi Fitur';
-    protected static ?string                 $title           = 'Panduan Presentasi & Ringkasan Fitur SIMS SMAN 1 Gianyar';
+    protected static ?string                 $title           = 'Panduan Presentasi & Ringkasan Fitur SIMAK DOSMAN';
     protected static ?int                    $navigationSort  = 1;
 
     /**

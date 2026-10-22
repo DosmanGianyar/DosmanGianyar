@@ -34,7 +34,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   Future<void> _triggerTestNotification() async {
     final notifProv = context.read<NotificationProvider>();
     await PushNotificationService.showTestNotification(
-      title: '🔔 Uji Coba Push Notifikasi SIMS',
+      title: '🔔 Uji Coba Push Notifikasi SIMAK DOSMAN',
       body: 'Selamat! Spanduk, nada alert, dan pesan notifikasi di HP Anda berfungsi 100%.',
     );
     try {

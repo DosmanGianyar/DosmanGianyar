@@ -1,7 +1,7 @@
 @echo off
-title SIMS SMAN 1 Gianyar - Local Server
+title SIMAK DOSMAN - Local Server
 echo ==========================================================
-echo  SIMS SMAN 1 Gianyar - Starting Local Development Server
+echo  SIMAK DOSMAN - Starting Local Development Server
 echo ==========================================================
 cd /d "%~dp0"
 

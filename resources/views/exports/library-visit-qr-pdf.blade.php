@@ -66,7 +66,7 @@
                 Petunjuk Pencatatan Kunjungan Siswa:
             </h3>
             <ol class="text-xs text-gray-700 space-y-1.5 list-decimal list-inside font-medium">
-                <li>Buka aplikasi <span class="font-bold text-blue-800">SIMS Mobile</span> atau Web Siswa SMAN 1 Gianyar.</li>
+                <li>Buka aplikasi <span class="font-bold text-blue-800">SIMAK DOSMAN Mobile</span> atau Web Siswa SMAN 1 Gianyar.</li>
                 <li>Masuk ke menu <span class="font-bold text-blue-800">Perpustakaan</span> &rarr; <span class="font-bold text-blue-800">Kunjungan Perpustakaan</span>.</li>
                 <li>Tekan tombol <span class="font-bold text-blue-800">Scan QR Kunjungan</span> lalu arahkan kamera ke QR Code di atas.</li>
                 <li>Pilih <span class="font-bold text-blue-800">Keperluan Membaca</span> Anda (Literasi, Tugas, Kerja Kelompok, dll) dan simpan.</li>
@@ -75,7 +75,7 @@
 
         <!-- Footer Seal -->
         <div class="w-full flex items-center justify-between text-[11px] text-gray-500 pt-2 border-t border-gray-200">
-            <span>SIMS SMAN 1 Gianyar &copy; {{ date('Y') }}</span>
+            <span>SIMAK DOSMAN &copy; {{ date('Y') }}</span>
             <span class="font-semibold text-blue-900">Perpustakaan SMAN 1 Gianyar</span>
         </div>
 
