@@ -5,13 +5,16 @@ workflows:
     instance_type: mac_mini_m2
     working_directory: mobile
     integrations:
-      app_store_connect: Codemagic API Key
+      app_store_connect: "Codemagic API Key"
     environment:
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.sman1gianyar.simsMobile
+      vars:
+        BUNDLE_ID: "com.sman1gianyar.simsMobile"
       flutter: stable
       xcode: latest
       cocoapods: default
-    # Triggering otomatis dinonaktifkan agar hemat kuota build.
-    # Jalankan build manual via tombol "Start new build" di Codemagic.
     triggering:
       events:
         - push
@@ -19,39 +22,33 @@ workflows:
         - pattern: main
           include: false
     scripts:
-      - name: Set up keychain
-        script: |
-          keychain initialize
-      - name: Fetch signing files from Apple
-        script: |
-          app-store-connect fetch-signing-files "com.sman1gianyar.simsMobile" \
-            --type IOS_APP_STORE \
-            --create
-      - name: Add certificates to keychain
-        script: |
-          keychain add-certificates
-      - name: Set up code signing settings on Xcode project
-        script: |
-          xcode-project use-profiles
       - name: Prepare Flutter and dependencies
         script: |
           flutter config --no-enable-swift-package-manager
           flutter clean
           flutter precache --ios
           flutter packages pub get
-      - name: Flutter build IPA
+      - name: Set up code signing settings on Xcode project
+        script: |
+          xcode-project use-profiles --archive-method=app-store
+      - name: Build signed iOS IPA for TestFlight
         script: |
           flutter build ipa --release \
             --export-options-plist=/Users/builder/export_options.plist
     artifacts:
-      - build/ios/ipa/*.ipa
       - mobile/build/ios/ipa/*.ipa
+      - build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log
     publishing:
       app_store_connect:
         auth: integration
         submit_to_testflight: true
-        submit_to_app_store: false
+      email:
+        recipients:
+          - tailscaledosman@gmail.com
+        notify:
+          success: true
+          failure: true
 
   ios-test-build:
     name: iOS Build (Test / Unsigned)
