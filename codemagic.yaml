@@ -9,9 +9,9 @@ workflows:
     environment:
       ios_signing:
         distribution_type: app_store
-        bundle_identifier: com.sman1gianyar.simsMobile
+        bundle_identifier: com.sman1gianyar.simakdosman
       vars:
-        BUNDLE_ID: "com.sman1gianyar.simsMobile"
+        BUNDLE_ID: "com.sman1gianyar.simakdosman"
       flutter: stable
       xcode: latest
       cocoapods: default
