@@ -1,6 +1,6 @@
 workflows:
   ios-release-testflight:
-    name: iOS Release (TestFlight / App Store)
+    name: SIMAK DOSMAN iOS Release (TestFlight / App Store)
     max_build_duration: 60
     instance_type: mac_mini_m2
     working_directory: mobile
