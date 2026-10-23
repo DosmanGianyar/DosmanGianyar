@@ -47,7 +47,7 @@ git add . ; git commit -m "deploy: update aplikasi SIMS" ; git push origin main 
 ## 1. Stack & Arsitektur Proyek
 
 - **Framework Web:** Laravel 12 + Filament PHP v5.6 + Livewire v4 + Tailwind CSS v4.
-- **Mobile App:** Flutter (`/mobile`).
+- **Mobile App:** Flutter (`/mobile`) — Panduan rilis iOS, kunci signing & TestFlight: [PANDUAN_RILIS_IOS_TESTFLIGHT.md](PANDUAN_RILIS_IOS_TESTFLIGHT.md).
 - **Database:** MariaDB (Produksi) / SQLite In-Memory (PHPUnit Tests).
 - **Default Auth Policy:**
   - Siswa login **hanya menggunakan NISN**.
