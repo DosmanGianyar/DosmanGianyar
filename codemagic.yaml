@@ -7,6 +7,8 @@ workflows:
     integrations:
       app_store_connect: "Codemagic API Key"
     environment:
+      groups:
+        - ios_creds
       vars:
         BUNDLE_ID: "com.sman1gianyar.simsMobile"
         APPLE_TEAM_ID: "3RQKPHDMC8"
