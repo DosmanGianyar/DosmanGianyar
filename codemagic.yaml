@@ -10,9 +10,6 @@ workflows:
       flutter: stable
       xcode: latest
       cocoapods: default
-      ios_signing:
-        distribution_type: app_store
-        bundle_identifier: com.sman1gianyar.simsMobile
     # Triggering otomatis dinonaktifkan agar hemat kuota build.
     # Jalankan build manual via tombol "Start new build" di Codemagic.
     triggering:
@@ -22,15 +19,26 @@ workflows:
         - pattern: main
           include: false
     scripts:
+      - name: Set up keychain
+        script: |
+          keychain initialize
+      - name: Fetch signing files from Apple
+        script: |
+          app-store-connect fetch-signing-files "com.sman1gianyar.simsMobile" \
+            --type IOS_APP_STORE \
+            --create
+      - name: Add certificates to keychain
+        script: |
+          keychain add-certificates
+      - name: Set up code signing settings on Xcode project
+        script: |
+          xcode-project use-profiles
       - name: Prepare Flutter and dependencies
         script: |
           flutter config --no-enable-swift-package-manager
           flutter clean
           flutter precache --ios
           flutter packages pub get
-      - name: Set up code signing settings on Xcode project
-        script: |
-          xcode-project use-profiles
       - name: Flutter build IPA
         script: |
           flutter build ipa --release \
