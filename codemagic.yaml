@@ -7,9 +7,6 @@ workflows:
     integrations:
       app_store_connect: "Codemagic API Key"
     environment:
-      ios_signing:
-        distribution_type: app_store
-        bundle_identifier: com.sman1gianyar.simsMobile
       vars:
         BUNDLE_ID: "com.sman1gianyar.simsMobile"
       flutter: stable
@@ -22,15 +19,30 @@ workflows:
         - pattern: main
           include: false
     scripts:
+      - name: Generate certificate private key
+        script: |
+          ssh-keygen -t rsa -b 2048 -m PEM -f /tmp/cert_key -q -N ""
+      - name: Set up keychain
+        script: |
+          keychain initialize
+      - name: Fetch signing files from Apple
+        script: |
+          app-store-connect fetch-signing-files "$BUNDLE_ID" \
+            --type IOS_APP_STORE \
+            --certificate-key=/tmp/cert_key \
+            --create
+      - name: Add certificates to keychain
+        script: |
+          keychain add-certificates
+      - name: Set up code signing settings on Xcode project
+        script: |
+          xcode-project use-profiles --archive-method=app-store
       - name: Prepare Flutter and dependencies
         script: |
           flutter config --no-enable-swift-package-manager
           flutter clean
           flutter precache --ios
           flutter packages pub get
-      - name: Set up code signing settings on Xcode project
-        script: |
-          xcode-project use-profiles --archive-method=app-store
       - name: Build signed iOS IPA for TestFlight
         script: |
           flutter build ipa --release \
