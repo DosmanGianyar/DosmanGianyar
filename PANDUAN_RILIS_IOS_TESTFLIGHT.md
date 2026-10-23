@@ -27,10 +27,24 @@ Dokumen ini berisi rangkuman seluruh kredensial penting, arsitektur CI/CD, konfi
 ### A. Integrasi App Store Connect API
 * **Nama Integrasi di Codemagic:** `Codemagic API Key`
 * **Key ID:** `2F9T374JDR`
-* **Issuer ID:** Dikonfigurasi di akun Codemagic (`tailscaledosman@gmail.com`)
 * **Akses:** Digunakan Codemagic untuk berkomunikasi langsung dengan Apple Developer Portal & App Store Connect API untuk mengunduh profil dan mengunggah IPA ke TestFlight.
+* **File Kunci Asli:** `AuthKey_2F9T374JDR.p8` *(diunduh dari Apple Developer)*
+
+#### 🔑 Cadangan Teks Kunci Privat API Apple (`AuthKey_2F9T374JDR.p8`):
+```text
+-----BEGIN PRIVATE KEY-----
+MIGTAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHkwdwIBAQQgkCsnfXoCBQ97RXTN
+GDIUxQ0udlBDQP9DUKDx/ISIuzagCgYIKoZIzj0DAQehRANCAASPhMxh0xYMUXdH
+P2e1wzi8HMoJyaULLhr17JjnSbHqpdM0nDpwHOYYgwANb1k/hgvQDjCqSYU/qlBY
+NBnHgRVk
+-----END PRIVATE KEY-----
+```
+> [!TIP]
+> **Cara Menggunakan Cadangan Ini Jika File Asli Hilang:**
+> Apple hanya mengizinkan pengunduhan file `.p8` satu kali saat dibuat. Jika file `AuthKey_2F9T374JDR.p8` di komputer Anda terhapus, Anda cukup membuka Notepad di Windows, tempel teks di atas, lalu simpan dengan nama `AuthKey_2F9T374JDR.p8`. File tersebut langsung bisa diunggah ke Codemagic kapan saja tanpa perlu membuat key baru di Apple!
 
 ---
+
 
 ### B. Kunci Privat Sertifikat (`CERTIFICATE_PRIVATE_KEY`)
 Kunci ini adalah RSA Private Key 2048-bit yang dipakai Codemagic untuk menandatangani sertifikat `Apple Distribution: I WAYAN SUMARTIKA (3RQKPHDMC8)`.
