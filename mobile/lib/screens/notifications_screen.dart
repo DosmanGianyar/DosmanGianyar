@@ -11,6 +11,14 @@ import '../services/push_notification_service.dart';
 import 'announcement_list_screen.dart';
 import 'chat/chat_list_screen.dart';
 import 'chat/student_chat_entry.dart';
+import 'guru/guru_early_checkout_screen.dart';
+import 'guru/guru_permit_screen.dart';
+import 'guru/guru_forgot_attendance_screen.dart';
+import 'guru/guru_conduct_screen.dart';
+import 'kesiswaan/early_checkout_screen.dart';
+import 'kesiswaan/permit_screen.dart';
+import 'kesiswaan/forgot_attendance_screen.dart';
+import 'kesiswaan/conduct_screen.dart';
 import '../widgets/rich_content_view.dart';
 
 class NotificationsScreen extends StatefulWidget {
@@ -67,24 +75,91 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   void _handleNotificationTap(NotificationItem item) {
     final type = item.type.toLowerCase();
     final title = item.title.toLowerCase();
+    final url = (item.url ?? '').toLowerCase();
+    final userRole = context.read<AuthProvider>().user?.role ?? '';
+    final isTeacherOrAdmin = userRole == 'guru' || userRole == 'admin';
 
-    // 1. Pengumuman / Informasi -> Buka Halaman Pengumuman
-    if (type == 'announcement' ||
-        type == 'info' ||
-        type == 'information' ||
-        title.contains('pengumuman') ||
-        title.contains('informasi')) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const AnnouncementListScreen()),
-      );
+    // 1. Izin Pulang Lebih Awal -> Buka Halaman Verifikasi Pulang Lebih Awal
+    if (type == 'early_checkout' ||
+        title.contains('izin pulang') ||
+        title.contains('pulang cepat') ||
+        url.contains('early-checkout') ||
+        url.contains('early-checkouts')) {
+      if (isTeacherOrAdmin) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const GuruEarlyCheckoutScreen()),
+        );
+      } else {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const EarlyCheckoutScreen()),
+        );
+      }
       return;
     }
 
-    // 2. Chat / Konsultasi Segitiga -> Buka Ruang Chat Terkait
+    // 2. Izin / Sakit (Permit) -> Buka Halaman Verifikasi Izin
+    if (type == 'permit' ||
+        title.contains('izin absensi') ||
+        title.contains('pengajuan izin') ||
+        title.contains('pengajuan sakit') ||
+        url.contains('permit')) {
+      if (isTeacherOrAdmin) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const GuruPermitScreen()),
+        );
+      } else {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const PermitScreen()),
+        );
+      }
+      return;
+    }
+
+    // 3. Lupa Absen -> Buka Halaman Verifikasi Lupa Absen
+    if (type == 'forgot_attendance' ||
+        title.contains('lupa absen') ||
+        url.contains('forgot-attendance')) {
+      if (isTeacherOrAdmin) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const GuruForgotAttendanceScreen()),
+        );
+      } else {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const ForgotAttendanceScreen()),
+        );
+      }
+      return;
+    }
+
+    // 4. Pembinaan Karakter / Pelanggaran -> Buka Halaman Verifikasi Disiplin
+    if (type == 'conduct' ||
+        title.contains('pembinaan') ||
+        title.contains('kedisiplinan') ||
+        title.contains('catatan karakter') ||
+        url.contains('conduct')) {
+      if (isTeacherOrAdmin) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const GuruConductScreen()),
+        );
+      } else {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const ConductScreen()),
+        );
+      }
+      return;
+    }
+
+    // 5. Chat / Konsultasi Segitiga -> Buka Ruang Chat Terkait
     if (type.startsWith('chat') || title.contains('pesan baru') || title.contains('chat')) {
-      final user = context.read<AuthProvider>().user;
-      if (user?.role == 'siswa') {
+      if (userRole == 'siswa') {
         Navigator.push(
           context,
           MaterialPageRoute(builder: (_) => const StudentChatEntryScreen()),
@@ -97,6 +172,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       }
       return;
     }
+
+    // 6. Pengumuman / Informasi Umum -> Buka Halaman Pengumuman
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const AnnouncementListScreen()),
+    );
   }
 
   String _formatDateHeader(DateTime dt) {
@@ -365,6 +446,32 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     final isUnread = !item.isRead;
     final type = item.type.toLowerCase();
     final titleLower = item.title.toLowerCase();
+    final urlLower = (item.url ?? '').toLowerCase();
+    final userRole = context.read<AuthProvider>().user?.role ?? '';
+    final isTeacherOrAdmin = userRole == 'guru' || userRole == 'admin';
+
+    // Deteksi tipe permohonan / verifikasi spesifik
+    final isEarlyCheckout = type == 'early_checkout' ||
+        titleLower.contains('izin pulang') ||
+        titleLower.contains('pulang cepat') ||
+        urlLower.contains('early-checkout') ||
+        urlLower.contains('early-checkouts');
+
+    final isPermit = type == 'permit' ||
+        titleLower.contains('izin absensi') ||
+        titleLower.contains('pengajuan izin') ||
+        titleLower.contains('pengajuan sakit') ||
+        urlLower.contains('permit');
+
+    final isForgotAttendance = type == 'forgot_attendance' ||
+        titleLower.contains('lupa absen') ||
+        urlLower.contains('forgot-attendance');
+
+    final isConduct = type == 'conduct' ||
+        titleLower.contains('pembinaan') ||
+        titleLower.contains('kedisiplinan') ||
+        titleLower.contains('catatan karakter') ||
+        urlLower.contains('conduct');
 
     // Deteksi tipe chat untuk membedakan Orang Tua, Siswa, dan Wali Kelas
     final isChatOrangTua = type == 'chat_orangtua' || titleLower.contains('(orang tua)');
@@ -374,27 +481,76 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
     final isAnnouncement = type == 'announcement' || titleLower.contains('pengumuman');
 
-    final (badgeLabel, badgeColor, badgeBg, badgeIcon, showSchoolLogo, actionHint) = switch (type) {
-      'reminder_checkin'  => ('PRESENSI DATANG', const Color(0xFF0284C7), const Color(0xFFE0F2FE), Icons.login_rounded, false, null),
-      'reminder_checkout' => ('PRESENSI PULANG', const Color(0xFFD97706), const Color(0xFFFEF3C7), Icons.logout_rounded, false, null),
-      'announcement'      => ('PENGUMUMAN SEKOLAH', const Color(0xFF7C3AED), const Color(0xFFEDE9FE), Icons.campaign_rounded, true, 'Buka Pengumuman Sekolah ↗'),
-      'warning'           => ('PERINGATAN', const Color(0xFFDC2626), const Color(0xFFFEE2E2), Icons.warning_rounded, false, null),
-      'success'           => ('BERHASIL', const Color(0xFF059669), const Color(0xFFD1FAE5), Icons.check_circle_rounded, false, null),
-      _ => () {
-        if (isChatOrangTua) {
-          return ('CHAT ORANG TUA 👨‍👩‍👧', const Color(0xFFB45309), const Color(0xFFFEF3C7), Icons.family_restroom_rounded, false, 'Buka Percakapan Chat ↗');
-        } else if (isChatSiswa) {
-          return ('CHAT SISWA 🎒', const Color(0xFF047857), const Color(0xFFD1FAE5), Icons.school_rounded, false, 'Buka Percakapan Chat ↗');
-        } else if (isChatGuru) {
-          return ('CHAT WALI KELAS 👨‍🏫', const Color(0xFF6D28D9), const Color(0xFFEDE9FE), Icons.co_present_rounded, false, 'Buka Percakapan Chat ↗');
-        } else if (isGeneralChat) {
-          return ('CHAT SEGITIGA 💬', const Color(0xFF1D4ED8), const Color(0xFFEFF6FF), Icons.forum_rounded, false, 'Buka Percakapan Chat ↗');
-        } else if (isAnnouncement) {
-          return ('PENGUMUMAN SEKOLAH', const Color(0xFF7C3AED), const Color(0xFFEDE9FE), Icons.campaign_rounded, true, 'Buka Pengumuman Sekolah ↗');
-        }
-        return ('INFORMASI DOSMAN', const Color(0xFF0F2460), const Color(0xFFE2E8F0), Icons.info_rounded, true, 'Buka Pengumuman Sekolah ↗');
-      }(),
-    };
+    final (badgeLabel, badgeColor, badgeBg, badgeIcon, showSchoolLogo, actionHint) = () {
+      if (isEarlyCheckout) {
+        return (
+          'IZIN PULANG LEBIH AWAL',
+          const Color(0xFFD97706),
+          const Color(0xFFFEF3C7),
+          Icons.exit_to_app_rounded,
+          false,
+          isTeacherOrAdmin ? 'Buka Verifikasi Izin Pulang ↗' : 'Buka Status Izin Pulang ↗',
+        );
+      }
+      if (isPermit) {
+        return (
+          'IZIN / SAKIT',
+          const Color(0xFF0284C7),
+          const Color(0xFFE0F2FE),
+          Icons.event_note_rounded,
+          false,
+          isTeacherOrAdmin ? 'Buka Verifikasi Izin ↗' : 'Buka Status Izin ↗',
+        );
+      }
+      if (isForgotAttendance) {
+        return (
+          'LUPA ABSEN',
+          const Color(0xFFEA580C),
+          const Color(0xFFFFEDD5),
+          Icons.more_time_rounded,
+          false,
+          isTeacherOrAdmin ? 'Buka Verifikasi Lupa Absen ↗' : 'Buka Status Lupa Absen ↗',
+        );
+      }
+      if (isConduct) {
+        return (
+          'PEMBINAAN KARAKTER',
+          const Color(0xFFDC2626),
+          const Color(0xFFFEE2E2),
+          Icons.gavel_rounded,
+          false,
+          isTeacherOrAdmin ? 'Buka Verifikasi Pembinaan ↗' : 'Buka Catatan Karakter ↗',
+        );
+      }
+      if (isChatOrangTua) {
+        return ('CHAT ORANG TUA 👨‍👩‍👧', const Color(0xFFB45309), const Color(0xFFFEF3C7), Icons.family_restroom_rounded, false, 'Buka Percakapan Chat ↗');
+      }
+      if (isChatSiswa) {
+        return ('CHAT SISWA 🎒', const Color(0xFF047857), const Color(0xFFD1FAE5), Icons.school_rounded, false, 'Buka Percakapan Chat ↗');
+      }
+      if (isChatGuru) {
+        return ('CHAT WALI KELAS 👨‍🏫', const Color(0xFF6D28D9), const Color(0xFFEDE9FE), Icons.co_present_rounded, false, 'Buka Percakapan Chat ↗');
+      }
+      if (isGeneralChat) {
+        return ('CHAT SEGITIGA 💬', const Color(0xFF1D4ED8), const Color(0xFFEFF6FF), Icons.forum_rounded, false, 'Buka Percakapan Chat ↗');
+      }
+      if (type == 'reminder_checkin') {
+        return ('PRESENSI DATANG', const Color(0xFF0284C7), const Color(0xFFE0F2FE), Icons.login_rounded, false, null);
+      }
+      if (type == 'reminder_checkout') {
+        return ('PRESENSI PULANG', const Color(0xFFD97706), const Color(0xFFFEF3C7), Icons.logout_rounded, false, null);
+      }
+      if (isAnnouncement || type == 'announcement') {
+        return ('PENGUMUMAN SEKOLAH', const Color(0xFF7C3AED), const Color(0xFFEDE9FE), Icons.campaign_rounded, true, 'Buka Pengumuman Sekolah ↗');
+      }
+      if (type == 'warning') {
+        return ('PERINGATAN', const Color(0xFFDC2626), const Color(0xFFFEE2E2), Icons.warning_rounded, false, null);
+      }
+      if (type == 'success') {
+        return ('BERHASIL', const Color(0xFF059669), const Color(0xFFD1FAE5), Icons.check_circle_rounded, false, null);
+      }
+      return ('INFORMASI DOSMAN', const Color(0xFF0F2460), const Color(0xFFE2E8F0), Icons.info_rounded, true, 'Buka Pengumuman Sekolah ↗');
+    }();
 
     final timeStr = DateFormat('HH:mm').format(item.createdAt);
 

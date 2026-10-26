@@ -40,7 +40,9 @@ class EarlyCheckoutNotificationTest extends TestCase
         $response->assertSessionHas('success');
 
         // Wali kelas harus menerima notifikasi
-        $this->assertEquals(1, AppNotification::where('user_id', $homeroomTeacher->id)->where('title', 'Izin Pulang Lebih Awal')->count());
+        $notif = AppNotification::where('user_id', $homeroomTeacher->id)->where('title', 'Izin Pulang Lebih Awal')->first();
+        $this->assertNotNull($notif);
+        $this->assertEquals('early_checkout', $notif->type);
 
         // Guru lain dan admin TIDAK boleh menerima notifikasi
         $this->assertEquals(0, AppNotification::where('user_id', $otherTeacher->id)->count());

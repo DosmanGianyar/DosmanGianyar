@@ -59,7 +59,7 @@ class EarlyCheckoutRequestController extends Controller
             student: $student,
             title:   'Izin Pulang Lebih Awal',
             body:    $student->name . ' mengajukan izin pulang lebih awal pada ' . Carbon::parse($data['date'])->isoFormat('D MMMM Y') . ' pukul ' . $data['requested_time'],
-            type:    'info',
+            type:    'early_checkout',
             url:     route('guru.early-checkout.index'),
         );
 
