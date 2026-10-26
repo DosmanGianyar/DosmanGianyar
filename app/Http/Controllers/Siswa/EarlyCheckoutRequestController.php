@@ -54,13 +54,20 @@ class EarlyCheckoutRequestController extends Controller
             'status'         => 'pending',
         ]);
 
-        // Notify all guru/admin — any teacher can review
-        NotificationService::broadcastToRole(
-            roles:  ['guru', 'admin'],
-            title:  'Izin Pulang Lebih Awal',
-            body:   $student->name . ' mengajukan izin pulang lebih awal pada ' . Carbon::parse($data['date'])->isoFormat('D MMMM Y') . ' pukul ' . $data['requested_time'],
-            type:   'info',
-            url:    route('guru.early-checkout.index'),
+        // Notifikasi HANYA ke Wali Kelas siswa terkait (bukan ke semua guru)
+        NotificationService::notifyHomeroomTeacher(
+            student: $student,
+            title:   'Izin Pulang Lebih Awal',
+            body:    $student->name . ' mengajukan izin pulang lebih awal pada ' . Carbon::parse($data['date'])->isoFormat('D MMMM Y') . ' pukul ' . $data['requested_time'],
+            type:    'info',
+            url:     route('guru.early-checkout.index'),
+        );
+
+        NotificationService::notifyParentsOfStudent(
+            student: $student,
+            title:   'Pengajuan Pulang Cepat Anak',
+            body:    'Anak Anda ' . $student->name . ' mengajukan izin pulang lebih awal pada ' . Carbon::parse($data['date'])->isoFormat('D MMMM Y') . ' pukul ' . $data['requested_time'],
+            type:    'warning',
         );
 
         return redirect()->route('siswa.early-checkout.index')

@@ -76,10 +76,10 @@ class EarlyCheckoutController extends Controller
 
         NotificationService::notifyHomeroomTeacher(
             $student,
-            'Pengajuan Pulang Cepat Siswa',
-            "{$student->name} mengajukan izin pulang cepat jam {$data['requested_time']} [{$modeLabel}].",
-            'warning',
-            'guru/early-checkouts'
+            'Izin Pulang Lebih Awal',
+            "{$student->name} mengajukan izin pulang lebih awal pada " . Carbon::parse($data['date'])->isoFormat('D MMMM Y') . " pukul {$data['requested_time']} [{$modeLabel}].",
+            'info',
+            route('guru.early-checkout.index')
         );
 
         NotificationService::notifyParentsOfStudent(
