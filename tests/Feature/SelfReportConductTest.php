@@ -118,4 +118,87 @@ class SelfReportConductTest extends TestCase
             'verifier_id' => $guru->id,
         ]);
     }
+
+    public function test_siswa_submitting_lainnya_creates_correct_category_and_not_terlambat(): void
+    {
+        $class = SchoolClass::create(['name' => 'X-A', 'grade' => 10]);
+        $student = User::factory()->create(['role' => 'siswa', 'class_id' => $class->id]);
+
+        $response = $this->actingAs($student)->post(route('siswa.conduct.self-report'), [
+            'reason'       => 'Lainnya',
+            'other_reason' => 'Meninggalkan Kelas Tanpa Izin',
+            'description'  => 'Ke kantin saat jam pelajaran',
+        ]);
+
+        $response->assertRedirect(route('siswa.conduct.index'));
+        $response->assertSessionHas('success');
+
+        $log = ConductLog::where('student_id', $student->id)->latest()->first();
+        $this->assertNotNull($log);
+        $this->assertEquals('Meninggalkan Kelas Tanpa Izin', $log->displayCategoryName());
+        $this->assertNotEquals('Terlambat Masuk Sekolah', $log->displayCategoryName());
+    }
+
+    public function test_siswa_cannot_submit_duplicate_report_while_previous_is_pending(): void
+    {
+        $class = SchoolClass::create(['name' => 'X-B', 'grade' => 10]);
+        $student = User::factory()->create(['role' => 'siswa', 'class_id' => $class->id]);
+
+        // Pengajuan pertama
+        $this->actingAs($student)->post(route('siswa.conduct.self-report'), [
+            'reason'      => 'Terlambat Masuk Sekolah',
+            'description' => 'Macet',
+        ])->assertSessionHas('success');
+
+        // Pengajuan kedua (sebelum verifikasi) harus ditolak
+        $response2 = $this->actingAs($student)->post(route('siswa.conduct.self-report'), [
+            'reason'      => 'Seragam / Atribut Tidak Lengkap',
+            'description' => 'Tidak pakai dasi',
+        ]);
+
+        $response2->assertSessionHas('error');
+        $this->assertEquals(1, ConductLog::where('student_id', $student->id)->where('status', 'pending')->count());
+
+        // Lewat API juga harus ditolak dengan HTTP 422
+        $apiResponse = $this->actingAs($student, 'sanctum')
+            ->withHeaders(['X-Device-ID' => 'test-device-123'])
+            ->postJson('/api/v1/conduct/self-report', [
+                'reason' => 'Lainnya',
+                'other_reason' => 'Ban bocor',
+            ]);
+
+        $apiResponse->assertStatus(422);
+        $apiResponse->assertJson(['success' => false]);
+    }
+
+    public function test_siswa_can_submit_again_after_previous_report_is_verified(): void
+    {
+        $class = SchoolClass::create(['name' => 'XI-C', 'grade' => 11]);
+        $student = User::factory()->create(['role' => 'siswa', 'class_id' => $class->id]);
+        $guru = User::factory()->create(['role' => 'guru']);
+
+        // Pengajuan pertama
+        $this->actingAs($student)->post(route('siswa.conduct.self-report'), [
+            'reason'      => 'Terlambat Masuk Sekolah',
+            'description' => 'Macet pertama',
+        ])->assertSessionHas('success');
+
+        $log1 = ConductLog::where('student_id', $student->id)->first();
+        $this->assertNotNull($log1);
+
+        // Guru memverifikasi
+        $this->actingAs($guru)->post(route('guru.conduct.verify', $log1->id))->assertRedirect();
+        $this->assertEquals('verified', $log1->fresh()->status);
+
+        // Setelah diverifikasi, siswa boleh mengajukan pelanggaran mandiri sekali lagi
+        $response2 = $this->actingAs($student)->post(route('siswa.conduct.self-report'), [
+            'reason'       => 'Lainnya',
+            'other_reason' => 'Seragam Tidak Lengkap',
+            'description'  => 'Lupa bawa topi upacara',
+        ]);
+
+        $response2->assertSessionHas('success');
+        $this->assertEquals(2, ConductLog::where('student_id', $student->id)->count());
+        $this->assertEquals(1, ConductLog::where('student_id', $student->id)->where('status', 'pending')->count());
+    }
 }

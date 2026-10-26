@@ -3,27 +3,67 @@
 @section('page-title', 'SIPINTER (Pendidikan Karakter)')
 
 @section('content')
-<div class="space-y-4" x-data="{ openReportModal: false }">
+<div class="space-y-4" x-data="{ openReportModal: false, selectedReason: 'Terlambat Masuk Sekolah' }">
 
     {{-- Banner Pengajuan Mandiri --}}
-    <div class="bg-gradient-to-r from-amber-500 to-orange-600 rounded-2xl p-4 text-white shadow-sm flex items-center justify-between">
-        <div>
-            <h3 class="font-bold text-sm flex items-center gap-1.5">
-                <span>⚡ Terlambat / Lapor Pembinaan Mandiri?</span>
-            </h3>
-            <p class="text-xs text-amber-100 mt-0.5">Ajukan dari HP Anda untuk verifikasi di gerbang.</p>
+    @if(isset($pendingReport) && $pendingReport)
+        <div class="bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/10 border-2 border-amber-300 rounded-2xl p-4 text-amber-950 shadow-xs">
+            <div class="flex items-start justify-between gap-3">
+                <div class="space-y-1.5">
+                    <div class="flex items-center gap-2">
+                        <span class="relative flex h-3 w-3">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span>
+                        </span>
+                        <h3 class="font-bold text-sm text-amber-950">
+                            Pengajuan Mandiri Sedang Menunggu Verifikasi
+                        </h3>
+                    </div>
+                    <p class="text-xs text-amber-900">
+                        Pelanggaran: <span class="font-black text-amber-950">{{ $pendingReport->displayCategoryName() }}</span>
+                        @if($pendingReport->parsed_description)
+                            <span class="text-amber-800 italic">({{ $pendingReport->parsed_description }})</span>
+                        @endif
+                    </p>
+                    <p class="text-[11px] text-amber-800">
+                        Diajukan pada {{ $pendingReport->created_at->isoFormat('D MMM Y, HH:mm') }} WITA. Silakan tunjukkan kepada Guru Piket di gerbang.
+                    </p>
+                    <p class="text-[10.5px] text-amber-700 font-semibold bg-amber-100/80 px-2.5 py-1 rounded-lg inline-block border border-amber-200">
+                        ℹ️ Anda baru dapat melapor pelanggaran mandiri sekali lagi setelah pengajuan ini selesai diverifikasi.
+                    </p>
+                </div>
+                <span class="px-3 py-1.5 bg-amber-200 text-amber-900 font-extrabold text-[11px] rounded-xl shrink-0 border border-amber-300 shadow-2xs">
+                    ⏱️ Menunggu Guru
+                </span>
+            </div>
         </div>
-        <button @click="openReportModal = true" type="button"
-            class="px-3.5 py-2 bg-white text-amber-700 hover:bg-amber-50 text-xs font-bold rounded-xl transition-all shadow-sm shrink-0 flex items-center gap-1.5">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-            <span>Ajukan Sekarang</span>
-        </button>
-    </div>
+    @else
+        <div class="bg-gradient-to-r from-amber-500 to-orange-600 rounded-2xl p-4 text-white shadow-sm flex items-center justify-between">
+            <div>
+                <h3 class="font-bold text-sm flex items-center gap-1.5">
+                    <span>⚡ Terlambat / Lapor Pembinaan Mandiri?</span>
+                </h3>
+                <p class="text-xs text-amber-100 mt-0.5">Ajukan dari HP Anda untuk verifikasi di gerbang.</p>
+            </div>
+            <button @click="openReportModal = true" type="button"
+                class="px-3.5 py-2 bg-white text-amber-700 hover:bg-amber-50 text-xs font-bold rounded-xl transition-all shadow-sm shrink-0 flex items-center gap-1.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                <span>Ajukan Sekarang</span>
+            </button>
+        </div>
+    @endif
 
     @if(session('success'))
         <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl p-3.5 text-xs font-semibold flex items-center gap-2">
             <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
             <span>{{ session('success') }}</span>
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="bg-rose-50 border border-rose-200 text-rose-800 rounded-xl p-3.5 text-xs font-semibold flex items-center gap-2">
+            <svg class="w-4 h-4 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+            <span>{{ session('error') }}</span>
         </div>
     @endif
 
@@ -98,7 +138,8 @@
         @endif
     </div>
 
-    {{-- Modal Pengajuan Pembinaan Mandiri --}}
+    {{-- Modal Pengajuan Pembinaan Mandiri (Hanya jika belum ada pending report) --}}
+    @if(!isset($pendingReport) || !$pendingReport)
     <div x-show="openReportModal" x-cloak class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
         <div @click.away="openReportModal = false" class="bg-white rounded-2xl max-w-md w-full p-5 shadow-xl relative space-y-4">
             <div class="flex items-center justify-between border-b border-gray-100 pb-3">
@@ -115,12 +156,20 @@
                 @csrf
                 <div>
                     <label class="block text-xs font-semibold text-gray-700 mb-1">Alasan Pembinaan Disiplin <span class="text-red-500">*</span></label>
-                    <select name="reason" required class="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none bg-white">
+                    <select name="reason" x-model="selectedReason" required class="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none bg-white">
                         <option value="Terlambat Masuk Sekolah">Terlambat Masuk Sekolah (Gerbang)</option>
                         <option value="Terlambat Kembali dari Izin Keluar">Terlambat Kembali dari Izin Keluar</option>
                         <option value="Seragam / Atribut Tidak Lengkap">Seragam / Atribut Tidak Lengkap</option>
-                        <option value="Lainnya">Alasan Lainnya</option>
+                        <option value="Lainnya">Alasan Lainnya (Input Sendiri)</option>
                     </select>
+                </div>
+
+                {{-- Input teks dinamis jika memilih Lainnya --}}
+                <div x-show="selectedReason === 'Lainnya'" x-transition class="space-y-1">
+                    <label class="block text-xs font-semibold text-gray-700 mb-1">Sebutkan Pelanggaran / Alasan Lainnya <span class="text-red-500">*</span></label>
+                    <input type="text" name="other_reason" placeholder="Contoh: Meninggalkan kelas tanpa izin / Tidak memakai dasi"
+                        :required="selectedReason === 'Lainnya'"
+                        class="w-full px-3 py-2 rounded-xl border border-gray-200 text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none">
                 </div>
 
                 <div>
@@ -145,6 +194,7 @@
             </form>
         </div>
     </div>
+    @endif
 
 </div>
 @endsection

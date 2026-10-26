@@ -3,10 +3,16 @@ import '../theme/app_colors.dart';
 
 class ConductSummary {
   final int prestasiCount, pelanggaranCount;
-  const ConductSummary({required this.prestasiCount, required this.pelanggaranCount});
+  final bool hasPendingReport;
+  const ConductSummary({
+    required this.prestasiCount,
+    required this.pelanggaranCount,
+    this.hasPendingReport = false,
+  });
   factory ConductSummary.fromJson(Map<String, dynamic> j) => ConductSummary(
     prestasiCount:    j['prestasi_count']    as int,
     pelanggaranCount: j['pelanggaran_count'] as int,
+    hasPendingReport: (j['has_pending_report'] as bool?) ?? false,
   );
 }
 

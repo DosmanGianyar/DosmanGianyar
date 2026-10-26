@@ -52,9 +52,12 @@ class _ConductScreenState extends State<ConductScreen> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _showSelfReportDialog,
-        backgroundColor: const Color(0xFFD97706),
-        icon: const Icon(Icons.flash_on_rounded, color: Colors.white),
-        label: const Text('Lapor Mandiri', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
+        backgroundColor: (_summary?.hasPendingReport ?? false) ? const Color(0xFFB45309) : const Color(0xFFD97706),
+        icon: Icon((_summary?.hasPendingReport ?? false) ? Icons.hourglass_top_rounded : Icons.flash_on_rounded, color: Colors.white),
+        label: Text(
+          (_summary?.hasPendingReport ?? false) ? 'Menunggu Verifikasi' : 'Lapor Mandiri',
+          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+        ),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -70,26 +73,30 @@ class _ConductScreenState extends State<ConductScreen> {
                             Container(
                               margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
                               padding: const EdgeInsets.all(14),
-                              decoration: const BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [Color(0xFFF59E0B), Color(0xFFD97706)],
-                                ),
+                              decoration: BoxDecoration(
+                                gradient: (_summary?.hasPendingReport ?? false)
+                                    ? const LinearGradient(colors: [Color(0xFFD97706), Color(0xFFB45309)])
+                                    : const LinearGradient(colors: [Color(0xFFF59E0B), Color(0xFFD97706)]),
                                 borderRadius: AppRadius.card,
                               ),
                               child: Row(
                                 children: [
-                                  const Expanded(
+                                  Expanded(
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          '⚡ Terlambat / Lapor Pembinaan Mandiri?',
-                                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                                          (_summary?.hasPendingReport ?? false)
+                                              ? '⏱️ Pengajuan Sedang Menunggu Verifikasi'
+                                              : '⚡ Terlambat / Lapor Pembinaan Mandiri?',
+                                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
                                         ),
-                                        SizedBox(height: 2),
+                                        const SizedBox(height: 2),
                                         Text(
-                                          'Ajukan dari HP Anda untuk diverifikasi oleh Guru Piket di gerbang.',
-                                          style: TextStyle(color: Colors.white70, fontSize: 11),
+                                          (_summary?.hasPendingReport ?? false)
+                                              ? 'Tunjukkan pengajuan Anda ke Guru Piket di gerbang.'
+                                              : 'Ajukan dari HP Anda untuk diverifikasi oleh Guru Piket di gerbang.',
+                                          style: const TextStyle(color: Colors.white70, fontSize: 11),
                                         ),
                                       ],
                                     ),
@@ -104,7 +111,10 @@ class _ConductScreenState extends State<ConductScreen> {
                                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                                       elevation: 0,
                                     ),
-                                    child: const Text('Ajukan', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                                    child: Text(
+                                      (_summary?.hasPendingReport ?? false) ? 'Status' : 'Ajukan',
+                                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                                    ),
                                   ),
                                 ],
                               ),
@@ -140,8 +150,19 @@ class _ConductScreenState extends State<ConductScreen> {
   }
 
   void _showSelfReportDialog() {
+    if (_summary?.hasPendingReport ?? false) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Anda masih memiliki 1 pengajuan yang sedang menunggu verifikasi Guru Piket.'),
+          backgroundColor: Color(0xFFB45309),
+        ),
+      );
+      return;
+    }
+
     String selectedReason = 'Terlambat Masuk Sekolah';
     final descController = TextEditingController();
+    final otherReasonController = TextEditingController();
     bool isSubmitting = false;
 
     showModalBottomSheet(
@@ -192,12 +213,27 @@ class _ConductScreenState extends State<ConductScreen> {
                   DropdownMenuItem(value: 'Terlambat Masuk Sekolah', child: Text('Terlambat Masuk Sekolah (Gerbang)', style: TextStyle(fontSize: 12))),
                   DropdownMenuItem(value: 'Terlambat Kembali dari Izin Keluar', child: Text('Terlambat Kembali dari Izin Keluar', style: TextStyle(fontSize: 12))),
                   DropdownMenuItem(value: 'Seragam / Atribut Tidak Lengkap', child: Text('Seragam / Atribut Tidak Lengkap', style: TextStyle(fontSize: 12))),
-                  DropdownMenuItem(value: 'Lainnya', child: Text('Alasan Lainnya', style: TextStyle(fontSize: 12))),
+                  DropdownMenuItem(value: 'Lainnya', child: Text('Alasan Lainnya (Input Sendiri)', style: TextStyle(fontSize: 12))),
                 ],
                 onChanged: (val) {
                   if (val != null) setModalState(() => selectedReason = val);
                 },
               ),
+              if (selectedReason == 'Lainnya') ...[
+                const SizedBox(height: 12),
+                const Text('Sebutkan Alasan / Pelanggaran Lainnya *',
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.gray700)),
+                const SizedBox(height: 6),
+                TextField(
+                  controller: otherReasonController,
+                  style: const TextStyle(fontSize: 12),
+                  decoration: InputDecoration(
+                    hintText: 'Contoh: Meninggalkan kelas tanpa izin / Tidak memakai dasi.',
+                    contentPadding: const EdgeInsets.all(12),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.gray200)),
+                  ),
+                ),
+              ],
               const SizedBox(height: 12),
               const Text('Keterangan / Alasan Tambahan (Opsional)',
                   style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.gray700)),
@@ -217,11 +253,19 @@ class _ConductScreenState extends State<ConductScreen> {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: isSubmitting ? null : () async {
+                    if (selectedReason == 'Lainnya' && otherReasonController.text.trim().isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Harap sebutkan alasan atau jenis pelanggaran lainnya.'), backgroundColor: AppColors.red500),
+                      );
+                      return;
+                    }
+
                     setModalState(() => isSubmitting = true);
                     try {
                       await ApiClient.post('/conduct/self-report', data: {
                         'reason': selectedReason,
-                        'description': descController.text,
+                        'other_reason': otherReasonController.text.trim(),
+                        'description': descController.text.trim(),
                       });
                       if (modalCtx.mounted) {
                         Navigator.pop(modalCtx);

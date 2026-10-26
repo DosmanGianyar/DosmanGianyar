@@ -28,38 +28,73 @@ class ConductController extends Controller
         $prestasiCount    = $allLogs->filter(fn ($l) => $l->isPrestasi() && $l->status === 'verified')->count();
         $pelanggaranCount = $allLogs->filter(fn ($l) => $l->isPelanggaran() && $l->status === 'verified')->count();
 
+        $pendingReport = $user->conductLogs()
+            ->where('is_self_reported', true)
+            ->where('status', 'pending')
+            ->latest()
+            ->first();
+
         $categories = ConductCategory::active()
             ->where('type', 'pelanggaran')
             ->where('name', 'not like', '__sistem__%')
             ->orderBy('name')
             ->get();
 
-        return view('siswa.conduct.index', compact('logs', 'prestasiCount', 'pelanggaranCount', 'categories'));
+        return view('siswa.conduct.index', compact('logs', 'prestasiCount', 'pelanggaranCount', 'categories', 'pendingReport'));
     }
 
     public function storeSelfReport(Request $request): RedirectResponse
     {
-        $request->validate([
-            'reason'      => 'required|string|max:100',
-            'description' => 'nullable|string|max:500',
-            'photo'       => 'nullable|image|max:2048',
-        ]);
-
         $student = Auth::user();
 
-        $category = ConductCategory::firstOrCreate(
-            ['name' => 'Terlambat Masuk Sekolah'],
-            ['type' => 'pelanggaran', 'context' => 'sidak', 'is_active' => true]
-        );
+        // Cegah siswa mengirim pengajuan berkali-kali jika masih ada yang pending (belum diverifikasi guru)
+        $hasPending = ConductLog::where('student_id', $student->id)
+            ->where('is_self_reported', true)
+            ->where('status', 'pending')
+            ->exists();
+
+        if ($hasPending) {
+            return redirect()->route('siswa.conduct.index')
+                ->with('error', 'Anda masih memiliki 1 laporan pembinaan mandiri yang belum diverifikasi oleh Guru Piket. Anda baru dapat melapor lagi setelah laporan sebelumnya diverifikasi.');
+        }
+
+        $request->validate([
+            'reason'       => 'required|string|max:100',
+            'other_reason' => 'nullable|string|max:100',
+            'description'  => 'nullable|string|max:500',
+            'photo'        => 'nullable|image|max:2048',
+        ]);
+
+        $reason      = trim($request->input('reason', 'Terlambat Masuk Sekolah'));
+        $otherReason = trim((string) $request->input('other_reason', ''));
+        $desc        = trim((string) $request->input('description', ''));
+
+        if ($reason === 'Lainnya') {
+            $displayReason = $otherReason !== '' ? $otherReason : 'Pelanggaran Lainnya';
+            $category = ConductCategory::firstOrCreate(
+                ['name' => '__sistem__pelanggaran_lainnya'],
+                ['type' => 'pelanggaran', 'context' => 'sidak', 'is_active' => true]
+            );
+        } else {
+            $displayReason = $reason;
+            $context = match ($reason) {
+                'Terlambat Masuk Sekolah'           => 'sidak',
+                'Terlambat Kembali dari Izin Keluar' => 'izin',
+                'Seragam / Atribut Tidak Lengkap'    => 'sidak',
+                default                             => 'sidak',
+            };
+            $category = ConductCategory::firstOrCreate(
+                ['name' => $reason],
+                ['type' => 'pelanggaran', 'context' => $context, 'is_active' => true]
+            );
+        }
 
         $photoPath = null;
         if ($request->hasFile('photo')) {
             $photoPath = ImageService::store($request->file('photo'), 'conduct', maxWidth: 1280, quality: 80);
         }
 
-        $reason = trim($request->input('reason', 'Terlambat Masuk Sekolah'));
-        $desc   = trim((string) $request->input('description', ''));
-        $fullNote = "[Pengajuan Mandiri: {$reason}]" . ($desc ? " {$desc}" : '');
+        $fullNote = "[{$displayReason}]" . ($desc ? " {$desc}" : '');
 
         ConductLog::create([
             'student_id'       => $student->id,
@@ -67,7 +102,7 @@ class ConductController extends Controller
             'category_id'      => $category->id,
             'photo'            => $photoPath,
             'note'             => $fullNote,
-            'description'      => "Pengajuan Mandiri Siswa: {$reason}" . ($desc ? " - {$desc}" : ''),
+            'description'      => "Pengajuan Mandiri Siswa: {$displayReason}" . ($desc ? " - {$desc}" : ''),
             'severity'         => 'ringan',
             'type'             => 'pelanggaran',
             'is_self_reported' => true,
@@ -77,7 +112,7 @@ class ConductController extends Controller
         NotificationService::notifyHomeroomTeacher(
             $student,
             "Pengajuan Pembinaan Mandiri",
-            "Siswa {$student->name} ({$student->schoolClass?->name}) mengajukan pembinaan: {$reason}.",
+            "Siswa {$student->name} ({$student->schoolClass?->name}) mengajukan pembinaan: {$displayReason}.",
             'warning'
         );
 

@@ -353,18 +353,19 @@ class GuruConductApiController extends Controller
             'teacher_id'  => Auth::id(),
         ]);
 
+        $categoryName = $log->displayCategoryName();
         $student = $log->student;
         if ($student) {
             NotificationService::send(
                 $student->id,
                 "Pembinaan Disiplin Diverifikasi",
-                "Pengajuan pembinaan Anda telah diverifikasi oleh " . Auth::user()->name . ". Selamat belajar!",
+                "Pengajuan pembinaan ({$categoryName}) Anda telah diverifikasi oleh " . Auth::user()->name . ". Selamat belajar!",
                 'success'
             );
             NotificationService::notifyParentsOfStudent(
                 $student,
                 "Catatan Kedisiplinan Siswa",
-                "Ananda {$student->name} telah melakukan pengajuan pembinaan keterlambatan dan diverifikasi oleh guru.",
+                "Ananda {$student->name} telah melakukan pengajuan pembinaan ({$categoryName}) dan diverifikasi oleh guru.",
                 'warning'
             );
         }

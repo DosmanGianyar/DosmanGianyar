@@ -211,11 +211,13 @@ class StudentDataService
 
         $prestasiCount    = $logs->filter(fn ($l) => in_array($l->category?->type ?? $l->type, ['prestasi', 'positif']))->count();
         $pelanggaranCount = $logs->filter(fn ($l) => ($l->category?->type ?? $l->type) === 'pelanggaran')->count();
+        $hasPendingReport = $logs->contains(fn ($l) => (bool)$l->is_self_reported && $l->status === 'pending');
 
         return [
             'summary' => [
-                'prestasi_count'    => $prestasiCount,
-                'pelanggaran_count' => $pelanggaranCount,
+                'prestasi_count'     => $prestasiCount,
+                'pelanggaran_count'  => $pelanggaranCount,
+                'has_pending_report' => $hasPendingReport,
             ],
             'logs' => $logs->map(function ($log) {
                 $type = $log->category?->type ?? $log->type ?? 'pelanggaran';
