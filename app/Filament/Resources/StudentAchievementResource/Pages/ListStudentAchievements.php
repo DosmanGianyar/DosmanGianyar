@@ -16,6 +16,13 @@ class ListStudentAchievements extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
+            Action::make('export_pdf')
+                ->label('Cetak Rekap Prestasi (PDF)')
+                ->icon('heroicon-o-printer')
+                ->color('danger')
+                ->url(fn (): string => route('admin.achievement-report.pdf'))
+                ->openUrlInNewTab(),
+
             Action::make('download_guide')
                 ->label('Unduh Buku Panduan Kurasi (PDF)')
                 ->icon('heroicon-o-document-arrow-down')

@@ -76,18 +76,26 @@ class StudentAchievement extends Model
 
     public function levelLabel(): string
     {
+        if (empty($this->level)) {
+            return '—';
+        }
+
         return match ($this->level) {
             'sekolah'       => 'Sekolah',
             'kabupaten'     => 'Kabupaten/Kota',
             'provinsi'      => 'Provinsi',
             'nasional'      => 'Nasional',
             'internasional' => 'Internasional',
-            default         => ucfirst($this->level),
+            default         => ucfirst((string) $this->level),
         };
     }
 
     public function fieldCategoryLabel(): string
     {
+        if (empty($this->field_category)) {
+            return 'Lainnya';
+        }
+
         return match ($this->field_category) {
             'sains_riset'   => 'Sains & Riset',
             'olahraga'      => 'Olahraga',

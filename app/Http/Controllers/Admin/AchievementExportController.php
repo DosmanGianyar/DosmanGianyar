@@ -16,6 +16,9 @@ class AchievementExportController extends Controller
      */
     public function pdf(Request $request)
     {
+        @ini_set('memory_limit', '512M');
+        @set_time_limit(300);
+
         $query = StudentAchievement::query()
             ->with(['student.schoolClass', 'verifier'])
             ->orderBy('achievement_date', 'desc');
@@ -37,8 +40,16 @@ class AchievementExportController extends Controller
             $query->where('field_category', $request->field_category);
         }
 
+        if ($request->filled('participation_type')) {
+            $query->where('participation_type', $request->participation_type);
+        }
+
         if ($request->filled('class_id')) {
             $query->whereHas('student', fn ($q) => $q->where('class_id', $request->class_id));
+        }
+
+        if ($request->filled('month')) {
+            $query->whereMonth('achievement_date', $request->month);
         }
 
         if ($request->filled('year')) {
@@ -59,6 +70,14 @@ class AchievementExportController extends Controller
         $selectedLevel = $request->filled('level') ? (new StudentAchievement(['level' => $request->level]))->levelLabel() : null;
         $selectedCategory = $request->filled('field_category') ? (new StudentAchievement(['field_category' => $request->field_category]))->fieldCategoryLabel() : null;
         $selectedCuration = $request->filled('curation_status') ? (new StudentAchievement(['curation_status' => $request->curation_status]))->curationStatusLabel() : null;
+        $selectedParticipation = $request->filled('participation_type') ? (new StudentAchievement(['participation_type' => $request->participation_type]))->participationTypeLabel() : null;
+
+        $monthNames = [
+            '1' => 'Januari', '2' => 'Februari', '3' => 'Maret', '4' => 'April',
+            '5' => 'Mei', '6' => 'Juni', '7' => 'Juli', '8' => 'Agustus',
+            '9' => 'September', '10' => 'Oktober', '11' => 'November', '12' => 'Desember',
+        ];
+        $selectedMonth = $request->filled('month') ? ($monthNames[(string) $request->month] ?? null) : null;
 
         $individualCount = $achievements->where('participation_type', '!=', 'beregu')->count();
         $teamCount       = $achievements->where('participation_type', 'beregu')->whereNotNull('team_code')->pluck('team_code')->unique()->count();
@@ -78,20 +97,56 @@ class AchievementExportController extends Controller
             'unique_students' => $achievements->pluck('student_id')->unique()->count(),
         ];
 
-        $fromDate  = $request->filled('from') ? \Carbon\Carbon::parse($request->from)->translatedFormat('d F Y') : null;
-        $untilDate = $request->filled('until') ? \Carbon\Carbon::parse($request->until)->translatedFormat('d F Y') : null;
+        $fromDate = null;
+        if ($request->filled('from')) {
+            try {
+                $fromDate = \Carbon\Carbon::parse($request->from)->translatedFormat('d F Y');
+            } catch (\Throwable $e) {
+                $fromDate = $request->from;
+            }
+        }
+
+        $untilDate = null;
+        if ($request->filled('until')) {
+            try {
+                $untilDate = \Carbon\Carbon::parse($request->until)->translatedFormat('d F Y');
+            } catch (\Throwable $e) {
+                $untilDate = $request->until;
+            }
+        }
+
+        // Sanitasi karakter emoji 4-byte UTF-8 yang berpotensi menyebabkan crash pada engine font DomPDF
+        foreach ($achievements as $item) {
+            if ($item->title) {
+                $item->title = preg_replace('/[\x{10000}-\x{10FFFF}]/u', '', $item->title);
+            }
+            if ($item->event_name) {
+                $item->event_name = preg_replace('/[\x{10000}-\x{10FFFF}]/u', '', $item->event_name);
+            }
+            if ($item->organizer) {
+                $item->organizer = preg_replace('/[\x{10000}-\x{10FFFF}]/u', '', $item->organizer);
+            }
+            if ($item->rank) {
+                $item->rank = preg_replace('/[\x{10000}-\x{10FFFF}]/u', '', $item->rank);
+            }
+        }
 
         $pdf = Pdf::loadView('exports.achievement-pdf', [
-            'achievements'     => $achievements,
-            'stats'            => $stats,
-            'selectedClass'    => $selectedClass,
-            'selectedLevel'    => $selectedLevel,
-            'selectedCategory' => $selectedCategory,
-            'selectedCuration' => $selectedCuration,
-            'year'             => $request->year,
-            'fromDate'         => $fromDate,
-            'untilDate'        => $untilDate,
-        ])->setPaper('a4', 'landscape');
+            'achievements'          => $achievements,
+            'stats'                 => $stats,
+            'selectedClass'         => $selectedClass,
+            'selectedLevel'         => $selectedLevel,
+            'selectedCategory'      => $selectedCategory,
+            'selectedCuration'      => $selectedCuration,
+            'selectedParticipation' => $selectedParticipation,
+            'selectedMonth'         => $selectedMonth,
+            'year'                  => $request->year,
+            'fromDate'              => $fromDate,
+            'untilDate'             => $untilDate,
+        ])
+        ->setPaper('a4', 'landscape')
+        ->setOption('isHtml5ParserEnabled', true)
+        ->setOption('isRemoteEnabled', true);
 
         $filename = 'laporan_prestasi_siswa_' . now()->format('Ymd_His') . '.pdf';
 
@@ -121,8 +176,16 @@ class AchievementExportController extends Controller
             $query->where('field_category', $request->field_category);
         }
 
+        if ($request->filled('participation_type')) {
+            $query->where('participation_type', $request->participation_type);
+        }
+
         if ($request->filled('class_id')) {
             $query->whereHas('student', fn ($q) => $q->where('class_id', $request->class_id));
+        }
+
+        if ($request->filled('month')) {
+            $query->whereMonth('achievement_date', $request->month);
         }
 
         if ($request->filled('year')) {
@@ -176,7 +239,7 @@ class AchievementExportController extends Controller
                     $item->levelLabel(),
                     $item->rank ?? '—',
                     $item->participationTypeLabel(),
-                    $item->achievement_date ? $item->achievement_date->format('d/m/Y') : '—',
+                    $item->achievement_date ? \Carbon\Carbon::parse($item->achievement_date)->format('d/m/Y') : '—',
                     $item->curationStatusLabel(),
                     $item->verifier?->name ?? 'System',
                 ]);

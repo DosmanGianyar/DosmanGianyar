@@ -52,14 +52,15 @@ class AchievementReportPage extends Page implements HasTable
                 ->icon('heroicon-o-printer')
                 ->color('danger')
                 ->url(fn (): string => route('admin.achievement-report.pdf', [
-                    'curation_status' => $this->tableFilters['curation_status']['value'] ?? null,
-                    'level'           => $this->tableFilters['level']['value'] ?? null,
-                    'field_category'  => $this->tableFilters['field_category']['value'] ?? null,
-                    'class_id'        => $this->tableFilters['class_id']['value'] ?? null,
-                    'year'            => $this->tableFilters['year']['value'] ?? null,
-                    'month'           => $this->tableFilters['month']['value'] ?? null,
-                    'from'            => $this->tableFilters['date_range']['from'] ?? null,
-                    'until'           => $this->tableFilters['date_range']['until'] ?? null,
+                    'curation_status'    => $this->tableFilters['curation_status']['value'] ?? null,
+                    'participation_type' => $this->tableFilters['participation_type']['value'] ?? null,
+                    'level'              => $this->tableFilters['level']['value'] ?? null,
+                    'field_category'     => $this->tableFilters['field_category']['value'] ?? null,
+                    'class_id'           => $this->tableFilters['class_id']['value'] ?? null,
+                    'year'               => $this->tableFilters['year']['value'] ?? null,
+                    'month'              => $this->tableFilters['month']['value'] ?? null,
+                    'from'               => $this->tableFilters['date_range']['from'] ?? null,
+                    'until'              => $this->tableFilters['date_range']['until'] ?? null,
                 ]))
                 ->openUrlInNewTab(),
 
@@ -68,14 +69,15 @@ class AchievementReportPage extends Page implements HasTable
                 ->icon('heroicon-o-arrow-down-tray')
                 ->color('success')
                 ->url(fn (): string => route('admin.achievement-report.excel', [
-                    'curation_status' => $this->tableFilters['curation_status']['value'] ?? null,
-                    'level'           => $this->tableFilters['level']['value'] ?? null,
-                    'field_category'  => $this->tableFilters['field_category']['value'] ?? null,
-                    'class_id'        => $this->tableFilters['class_id']['value'] ?? null,
-                    'year'            => $this->tableFilters['year']['value'] ?? null,
-                    'month'           => $this->tableFilters['month']['value'] ?? null,
-                    'from'            => $this->tableFilters['date_range']['from'] ?? null,
-                    'until'           => $this->tableFilters['date_range']['until'] ?? null,
+                    'curation_status'    => $this->tableFilters['curation_status']['value'] ?? null,
+                    'participation_type' => $this->tableFilters['participation_type']['value'] ?? null,
+                    'level'              => $this->tableFilters['level']['value'] ?? null,
+                    'field_category'     => $this->tableFilters['field_category']['value'] ?? null,
+                    'class_id'           => $this->tableFilters['class_id']['value'] ?? null,
+                    'year'               => $this->tableFilters['year']['value'] ?? null,
+                    'month'              => $this->tableFilters['month']['value'] ?? null,
+                    'from'               => $this->tableFilters['date_range']['from'] ?? null,
+                    'until'              => $this->tableFilters['date_range']['until'] ?? null,
                 ]))
                 ->openUrlInNewTab(),
         ];

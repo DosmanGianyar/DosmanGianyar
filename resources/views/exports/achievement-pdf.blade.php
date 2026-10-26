@@ -6,7 +6,7 @@
 <style>
   @page { size: A4 landscape; margin: 10mm 12mm 12mm 12mm; }
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: 'Times New Roman', Times, serif; font-size: 10pt; color: #000; line-height: 1.3; }
+  body { font-family: 'DejaVu Sans', 'Times New Roman', serif; font-size: 9.5pt; color: #000; line-height: 1.3; }
 
   /* ── Kop Surat Formal ────────────────────────────────────────── */
   .kop-container { width: 100%; border-collapse: collapse; margin-bottom: 4px; }
@@ -58,12 +58,24 @@
 </head>
 <body>
 
+@php
+    $logoBaliPath = public_path('img/logo-pemprov-bali.png');
+    $logoBaliData = file_exists($logoBaliPath) 
+        ? 'data:image/png;base64,' . base64_encode(file_get_contents($logoBaliPath)) 
+        : null;
+
+    $logoSekolahPath = public_path('img/logo_sekolah.png');
+    $logoSekolahData = file_exists($logoSekolahPath) 
+        ? 'data:image/png;base64,' . base64_encode(file_get_contents($logoSekolahPath)) 
+        : null;
+@endphp
+
 {{-- ── KOP SEKOLAH FORMAL ─────────────────────────────────────── --}}
 <table class="kop-container">
   <tr>
     <td class="kop-logo">
-      @if(file_exists(public_path('img/logo-pemprov-bali.png')))
-        <img src="{{ public_path('img/logo-pemprov-bali.png') }}" alt="Pemprov Bali">
+      @if($logoBaliData)
+        <img src="{{ $logoBaliData }}" alt="Pemprov Bali">
       @endif
     </td>
     <td class="kop-text">
@@ -74,8 +86,8 @@
       <div class="l5">Website: https://sman1-gianyar.sch.id &nbsp;|&nbsp; E-mail: sman1.gianyar1963@gmail.com</div>
     </td>
     <td class="kop-logo">
-      @if(file_exists(public_path('img/logo_sekolah.png')))
-        <img src="{{ public_path('img/logo_sekolah.png') }}" alt="SMAN 1 Gianyar">
+      @if($logoSekolahData)
+        <img src="{{ $logoSekolahData }}" alt="SMAN 1 Gianyar">
       @endif
     </td>
   </tr>
@@ -86,14 +98,16 @@
 <div class="doc-header">
   <div class="doc-title">REKAPITULASI PRESTASI & KEJUARAAN SISWA</div>
   <div class="doc-subtitle">STATUS: PRESTASI DIAKUI SEKOLAH (KURASI RESMI & INTERNAL)</div>
-  @if(!empty($selectedClass) || !empty($selectedLevel) || !empty($selectedCategory) || !empty($selectedCuration) || !empty($year) || !empty($fromDate) || !empty($untilDate))
+  @if(!empty($selectedClass) || !empty($selectedLevel) || !empty($selectedCategory) || !empty($selectedCuration) || !empty($selectedParticipation) || !empty($selectedMonth) || !empty($year) || !empty($fromDate) || !empty($untilDate))
     <div class="doc-filter">
       Kriteria Filter: 
       @if(!empty($fromDate) || !empty($untilDate)) Periode {{ $fromDate ?? 'Awal' }} s.d. {{ $untilDate ?? 'Sekarang' }} &bull; @endif
       @if(!empty($selectedCuration)) Status {{ $selectedCuration }} &bull; @endif
+      @if(!empty($selectedParticipation)) Partisipasi {{ $selectedParticipation }} &bull; @endif
       @if(!empty($selectedLevel)) Tingkat {{ $selectedLevel }} &bull; @endif
       @if(!empty($selectedCategory)) Rumpun {{ $selectedCategory }} &bull; @endif
       @if(!empty($selectedClass)) Kelas {{ $selectedClass }} &bull; @endif
+      @if(!empty($selectedMonth)) Bulan {{ $selectedMonth }} &bull; @endif
       @if(!empty($year)) Tahun {{ $year }} @endif
     </div>
   @endif
@@ -164,7 +178,7 @@
           @endif
           {{ $item->title }}
           @if($item->isBeregu() && $item->team_code)
-            <br><span style="font-size: 7.5pt; color: #7c3aed;">👥 Tim: {{ $item->team_code }}</span>
+            <br><span style="font-size: 7.5pt; color: #6d28d9; font-weight: bold;">(Tim: {{ $item->team_code }})</span>
           @endif
         </td>
         <td>
@@ -185,7 +199,7 @@
             {{ $item->curationStatusLabel() }}
           </span>
         </td>
-        <td class="text-center">{{ $item->achievement_date ? $item->achievement_date->format('d/m/Y') : '—' }}</td>
+        <td class="text-center">{{ $item->achievement_date ? \Carbon\Carbon::parse($item->achievement_date)->format('d/m/Y') : '—' }}</td>
       </tr>
     @empty
       <tr>
