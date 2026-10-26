@@ -223,7 +223,7 @@
                                             </form>
 
                                             <button type="button"
-                                                @click="rejectModal = true; rejectUrl = '{{ route('guru.conduct.reject', $log->id) }}'; rejectStudent = '{{ addslashes($log->student?->name ?? 'Siswa') }}';"
+                                                @click="rejectModal = true; rejectUrl = '{{ route('guru.conduct.reject', $log->id) }}'; rejectStudent = '{{ addslashes(str_replace('"', '', $log->student?->name ?? 'Siswa')) }}';"
                                                 title="Kembalikan ajuan untuk diperbaiki siswa"
                                                 class="px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs rounded-xl border border-rose-200 transition-all inline-flex items-center gap-1">
                                                 <svg class="w-3.5 h-3.5 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg>
@@ -247,7 +247,7 @@
 
                                         {{-- Tombol Hapus Ajuan --}}
                                         <button type="button"
-                                            @click="deleteModal = true; deleteUrl = '{{ route('guru.conduct.destroy', $log->id) }}'; deleteStudent = '{{ addslashes($log->student?->name ?? 'Siswa') }}';"
+                                            @click="deleteModal = true; deleteUrl = '{{ route('guru.conduct.destroy', $log->id) }}'; deleteStudent = '{{ addslashes(str_replace('"', '', $log->student?->name ?? 'Siswa')) }}';"
                                             title="Hapus ajuan ini"
                                             class="p-1.5 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>

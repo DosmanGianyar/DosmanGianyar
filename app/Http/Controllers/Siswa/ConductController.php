@@ -130,7 +130,8 @@ class ConductController extends Controller
             $student,
             "Pengajuan Pembinaan Mandiri",
             "Siswa {$student->name} ({$student->schoolClass?->name}) mengajukan pembinaan: {$displayReason}.",
-            'warning'
+            'conduct',
+            route('guru.conduct.today')
         );
 
         return redirect()->route('siswa.conduct.index')
@@ -201,7 +202,8 @@ class ConductController extends Controller
             $student,
             "Perbaikan Pengajuan Pembinaan Mandiri",
             "Siswa {$student->name} ({$student->schoolClass?->name}) telah memperbaiki alasan pengajuan pembinaan: {$displayReason}.",
-            'warning'
+            'conduct',
+            route('guru.conduct.today')
         );
 
         return redirect()->route('siswa.conduct.index')

@@ -5,12 +5,16 @@
 @section('content')
 @php
     $curCategory = $rejectedReport?->category?->name;
-    $isOther = ($curCategory === '__sistem__pelanggaran_lainnya' || !in_array($curCategory, [
-        'Terlambat Masuk Sekolah',
-        'Terlambat Kembali dari Izin Keluar',
-        'Seragam / Atribut Tidak Lengkap',
-    ]));
-    $initReason = $isOther ? 'Lainnya' : ($curCategory ?? 'Terlambat Masuk Sekolah');
+    if ($curCategory) {
+        $isOther = ($curCategory === '__sistem__pelanggaran_lainnya' || !in_array($curCategory, [
+            'Terlambat Masuk Sekolah',
+            'Terlambat Kembali dari Izin Keluar',
+            'Seragam / Atribut Tidak Lengkap',
+        ]));
+        $initReason = $isOther ? 'Lainnya' : $curCategory;
+    } else {
+        $initReason = 'Terlambat Masuk Sekolah';
+    }
 @endphp
 
 <div class="space-y-4" x-data="{ openReportModal: false, selectedReason: 'Terlambat Masuk Sekolah', openEditModal: false, editReason: '{{ $initReason }}' }">
@@ -155,10 +159,14 @@
             @forelse($logs as $log)
             <div class="flex items-start gap-3 px-4 py-3">
                 <div class="w-9 h-9 rounded-full shrink-0 flex items-center justify-center
-                    {{ $log->isPrestasi() ? 'bg-green-100' : ($log->isPending() ? 'bg-amber-100' : 'bg-red-100') }}">
+                    {{ $log->isPrestasi() ? 'bg-green-100' : ($log->isPending() ? 'bg-amber-100' : ($log->isRejected() ? 'bg-rose-100' : 'bg-red-100')) }}">
                     @if($log->isPending())
                         <svg class="w-4 h-4 text-amber-600 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    @elseif($log->isRejected())
+                        <svg class="w-4 h-4 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/>
                         </svg>
                     @elseif($log->isPrestasi())
                         <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -177,19 +185,31 @@
                             <span class="px-2 py-0.5 bg-amber-50 text-amber-700 font-bold text-[10px] rounded-md shrink-0 border border-amber-200">
                                 ⏱️ Menunggu Verifikasi Guru
                             </span>
+                        @elseif($log->isRejected())
+                            <span class="px-2 py-0.5 bg-rose-50 text-rose-700 font-bold text-[10px] rounded-md shrink-0 border border-rose-200">
+                                ✕ Dikembalikan (Perlu Revisi)
+                            </span>
                         @else
                             <span class="text-xs font-semibold shrink-0 {{ $log->isPrestasi() ? 'text-green-700' : 'text-red-700' }}">
                                 {{ $log->isPrestasi() ? 'Apresiasi Karakter' : 'Kedisiplinan Karakter' }}
                             </span>
                         @endif
                     </div>
+                    @if($log->isRejected() && $log->rejection_note)
+                        <div class="mt-1 bg-rose-50 border border-rose-100 rounded-lg p-2 text-xs text-rose-800">
+                            <span class="font-bold text-[10.5px] text-rose-600 block">Catatan Guru:</span>
+                            "{{ $log->rejection_note }}"
+                        </div>
+                    @endif
                     @if($log->note || ($log->description && $log->description !== $log->displayCategoryName()))
                         <p class="text-xs text-gray-500 mt-0.5">{{ $log->note ?: $log->description }}</p>
                     @endif
                     <div class="flex items-center justify-between text-xs text-gray-400 mt-1">
                         <span>{{ $log->created_at->isoFormat('D MMM Y, HH:mm') }}</span>
-                        @if($log->verifier)
+                        @if($log->status === 'verified' && $log->verifier)
                             <span class="text-[11px] text-emerald-600 font-semibold">✓ Diverifikasi oleh {{ $log->verifier->name }}</span>
+                        @elseif($log->status === 'rejected' && $log->verifier)
+                            <span class="text-[11px] text-rose-600 font-semibold">Dikembalikan oleh {{ $log->verifier->name }}</span>
                         @endif
                     </div>
                 </div>

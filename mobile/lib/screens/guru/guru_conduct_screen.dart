@@ -11,7 +11,7 @@ class GuruConductScreen extends StatefulWidget {
 
   const GuruConductScreen({
     super.key,
-    required this.classes,
+    this.classes = const [],
     this.initialClassId,
   });
 

@@ -15,6 +15,7 @@ import 'guru/guru_early_checkout_screen.dart';
 import 'guru/guru_permit_screen.dart';
 import 'guru/guru_forgot_attendance_screen.dart';
 import 'guru/guru_conduct_screen.dart';
+import 'guru/guru_gate_verification_screen.dart';
 import 'kesiswaan/early_checkout_screen.dart';
 import 'kesiswaan/permit_screen.dart';
 import 'kesiswaan/forgot_attendance_screen.dart';
@@ -137,17 +138,27 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       return;
     }
 
-    // 4. Pembinaan Karakter / Pelanggaran -> Buka Halaman Verifikasi Disiplin
+    // 4. Pembinaan Karakter / Pelanggaran / Piket Gerbang -> Buka Halaman Terkait
     if (type == 'conduct' ||
         title.contains('pembinaan') ||
         title.contains('kedisiplinan') ||
         title.contains('catatan karakter') ||
-        url.contains('conduct')) {
+        title.contains('terlambat') ||
+        title.contains('mandiri') ||
+        url.contains('conduct') ||
+        url.contains('verification')) {
       if (isTeacherOrAdmin) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const GuruConductScreen()),
-        );
+        if (url.contains('today') || url.contains('verification') || title.contains('mandiri') || title.contains('terlambat')) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const GuruGateVerificationScreen()),
+          );
+        } else {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const GuruConductScreen()),
+          );
+        }
       } else {
         Navigator.push(
           context,
