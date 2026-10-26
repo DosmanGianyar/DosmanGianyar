@@ -52,10 +52,19 @@ class _ConductScreenState extends State<ConductScreen> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _showSelfReportDialog,
-        backgroundColor: (_summary?.hasPendingReport ?? false) ? const Color(0xFFB45309) : const Color(0xFFD97706),
-        icon: Icon((_summary?.hasPendingReport ?? false) ? Icons.hourglass_top_rounded : Icons.flash_on_rounded, color: Colors.white),
+        backgroundColor: (_summary?.hasRejectedReport ?? false)
+            ? const Color(0xFFE11D48)
+            : ((_summary?.hasPendingReport ?? false) ? const Color(0xFFB45309) : const Color(0xFFD97706)),
+        icon: Icon(
+          (_summary?.hasRejectedReport ?? false)
+              ? Icons.edit_note_rounded
+              : ((_summary?.hasPendingReport ?? false) ? Icons.hourglass_top_rounded : Icons.flash_on_rounded),
+          color: Colors.white,
+        ),
         label: Text(
-          (_summary?.hasPendingReport ?? false) ? 'Menunggu Verifikasi' : 'Lapor Mandiri',
+          (_summary?.hasRejectedReport ?? false)
+              ? 'Perbaiki Pengajuan'
+              : ((_summary?.hasPendingReport ?? false) ? 'Menunggu Verifikasi' : 'Lapor Mandiri'),
           style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
         ),
       ),
@@ -70,55 +79,126 @@ class _ConductScreenState extends State<ConductScreen> {
                       SliverToBoxAdapter(
                         child: Column(
                           children: [
-                            Container(
-                              margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-                              padding: const EdgeInsets.all(14),
-                              decoration: BoxDecoration(
-                                gradient: (_summary?.hasPendingReport ?? false)
-                                    ? const LinearGradient(colors: [Color(0xFFD97706), Color(0xFFB45309)])
-                                    : const LinearGradient(colors: [Color(0xFFF59E0B), Color(0xFFD97706)]),
-                                borderRadius: AppRadius.card,
-                              ),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                            if (_summary?.hasRejectedReport ?? false)
+                              Container(
+                                margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                                padding: const EdgeInsets.all(14),
+                                decoration: BoxDecoration(
+                                  gradient: const LinearGradient(colors: [Color(0xFFE11D48), Color(0xFFBE123C)]),
+                                  borderRadius: AppRadius.card,
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
                                       children: [
-                                        Text(
-                                          (_summary?.hasPendingReport ?? false)
-                                              ? '⏱️ Pengajuan Sedang Menunggu Verifikasi'
-                                              : '⚡ Terlambat / Lapor Pembinaan Mandiri?',
-                                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                                        const Icon(Icons.error_outline_rounded, color: Colors.white, size: 20),
+                                        const SizedBox(width: 8),
+                                        const Expanded(
+                                          child: Text(
+                                            '✕ Pengajuan Dikembalikan Guru',
+                                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                                          ),
                                         ),
-                                        const SizedBox(height: 2),
-                                        Text(
-                                          (_summary?.hasPendingReport ?? false)
-                                              ? 'Tunjukkan pengajuan Anda ke Guru Piket di gerbang.'
-                                              : 'Ajukan dari HP Anda untuk diverifikasi oleh Guru Piket di gerbang.',
-                                          style: const TextStyle(color: Colors.white70, fontSize: 11),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                          decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(6)),
+                                          child: const Text('Perlu Revisi', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
                                         ),
                                       ],
                                     ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  ElevatedButton(
-                                    onPressed: _showSelfReportDialog,
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.white,
-                                      foregroundColor: const Color(0xFFB45309),
-                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                                      elevation: 0,
+                                    if (_summary?.rejectedReport?['rejection_note'] != null) ...[
+                                      const SizedBox(height: 8),
+                                      Container(
+                                        padding: const EdgeInsets.all(8),
+                                        decoration: BoxDecoration(color: Colors.black12, borderRadius: BorderRadius.circular(8)),
+                                        child: Text(
+                                          'Catatan: "${_summary!.rejectedReport!['rejection_note']}"',
+                                          style: const TextStyle(color: Colors.white, fontSize: 11, fontStyle: FontStyle.italic),
+                                        ),
+                                      ),
+                                    ],
+                                    const SizedBox(height: 10),
+                                    Row(
+                                      children: [
+                                        ElevatedButton.icon(
+                                          onPressed: _showSelfReportDialog,
+                                          icon: const Icon(Icons.edit_rounded, size: 14),
+                                          label: const Text('Perbaiki Alasan', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: Colors.white,
+                                            foregroundColor: const Color(0xFFBE123C),
+                                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        if (_summary?.rejectedReport?['id'] != null)
+                                          TextButton(
+                                            onPressed: () => _cancelReport(_summary!.rejectedReport!['id'] as int),
+                                            child: const Text('Batalkan', style: TextStyle(color: Colors.white70, fontSize: 11)),
+                                          ),
+                                      ],
                                     ),
-                                    child: Text(
-                                      (_summary?.hasPendingReport ?? false) ? 'Status' : 'Ajukan',
-                                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                                  ],
+                                ),
+                              )
+                            else
+                              Container(
+                                margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                                padding: const EdgeInsets.all(14),
+                                decoration: BoxDecoration(
+                                  gradient: (_summary?.hasPendingReport ?? false)
+                                      ? const LinearGradient(colors: [Color(0xFFD97706), Color(0xFFB45309)])
+                                      : const LinearGradient(colors: [Color(0xFFF59E0B), Color(0xFFD97706)]),
+                                  borderRadius: AppRadius.card,
+                                ),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            (_summary?.hasPendingReport ?? false)
+                                                ? '⏱️ Pengajuan Menunggu Verifikasi'
+                                                : '⚡ Terlambat / Lapor Pembinaan Mandiri?',
+                                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                                          ),
+                                          const SizedBox(height: 2),
+                                          Text(
+                                            (_summary?.hasPendingReport ?? false)
+                                                ? 'Tunjukkan pengajuan Anda ke Guru Piket di gerbang.'
+                                                : 'Ajukan dari HP Anda untuk diverifikasi oleh Guru Piket di gerbang.',
+                                            style: const TextStyle(color: Colors.white70, fontSize: 11),
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                    const SizedBox(width: 8),
+                                    if (_summary?.hasPendingReport ?? false)
+                                      if (_summary?.pendingReport?['id'] != null)
+                                        TextButton(
+                                          onPressed: () => _cancelReport(_summary!.pendingReport!['id'] as int),
+                                          child: const Text('Batalkan', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                                        )
+                                      else
+                                        const SizedBox.shrink()
+                                    else
+                                      ElevatedButton(
+                                        onPressed: _showSelfReportDialog,
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.white,
+                                          foregroundColor: const Color(0xFFB45309),
+                                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                          elevation: 0,
+                                        ),
+                                        child: const Text('Ajukan', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                                      ),
+                                  ],
+                                ),
                               ),
-                            ),
                             _SummaryCards(summary: _summary!),
                           ],
                         ),
@@ -149,8 +229,48 @@ class _ConductScreenState extends State<ConductScreen> {
     );
   }
 
+  Future<void> _cancelReport(int id) async {
+    final bool? confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('Batalkan Pengajuan?'),
+        content: const Text('Apakah Anda yakin ingin membatalkan/menghapus pengajuan pembinaan mandiri ini?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Tidak')),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.red500, foregroundColor: Colors.white),
+            child: const Text('Ya, Batalkan'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    try {
+      final res = await ApiClient.delete('/conduct/self-report/$id');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(res['message'] ?? 'Pengajuan berhasil dibatalkan.'), backgroundColor: AppColors.emerald600),
+        );
+        _load();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(ApiClient.extractError(e)), backgroundColor: AppColors.red500),
+        );
+      }
+    }
+  }
+
   void _showSelfReportDialog() {
-    if (_summary?.hasPendingReport ?? false) {
+    final bool isRejected = _summary?.hasRejectedReport ?? false;
+    final int? editId = isRejected ? (_summary?.rejectedReport?['id'] as int?) : null;
+
+    if (!isRejected && (_summary?.hasPendingReport ?? false)) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Anda masih memiliki 1 pengajuan yang sedang menunggu verifikasi Guru Piket.'),
@@ -163,6 +283,21 @@ class _ConductScreenState extends State<ConductScreen> {
     String selectedReason = 'Terlambat Masuk Sekolah';
     final descController = TextEditingController();
     final otherReasonController = TextEditingController();
+
+    if (isRejected && _summary?.rejectedReport != null) {
+      final rej = _summary!.rejectedReport!;
+      final cat = rej['category_name'] as String? ?? '';
+      if (['Terlambat Masuk Sekolah', 'Terlambat Kembali dari Izin Keluar', 'Seragam / Atribut Tidak Lengkap'].contains(cat)) {
+        selectedReason = cat;
+      } else {
+        selectedReason = 'Lainnya';
+        otherReasonController.text = cat;
+      }
+      if (rej['description'] != null) {
+        descController.text = rej['description'];
+      }
+    }
+
     bool isSubmitting = false;
 
     showModalBottomSheet(
@@ -185,12 +320,18 @@ class _ConductScreenState extends State<ConductScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Row(
+                  Row(
                     children: [
-                      Icon(Icons.flash_on_rounded, color: Color(0xFFD97706), size: 20),
-                      SizedBox(width: 8),
-                      Text('Lapor Pembinaan Mandiri',
-                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.gray800)),
+                      Icon(
+                        isRejected ? Icons.edit_note_rounded : Icons.flash_on_rounded,
+                        color: isRejected ? const Color(0xFFE11D48) : const Color(0xFFD97706),
+                        size: 22,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        isRejected ? 'Perbaiki Pengajuan Mandiri' : 'Lapor Pembinaan Mandiri',
+                        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.gray800),
+                      ),
                     ],
                   ),
                   IconButton(
@@ -199,6 +340,21 @@ class _ConductScreenState extends State<ConductScreen> {
                   ),
                 ],
               ),
+              if (isRejected && _summary?.rejectedReport?['rejection_note'] != null) ...[
+                const SizedBox(height: 8),
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFF1F2),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: const Color(0xFFFECDD3)),
+                  ),
+                  child: Text(
+                    'Catatan Guru: "${_summary!.rejectedReport!['rejection_note']}"',
+                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF9F1239)),
+                  ),
+                ),
+              ],
               const SizedBox(height: 14),
               const Text('Alasan Pembinaan Disiplin',
                   style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.gray700)),
@@ -262,18 +418,27 @@ class _ConductScreenState extends State<ConductScreen> {
 
                     setModalState(() => isSubmitting = true);
                     try {
-                      await ApiClient.post('/conduct/self-report', data: {
+                      final payload = {
                         'reason': selectedReason,
                         'other_reason': otherReasonController.text.trim(),
                         'description': descController.text.trim(),
-                      });
+                      };
+
+                      if (isRejected && editId != null) {
+                        await ApiClient.put('/conduct/self-report/$editId', data: payload);
+                      } else {
+                        await ApiClient.post('/conduct/self-report', data: payload);
+                      }
+
                       if (modalCtx.mounted) {
                         Navigator.pop(modalCtx);
                       }
                       if (mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Pengajuan pembinaan mandiri berhasil dikirim. Tunjukkan ke Guru Piket.'),
+                          SnackBar(
+                            content: Text(isRejected
+                                ? 'Pengajuan berhasil diperbaiki dan dikirim ulang ke Guru Piket.'
+                                : 'Pengajuan pembinaan mandiri berhasil dikirim. Tunjukkan ke Guru Piket.'),
                             backgroundColor: AppColors.emerald600,
                           ),
                         );
@@ -289,19 +454,19 @@ class _ConductScreenState extends State<ConductScreen> {
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFD97706),
+                    backgroundColor: isRejected ? const Color(0xFFE11D48) : const Color(0xFFD97706),
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                   child: isSubmitting
                       ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                      : const Text('Kirim Pengajuan', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
+                      : Text(isRejected ? 'Simpan & Kirim Ulang' : 'Kirim Pengajuan',
+                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
                 ),
               ),
             ],
           ),
         ),
-      ),
     );
   }
 }

@@ -11,6 +11,7 @@ use App\Services\NotificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class GuruConductApiController extends Controller
 {
@@ -312,6 +313,14 @@ class GuruConductApiController extends Controller
             ->limit(30)
             ->get();
 
+        $rejectedLogs = ConductLog::where('is_self_reported', true)
+            ->where('status', 'rejected')
+            ->whereDate('created_at', $today)
+            ->with(['student:id,name,nis,class_id', 'student.schoolClass:id,name', 'category:id,name', 'verifier:id,name'])
+            ->latest()
+            ->limit(30)
+            ->get();
+
         return response()->json([
             'pending'  => $pendingLogs->map(fn ($log) => [
                 'id'             => $log->id,
@@ -331,6 +340,17 @@ class GuruConductApiController extends Controller
                 'class_name'     => $log->student?->schoolClass?->name ?? '—',
                 'lateness_count' => $log->student?->conductLogs()->where('type', 'pelanggaran')->count() ?? 1,
                 'category_name'  => $log->displayCategoryName(),
+                'verifier_name'  => $log->verifier?->name ?? 'Guru',
+                'verified_at'    => $log->verified_at?->format('H:i'),
+            ]),
+            'rejected' => $rejectedLogs->map(fn ($log) => [
+                'id'             => $log->id,
+                'student_id'     => $log->student_id,
+                'student_name'   => $log->student?->name ?? '—',
+                'class_name'     => $log->student?->schoolClass?->name ?? '—',
+                'lateness_count' => $log->student?->conductLogs()->where('type', 'pelanggaran')->count() ?? 1,
+                'category_name'  => $log->displayCategoryName(),
+                'rejection_note' => $log->rejection_note,
                 'verifier_name'  => $log->verifier?->name ?? 'Guru',
                 'verified_at'    => $log->verified_at?->format('H:i'),
             ]),
@@ -360,7 +380,8 @@ class GuruConductApiController extends Controller
                 $student->id,
                 "Pembinaan Disiplin Diverifikasi",
                 "Pengajuan pembinaan ({$categoryName}) Anda telah diverifikasi oleh " . Auth::user()->name . ". Selamat belajar!",
-                'success'
+                'success',
+                route('siswa.conduct.index')
             );
             NotificationService::notifyParentsOfStudent(
                 $student,
@@ -373,6 +394,57 @@ class GuruConductApiController extends Controller
         return response()->json([
             'success' => true,
             'message' => "Pengajuan pembinaan {$student?->name} berhasil diverifikasi.",
+        ]);
+    }
+
+    // POST /api/v1/guru/conduct-self-reports/{id}/reject
+    public function rejectSelfReport(Request $request, int $id): JsonResponse
+    {
+        $log = ConductLog::findOrFail($id);
+
+        $request->validate([
+            'rejection_note' => 'required|string|max:500',
+        ]);
+
+        $log->update([
+            'status'         => 'rejected',
+            'rejection_note' => $request->input('rejection_note'),
+            'verifier_id'    => Auth::id(),
+            'verified_at'    => now(),
+        ]);
+
+        $student = $log->student;
+        if ($student) {
+            NotificationService::send(
+                $student->id,
+                "Pengajuan Pembinaan Dikembalikan",
+                "Pengajuan pembinaan Anda dikembalikan oleh " . Auth::user()->name . ". Catatan: " . $request->input('rejection_note') . ". Silakan perbaiki pengajuan Anda.",
+                'warning',
+                route('siswa.conduct.index')
+            );
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => "Pengajuan pembinaan {$student?->name} telah dikembalikan untuk diperbaiki.",
+        ]);
+    }
+
+    // DELETE /api/v1/guru/conduct-self-reports/{id}
+    public function destroySelfReport(int $id): JsonResponse
+    {
+        $log = ConductLog::findOrFail($id);
+        $studentName = $log->student?->name;
+
+        if ($log->photo) {
+            Storage::disk('public')->delete($log->photo);
+        }
+
+        $log->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => "Pengajuan pembinaan {$studentName} berhasil dihapus.",
         ]);
     }
 }

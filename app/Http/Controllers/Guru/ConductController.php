@@ -12,6 +12,7 @@ use App\Services\NotificationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class ConductController extends Controller
@@ -251,7 +252,7 @@ class ConductController extends Controller
             $query->whereHas('student', fn ($q) => $q->where('class_id', $selectedClassId));
         }
 
-        if ($statusFilter && in_array($statusFilter, ['pending', 'verified'])) {
+        if ($statusFilter && in_array($statusFilter, ['pending', 'verified', 'rejected'])) {
             $query->where('status', $statusFilter);
         }
 
@@ -271,11 +272,12 @@ class ConductController extends Controller
 
         $pendingCount  = ConductLog::where('is_self_reported', true)->whereDate('created_at', $today)->where('status', 'pending')->count();
         $verifiedCount = ConductLog::where('is_self_reported', true)->whereDate('created_at', $today)->where('status', 'verified')->count();
+        $rejectedCount = ConductLog::where('is_self_reported', true)->whereDate('created_at', $today)->where('status', 'rejected')->count();
         $frequentCount = $logs->filter(fn ($l) => ($l->student?->total_pelanggaran_count ?? 0) >= 3)->count();
 
         return view('guru.conduct.today', compact(
             'logs', 'classes', 'selectedClassId', 'statusFilter',
-            'pendingCount', 'verifiedCount', 'frequentCount'
+            'pendingCount', 'verifiedCount', 'rejectedCount', 'frequentCount'
         ));
     }
 
@@ -291,10 +293,11 @@ class ConductController extends Controller
         }
 
         $log->update([
-            'status'      => 'verified',
-            'verified_at' => now(),
-            'verifier_id' => Auth::id(),
-            'teacher_id'  => Auth::id(),
+            'status'         => 'verified',
+            'verified_at'    => now(),
+            'verifier_id'    => Auth::id(),
+            'teacher_id'     => Auth::id(),
+            'rejection_note' => null,
         ]);
 
         $categoryName = $log->displayCategoryName();
@@ -316,5 +319,45 @@ class ConductController extends Controller
         }
 
         return redirect()->back()->with('success', "Pengajuan pembinaan {$student?->name} berhasil diverifikasi. Siswa diizinkan masuk.");
+    }
+
+    public function rejectLog(Request $request, ConductLog $log): RedirectResponse
+    {
+        $request->validate([
+            'rejection_note' => 'required|string|max:500',
+        ]);
+
+        $log->update([
+            'status'         => 'rejected',
+            'rejection_note' => $request->input('rejection_note'),
+            'verifier_id'    => Auth::id(),
+            'verified_at'    => now(),
+        ]);
+
+        $student = $log->student;
+        if ($student) {
+            NotificationService::send(
+                $student->id,
+                "Pengajuan Pembinaan Dikembalikan",
+                "Pengajuan pembinaan Anda dikembalikan oleh " . Auth::user()->name . ". Catatan: " . $request->input('rejection_note') . ". Silakan perbaiki pengajuan Anda.",
+                'warning',
+                route('siswa.conduct.index')
+            );
+        }
+
+        return redirect()->back()->with('success', "Pengajuan pembinaan {$student?->name} telah dikembalikan untuk diperbaiki.");
+    }
+
+    public function destroy(ConductLog $log): RedirectResponse
+    {
+        $studentName = $log->student?->name;
+
+        if ($log->photo) {
+            Storage::disk('public')->delete($log->photo);
+        }
+
+        $log->delete();
+
+        return redirect()->back()->with('success', "Pengajuan pembinaan {$studentName} berhasil dihapus.");
     }
 }

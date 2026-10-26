@@ -170,6 +170,8 @@ Route::middleware(['auth', 'role:guru,admin,pegawai'])->prefix('guru')->name('gu
         Route::post('/scan-lookup', [GuruConduct::class, 'scanLookup'])->name('scan-lookup');
         Route::get('/verification', [GuruConduct::class, 'verificationIndex'])->name('verification');
         Route::post('/verify/{log}', [GuruConduct::class, 'verifyLog'])->name('verify');
+        Route::post('/reject/{log}', [GuruConduct::class, 'rejectLog'])->name('reject');
+        Route::delete('/{log}', [GuruConduct::class, 'destroy'])->name('destroy');
         Route::get('/student/{student}', [GuruConduct::class, 'studentDetail'])->name('student');
     });
 
@@ -349,6 +351,8 @@ Route::middleware(['auth', 'role:siswa,pengelola', 'force.password.change'])->pr
     // Poin & Pembinaan Mandiri
     Route::get('/conduct', [SiswaConduct::class, 'index'])->name('conduct.index');
     Route::post('/conduct/self-report', [SiswaConduct::class, 'storeSelfReport'])->name('conduct.self-report');
+    Route::put('/conduct/self-report/{log}', [SiswaConduct::class, 'updateSelfReport'])->name('conduct.self-report.update');
+    Route::delete('/conduct/self-report/{log}', [SiswaConduct::class, 'destroySelfReport'])->name('conduct.self-report.destroy');
 
     // Sarpras
     Route::prefix('sarpras')->name('sarpras.')->group(function () {

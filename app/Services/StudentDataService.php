@@ -211,13 +211,28 @@ class StudentDataService
 
         $prestasiCount    = $logs->filter(fn ($l) => in_array($l->category?->type ?? $l->type, ['prestasi', 'positif']))->count();
         $pelanggaranCount = $logs->filter(fn ($l) => ($l->category?->type ?? $l->type) === 'pelanggaran')->count();
-        $hasPendingReport = $logs->contains(fn ($l) => (bool)$l->is_self_reported && $l->status === 'pending');
+        $pendingReport    = $logs->first(fn ($l) => (bool)$l->is_self_reported && $l->status === 'pending');
+        $rejectedReport   = $logs->first(fn ($l) => (bool)$l->is_self_reported && $l->status === 'rejected');
 
         return [
             'summary' => [
-                'prestasi_count'     => $prestasiCount,
-                'pelanggaran_count'  => $pelanggaranCount,
-                'has_pending_report' => $hasPendingReport,
+                'prestasi_count'      => $prestasiCount,
+                'pelanggaran_count'   => $pelanggaranCount,
+                'has_pending_report'  => (bool)$pendingReport,
+                'has_rejected_report' => (bool)$rejectedReport,
+                'pending_report'      => $pendingReport ? [
+                    'id'            => $pendingReport->id,
+                    'category_name' => $pendingReport->displayCategoryName(),
+                    'created_at'    => $pendingReport->created_at?->toIso8601String(),
+                ] : null,
+                'rejected_report'     => $rejectedReport ? [
+                    'id'             => $rejectedReport->id,
+                    'category_name'  => $rejectedReport->displayCategoryName(),
+                    'rejection_note' => $rejectedReport->rejection_note,
+                    'note'           => $rejectedReport->note,
+                    'description'    => $rejectedReport->description,
+                    'created_at'     => $rejectedReport->created_at?->toIso8601String(),
+                ] : null,
             ],
             'logs' => $logs->map(function ($log) {
                 $type = $log->category?->type ?? $log->type ?? 'pelanggaran';
@@ -225,15 +240,17 @@ class StudentDataService
                 $note = $log->parsed_description ?: ($log->note ?: ($log->description ?: null));
 
                 return [
-                    'id'            => $log->id,
-                    'category_name' => $categoryName,
-                    'type'          => $type,
-                    'context'       => $log->category?->context ?? ($log->severity ? 'Tingkat ' . ucfirst($log->severity) : 'Kedisiplinan'),
-                    'note'          => $note,
-                    'photo_url'     => $log->photo ? Storage::disk('public')->url($log->photo) : null,
-                    'teacher_name'  => $log->teacher?->name,
-                    'date'          => $log->created_at?->toDateString() ?? now()->toDateString(),
-                    'created_at'    => $log->created_at?->toIso8601String() ?? now()->toIso8601String(),
+                    'id'             => $log->id,
+                    'category_name'  => $categoryName,
+                    'type'           => $type,
+                    'context'        => $log->category?->context ?? ($log->severity ? 'Tingkat ' . ucfirst($log->severity) : 'Kedisiplinan'),
+                    'status'         => $log->status,
+                    'rejection_note' => $log->rejection_note,
+                    'note'           => $note,
+                    'photo_url'      => $log->photo ? Storage::disk('public')->url($log->photo) : null,
+                    'teacher_name'   => $log->teacher?->name,
+                    'date'           => $log->created_at?->toDateString() ?? now()->toDateString(),
+                    'created_at'     => $log->created_at?->toIso8601String() ?? now()->toIso8601String(),
                 ];
             })->values(),
         ];

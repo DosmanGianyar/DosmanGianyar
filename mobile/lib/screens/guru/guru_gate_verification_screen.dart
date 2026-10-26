@@ -15,12 +15,13 @@ class _GuruGateVerificationScreenState extends State<GuruGateVerificationScreen>
   String? _error;
   List<dynamic> _pendingList = [];
   List<dynamic> _verifiedList = [];
+  List<dynamic> _rejectedList = [];
   final Map<int, bool> _verifyingMap = {};
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
     _load();
   }
 
@@ -42,6 +43,7 @@ class _GuruGateVerificationScreenState extends State<GuruGateVerificationScreen>
         setState(() {
           _pendingList = res['pending'] ?? [];
           _verifiedList = res['verified'] ?? [];
+          _rejectedList = res['rejected'] ?? [];
           _isLoading = false;
         });
       }
@@ -63,6 +65,145 @@ class _GuruGateVerificationScreenState extends State<GuruGateVerificationScreen>
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(res['message'] ?? 'Pengajuan $studentName berhasil diverifikasi.'),
+            backgroundColor: AppColors.emerald600,
+          ),
+        );
+        _load();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(ApiClient.extractError(e)),
+            backgroundColor: AppColors.red500,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _verifyingMap.remove(id));
+      }
+    }
+  }
+
+  Future<void> _rejectItem(int id, String studentName) async {
+    final noteController = TextEditingController();
+    final bool? confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text('Kembalikan Ajuan $studentName', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Tuliskan catatan alasan agar siswa dapat memperbaiki ajuannya:',
+                style: TextStyle(fontSize: 12, color: AppColors.gray600)),
+            const SizedBox(height: 10),
+            TextField(
+              controller: noteController,
+              maxLines: 3,
+              style: const TextStyle(fontSize: 13),
+              decoration: InputDecoration(
+                hintText: 'Contoh: Alasan tidak sesuai kronologi di gerbang...',
+                hintStyle: const TextStyle(fontSize: 12, color: AppColors.gray400),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                contentPadding: const EdgeInsets.all(12),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Batal'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              if (noteController.text.trim().isEmpty) {
+                ScaffoldMessenger.of(ctx).showSnackBar(
+                  const SnackBar(content: Text('Catatan alasan harus diisi!'), backgroundColor: AppColors.red500),
+                );
+                return;
+              }
+              Navigator.pop(ctx, true);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFE11D48),
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Kembalikan ke Siswa'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    setState(() => _verifyingMap[id] = true);
+    try {
+      final res = await ApiClient.post('/guru/conduct-self-reports/$id/reject', data: {
+        'rejection_note': noteController.text.trim(),
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(res['message'] ?? 'Pengajuan $studentName dikembalikan untuk diperbaiki.'),
+            backgroundColor: AppColors.amber600,
+          ),
+        );
+        _load();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(ApiClient.extractError(e)),
+            backgroundColor: AppColors.red500,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _verifyingMap.remove(id));
+      }
+    }
+  }
+
+  Future<void> _deleteItem(int id, String studentName) async {
+    final bool? confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('Hapus Ajuan Pembinaan?', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+        content: Text('Apakah Anda yakin ingin menghapus ajuan dari $studentName? Data tidak dapat dipulihkan.',
+            style: const TextStyle(fontSize: 12, color: AppColors.gray600)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Batal'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.red500,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Ya, Hapus'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    setState(() => _verifyingMap[id] = true);
+    try {
+      final res = await ApiClient.delete('/guru/conduct-self-reports/$id');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(res['message'] ?? 'Pengajuan $studentName berhasil dihapus.'),
             backgroundColor: AppColors.emerald600,
           ),
         );
@@ -139,6 +280,25 @@ class _GuruGateVerificationScreenState extends State<GuruGateVerificationScreen>
                 ],
               ),
             ),
+            Tab(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text('Dikembalikan'),
+                  if (_rejectedList.isNotEmpty) ...[
+                    const SizedBox(width: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(10)),
+                      child: Text(
+                        '${_rejectedList.length}',
+                        style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
           ],
         ),
       ),
@@ -162,6 +322,7 @@ class _GuruGateVerificationScreenState extends State<GuruGateVerificationScreen>
                     children: [
                       _buildPendingTab(),
                       _buildVerifiedTab(),
+                      _buildRejectedTab(),
                     ],
                   ),
                 ),
@@ -288,21 +449,42 @@ class _GuruGateVerificationScreenState extends State<GuruGateVerificationScreen>
                 ],
               ),
               const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: isVerifying ? null : () => _verifyItem(id, studentName),
-                  icon: isVerifying
-                      ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                      : const Icon(Icons.check_circle_rounded, size: 18),
-                  label: Text(isVerifying ? 'Memproses...' : 'Verifikasi & Izinkan Masuk', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.emerald600,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: isVerifying ? null : () => _verifyItem(id, studentName),
+                      icon: isVerifying
+                          ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                          : const Icon(Icons.check_circle_rounded, size: 16),
+                      label: Text(isVerifying ? 'Proses...' : 'Verifikasi', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.emerald600,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                    ),
                   ),
-                ),
+                  const SizedBox(width: 8),
+                  OutlinedButton.icon(
+                    onPressed: isVerifying ? null : () => _rejectItem(id, studentName),
+                    icon: const Icon(Icons.assignment_return_rounded, size: 16, color: Color(0xFFE11D48)),
+                    label: const Text('Kembalikan', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Color(0xFFE11D48))),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: Color(0xFFFDA4AF)),
+                      backgroundColor: const Color(0xFFFFF1F2),
+                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  IconButton(
+                    onPressed: isVerifying ? null : () => _deleteItem(id, studentName),
+                    icon: const Icon(Icons.delete_outline_rounded, color: AppColors.gray400, size: 20),
+                    tooltip: 'Hapus Ajuan',
+                  ),
+                ],
               ),
             ],
           ),
@@ -329,12 +511,14 @@ class _GuruGateVerificationScreenState extends State<GuruGateVerificationScreen>
       separatorBuilder: (_, __) => const SizedBox(height: 10),
       itemBuilder: (ctx, i) {
         final item = _verifiedList[i];
+        final int id = item['id'];
         final String studentName = item['student_name'] ?? '—';
         final String className = item['class_name'] ?? '—';
         final int latCount = item['lateness_count'] ?? 1;
         final String reason = item['category_name'] ?? 'Terlambat';
         final String verifierName = item['verifier_name'] ?? 'Guru';
         final String? time = item['verified_at'];
+        final bool isVerifying = _verifyingMap[id] == true;
 
         return Container(
           padding: const EdgeInsets.all(12),
@@ -368,6 +552,125 @@ class _GuruGateVerificationScreenState extends State<GuruGateVerificationScreen>
                     Text('Diverifikasi $time WITA oleh $verifierName', style: const TextStyle(fontSize: 10, color: AppColors.emerald600, fontWeight: FontWeight.bold)),
                   ],
                 ),
+              ),
+              IconButton(
+                onPressed: isVerifying ? null : () => _deleteItem(id, studentName),
+                icon: const Icon(Icons.delete_outline_rounded, color: AppColors.gray400, size: 18),
+                tooltip: 'Hapus Ajuan',
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildRejectedTab() {
+    if (_rejectedList.isEmpty) {
+      return ListView(
+        children: const [
+          SizedBox(height: 80),
+          Center(
+            child: Text('Tidak ada pengajuan yang dikembalikan.', style: TextStyle(color: AppColors.gray400, fontSize: 13)),
+          ),
+        ],
+      );
+    }
+
+    return ListView.separated(
+      padding: const EdgeInsets.all(16),
+      itemCount: _rejectedList.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      itemBuilder: (ctx, i) {
+        final item = _rejectedList[i];
+        final int id = item['id'];
+        final String studentName = item['student_name'] ?? '—';
+        final String className = item['class_name'] ?? '—';
+        final String reason = item['category_name'] ?? 'Terlambat';
+        final String? rejNote = item['rejection_note'];
+        final String? time = item['verified_at'];
+        final bool isVerifying = _verifyingMap[id] == true;
+
+        return Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: const Color(0xFFFECDD3)),
+            boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const CircleAvatar(
+                    backgroundColor: Color(0xFFFFE4E6),
+                    radius: 20,
+                    child: Icon(Icons.assignment_return_rounded, color: Color(0xFFE11D48), size: 20),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(studentName, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.gray900)),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                              decoration: BoxDecoration(color: const Color(0xFFFFE4E6), borderRadius: BorderRadius.circular(6)),
+                              child: Text('Kelas $className', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFFE11D48))),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Text('⚡ $reason', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFFB45309))),
+                        if (rejNote != null && rejNote.isNotEmpty) ...[
+                          const SizedBox(height: 6),
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFFF1F2),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: const Color(0xFFFECDD3)),
+                            ),
+                            child: Text('Catatan Pengembalian: "$rejNote"',
+                                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF9F1239))),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: isVerifying ? null : () => _verifyItem(id, studentName),
+                      icon: isVerifying
+                          ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(color: AppColors.emerald600, strokeWidth: 2))
+                          : const Icon(Icons.check_circle_outline_rounded, size: 16, color: AppColors.emerald600),
+                      label: Text(isVerifying ? 'Proses...' : 'Verifikasi Langsung', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: AppColors.emerald600)),
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: AppColors.emerald600),
+                        padding: const EdgeInsets.symmetric(vertical: 9),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  IconButton(
+                    onPressed: isVerifying ? null : () => _deleteItem(id, studentName),
+                    icon: const Icon(Icons.delete_outline_rounded, color: AppColors.gray400, size: 20),
+                    tooltip: 'Hapus Ajuan',
+                  ),
+                ],
               ),
             ],
           ),

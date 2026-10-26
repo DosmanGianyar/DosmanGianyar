@@ -113,6 +113,8 @@ Route::prefix('v1')->group(function () {
             // Pelanggaran & Poin
             Route::get('/conduct', [ConductController::class, 'index']);
             Route::post('/conduct/self-report', [ConductController::class, 'storeSelfReport']);
+            Route::put('/conduct/self-report/{id}', [ConductController::class, 'updateSelfReport']);
+            Route::delete('/conduct/self-report/{id}', [ConductController::class, 'destroySelfReport']);
 
             // Prestasi
             Route::get('/achievement-categories', [AchievementController::class, 'categories']);
@@ -180,6 +182,8 @@ Route::prefix('v1')->group(function () {
             Route::get('/guru/conduct-history',                           [GuruConductApiController::class, 'history']);
             Route::get('/guru/conduct-self-reports',                      [GuruConductApiController::class, 'selfReports']);
             Route::post('/guru/conduct-self-reports/{id}/verify',         [GuruConductApiController::class, 'verifySelfReport']);
+            Route::post('/guru/conduct-self-reports/{id}/reject',         [GuruConductApiController::class, 'rejectSelfReport']);
+            Route::delete('/guru/conduct-self-reports/{id}',              [GuruConductApiController::class, 'destroySelfReport']);
 
             // Guru Teaching Session (absensi mengajar per sesi)
             Route::get('/guru/teaching-classes',                          [GuruTeachingSessionController::class, 'classes']);

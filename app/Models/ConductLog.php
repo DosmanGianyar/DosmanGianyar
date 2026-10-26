@@ -12,6 +12,7 @@ class ConductLog extends Model
         'description', 'severity',
         'prestasi_type', 'lomba_name', 'lomba_level', 'lomba_rank',
         'is_self_reported', 'status', 'verified_at', 'verifier_id',
+        'rejection_note',
     ];
 
     protected $casts = [
@@ -44,6 +45,11 @@ class ConductLog extends Model
         return $this->status === 'pending';
     }
 
+    public function isRejected(): bool
+    {
+        return $this->status === 'rejected';
+    }
+
     public function scopePending($query)
     {
         return $query->where('status', 'pending');
@@ -52,6 +58,11 @@ class ConductLog extends Model
     public function scopeVerified($query)
     {
         return $query->where('status', 'verified');
+    }
+
+    public function scopeRejected($query)
+    {
+        return $query->where('status', 'rejected');
     }
 
     public function isPrestasi(): bool

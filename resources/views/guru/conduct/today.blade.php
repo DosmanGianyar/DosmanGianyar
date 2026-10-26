@@ -3,7 +3,7 @@
 @section('page-title', 'List Pengajuan Pembinaan Disiplin Mandiri (Hari Berjalan)')
 
 @section('content')
-<div class="space-y-6">
+<div class="space-y-6" x-data="{ rejectModal: false, rejectUrl: '', rejectStudent: '', deleteModal: false, deleteUrl: '', deleteStudent: '' }">
 
     {{-- Top Summary Banner --}}
     <div class="bg-gradient-to-r from-amber-500 via-amber-600 to-orange-600 text-white rounded-3xl p-6 shadow-md flex flex-col lg:flex-row lg:items-center justify-between gap-5">
@@ -14,12 +14,12 @@
             </div>
             <h2 class="font-black text-2xl mt-2">Daftar Pengajuan Pembinaan Mandiri Siswa</h2>
             <p class="text-xs text-amber-100 mt-1 max-w-2xl leading-relaxed">
-                Memudahkan guru melihat seluruh siswa yang terlambat/mengajukan pembinaan mandiri hari ini di semua kelas, lengkap dengan perhitungan akumulasi catatan disiplin siswa.
+                Memudahkan guru piket memverifikasi, mengembalikan agar diperbaiki siswa, atau menghapus ajuan mandiri hari ini.
             </p>
         </div>
 
         {{-- Counter Cards --}}
-        <div class="grid grid-cols-3 gap-2.5 shrink-0">
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 shrink-0">
             <div class="bg-white/10 backdrop-blur-md rounded-2xl p-3.5 text-center border border-white/20">
                 <span class="text-2xl font-black block text-white">{{ $pendingCount }}</span>
                 <span class="text-[10px] uppercase font-bold text-amber-200">Pending</span>
@@ -29,8 +29,12 @@
                 <span class="text-[10px] uppercase font-bold text-emerald-100">Diverifikasi</span>
             </div>
             <div class="bg-white/10 backdrop-blur-md rounded-2xl p-3.5 text-center border border-white/20">
-                <span class="text-2xl font-black block text-rose-200">{{ $frequentCount }}</span>
-                <span class="text-[10px] uppercase font-bold text-rose-100">≥ 3x Catatan</span>
+                <span class="text-2xl font-black block text-rose-200">{{ $rejectedCount }}</span>
+                <span class="text-[10px] uppercase font-bold text-rose-100">Dikembalikan</span>
+            </div>
+            <div class="bg-white/10 backdrop-blur-md rounded-2xl p-3.5 text-center border border-white/20">
+                <span class="text-2xl font-black block text-orange-200">{{ $frequentCount }}</span>
+                <span class="text-[10px] uppercase font-bold text-orange-100">≥ 3x Catatan</span>
             </div>
         </div>
     </div>
@@ -67,6 +71,7 @@
                     <option value="">Semua Status</option>
                     <option value="pending" {{ $statusFilter === 'pending' ? 'selected' : '' }}>Pending (Belum Diverifikasi)</option>
                     <option value="verified" {{ $statusFilter === 'verified' ? 'selected' : '' }}>Diverifikasi</option>
+                    <option value="rejected" {{ $statusFilter === 'rejected' ? 'selected' : '' }}>Dikembalikan</option>
                 </select>
             </div>
 
@@ -187,6 +192,15 @@
                                         <span class="px-2.5 py-1 bg-amber-100 text-amber-800 font-extrabold text-[11px] rounded-lg border border-amber-200">
                                             ⏱️ Pending
                                         </span>
+                                    @elseif($log->status === 'rejected')
+                                        <span class="px-2.5 py-1 bg-rose-100 text-rose-800 font-extrabold text-[11px] rounded-lg border border-rose-200 block">
+                                            ✕ Dikembalikan
+                                        </span>
+                                        @if($log->rejection_note)
+                                            <span class="text-[10px] text-rose-600 block mt-1 max-w-[170px] truncate" title="{{ $log->rejection_note }}">
+                                                Catatan: {{ $log->rejection_note }}
+                                            </span>
+                                        @endif
                                     @else
                                         <span class="px-2.5 py-1 bg-emerald-100 text-emerald-800 font-extrabold text-[11px] rounded-lg border border-emerald-200 block">
                                             ✓ Diverifikasi
@@ -197,21 +211,48 @@
 
                                 {{-- Aksi --}}
                                 <td class="py-4 px-4 text-right whitespace-nowrap">
-                                    @if($log->status === 'pending')
-                                        <form method="POST" action="{{ route('guru.conduct.verify', $log->id) }}" class="inline-block">
-                                            @csrf
-                                            <button type="submit"
-                                                class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl shadow-xs transition-all inline-flex items-center gap-1">
-                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-                                                <span>Verifikasi</span>
+                                    <div class="flex items-center justify-end gap-1.5">
+                                        @if($log->status === 'pending')
+                                            <form method="POST" action="{{ route('guru.conduct.verify', $log->id) }}" class="inline-block">
+                                                @csrf
+                                                <button type="submit" title="Verifikasi ajuan dan izinkan siswa masuk"
+                                                    class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl shadow-xs transition-all inline-flex items-center gap-1">
+                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                                    <span>Verifikasi</span>
+                                                </button>
+                                            </form>
+
+                                            <button type="button"
+                                                @click="rejectModal = true; rejectUrl = '{{ route('guru.conduct.reject', $log->id) }}'; rejectStudent = '{{ addslashes($log->student?->name ?? 'Siswa') }}';"
+                                                title="Kembalikan ajuan untuk diperbaiki siswa"
+                                                class="px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs rounded-xl border border-rose-200 transition-all inline-flex items-center gap-1">
+                                                <svg class="w-3.5 h-3.5 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg>
+                                                <span>Kembalikan</span>
                                             </button>
-                                        </form>
-                                    @else
-                                        <span class="text-xs font-bold text-emerald-600 flex items-center justify-end gap-1">
-                                            <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-                                            <span>Selesai</span>
-                                        </span>
-                                    @endif
+                                        @elseif($log->status === 'rejected')
+                                            <form method="POST" action="{{ route('guru.conduct.verify', $log->id) }}" class="inline-block">
+                                                @csrf
+                                                <button type="submit" title="Verifikasi langsung ajuan ini"
+                                                    class="px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold text-xs rounded-xl border border-emerald-200 transition-all inline-flex items-center gap-1">
+                                                    <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                                    <span>Verifikasi</span>
+                                                </button>
+                                            </form>
+                                        @else
+                                            <span class="text-xs font-bold text-emerald-600 flex items-center gap-1">
+                                                <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                                <span>Selesai</span>
+                                            </span>
+                                        @endif
+
+                                        {{-- Tombol Hapus Ajuan --}}
+                                        <button type="button"
+                                            @click="deleteModal = true; deleteUrl = '{{ route('guru.conduct.destroy', $log->id) }}'; deleteStudent = '{{ addslashes($log->student?->name ?? 'Siswa') }}';"
+                                            title="Hapus ajuan ini"
+                                            class="p-1.5 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         @endforeach
@@ -219,6 +260,76 @@
                 </table>
             </div>
         @endif
+    </div>
+
+    {{-- Modal Kembalikan / Tolak Ajuan --}}
+    <div x-show="rejectModal" x-cloak class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div @click.away="rejectModal = false" class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl relative space-y-4">
+            <div class="flex items-center justify-between border-b border-gray-100 pb-3">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center font-black">✕</div>
+                    <div>
+                        <h3 class="font-extrabold text-base text-gray-900">Kembalikan / Tolak Ajuan</h3>
+                        <p class="text-xs text-gray-500">Ajuan siswa: <span class="font-bold text-gray-800" x-text="rejectStudent"></span></p>
+                    </div>
+                </div>
+                <button @click="rejectModal = false" class="text-gray-400 hover:text-gray-600 p-1 rounded-lg">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+
+            <form method="POST" :action="rejectUrl" class="space-y-4">
+                @csrf
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">
+                        Catatan Pengembalian / Alasan Ditolak <span class="text-rose-500">*</span>
+                    </label>
+                    <textarea name="rejection_note" rows="3" required
+                        placeholder="Contoh: Alasan tidak sesuai dengan fakta di gerbang / harap perjelas kronologi izin / sebutkan atribut yang tidak lengkap..."
+                        class="w-full px-3.5 py-2.5 rounded-2xl border border-gray-200 text-xs focus:ring-2 focus:ring-rose-500 focus:outline-none"></textarea>
+                    <p class="text-[11px] text-gray-400 mt-1">Catatan ini akan muncul di akun siswa agar siswa dapat memperbaiki ajuannya.</p>
+                </div>
+
+                <div class="flex items-center gap-2.5 pt-2">
+                    <button type="button" @click="rejectModal = false"
+                        class="flex-1 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs rounded-xl transition-colors">
+                        Batal
+                    </button>
+                    <button type="submit"
+                        class="flex-1 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs rounded-xl shadow-xs transition-colors">
+                        Kembalikan ke Siswa
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {{-- Modal Konfirmasi Hapus Ajuan --}}
+    <div x-show="deleteModal" x-cloak class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div @click.away="deleteModal = false" class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl relative space-y-4 text-center">
+            <div class="w-12 h-12 bg-rose-100 text-rose-600 rounded-2xl flex items-center justify-center mx-auto text-xl">
+                🗑️
+            </div>
+            <div>
+                <h3 class="font-extrabold text-base text-gray-900">Hapus Ajuan Pembinaan?</h3>
+                <p class="text-xs text-gray-500 mt-1">
+                    Anda akan menghapus ajuan dari <span class="font-bold text-gray-800" x-text="deleteStudent"></span>. Data yang dihapus tidak dapat dipulihkan.
+                </p>
+            </div>
+
+            <form method="POST" :action="deleteUrl" class="flex items-center gap-2.5 pt-2">
+                @csrf
+                @method('DELETE')
+                <button type="button" @click="deleteModal = false"
+                    class="flex-1 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs rounded-xl transition-colors">
+                    Batal
+                </button>
+                <button type="submit"
+                    class="flex-1 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs rounded-xl shadow-xs transition-colors">
+                    Ya, Hapus
+                </button>
+            </form>
+        </div>
     </div>
 
 </div>

@@ -3,13 +3,69 @@
 @section('page-title', 'SIPINTER (Pendidikan Karakter)')
 
 @section('content')
-<div class="space-y-4" x-data="{ openReportModal: false, selectedReason: 'Terlambat Masuk Sekolah' }">
+@php
+    $curCategory = $rejectedReport?->category?->name;
+    $isOther = ($curCategory === '__sistem__pelanggaran_lainnya' || !in_array($curCategory, [
+        'Terlambat Masuk Sekolah',
+        'Terlambat Kembali dari Izin Keluar',
+        'Seragam / Atribut Tidak Lengkap',
+    ]));
+    $initReason = $isOther ? 'Lainnya' : ($curCategory ?? 'Terlambat Masuk Sekolah');
+@endphp
 
-    {{-- Banner Pengajuan Mandiri --}}
-    @if(isset($pendingReport) && $pendingReport)
+<div class="space-y-4" x-data="{ openReportModal: false, selectedReason: 'Terlambat Masuk Sekolah', openEditModal: false, editReason: '{{ $initReason }}' }">
+
+    {{-- Banner Pengajuan Mandiri Dikembalikan Guru (Prioritas Ditampilkan untuk Diperbaiki) --}}
+    @if(isset($rejectedReport) && $rejectedReport)
+        <div class="bg-gradient-to-r from-rose-500/10 via-orange-500/10 to-rose-500/10 border-2 border-rose-300 rounded-2xl p-4 text-rose-950 shadow-xs">
+            <div class="flex items-start justify-between gap-3">
+                <div class="space-y-1.5 flex-1">
+                    <div class="flex items-center gap-2">
+                        <span class="w-3 h-3 rounded-full bg-rose-500 shrink-0 animate-ping"></span>
+                        <h3 class="font-extrabold text-sm text-rose-950">
+                            Pengajuan Mandiri Dikembalikan oleh Guru
+                        </h3>
+                    </div>
+                    <p class="text-xs text-rose-900">
+                        Alasan sebelumnya: <span class="font-bold text-rose-950">{{ $rejectedReport->displayCategoryName() }}</span>
+                    </p>
+                    @if($rejectedReport->rejection_note)
+                        <div class="bg-rose-100/90 border border-rose-200 rounded-xl p-2.5 my-1.5">
+                            <span class="text-[10px] font-black uppercase tracking-wider text-rose-700 block">Catatan Guru:</span>
+                            <p class="text-xs font-semibold text-rose-900 mt-0.5">"{{ $rejectedReport->rejection_note }}"</p>
+                        </div>
+                    @endif
+                    <p class="text-[11px] text-rose-800">
+                        Silakan perbaiki alasan pengajuan Anda agar dapat diverifikasi oleh Guru Piket, atau batalkan pengajuan jika tidak ingin dilanjutkan.
+                    </p>
+                    <div class="flex flex-wrap items-center gap-2 pt-1.5">
+                        <button type="button" @click="openEditModal = true"
+                            class="px-3.5 py-2 bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs rounded-xl shadow-xs transition-colors flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                            <span>Perbaiki Alasan Pengajuan</span>
+                        </button>
+
+                        <form method="POST" action="{{ route('siswa.conduct.self-report.destroy', $rejectedReport->id) }}"
+                            onsubmit="return confirm('Apakah Anda yakin ingin membatalkan/menghapus pengajuan ini?')" class="inline-block">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit"
+                                class="px-3 py-2 bg-white hover:bg-rose-50 text-rose-700 font-bold text-xs rounded-xl border border-rose-200 transition-colors">
+                                Batalkan / Hapus
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                <span class="px-2.5 py-1 bg-rose-200 text-rose-900 font-extrabold text-[11px] rounded-xl shrink-0 border border-rose-300">
+                    ✕ Dikembalikan
+                </span>
+            </div>
+        </div>
+    {{-- Banner Pengajuan Mandiri Sedang Menunggu Verifikasi --}}
+    @elseif(isset($pendingReport) && $pendingReport)
         <div class="bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/10 border-2 border-amber-300 rounded-2xl p-4 text-amber-950 shadow-xs">
             <div class="flex items-start justify-between gap-3">
-                <div class="space-y-1.5">
+                <div class="space-y-1.5 flex-1">
                     <div class="flex items-center gap-2">
                         <span class="relative flex h-3 w-3">
                             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
@@ -28,9 +84,20 @@
                     <p class="text-[11px] text-amber-800">
                         Diajukan pada {{ $pendingReport->created_at->isoFormat('D MMM Y, HH:mm') }} WITA. Silakan tunjukkan kepada Guru Piket di gerbang.
                     </p>
-                    <p class="text-[10.5px] text-amber-700 font-semibold bg-amber-100/80 px-2.5 py-1 rounded-lg inline-block border border-amber-200">
-                        ℹ️ Anda baru dapat melapor pelanggaran mandiri sekali lagi setelah pengajuan ini selesai diverifikasi.
-                    </p>
+                    <div class="flex items-center gap-3 pt-1">
+                        <p class="text-[10.5px] text-amber-700 font-semibold bg-amber-100/80 px-2.5 py-1 rounded-lg border border-amber-200">
+                            ℹ️ Menunggu verifikasi Guru Piket
+                        </p>
+                        <form method="POST" action="{{ route('siswa.conduct.self-report.destroy', $pendingReport->id) }}"
+                            onsubmit="return confirm('Apakah Anda yakin ingin membatalkan pengajuan ini?')" class="inline-block">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="text-xs text-rose-700 hover:text-rose-900 font-bold hover:underline inline-flex items-center gap-1">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                <span>Batalkan Pengajuan</span>
+                            </button>
+                        </form>
+                    </div>
                 </div>
                 <span class="px-3 py-1.5 bg-amber-200 text-amber-900 font-extrabold text-[11px] rounded-xl shrink-0 border border-amber-300 shadow-2xs">
                     ⏱️ Menunggu Guru
@@ -138,8 +205,8 @@
         @endif
     </div>
 
-    {{-- Modal Pengajuan Pembinaan Mandiri (Hanya jika belum ada pending report) --}}
-    @if(!isset($pendingReport) || !$pendingReport)
+    {{-- Modal Pengajuan Pembinaan Mandiri (Hanya jika belum ada pending report dan belum ada rejected report) --}}
+    @if((!isset($pendingReport) || !$pendingReport) && (!isset($rejectedReport) || !$rejectedReport))
     <div x-show="openReportModal" x-cloak class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
         <div @click.away="openReportModal = false" class="bg-white rounded-2xl max-w-md w-full p-5 shadow-xl relative space-y-4">
             <div class="flex items-center justify-between border-b border-gray-100 pb-3">
@@ -189,6 +256,86 @@
                     </button>
                     <button type="submit" class="flex-1 py-2.5 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-xl shadow-sm transition-colors">
                         Kirim Pengajuan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    @endif
+
+    {{-- Modal Perbaiki Pengajuan Pembinaan Mandiri yang Dikembalikan Guru --}}
+    @if(isset($rejectedReport) && $rejectedReport)
+    @php
+        $curCat = $rejectedReport->category?->name;
+        $isOtherCat = ($curCat === '__sistem__pelanggaran_lainnya' || !in_array($curCat, [
+            'Terlambat Masuk Sekolah',
+            'Terlambat Kembali dari Izin Keluar',
+            'Seragam / Atribut Tidak Lengkap',
+        ]));
+        $defaultOtherReasonVal = $isOtherCat ? ($rejectedReport->parsed_description ?? '') : '';
+        $defaultDescVal = $rejectedReport->parsed_description && !$isOtherCat ? $rejectedReport->parsed_description : '';
+    @endphp
+    <div x-show="openEditModal" x-cloak class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div @click.away="openEditModal = false" class="bg-white rounded-2xl max-w-md w-full p-5 shadow-xl relative space-y-4">
+            <div class="flex items-center justify-between border-b border-gray-100 pb-3">
+                <div class="flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-full bg-rose-100 text-rose-700 font-bold flex items-center justify-center text-sm">✏️</span>
+                    <div>
+                        <h3 class="font-bold text-base text-gray-800">Perbaiki Pengajuan Mandiri</h3>
+                        <p class="text-[11px] text-gray-500">Sesuaikan alasan sesuai arahan guru</p>
+                    </div>
+                </div>
+                <button @click="openEditModal = false" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+
+            @if($rejectedReport->rejection_note)
+                <div class="bg-rose-50 border border-rose-200 rounded-xl p-3 text-xs text-rose-800">
+                    <span class="font-bold block text-[10px] uppercase tracking-wider text-rose-600 mb-0.5">Catatan Pengembalian Guru:</span>
+                    "{{ $rejectedReport->rejection_note }}"
+                </div>
+            @endif
+
+            <form method="POST" action="{{ route('siswa.conduct.self-report.update', $rejectedReport->id) }}" enctype="multipart/form-data" class="space-y-3.5">
+                @csrf
+                @method('PUT')
+                <div>
+                    <label class="block text-xs font-semibold text-gray-700 mb-1">Alasan Pembinaan Disiplin <span class="text-red-500">*</span></label>
+                    <select name="reason" x-model="editReason" required class="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-xs focus:ring-2 focus:ring-rose-500 focus:outline-none bg-white">
+                        <option value="Terlambat Masuk Sekolah">Terlambat Masuk Sekolah (Gerbang)</option>
+                        <option value="Terlambat Kembali dari Izin Keluar">Terlambat Kembali dari Izin Keluar</option>
+                        <option value="Seragam / Atribut Tidak Lengkap">Seragam / Atribut Tidak Lengkap</option>
+                        <option value="Lainnya">Alasan Lainnya (Input Sendiri)</option>
+                    </select>
+                </div>
+
+                {{-- Input teks dinamis jika memilih Lainnya --}}
+                <div x-show="editReason === 'Lainnya'" x-transition class="space-y-1">
+                    <label class="block text-xs font-semibold text-gray-700 mb-1">Sebutkan Pelanggaran / Alasan Lainnya <span class="text-red-500">*</span></label>
+                    <input type="text" name="other_reason" value="{{ $defaultOtherReasonVal }}"
+                        placeholder="Contoh: Meninggalkan kelas tanpa izin / Tidak memakai dasi"
+                        :required="editReason === 'Lainnya'"
+                        class="w-full px-3 py-2 rounded-xl border border-gray-200 text-xs focus:ring-2 focus:ring-rose-500 focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-700 mb-1">Keterangan / Alasan Tambahan <span class="text-gray-400 font-normal">(opsional)</span></label>
+                    <textarea name="description" rows="2" placeholder="Contoh: Terjebak kemacetan di jalan utama / ban bocor."
+                        class="w-full px-3 py-2 rounded-xl border border-gray-200 text-xs focus:ring-2 focus:ring-rose-500 focus:outline-none">{{ $defaultDescVal }}</textarea>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-700 mb-1">Foto Bukti / Pendukung Baru <span class="text-gray-400 font-normal">(opsional, biarkan kosong jika tetap)</span></label>
+                    <input type="file" name="photo" accept="image/*" class="w-full text-xs text-gray-500 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-rose-50 file:text-rose-700 hover:file:bg-rose-100">
+                </div>
+
+                <div class="pt-2 flex gap-2">
+                    <button type="button" @click="openEditModal = false" class="flex-1 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold rounded-xl transition-colors">
+                        Batal
+                    </button>
+                    <button type="submit" class="flex-1 py-2.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl shadow-sm transition-colors">
+                        Simpan & Kirim Ulang
                     </button>
                 </div>
             </form>

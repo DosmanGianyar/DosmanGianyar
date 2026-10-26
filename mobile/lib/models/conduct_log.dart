@@ -4,15 +4,26 @@ import '../theme/app_colors.dart';
 class ConductSummary {
   final int prestasiCount, pelanggaranCount;
   final bool hasPendingReport;
+  final bool hasRejectedReport;
+  final Map<String, dynamic>? rejectedReport;
+  final Map<String, dynamic>? pendingReport;
+
   const ConductSummary({
     required this.prestasiCount,
     required this.pelanggaranCount,
     this.hasPendingReport = false,
+    this.hasRejectedReport = false,
+    this.rejectedReport,
+    this.pendingReport,
   });
+
   factory ConductSummary.fromJson(Map<String, dynamic> j) => ConductSummary(
-    prestasiCount:    j['prestasi_count']    as int,
-    pelanggaranCount: j['pelanggaran_count'] as int,
-    hasPendingReport: (j['has_pending_report'] as bool?) ?? false,
+    prestasiCount:      j['prestasi_count']     as int,
+    pelanggaranCount:   j['pelanggaran_count']  as int,
+    hasPendingReport:   (j['has_pending_report']  as bool?) ?? false,
+    hasRejectedReport:  (j['has_rejected_report'] as bool?) ?? false,
+    rejectedReport:     j['rejected_report']    as Map<String, dynamic>?,
+    pendingReport:      j['pending_report']     as Map<String, dynamic>?,
   );
 }
 
@@ -26,6 +37,8 @@ class ConductLog {
   final String? note;
   final String? photoUrl;
   final String? teacherName;
+  final String? status;
+  final String? rejectionNote;
 
   const ConductLog({
     required this.id,
@@ -37,18 +50,22 @@ class ConductLog {
     this.note,
     this.photoUrl,
     this.teacherName,
+    this.status,
+    this.rejectionNote,
   });
 
   factory ConductLog.fromJson(Map<String, dynamic> j) => ConductLog(
-    id:           j['id']            as int,
-    categoryName: j['category_name'] as String,
-    type:         j['type']          as String,
-    context:      j['context']       as String,
-    date:         j['date']          as String,
-    createdAt:    j['created_at']    as String,
-    note:         j['note']          as String?,
-    photoUrl:     j['photo_url']     as String?,
-    teacherName:  j['teacher_name']  as String?,
+    id:            j['id']             as int,
+    categoryName:  j['category_name']  as String,
+    type:          j['type']           as String,
+    context:       j['context']        as String,
+    date:          j['date']           as String,
+    createdAt:     j['created_at']     as String,
+    note:          j['note']           as String?,
+    photoUrl:      j['photo_url']      as String?,
+    teacherName:   j['teacher_name']   as String?,
+    status:        j['status']         as String?,
+    rejectionNote: j['rejection_note'] as String?,
   );
 
   bool get isCatatanPositif  => type == 'prestasi';
