@@ -152,6 +152,9 @@ class RichContentView extends StatelessWidget {
           fontStyle: FontStyle.italic,
           color: AppColors.gray600,
         );
+        final nestedBlocks = _parseBlocks(block.innerHtml);
+        final hasNestedStructure = nestedBlocks.length > 1 ||
+            nestedBlocks.any((b) => b.type != _BlockType.paragraph);
         return Container(
           width: double.infinity,
           margin: const EdgeInsets.symmetric(vertical: 8),
@@ -163,9 +166,16 @@ class RichContentView extends StatelessWidget {
               left: BorderSide(color: Color(0xFF0F2460), width: 3.5),
             ),
           ),
-          child: Text.rich(
-            TextSpan(children: _parseInlineSpans(block.innerHtml, quoteStyle)),
-          ),
+          child: hasNestedStructure
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: nestedBlocks
+                      .map((b) => _renderBlock(context, b, quoteStyle))
+                      .toList(),
+                )
+              : Text.rich(
+                  TextSpan(children: _parseInlineSpans(block.innerHtml, quoteStyle)),
+                ),
         );
 
       case _BlockType.table:
@@ -399,7 +409,9 @@ class RichContentView extends StatelessWidget {
   }
 
   String _stripRemainingTags(String input) {
-    return input.replaceAll(RegExp(r'<[^>]*>'), '');
+    return input
+        .replaceAll(RegExp(r'<\/(p|li|div|h[1-6])>\s*<(p|li|div|h[1-6]|ol|ul)', caseSensitive: false), '\n\n<\$2')
+        .replaceAll(RegExp(r'<[^>]*>'), '');
   }
 }
 

@@ -26,6 +26,59 @@ class Announcement extends Model
         'image_url',
     ];
 
+    protected static function booted(): void
+    {
+        static::saving(function (Announcement $announcement) {
+            if (is_string($announcement->attributes['body'] ?? null)) {
+                $announcement->attributes['body'] = static::normalizeBodyHtml($announcement->attributes['body']);
+            }
+        });
+    }
+
+    public function getBodyAttribute(?string $value): string
+    {
+        return static::normalizeBodyHtml($value);
+    }
+
+    /**
+     * Bersihkan HTML dari RichEditor agar tampil konsisten di Web maupun Mobile App (RichContentView).
+     * - Membuka pembungkus <blockquote> jika membungkus paragraf jamak atau daftar (<ol>/<ul>),
+     *   yang sering terjadi saat copy-paste teks ke RichEditor.
+     * - Merapikan <li><p>...</p></li> menjadi <li>...</li> agar nomor/bullet list di mobile rapi.
+     */
+    public static function normalizeBodyHtml(?string $html): string
+    {
+        if ($html === null || trim($html) === '') {
+            return '';
+        }
+
+        $cleaned = trim($html);
+
+        // Jika terdapat <blockquote> yang membungkus list (<ol>/<ul>) atau beberapa paragraf (<p>),
+        // lepaskan tag <blockquote> agar paragraf dan penomoran list dirender per blok di mobile app
+        $cleaned = preg_replace_callback(
+            '/<blockquote[^>]*>([\s\S]*?)<\/blockquote>/i',
+            function (array $matches): string {
+                $inner = trim($matches[1]);
+                $pCount = preg_match_all('/<p[\s>]/i', $inner);
+                $hasListOrHeading = (bool) preg_match('/<(ol|ul|h[1-6]|table)[\s>]/i', $inner);
+
+                if ($hasListOrHeading || $pCount > 1) {
+                    return $inner;
+                }
+
+                // Jika hanya 1 paragraf kutipan pendek, tetap ubah menjadi paragraf biasa bila seluruh body hanya blockquote itu
+                return $inner;
+            },
+            $cleaned
+        ) ?? $cleaned;
+
+        // Bersihkan <p> di dalam <li> (contoh: <li><p>Teks</p></li> -> <li>Teks</li>)
+        $cleaned = preg_replace('/<li([^>]*)>\s*<p[^>]*>([\s\S]*?)<\/p>\s*<\/li>/i', '<li$1>$2</li>', $cleaned) ?? $cleaned;
+
+        return trim($cleaned);
+    }
+
     public function author(): BelongsTo
     {
         return $this->belongsTo(User::class, 'author_id');

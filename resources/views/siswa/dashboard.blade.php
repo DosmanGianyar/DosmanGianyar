@@ -551,9 +551,29 @@
                 </h3>
             </div>
 
-            <div class="text-xs sm:text-sm text-slate-700 whitespace-pre-line leading-relaxed bg-white/90 backdrop-blur-xs p-4 rounded-2xl border border-slate-200/70 shadow-xs">
-                {!! nl2br(e($popupAnnouncement->body)) !!}
+            @php
+                $hasPopupHtml = $popupAnnouncement->body !== strip_tags($popupAnnouncement->body);
+            @endphp
+            <div class="announcement-modal-body text-xs sm:text-sm text-slate-700 leading-relaxed bg-white/95 backdrop-blur-xs p-4 rounded-2xl border border-slate-200/70 shadow-xs">
+                @if($hasPopupHtml)
+                    {!! $popupAnnouncement->body !!}
+                @else
+                    <div class="whitespace-pre-line">{!! nl2br(e($popupAnnouncement->body)) !!}</div>
+                @endif
             </div>
+            <style>
+                .announcement-modal-body p { margin-bottom: 0.65rem; }
+                .announcement-modal-body p:last-child { margin-bottom: 0; }
+                .announcement-modal-body h1, .announcement-modal-body h2, .announcement-modal-body h3 { font-weight: 800; margin-top: 0.75rem; margin-bottom: 0.35rem; color: #0f172a; }
+                .announcement-modal-body ul { list-style-type: disc; padding-left: 1.35rem; margin-bottom: 0.65rem; }
+                .announcement-modal-body ol { list-style-type: decimal; padding-left: 1.35rem; margin-bottom: 0.65rem; }
+                .announcement-modal-body li { margin-bottom: 0.3rem; }
+                .announcement-modal-body blockquote { border-left: 3px solid #3b82f6; padding-left: 0.75rem; font-style: italic; color: #475569; margin: 0.5rem 0; background: #f8fafc; padding-top: 0.35rem; padding-bottom: 0.35rem; border-radius: 0 8px 8px 0; }
+                .announcement-modal-body a { color: #2563eb; text-decoration: underline; font-weight: 600; }
+                .announcement-modal-body table { width: 100%; border-collapse: collapse; margin-bottom: 0.65rem; font-size: 12px; }
+                .announcement-modal-body th, .announcement-modal-body td { border: 1px solid #e2e8f0; padding: 6px 10px; }
+                .announcement-modal-body th { background-color: #f1f5f9; font-weight: 700; }
+            </style>
         </div>
 
         {{-- Footer Modal --}}
