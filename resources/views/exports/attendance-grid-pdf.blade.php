@@ -5,13 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Rekapitulasi Absensi Siswa Bulanan</title>
 <style>
-    @page { size: A4 landscape; margin: 8mm 10mm 10mm 10mm; }
+    @page { size: A4 landscape; margin: 10mm 12mm 10mm 12mm; }
     * {
+        box-sizing: border-box;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
         color-adjust: exact !important;
     }
-    body { font-family: 'Times New Roman', Times, serif; font-size: 9.5px; color: #000; margin: 0; padding: 0; background: #fff; }
+    body { font-family: 'Times New Roman', Times, serif; font-size: 9.5px; color: #000; margin: 0; padding: 12px 16px; background: #fff; }
     @media print {
         * {
             -webkit-print-color-adjust: exact !important;
@@ -19,7 +20,7 @@
             color-adjust: exact !important;
         }
         .no-print { display: none !important; }
-        body { padding: 0; }
+        body { padding: 2mm 4mm !important; }
     }
     
     .kop-container { text-align: center; border-bottom: 3px double #000; padding-bottom: 4px; margin-bottom: 8px; position: relative; }

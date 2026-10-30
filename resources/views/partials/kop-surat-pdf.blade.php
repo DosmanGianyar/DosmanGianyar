@@ -14,15 +14,16 @@
     $aksara4Data     = $kopReadBase64('img/aksara-bali-4.png');
 @endphp
 <style>
-  .kop-rab-wrapper { width: 100%; margin-bottom: 10px; }
+  .kop-rab-wrapper { width: 100%; margin-bottom: 12px; padding-top: 2px; }
   table.kop-rab-table { width: 100%; border-collapse: collapse; margin: 0; border: none !important; }
-  table.kop-rab-table td { border: none !important; padding: 0; vertical-align: middle; background: transparent !important; }
-  td.kop-rab-logo-left { width: 72px; text-align: center; }
-  td.kop-rab-logo-right { width: 72px; text-align: center; }
+  table.kop-rab-table td { border: none !important; padding: 0; vertical-align: middle !important; background: transparent !important; }
+  td.kop-rab-logo-left { width: 72px; text-align: center; vertical-align: middle !important; }
+  td.kop-rab-logo-right { width: 72px; text-align: center; vertical-align: middle !important; }
   td.kop-rab-logo-left img { width: 62px; height: 66px; object-fit: contain; }
   td.kop-rab-logo-right img { width: 64px; height: 68px; object-fit: contain; }
   td.kop-rab-center {
     text-align: center;
+    vertical-align: middle !important;
     color: #000000;
     font-family: 'Times New Roman', 'Tinos', 'DejaVu Serif', serif;
     padding: 0 6px;

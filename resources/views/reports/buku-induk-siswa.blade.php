@@ -6,8 +6,8 @@
     <title>Buku Induk Siswa - {{ count($students) === 1 ? $students->first()->name : 'Per Kelas' }}</title>
     <style>
         @page {
-            size: A4;
-            margin: 15mm 20mm 15mm 20mm;
+            size: A4 portrait;
+            margin: 14mm 18mm 14mm 18mm;
         }
 
         body {
@@ -17,7 +17,13 @@
             color: #000;
             background: #fff;
             margin: 0;
-            padding: 0;
+            padding: 12px 18px;
+        }
+
+        @media print {
+            body {
+                padding: 2mm 4mm !important;
+            }
         }
 
         .page-container {

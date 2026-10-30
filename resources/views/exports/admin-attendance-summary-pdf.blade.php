@@ -3,13 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <style>
-    @page { size: A4 landscape; margin: 10mm 12mm 12mm 12mm; }
+    @page { size: A4 landscape; margin: 10mm 14mm 12mm 14mm; }
     * {
+        box-sizing: border-box;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
         color-adjust: exact !important;
     }
-    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; color-adjust: exact; font-family: Arial, sans-serif; font-size: 9.5px; margin: 0; }
+    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; color-adjust: exact; font-family: Arial, sans-serif; font-size: 9.5px; margin: 0; padding: 12px 18px; }
 
     table { width: 100%; border-collapse: collapse; }
 
@@ -63,7 +64,7 @@
             color-adjust: exact !important;
         }
         .no-print { display: none !important; }
-        body { padding: 0; }
+        body { padding: 2mm 4mm !important; }
     }
 </style>
 </head>

@@ -4,42 +4,50 @@
 <meta charset="UTF-8">
 <title>Laporan Rekapitulasi Prestasi Siswa SMAN 1 Gianyar</title>
 <style>
-  @page { size: A4 landscape; margin: 10mm 12mm 12mm 12mm; }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: 'DejaVu Sans', 'Times New Roman', serif; font-size: 9.5pt; color: #000; line-height: 1.35; }
-
-  /* ── Kop Surat Formal ────────────────────────────────────────── */
-  .kop-container { width: 100%; border-collapse: collapse; margin-bottom: 4px; }
-  .kop-container td { border: none; vertical-align: middle; }
-  .kop-logo { width: 65px; text-align: center; }
-  .kop-logo img { width: 58px; height: auto; max-height: 65px; object-fit: contain; }
-  .kop-text { text-align: center; }
-  .kop-text .l1 { font-size: 11pt; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
-  .kop-text .l2 { font-size: 11pt; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
-  .kop-text .l3 { font-size: 15pt; font-weight: bold; text-transform: uppercase; margin: 2px 0 1px; }
-  .kop-text .l4 { font-size: 8.5pt; }
-  .kop-text .l5 { font-size: 8pt; font-style: italic; }
-  .kop-line { border-bottom: 3px double #000; margin-bottom: 12px; }
+  @page { size: A4 landscape; margin: 12mm 14mm 12mm 14mm; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'DejaVu Sans', 'Times New Roman', serif;
+    font-size: 9pt;
+    color: #000;
+    line-height: 1.35;
+    margin: 0;
+    padding: 4px 8px;
+  }
 
   /* ── Judul Dokumen ────────────────────────────────────────────── */
   .doc-header { text-align: center; margin-bottom: 12px; }
-  .doc-title { font-size: 13pt; font-weight: bold; text-transform: uppercase; text-decoration: underline; }
+  .doc-title { font-size: 13pt; font-weight: bold; text-transform: uppercase; text-decoration: underline; margin: 0; }
   .doc-subtitle { font-size: 10pt; font-weight: bold; margin-top: 2px; color: #1e293b; }
   .doc-filter { font-size: 9pt; font-style: italic; color: #374151; margin-top: 2px; }
 
   /* ── Summary Stats ────────────────────────────────────────────── */
   .stats-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 9pt; }
-  .stats-table td { padding: 5px 8px; border: 1px solid #cbd5e1; text-align: center; background-color: #f8fafc; }
+  .stats-table td { padding: 5px 8px; border: 1px solid #cbd5e1; text-align: center; background-color: #f8fafc; vertical-align: middle; }
   .stats-val { font-size: 11pt; font-weight: bold; color: #1e3a8a; }
   .stats-lbl { font-size: 8pt; color: #475569; text-transform: uppercase; margin-top: 2px; }
 
   /* ── Data Table ───────────────────────────────────────────────── */
-  table.data-table { width: 100%; border-collapse: collapse; margin-bottom: 14px; font-size: 9pt; }
-  table.data-table th { background-color: #1e3a8a; color: #ffffff; font-weight: bold; padding: 6px 6px; border: 1px solid #1e3a8a; text-align: center; font-size: 8.5pt; }
-  table.data-table td { padding: 6px 7px; border: 1px solid #9ca3af; vertical-align: top; }
+  table.data-table { width: 100%; border-collapse: collapse; margin-bottom: 14px; font-size: 8.8pt; table-layout: fixed; }
+  table.data-table th {
+    background-color: #1e3a8a;
+    color: #ffffff;
+    font-weight: bold;
+    padding: 6px 6px;
+    border: 1px solid #1e3a8a;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 8.5pt;
+  }
+  table.data-table td {
+    padding: 6px 7px;
+    border: 1px solid #9ca3af;
+    vertical-align: top !important;
+    word-wrap: break-word;
+  }
   table.data-table tr:nth-child(even) td { background-color: #f8fafc; }
-  .text-center { text-align: center; vertical-align: middle !important; }
-  .text-left { text-align: left; }
+  .text-center { text-align: center; vertical-align: top !important; }
+  .text-left { text-align: left; vertical-align: top !important; }
 
   .badge { display: inline-block; padding: 2px 6px; font-size: 8pt; font-weight: bold; border-radius: 3px; }
   .lvl-internasional { background-color: #fee2e2; color: #991b1b; }
@@ -48,10 +56,34 @@
   .lvl-kabupaten { background-color: #e0f2fe; color: #075985; }
   .lvl-sekolah { background-color: #f1f5f9; color: #334155; }
 
-  .member-item { margin-bottom: 2px; line-height: 1.3; }
-  .member-item:last-child { margin-bottom: 0; }
-  .pembina-item { margin-bottom: 2px; line-height: 1.3; }
-  .pembina-item:last-child { margin-bottom: 0; }
+  /* ── Pembatas Garis Setiap Siswa pada Kolom Nama Siswa / Kelompok ── */
+  td.col-siswa { padding: 0 !important; vertical-align: top !important; }
+  .member-group-header {
+    font-size: 7.5pt;
+    font-weight: bold;
+    color: #4c1d95;
+    background-color: #eef2ff;
+    padding: 4px 7px;
+    border-bottom: 1px solid #9ca3af;
+  }
+  .member-item {
+    padding: 4px 7px;
+    border-bottom: 0.75px solid #cbd5e1;
+    line-height: 1.3;
+  }
+  .member-item:last-child { border-bottom: none; }
+  .single-student-box {
+    padding: 6px 7px;
+    line-height: 1.35;
+  }
+
+  .pembina-item {
+    padding: 3px 0;
+    border-bottom: 0.75px solid #cbd5e1;
+    line-height: 1.3;
+  }
+  .pembina-item:first-child { padding-top: 0; }
+  .pembina-item:last-of-type { border-bottom: none; }
 
   /* ── Tanda Tangan Formal (Cukup Kepala Sekolah Saja) ──────────── */
   .ttd-table { width: 100%; border-collapse: collapse; margin-top: 22px; page-break-inside: avoid; font-size: 10pt; }
@@ -120,14 +152,14 @@
 <table class="data-table">
   <thead>
     <tr>
-      <th style="width: 26px;">No</th>
-      <th style="width: 205px;">Nama Lomba / Kejuaraan</th>
-      <th style="width: 195px;">Nama Siswa / Kelompok Juara</th>
-      <th style="width: 85px;">Bidang / Ekstra</th>
-      <th style="width: 72px;">Tingkat</th>
-      <th style="width: 68px;">Peringkat</th>
-      <th style="width: 155px;">Pembina Ekstrakurikuler</th>
-      <th style="width: 64px;">Tanggal</th>
+      <th style="width: 4%;">No</th>
+      <th style="width: 22%;">Nama Lomba / Kejuaraan</th>
+      <th style="width: 24%;">Nama Siswa / Kelompok Juara</th>
+      <th style="width: 11%;">Bidang / Ekstra</th>
+      <th style="width: 8%;">Tingkat</th>
+      <th style="width: 8%;">Peringkat</th>
+      <th style="width: 15%;">Pembina Ekstrakurikuler</th>
+      <th style="width: 8%;">Tanggal</th>
     </tr>
   </thead>
   <tbody>
@@ -151,10 +183,10 @@
           @endif
         </td>
 
-        {{-- Kolom 2 (di kanannya): Nama Siswa / Kelompok Siswa yang Juara --}}
-        <td class="text-left">
+        {{-- Kolom 2 (di kanannya): Nama Siswa / Kelompok Siswa yang Juara (dengan garis pembatas tiap siswa) --}}
+        <td class="text-left col-siswa">
           @if($isGroup && $members->count() > 1)
-            <div style="font-size: 7.5pt; font-weight: bold; color: #5b21b6; margin-bottom: 3px;">
+            <div class="member-group-header">
               Kelompok / Beregu ({{ $members->count() }} Siswa):
             </div>
             @foreach($members as $mIdx => $member)
@@ -166,13 +198,15 @@
               </div>
             @endforeach
           @else
-            <strong>{{ $item->student?->name ?? '—' }}</strong>
-            @if($item->student?->schoolClass?->name)
-              <span style="font-size: 8.5pt; color: #1e3a8a; font-weight: bold;">({{ $item->student->schoolClass->name }})</span>
-            @endif
-            @if($item->student?->nisn)
-              <br><span style="font-size: 8pt; color: #4b5563;">NISN: {{ $item->student->nisn }}</span>
-            @endif
+            <div class="single-student-box">
+              <strong>{{ $item->student?->name ?? '—' }}</strong>
+              @if($item->student?->schoolClass?->name)
+                <span style="font-size: 8.5pt; color: #1e3a8a; font-weight: bold;">({{ $item->student->schoolClass->name }})</span>
+              @endif
+              @if($item->student?->nisn)
+                <br><span style="font-size: 8pt; color: #4b5563;">NISN: {{ $item->student->nisn }}</span>
+              @endif
+            </div>
           @endif
         </td>
 

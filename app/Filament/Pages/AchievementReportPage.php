@@ -133,6 +133,7 @@ class AchievementReportPage extends Page implements HasTable
                     ->label('No')
                     ->rowIndex()
                     ->alignCenter()
+                    ->extraCellAttributes(['style' => 'vertical-align: top;'])
                     ->width('40px'),
 
                 TextColumn::make('title')
@@ -140,6 +141,7 @@ class AchievementReportPage extends Page implements HasTable
                     ->searchable()
                     ->weight('bold')
                     ->wrap()
+                    ->extraCellAttributes(['style' => 'vertical-align: top;'])
                     ->description(function (StudentAchievement $record): ?string {
                         $desc = [];
                         if ($record->event_name && mb_strtolower(trim($record->event_name)) !== mb_strtolower(trim($record->title))) {
@@ -179,17 +181,20 @@ class AchievementReportPage extends Page implements HasTable
                     })
                     ->html()
                     ->wrap()
+                    ->extraCellAttributes(['style' => 'vertical-align: top;'])
                     ->formatStateUsing(function (StudentAchievement $record): string {
                         $members = $record->team_members;
-                        if ($members->count() > 1 || $record->isBeregu()) {
-                            $lines = $members->values()->map(function (StudentAchievement $m, int $idx) {
+                        $totalMembers = $members->count();
+                        if ($totalMembers > 1 || $record->isBeregu()) {
+                            $lines = $members->values()->map(function (StudentAchievement $m, int $idx) use ($totalMembers) {
                                 $name = e($m->student?->name ?? 'Siswa');
                                 $cls = $m->student?->schoolClass?->name ? ' <span style="font-size:0.74rem; color:#93c5fd;">(' . e($m->student->schoolClass->name) . ')</span>' : '';
-                                return "<div style=\"line-height:1.4;\"><strong>" . ($idx + 1) . ". {$name}</strong>{$cls}</div>";
+                                $border = ($idx < $totalMembers - 1) ? 'border-bottom:1px solid rgba(148,163,184,0.28);' : '';
+                                return "<div style=\"line-height:1.4; padding:3px 0; {$border}\"><strong>" . ($idx + 1) . ". {$name}</strong>{$cls}</div>";
                             })->implode('');
 
-                            return "<div style=\"display:flex; flex-direction:column; gap:2px;\">"
-                                . "<span style=\"font-size:0.68rem; font-weight:700; color:#fcd34d; text-transform:uppercase; letter-spacing:0.03em;\">👥 Kelompok Juara ({$members->count()} Siswa):</span>"
+                            return "<div style=\"display:flex; flex-direction:column;\">"
+                                . "<div style=\"font-size:0.68rem; font-weight:700; color:#fcd34d; text-transform:uppercase; letter-spacing:0.03em; padding-bottom:4px; border-bottom:1px solid rgba(148,163,184,0.45); margin-bottom:2px;\">👥 Kelompok Juara ({$totalMembers} Siswa):</div>"
                                 . $lines
                                 . "</div>";
                         }
@@ -208,12 +213,14 @@ class AchievementReportPage extends Page implements HasTable
                     ->label('Bidang & Ekstra')
                     ->badge()
                     ->color('info')
+                    ->extraCellAttributes(['style' => 'vertical-align: top;'])
                     ->formatStateUsing(fn (StudentAchievement $record): string => $record->fieldCategoryLabel())
                     ->description(fn (StudentAchievement $record): ?string => $record->extracurricularName() !== '—' ? '🏅 ' . $record->extracurricularName() : null),
 
                 TextColumn::make('level')
                     ->label('Tingkat & Partisipasi')
                     ->html()
+                    ->extraCellAttributes(['style' => 'vertical-align: top;'])
                     ->formatStateUsing(function (StudentAchievement $record): string {
                         $levelLabel = e($record->levelLabel());
                         $levelColors = match ($record->level) {
@@ -245,12 +252,14 @@ class AchievementReportPage extends Page implements HasTable
                     ->badge()
                     ->color('warning')
                     ->icon('heroicon-o-trophy')
+                    ->extraCellAttributes(['style' => 'vertical-align: top;'])
                     ->placeholder('—'),
 
                 TextColumn::make('pembina_id')
                     ->label('Pembina Ekstrakurikuler')
                     ->html()
                     ->wrap()
+                    ->extraCellAttributes(['style' => 'vertical-align: top;'])
                     ->formatStateUsing(function (StudentAchievement $record): string {
                         $list = $record->pembinaList();
                         $extraName = $record->extracurricularName();
@@ -258,12 +267,16 @@ class AchievementReportPage extends Page implements HasTable
                             ? "<div style=\"font-size:0.72rem; color:#a5b4fc; margin-top:2px; font-weight:600;\">🏅 Ekstra: " . e($extraName) . "</div>"
                             : '';
 
-                        if (count($list) > 1) {
-                            $items = collect($list)->values()->map(fn (string $name, int $idx) => "<div style=\"line-height:1.35; color:#6ee7b7; font-weight:600;\">" . ($idx + 1) . ". " . e($name) . "</div>")->implode('');
+                        $totalPembina = count($list);
+                        if ($totalPembina > 1) {
+                            $items = collect($list)->values()->map(function (string $name, int $idx) use ($totalPembina) {
+                                $border = ($idx < $totalPembina - 1) ? 'border-bottom:1px solid rgba(148,163,184,0.25);' : '';
+                                return "<div style=\"line-height:1.35; padding:2px 0; color:#6ee7b7; font-weight:600; {$border}\">" . ($idx + 1) . ". " . e($name) . "</div>";
+                            })->implode('');
                             return "<div>{$items}{$extraBadge}</div>";
                         }
 
-                        if (count($list) === 1) {
+                        if ($totalPembina === 1) {
                             return "<div><span style=\"color:#6ee7b7; font-weight:700;\">👨‍🏫 " . e($list[0]) . "</span>{$extraBadge}</div>";
                         }
 
@@ -272,6 +285,7 @@ class AchievementReportPage extends Page implements HasTable
 
                 TextColumn::make('achievement_date')
                     ->label('Tanggal')
+                    ->extraCellAttributes(['style' => 'vertical-align: top;'])
                     ->formatStateUsing(fn ($state) => $state ? \Carbon\Carbon::parse($state)->format('d/m/Y') : '—')
                     ->description(fn ($state) => $state ? \Carbon\Carbon::parse($state)->translatedFormat('F Y') : null)
                     ->sortable(),

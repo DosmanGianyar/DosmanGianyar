@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <style>
-    @page { margin: 15mm 18mm; }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'DejaVu Sans', sans-serif; font-size: 11px; color: #1f2937; }
+    @page { size: A4 portrait; margin: 14mm 16mm; }
+    * { box-sizing: border-box; }
+    body { font-family: 'DejaVu Sans', sans-serif; font-size: 11px; color: #1f2937; margin: 0; padding: 4px 8px; }
     .header { display: flex; align-items: center; gap: 12px; border-bottom: 2px solid #1d4ed8; padding-bottom: 10px; margin-bottom: 12px; }
     .logo { width: 48px; height: 48px; }
     .school-name { font-size: 14px; font-weight: bold; color: #1d4ed8; }

@@ -4,8 +4,9 @@
 <meta charset="UTF-8">
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
-    @page { size: A4 portrait; margin: 15mm 15mm 15mm 15mm; }
-    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    @page { size: A4 portrait; margin: 14mm 16mm 14mm 16mm; }
+    * { box-sizing: border-box; }
+    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; margin: 0; padding: 4px 8px; }
     table { width: 100%; border-collapse: collapse; }
     th, td { border: 1px solid #cbd5e1; padding: 6px 8px; font-size: 8px; vertical-align: top; }
     thead th { background-color: #3730a3 !important; color: #fff; font-weight: 700; text-align: center; }

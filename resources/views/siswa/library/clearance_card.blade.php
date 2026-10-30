@@ -7,9 +7,10 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @media print {
+            @page { size: A4 portrait; margin: 14mm 16mm; }
             .no-print { display: none !important; }
-            body { background: white !important; padding: 0 !important; }
-            .print-card { border: none !important; shadow: none !important; }
+            body { background: white !important; padding: 4mm 6mm !important; }
+            .print-card { border: none !important; box-shadow: none !important; padding: 8px 12px !important; }
         }
     </style>
 </head>

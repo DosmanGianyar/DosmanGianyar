@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <style>
-    @page { margin: 15mm 18mm; }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'DejaVu Sans', sans-serif; font-size: 11px; color: #1f2937; }
+    @page { size: A4 portrait; margin: 14mm 16mm; }
+    * { box-sizing: border-box; }
+    body { font-family: 'DejaVu Sans', sans-serif; font-size: 11px; color: #1f2937; margin: 0; padding: 4px 8px; }
 
     .header { display: flex; align-items: center; gap: 12px; border-bottom: 2px solid #1d4ed8; padding-bottom: 10px; margin-bottom: 14px; }
     .logo { width: 48px; height: 48px; }
@@ -20,7 +20,7 @@
 
     table { width: 100%; border-collapse: collapse; }
     th { background: #1d4ed8; color: white; padding: 7px 10px; text-align: left; font-size: 10px; font-weight: bold; }
-    td { padding: 6px 10px; border-bottom: 1px solid #e5e7eb; font-size: 10px; vertical-align: middle; }
+    td { padding: 6px 10px; border-bottom: 1px solid #cbd5e1; font-size: 10px; vertical-align: top; }
     tr:nth-child(even) td { background: #f8fafc; }
     tr:last-child td { border-bottom: none; }
 

@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <style>
-        @page { margin: 15mm 18mm; }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'DejaVu Sans', sans-serif; font-size: 9px; color: #1f2937; }
+        @page { size: A4 portrait; margin: 14mm 16mm; }
+        * { box-sizing: border-box; }
+        body { font-family: 'DejaVu Sans', sans-serif; font-size: 9px; color: #1f2937; margin: 0; padding: 4px 8px; }
         .header { display: flex; align-items: center; gap: 12px; border-bottom: 2px solid #059669; padding-bottom: 8px; margin-bottom: 12px; }
         .header img { width: 40px; height: 40px; object-fit: contain; }
         .header-text h1 { font-size: 13px; font-weight: bold; color: #065f46; }

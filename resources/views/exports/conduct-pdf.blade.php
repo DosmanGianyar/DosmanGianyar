@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <style>
-    @page { margin: 15mm 18mm; }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'DejaVu Sans', sans-serif; font-size: 11px; color: #1f2937; }
+    @page { size: A4 portrait; margin: 14mm 16mm; }
+    * { box-sizing: border-box; }
+    body { font-family: 'DejaVu Sans', sans-serif; font-size: 11px; color: #1f2937; margin: 0; padding: 4px 8px; }
     .header { display: flex; align-items: center; gap: 12px; border-bottom: 2px solid #1d4ed8; padding-bottom: 10px; margin-bottom: 12px; }
     .logo { width: 48px; height: 48px; }
     .school-name { font-size: 14px; font-weight: bold; color: #1d4ed8; }
@@ -14,7 +14,7 @@
     .subtitle { text-align: center; font-size: 10px; color: #6b7280; margin-bottom: 12px; }
     table { width: 100%; border-collapse: collapse; }
     th { background: #1d4ed8; color: white; padding: 6px 8px; text-align: left; font-size: 10px; }
-    td { padding: 5px 8px; border-bottom: 1px solid #e5e7eb; font-size: 10px; }
+    td { padding: 5px 8px; border-bottom: 1px solid #cbd5e1; font-size: 10px; vertical-align: top; }
     tr:nth-child(even) td { background: #f8fafc; }
     .prestasi { color: #059669; font-weight: bold; }
     .pelanggaran { color: #dc2626; font-weight: bold; }

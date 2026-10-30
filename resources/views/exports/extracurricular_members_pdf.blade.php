@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 <title>Daftar Anggota Ekstrakurikuler {{ $extracurricular->name }}</title>
 <style>
-  @page { size: A4 portrait; margin: 12mm 15mm 15mm 15mm; }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: 'Times New Roman', Times, serif; font-size: 11pt; color: #000; line-height: 1.3; }
+  @page { size: A4 portrait; margin: 14mm 16mm 14mm 16mm; }
+  * { box-sizing: border-box; }
+  body { font-family: 'Times New Roman', Times, serif; font-size: 11pt; color: #000; line-height: 1.3; margin: 0; padding: 4px 8px; }
 
   /* ── Kop Surat Formal ────────────────────────────────────────── */
   .kop-container { width: 100%; border-collapse: collapse; margin-bottom: 4px; }
@@ -36,7 +36,7 @@
   /* ── Data Table ───────────────────────────────────────────────── */
   table.data-table { width: 100%; border-collapse: collapse; margin-bottom: 16px; font-size: 10pt; }
   table.data-table th { background-color: #1e3a8a; color: #ffffff; font-weight: bold; padding: 6px 8px; border: 1px solid #1e3a8a; text-align: center; font-size: 9.5pt; }
-  table.data-table td { padding: 5px 8px; border: 1px solid #9ca3af; vertical-align: middle; }
+  table.data-table td { padding: 5px 8px; border: 1px solid #9ca3af; vertical-align: top; }
   table.data-table tr:nth-child(even) td { background-color: #f8fafc; }
   .text-center { text-align: center; }
   .text-left { text-align: left; }

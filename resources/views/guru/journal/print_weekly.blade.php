@@ -7,16 +7,18 @@
 <style>
 @page {
     size: A4 landscape;
-    margin: 1cm 1.2cm;
+    margin: 12mm 14mm;
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+* { box-sizing: border-box; }
 
 body {
     font-family: 'Times New Roman', Times, serif;
     font-size: 10.5pt;
     color: #000;
     background: #fff;
+    margin: 0;
+    padding: 12px 18px;
 }
 
 /* ─ Kop Surat ─ */

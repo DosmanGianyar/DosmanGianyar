@@ -7,10 +7,10 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @media print {
-            @page { size: A4 landscape; margin: 10mm; }
-            body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; background: white !important; }
+            @page { size: A4 landscape; margin: 12mm 14mm; }
+            body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; background: white !important; padding: 2mm 4mm !important; }
             .no-print { display: none !important; }
-            .print-shadow-none { box-shadow: none !important; border: none !important; padding: 0 !important; }
+            .print-shadow-none { box-shadow: none !important; border: none !important; padding: 4px 8px !important; }
         }
     </style>
 </head>
