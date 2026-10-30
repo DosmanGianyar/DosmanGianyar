@@ -116,7 +116,7 @@ class AchievementReportPage extends Page implements HasTable
                   ->orWhereIn('curation_status', ['curated', 'not_curatable']);
             })
             ->orderBy('id')
-            ->get(['id', 'team_code', 'title', 'achievement_date', 'rank', 'level', 'participation_type'])
+            ->get(['id', 'student_id', 'team_code', 'title', 'achievement_date', 'rank', 'level', 'participation_type'])
             ->groupBy(fn (StudentAchievement $item) => $item->competitionGroupKey())
             ->map(fn ($group) => $group->first()->id)
             ->values()
@@ -128,6 +128,8 @@ class AchievementReportPage extends Page implements HasTable
                     ->whereIn('id', $representativeIds ?: [0])
                     ->with(['student.schoolClass', 'pembina', 'extracurricular.teachers', 'extracurricular.pembina'])
             )
+            ->defaultPaginationPageOption(50)
+            ->paginationPageOptions([25, 50, 100, 'all'])
             ->columns([
                 TextColumn::make('row_num')
                     ->label('No')

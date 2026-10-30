@@ -407,6 +407,8 @@ class StudentAchievementResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->defaultPaginationPageOption(50)
+            ->paginationPageOptions([25, 50, 100, 'all'])
             ->columns([
                 TextColumn::make('index')
                     ->label('No.')
@@ -1003,12 +1005,15 @@ class StudentAchievementResource extends Resource
         $query = parent::getEloquentQuery();
 
         $representativeIds = static::getModel()::query()
-            ->selectRaw('MIN(id) as id')
-            ->groupByRaw('CASE WHEN participation_type = "beregu" AND team_code IS NOT NULL AND team_code != "" THEN team_code WHEN participation_type = "beregu" THEN CONCAT(title, "|", COALESCE(achievement_date, "")) ELSE CAST(id AS CHAR) END')
-            ->pluck('id');
+            ->orderBy('id')
+            ->get(['id', 'student_id', 'team_code', 'title', 'achievement_date', 'rank', 'level', 'participation_type'])
+            ->groupBy(fn (StudentAchievement $item) => $item->competitionGroupKey())
+            ->map(fn ($group) => $group->first()->id)
+            ->values()
+            ->all();
 
         return $query
-            ->whereIn('id', $representativeIds)
+            ->whereIn('id', $representativeIds ?: [0])
             ->with(['student.schoolClass', 'category', 'pembina', 'extracurricular.teachers', 'extracurricular.pembina']);
     }
 

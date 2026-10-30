@@ -35,13 +35,12 @@ class AchievementStatsOverview extends BaseWidget
             $approvedQuery->whereHas('student.schoolClass', fn ($q) => $q->where('grade', (string) $grade));
         }
 
-        $individualCount = (clone $approvedQuery)->where('participation_type', '!=', 'beregu')->count();
-        $teamCount       = (clone $approvedQuery)->where('participation_type', 'beregu')->whereNotNull('team_code')->distinct('team_code')->count('team_code');
-        $unkeyedTeam     = (clone $approvedQuery)->where('participation_type', 'beregu')->whereNull('team_code')->distinct('title')->count('title');
-        $totalSchoolAchievements = $individualCount + $teamCount + $unkeyedTeam;
+        $allMatching = (clone $approvedQuery)->orderBy('id')->get();
+        $groupedCompetitions = $allMatching->groupBy(fn (StudentAchievement $a) => $a->competitionGroupKey());
 
-        $nasionalInternasional = (clone $approvedQuery)->whereIn('level', ['nasional', 'internasional'])->count();
-        $uniqueStudents        = (clone $approvedQuery)->pluck('student_id')->unique()->count();
+        $totalSchoolAchievements = $groupedCompetitions->count();
+        $nasionalInternasional   = $groupedCompetitions->filter(fn ($group) => in_array($group->first()?->level, ['nasional', 'internasional'], true))->count();
+        $uniqueStudents          = $allMatching->pluck('student_id')->unique()->count();
 
         $gradeLabel = $grade === 'all' ? '' : " (Kelas {$grade})";
 

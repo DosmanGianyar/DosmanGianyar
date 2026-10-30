@@ -25,8 +25,8 @@ class AchievementPembinaMatcher
             'field'          => 'olahraga',
         ],
         'taekwondo' => [
-            'extra_keywords' => ['taekwondo', 'tae kwon do', 'bela diri', 'beladiri'],
-            'match_terms'    => ['taekwondo', 'tae kwon do', 'kyorugi', 'poomsae'],
+            'extra_keywords' => ['taekwondo', 'tae kwon do', 'atletik', 'perisai diri', 'bela diri', 'beladiri'],
+            'match_terms'    => ['taekwondo', 'tae kwon do', 'kyorugi', 'poomsae', 'batic', 'danrem cup'],
             'field'          => 'olahraga',
         ],
         'silat' => [
@@ -120,13 +120,13 @@ class AchievementPembinaMatcher
             'field'          => 'seni_budaya',
         ],
         'jurnalistik_media' => [
-            'extra_keywords' => ['jurnalistik', 'mading', 'fotografi', 'multimedia', 'broadcast', 'pers', 'desain', 'komputer'],
-            'match_terms'    => ['jurnalistik', 'mading', 'majalah dinding', 'fotografi', 'photography', 'videografi', 'film pendek', 'short movie', 'sinematografi', 'poster', 'desain grafis', 'infografis', 'berita'],
+            'extra_keywords' => ['photographer', 'dream', 'journalist', 'jurnalistik', 'mading', 'fotografi', 'multimedia', 'broadcast', 'pers', 'desain', 'komputer'],
+            'match_terms'    => ['jurnalistik', 'mading', 'majalah dinding', 'fotografi', 'photography', 'videografi', 'video kreatif', 'vidio kreatif', 'video edukasi', 'video edukatif', 'lomba video', 'film pendek', 'short movie', 'sinematografi', 'poster', 'desain grafis', 'infografis', 'berita'],
             'field'          => 'seni_budaya',
         ],
         'bahasa_bali_hindu' => [
-            'extra_keywords' => ['bahasa bali', 'sastra bali', 'dharma wacana', 'sloka', 'pesantian', 'dharma gita', 'kerohanian', 'agama', 'nyurat', 'mesatua', 'tari', 'tabuh'],
-            'match_terms'    => ['bahasa bali', 'aksara bali', 'nyurat lontar', 'nyurat aksara', 'mesatua', 'masatua', 'pidarta', 'sambrama wacana', 'dharma wacana', 'sloka', 'kidung', 'kekawin', 'kakawin', 'wirama', 'palawakya', 'utsawa dharma gita', 'udg', 'agama hindu', 'pesantian'],
+            'extra_keywords' => ['pesantian', 'malini yowana santhi', 'bahasa bali', 'sastra bali', 'dharma wacana', 'sloka', 'dharma gita', 'kerohanian', 'agama', 'nyurat', 'mesatua', 'tari', 'tabuh'],
+            'match_terms'    => ['bahasa bali', 'aksara bali', 'nyurat lontar', 'nyurat aksara', 'nyurat cerpen', 'mesatua', 'masatua', 'pidarta', 'sambrama wacana', 'dharma wacana', 'sloka', 'kidung', 'kekawin', 'kakawin', 'wirama', 'palawakya', 'utsawa dharma gita', 'udg', 'agama hindu', 'pesantian', 'paganter', 'pemuspan', 'persembahyangan', 'wimbakara', 'wiwada'],
             'field'          => 'keagamaan',
         ],
         'english_debat' => [
@@ -160,8 +160,8 @@ class AchievementPembinaMatcher
             'field'          => 'organisasi',
         ],
         'kir_riset' => [
-            'extra_keywords' => ['kir', 'karya ilmiah', 'riset', 'penelitian', 'sains', 'kti'],
-            'match_terms'    => ['kir', 'karya ilmiah', 'riset', 'penelitian', 'kti', 'lkir', 'opsi', 'nyia', 'fihsi', 'esai', 'essay', 'inovasi', 'karya tulis', 'ilmiah remaja', 'pir'],
+            'extra_keywords' => ['remaja ilmiah', 'doremi', 'ilmiah', 'kir', 'karya ilmiah', 'riset', 'penelitian', 'sains', 'kti'],
+            'match_terms'    => ['kir', 'karya ilmiah', 'riset', 'penelitian', 'kti', 'lkir', 'opsi', 'nyia', 'fihsi', 'esai', 'essay', 'menulis esai', 'lomba esai', 'inovasi', 'karya tulis', 'ilmiah remaja', 'pir'],
             'field'          => 'sains_riset',
         ],
         'informatika_komputer' => [
@@ -196,7 +196,7 @@ class AchievementPembinaMatcher
         ],
         'ekonomi_akuntansi' => [
             'extra_keywords' => ['ekonomi', 'akuntansi', 'kewirausahaan', 'koperasi', 'olimpiade', 'osn', 'kir'],
-            'match_terms'    => ['ekonomi', 'economy', 'akuntansi', 'accounting', 'bisnis', 'business plan', 'wirausaha', 'kewirausahaan', 'fiksi', 'koperasi', 'pasar modal', 'perpajakan'],
+            'match_terms'    => ['ekonomi', 'economy', 'akuntansi', 'accounting', 'apbn', 'apbd', 'anggaran', 'kemenkeu', 'kementerian keuangan', 'bisnis', 'business plan', 'wirausaha', 'kewirausahaan', 'fiksi', 'koperasi', 'pasar modal', 'perpajakan'],
             'field'          => 'sains_riset',
         ],
         'geografi_sejarah_sosial' => [
@@ -367,7 +367,7 @@ class AchievementPembinaMatcher
         }
 
         // Tahap C: Cek token kata (>= 4 huruf) antara judul lomba dan nama ekstra
-        $stopWords = ['juara', 'lomba', 'tingkat', 'nasional', 'provinsi', 'kabupaten', 'sekolah', 'internasional', 'piala', 'kejuaraan', 'festival', 'olimpiade', 'pekan', 'siswa', 'sman', 'gianyar', 'bali', 'tahun', 'putra', 'putri', 'beregu', 'individu', 'medali', 'emas', 'perak', 'perunggu', 'harapan', 'peserta', 'finalis', 'terbaik', 'umum', 'open', 'tournament', 'turnamen', 'competition', 'championship'];
+        $stopWords = ['juara', 'lomba', 'tingkat', 'nasional', 'provinsi', 'kabupaten', 'sekolah', 'internasional', 'piala', 'kejuaraan', 'festival', 'olimpiade', 'pekan', 'siswa', 'sman', 'gianyar', 'bali', 'tahun', 'putra', 'putri', 'beregu', 'individu', 'medali', 'emas', 'perak', 'perunggu', 'harapan', 'peserta', 'finalis', 'terbaik', 'umum', 'open', 'tournament', 'turnamen', 'competition', 'championship', 'wira', 'bhakti', 'malini', 'dosman', 'club', 'team', 'genta', 'widya', 'wahana', 'bhuana', 'danrem', 'kejurnas', 'walikota', 'porprov', 'porjar', 'porsenijar', 'kejurkab'];
         $words = preg_split('/[^a-z0-9]+/u', $haystack, -1, PREG_SPLIT_NO_EMPTY);
         $meaningfulWords = array_values(array_filter($words, fn ($w) => mb_strlen($w) >= 4 && ! in_array($w, $stopWords, true)));
 
@@ -480,6 +480,45 @@ class AchievementPembinaMatcher
     }
 
     /**
+     * Rapikan penulisan peringkat (misal "1" -> "Juara 1", "JUARA 2" -> "Juara 2", atau kosong pada Finalis).
+     */
+    public static function formatRankLabel(?string $rank, ?string $title = null): string
+    {
+        $raw = trim((string) $rank);
+        if ($raw === '' && $title) {
+            if (preg_match('/^(finalis\s+\d+\s+besar|finalis|juara\s+harapan\s+\d+|juara\s+\d+)/i', trim($title), $m)) {
+                $raw = $m[1];
+            }
+        }
+
+        if ($raw === '') {
+            return '';
+        }
+
+        if (preg_match('/^([1-6])$/', $raw, $m)) {
+            return 'Juara ' . $m[1];
+        }
+
+        if (preg_match('/^harapan\s*([1-3])$/i', $raw, $m)) {
+            return 'Juara Harapan ' . $m[1];
+        }
+
+        if (preg_match('/^juara\s*([1-6])$/i', $raw, $m)) {
+            return 'Juara ' . $m[1];
+        }
+
+        if (preg_match('/^juara\s*([1-6])\s*bersama$/i', $raw, $m)) {
+            return 'Juara ' . $m[1] . ' Bersama';
+        }
+
+        if ($raw === mb_strtoupper($raw) || $raw === mb_strtolower($raw)) {
+            return mb_convert_case($raw, MB_CASE_TITLE, 'UTF-8');
+        }
+
+        return $raw;
+    }
+
+    /**
      * Gabungkan dan bersihkan duplikasi data lomba (baik beregu yang diinput berulang kali
      * dengan team_code/variasi judul berbeda, maupun lomba individu yang terinput ganda oleh siswa yang sama).
      *
@@ -499,7 +538,14 @@ class AchievementPembinaMatcher
         $deletedDuplicates = 0;
 
         foreach ($groups as $key => $group) {
-            if ($group->count() <= 1) {
+            if ($group->count() === 1) {
+                /** @var StudentAchievement $single */
+                $single = $group->first();
+                $formattedRank = static::formatRankLabel($single->rank, $single->title);
+                if ($formattedRank !== '' && $single->rank !== $formattedRank) {
+                    $single->updateQuietly(['rank' => $formattedRank]);
+                    $unifiedRows++;
+                }
                 continue;
             }
 
@@ -518,11 +564,12 @@ class AchievementPembinaMatcher
             })->first() ?? $group->first()->organizer;
 
             // Pilih format rank kanonik terbaik (prioritaskan yang mengandung kata "Juara" / "Medali" dibanding angka saja)
-            $canonicalRank = $group->pluck('rank')->filter()->sortByDesc(function (string $r) {
+            $rawCanonicalRank = $group->pluck('rank')->filter()->sortByDesc(function (string $r) {
                 $hasPrefix = preg_match('/(juara|medali|harapan|finalis)/i', $r) ? 1000 : 0;
                 $isMixedCase = ($r !== mb_strtoupper($r)) ? 100 : 0;
                 return $hasPrefix + $isMixedCase + mb_strlen($r);
             })->first() ?? $group->first()->rank;
+            $canonicalRank = static::formatRankLabel($rawCanonicalRank, $canonicalTitle);
 
             $canonicalExtraId = $group->pluck('extracurricular_id')->filter()->first();
             $canonicalPembinaId = $group->pluck('pembina_id')->filter()->first();
@@ -641,8 +688,8 @@ class AchievementPembinaMatcher
             if ($achievement->participation_type === 'beregu' && ! empty($achievement->team_code)) {
                 if (isset($teamCache[$achievement->team_code])) {
                     $cached = $teamCache[$achievement->team_code];
-                    $newExtraId   = $achievement->extracurricular_id ?: $cached['extracurricular_id'];
-                    $newPembinaId = $achievement->pembina_id ?: $cached['pembina_id'];
+                    $newExtraId   = $overwriteExisting ? ($cached['extracurricular_id'] ?: $achievement->extracurricular_id) : ($achievement->extracurricular_id ?: $cached['extracurricular_id']);
+                    $newPembinaId = $overwriteExisting ? ($cached['pembina_id'] ?: $achievement->pembina_id) : ($achievement->pembina_id ?: $cached['pembina_id']);
 
                     if ($newExtraId !== $achievement->extracurricular_id || $newPembinaId !== $achievement->pembina_id) {
                         $achievement->updateQuietly([
@@ -654,32 +701,34 @@ class AchievementPembinaMatcher
                     continue;
                 }
 
-                // Cek apakah ada rekan satu tim yang sudah punya pembina_id / extracurricular_id
-                $teammateWithData = StudentAchievement::where('team_code', $achievement->team_code)
-                    ->where(function ($q) {
-                        $q->whereNotNull('pembina_id')->orWhereNotNull('extracurricular_id');
-                    })
-                    ->first();
+                if (! $overwriteExisting) {
+                    // Cek apakah ada rekan satu tim yang sudah punya pembina_id / extracurricular_id
+                    $teammateWithData = StudentAchievement::where('team_code', $achievement->team_code)
+                        ->where(function ($q) {
+                            $q->whereNotNull('pembina_id')->orWhereNotNull('extracurricular_id');
+                        })
+                        ->first();
 
-                if ($teammateWithData && ($teammateWithData->pembina_id || $teammateWithData->extracurricular_id)) {
-                    $matched = static::matchForAchievement(
-                        title: $achievement->title,
-                        eventName: $achievement->event_name,
-                        description: $achievement->description,
-                        fieldCategory: $achievement->field_category,
-                        studentId: $achievement->student_id,
-                        existingExtracurricularId: $achievement->extracurricular_id ?: $teammateWithData->extracurricular_id,
-                        existingPembinaId: $achievement->pembina_id ?: $teammateWithData->pembina_id,
-                        extracurriculars: $extras
-                    );
+                    if ($teammateWithData && ($teammateWithData->pembina_id || $teammateWithData->extracurricular_id)) {
+                        $matched = static::matchForAchievement(
+                            title: $achievement->title,
+                            eventName: $achievement->event_name,
+                            description: $achievement->description,
+                            fieldCategory: $achievement->field_category,
+                            studentId: $achievement->student_id,
+                            existingExtracurricularId: $achievement->extracurricular_id ?: $teammateWithData->extracurricular_id,
+                            existingPembinaId: $achievement->pembina_id ?: $teammateWithData->pembina_id,
+                            extracurriculars: $extras
+                        );
 
-                    $teamCache[$achievement->team_code] = $matched;
-                    $achievement->updateQuietly([
-                        'extracurricular_id' => $matched['extracurricular_id'],
-                        'pembina_id'         => $matched['pembina_id'],
-                    ]);
-                    $updatedCount++;
-                    continue;
+                        $teamCache[$achievement->team_code] = $matched;
+                        $achievement->updateQuietly([
+                            'extracurricular_id' => $matched['extracurricular_id'],
+                            'pembina_id'         => $matched['pembina_id'],
+                        ]);
+                        $updatedCount++;
+                        continue;
+                    }
                 }
             }
 
@@ -689,13 +738,13 @@ class AchievementPembinaMatcher
                 description: $achievement->description,
                 fieldCategory: $achievement->field_category,
                 studentId: $achievement->student_id,
-                existingExtracurricularId: $achievement->extracurricular_id,
-                existingPembinaId: $achievement->pembina_id,
+                existingExtracurricularId: $overwriteExisting ? null : $achievement->extracurricular_id,
+                existingPembinaId: $overwriteExisting ? null : $achievement->pembina_id,
                 extracurriculars: $extras
             );
 
-            $newExtraId   = $achievement->extracurricular_id ?: $matched['extracurricular_id'];
-            $newPembinaId = $achievement->pembina_id ?: $matched['pembina_id'];
+            $newExtraId   = $overwriteExisting ? ($matched['extracurricular_id'] ?: $achievement->extracurricular_id) : ($achievement->extracurricular_id ?: $matched['extracurricular_id']);
+            $newPembinaId = $overwriteExisting ? ($matched['pembina_id'] ?: $achievement->pembina_id) : ($achievement->pembina_id ?: $matched['pembina_id']);
 
             if ($achievement->participation_type === 'beregu' && ! empty($achievement->team_code)) {
                 $teamCache[$achievement->team_code] = [

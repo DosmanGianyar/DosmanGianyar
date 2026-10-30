@@ -49,22 +49,17 @@ class ListStudentAchievements extends ListRecords
 
     protected function countDistinctAchievements(Builder $query): int
     {
-        $individualCount = (clone $query)->where(function ($q) {
-            $q->where('participation_type', '!=', 'beregu')
-              ->orWhereNull('participation_type');
-        })->count();
+        return (clone $query)
+            ->orderBy('id')
+            ->get(['id', 'student_id', 'team_code', 'title', 'achievement_date', 'rank', 'level', 'participation_type'])
+            ->groupBy(fn (StudentAchievement $item) => $item->competitionGroupKey())
+            ->count();
+    }
 
-        $teamCount = (clone $query)->where('participation_type', 'beregu')
-            ->whereNotNull('team_code')
-            ->distinct('team_code')
-            ->count('team_code');
-
-        $unkeyedTeam = (clone $query)->where('participation_type', 'beregu')
-            ->whereNull('team_code')
-            ->distinct('title')
-            ->count('title');
-
-        return $individualCount + $teamCount + $unkeyedTeam;
+    public function getDefaultActiveTab(): string|int|null
+    {
+        $hasPending = StudentAchievement::where('status', 'pending')->where('curation_status', '!=', 'revision')->exists();
+        return $hasPending ? 'pending' : 'approved';
     }
 
     public function getTabs(): array
