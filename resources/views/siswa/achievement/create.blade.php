@@ -6,6 +6,14 @@
 <div class="max-w-4xl mx-auto space-y-6" x-data="{
     uploadCurationFiles: false,
     participationType: '{{ old('participation_type', 'individu') }}',
+    selectedExtracurricularId: '{{ old('extracurricular_id', '') }}',
+    selectedPembinaId: '{{ old('pembina_id', '') }}',
+    extraPembinaMap: {{ json_encode(($extracurriculars ?? collect())->mapWithKeys(fn($e) => [$e->id => ($e->pembina_id ?: $e->teachers->first()?->id)])) }},
+    onExtraChange() {
+        if (this.selectedExtracurricularId && this.extraPembinaMap[this.selectedExtracurricularId]) {
+            this.selectedPembinaId = String(this.extraPembinaMap[this.selectedExtracurricularId]);
+        }
+    },
     studentSearch: '',
     selectedMembers: {{ json_encode(old('team_member_ids', [])) }},
     allStudents: {{ json_encode($students->map(fn($s) => [
@@ -216,6 +224,56 @@
                     <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Peringkat / Capaian</label>
                     <input type="text" name="rank" value="{{ old('rank') }}" placeholder="Juara 1, Juara 2, Finalis..."
                         class="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-xs font-medium">
+                </div>
+            </div>
+
+            {{-- 👨‍🏫 EKSTRAKURIKULER & NAMA GURU PEMBINA (WAJIB) --}}
+            <div class="p-4 border-2 border-emerald-200 bg-emerald-50/40 rounded-2xl space-y-3">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <label class="block text-xs font-extrabold text-emerald-900 uppercase tracking-wider">
+                            👨‍🏫 Ekstrakurikuler & Guru Pembina / Pendamping Lomba <span class="text-red-500">*</span>
+                        </label>
+                        <p class="text-[11px] text-emerald-700 mt-0.5">
+                            Wajib memilih <strong>Nama Guru Pembina</strong> pada ajuan prestasi Anda. Pilih ekstrakurikuler terkait untuk mengisi otomatis nama pembinanya.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                            Ekstrakurikuler Terkait (Opsional / Bantu Pilih Otomatis)
+                        </label>
+                        <select name="extracurricular_id" x-model="selectedExtracurricularId" @change="onExtraChange()"
+                            class="w-full border border-emerald-300 rounded-xl px-3.5 py-2.5 text-xs font-bold bg-white focus:ring-2 focus:ring-emerald-500">
+                            <option value="">— Otomatis Sesuai Cabang Lomba / Pilih Ekstra —</option>
+                            @foreach(($extracurriculars ?? collect()) as $ekstra)
+                                <option value="{{ $ekstra->id }}" {{ old('extracurricular_id') == $ekstra->id ? 'selected' : '' }}>
+                                    {{ $ekstra->name }} {{ $ekstra->pembina_names !== '—' ? '(Pembina: ' . $ekstra->pembina_names . ')' : '' }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                            Nama Guru Pembina / Pendamping <span class="text-red-500">* Wajib</span>
+                        </label>
+                        <select name="pembina_id" x-model="selectedPembinaId" required
+                            class="w-full border border-emerald-400 rounded-xl px-3.5 py-2.5 text-xs font-bold bg-white focus:ring-2 focus:ring-emerald-500 @error('pembina_id') border-red-500 @enderror">
+                            <option value="">— Pilih Nama Guru Pembina —</option>
+                            @foreach(($pembinas ?? collect()) as $guru)
+                                @php
+                                    $ekstraNames = $guru->extracurricularsAsTeacher?->pluck('name')->implode(', ');
+                                @endphp
+                                <option value="{{ $guru->id }}" {{ old('pembina_id') == $guru->id ? 'selected' : '' }}>
+                                    {{ $guru->name }}{{ $ekstraNames ? ' — Pembina ' . $ekstraNames : ($guru->subject ? ' (' . $guru->subject . ')' : '') }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('pembina_id') <p class="text-xs text-red-500 font-semibold mt-1">{{ $message }}</p> @enderror
+                    </div>
                 </div>
             </div>
 

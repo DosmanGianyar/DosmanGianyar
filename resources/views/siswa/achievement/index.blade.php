@@ -105,6 +105,14 @@
                     {{ $achievement->category?->name ?? '—' }} ·
                     {{ $achievement->achievement_date->translatedFormat('d M Y') }}
                 </p>
+                @if($achievement->pembinaName() !== '—' || $achievement->extracurricularName() !== '—')
+                    <p class="text-[11px] text-emerald-700 font-semibold mt-0.5">
+                        👨‍🏫 Pembina: {{ $achievement->pembinaName() }}
+                        @if($achievement->extracurricularName() !== '—')
+                            <span class="text-indigo-600">({{ $achievement->extracurricularName() }})</span>
+                        @endif
+                    </p>
+                @endif
                 @if($achievement->rank)
                     <p class="text-xs text-blue-700 font-bold mt-1">{{ $achievement->rank }}</p>
                 @endif

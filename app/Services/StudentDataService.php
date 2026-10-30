@@ -258,7 +258,7 @@ class StudentDataService
 
     public static function achievements(User $student): array
     {
-        $achievements = StudentAchievement::with('category')
+        $achievements = StudentAchievement::with(['category', 'pembina', 'extracurricular.teachers', 'extracurricular.pembina'])
             ->where('student_id', $student->id)
             ->latest()
             ->get();
@@ -287,6 +287,10 @@ class StudentDataService
             'participation_type'    => $a->participation_type,
             'participation_type_label' => $a->participationTypeLabel(),
             'category_name'         => $a->category?->name,
+            'pembina_id'            => $a->pembina_id,
+            'pembina_name'          => $a->pembinaName() !== '—' ? $a->pembinaName() : null,
+            'extracurricular_id'    => $a->extracurricular_id,
+            'extracurricular_name'  => $a->extracurricularName() !== '—' ? $a->extracurricularName() : null,
             'level'                 => $a->level,
             'level_label'           => $a->levelLabel(),
             'rank'                  => $a->rank,

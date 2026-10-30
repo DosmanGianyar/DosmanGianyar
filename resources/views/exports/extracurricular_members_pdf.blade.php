@@ -55,28 +55,7 @@
 <body>
 
 {{-- ── KOP SEKOLAH FORMAL ─────────────────────────────────────── --}}
-<table class="kop-container">
-  <tr>
-    <td class="kop-logo">
-      @if(file_exists(public_path('img/logo-pemprov-bali.png')))
-        <img src="{{ public_path('img/logo-pemprov-bali.png') }}" alt="Pemprov Bali">
-      @endif
-    </td>
-    <td class="kop-text">
-      <div class="l1">PEMERINTAH PROVINSI BALI</div>
-      <div class="l2">DINAS PENDIDIKAN KEPEMUDAAN DAN OLAHRAGA</div>
-      <div class="l3">SMA NEGERI 1 GIANYAR</div>
-      <div class="l4">Jln. Ratna, Tegal Tugu Gianyar, Telp : (0361) 943034</div>
-      <div class="l5">Website: https://sman1-gianyar.sch.id &nbsp;|&nbsp; E-mail: sman1.gianyar1963@gmail.com</div>
-    </td>
-    <td class="kop-logo">
-      @if(file_exists(public_path('img/logo_sekolah.png')))
-        <img src="{{ public_path('img/logo_sekolah.png') }}" alt="SMAN 1 Gianyar">
-      @endif
-    </td>
-  </tr>
-</table>
-<div class="kop-line"></div>
+@include('partials.kop-surat-pdf')
 
 {{-- ── JUDUL DOKUMEN ──────────────────────────────────────────── --}}
 <div class="doc-header">

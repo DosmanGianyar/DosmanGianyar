@@ -160,7 +160,9 @@ Route::middleware(['auth', 'role:guru,admin,pegawai'])->prefix('guru')->name('gu
         Route::delete('/{attendance}', [GuruAttendance::class, 'destroy'])->name('destroy');
     });
 
-    // Kesiswaan
+    // Kesiswaan & Prestasi Siswa Binaan
+    Route::get('/achievements', [\App\Http\Controllers\Guru\AchievementController::class, 'index'])->name('achievements.index');
+
     Route::prefix('conduct')->name('conduct.')->group(function () {
         Route::get('/', [GuruConduct::class, 'index'])->name('index');
         Route::get('/today', [GuruConduct::class, 'todayIndex'])->name('today');

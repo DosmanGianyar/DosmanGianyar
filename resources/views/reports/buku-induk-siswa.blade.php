@@ -304,16 +304,7 @@
     <div class="page-container">
 
         <!-- KOP SURAT SMAN 1 GIANYAR -->
-        <div class="kop-container">
-            <img class="kop-logo-left" src="{{ $logoBaliSrc }}" alt="Logo Pemprov Bali">
-            <div class="kop-text">
-                <div class="l1">PEMERINTAH PROVINSI BALI</div>
-                <div class="l2">DINAS PENDIDIKAN, KEPEMUDAAN, DAN OLAHRAGA</div>
-                <div class="l3">SMA NEGERI 1 GIANYAR</div>
-                <div class="l4">Jl. Ratna No. 1, Gianyar, Bali 80511 | Telp: (0361) 943034 | Website: sman1-gianyar.sch.id</div>
-            </div>
-            <img class="kop-logo-right" src="{{ $logoSekolahSrc }}" alt="Logo SMAN 1 Gianyar">
-        </div>
+        @include('partials.kop-surat-pdf')
 
         <div class="top-meta">
             <div class="nis-box">

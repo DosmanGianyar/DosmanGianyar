@@ -9,6 +9,7 @@ import '../../theme/app_colors.dart';
 import '../notifications_screen.dart';
 import '../profile_screen.dart';
 import 'guru_absensi_harian_screen.dart';
+import 'guru_achievement_screen.dart';
 import '../kesiswaan/school_regulation_screen.dart';
 import 'guru_conduct_screen.dart';
 import 'guru_early_checkout_screen.dart';
@@ -439,6 +440,17 @@ class _GuruServicesTab extends StatelessWidget {
             style: TextStyle(fontSize: 12, color: AppColors.gray500),
           ),
           const SizedBox(height: 16),
+
+          _buildHubCard(
+            title: '🏆 Juara & Prestasi Siswa Binaan',
+            subtitle: 'Rekap capaian lomba dan kejuaraan siswa binaan ekstrakurikuler',
+            icon: Icons.emoji_events_rounded,
+            color: const Color(0xFFD97706),
+            bg: const Color(0xFFFEF3C7),
+            badge: 'Pembina Ekstra',
+            onTap: () => onNavigate(const GuruAchievementScreen()),
+          ),
+          const SizedBox(height: 12),
 
           _buildHubCard(
             title: '⚡ Piket Gerbang (Pengajuan Terlambat)',

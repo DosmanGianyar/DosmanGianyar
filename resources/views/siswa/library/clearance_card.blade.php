@@ -29,15 +29,7 @@
     <div class="print-card max-w-2xl w-full bg-white rounded-3xl p-6 md:p-8 shadow-xl border border-gray-200 space-y-6 relative overflow-hidden">
         
         {{-- Kop Surat SMAN 1 Gianyar --}}
-        <div class="flex items-center gap-4 border-b-2 border-gray-900 pb-4">
-            <img src="{{ asset('img/logo_sekolah.png') }}" alt="Logo SMAN 1 Gianyar" class="w-16 h-16 object-contain shrink-0">
-            <div class="text-center flex-1">
-                <h4 class="text-xs font-bold uppercase tracking-wider text-gray-600">PEMERINTAH PROVINSI BALI</h4>
-                <h3 class="text-base font-extrabold uppercase tracking-wide text-gray-900">DINAS PENDIDIKAN KEPEMUDAAN DAN OLAHRAGA</h3>
-                <h2 class="text-lg font-black uppercase text-indigo-950">SMA NEGERI 1 GIANYAR</h2>
-                <p class="text-[10px] text-gray-500 mt-0.5">Jl. Ratna No. 1 Gianyar, Bali · Telp: (0361) 943034 · Website: sman1-gianyar.sch.id</p>
-            </div>
-        </div>
+        @include('partials.kop-surat-pdf')
 
         {{-- Judul Surat --}}
         <div class="text-center space-y-1">

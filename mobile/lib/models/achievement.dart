@@ -9,6 +9,54 @@ class AchievementCategory {
       AchievementCategory(id: j['id'] as int, name: j['name'] as String);
 }
 
+class AchievementPembina {
+  final int     id;
+  final String  name;
+  final String? nip;
+  final String? subject;
+  final String? extracurricularName;
+  final String  label;
+
+  const AchievementPembina({
+    required this.id,
+    required this.name,
+    this.nip,
+    this.subject,
+    this.extracurricularName,
+    required this.label,
+  });
+
+  factory AchievementPembina.fromJson(Map<String, dynamic> j) => AchievementPembina(
+    id:                  j['id']   as int,
+    name:                j['name'] as String,
+    nip:                 j['nip']  as String?,
+    subject:             j['subject'] as String?,
+    extracurricularName: j['extracurricular_name'] as String?,
+    label:               (j['label'] ?? j['name']) as String,
+  );
+}
+
+class AchievementExtracurricular {
+  final int     id;
+  final String  name;
+  final int?    pembinaId;
+  final String? pembinaNames;
+
+  const AchievementExtracurricular({
+    required this.id,
+    required this.name,
+    this.pembinaId,
+    this.pembinaNames,
+  });
+
+  factory AchievementExtracurricular.fromJson(Map<String, dynamic> j) => AchievementExtracurricular(
+    id:           j['id']   as int,
+    name:         j['name'] as String,
+    pembinaId:    j['pembina_id'] as int?,
+    pembinaNames: j['pembina_names'] as String?,
+  );
+}
+
 class AchievementStats {
   final int pending, approved, rejected;
   const AchievementStats({required this.pending, required this.approved, required this.rejected});
@@ -38,6 +86,10 @@ class Achievement {
   final String  achievementDate;
   final String  createdAt;
   final String? categoryName;
+  final int?    pembinaId;
+  final String? pembinaName;
+  final int?    extracurricularId;
+  final String? extracurricularName;
   final String? rank;
   final String? description;
   final String? eventUrl;
@@ -65,6 +117,10 @@ class Achievement {
     required this.achievementDate,
     required this.createdAt,
     this.categoryName,
+    this.pembinaId,
+    this.pembinaName,
+    this.extracurricularId,
+    this.extracurricularName,
     this.rank,
     this.description,
     this.eventUrl,
@@ -93,6 +149,10 @@ class Achievement {
     achievementDate:        j['achievement_date']       as String,
     createdAt:              j['created_at']             as String,
     categoryName:           j['category_name']          as String?,
+    pembinaId:              j['pembina_id']             as int?,
+    pembinaName:            j['pembina_name']           as String?,
+    extracurricularId:      j['extracurricular_id']     as int?,
+    extracurricularName:    j['extracurricular_name']   as String?,
     rank:                   j['rank']                   as String?,
     description:            j['description']            as String?,
     eventUrl:               j['event_url']              as String?,

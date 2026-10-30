@@ -62,17 +62,7 @@
     <div class="max-w-6xl mx-auto bg-white p-8 rounded-3xl shadow-xl border border-gray-200 print-shadow-none space-y-6">
 
         <!-- KOP SURAT RESMI -->
-        <div class="flex items-center justify-between border-b-4 border-double border-gray-900 pb-3">
-            <img src="{{ asset('img/logo-pemprov-bali.png') }}" alt="Logo Bali" class="h-20 w-auto object-contain shrink-0">
-            <div class="text-center flex-1 px-4 font-serif">
-                <h3 class="text-xs font-bold uppercase tracking-widest text-gray-800">PEMERINTAH PROVINSI BALI</h3>
-                <h2 class="text-sm font-bold uppercase tracking-wide text-gray-900">DINAS PENDIDIKAN KEPEMUDAAN DAN OLAHRAGA</h2>
-                <h1 class="text-xl font-black uppercase text-indigo-950 tracking-wider">SMA NEGERI 1 GIANYAR</h1>
-                <p class="text-[11px] text-gray-600 font-sans mt-0.5">Jln. Ratna, Tegal Tugu Gianyar, Telp : (0361) 943034</p>
-                <p class="text-[10px] text-gray-500 font-sans">Website: https://sman1-gianyar.sch.id &nbsp;•&nbsp; E-mail: sman1.gianyar1963@gmail.com &nbsp;•&nbsp; NPSN: 50102079</p>
-            </div>
-            <img src="{{ asset('img/logo_sekolah.png') }}" alt="Logo Dosman" class="h-20 w-auto object-contain shrink-0">
-        </div>
+        @include('partials.kop-surat-pdf')
 
         <!-- HEADER LAPORAN -->
         <div class="text-center space-y-1">

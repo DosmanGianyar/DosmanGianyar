@@ -19,6 +19,7 @@ import '../kesiswaan/school_regulation_screen.dart';
 import 'guru_teaching_session_screen.dart';
 import 'guru_layanan_screen.dart';
 import 'guru_gate_verification_screen.dart';
+import 'guru_achievement_screen.dart';
 
 class GuruHomeScreen extends StatefulWidget {
   const GuruHomeScreen({super.key});
@@ -510,6 +511,24 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
             )).toList(),
           ),
           const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const GuruAchievementScreen())),
+              icon: const Icon(Icons.emoji_events_rounded, size: 16, color: Color(0xFF065F46)),
+              label: const Text(
+                '🏆 Lihat Juara & Prestasi Siswa Binaan',
+                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF065F46)),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFD1FAE5),
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                elevation: 0,
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(

@@ -14,24 +14,7 @@
 <body class="bg-white" style="font-family: Arial, sans-serif; font-size: 8px;">
 
 {{-- KOP --}}
-<table style="width:100%; border-collapse:collapse; margin-bottom:8px; padding-bottom:6px; border-bottom:3px double #000; border-top:none; border-left:none; border-right:none;">
-    <tr>
-        <td style="width:55px; text-align:center; vertical-align:middle; border:none; padding-right:6px;">
-            <img src="{{ public_path('img/logo-pemprov-bali.png') }}" style="width:50px; height:50px; object-fit:contain;">
-        </td>
-        <td style="text-align:center; vertical-align:middle; border:none; line-height:1.5;">
-            <div style="font-size:10px; font-weight:bold; font-family:'Times New Roman',serif;">PEMERINTAH PROVINSI BALI</div>
-            <div style="font-size:10px; font-weight:bold; font-family:'Times New Roman',serif;">DINAS PENDIDIKAN KEPEMUDAAN DAN OLAHRAGA</div>
-            <div style="font-size:13px; font-weight:bold; font-family:'Times New Roman',serif;">SMA NEGERI 1 GIANYAR</div>
-            <div style="font-size:8px; font-family:'Times New Roman',serif;">Jln. Ratna, Tegal Tugu Gianyar, Telp : (0361) 943034</div>
-            <div style="font-size:7px;">Website: https://sman1-gianyar.sch.id &nbsp; E-mail: sman1.gianyar1963@gmail.com</div>
-            <div style="font-size:7.5px; font-weight:bold;">NPSN : 50102079</div>
-        </td>
-        <td style="width:55px; text-align:center; vertical-align:middle; border:none; padding-left:6px;">
-            <img src="{{ public_path('img/logo_sekolah.png') }}" style="width:50px; height:50px; object-fit:contain;">
-        </td>
-    </tr>
-</table>
+@include('partials.kop-surat-pdf')
 
 {{-- Judul --}}
 <div style="text-align:center; margin-bottom:6px;">

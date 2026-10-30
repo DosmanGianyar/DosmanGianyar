@@ -55,6 +55,14 @@ class DashboardController extends Controller
             ->withCount(['activeMembers as members_count'])
             ->get();
 
+        $myExtraIds = $myExtracurriculars->pluck('id')->all();
+        $binaanAchievementsCount = \App\Models\StudentAchievement::where(function ($q) use ($guru, $myExtraIds) {
+            $q->where('pembina_id', $guru->id);
+            if (! empty($myExtraIds)) {
+                $q->orWhereIn('extracurricular_id', $myExtraIds);
+            }
+        })->count();
+
         // Jadwal Mengajar Hari Ini & Perminggu
         $todayIso = (int) now()->dayOfWeekIso; // 1=Senin .. 7=Minggu
         $dayNames = [1 => 'Senin', 2 => 'Selasa', 3 => 'Rabu', 4 => 'Kamis', 5 => 'Jumat', 6 => 'Sabtu', 7 => 'Minggu'];
@@ -149,10 +157,11 @@ class DashboardController extends Controller
         $weeklySchedulesMerged = $weeklySchedules->map(fn($group) => $mergeSchedules($group, $filledJournalKeys));
 
         $stats = [
-            'alert_kritis'   => $recentAlerts->count(),
-            'total_students' => $totalStudents,
-            'total_journals' => TeacherJournal::where('teacher_id', $guru->id)->count(),
-            'today_schedules_count' => $todaySchedules->count(),
+            'alert_kritis'              => $recentAlerts->count(),
+            'total_students'            => $totalStudents,
+            'total_journals'            => TeacherJournal::where('teacher_id', $guru->id)->count(),
+            'today_schedules_count'     => $todaySchedules->count(),
+            'binaan_achievements_count' => $binaanAchievementsCount,
         ];
 
         return view('guru.dashboard', compact(

@@ -41,13 +41,7 @@
 <body>
 
 {{-- Header --}}
-<div class="header">
-    @if(file_exists(public_path('img/logo_sekolah.png')))
-    <img src="{{ public_path('img/logo_sekolah.png') }}"><br>
-    @endif
-    <h1>SMA Negeri 1 Gianyar</h1>
-    <p>Jl. Ngurah Rai No. 1, Gianyar, Bali</p>
-</div>
+@include('partials.kop-surat-pdf')
 
 {{-- Title --}}
 <div class="title">

@@ -3,14 +3,62 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Extracurricular;
 use App\Models\StudentAchievement;
 use App\Models\SchoolClass;
+use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
+use Illuminate\Support\Collection;
 
 class AchievementExportController extends Controller
 {
+    /**
+     * Kelompokkan prestasi sehingga 1 lomba (termasuk lomba beregu / kelompok juara) menjadi 1 baris,
+     * lengkap dengan koleksi seluruh siswa juara di dalam kelompok tersebut (`grouped_members`).
+     */
+    protected function groupByCompetition(Collection $achievements): Collection
+    {
+        return $achievements
+            ->groupBy(fn (StudentAchievement $item) => $item->competitionGroupKey())
+            ->map(function (Collection $group): StudentAchievement {
+                /** @var StudentAchievement $rep */
+                $rep = $group->first();
+
+                // Gabungkan anggota dari grup query dan relasi team_members (jika ada anggota tim di luar filter kelas)
+                $members = $group->concat($rep->team_members)
+                    ->filter(fn ($m) => $m && $m->student_id)
+                    ->sortBy('id')
+                    ->unique('student_id')
+                    ->values();
+
+                if ($members->isEmpty()) {
+                    $members = collect([$rep]);
+                }
+
+                $rep->setAttribute('grouped_members', $members);
+
+                // Jika dalam record ada salah satu yang sudah memiliki extracurricular / pembina, gunakan yang terisi
+                if (! $rep->extracurricular_id) {
+                    $withExtra = $group->first(fn (StudentAchievement $m) => ! empty($m->extracurricular_id));
+                    if ($withExtra) {
+                        $rep->extracurricular_id = $withExtra->extracurricular_id;
+                        $rep->setRelation('extracurricular', $withExtra->extracurricular);
+                    }
+                }
+                if (! $rep->pembina_id) {
+                    $withPembina = $group->first(fn (StudentAchievement $m) => ! empty($m->pembina_id));
+                    if ($withPembina) {
+                        $rep->pembina_id = $withPembina->pembina_id;
+                        $rep->setRelation('pembina', $withPembina->pembina);
+                    }
+                }
+
+                return $rep;
+            })
+            ->values();
+    }
+
     /**
      * Unduh Laporan PDF Prestasi Siswa Disetujui
      */
@@ -20,7 +68,7 @@ class AchievementExportController extends Controller
         @set_time_limit(300);
 
         $query = StudentAchievement::query()
-            ->with(['student.schoolClass', 'verifier'])
+            ->with(['student.schoolClass', 'verifier', 'pembina', 'extracurricular.teachers', 'extracurricular.pembina'])
             ->orderBy('achievement_date', 'desc');
 
         if ($request->filled('curation_status')) {
@@ -44,6 +92,14 @@ class AchievementExportController extends Controller
             $query->where('participation_type', $request->participation_type);
         }
 
+        if ($request->filled('extracurricular_id')) {
+            $query->where('extracurricular_id', $request->extracurricular_id);
+        }
+
+        if ($request->filled('pembina_id')) {
+            $query->where('pembina_id', $request->pembina_id);
+        }
+
         if ($request->filled('class_id')) {
             $query->whereHas('student', fn ($q) => $q->where('class_id', $request->class_id));
         }
@@ -64,13 +120,16 @@ class AchievementExportController extends Controller
             $query->whereDate('achievement_date', '<=', $request->until);
         }
 
-        $achievements = $query->get();
+        $rawAchievements = $query->get();
+        $achievements    = $this->groupByCompetition($rawAchievements);
 
         $selectedClass = $request->filled('class_id') ? SchoolClass::find($request->class_id)?->name : null;
         $selectedLevel = $request->filled('level') ? (new StudentAchievement(['level' => $request->level]))->levelLabel() : null;
         $selectedCategory = $request->filled('field_category') ? (new StudentAchievement(['field_category' => $request->field_category]))->fieldCategoryLabel() : null;
         $selectedCuration = $request->filled('curation_status') ? (new StudentAchievement(['curation_status' => $request->curation_status]))->curationStatusLabel() : null;
         $selectedParticipation = $request->filled('participation_type') ? (new StudentAchievement(['participation_type' => $request->participation_type]))->participationTypeLabel() : null;
+        $selectedExtracurricular = $request->filled('extracurricular_id') ? Extracurricular::find($request->extracurricular_id)?->name : null;
+        $selectedPembina = $request->filled('pembina_id') ? User::find($request->pembina_id)?->name : null;
 
         $monthNames = [
             '1' => 'Januari', '2' => 'Februari', '3' => 'Maret', '4' => 'April',
@@ -79,22 +138,20 @@ class AchievementExportController extends Controller
         ];
         $selectedMonth = $request->filled('month') ? ($monthNames[(string) $request->month] ?? null) : null;
 
-        $individualCount = $achievements->where('participation_type', '!=', 'beregu')->count();
-        $teamCount       = $achievements->where('participation_type', 'beregu')->whereNotNull('team_code')->pluck('team_code')->unique()->count();
-        $unkeyedTeam     = $achievements->where('participation_type', 'beregu')->whereNull('team_code')->pluck('title')->unique()->count();
-        $totalSchoolAchievements = $individualCount + $teamCount + $unkeyedTeam;
+        $allStudentIds = $achievements
+            ->flatMap(fn (StudentAchievement $item) => ($item->grouped_members ?? collect([$item]))->pluck('student_id'))
+            ->filter()
+            ->unique();
 
         $stats = [
-            'total'           => $totalSchoolAchievements,
-            'total_files'     => $achievements->count(),
-            'curated'         => $achievements->where('curation_status', 'curated')->count(),
-            'not_curatable'   => $achievements->where('curation_status', 'not_curatable')->count(),
+            'total'           => $achievements->count(),
+            'total_files'     => $rawAchievements->count(),
             'internasional'   => $achievements->where('level', 'internasional')->count(),
             'nasional'        => $achievements->where('level', 'nasional')->count(),
             'provinsi'        => $achievements->where('level', 'provinsi')->count(),
             'kabupaten'       => $achievements->where('level', 'kabupaten')->count(),
             'sekolah'         => $achievements->where('level', 'sekolah')->count(),
-            'unique_students' => $achievements->pluck('student_id')->unique()->count(),
+            'unique_students' => $allStudentIds->count(),
         ];
 
         $fromDate = null;
@@ -132,17 +189,19 @@ class AchievementExportController extends Controller
         }
 
         $pdf = Pdf::loadView('exports.achievement-pdf', [
-            'achievements'          => $achievements,
-            'stats'                 => $stats,
-            'selectedClass'         => $selectedClass,
-            'selectedLevel'         => $selectedLevel,
-            'selectedCategory'      => $selectedCategory,
-            'selectedCuration'      => $selectedCuration,
-            'selectedParticipation' => $selectedParticipation,
-            'selectedMonth'         => $selectedMonth,
-            'year'                  => $request->year,
-            'fromDate'              => $fromDate,
-            'untilDate'             => $untilDate,
+            'achievements'            => $achievements,
+            'stats'                   => $stats,
+            'selectedClass'           => $selectedClass,
+            'selectedLevel'           => $selectedLevel,
+            'selectedCategory'        => $selectedCategory,
+            'selectedCuration'        => $selectedCuration,
+            'selectedParticipation'   => $selectedParticipation,
+            'selectedExtracurricular' => $selectedExtracurricular,
+            'selectedPembina'         => $selectedPembina,
+            'selectedMonth'           => $selectedMonth,
+            'year'                    => $request->year,
+            'fromDate'                => $fromDate,
+            'untilDate'               => $untilDate,
         ])
         ->setPaper('a4', 'landscape')
         ->setOption('isHtml5ParserEnabled', true)
@@ -159,13 +218,16 @@ class AchievementExportController extends Controller
     public function excel(Request $request)
     {
         $query = StudentAchievement::query()
-            ->with(['student.schoolClass'])
+            ->with(['student.schoolClass', 'verifier', 'pembina', 'extracurricular.teachers', 'extracurricular.pembina'])
             ->orderBy('achievement_date', 'desc');
 
         if ($request->filled('curation_status')) {
             $query->where('curation_status', $request->curation_status);
         } else {
-            $query->whereIn('curation_status', ['curated', 'not_curatable']);
+            $query->where(function ($q) {
+                $q->where('status', 'approved')
+                  ->orWhereIn('curation_status', ['curated', 'not_curatable']);
+            });
         }
 
         if ($request->filled('level')) {
@@ -178,6 +240,14 @@ class AchievementExportController extends Controller
 
         if ($request->filled('participation_type')) {
             $query->where('participation_type', $request->participation_type);
+        }
+
+        if ($request->filled('extracurricular_id')) {
+            $query->where('extracurricular_id', $request->extracurricular_id);
+        }
+
+        if ($request->filled('pembina_id')) {
+            $query->where('pembina_id', $request->pembina_id);
         }
 
         if ($request->filled('class_id')) {
@@ -200,7 +270,7 @@ class AchievementExportController extends Controller
             $query->whereDate('achievement_date', '<=', $request->until);
         }
 
-        $achievements = $query->get();
+        $achievements = $this->groupByCompetition($query->get());
 
         $filename = 'rekap_prestasi_siswa_' . now()->format('Ymd_His') . '.csv';
 
@@ -215,33 +285,58 @@ class AchievementExportController extends Controller
             fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
 
             fputcsv($file, [
-                'No', 'Kode Prestasi', 'Kode Tim', 'Nama Siswa', 'NISN', 'NIS', 'Kelas', 'No HP Siswa', 'No HP Ortu',
-                'Judul Prestasi', 'Event / Lomba', 'Penyelenggara', 'Rumpun Bidang',
-                'Tingkat Kejuaraan', 'Peringkat', 'Jenis Partisipasi', 'Tanggal Prestasi',
-                'Status Kurasi', 'Verifikator'
+                'No',
+                'Nama Lomba / Judul Prestasi',
+                'Nama Siswa / Kelompok Juara',
+                'Kelas',
+                'NISN',
+                'Event / Ajang',
+                'Penyelenggara',
+                'Rumpun Bidang',
+                'Ekstrakurikuler',
+                'Tingkat Kejuaraan',
+                'Peringkat / Juara',
+                'Jenis Partisipasi',
+                'Pembina Ekstra',
+                'Tanggal Prestasi',
             ]);
 
             foreach ($achievements as $index => $item) {
+                /** @var Collection $members */
+                $members = $item->grouped_members ?? collect([$item]);
+                $isGroup = $members->count() > 1 || $item->isBeregu();
+
+                if ($isGroup && $members->count() > 1) {
+                    $studentNames = $members->values()->map(function ($m, $i) {
+                        $cls = $m->student?->schoolClass?->name;
+                        return ($i + 1) . '. ' . ($m->student?->name ?? '—') . ($cls ? " ({$cls})" : '');
+                    })->implode("\n");
+                } else {
+                    $studentNames = $item->student?->name ?? '—';
+                }
+
+                $classesList = $members->map(fn ($m) => $m->student?->schoolClass?->name)->filter()->unique()->implode(', ') ?: '—';
+                $nisnList    = $members->map(fn ($m) => $m->student?->nisn)->filter()->unique()->implode(', ') ?: '—';
+                $pembinaList = $item->pembinaList();
+                $pembinaText = count($pembinaList) > 1
+                    ? collect($pembinaList)->values()->map(fn ($name, $i) => ($i + 1) . '. ' . $name)->implode("\n")
+                    : ($pembinaList[0] ?? '—');
+
                 fputcsv($file, [
                     $index + 1,
-                    $item->achievement_code ?? '—',
-                    $item->team_code ?? '—',
-                    $item->student?->name ?? '—',
-                    $item->student?->nisn ?? '—',
-                    $item->student?->nis ?? '—',
-                    $item->student?->schoolClass?->name ?? '—',
-                    $item->student?->phone ?? '—',
-                    $item->student?->parent_phone ?? '—',
                     $item->title,
+                    $studentNames,
+                    $classesList,
+                    $nisnList,
                     $item->event_name ?? '—',
                     $item->organizer ?? '—',
                     $item->fieldCategoryLabel(),
+                    $item->extracurricularName(),
                     $item->levelLabel(),
                     $item->rank ?? '—',
-                    $item->participationTypeLabel(),
+                    $isGroup ? 'Beregu (' . $members->count() . ' Siswa)' : 'Perorangan',
+                    $pembinaText,
                     $item->achievement_date ? \Carbon\Carbon::parse($item->achievement_date)->format('d/m/Y') : '—',
-                    $item->curationStatusLabel(),
-                    $item->verifier?->name ?? 'System',
                 ]);
             }
 

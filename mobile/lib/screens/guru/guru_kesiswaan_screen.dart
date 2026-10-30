@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../models/guru_models.dart';
 import '../../theme/app_colors.dart';
 import 'guru_conduct_screen.dart';
+import 'guru_achievement_screen.dart';
 import 'guru_gate_verification_screen.dart';
 import '../kesiswaan/school_regulation_screen.dart';
 
@@ -76,12 +77,14 @@ class GuruKesiswaanScreen extends StatelessWidget {
           _buildMenuCard(
             context,
             icon: Icons.emoji_events_rounded,
-            label: 'Prestasi Akademik',
-            subtitle: 'Pencapaian siswa di bidang akademik',
+            label: '🏆 Juara & Prestasi Siswa Binaan',
+            subtitle: 'Rekap capaian lomba dan juara siswa binaan ekstrakurikuler',
             color: AppColors.yellow600,
             bg: AppColors.yellow50,
-            onTap: null,
-            comingSoon: true,
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const GuruAchievementScreen()),
+            ),
           ),
           _buildMenuCard(
             context,

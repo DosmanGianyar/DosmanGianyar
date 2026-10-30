@@ -121,6 +121,14 @@
                     <span class="text-xs text-gray-500">{{ $achievement->category->name }}</span>
                     @endif
                 </div>
+                @if($achievement->pembinaName() !== '—' || $achievement->extracurricularName() !== '—')
+                <p class="text-[11px] text-emerald-700 font-semibold mt-1">
+                    👨‍🏫 Pembina: {{ $achievement->pembinaName() }}
+                    @if($achievement->extracurricularName() !== '—')
+                        <span class="text-indigo-600">({{ $achievement->extracurricularName() }})</span>
+                    @endif
+                </p>
+                @endif
             </div>
 
             <p class="text-xs text-gray-400 shrink-0">

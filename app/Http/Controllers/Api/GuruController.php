@@ -90,6 +90,116 @@ class GuruController extends Controller
         ]);
     }
 
+    public function binaanAchievements(Request $request): JsonResponse
+    {
+        /** @var \App\Models\User $guru */
+        $guru = Auth::user();
+
+        $myExtracurriculars = \App\Models\Extracurricular::with(['pembina', 'teachers'])
+            ->where(function ($q) use ($guru) {
+                $q->where('pembina_id', $guru->id)
+                  ->orWhereHas('teachers', fn ($t) => $t->where('users.id', $guru->id));
+            })
+            ->orderBy('name')
+            ->get();
+
+        $myExtraIds = $myExtracurriculars->pluck('id')->all();
+
+        $query = \App\Models\StudentAchievement::with([
+            'student.schoolClass',
+            'category',
+            'pembina',
+            'extracurricular.teachers',
+            'extracurricular.pembina',
+        ])->where(function ($q) use ($guru, $myExtraIds) {
+            $q->where('pembina_id', $guru->id);
+            if (! empty($myExtraIds)) {
+                $q->orWhereIn('extracurricular_id', $myExtraIds);
+            }
+        });
+
+        if ($request->filled('extracurricular_id')) {
+            $query->where('extracurricular_id', $request->extracurricular_id);
+        }
+
+        if ($request->filled('level')) {
+            $query->where('level', $request->level);
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $raw = $query->orderByDesc('achievement_date')->orderByDesc('id')->get();
+
+        $seenTeams = [];
+        $grouped = collect();
+        foreach ($raw as $item) {
+            if ($item->participation_type === 'beregu' && ! empty($item->team_code)) {
+                if (isset($seenTeams[$item->team_code])) {
+                    continue;
+                }
+                $seenTeams[$item->team_code] = true;
+            }
+            $grouped->push($item);
+        }
+
+        $stats = [
+            'total'              => $grouped->count(),
+            'approved'           => $grouped->where('status', 'approved')->count(),
+            'pending'            => $grouped->where('status', 'pending')->count(),
+            'nasional_inter'     => $grouped->whereIn('level', ['nasional', 'internasional'])->count(),
+            'provinsi_kabupaten' => $grouped->whereIn('level', ['provinsi', 'kabupaten'])->count(),
+            'total_students'     => $raw->pluck('student_id')->unique()->count(),
+        ];
+
+        $data = $grouped->map(function (\App\Models\StudentAchievement $a) {
+            $teamMembers = $a->isBeregu()
+                ? $a->team_members->map(fn ($tm) => [
+                    'id'         => $tm->student_id,
+                    'name'       => $tm->student?->name ?? 'Siswa',
+                    'class_name' => $tm->student?->schoolClass?->name ?? '—',
+                ])->values()->toArray()
+                : [];
+
+            return [
+                'id'                   => $a->id,
+                'achievement_code'     => $a->achievement_code,
+                'title'                => $a->title,
+                'event_name'           => $a->event_name,
+                'organizer'            => $a->organizer,
+                'rank'                 => $a->rank,
+                'level'                => $a->level,
+                'level_label'          => $a->levelLabel(),
+                'status'               => $a->status,
+                'status_label'         => $a->statusLabel(),
+                'curation_status'      => $a->curation_status,
+                'curation_status_label'=> $a->curationStatusLabel(),
+                'participation_type'   => $a->participation_type ?? 'individu',
+                'is_beregu'            => $a->isBeregu(),
+                'student_name'         => $a->student?->name ?? '—',
+                'student_class'        => $a->student?->schoolClass?->name ?? '—',
+                'student_nisn'         => $a->student?->nisn ?? '—',
+                'team_members'         => $teamMembers,
+                'extracurricular_id'   => $a->extracurricular_id,
+                'extracurricular_name' => $a->extracurricularName() !== '—' ? $a->extracurricularName() : null,
+                'pembina_name'         => $a->pembinaName() !== '—' ? $a->pembinaName() : null,
+                'achievement_date'     => $a->achievement_date?->translatedFormat('d M Y') ?? '—',
+                'photo_url'            => $a->photoUrl(),
+                'certificate_url'      => $a->certificateUrl(),
+            ];
+        })->values();
+
+        return response()->json([
+            'stats' => $stats,
+            'my_extracurriculars' => $myExtracurriculars->map(fn ($e) => [
+                'id'   => $e->id,
+                'name' => $e->name,
+            ])->values(),
+            'achievements' => $data,
+        ]);
+    }
+
     // ─── Dashboard ────────────────────────────────────────────────────────────
 
     public function dashboard(): JsonResponse

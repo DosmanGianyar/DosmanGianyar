@@ -4,7 +4,10 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\StudentAchievementResource\Pages;
 use App\Filament\Resources\UserResource;
+use App\Models\Extracurricular;
 use App\Models\StudentAchievement;
+use App\Models\User;
+use App\Services\AchievementPembinaMatcher;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkAction;
@@ -27,6 +30,7 @@ use Filament\Resources\Resource;
 use App\Filament\Support\AdminAccess;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
@@ -118,6 +122,35 @@ class StudentAchievementResource extends Resource
                         ->label('Kategori Prestasi')
                         ->options(\App\Models\AchievementCategory::pluck('name', 'id'))
                         ->required(),
+
+                    Select::make('extracurricular_id')
+                        ->label('Ekstrakurikuler Terkait')
+                        ->options(fn () => Extracurricular::with(['pembina', 'teachers'])->orderBy('name')->get()->mapWithKeys(fn (Extracurricular $e) => [
+                            $e->id => $e->name . ($e->pembina_names !== '—' ? " (Pembina: {$e->pembina_names})" : ''),
+                        ])->toArray())
+                        ->searchable()
+                        ->preload()
+                        ->live()
+                        ->afterStateUpdated(function ($state, Set $set): void {
+                            if ($state) {
+                                $extra = Extracurricular::with(['pembina', 'teachers'])->find($state);
+                                $pembinaId = AchievementPembinaMatcher::resolvePembinaFromExtra($extra);
+                                if ($pembinaId) {
+                                    $set('pembina_id', $pembinaId);
+                                }
+                            }
+                        })
+                        ->placeholder('— Pilih Ekstrakurikuler —'),
+
+                    Select::make('pembina_id')
+                        ->label('Guru Pembina / Pendamping')
+                        ->options(fn () => User::where('role', 'guru')->with('extracurricularsAsTeacher')->orderBy('name')->get()->mapWithKeys(function (User $g) {
+                            $ekstra = $g->extracurricularsAsTeacher?->pluck('name')->implode(', ');
+                            return [$g->id => $g->name . ($ekstra ? " — Pembina {$ekstra}" : ($g->subject ? " ({$g->subject})" : ''))];
+                        })->toArray())
+                        ->searchable()
+                        ->preload()
+                        ->placeholder('— Pilih Guru Pembina —'),
 
                     Select::make('field_category')
                         ->label('Bidang Lomba / Capaian')
@@ -501,6 +534,29 @@ class StudentAchievementResource extends Resource
                     ->color('info')
                     ->formatStateUsing(fn (StudentAchievement $record): string => $record->fieldCategoryLabel()),
 
+                TextColumn::make('pembina_id')
+                    ->label('Pembina Ekstrakurikuler')
+                    ->html()
+                    ->wrap()
+                    ->formatStateUsing(function (StudentAchievement $record): string {
+                        $list = $record->pembinaList();
+                        $extraName = $record->extracurricularName();
+                        $extraBadge = $extraName !== '—'
+                            ? "<div style=\"font-size:0.72rem; color:#a5b4fc; margin-top:2px; font-weight:600;\">🏅 Ekstra: " . e($extraName) . "</div>"
+                            : '';
+
+                        if (count($list) > 1) {
+                            $items = collect($list)->values()->map(fn (string $name, int $idx) => "<div style=\"line-height:1.35; color:#6ee7b7; font-weight:600;\">" . ($idx + 1) . ". " . e($name) . "</div>")->implode('');
+                            return "<div>{$items}{$extraBadge}</div>";
+                        }
+
+                        if (count($list) === 1) {
+                            return "<div><span style=\"color:#6ee7b7; font-weight:700;\">👨‍🏫 " . e($list[0]) . "</span>{$extraBadge}</div>";
+                        }
+
+                        return "<span style=\"color:#94a3b8;\">—</span>";
+                    }),
+
                 TextColumn::make('level')
                     ->label('Tingkat & Partisipasi')
                     ->html()
@@ -652,9 +708,78 @@ class StudentAchievementResource extends Resource
                         'individu' => '👤 Perorangan (Individu)',
                         'beregu'   => '👥 Beregu (Kelompok)',
                     ]),
+
+                SelectFilter::make('extracurricular_id')
+                    ->label('Ekstrakurikuler')
+                    ->options(fn () => Extracurricular::orderBy('name')->pluck('name', 'id')->toArray()),
+
+                SelectFilter::make('pembina_id')
+                    ->label('Guru Pembina')
+                    ->options(fn () => User::where('role', 'guru')->orderBy('name')->pluck('name', 'id')->toArray()),
             ])
             ->recordUrl(fn (StudentAchievement $record): string => static::getUrl('view', ['record' => $record]))
             ->actions([
+                Action::make('edit_pembina')
+                    ->label('Pembina')
+                    ->tooltip('Pilih / Ganti Pembina Ekstra & Ekstrakurikuler')
+                    ->icon('heroicon-o-user-plus')
+                    ->color('success')
+                    ->size('xs')
+                    ->outlined()
+                    ->modalHeading('Pilih / Ganti Pembina Ekstra')
+                    ->modalDescription('Kaitkan prestasi ini dengan Ekstrakurikuler dan Guru Pembina yang sesuai.')
+                    ->fillForm(fn (StudentAchievement $record): array => [
+                        'extracurricular_id' => $record->extracurricular_id,
+                        'pembina_id'         => $record->pembina_id,
+                    ])
+                    ->form([
+                        Select::make('extracurricular_id')
+                            ->label('Ekstrakurikuler Terkait')
+                            ->options(fn () => Extracurricular::with(['pembina', 'teachers'])->orderBy('name')->get()->mapWithKeys(fn (Extracurricular $e) => [
+                                $e->id => $e->name . ($e->pembina_names !== '—' ? " (Pembina: {$e->pembina_names})" : ''),
+                            ])->toArray())
+                            ->searchable()
+                            ->preload()
+                            ->live()
+                            ->afterStateUpdated(function ($state, Set $set): void {
+                                if ($state) {
+                                    $extra = Extracurricular::with(['pembina', 'teachers'])->find($state);
+                                    $pembinaId = AchievementPembinaMatcher::resolvePembinaFromExtra($extra);
+                                    if ($pembinaId) {
+                                        $set('pembina_id', $pembinaId);
+                                    }
+                                }
+                            })
+                            ->placeholder('— Pilih Ekstrakurikuler —'),
+
+                        Select::make('pembina_id')
+                            ->label('Guru Pembina / Pendamping')
+                            ->options(fn () => User::where('role', 'guru')->with('extracurricularsAsTeacher')->orderBy('name')->get()->mapWithKeys(function (User $g) {
+                                $ekstra = $g->extracurricularsAsTeacher?->pluck('name')->implode(', ');
+                                return [$g->id => $g->name . ($ekstra ? " — Pembina {$ekstra}" : ($g->subject ? " ({$g->subject})" : ''))];
+                            })->toArray())
+                            ->searchable()
+                            ->preload()
+                            ->required()
+                            ->placeholder('— Pilih Nama Guru Pembina —'),
+                    ])
+                    ->action(function (StudentAchievement $record, array $data): void {
+                        $updatePayload = [
+                            'extracurricular_id' => $data['extracurricular_id'] ?? null,
+                            'pembina_id'         => $data['pembina_id'] ?? null,
+                        ];
+                        $record->update($updatePayload);
+
+                        if ($record->isBeregu() && $record->team_code) {
+                            StudentAchievement::where('team_code', $record->team_code)->update($updatePayload);
+                        }
+
+                        Notification::make()
+                            ->title('Pembina Ekstra berhasil diperbarui')
+                            ->success()
+                            ->send();
+                    }),
+
                 ViewAction::make()
                     ->label('Periksa')
                     ->tooltip('Periksa Berkas & Detail Prestasi')
@@ -763,6 +888,61 @@ class StudentAchievementResource extends Resource
             ->actionsColumnLabel('Aksi')
             ->bulkActions([
                 BulkActionGroup::make([
+                    BulkAction::make('bulk_set_pembina')
+                        ->label('Atur Pembina & Ekstrakurikuler')
+                        ->icon('heroicon-o-user-plus')
+                        ->color('success')
+                        ->modalHeading('Atur Pembina Ekstra untuk Prestasi Terpilih')
+                        ->form([
+                            Select::make('extracurricular_id')
+                                ->label('Ekstrakurikuler Terkait')
+                                ->options(fn () => Extracurricular::with(['pembina', 'teachers'])->orderBy('name')->get()->mapWithKeys(fn (Extracurricular $e) => [
+                                    $e->id => $e->name . ($e->pembina_names !== '—' ? " (Pembina: {$e->pembina_names})" : ''),
+                                ])->toArray())
+                                ->searchable()
+                                ->preload()
+                                ->live()
+                                ->afterStateUpdated(function ($state, Set $set): void {
+                                    if ($state) {
+                                        $extra = Extracurricular::with(['pembina', 'teachers'])->find($state);
+                                        $pembinaId = AchievementPembinaMatcher::resolvePembinaFromExtra($extra);
+                                        if ($pembinaId) {
+                                            $set('pembina_id', $pembinaId);
+                                        }
+                                    }
+                                })
+                                ->placeholder('— Pilih Ekstrakurikuler —'),
+
+                            Select::make('pembina_id')
+                                ->label('Guru Pembina / Pendamping')
+                                ->options(fn () => User::where('role', 'guru')->with('extracurricularsAsTeacher')->orderBy('name')->get()->mapWithKeys(function (User $g) {
+                                    $ekstra = $g->extracurricularsAsTeacher?->pluck('name')->implode(', ');
+                                    return [$g->id => $g->name . ($ekstra ? " — Pembina {$ekstra}" : ($g->subject ? " ({$g->subject})" : ''))];
+                                })->toArray())
+                                ->searchable()
+                                ->preload()
+                                ->required()
+                                ->placeholder('— Pilih Nama Guru Pembina —'),
+                        ])
+                        ->action(function (Collection $records, array $data): void {
+                            $updatePayload = [
+                                'extracurricular_id' => $data['extracurricular_id'] ?? null,
+                                'pembina_id'         => $data['pembina_id'] ?? null,
+                            ];
+
+                            foreach ($records as $record) {
+                                $record->update($updatePayload);
+                                if ($record->isBeregu() && $record->team_code) {
+                                    StudentAchievement::where('team_code', $record->team_code)->update($updatePayload);
+                                }
+                            }
+
+                            Notification::make()
+                                ->title('Pembina Ekstra berhasil diperbarui untuk ' . $records->count() . ' prestasi')
+                                ->success()
+                                ->send();
+                        }),
+
                     BulkAction::make('merge_as_team')
                         ->label('Gabungkan Sebagai Tim / Beregu')
                         ->icon('heroicon-o-user-group')
@@ -827,7 +1007,9 @@ class StudentAchievementResource extends Resource
             ->groupByRaw('CASE WHEN participation_type = "beregu" AND team_code IS NOT NULL AND team_code != "" THEN team_code WHEN participation_type = "beregu" THEN CONCAT(title, "|", COALESCE(achievement_date, "")) ELSE CAST(id AS CHAR) END')
             ->pluck('id');
 
-        return $query->whereIn('id', $representativeIds);
+        return $query
+            ->whereIn('id', $representativeIds)
+            ->with(['student.schoolClass', 'category', 'pembina', 'extracurricular.teachers', 'extracurricular.pembina']);
     }
 
     public static function getPages(): array

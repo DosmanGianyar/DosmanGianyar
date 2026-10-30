@@ -29,15 +29,9 @@
     <!-- Poster Card Container A4 aspect ratio -->
     <div class="bg-white border-4 border-blue-900 rounded-3xl p-8 max-w-2xl w-full shadow-2xl flex flex-col items-center text-center space-y-6 relative overflow-hidden">
         
-        <!-- Top Decorative Header Bar -->
-        <div class="w-full bg-gradient-to-r from-blue-900 via-indigo-800 to-blue-900 text-white py-4 px-6 rounded-2xl shadow-md flex items-center justify-between">
-            <img src="{{ asset('img/logo-pemprov-bali.png') }}" alt="Logo Bali" class="h-16 w-auto object-contain">
-            <div class="text-center flex-1 px-4">
-                <h2 class="text-xs uppercase tracking-widest font-semibold text-blue-200">PEMERINTAH PROVINSI BALI</h2>
-                <h1 class="text-lg font-black text-white tracking-wide">SMA NEGERI 1 GIANYAR</h1>
-                <p class="text-[11px] text-blue-100 italic">Perpustakaan</p>
-            </div>
-            <img src="{{ asset('img/logo_sekolah.png') }}" alt="Logo Dosman" class="h-16 w-auto object-contain">
+        <!-- Kop Surat Formal -->
+        <div class="w-full">
+            @include('partials.kop-surat-pdf')
         </div>
 
         <!-- Title Header -->

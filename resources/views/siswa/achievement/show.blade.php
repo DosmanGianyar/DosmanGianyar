@@ -186,6 +186,24 @@
                         </td>
                     </tr>
 
+                    <!-- 6b. Ekstrakurikuler & Guru Pembina -->
+                    <tr class="hover:bg-blue-50/40">
+                        <td class="py-2.5 px-3 text-center font-bold text-emerald-600 border-r border-gray-200 bg-emerald-50/60">★</td>
+                        <td class="py-2.5 px-4 font-bold text-gray-800 border-r border-gray-200 bg-emerald-50/20">Ekstrakurikuler & Guru Pembina</td>
+                        <td class="py-2.5 px-4">
+                            <div class="flex flex-wrap items-center gap-2">
+                                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md font-bold text-xs bg-emerald-50 text-emerald-800 border border-emerald-200">
+                                    👨‍🏫 Pembina: {{ $achievement->pembinaName() }}
+                                </span>
+                                @if($achievement->extracurricularName() !== '—')
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md font-bold text-xs bg-indigo-50 text-indigo-800 border border-indigo-200">
+                                        🏅 Ekstra: {{ $achievement->extracurricularName() }}
+                                    </span>
+                                @endif
+                            </div>
+                        </td>
+                    </tr>
+
                     <!-- 7. Jenis Partisipasi -->
                     <tr class="hover:bg-blue-50/40">
                         <td class="py-2.5 px-3 text-center font-bold text-gray-500 border-r border-gray-200 bg-gray-50/60">7</td>

@@ -436,6 +436,34 @@ style="width: 100% !important; box-sizing: border-box !important;">
                     </td>
                 </tr>
 
+                <!-- 8b. Ekstrakurikuler & Guru Pembina -->
+                <tr>
+                    <td style="text-align: center; font-weight: 800; color: #34d399;">★</td>
+                    <td style="font-weight: 700;">Ekstrakurikuler & Guru Pembina</td>
+                    <td>
+                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
+                            <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px;">
+                                <span style="display: inline-block; padding: 3px 10px; border-radius: 6px; font-weight: 700; background: rgba(16, 185, 129, 0.18); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.35);">
+                                    👨‍🏫 Pembina: {{ $record->pembinaName() }}
+                                </span>
+                                @if($record->extracurricularName() !== '—')
+                                    <span style="display: inline-block; padding: 3px 10px; border-radius: 6px; font-weight: 700; background: rgba(99, 102, 241, 0.18); color: #a5b4fc; border: 1px solid rgba(99, 102, 241, 0.35);">
+                                        🏅 Ekstra: {{ $record->extracurricularName() }}
+                                    </span>
+                                @else
+                                    <span style="color: #94a3b8; font-size: 0.75rem; font-style: italic;">(Ekstrakurikuler belum ditentukan)</span>
+                                @endif
+                            </div>
+                            <button type="button"
+                                    wire:click="mountAction('edit_pembina')"
+                                    title="Pilih / Ganti Pembina Ekstra & Ekstrakurikuler"
+                                    style="cursor: pointer; background: rgba(16, 185, 129, 0.2); border: 1px solid rgba(16, 185, 129, 0.45); color: #6ee7b7; padding: 4px 10px; border-radius: 7px; font-size: 0.72rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
+                                ✏️ Pilih / Ganti Pembina
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+
                 <!-- 9. Website Resmi Ajang -->
                 <tr>
                     <td style="text-align: center; font-weight: 800; color: #94a3b8;">9</td>

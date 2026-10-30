@@ -26,13 +26,7 @@
 </head>
 <body>
 
-<div class="header">
-    <img class="logo" src="{{ public_path('img/logo_sekolah.png') }}">
-    <div>
-        <div class="school-name">SMA Negeri 1 Gianyar</div>
-        <div class="school-sub">SIMAK DOSMAN — Sistem Informasi & Manajemen Akademik</div>
-    </div>
-</div>
+@include('partials.kop-surat-pdf')
 
 <div class="title">Rekap Data Aset Sekolah</div>
 <div class="subtitle">

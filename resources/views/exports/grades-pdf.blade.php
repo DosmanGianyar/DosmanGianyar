@@ -26,14 +26,10 @@
 </head>
 <body>
 
-<div class="header">
-    @if(file_exists(public_path('img/logo_sekolah.png')))
-    <img src="{{ public_path('img/logo_sekolah.png') }}">
-    @endif
-    <div class="header-text">
-        <h1>SMA Negeri 1 Gianyar</h1>
-        <p>Rekap Nilai Siswa — Kelas {{ $className }} · Semester {{ $semester }} · TA {{ $academicYear }}</p>
-    </div>
+@include('partials.kop-surat-pdf')
+<div style="text-align: center; margin-bottom: 10px;">
+    <div style="font-size: 12px; font-weight: bold; text-transform: uppercase;">Rekap Nilai Siswa</div>
+    <div style="font-size: 9px; color: #374151; margin-top: 2px;">Kelas {{ $className }} · Semester {{ $semester }} · TA {{ $academicYear }}</div>
 </div>
 
 <div class="meta">

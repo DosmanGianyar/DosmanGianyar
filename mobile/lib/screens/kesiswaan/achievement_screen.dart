@@ -215,6 +215,21 @@ class _AchievementCard extends StatelessWidget {
                 style: const TextStyle(fontSize: 11, color: AppColors.yellow600, fontWeight: FontWeight.w600)),
             ],
           ]),
+          if (item.pembinaName != null || item.extracurricularName != null) ...[
+            const SizedBox(height: 5),
+            Row(children: [
+              const Icon(Icons.person_pin_rounded, size: 13, color: AppColors.emerald600),
+              const SizedBox(width: 4),
+              Expanded(
+                child: Text(
+                  'Pembina: ${item.pembinaName ?? '-'}${item.extracurricularName != null ? ' (${item.extracurricularName})' : ''}',
+                  style: const TextStyle(fontSize: 11, color: AppColors.emerald600, fontWeight: FontWeight.w600),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ]),
+          ],
           if (item.rejectionReason != null && item.rejectionReason!.isNotEmpty) ...[
             const SizedBox(height: 8),
             Container(
@@ -260,6 +275,8 @@ class _CreateSheetState extends State<_CreateSheet> {
   final _frequencyConsistencyUrlCtrl = TextEditingController();
 
   int?                     _categoryId;
+  int?                     _extracurricularId;
+  int?                     _pembinaId;
   String                   _fieldCategory     = 'akademik';
   String                   _participationType = 'individu';
   String?                  _level;
@@ -294,6 +311,8 @@ class _CreateSheetState extends State<_CreateSheet> {
     AchievementCategory(id: 7, name: 'Lainnya'),
   ];
   final List<Map<String, dynamic>> _selectedTeamMembers = [];
+  List<AchievementPembina>         _pembinas            = [];
+  List<AchievementExtracurricular> _extracurriculars    = [];
   bool                     _loadingCats       = false;
   bool                     _isSaving          = false;
 
@@ -339,13 +358,28 @@ class _CreateSheetState extends State<_CreateSheet> {
     try {
       final body = await ApiClient.get('/achievements/categories');
       final listData = body['categories'] ?? body['data'];
-      if (listData != null && listData is List && listData.isNotEmpty) {
-        final list = listData
-            .map((e) => AchievementCategory.fromJson(e as Map<String, dynamic>))
-            .toList();
-        if (mounted) setState(() { _categories = list; _loadingCats = false; });
-      } else {
-        if (mounted) setState(() => _loadingCats = false);
+      final pembinaData = body['pembinas'];
+      final extraData = body['extracurriculars'];
+
+      if (mounted) {
+        setState(() {
+          if (listData != null && listData is List && listData.isNotEmpty) {
+            _categories = listData
+                .map((e) => AchievementCategory.fromJson(e as Map<String, dynamic>))
+                .toList();
+          }
+          if (pembinaData != null && pembinaData is List) {
+            _pembinas = pembinaData
+                .map((e) => AchievementPembina.fromJson(e as Map<String, dynamic>))
+                .toList();
+          }
+          if (extraData != null && extraData is List) {
+            _extracurriculars = extraData
+                .map((e) => AchievementExtracurricular.fromJson(e as Map<String, dynamic>))
+                .toList();
+          }
+          _loadingCats = false;
+        });
       }
     } catch (_) {
       if (mounted) setState(() => _loadingCats = false);
@@ -502,6 +536,7 @@ class _CreateSheetState extends State<_CreateSheet> {
   Future<void> _submit() async {
     if (_titleCtrl.text.trim().isEmpty)   { _showSnack('Judul prestasi tidak boleh kosong.'); return; }
     if (_categoryId == null)              { _showSnack('Pilih kategori prestasi.'); return; }
+    if (_pembinaId == null)               { _showSnack('Wajib memilih nama guru pembina pada ajuan prestasi.'); return; }
     if (_level == null)                   { _showSnack('Pilih tingkat prestasi.'); return; }
     if (_date == null)                    { _showSnack('Pilih tanggal prestasi.'); return; }
     if (_photo == null)                   { _showSnack('Foto kegiatan/penyerahan piala wajib diunggah.'); return; }
@@ -515,6 +550,8 @@ class _CreateSheetState extends State<_CreateSheet> {
         'event_name':         _eventNameCtrl.text.trim().isNotEmpty ? _eventNameCtrl.text.trim() : _titleCtrl.text.trim(),
         'organizer':          _organizerCtrl.text.trim(),
         'category_id':        _categoryId.toString(),
+        'pembina_id':         _pembinaId.toString(),
+        if (_extracurricularId != null) 'extracurricular_id': _extracurricularId.toString(),
         'field_category':     _fieldCategory,
         'participation_type': _participationType,
         'level':              _level!,
@@ -759,6 +796,93 @@ class _CreateSheetState extends State<_CreateSheet> {
                   enabledBorder: OutlineInputBorder(borderRadius: AppRadius.input, borderSide: BorderSide(color: AppColors.gray200)),
                 ),
               ),
+            const SizedBox(height: 14),
+
+            // Ekstrakurikuler & Guru Pembina (Wajib)
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColors.emerald50,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: AppColors.emerald200),
+              ),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                const Row(children: [
+                  Icon(Icons.person_pin_rounded, size: 16, color: AppColors.emerald600),
+                  SizedBox(width: 6),
+                  Expanded(
+                    child: Text('Ekstrakurikuler & Guru Pembina *',
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.gray800)),
+                  ),
+                ]),
+                const SizedBox(height: 4),
+                const Text('Wajib memilih nama guru pembina pada ajuan prestasi.',
+                  style: TextStyle(fontSize: 10.5, color: AppColors.gray500)),
+                const SizedBox(height: 10),
+                if (_extracurriculars.isNotEmpty) ...[
+                  const Text('Ekstrakurikuler Terkait (Opsional / Bantu Pilih Otomatis)',
+                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.gray700)),
+                  const SizedBox(height: 5),
+                  DropdownButtonFormField<int?>(
+                    initialValue: _extracurricularId,
+                    isExpanded: true,
+                    hint: const Text('Otomatis sesuai lomba / pilih ekstra', style: TextStyle(fontSize: 12, color: AppColors.gray400)),
+                    items: [
+                      const DropdownMenuItem<int?>(
+                        value: null,
+                        child: Text('— Otomatis Sesuai Cabang Lomba —', style: TextStyle(fontSize: 12)),
+                      ),
+                      ..._extracurriculars.map((e) => DropdownMenuItem<int?>(
+                        value: e.id,
+                        child: Text(
+                          '${e.name}${e.pembinaNames != null ? ' (${e.pembinaNames})' : ''}',
+                          style: const TextStyle(fontSize: 12),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      )),
+                    ],
+                    onChanged: (v) {
+                      setState(() {
+                        _extracurricularId = v;
+                        if (v != null) {
+                          final ex = _extracurriculars.where((e) => e.id == v).firstOrNull;
+                          if (ex?.pembinaId != null) {
+                            _pembinaId = ex!.pembinaId;
+                          }
+                        }
+                      });
+                    },
+                    decoration: const InputDecoration(
+                      filled: true, fillColor: Colors.white,
+                      contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                      border: OutlineInputBorder(borderRadius: AppRadius.input, borderSide: BorderSide(color: AppColors.gray200)),
+                      enabledBorder: OutlineInputBorder(borderRadius: AppRadius.input, borderSide: BorderSide(color: AppColors.gray200)),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                ],
+                const Text('Nama Guru Pembina / Pendamping * (Wajib)',
+                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.gray700)),
+                const SizedBox(height: 5),
+                DropdownButtonFormField<int>(
+                  key: ValueKey('pembina_${_pembinaId ?? 0}'),
+                  initialValue: _pembinaId,
+                  isExpanded: true,
+                  hint: const Text('Pilih nama guru pembina *', style: TextStyle(fontSize: 12, color: AppColors.gray400)),
+                  items: _pembinas.map((p) => DropdownMenuItem<int>(
+                    value: p.id,
+                    child: Text(p.label, style: const TextStyle(fontSize: 12), overflow: TextOverflow.ellipsis),
+                  )).toList(),
+                  onChanged: (v) => setState(() => _pembinaId = v),
+                  decoration: const InputDecoration(
+                    filled: true, fillColor: Colors.white,
+                    contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                    border: OutlineInputBorder(borderRadius: AppRadius.input, borderSide: BorderSide(color: AppColors.gray200)),
+                    enabledBorder: OutlineInputBorder(borderRadius: AppRadius.input, borderSide: BorderSide(color: AppColors.gray200)),
+                  ),
+                ),
+              ]),
+            ),
             const SizedBox(height: 14),
 
             // Tingkat

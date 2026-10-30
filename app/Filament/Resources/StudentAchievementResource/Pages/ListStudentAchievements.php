@@ -16,6 +16,21 @@ class ListStudentAchievements extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
+            Action::make('auto_sync_pembina')
+                ->label('Sinkronkan Otomatis Pembina & Ekstra')
+                ->icon('heroicon-o-sparkles')
+                ->color('info')
+                ->requiresConfirmation()
+                ->modalHeading('Sinkronkan Otomatis Pembina Ekstra & Lomba')
+                ->modalDescription('Sistem akan mencocokkan prestasi siswa yang belum memiliki Ekstrakurikuler atau Guru Pembina ke ekstrakurikuler yang paling mendekati beserta guru pembinanya.')
+                ->action(function (): void {
+                    $count = \App\Services\AchievementPembinaMatcher::syncAllAchievements();
+                    \Filament\Notifications\Notification::make()
+                        ->title("Sinkronisasi selesai ({$count} data prestasi dikaitkan dengan Pembina Ekstra)")
+                        ->success()
+                        ->send();
+                }),
+
             Action::make('export_pdf')
                 ->label('Cetak Rekap Prestasi (PDF)')
                 ->icon('heroicon-o-printer')

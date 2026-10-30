@@ -38,8 +38,8 @@
 </head>
 <body>
 
-<div class="header">
-  <div class="school">SMA NEGERI 1 GIANYAR · SIMAK DOSMAN</div>
+@include('partials.kop-surat-pdf')
+<div class="header" style="padding-top: 4px; border-bottom: none; margin-bottom: 12px;">
   <div class="title">Rekap Absensi Ekstrakurikuler</div>
   <div class="sub">{{ $session->extracurricular->name ?? '—' }}</div>
 </div>

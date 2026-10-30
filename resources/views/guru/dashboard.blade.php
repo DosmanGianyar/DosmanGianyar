@@ -299,25 +299,47 @@
     </template>
 </div>
 
-{{-- ─── 3. Pembina Ekstrakurikuler Banner ─────────────────────────────── --}}
-@if(isset($myExtracurriculars) && $myExtracurriculars->count() > 0)
+{{-- ─── 3. Pembina Ekstrakurikuler & Juara Siswa Binaan Banner ─────────────────────────────── --}}
+@if((isset($myExtracurriculars) && $myExtracurriculars->count() > 0) || ($stats['binaan_achievements_count'] ?? 0) > 0)
 <div class="mb-5 bg-gradient-to-r from-indigo-950 via-slate-900 to-blue-950 rounded-2xl p-4 text-white shadow-xs border border-indigo-900/40">
-    <div class="flex items-center gap-2.5 mb-2">
-        <span class="text-xl">🎗️</span>
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-            <h3 class="font-bold text-sm text-indigo-100 uppercase tracking-wide">Pembina Ekstrakurikuler</h3>
-            <p class="text-[11px] text-indigo-200">Anda bertugas sebagai Pembina pada {{ $myExtracurriculars->count() }} Ekstrakurikuler:</p>
-        </div>
-    </div>
-    <div class="flex flex-wrap gap-2 mt-2">
-        @foreach($myExtracurriculars as $ex)
-            <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-xl px-3 py-1.5 text-xs font-bold flex items-center gap-2 shadow-2xs">
-                <span>🏆 {{ $ex->name }}</span>
-                <span class="text-[10px] text-blue-200 font-semibold bg-white/10 px-2 py-0.2 rounded-full">
-                    {{ $ex->members_count ?? 0 }} Anggota
-                </span>
+            <div class="flex items-center gap-2.5 mb-2">
+                <span class="text-xl">🎗️</span>
+                <div>
+                    <h3 class="font-bold text-sm text-indigo-100 uppercase tracking-wide">Pembina Ekstrakurikuler & Prestasi Binaan</h3>
+                    <p class="text-[11px] text-indigo-200">
+                        @if(isset($myExtracurriculars) && $myExtracurriculars->count() > 0)
+                            Anda bertugas sebagai Pembina pada {{ $myExtracurriculars->count() }} Ekstrakurikuler
+                        @else
+                            Daftar siswa yang memilih Anda sebagai Guru Pembina Lomba
+                        @endif
+                    </p>
+                </div>
             </div>
-        @endforeach
+            @if(isset($myExtracurriculars) && $myExtracurriculars->count() > 0)
+                <div class="flex flex-wrap gap-2 mt-2">
+                    @foreach($myExtracurriculars as $ex)
+                        <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-xl px-3 py-1.5 text-xs font-bold flex items-center gap-2 shadow-2xs">
+                            <span>🏅 {{ $ex->name }}</span>
+                            <span class="text-[10px] text-blue-200 font-semibold bg-white/10 px-2 py-0.2 rounded-full">
+                                {{ $ex->members_count ?? 0 }} Anggota
+                            </span>
+                        </div>
+                    @endforeach
+                </div>
+            @endif
+        </div>
+
+        <div class="shrink-0 flex flex-wrap items-center gap-2">
+            <a href="{{ route('guru.achievements.index') }}"
+               class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs shadow-sm transition">
+                <span>🏆 Lihat Juara Siswa Binaan</span>
+                <span class="px-2 py-0.5 rounded-full bg-slate-950/20 text-slate-950 text-[11px] font-black">
+                    {{ $stats['binaan_achievements_count'] ?? 0 }}
+                </span>
+            </a>
+        </div>
     </div>
 </div>
 @endif

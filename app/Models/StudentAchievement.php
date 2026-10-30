@@ -9,7 +9,8 @@ class StudentAchievement extends Model
 {
     protected $fillable = [
         'achievement_code',
-        'student_id', 'category_id', 'title', 'description',
+        'student_id', 'category_id', 'extracurricular_id', 'pembina_id',
+        'title', 'description',
         'event_name', 'organizer', 'field_category', 'participation_type', 'team_code',
         'achievement_date', 'level', 'rank', 'photo', 'certificate',
         'event_url', 'assignment_letter',
@@ -31,6 +32,28 @@ class StudentAchievement extends Model
                     ? (int) \Carbon\Carbon::parse($achievement->achievement_date)->format('Y')
                     : (int) date('Y');
                 $achievement->achievement_code = static::generateUniqueCode($year);
+            }
+
+            if (empty($achievement->extracurricular_id) || empty($achievement->pembina_id)) {
+                try {
+                    $matched = \App\Services\AchievementPembinaMatcher::matchForAchievement(
+                        title: $achievement->title,
+                        eventName: $achievement->event_name,
+                        description: $achievement->description,
+                        fieldCategory: $achievement->field_category,
+                        studentId: $achievement->student_id ? (int) $achievement->student_id : null,
+                        existingExtracurricularId: $achievement->extracurricular_id ? (int) $achievement->extracurricular_id : null,
+                        existingPembinaId: $achievement->pembina_id ? (int) $achievement->pembina_id : null,
+                    );
+                    if (empty($achievement->extracurricular_id) && ! empty($matched['extracurricular_id'])) {
+                        $achievement->extracurricular_id = $matched['extracurricular_id'];
+                    }
+                    if (empty($achievement->pembina_id) && ! empty($matched['pembina_id'])) {
+                        $achievement->pembina_id = $matched['pembina_id'];
+                    }
+                } catch (\Throwable $e) {
+                    // Abaikan jika tabel belum siap
+                }
             }
         });
     }
@@ -72,6 +95,53 @@ class StudentAchievement extends Model
     public function verifier(): BelongsTo
     {
         return $this->belongsTo(User::class, 'verified_by');
+    }
+
+    public function extracurricular(): BelongsTo
+    {
+        return $this->belongsTo(Extracurricular::class, 'extracurricular_id');
+    }
+
+    public function pembina(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'pembina_id');
+    }
+
+    /**
+     * Daftar seluruh nama guru pembina untuk prestasi ini.
+     * Jika ekstrakurikuler terkait memiliki lebih dari satu pembina, kembalikan semua pembina ekstrakurikuler tersebut.
+     */
+    public function pembinaList(): array
+    {
+        $extraPembinas = $this->extracurricular ? $this->extracurricular->pembina_list : [];
+
+        if (count($extraPembinas) > 1) {
+            if ($this->pembina && ! empty($this->pembina->name) && ! in_array($this->pembina->name, $extraPembinas, true)) {
+                return array_values(array_unique(array_merge([$this->pembina->name], $extraPembinas)));
+            }
+            return $extraPembinas;
+        }
+
+        if ($this->pembina && ! empty($this->pembina->name)) {
+            return [$this->pembina->name];
+        }
+
+        if (count($extraPembinas) > 0) {
+            return $extraPembinas;
+        }
+
+        return [];
+    }
+
+    public function pembinaName(): string
+    {
+        $list = $this->pembinaList();
+        return count($list) > 0 ? implode(', ', $list) : '—';
+    }
+
+    public function extracurricularName(): string
+    {
+        return $this->extracurricular?->name ?? '—';
     }
 
     public function levelLabel(): string
@@ -120,20 +190,55 @@ class StudentAchievement extends Model
         return $this->participation_type === 'beregu';
     }
 
-    public function getTeamMembersAttribute()
+    /**
+     * Kunci pengelompokan lomba agar 1 lomba beregu / kelompok juara tampil dalam 1 baris.
+     */
+    public function competitionGroupKey(): string
     {
-        if ($this->isBeregu() && ! empty($this->team_code)) {
-            return static::where('team_code', $this->team_code)
-                ->with('student.schoolClass')
-                ->get();
+        if (! empty($this->team_code)) {
+            return 'team:' . trim((string) $this->team_code);
         }
 
-        if ($this->isBeregu()) {
-            return static::where('participation_type', 'beregu')
-                ->where('title', $this->title)
+        $normTitle = mb_strtolower(preg_replace('/\s+/u', ' ', trim((string) $this->title)));
+        $dateStr   = $this->achievement_date ? \Carbon\Carbon::parse($this->achievement_date)->format('Y-m-d') : '';
+        $normRank  = mb_strtolower(preg_replace('/\s+/u', ' ', trim((string) $this->rank)));
+        $normLevel = mb_strtolower(trim((string) $this->level));
+
+        if ($normTitle !== '') {
+            return "comp:{$normTitle}|{$dateStr}|{$normRank}|{$normLevel}";
+        }
+
+        return 'id:' . $this->id;
+    }
+
+    public function getTeamMembersAttribute()
+    {
+        if (! empty($this->team_code)) {
+            return static::where('team_code', $this->team_code)
+                ->with('student.schoolClass')
+                ->orderBy('id')
+                ->get()
+                ->unique('student_id')
+                ->values();
+        }
+
+        if (! empty($this->title)) {
+            $query = static::where('title', $this->title)
                 ->where('achievement_date', $this->achievement_date)
                 ->with('student.schoolClass')
-                ->get();
+                ->orderBy('id');
+
+            if (! empty($this->rank)) {
+                $query->where('rank', $this->rank);
+            }
+            if (! empty($this->level)) {
+                $query->where('level', $this->level);
+            }
+
+            $sameCompetition = $query->get()->unique('student_id')->values();
+            if ($sameCompetition->count() > 1 || $this->isBeregu()) {
+                return $sameCompetition;
+            }
         }
 
         return collect([$this]);

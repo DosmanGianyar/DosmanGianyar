@@ -182,15 +182,7 @@ body {
 </div>
 
 {{-- ─── Kop Surat ───────────────────────────────────────────────────────── --}}
-<div class="kop">
-    <img src="{{ asset('img/logo_sekolah.png') }}" alt="Logo SMAN 1 Gianyar"
-         onerror="this.src='https://via.placeholder.com/52?text=LOGO'">
-    <div class="kop-tengah">
-        <div class="instansi">PEMERINTAH PROVINSI BALI<br>DINAS PENDIDIKAN, KEPEMUDAAN, DAN OLAHRAGA</div>
-        <div class="nama-sekolah">SMA Negeri 1 Gianyar</div>
-        <div class="alamat">Jl. Ratna No. 1, Gianyar, Bali 80511 | Telp: (0361) 943034 | Website: sman1-gianyar.sch.id</div>
-    </div>
-</div>
+@include('partials.kop-surat-pdf')
 
 {{-- ─── Judul ───────────────────────────────────────────────────────── --}}
 <div class="judul-blok">

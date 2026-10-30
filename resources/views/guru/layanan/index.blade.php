@@ -53,6 +53,11 @@
                 class="px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5">
                 <span>👨‍🏫</span> Direktori Guru ({{ $gurus->count() }})
             </button>
+
+            <a href="{{ route('guru.achievements.index') }}"
+               class="px-3.5 py-2 rounded-xl text-xs font-bold bg-emerald-600 text-white hover:bg-emerald-700 transition-all whitespace-nowrap flex items-center gap-1.5 shadow-xs">
+                <span>🏆</span> Juara Siswa Binaan
+            </a>
         </div>
 
         {{-- Live Search Input --}}

@@ -95,29 +95,10 @@
 
     // Indonesian short day names: 1(Mon)->Sn, 2(Tue)->Sl, 3(Wed)->Rb, 4(Thu)->Km, 5(Fri)->Jm, 6(Sat)->Sb, 7(Sun)->Mg
     $shortDays = [1 => 'Sn', 2 => 'Sl', 3 => 'Rb', 4 => 'Km', 5 => 'Jm', 6 => 'Sb', 7 => 'Mg'];
-
-    $logoBaliPath = public_path('img/logo-pemprov-bali.png');
-    $logoBaliData = file_exists($logoBaliPath) 
-        ? 'data:image/png;base64,' . base64_encode(file_get_contents($logoBaliPath)) 
-        : asset('img/logo-pemprov-bali.png');
-
-    $logoSekolahPath = public_path('img/logo_sekolah.png');
-    $logoSekolahData = file_exists($logoSekolahPath) 
-        ? 'data:image/png;base64,' . base64_encode(file_get_contents($logoSekolahPath)) 
-        : asset('img/logo_sekolah.png');
 @endphp
 
 {{-- ── KOP SURAT ─────────────────────────────────────────────────────────── --}}
-<div class="kop-container">
-    <img class="kop-logo-left" src="{{ $logoBaliData }}" alt="Logo Pemprov Bali">
-    <div class="kop-text">
-        <div class="l1">PEMERINTAH PROVINSI BALI</div>
-        <div class="l2">DINAS PENDIDIKAN, KEPEMUDAAN, DAN OLAHRAGA</div>
-        <div class="l3">SMA NEGERI 1 GIANYAR</div>
-        <div class="l4">Jl. Ratna No. 1, Gianyar, Bali 80511 | Telp: (0361) 943034 | Website: sman1-gianyar.sch.id</div>
-    </div>
-    <img class="kop-logo-right" src="{{ $logoSekolahData }}" alt="Logo SMAN 1 Gianyar">
-</div>
+@include('partials.kop-surat-pdf')
 
 {{-- ── JUDUL LAPORAN ────────────────────────────────────────────────────── --}}
 <div class="title-box">

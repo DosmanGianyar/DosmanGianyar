@@ -276,17 +276,7 @@ body {
 </div>
 
 {{-- ─── Kop Surat ──────────────────────────────────────────────────── --}}
-<div class="kop">
-    <img src="{{ asset('img/logo-pemprov-bali.png') }}" alt="Logo Pemprov Bali">
-    <div class="kop-tengah">
-        <div class="instansi">PEMERINTAH PROVINSI BALI<br>DINAS PENDIDIKAN, KEPEMUDAAN, DAN OLAHRAGA</div>
-        <div class="nama-sekolah">SMA Negeri 1 Gianyar</div>
-        <div class="alamat">Jl. Ratna No. 1, Gianyar, Bali 80511 &nbsp;|&nbsp; Telp. (0361) 943036<br>
-            Email: smansa.gianyar@gmail.com &nbsp;|&nbsp; Website: sman1-gianyar.sch.id</div>
-    </div>
-    <img src="{{ asset('img/logo_sekolah.png') }}" alt="Logo Sekolah">
-</div>
-<div style="border-bottom:1px solid #888;margin-bottom:12px;"></div>
+@include('partials.kop-surat-pdf')
 
 {{-- ─── Judul ───────────────────────────────────────────────────────── --}}
 <div class="judul-blok">

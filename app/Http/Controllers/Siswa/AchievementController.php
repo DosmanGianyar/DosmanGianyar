@@ -4,7 +4,10 @@ namespace App\Http\Controllers\Siswa;
 
 use App\Http\Controllers\Controller;
 use App\Models\AchievementCategory;
+use App\Models\Extracurricular;
 use App\Models\StudentAchievement;
+use App\Models\User;
+use App\Services\AchievementPembinaMatcher;
 use App\Services\ImageService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -18,7 +21,7 @@ class AchievementController extends Controller
         /** @var \App\Models\User $siswa */
         $siswa        = Auth::user();
         $achievements = StudentAchievement::where('student_id', $siswa->id)
-            ->with('category')
+            ->with(['category', 'pembina', 'extracurricular.teachers', 'extracurricular.pembina'])
             ->latest()
             ->get();
 
@@ -34,13 +37,23 @@ class AchievementController extends Controller
     public function create(): View
     {
         $categories = AchievementCategory::orderBy('name')->pluck('name', 'id');
-        $students   = \App\Models\User::whereIn('role', ['siswa', 'pengelola'])
+        $students   = User::whereIn('role', ['siswa', 'pengelola'])
             ->where('id', '!=', Auth::id())
             ->with('schoolClass')
             ->orderBy('name')
             ->get(['id', 'name', 'nisn', 'class_id']);
 
-        return view('siswa.achievement.create', compact('categories', 'students'));
+        $extracurriculars = Extracurricular::with(['pembina', 'teachers'])
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->get();
+
+        $pembinas = User::where('role', 'guru')
+            ->with('extracurricularsAsTeacher')
+            ->orderBy('name')
+            ->get(['id', 'name', 'nip', 'subject']);
+
+        return view('siswa.achievement.create', compact('categories', 'students', 'extracurriculars', 'pembinas'));
     }
 
     public function store(Request $request): RedirectResponse
@@ -52,6 +65,8 @@ class AchievementController extends Controller
             'organizer'                   => 'nullable|string|max:200',
             'field_category'              => 'nullable|string|max:50',
             'category_id'                 => 'required|exists:achievement_categories,id',
+            'extracurricular_id'          => 'nullable|exists:extracurriculars,id',
+            'pembina_id'                  => 'required|exists:users,id',
             'level'                       => 'required|in:sekolah,kabupaten,provinsi,nasional,internasional',
             'rank'                        => 'nullable|string|max:50',
             'participation_type'          => 'nullable|in:individu,beregu',
@@ -87,6 +102,8 @@ class AchievementController extends Controller
         ];
 
         $data = $request->validate($rules, [
+            'pembina_id.required'           => 'Wajib memilih Nama Guru Pembina / Pendamping pada ajuan prestasi.',
+            'pembina_id.exists'             => 'Guru pembina yang dipilih tidak valid.',
             'certificate.mimes'             => 'Scan sertifikat / piagam WAJIB berformat PDF (bukan foto). Silakan scan atau convert foto ke PDF terlebih dahulu.',
             'reward_certificate_file.mimes' => 'Scan sertifikat penghargaan WAJIB berformat PDF.',
             'photo.required'                => 'Foto kegiatan / panggung penyerahan piala wajib diunggah.',
@@ -102,6 +119,19 @@ class AchievementController extends Controller
         $data['status']         = 'pending';
         $data['curation_status']= 'pending';
         $data['is_curation']    = false; // Ditentukan oleh Admin/Tim Kurasi Sekolah saat verifikasi
+
+        if (empty($data['extracurricular_id'])) {
+            $matched = AchievementPembinaMatcher::matchForAchievement(
+                title: $data['title'] ?? null,
+                eventName: $data['event_name'] ?? null,
+                description: $data['description'] ?? null,
+                fieldCategory: $data['field_category'] ?? null,
+                studentId: $siswa->id,
+                existingExtracurricularId: null,
+                existingPembinaId: (int) $data['pembina_id']
+            );
+            $data['extracurricular_id'] = $matched['extracurricular_id'];
+        }
 
         // Photo kegiatan wajib
         $data['photo'] = ImageService::store(
@@ -197,7 +227,7 @@ class AchievementController extends Controller
             abort(403);
         }
 
-        $achievement->load('student.schoolClass', 'category', 'verifier');
+        $achievement->load('student.schoolClass', 'category', 'verifier', 'pembina', 'extracurricular.teachers', 'extracurricular.pembina');
         return view('siswa.achievement.show', compact('achievement'));
     }
 
@@ -208,7 +238,7 @@ class AchievementController extends Controller
         $categoryId = $request->get('category_id', '');
 
         $query = StudentAchievement::where('status', 'approved')
-            ->with('student.schoolClass', 'category');
+            ->with('student.schoolClass', 'category', 'pembina', 'extracurricular.teachers', 'extracurricular.pembina');
 
         // Period filter
         match ($period) {

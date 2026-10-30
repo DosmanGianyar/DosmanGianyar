@@ -36,6 +36,14 @@
                 @if($achievement['rank'])
                     <p class="text-xs text-blue-600 font-medium mt-1">{{ $achievement['rank'] }}</p>
                 @endif
+                @if(!empty($achievement['pembina_name']) && $achievement['pembina_name'] !== '—')
+                    <p class="text-xs text-emerald-700 font-semibold mt-1">
+                        👨‍🏫 Pembina: {{ $achievement['pembina_name'] }}
+                        @if(!empty($achievement['extracurricular_name']) && $achievement['extracurricular_name'] !== '—')
+                            <span class="text-indigo-600">({{ $achievement['extracurricular_name'] }})</span>
+                        @endif
+                    </p>
+                @endif
                 @if($achievement['status'] === 'rejected' && $achievement['rejection_reason'])
                     <p class="text-xs text-red-500 mt-1">Alasan ditolak: {{ $achievement['rejection_reason'] }}</p>
                 @endif

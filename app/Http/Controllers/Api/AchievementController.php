@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\AchievementCategory;
+use App\Models\Extracurricular;
 use App\Models\StudentAchievement;
 use App\Models\User;
+use App\Services\AchievementPembinaMatcher;
 use App\Services\ImageService;
 use App\Services\StudentDataService;
 use Illuminate\Http\JsonResponse;
@@ -40,10 +42,16 @@ class AchievementController extends Controller
             ]),
         ]);
     }
+
     public function categories(): JsonResponse
     {
         $cats = AchievementCategory::orderBy('name')->get(['id', 'name']);
-        return response()->json(['categories' => $cats]);
+
+        return response()->json([
+            'categories'       => $cats,
+            'pembinas'         => $this->getPembinaOptions(),
+            'extracurriculars' => $this->getExtracurricularOptions(),
+        ]);
     }
 
     public function index(): JsonResponse
@@ -51,7 +59,50 @@ class AchievementController extends Controller
         /** @var \App\Models\User $siswa */
         $siswa = Auth::user();
 
-        return response()->json(StudentDataService::achievements($siswa));
+        $payload = StudentDataService::achievements($siswa);
+        $payload['pembinas']         = $this->getPembinaOptions();
+        $payload['extracurriculars'] = $this->getExtracurricularOptions();
+
+        return response()->json($payload);
+    }
+
+    protected function getPembinaOptions(): array
+    {
+        return User::where('role', 'guru')
+            ->with('extracurricularsAsTeacher')
+            ->orderBy('name')
+            ->get(['id', 'name', 'nip', 'subject'])
+            ->map(function (User $guru) {
+                $extras = $guru->extracurricularsAsTeacher?->pluck('name')->implode(', ');
+                return [
+                    'id'                   => $guru->id,
+                    'name'                 => $guru->name,
+                    'nip'                  => $guru->nip,
+                    'subject'              => $guru->subject,
+                    'extracurricular_name' => $extras ?: null,
+                    'label'                => $guru->name . ($extras ? " — Pembina {$extras}" : ($guru->subject ? " ({$guru->subject})" : '')),
+                ];
+            })
+            ->values()
+            ->toArray();
+    }
+
+    protected function getExtracurricularOptions(): array
+    {
+        return Extracurricular::with(['pembina', 'teachers'])
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->get()
+            ->map(function (Extracurricular $e) {
+                return [
+                    'id'            => $e->id,
+                    'name'          => $e->name,
+                    'pembina_id'    => $e->pembina_id ?: $e->teachers->first()?->id,
+                    'pembina_names' => $e->pembina_names !== '—' ? $e->pembina_names : null,
+                ];
+            })
+            ->values()
+            ->toArray();
     }
 
     public function store(Request $request): JsonResponse
@@ -62,6 +113,8 @@ class AchievementController extends Controller
             'event_name'         => 'nullable|string|max:200',
             'organizer'          => 'nullable|string|max:200',
             'category_id'        => 'required|exists:achievement_categories,id',
+            'extracurricular_id' => 'nullable|exists:extracurriculars,id',
+            'pembina_id'         => 'required|exists:users,id',
             'field_category'     => 'nullable|string|in:sains_riset,olahraga,seni_budaya,bahasa_debat,keagamaan,akademik,lainnya',
             'level'              => 'required|in:sekolah,kabupaten,provinsi,nasional,internasional',
             'rank'               => 'nullable|string|max:50',
@@ -102,7 +155,10 @@ class AchievementController extends Controller
             ]);
         }
 
-        $data = $request->validate($rules);
+        $data = $request->validate($rules, [
+            'pembina_id.required' => 'Wajib memilih nama guru pembina pada ajuan prestasi.',
+            'pembina_id.exists'   => 'Guru pembina yang dipilih tidak valid.',
+        ]);
 
         /** @var \App\Models\User $siswa */
         $siswa = Auth::user();
@@ -114,6 +170,23 @@ class AchievementController extends Controller
         $data['status']          = 'pending';
         $data['curation_status'] = 'pending';
         $data['is_curation']    = false; // Ditentukan oleh Admin/Tim Kurasi Sekolah saat verifikasi
+
+        if (empty($data['extracurricular_id'])) {
+            $matched = AchievementPembinaMatcher::matchForAchievement(
+                title: $data['title'] ?? null,
+                eventName: $data['event_name'] ?? null,
+                description: $data['description'] ?? null,
+                fieldCategory: $data['field_category'] ?? null,
+                studentId: $siswa->id,
+                existingExtracurricularId: null,
+                existingPembinaId: (int) $data['pembina_id']
+            );
+            $data['extracurricular_id'] = $matched['extracurricular_id'];
+        }
+
+        if (($data['participation_type'] ?? 'individu') === 'beregu') {
+            $data['team_code'] = 'TEAM-' . strtoupper(\Illuminate\Support\Str::random(8)) . '-' . time();
+        }
 
         $data['photo'] = ImageService::store(
             $request->file('photo'),
@@ -157,7 +230,7 @@ class AchievementController extends Controller
         }
 
         $achievement = StudentAchievement::create($data);
-        $achievement->load('category');
+        $achievement->load(['category', 'pembina', 'extracurricular.teachers', 'extracurricular.pembina']);
 
         if (($data['participation_type'] ?? 'individu') === 'beregu' && ! empty($teamMemberIds)) {
             foreach ($teamMemberIds as $memberId) {

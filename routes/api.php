@@ -118,6 +118,7 @@ Route::prefix('v1')->group(function () {
 
             // Prestasi
             Route::get('/achievement-categories', [AchievementController::class, 'categories']);
+            Route::get('/achievements/categories', [AchievementController::class, 'categories']);
             Route::get('/achievements',            [AchievementController::class, 'index']);
             Route::post('/achievements',           [AchievementController::class, 'store']);
             Route::get('/students/search',         [AchievementController::class, 'searchStudents']);
@@ -154,6 +155,7 @@ Route::prefix('v1')->group(function () {
             // Guru
             Route::get('/guru/dashboard',                                 [GuruController::class, 'dashboard']);
             Route::get('/guru/layanan',                                   [GuruController::class, 'layanan']);
+            Route::get('/guru/achievements',                              [GuruController::class, 'binaanAchievements']);
             Route::get('/guru/classes',                                   [GuruController::class, 'classes']);
             Route::get('/guru/attendance/daily',                          [GuruController::class, 'attendanceDaily']);
             Route::get('/guru/attendance/rekap',                          [GuruController::class, 'attendanceRekap']);
