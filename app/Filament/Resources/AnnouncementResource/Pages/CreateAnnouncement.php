@@ -15,4 +15,9 @@ class CreateAnnouncement extends CreateRecord
         $data['author_id'] = Auth::id();
         return $data;
     }
+
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
 }
