@@ -480,6 +480,132 @@ class AchievementPembinaMatcher
     }
 
     /**
+     * Gabungkan dan bersihkan duplikasi data lomba (baik beregu yang diinput berulang kali
+     * dengan team_code/variasi judul berbeda, maupun lomba individu yang terinput ganda oleh siswa yang sama).
+     *
+     * @return array{merged_groups: int, unified_rows: int, deleted_duplicates: int}
+     */
+    public static function deduplicateCompetitions(): array
+    {
+        if (! Schema::hasTable('student_achievements')) {
+            return ['merged_groups' => 0, 'unified_rows' => 0, 'deleted_duplicates' => 0];
+        }
+
+        $all = StudentAchievement::orderBy('id')->get();
+        $groups = $all->groupBy(fn (StudentAchievement $a) => $a->competitionGroupKey());
+
+        $mergedGroups = 0;
+        $unifiedRows = 0;
+        $deletedDuplicates = 0;
+
+        foreach ($groups as $key => $group) {
+            if ($group->count() <= 1) {
+                continue;
+            }
+
+            $isBereguGroup = str_starts_with($key, 'beregu:');
+
+            // Pilih judul kanonik terbaik (prioritaskan mixed-case dibanding HURUF KAPITAL SEMUA)
+            $canonicalTitle = $group->pluck('title')->filter()->sortByDesc(function (string $t) {
+                $isMixedCase = ($t !== mb_strtoupper($t) && $t !== mb_strtolower($t)) ? 1000 : 0;
+                return $isMixedCase + mb_strlen($t);
+            })->first() ?? $group->first()->title;
+
+            // Pilih penyelenggara kanonik terbaik
+            $canonicalOrganizer = $group->pluck('organizer')->filter()->sortByDesc(function (string $o) {
+                $isMixedCase = ($o !== mb_strtoupper($o) && $o !== mb_strtolower($o)) ? 1000 : 0;
+                return $isMixedCase + mb_strlen($o);
+            })->first() ?? $group->first()->organizer;
+
+            // Pilih format rank kanonik terbaik (prioritaskan yang mengandung kata "Juara" / "Medali" dibanding angka saja)
+            $canonicalRank = $group->pluck('rank')->filter()->sortByDesc(function (string $r) {
+                $hasPrefix = preg_match('/(juara|medali|harapan|finalis)/i', $r) ? 1000 : 0;
+                $isMixedCase = ($r !== mb_strtoupper($r)) ? 100 : 0;
+                return $hasPrefix + $isMixedCase + mb_strlen($r);
+            })->first() ?? $group->first()->rank;
+
+            $canonicalExtraId = $group->pluck('extracurricular_id')->filter()->first();
+            $canonicalPembinaId = $group->pluck('pembina_id')->filter()->first();
+
+            $canonicalTeamCode = null;
+            if ($isBereguGroup) {
+                $canonicalTeamCode = $group->pluck('team_code')->filter()->first()
+                    ?: ('TEAM-' . strtoupper(substr(md5($key), 0, 8)));
+            }
+
+            $distinctTeamCodes = $group->pluck('team_code')->unique()->count();
+            $distinctTitles = $group->pluck('title')->unique()->count();
+            if ($distinctTeamCodes > 1 || $distinctTitles > 1 || $group->count() > $group->pluck('student_id')->unique()->count()) {
+                $mergedGroups++;
+            }
+
+            // Kelompokkan per student_id agar 1 siswa hanya punya maksimal 1 baris pada lomba yang sama
+            $byStudent = $group->groupBy('student_id');
+
+            foreach ($byStudent as $studentId => $studentRows) {
+                /** @var StudentAchievement $primary */
+                $primary = $studentRows->first();
+
+                // Jika baris duplikat punya foto/sertifikat/file yang lebih lengkap, wariskan ke baris utama
+                $bestCert = $studentRows->pluck('certificate_path')->filter()->first();
+                $bestDoc  = $studentRows->pluck('documentation_path')->filter()->first();
+                $bestDisp = $studentRows->pluck('winner_display_photo')->filter()->first();
+
+                $updates = [];
+                if ($canonicalTitle && $primary->title !== $canonicalTitle) {
+                    $updates['title'] = $canonicalTitle;
+                }
+                if ($canonicalOrganizer && $primary->organizer !== $canonicalOrganizer) {
+                    $updates['organizer'] = $canonicalOrganizer;
+                }
+                if ($canonicalRank && $primary->rank !== $canonicalRank) {
+                    $updates['rank'] = $canonicalRank;
+                }
+                if ($isBereguGroup && $canonicalTeamCode && $primary->team_code !== $canonicalTeamCode) {
+                    $updates['team_code'] = $canonicalTeamCode;
+                }
+                if ($isBereguGroup && $primary->participation_type !== 'beregu') {
+                    $updates['participation_type'] = 'beregu';
+                }
+                if ($canonicalExtraId && ! $primary->extracurricular_id) {
+                    $updates['extracurricular_id'] = $canonicalExtraId;
+                }
+                if ($canonicalPembinaId && ! $primary->pembina_id) {
+                    $updates['pembina_id'] = $canonicalPembinaId;
+                }
+                if ($bestCert && ! $primary->certificate_path) {
+                    $updates['certificate_path'] = $bestCert;
+                }
+                if ($bestDoc && ! $primary->documentation_path) {
+                    $updates['documentation_path'] = $bestDoc;
+                }
+                if ($bestDisp && ! $primary->winner_display_photo) {
+                    $updates['winner_display_photo'] = $bestDisp;
+                }
+
+                if (! empty($updates)) {
+                    $primary->updateQuietly($updates);
+                    $unifiedRows++;
+                }
+
+                // Hapus baris ganda untuk siswa yang sama pada lomba yang sama
+                if ($studentRows->count() > 1) {
+                    foreach ($studentRows->slice(1) as $duplicateRow) {
+                        $duplicateRow->delete();
+                        $deletedDuplicates++;
+                    }
+                }
+            }
+        }
+
+        return [
+            'merged_groups'      => $mergedGroups,
+            'unified_rows'       => $unifiedRows,
+            'deleted_duplicates' => $deletedDuplicates,
+        ];
+    }
+
+    /**
      * Sinkronkan semua data prestasi siswa yang belum memiliki ekstrakurikuler atau guru pembina.
      *
      * @param  bool  $overwriteExisting  Jika true, perbarui juga yang sudah ada namun salah satunya masih kosong.
@@ -490,6 +616,9 @@ class AchievementPembinaMatcher
         if (! Schema::hasTable('student_achievements') || ! Schema::hasColumn('student_achievements', 'pembina_id')) {
             return 0;
         }
+
+        // Bersihkan & satukan terlebih dahulu lomba beregu/individu yang terduplikasi
+        $dedupStats = static::deduplicateCompetitions();
 
         $extras = Schema::hasTable('extracurriculars')
             ? Extracurricular::with(['pembina', 'teachers'])->orderByDesc('is_active')->orderBy('name')->get()

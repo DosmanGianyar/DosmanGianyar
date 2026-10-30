@@ -191,21 +191,97 @@ class StudentAchievement extends Model
     }
 
     /**
-     * Kunci pengelompokan lomba agar 1 lomba beregu / kelompok juara tampil dalam 1 baris.
+     * Normalisasi judul inti lomba (menghapus kata tambahan seperti "Juara 2", "Lomba", "Tingkat Provinsi Bali", "Tahun 2026", dsb.)
+     * agar ajuan lomba yang sama dari beberapa siswa tetap dikenali sebagai 1 lomba.
+     */
+    public static function normalizeCompetitionCoreTitle(?string $title): string
+    {
+        $raw = mb_strtolower(trim((string) $title));
+        if ($raw === '') {
+            return '';
+        }
+
+        // Samakan ejaan umum
+        $raw = str_replace(['vidio', 'tounament', 'championsip'], ['video', 'tournament', 'championship'], $raw);
+        $clean = preg_replace('/[^a-z0-9\s]+/u', ' ', $raw) ?? $raw;
+
+        $stopWords = [
+            'juara', 'peringkat', 'rank', 'harapan', 'finalis', 'besar', 'medali', 'emas', 'perak', 'perunggu', 'bersama',
+            'lomba', 'kejuaraan', 'kompetisi', 'turnamen', 'tournament', 'competition', 'championship',
+            'tingkat', 'provinsi', 'kabupaten', 'kota', 'nasional', 'internasional', 'sekolah', 'regional', 'daerah',
+            'bali', 'gianyar', 'denpasar', 'badung', 'se', 'antar', 'kategori', 'siswa', 'siswi',
+            'sma', 'smk', 'ma', 'sederajat', 'kreatif', 'edukasi', 'edukatif',
+            'tahun', 'thn', '2023', '2024', '2025', '2026', '2027',
+            '1', '2', '3', '4', '5', 'i', 'ii', 'iii', 'iv', 'v',
+        ];
+
+        $tokens = array_values(array_filter(
+            explode(' ', $clean),
+            static fn (string $w) => $w !== '' && ! in_array($w, $stopWords, true)
+        ));
+
+        if (count($tokens) > 0) {
+            return implode(' ', $tokens);
+        }
+
+        return trim(preg_replace('/\s+/u', ' ', $clean) ?? $clean);
+    }
+
+    /**
+     * Normalisasi peringkat (misal "Juara 2", "2", "Juara 2 / Perak" -> "2")
+     */
+    public static function normalizeRankKey(?string $rank, ?string $title = null): string
+    {
+        $combined = mb_strtolower(trim((string) $rank . ' ' . (string) $title));
+
+        if (preg_match('/harapan\s*(1|i\b)/u', $combined)) {
+            return 'harapan_1';
+        }
+        if (preg_match('/harapan\s*(2|ii\b)/u', $combined)) {
+            return 'harapan_2';
+        }
+        if (preg_match('/harapan\s*(3|iii\b)/u', $combined)) {
+            return 'harapan_3';
+        }
+        if (preg_match('/\b(juara\s*1|peringkat\s*1|emas)\b/u', $combined) || trim((string) $rank) === '1') {
+            return '1';
+        }
+        if (preg_match('/\b(juara\s*2|peringkat\s*2|perak)\b/u', $combined) || trim((string) $rank) === '2') {
+            return '2';
+        }
+        if (preg_match('/\b(juara\s*3|peringkat\s*3|perunggu)\b/u', $combined) || trim((string) $rank) === '3') {
+            return '3';
+        }
+        if (preg_match('/finalis/u', $combined)) {
+            return 'finalis';
+        }
+
+        $normRank = mb_strtolower(preg_replace('/\s+/u', ' ', trim((string) $rank)));
+        return $normRank !== '' ? $normRank : 'none';
+    }
+
+    /**
+     * Kunci pengelompokan lomba agar 1 lomba beregu / kelompok juara tampil dalam 1 baris,
+     * sekaligus mencegah duplikasi jika beberapa siswa menginput lomba yang sama dengan sedikit perbedaan penulisan judul.
      */
     public function competitionGroupKey(): string
     {
-        if (! empty($this->team_code)) {
-            return 'team:' . trim((string) $this->team_code);
-        }
-
-        $normTitle = mb_strtolower(preg_replace('/\s+/u', ' ', trim((string) $this->title)));
+        $coreTitle = static::normalizeCompetitionCoreTitle($this->title);
         $dateStr   = $this->achievement_date ? \Carbon\Carbon::parse($this->achievement_date)->format('Y-m-d') : '';
-        $normRank  = mb_strtolower(preg_replace('/\s+/u', ' ', trim((string) $this->rank)));
+        $normRank  = static::normalizeRankKey($this->rank, $this->title);
         $normLevel = mb_strtolower(trim((string) $this->level));
 
-        if ($normTitle !== '') {
-            return "comp:{$normTitle}|{$dateStr}|{$normRank}|{$normLevel}";
+        if ($this->isBeregu() || ! empty($this->team_code)) {
+            if ($coreTitle !== '') {
+                return "beregu:{$dateStr}|{$normLevel}|{$normRank}|{$coreTitle}";
+            }
+            if (! empty($this->team_code)) {
+                return 'team:' . trim((string) $this->team_code);
+            }
+        }
+
+        if ($coreTitle !== '') {
+            return "indiv:{$this->student_id}|{$dateStr}|{$normLevel}|{$normRank}|{$coreTitle}";
         }
 
         return 'id:' . $this->id;
@@ -213,31 +289,29 @@ class StudentAchievement extends Model
 
     public function getTeamMembersAttribute()
     {
-        if (! empty($this->team_code)) {
-            return static::where('team_code', $this->team_code)
+        if ($this->isBeregu() || ! empty($this->team_code)) {
+            $targetKey = $this->competitionGroupKey();
+
+            $candidates = static::query()
+                ->where(function ($q) {
+                    if ($this->achievement_date) {
+                        $q->whereDate('achievement_date', \Carbon\Carbon::parse($this->achievement_date)->format('Y-m-d'));
+                    }
+                    if (! empty($this->team_code)) {
+                        $q->orWhere('team_code', $this->team_code);
+                    }
+                })
                 ->with('student.schoolClass')
                 ->orderBy('id')
-                ->get()
+                ->get();
+
+            $matched = $candidates
+                ->filter(fn (self $item) => $item->competitionGroupKey() === $targetKey || (! empty($this->team_code) && $item->team_code === $this->team_code))
                 ->unique('student_id')
                 ->values();
-        }
 
-        if (! empty($this->title)) {
-            $query = static::where('title', $this->title)
-                ->where('achievement_date', $this->achievement_date)
-                ->with('student.schoolClass')
-                ->orderBy('id');
-
-            if (! empty($this->rank)) {
-                $query->where('rank', $this->rank);
-            }
-            if (! empty($this->level)) {
-                $query->where('level', $this->level);
-            }
-
-            $sameCompetition = $query->get()->unique('student_id')->values();
-            if ($sameCompetition->count() > 1 || $this->isBeregu()) {
-                return $sameCompetition;
+            if ($matched->isNotEmpty()) {
+                return $matched;
             }
         }
 

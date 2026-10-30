@@ -330,5 +330,72 @@ class AchievementPembinaTest extends TestCase
         $this->assertStringContainsString('NPSN : 50102079', $kopHtml);
         $this->assertStringContainsString('data:image/png;base64,', $kopHtml);
     }
+
+    public function test_duplicate_paduan_suara_competitions_are_deduplicated_and_merged(): void
+    {
+        $student1 = User::factory()->create(['name' => 'Siswa Satu', 'role' => 'siswa']);
+        $student2 = User::factory()->create(['name' => 'Siswa Dua', 'role' => 'siswa']);
+        $student3 = User::factory()->create(['name' => 'Siswa Tiga', 'role' => 'siswa']);
+
+        // Batch 1: Team code A with mixed-case title
+        $a1 = StudentAchievement::create([
+            'student_id' => $student1->id,
+            'title' => 'Juara 2 Lomba Paduan Suara Tingkat Provinsi Bali 2026',
+            'level' => 'provinsi',
+            'rank' => 'Juara 2',
+            'participation_type' => 'beregu',
+            'team_code' => 'TEAM-AAA',
+            'organizer' => 'Tim PKK Provinsi Bali',
+            'achievement_date' => '2026-07-02',
+            'status' => 'approved',
+        ]);
+        StudentAchievement::create([
+            'student_id' => $student2->id,
+            'title' => 'Juara 2 Lomba Paduan Suara Tingkat Provinsi Bali 2026',
+            'level' => 'provinsi',
+            'rank' => 'Juara 2',
+            'participation_type' => 'beregu',
+            'team_code' => 'TEAM-AAA',
+            'organizer' => 'Tim PKK Provinsi Bali',
+            'achievement_date' => '2026-07-02',
+            'status' => 'approved',
+        ]);
+
+        // Batch 2: Team code B with ALL CAPS title and slightly different wording, overlapping student1 + adding student3
+        $b1 = StudentAchievement::create([
+            'student_id' => $student1->id,
+            'title' => 'JUARA 2 LOMBA PADUAN SUARA PROVINSI BALI 2026',
+            'level' => 'provinsi',
+            'rank' => '2',
+            'participation_type' => 'beregu',
+            'team_code' => 'TEAM-BBB',
+            'organizer' => 'TIM PKK PROVINSI BALI',
+            'achievement_date' => '2026-07-02',
+            'status' => 'approved',
+        ]);
+        $b2 = StudentAchievement::create([
+            'student_id' => $student3->id,
+            'title' => 'Juara 2 Paduan Suara Tingkat Provinsi Bali 2026',
+            'level' => 'provinsi',
+            'rank' => 'Juara 2',
+            'participation_type' => 'beregu',
+            'team_code' => 'TEAM-CCC',
+            'organizer' => 'Tim PKK Provinsi Bali',
+            'achievement_date' => '2026-07-02',
+            'status' => 'approved',
+        ]);
+
+        // Even before DB deduplication, competitionGroupKey should be identical
+        $this->assertSame($a1->competitionGroupKey(), $b1->competitionGroupKey());
+        $this->assertSame($a1->competitionGroupKey(), $b2->competitionGroupKey());
+        $this->assertCount(3, $a1->team_members);
+
+        // Run DB deduplication
+        $stats = AchievementPembinaMatcher::deduplicateCompetitions();
+        $this->assertSame(1, $stats['merged_groups']);
+        $this->assertSame(1, $stats['deleted_duplicates']); // duplicate row for student1 deleted
+        $this->assertSame(3, StudentAchievement::count());
+        $this->assertSame(1, StudentAchievement::pluck('team_code')->unique()->count());
+    }
 }
 
