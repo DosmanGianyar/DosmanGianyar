@@ -9,6 +9,7 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
@@ -46,6 +47,26 @@ class DamageReportResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
+            TextInput::make('title')
+                ->label('Judul Laporan / Barang Rusak')
+                ->placeholder('Contoh: Kipas Angin Kelas XI B1 Rusak')
+                ->maxLength(255)
+                ->columnSpanFull(),
+
+            Select::make('room_id')
+                ->label('Ruangan / Lokasi')
+                ->relationship('room', 'name')
+                ->searchable()
+                ->preload()
+                ->nullable(),
+
+            Select::make('asset_id')
+                ->label('Aset Terkait (Opsional)')
+                ->relationship('asset', 'name')
+                ->searchable()
+                ->preload()
+                ->nullable(),
+
             Select::make('status')
                 ->label('Status')
                 ->options([
@@ -54,6 +75,11 @@ class DamageReportResource extends Resource
                     'resolved'    => 'Selesai',
                 ])
                 ->required(),
+
+            Textarea::make('description')
+                ->label('Deskripsi Kerusakan')
+                ->rows(3)
+                ->columnSpanFull(),
 
             Textarea::make('resolution_note')
                 ->label('Catatan Penanganan')
@@ -70,10 +96,18 @@ class DamageReportResource extends Resource
                     ->label('')
                     ->size(40),
 
-                TextColumn::make('asset.name')
-                    ->label('Aset')
+                TextColumn::make('title')
+                    ->label('Judul / Barang')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->formatStateUsing(fn ($state, DamageReport $record) => $state ?: ($record->asset?->name ?? 'Fasilitas Sekolah'))
+                    ->description(fn (DamageReport $record) => $record->room?->name ? 'Lokasi: ' . $record->room->name : ($record->asset?->room?->name ? 'Lokasi: ' . $record->asset->room->name : null)),
+
+                TextColumn::make('asset.name')
+                    ->label('Aset Terkait')
+                    ->searchable()
+                    ->placeholder('— (Fasilitas Umum / Kelas)')
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('reporter.name')
                     ->label('Pelapor')

@@ -80,7 +80,9 @@ class GuruSarprasApiController extends Controller
     public function damage(Request $request): JsonResponse
     {
         $query = DamageReport::with([
-            'asset:id,name,category',
+            'asset:id,name,category,room_id',
+            'asset.room:id,name',
+            'room:id,name',
             'reporter:id,name',
             'handler:id,name',
         ])->orderByDesc('created_at');
@@ -100,12 +102,16 @@ class GuruSarprasApiController extends Controller
         return response()->json([
             'data' => collect($paginated->items())->map(fn ($r) => [
                 'id'              => $r->id,
+                'title'           => $r->title ?: ($r->asset?->name ?? 'Laporan Kerusakan'),
                 'asset_id'        => $r->asset_id,
                 'asset_name'      => $r->asset?->name,
                 'asset_category'  => $r->asset?->category,
+                'room_id'         => $r->room_id,
+                'room_name'       => $r->room?->name ?? ($r->asset?->room?->name ?? null),
                 'reporter_name'   => $r->reporter?->name,
                 'handler_name'    => $r->handler?->name,
                 'description'     => $r->description,
+                'photo_url'       => $r->photo_url,
                 'status'          => $r->status,
                 'status_label'    => $r->statusLabel(),
                 'resolution_note' => $r->resolution_note,
@@ -122,11 +128,20 @@ class GuruSarprasApiController extends Controller
     public function storeDamage(Request $request): JsonResponse
     {
         $request->validate([
-            'asset_id'    => 'required|exists:assets,id',
+            'title'       => 'nullable|string|max:255',
+            'room_id'     => 'nullable|exists:rooms,id',
+            'asset_id'    => 'nullable|exists:assets,id',
             'description' => 'required|string|max:1000',
         ]);
 
+        $roomId = $request->room_id;
+        if (! $roomId && $request->asset_id) {
+            $roomId = Asset::where('id', $request->asset_id)->value('room_id');
+        }
+
         DamageReport::create([
+            'title'       => $request->title,
+            'room_id'     => $roomId,
             'asset_id'    => $request->asset_id,
             'reporter_id' => Auth::id(),
             'description' => $request->description,

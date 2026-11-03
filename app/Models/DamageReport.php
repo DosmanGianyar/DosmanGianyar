@@ -8,9 +8,18 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class DamageReport extends Model
 {
     protected $fillable = [
-        'asset_id', 'reporter_id', 'photo', 'description',
+        'title', 'room_id', 'asset_id', 'reporter_id', 'photo', 'description',
         'status', 'handled_by', 'resolution_note',
     ];
+
+    protected $appends = [
+        'photo_url',
+    ];
+
+    public function room(): BelongsTo
+    {
+        return $this->belongsTo(Room::class);
+    }
 
     public function asset(): BelongsTo
     {
@@ -25,6 +34,19 @@ class DamageReport extends Model
     public function handler(): BelongsTo
     {
         return $this->belongsTo(User::class, 'handled_by');
+    }
+
+    public function getPhotoUrlAttribute(): ?string
+    {
+        if (! $this->photo || trim($this->photo) === '') {
+            return null;
+        }
+
+        if (str_starts_with($this->photo, 'http://') || str_starts_with($this->photo, 'https://')) {
+            return $this->photo;
+        }
+
+        return asset('storage/' . ltrim($this->photo, '/'));
     }
 
     public function statusLabel(): string

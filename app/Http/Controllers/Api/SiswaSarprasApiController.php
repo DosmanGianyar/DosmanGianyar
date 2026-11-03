@@ -138,15 +138,15 @@ class SiswaSarprasApiController extends Controller
     // GET /api/v1/siswa/sarpras/damage-reports
     public function myDamageReports(): JsonResponse
     {
-        $reports = DamageReport::with(['asset', 'room'])
+        $reports = DamageReport::with(['asset.room', 'room'])
             ->where('reporter_id', Auth::id())
             ->orderBy('created_at', 'desc')
             ->get()
             ->map(fn (DamageReport $r) => [
                 'id'            => $r->id,
-                'title'         => $r->title,
+                'title'         => $r->title ?: ($r->asset?->name ?? 'Laporan Kerusakan'),
                 'description'   => $r->description,
-                'location'      => $r->asset?->name ?? ($r->room?->name ?? 'Fasilitas Sekolah'),
+                'location'      => $r->room?->name ?? ($r->asset?->room?->name ?? ($r->asset?->name ?? 'Fasilitas Sekolah')),
                 'photo_url'     => $r->photo_url,
                 'status'        => $r->status,
                 'status_label'  => match ($r->status) {
@@ -156,7 +156,7 @@ class SiswaSarprasApiController extends Controller
                     'rejected'    => 'Ditolak',
                     default       => $r->status,
                 },
-                'date'          => $r->created_at->toDateString(),
+                'date'          => $r->created_at?->toDateString() ?? date('Y-m-d'),
             ]);
 
         return response()->json($reports);
@@ -178,11 +178,16 @@ class SiswaSarprasApiController extends Controller
             $photoPath = ImageService::compressAndStore($request->file('photo'), 'damage-reports', 1200, 80);
         }
 
+        $roomId = $request->room_id;
+        if (! $roomId && $request->asset_id) {
+            $roomId = Asset::where('id', $request->asset_id)->value('room_id');
+        }
+
         $report = DamageReport::create([
             'reporter_id' => Auth::id(),
             'title'       => $request->title,
             'description' => $request->description,
-            'room_id'     => $request->room_id,
+            'room_id'     => $roomId,
             'asset_id'    => $request->asset_id,
             'photo'       => $photoPath,
             'status'      => 'pending',
