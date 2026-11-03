@@ -68,3 +68,4 @@ class ScheduleMatrixImportExportTest extends TestCase
         $this->assertEquals('X-01', $sheet->getCell('B7')->getValue());
     }
 }
+

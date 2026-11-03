@@ -3,10 +3,13 @@
 namespace App\Filament\Resources\GuruResource\Pages;
 
 use App\Exports\GuruDataExport;
+use App\Exports\TeacherCodeExport;
 use App\Filament\Resources\GuruResource;
 use App\Imports\GuruDataImport;
+use App\Services\TeacherCodeImportService;
 use Filament\Actions;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Radio;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
 use Maatwebsite\Excel\Facades\Excel;
@@ -19,6 +22,86 @@ class ListGurus extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
+            Actions\Action::make('download_teacher_codes')
+                ->label('Download Kode Guru (Excel)')
+                ->icon('heroicon-o-document-arrow-down')
+                ->color('success')
+                ->action(function (): BinaryFileResponse {
+                    return Excel::download(
+                        new TeacherCodeExport(),
+                        'daftar-kode-guru-' . date('Ymd-His') . '.xlsx'
+                    );
+                }),
+
+            Actions\Action::make('upload_teacher_codes')
+                ->label('Upload Kode Guru')
+                ->icon('heroicon-o-arrow-up-tray')
+                ->color('warning')
+                ->modalHeading('Upload & Kelola Kode Guru (Excel)')
+                ->modalDescription('Unggah file Excel daftar kode guru. Pilih mode "Update" untuk hanya memperbarui guru yang tercantum, atau "Ganti Semua" untuk menimpa total.')
+                ->modalSubmitActionLabel('Proses Kode Guru')
+                ->form([
+                    FileUpload::make('file')
+                        ->label('File Excel Kode Guru (.xlsx, .xls, .csv)')
+                        ->acceptedFileTypes([
+                            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                            'application/vnd.ms-excel',
+                            'text/csv',
+                            'application/csv',
+                        ])
+                        ->maxSize(10240)
+                        ->required()
+                        ->storeFiles(false),
+
+                    Radio::make('mode')
+                        ->label('Pilihan Mode Sinkronisasi')
+                        ->options([
+                            'update'  => 'Update / Tambah Kode (Rekomendasi)',
+                            'replace' => 'Ganti Semua / Timpa Total (Sesuaikan Penuh)',
+                        ])
+                        ->descriptions([
+                            'update'  => 'Hanya memperbarui kode guru yang tercantum di file. Kode guru lain yang tidak ada di file tetap dipertahankan.',
+                            'replace' => 'Menyelaraskan seluruh kode guru sesuai file. Jika ada kode guru yang dihapus atau dikosongkan di file, di database juga akan dikosongkan.',
+                        ])
+                        ->default('update')
+                        ->required(),
+                ])
+                ->action(function (array $data, TeacherCodeImportService $service): void {
+                    $uploaded = $data['file'];
+                    $mode     = $data['mode'] ?? 'update';
+                    $filePath = is_string($uploaded) ? $uploaded : $uploaded->getRealPath();
+
+                    $res = $service->import($filePath, $mode);
+
+                    if (!$res['success']) {
+                        Notification::make()
+                            ->title('Gagal Memproses File Kode Guru')
+                            ->body($res['message'] ?? 'Terjadi kesalahan.')
+                            ->danger()
+                            ->send();
+                        return;
+                    }
+
+                    $body = "Mode: " . ($mode === 'replace' ? 'Ganti Semua / Timpa Total' : 'Update / Tambah') . ".\n" .
+                            "Total baris diproses: {$res['total']}\n" .
+                            "• Kode diperbarui: {$res['updated']}\n" .
+                            "• Tidak berubah: {$res['unchanged']}";
+
+                    if ($res['cleared'] > 0) {
+                        $body .= "\n• Kode dikosongkan/dihapus: {$res['cleared']}";
+                    }
+                    if ($res['not_found'] > 0) {
+                        $body .= "\n• Guru tidak ditemukan: {$res['not_found']}";
+                    }
+
+                    Notification::make()
+                        ->title('Kode Guru Berhasil Diperbarui!')
+                        ->body($body)
+                        ->success()
+                        ->persistent()
+                        ->send();
+                }),
+
             Actions\Action::make('sync_teacher_codes')
                 ->label('Sinkron Kode Guru')
                 ->icon('heroicon-o-arrow-path')
