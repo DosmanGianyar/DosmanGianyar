@@ -73,6 +73,7 @@ class GuruDataImport implements ToCollection, SkipsEmptyRows
         }
 
         $role     = strtolower($this->pick($row, $colMap, ['role'])) ?: null;
+        $teacherCode = $this->pick($row, $colMap, ['kodeguru', 'kode_guru', 'teachercode', 'teacher_code']);
         $phone    = User::formatPhoneNumber($this->pick($row, $colMap, ['nohp', 'telepon', 'notelp', 'hp']));
         $gender   = $this->normalizeGender($this->pick($row, $colMap, ['jeniskelamin', 'jk', 'gender', 'lp']));
         $mapelRaw = $this->pick($row, $colMap, ['matapelajaran', 'mapel', 'subjects', 'subject']);
@@ -102,6 +103,9 @@ class GuruDataImport implements ToCollection, SkipsEmptyRows
             }
             if ($phone !== null && $this->isDifferent($existing->phone, $phone)) {
                 $changes['phone'] = $phone;
+            }
+            if ($teacherCode !== null && $teacherCode !== '' && $this->isDifferent($existing->teacher_code, $teacherCode)) {
+                $changes['teacher_code'] = $teacherCode;
             }
 
             // Check subjects change
@@ -141,13 +145,14 @@ class GuruDataImport implements ToCollection, SkipsEmptyRows
             $defaultPassword = $nip ?: $email;
 
             $user = User::create([
-                'name'     => $nama,
-                'email'    => $email,
-                'password' => Hash::make($defaultPassword, ['rounds' => 4]),
-                'role'     => in_array($role, ['guru', 'admin'], true) ? $role : 'guru',
-                'nip'      => $nip ?: null,
-                'phone'    => $phone ?: null,
-                'gender'   => $gender ?: null,
+                'name'         => $nama,
+                'email'        => $email,
+                'password'     => Hash::make($defaultPassword, ['rounds' => 4]),
+                'role'         => in_array($role, ['guru', 'admin'], true) ? $role : 'guru',
+                'nip'          => $nip ?: null,
+                'teacher_code' => ($teacherCode !== null && $teacherCode !== '') ? $teacherCode : null,
+                'phone'        => $phone ?: null,
+                'gender'       => $gender ?: null,
             ]);
 
             if ($newSubjectIds) {

@@ -19,6 +19,22 @@ class ListGurus extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
+            Actions\Action::make('sync_teacher_codes')
+                ->label('Sinkron Kode Guru')
+                ->icon('heroicon-o-arrow-path')
+                ->color('warning')
+                ->requiresConfirmation()
+                ->modalHeading('Sinkronkan Kode Guru')
+                ->modalDescription('Akan mencocokkan kode guru resmi (64 guru) dengan database guru secara otomatis.')
+                ->action(function () {
+                    $result = \App\Services\TeacherCodeSyncService::syncAll();
+                    Notification::make()
+                        ->title('Sinkronisasi Kode Guru Selesai')
+                        ->body("Total diproses: {$result['total']}. Berhasil diupdate: {$result['updated']}, sudah cocok: {$result['skipped']}, tidak cocok: {$result['not_found']}.")
+                        ->success()
+                        ->send();
+                }),
+
             Actions\Action::make('download_excel')
                 ->label('Download Data Guru & Pegawai (Excel)')
                 ->icon('heroicon-o-document-arrow-down')

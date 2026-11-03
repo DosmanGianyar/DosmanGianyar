@@ -30,6 +30,7 @@ class GuruDataExport extends DefaultValueBinder implements FromCollection, WithH
     public function headings(): array
     {
         return [
+            'kode_guru',
             'nip',
             'nama',
             'email',
@@ -51,6 +52,7 @@ class GuruDataExport extends DefaultValueBinder implements FromCollection, WithH
         }
 
         return [
+            $user->teacher_code ?? '',
             $user->nip ? (string) $user->nip : '',
             $user->name ?? '',
             $user->email ?? '',

@@ -85,6 +85,12 @@ class GuruResource extends Resource
             ])->columns(2),
 
             Section::make('Data Kepegawaian')->schema([
+                TextInput::make('teacher_code')
+                    ->label('Kode Guru')
+                    ->placeholder('Contoh: P. SUDARMA')
+                    ->maxLength(50)
+                    ->unique(ignoreRecord: true),
+
                 TextInput::make('nip')
                     ->label('NIP')
                     ->maxLength(30)
@@ -118,6 +124,17 @@ class GuruResource extends Resource
                     ->rowIndex()
                     ->alignCenter()
                     ->width('48px'),
+
+                TextColumn::make('teacher_code')
+                    ->label('Kode Guru')
+                    ->badge()
+                    ->color('info')
+                    ->fontFamily('mono')
+                    ->weight('bold')
+                    ->sortable()
+                    ->searchable()
+                    ->copyable()
+                    ->placeholder('—'),
 
                 TextColumn::make('name')
                     ->label('Nama')

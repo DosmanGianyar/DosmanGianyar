@@ -22,7 +22,7 @@ class User extends Authenticatable implements FilamentUser
         'name', 'nickname', 'email', 'password', 'must_change_password', 'role', 'photo', 'phone',
         'nis', 'nisn', 'gender', 'class_id', 'parent_name', 'parent_phone', 'birth_date', 'birth_place', 'religion', 'citizenship',
         'child_order', 'siblings_count', 'step_siblings_count', 'foster_siblings_count', 'orphan_status', 'daily_language',
-        'address', 'living_with', 'nip', 'subject',
+        'address', 'living_with', 'nip', 'teacher_code', 'subject',
         'device_id', 'device_locked_at', 'qr_code_token',
         'hobbies', 'aspirations', 'rt_rw', 'kelurahan', 'kecamatan', 'kabupaten',
         'residence_status', 'transportation', 'distance_km', 'travel_time_minutes',
