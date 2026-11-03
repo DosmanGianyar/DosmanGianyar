@@ -133,6 +133,17 @@ class TeacherCodeSyncService
                 });
             }
 
+            // 4. Known typo / alias fallback (e.g. Suwila di daftar vs Suwita di database Dapodik)
+            if (! $found) {
+                $aliasMap = [
+                    'i nyoman suwila' => 'i nyoman suwita',
+                ];
+                if (isset($aliasMap[$normTarget])) {
+                    $targetAlias = $aliasMap[$normTarget];
+                    $found = $teachers->first(fn ($t) => self::normalizeName($t->name) === $targetAlias);
+                }
+            }
+
             if ($found) {
                 $matchedCount++;
                 $wasChanged = false;
