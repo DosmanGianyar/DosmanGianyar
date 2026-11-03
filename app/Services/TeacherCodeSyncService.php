@@ -155,6 +155,25 @@ class TeacherCodeSyncService
                     $wasChanged = true;
                 }
 
+                // Auto-assign subject jika guru belum memiliki relasi subject di database
+                $defaultSubjects = [
+                    'P. SUDARMA'   => ['Pendidikan Agama & Budi Pekerti', 'AGAMA BP'],
+                    'P. Sutarjana' => ['Pendidikan Agama & Budi Pekerti', 'AGAMA BP'],
+                    'B. Lindawati' => ['Pendidikan Agama & Budi Pekerti', 'AGAMA BP'],
+                    'B. Eka W'     => ['MATEMATIKA TINGKAT LANJUT', 'MTKTL'],
+                ];
+
+                if (isset($defaultSubjects[$code]) && $found->subjects()->count() === 0) {
+                    [$subjName, $subjCode] = $defaultSubjects[$code];
+                    $subj = \App\Models\Subject::where('name', $subjName)
+                        ->orWhere('code', $subjCode)
+                        ->orWhere('name', 'like', "%{$subjName}%")
+                        ->first();
+                    if ($subj) {
+                        $found->subjects()->syncWithoutDetaching([$subj->id]);
+                    }
+                }
+
                 $details[] = [
                     'code'       => $code,
                     'input_name' => $targetName,

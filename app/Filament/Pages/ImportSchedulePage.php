@@ -58,6 +58,11 @@ class ImportSchedulePage extends Page
         }
     }
 
+    public function downloadTemplate()
+    {
+        return (new \App\Services\ScheduleMatrixExport())->download(null, 'template_jadwal_pelajaran.xlsx');
+    }
+
     public function form(Schema $schema): Schema
     {
         return $schema

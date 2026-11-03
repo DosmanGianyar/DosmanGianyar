@@ -174,91 +174,172 @@ class ScheduleImportService
             return $this->matchEntities($rawListItems);
         }
 
-        // 2. Parser Format Grid Matrix Timetable
-        $teacherCodeToName = [];
-        $totalRows         = count($rows);
-        $startMappingIndex = 39;
+        // 2. Parser Format Grid Matrix Timetable (seperti jadwal 5okt.xlsx)
+        return $this->parseMatrixSchedule($rows, $targetGrade);
+    }
 
+    /**
+     * Normalisasi kode guru (mengatasi variasi spasi titik & typo)
+     */
+    public static function normalizeTeacherCode(string $raw): string
+    {
+        $c = trim($raw);
+        $c = preg_replace('/\s*\.\s*/', '. ', $c);
+        $c = preg_replace('/\s+/', ' ', $c);
+
+        if (strcasecmp($c, 'P. Suwita') === 0) return 'P. Suwila';
+        if (strcasecmp($c, 'P. Ngr Afriadii') === 0) return 'P. Ngr Afriadi';
+
+        return $c;
+    }
+
+    /**
+     * Parser Format Grid Matrix Timetable (seperti jadwal 5okt.xlsx)
+     */
+    public function parseMatrixSchedule(array $rows, string $targetGrade = 'ALL'): array
+    {
+        $dayRowIdx    = null;
+        $periodRowIdx = null;
+        $timeRowIdx   = null;
+
+        // Cari baris hari, jam, waktu di 10 baris pertama
         foreach ($rows as $idx => $r) {
-            if ($idx >= 35) {
-                $val = strtoupper(trim($r[1] ?? ''));
-                if (str_contains($val, 'DAFTAR') || str_contains($val, 'P. SUDARMA')) {
-                    $startMappingIndex = $idx;
+            if ($idx > 10) break;
+            $rowUpper = array_map(fn($v) => strtoupper(trim((string)$v)), $r);
+
+            // Cek apakah ada nama hari di baris ini
+            $dayCount = 0;
+            foreach ($rowUpper as $val) {
+                if (in_array($val, ['SENIN', 'SELASA', 'RABU', 'KAMIS', 'JUMAT', 'SABTU'])) {
+                    $dayCount++;
+                }
+            }
+
+            if ($dayCount >= 2 && $dayRowIdx === null) {
+                $dayRowIdx = $idx;
+                continue;
+            }
+
+            if ($dayRowIdx !== null && $periodRowIdx === null) {
+                $numCount = 0;
+                foreach ($r as $val) {
+                    if (is_numeric(trim((string)$val)) && (int)$val >= 1 && (int)$val <= 12) {
+                        $numCount++;
+                    }
+                }
+                if ($numCount >= 5) {
+                    $periodRowIdx = $idx;
+                    continue;
+                }
+            }
+
+            if ($periodRowIdx !== null && $timeRowIdx === null) {
+                // Baris waktu (misal "7:10 - 7:55" atau "07:30 - 08:15")
+                $timeMatchCount = 0;
+                foreach ($r as $val) {
+                    if (str_contains((string)$val, '-') && preg_match('/\d{1,2}:\d{2}/', (string)$val)) {
+                        $timeMatchCount++;
+                    }
+                }
+                if ($timeMatchCount >= 3) {
+                    $timeRowIdx = $idx;
                     break;
                 }
             }
         }
 
-        for ($i = $startMappingIndex; $i < $totalRows; $i++) {
-            $r    = $rows[$i];
-            $code = trim($r[1] ?? '');
-            $name = trim($r[2] ?? '');
-            if (!empty($code) && !empty($name) && !str_contains(strtoupper($code), 'DAFTAR')) {
-                $teacherCodeToName[$code] = $name;
+        if ($dayRowIdx === null) {
+            return [];
+        }
+
+        $dayRow    = $rows[$dayRowIdx] ?? [];
+        $periodRow = ($periodRowIdx !== null) ? ($rows[$periodRowIdx] ?? []) : [];
+        $timeRow   = ($timeRowIdx !== null) ? ($rows[$timeRowIdx] ?? []) : [];
+
+        // Petakan kolom-kolom jadwal (dimulai dari kolom ke-3 / index 2)
+        $columnsMeta = [];
+        $currentDayName   = 'SENIN';
+        $currentDayNumber = 1;
+        $maxCols = max(count($dayRow), count($periodRow), count($timeRow));
+
+        for ($c = 2; $c < $maxCols; $c++) {
+            $cellDay = strtoupper(trim((string)($dayRow[$c] ?? '')));
+            if (!empty($cellDay) && isset(self::DAY_MAP[$cellDay])) {
+                $currentDayName   = $cellDay;
+                $currentDayNumber = self::DAY_MAP[$cellDay];
             }
+
+            $cellPeriodRaw = trim((string)($periodRow[$c] ?? ''));
+            $period = is_numeric($cellPeriodRaw) ? (int)$cellPeriodRaw : 0;
+            if ($period <= 0) {
+                $period = (($c - 2) % 11) + 1;
+            }
+
+            $cellTime  = trim((string)($timeRow[$c] ?? ''));
+            $startTime = null;
+            $endTime   = null;
+
+            if (!empty($cellTime) && str_contains($cellTime, '-')) {
+                $times = explode('-', $cellTime);
+                if (!empty($times[0]) && !empty($times[1])) {
+                    $st = strtotime(trim($times[0]));
+                    $et = strtotime(trim($times[1]));
+                    if ($st !== false) $startTime = date('H:i:s', $st);
+                    if ($et !== false) $endTime   = date('H:i:s', $et);
+                }
+            }
+
+            if (!$startTime || !$endTime) {
+                $startTime = self::TIME_SLOTS[$period][0] ?? '07:30:00';
+                $endTime   = self::TIME_SLOTS[$period][1] ?? '08:15:00';
+            }
+
+            $columnsMeta[$c] = [
+                'day'        => $currentDayNumber,
+                'day_name'   => $currentDayName,
+                'period'     => $period,
+                'start_time' => $startTime,
+                'end_time'   => $endTime,
+            ];
         }
 
-        // Urutkan kode guru berdasarkan panjang karakter terpanjang lebih dahulu
-        uksort($teacherCodeToName, fn($a, $b) => strlen($b) <=> strlen($a));
-
-        // Cocokkan Kode Guru ke Database User role='guru'
-        $dbTeachers        = User::where('role', 'guru')->get();
-        $codeToTeacherUser = [];
-        foreach ($teacherCodeToName as $code => $fullName) {
-            $codeToTeacherUser[$code] = $this->matchTeacherToDb($fullName, $dbTeachers);
-        }
-
+        // Mulai baris data kelas (setelah baris waktu/jam)
+        $startClassRowIdx = max($dayRowIdx, $periodRowIdx ?? 0, $timeRowIdx ?? 0) + 1;
         $rawItems = [];
+        $emptyRowCount = 0;
 
-        for ($r = 6; $r < $startMappingIndex; $r++) {
+        for ($r = $startClassRowIdx; $r < count($rows); $r++) {
             $row = $rows[$r] ?? [];
-            $rawClassName = trim($row[1] ?? '');
-            if (empty($rawClassName) || str_contains(strtoupper($rawClassName), 'HARI') || str_contains(strtoupper($rawClassName), 'JADWAL')) {
+            $rawClassName = trim((string)($row[1] ?? ''));
+
+            if (empty($rawClassName)) {
+                $emptyRowCount++;
+                if ($emptyRowCount >= 15) break;
+                continue;
+            }
+            $emptyRowCount = 0;
+
+            if (in_array(strtoupper($rawClassName), ['HARI', 'JADWAL GURU', 'JAM', 'WAKTU', 'KODE', 'DAFTAR'])) {
                 continue;
             }
 
-            // Iterate 6 hari (Senin - Sabtu), 11 jam pelajaran per hari
-            for ($day = 1; $day <= 6; $day++) {
-                $startCol = 2 + ($day - 1) * 11;
-                for ($period = 1; $period <= 11; $period++) {
-                    $colIdx = $startCol + ($period - 1);
-                    $cell   = trim($row[$colIdx] ?? '');
-
-                    if (empty($cell) || in_array(strtoupper($cell), ['-', 'ISTIRAHAT', 'UPACARA', 'SHOLAT', 'LIBUR'])) {
-                        continue;
-                    }
-
-                    $matchedCode = null;
-                    $subjectCode = null;
-
-                    foreach ($teacherCodeToName as $code => $fullName) {
-                        if (str_starts_with($cell, $code)) {
-                            $matchedCode = $code;
-                            $subjectCode = trim(substr($cell, strlen($code)));
-                            break;
-                        }
-                    }
-
-                    if (!$matchedCode) {
-                        $parts       = explode(' ', $cell, 2);
-                        $matchedCode = $parts[0] ?? $cell;
-                        $subjectCode = $parts[1] ?? '';
-                    }
-
-                    $teacherUser = $codeToTeacherUser[$matchedCode] ?? null;
-                    $teacherRaw  = $teacherUser?->name ?? ($teacherCodeToName[$matchedCode] ?? $matchedCode);
-
-                    $rawItems[] = [
-                        'class_name'   => $rawClassName,
-                        'day'          => $day,
-                        'period'       => $period,
-                        'subject_code' => $subjectCode,
-                        'teacher_raw'  => $teacherRaw,
-                        'teacher_user' => $teacherUser,
-                        'room'         => null,
-                        'target_grade' => $targetGrade,
-                    ];
+            foreach ($columnsMeta as $colIdx => $meta) {
+                $cellVal = trim((string)($row[$colIdx] ?? ''));
+                if (empty($cellVal) || in_array(strtoupper($cellVal), ['-', 'LIBUR', 'UPACARA', 'ISTIRAHAT', 'SHOLAT'])) {
+                    continue;
                 }
+
+                $rawItems[] = [
+                    'class_name'   => $rawClassName,
+                    'day'          => $meta['day'],
+                    'period'       => $meta['period'],
+                    'start_time'   => $meta['start_time'],
+                    'end_time'     => $meta['end_time'],
+                    'subject_code' => null,
+                    'teacher_raw'  => $cellVal,
+                    'room'         => null,
+                    'target_grade' => $targetGrade,
+                ];
             }
         }
 
@@ -372,14 +453,28 @@ class ScheduleImportService
     {
         $classes  = SchoolClass::all()->keyBy(fn($c) => strtoupper(str_replace([' ', '-'], '', $c->name)));
         $subjects = Subject::all();
-        $teachers = User::where('role', 'guru')->get();
+        $teachers = User::whereIn('role', ['guru', 'wali_kelas', 'kepala_sekolah', 'admin'])
+            ->with('subjects')
+            ->get();
+
+        $defaultSubjectMap = [
+            'P. SUDARMA'   => ['Pendidikan Agama & Budi Pekerti', 'AGAMA BP'],
+            'P. Sutarjana' => ['Pendidikan Agama & Budi Pekerti', 'AGAMA BP'],
+            'B. Lindawati' => ['Pendidikan Agama & Budi Pekerti', 'AGAMA BP'],
+            'B. Eka W'     => ['MATEMATIKA TINGKAT LANJUT', 'MTKTL'],
+        ];
+
+        // Cache existing schedules to preserve historical subject pairings
+        $existingSchedules = Schedule::whereNotNull('subject_id')
+            ->get(['class_id', 'teacher_id', 'subject_id'])
+            ->groupBy(fn($s) => $s->class_id . '_' . $s->teacher_id);
 
         $matchedList = [];
 
         foreach ($rawItems as $index => $item) {
             $normalizedClassName = $this->normalizeClassName($item['class_name']);
             $cleanClassName      = strtoupper(str_replace(['KELAS', ' ', '-'], '', $item['class_name']));
-            
+
             $targetGrade = 10;
             if (str_starts_with($normalizedClassName, 'XI-')) {
                 $targetGrade = 11;
@@ -404,33 +499,81 @@ class ScheduleImportService
             // 2. Match Teacher
             $matchedTeacher = $item['teacher_user'] ?? null;
             $teacherRaw     = trim($item['teacher_raw']);
+            $normCode       = self::normalizeTeacherCode($teacherRaw);
+
             if (!$matchedTeacher && !empty($teacherRaw)) {
-                $matchedTeacher = $this->matchTeacherToDb($teacherRaw, $teachers);
+                // 2a. Match by teacher_code
+                $matchedTeacher = $teachers->first(fn($t) => $t->teacher_code && strcasecmp(trim($t->teacher_code), $normCode) === 0);
+
+                // 2b. Match by name
+                if (!$matchedTeacher) {
+                    $matchedTeacher = $this->matchTeacherToDb($teacherRaw, $teachers);
+                }
             }
 
             // 3. Match Subject
-            $subjCode = strtoupper(trim($item['subject_code']));
-            $subjRes  = $this->resolveSubjectForTeacher($matchedTeacher, $subjects, $subjCode);
+            $subjCode          = strtoupper(trim($item['subject_code'] ?? ''));
+            $matchedSubject    = null;
+            $allowedSubjectIds = [];
 
-            $matchedSubject = $subjRes['subject_id'] ? $subjects->find($subjRes['subject_id']) : null;
-            $subjName       = self::SUBJECT_MAP[$subjCode] ?? $subjCode;
+            if (!empty($subjCode)) {
+                $subjRes           = $this->resolveSubjectForTeacher($matchedTeacher, $subjects, $subjCode);
+                $matchedSubject    = $subjRes['subject_id'] ? $subjects->find($subjRes['subject_id']) : null;
+                $allowedSubjectIds = $subjRes['allowed_subject_ids'];
+            } elseif ($matchedTeacher) {
+                $allowedSubjectIds = $matchedTeacher->subjects->pluck('id')->all();
+
+                if ($matchedTeacher->subjects->count() === 1) {
+                    $matchedSubject = $matchedTeacher->subjects->first();
+                } elseif ($matchedTeacher->subjects->count() > 1) {
+                    // Cek riwayat jadwal kelas ini
+                    $prevSch = $existingSchedules->get($classId . '_' . $matchedTeacher->id)?->first();
+                    if ($prevSch) {
+                        $matchedSubject = $subjects->find($prevSch->subject_id);
+                    }
+
+                    if (!$matchedSubject) {
+                        $isGrade10 = ($targetGrade === 10 || str_starts_with($normalizedClassName, 'X-'));
+                        if ($isGrade10) {
+                            $matchedSubject = $matchedTeacher->subjects->first(fn($s) => !str_contains(strtoupper($s->name), 'LANJUT') && !str_contains(strtoupper($s->name), 'PKWU') && !str_contains(strtoupper($s->name), 'KODING'));
+                        } else {
+                            $matchedSubject = $matchedTeacher->subjects->first(fn($s) => str_contains(strtoupper($s->name), 'LANJUT') || str_contains(strtoupper($s->name), 'TINGKAT LANJUT'));
+                        }
+                    }
+
+                    if (!$matchedSubject) {
+                        $matchedSubject = $matchedTeacher->subjects->first();
+                    }
+                } elseif (isset($defaultSubjectMap[$normCode])) {
+                    [$dName, $dCode] = $defaultSubjectMap[$normCode];
+                    $matchedSubject = $subjects->first(fn($s) => $s->name === $dName || $s->code === $dCode || str_contains($s->name, $dName));
+                    if ($matchedSubject) {
+                        $allowedSubjectIds = [$matchedSubject->id];
+                    }
+                }
+            }
+
+            if ($matchedSubject && !in_array($matchedSubject->id, $allowedSubjectIds, true)) {
+                $allowedSubjectIds[] = $matchedSubject->id;
+            }
 
             $matchedList[] = [
                 'temp_id'             => 'item_' . $index,
                 'class_name'          => $schoolClass->name,
                 'class_id'            => $classId,
-                'day'                 => $item['day'],
-                'period'              => $item['period'],
-                'start_time'          => self::TIME_SLOTS[$item['period']][0] ?? '07:30',
-                'end_time'            => self::TIME_SLOTS[$item['period']][1] ?? '08:15',
-                'subject_code'        => $subjCode,
-                'subject_id'          => $subjRes['subject_id'],
-                'subject_name'        => $matchedSubject?->name ?? '-',
-                'allowed_subject_ids' => $subjRes['allowed_subject_ids'],
+                'day'                 => (int) $item['day'],
+                'period'              => (int) $item['period'],
+                'start_time'          => $item['start_time'] ?? (self::TIME_SLOTS[$item['period']][0] ?? '07:30:00'),
+                'end_time'            => $item['end_time'] ?? (self::TIME_SLOTS[$item['period']][1] ?? '08:15:00'),
+                'subject_code'        => $subjCode ?: ($matchedSubject?->code ?? '-'),
+                'subject_id'          => $matchedSubject?->id,
+                'subject_name'        => $matchedSubject?->name ?? '— Pilih Mata Pelajaran —',
+                'allowed_subject_ids' => $allowedSubjectIds,
                 'teacher_raw'         => $teacherRaw,
+                'teacher_code'        => $normCode,
                 'teacher_id'          => $matchedTeacher?->id,
                 'teacher_name'        => $matchedTeacher?->name ?? $teacherRaw,
-                'match_confidence'    => $matchedTeacher ? 'exact' : 'unmatched',
+                'match_confidence'    => ($matchedTeacher && $matchedSubject) ? 'exact' : ($matchedTeacher ? 'partial' : 'unmatched'),
                 'room'                => $item['room'] ?? null,
             ];
         }

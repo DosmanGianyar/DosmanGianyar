@@ -15,6 +15,14 @@ class ListSchedules extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
+            Action::make('downloadExcel')
+                ->label('Download Jadwal (Excel)')
+                ->icon('heroicon-o-document-arrow-down')
+                ->color('info')
+                ->action(function () {
+                    return (new \App\Services\ScheduleMatrixExport())->download();
+                }),
+
             Action::make('importExcel')
                 ->label('Import Excel Jadwal')
                 ->icon('heroicon-o-arrow-up-tray')
