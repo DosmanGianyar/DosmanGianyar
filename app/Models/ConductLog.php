@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 class ConductLog extends Model
 {
@@ -114,5 +115,109 @@ class ConductLog extends Model
     public function displayCategoryName(): string
     {
         return $this->getParsedTitleAttribute();
+    }
+
+    /**
+     * Apakah laporan SIPINTER ini merupakan laporan keterlambatan hadir/masuk sekolah?
+     */
+    public function isLateSchoolArrival(): bool
+    {
+        if (! $this->isPelanggaran()) {
+            return false;
+        }
+
+        if ($this->status === 'rejected') {
+            return false;
+        }
+
+        $haystack = mb_strtolower(implode(' ', array_filter([
+            $this->category?->name,
+            $this->note,
+            $this->description,
+        ])));
+
+        if (! str_contains($haystack, 'terlambat')) {
+            return false;
+        }
+
+        // Abaikan jika ini keterlambatan kembali dari izin keluar atau peminjaman buku
+        if (str_contains($haystack, 'izin keluar') || str_contains($haystack, 'peminjaman')) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Cek apakah siswa memiliki laporan keterlambatan aktif di SIPINTER pada tanggal tertentu.
+     */
+    public static function hasLateReportForDate(int $studentId, Carbon|string $date): bool
+    {
+        $dateStr = $date instanceof Carbon ? $date->toDateString() : Carbon::parse($date)->toDateString();
+
+        $logs = static::with('category')
+            ->where('student_id', $studentId)
+            ->whereDate('created_at', $dateStr)
+            ->where(function ($q) {
+                $q->whereNull('status')->orWhere('status', '!=', 'rejected');
+            })
+            ->get();
+
+        return $logs->contains(fn (self $log) => $log->isLateSchoolArrival());
+    }
+
+    /**
+     * Sinkronisasi status keterlambatan absensi siswa pada tanggal tertentu berdasarkan laporan SIPINTER.
+     */
+    public static function syncAttendanceForStudentDate(int $studentId, Carbon|string $date, ?string $fallbackTime = null): void
+    {
+        $dateStr = $date instanceof Carbon ? $date->toDateString() : Carbon::parse($date)->toDateString();
+
+        $logs = static::with('category')
+            ->where('student_id', $studentId)
+            ->whereDate('created_at', $dateStr)
+            ->where(function ($q) {
+                $q->whereNull('status')->orWhere('status', '!=', 'rejected');
+            })
+            ->orderBy('created_at')
+            ->get();
+
+        /** @var self|null $lateLog */
+        $lateLog = $logs->first(fn (self $log) => $log->isLateSchoolArrival());
+
+        $attendance = Attendance::where('user_id', $studentId)
+            ->whereDate('date', $dateStr)
+            ->first();
+
+        if ($lateLog) {
+            $checkInTime = $fallbackTime ?? $lateLog->created_at?->format('H:i:s') ?? now()->format('H:i:s');
+            if ($attendance) {
+                $updates = [];
+                if (in_array($attendance->status, ['hadir', 'alpa', 'terlambat'], true)) {
+                    $updates['status'] = 'terlambat';
+                }
+                if (! $attendance->check_in_time) {
+                    $updates['check_in_time'] = $checkInTime;
+                }
+                if (! empty($updates)) {
+                    $attendance->update($updates);
+                }
+            } else {
+                Attendance::create([
+                    'user_id'       => $studentId,
+                    'date'          => $dateStr,
+                    'check_in_time' => $checkInTime,
+                    'status'        => 'terlambat',
+                ]);
+            }
+        } else {
+            if ($attendance && $attendance->status === 'terlambat') {
+                if ($attendance->photo || $attendance->via_lupa_absen || $attendance->check_out_time) {
+                    $attendance->update(['status' => 'hadir']);
+                } else {
+                    $attendance->delete();
+                }
+            }
+        }
     }
 }

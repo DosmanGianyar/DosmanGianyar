@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Attendance;
 use App\Models\AttendanceSetting;
+use App\Models\ConductLog;
 use App\Models\EarlyCheckoutRequest;
 use App\Models\Holiday;
 use App\Services\GeofenceService;
@@ -86,8 +87,11 @@ class AttendanceController extends Controller
             return response()->json(['message' => 'Hari ini hari libur.', 'code' => 'HOLIDAY'], 422);
         }
 
-        // Sudah absen masuk
-        if ($user->todayAttendance()->whereIn('status', ['hadir', 'terlambat'])->exists()) {
+        // Sudah absen masuk (dengan selfie atau lupa absen)
+        if ($user->todayAttendance()
+            ->whereIn('status', ['hadir', 'terlambat'])
+            ->where(fn ($q) => $q->whereNotNull('photo')->orWhere('via_lupa_absen', true))
+            ->exists()) {
             return response()->json(['message' => 'Kamu sudah absen masuk hari ini.', 'code' => 'ALREADY_CHECKED_IN'], 422);
         }
 
@@ -131,9 +135,11 @@ class AttendanceController extends Controller
             ], 500);
         }
 
-        $status = $now->lt(Carbon::today()->setTimeFromTimeString($times['check_in_late']))
-            ? 'hadir'
-            : 'terlambat';
+        // Keterlambatan hanya tercatat jika melalui laporan SIPINTER.
+        // Siswa yang mengabsen lewat jam batas tetap tercatat hadir dengan catatan waktu kehadiran.
+        $status = ConductLog::hasLateReportForDate($user->id, today())
+            ? 'terlambat'
+            : 'hadir';
 
         Attendance::updateOrCreate(
             ['user_id' => $user->id, 'date' => today()],
@@ -272,7 +278,7 @@ class AttendanceController extends Controller
     private function canCheckIn(?Attendance $today, array $times, Carbon $now, bool $isHoliday): bool
     {
         if ($isHoliday || today()->isSunday()) return false;
-        if ($today && in_array($today->status, ['hadir', 'terlambat'])) return false;
+        if ($today && in_array($today->status, ['hadir', 'terlambat']) && ($today->photo !== null || $today->via_lupa_absen)) return false;
         if ($now->lt(Carbon::today()->setTimeFromTimeString($times['check_in_open']))) return false;
         if ($now->gte(Carbon::today()->setTimeFromTimeString($times['check_in_close']))) return false;
         return true;

@@ -114,7 +114,7 @@
             @if(isset($isCheckOut) && $isCheckOut)
                 <p class="text-xs text-blue-600">Foto selfie untuk konfirmasi absen pulang</p>
             @else
-                <p class="text-xs text-blue-600">Hadir sebelum {{ $checkInLate ?? '07:30' }} · Terlambat {{ $checkInLate ?? '07:30' }}–{{ $checkInClose ?? '08:00' }}</p>
+                <p class="text-xs text-blue-600">Waktu absen masuk {{ $checkInOpen ?? '06:00' }} – {{ $checkInClose ?? '08:00' }} WITA</p>
             @endif
         </div>
     </div>

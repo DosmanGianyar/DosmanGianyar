@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Siswa;
 use App\Http\Controllers\Controller;
 use App\Models\Attendance;
 use App\Models\AttendanceSetting;
+use App\Models\ConductLog;
 use App\Models\EarlyCheckoutRequest;
 use App\Models\Holiday;
 use App\Services\GeofenceService;
@@ -44,7 +45,8 @@ class AttendanceController extends Controller
 
         // Sudah check-in hari ini? → masuk fase checkout
         $today = $siswa->todayAttendance()->first();
-        if ($today && in_array($today->status, ['hadir', 'terlambat'])) {
+        $isCheckInWindowClosed = $now->gte(Carbon::today()->setTimeFromTimeString($times['check_in_close']));
+        if ($today && in_array($today->status, ['hadir', 'terlambat']) && ($today->photo !== null || $today->via_lupa_absen || $isCheckInWindowClosed)) {
             if ($today->check_out_time) {
                 return redirect()->route('siswa.dashboard')
                     ->with('success', 'Kamu sudah absen masuk & pulang hari ini.');
@@ -95,7 +97,8 @@ class AttendanceController extends Controller
 
         // Sudah presensi hari ini?
         $today = $siswa->todayAttendance()->first();
-        if ($today && in_array($today->status, ['hadir', 'terlambat'])) {
+        $isCheckInWindowClosed = $now->gte(Carbon::today()->setTimeFromTimeString($times['check_in_close']));
+        if ($today && in_array($today->status, ['hadir', 'terlambat']) && ($today->photo !== null || $today->via_lupa_absen || $isCheckInWindowClosed)) {
             if ($today->check_out_time) {
                 return redirect()->route('siswa.dashboard')
                     ->with('success', 'Kamu sudah absen masuk & pulang hari ini.');
@@ -153,7 +156,10 @@ class AttendanceController extends Controller
         $now      = now();
 
         // Sudah presensi?
-        if ($siswa->todayAttendance()->whereIn('status', ['hadir', 'terlambat'])->exists()) {
+        if ($siswa->todayAttendance()
+            ->whereIn('status', ['hadir', 'terlambat'])
+            ->where(fn ($q) => $q->whereNotNull('photo')->orWhere('via_lupa_absen', true))
+            ->exists()) {
             return response()->json(['success' => false, 'message' => 'Kamu sudah presensi hari ini.'], 422);
         }
 
@@ -188,10 +194,11 @@ class AttendanceController extends Controller
         $compressed = Image::read($imgData)->scaleDown(width: 800)->toJpeg(75);
         Storage::disk('public')->put($filename, $compressed);
 
-        // Tentukan status berdasarkan setting efektif
-        $status = $now->lt(Carbon::today()->setTimeFromTimeString($times['check_in_late']))
-            ? 'hadir'
-            : 'terlambat';
+        // Keterlambatan hanya tercatat jika melalui laporan SIPINTER.
+        // Siswa yang mengabsen lewat jam batas tetap tercatat hadir dengan catatan waktu kehadiran.
+        $status = ConductLog::hasLateReportForDate($siswa->id, today())
+            ? 'terlambat'
+            : 'hadir';
 
         Attendance::updateOrCreate(
             ['user_id' => $siswa->id, 'date' => today()],
