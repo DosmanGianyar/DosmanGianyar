@@ -11,6 +11,7 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
@@ -112,7 +113,84 @@ class OrangtuaResource extends Resource
                         }
                     })
                     ->dehydrated(false)
+                    ->columnSpanFull()
                     ->helperText('Pilih satu atau lebih siswa yang merupakan anak dari orang tua ini.'),
+            ])->columns(2),
+
+            Section::make('Detail Profil Orang Tua / Wali')->schema([
+                Select::make('parent_relation')
+                    ->label('Hubungan dengan Siswa')
+                    ->options([
+                        'Ayah Kandung' => 'Ayah Kandung',
+                        'Ibu Kandung'  => 'Ibu Kandung',
+                        'Wali'         => 'Wali',
+                    ]),
+
+                TextInput::make('nik')
+                    ->label('NIK (No. KTP)')
+                    ->maxLength(30),
+
+                Select::make('gender')
+                    ->label('Jenis Kelamin')
+                    ->options([
+                        'L' => 'Laki-laki (L)',
+                        'P' => 'Perempuan (P)',
+                    ]),
+
+                Select::make('religion')
+                    ->label('Agama')
+                    ->options([
+                        'Hindu'    => 'Hindu',
+                        'Islam'    => 'Islam',
+                        'Kristen'  => 'Kristen',
+                        'Katolik'  => 'Katolik',
+                        'Buddha'   => 'Buddha',
+                        'Konghucu' => 'Konghucu',
+                    ]),
+
+                TextInput::make('birth_place')
+                    ->label('Tempat Lahir')
+                    ->maxLength(100),
+
+                DatePicker::make('birth_date')
+                    ->label('Tanggal Lahir'),
+
+                Select::make('last_education')
+                    ->label('Pendidikan Terakhir')
+                    ->options([
+                        'SD / Sederajat'        => 'SD / Sederajat',
+                        'SMP / Sederajat'       => 'SMP / Sederajat',
+                        'SMA / SMK / Sederajat' => 'SMA / SMK / Sederajat',
+                        'D1 / D2 / D3'          => 'D1 / D2 / D3',
+                        'S1 / D4'               => 'S1 / D4',
+                        'S2 (Magister)'         => 'S2 (Magister)',
+                        'S3 (Doktor)'           => 'S3 (Doktor)',
+                        'Tidak Sekolah'         => 'Tidak Sekolah',
+                    ]),
+
+                TextInput::make('occupation')
+                    ->label('Pekerjaan Utama')
+                    ->maxLength(100),
+
+                TextInput::make('company_name')
+                    ->label('Instansi / Tempat Kerja')
+                    ->maxLength(150),
+
+                Select::make('income_range')
+                    ->label('Penghasilan Bulanan')
+                    ->options([
+                        'Kurang dari Rp 1.000.000'     => 'Kurang dari Rp 1.000.000',
+                        'Rp 1.000.000 - Rp 2.500.000'  => 'Rp 1.000.000 - Rp 2.500.000',
+                        'Rp 2.500.000 - Rp 5.000.000'  => 'Rp 2.500.000 - Rp 5.000.000',
+                        'Rp 5.000.000 - Rp 10.000.000' => 'Rp 5.000.000 - Rp 10.000.000',
+                        'Lebih dari Rp 10.000.000'     => 'Lebih dari Rp 10.000.000',
+                        'Tidak Berpenghasilan'         => 'Tidak Berpenghasilan',
+                    ]),
+
+                TextInput::make('address')
+                    ->label('Alamat Domisili')
+                    ->maxLength(255)
+                    ->columnSpanFull(),
             ])->columns(2),
         ]);
     }

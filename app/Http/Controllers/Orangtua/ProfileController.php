@@ -3,19 +3,22 @@
 namespace App\Http\Controllers\Orangtua;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use App\Services\ImageService;
+use App\Services\OrangtuaSyncService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class ProfileController extends Controller
 {
     public function show(): View
     {
-        /** @var \App\Models\User $orangtua */
+        /** @var User $orangtua */
         $orangtua = Auth::user();
         $orangtua->loadMissing('children.schoolClass');
 
@@ -27,28 +30,108 @@ class ProfileController extends Controller
 
     public function update(Request $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'name'    => 'required|string|max:100',
-            'address' => 'nullable|string|max:255',
-        ], [
-            'name.required' => 'Nama lengkap orang tua wajib diisi.',
-            'name.max'      => 'Nama lengkap maksimal 100 karakter.',
-        ]);
-
-        /** @var \App\Models\User $orangtua */
+        /** @var User $orangtua */
         $orangtua = Auth::user();
 
-        // Catatan: Nomor HP akun orang tua dilarang diubah secara mandiri
-        // karena merupakan ID login dan pengait relasi data siswa.
-        $orangtua->update([
-            'name'    => $validated['name'],
-            'address' => $validated['address'] ?? null,
+        $normalizedPhone = $request->filled('phone')
+            ? OrangtuaSyncService::normalizePhone((string) $request->input('phone'))
+            : $orangtua->phone;
+
+        $request->merge([
+            'phone' => $normalizedPhone,
+            'email' => $request->filled('email') ? trim((string) $request->input('email')) : $orangtua->email,
         ]);
 
-        // Sinkronkan nama orang tua ke data siswa yang terhubung
-        $orangtua->children()->update([
-            'parent_name' => $orangtua->name,
+        $validated = $request->validate([
+            'name'                       => 'required|string|max:100',
+            'nickname'                   => 'nullable|string|max:50',
+            'parent_relation'            => 'nullable|string|max:50',
+            'nik'                        => 'nullable|string|max:30',
+            'phone'                      => [
+                'required',
+                'string',
+                'max:20',
+                Rule::unique('users', 'phone')
+                    ->where(fn ($q) => $q->where('role', 'orangtua'))
+                    ->ignore($orangtua->id),
+            ],
+            'email'                      => 'nullable|email|max:255|unique:users,email,' . $orangtua->id,
+            'gender'                     => 'nullable|in:L,P',
+            'birth_place'                => 'nullable|string|max:100',
+            'birth_date'                 => 'nullable|date',
+            'religion'                   => 'nullable|string|max:50',
+            'citizenship'                => 'nullable|string|max:50',
+            'marital_status'             => 'nullable|string|max:30',
+            'last_education'             => 'nullable|string|max:50',
+            'occupation'                 => 'nullable|string|max:100',
+            'company_name'               => 'nullable|string|max:150',
+            'income_range'               => 'nullable|string|max:100',
+            'address'                    => 'nullable|string|max:255',
+            'rt_rw'                      => 'nullable|string|max:50',
+            'kelurahan'                  => 'nullable|string|max:100',
+            'kecamatan'                  => 'nullable|string|max:100',
+            'kabupaten'                  => 'nullable|string|max:100',
+            'emergency_contact_name'     => 'nullable|string|max:100',
+            'emergency_contact_phone'    => 'nullable|string|max:30',
+            'emergency_contact_relation' => 'nullable|string|max:50',
+        ], [
+            'name.required'  => 'Nama lengkap orang tua wajib diisi.',
+            'name.max'       => 'Nama lengkap maksimal 100 karakter.',
+            'phone.required' => 'Nomor HP / WhatsApp wajib diisi.',
+            'phone.unique'   => 'Nomor HP tersebut sudah terdaftar pada akun orang tua lain.',
+            'email.unique'   => 'Email tersebut sudah digunakan oleh akun lain.',
         ]);
+
+        if (empty($validated['email'])) {
+            $validated['email'] = $validated['phone'] . '@ortu.sims.sch.id';
+        }
+
+        $orangtua->update($validated);
+
+        // Sinkronkan ke seluruh siswa (anak) yang terhubung dengan akun orang tua ini
+        $childUpdates = [
+            'parent_name'  => $orangtua->name,
+            'parent_phone' => $orangtua->phone,
+        ];
+
+        $rel = $orangtua->parent_relation;
+        if ($rel === 'Ayah Kandung') {
+            $childUpdates['father_name']        = $orangtua->name;
+            $childUpdates['father_phone']       = $orangtua->phone;
+            $childUpdates['father_birth_place'] = $orangtua->birth_place;
+            $childUpdates['father_birth_date']  = $orangtua->birth_date;
+            $childUpdates['father_religion']    = $orangtua->religion;
+            $childUpdates['father_citizenship'] = $orangtua->citizenship;
+            $childUpdates['father_education']   = $orangtua->last_education;
+            $childUpdates['father_job']         = $orangtua->occupation;
+            $childUpdates['father_income']      = $orangtua->income_range;
+            $childUpdates['father_address']     = $orangtua->address;
+        } elseif ($rel === 'Ibu Kandung') {
+            $childUpdates['mother_name']        = $orangtua->name;
+            $childUpdates['mother_phone']       = $orangtua->phone;
+            $childUpdates['mother_birth_place'] = $orangtua->birth_place;
+            $childUpdates['mother_birth_date']  = $orangtua->birth_date;
+            $childUpdates['mother_religion']    = $orangtua->religion;
+            $childUpdates['mother_citizenship'] = $orangtua->citizenship;
+            $childUpdates['mother_education']   = $orangtua->last_education;
+            $childUpdates['mother_job']         = $orangtua->occupation;
+            $childUpdates['mother_income']      = $orangtua->income_range;
+            $childUpdates['mother_address']     = $orangtua->address;
+        } elseif ($rel === 'Wali') {
+            $childUpdates['guardian_name']        = $orangtua->name;
+            $childUpdates['guardian_phone']       = $orangtua->phone;
+            $childUpdates['guardian_birth_place'] = $orangtua->birth_place;
+            $childUpdates['guardian_birth_date']  = $orangtua->birth_date;
+            $childUpdates['guardian_religion']    = $orangtua->religion;
+            $childUpdates['guardian_citizenship'] = $orangtua->citizenship;
+            $childUpdates['guardian_education']   = $orangtua->last_education;
+            $childUpdates['guardian_job']         = $orangtua->occupation;
+            $childUpdates['guardian_income']      = $orangtua->income_range;
+            $childUpdates['guardian_address']     = $orangtua->address;
+        }
+
+        // Gunakan query update langsung agar relasi parent_students tidak terputus
+        $orangtua->children()->update(array_filter($childUpdates, fn ($v) => $v !== null));
 
         return back()->with('success', 'Profil orang tua berhasil diperbarui.');
     }
@@ -66,7 +149,7 @@ class ProfileController extends Controller
             'password.regex'            => 'Password tidak boleh mengandung spasi.',
         ]);
 
-        /** @var \App\Models\User $orangtua */
+        /** @var User $orangtua */
         $orangtua = Auth::user();
 
         if (! Hash::check($request->current_password, $orangtua->password)) {
@@ -92,7 +175,7 @@ class ProfileController extends Controller
             'photo.max'      => 'Ukuran foto maksimal 5 MB.',
         ]);
 
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = Auth::user();
 
         if ($user->photo) {

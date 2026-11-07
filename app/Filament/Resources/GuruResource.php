@@ -11,6 +11,7 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -51,11 +52,15 @@ class GuruResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
-            Section::make('Identitas')->schema([
+            Section::make('Identitas & Kontak')->schema([
                 TextInput::make('name')
-                    ->label('Nama Lengkap')
+                    ->label('Nama Lengkap & Gelar')
                     ->required()
                     ->maxLength(100),
+
+                TextInput::make('nickname')
+                    ->label('Nama Panggilan')
+                    ->maxLength(50),
 
                 TextInput::make('email')
                     ->label('Email')
@@ -74,17 +79,52 @@ class GuruResource extends Resource
                     ->required(),
 
                 TextInput::make('phone')
-                    ->label('No. HP')
+                    ->label('No. HP / WhatsApp')
                     ->tel()
-                    ->maxLength(20),
+                    ->maxLength(30),
+
+                TextInput::make('nik')
+                    ->label('NIK (No. KTP)')
+                    ->maxLength(30),
+
+                Select::make('gender')
+                    ->label('Jenis Kelamin')
+                    ->options([
+                        'L' => 'Laki-laki (L)',
+                        'P' => 'Perempuan (P)',
+                    ]),
+
+                Select::make('religion')
+                    ->label('Agama')
+                    ->options([
+                        'Hindu'    => 'Hindu',
+                        'Islam'    => 'Islam',
+                        'Kristen'  => 'Kristen',
+                        'Katolik'  => 'Katolik',
+                        'Buddha'   => 'Buddha',
+                        'Konghucu' => 'Konghucu',
+                    ]),
+
+                TextInput::make('birth_place')
+                    ->label('Tempat Lahir')
+                    ->maxLength(100),
+
+                DatePicker::make('birth_date')
+                    ->label('Tanggal Lahir'),
+
+                TextInput::make('address')
+                    ->label('Alamat Tempat Tinggal')
+                    ->maxLength(255)
+                    ->columnSpanFull(),
 
                 Placeholder::make('password_info')
                     ->label('Info Password')
                     ->content('🔑 Password pertama otomatis diset sama dengan NIP')
-                    ->helperText('Guru dapat memperbarui password setelah login pertama kali.'),
+                    ->helperText('Guru/Pegawai dapat memperbarui password setelah login pertama kali.')
+                    ->columnSpanFull(),
             ])->columns(2),
 
-            Section::make('Data Kepegawaian')->schema([
+            Section::make('Data Kepegawaian & Akademik')->schema([
                 TextInput::make('teacher_code')
                     ->label('Kode Guru')
                     ->placeholder('Contoh: P. SUDARMA')
@@ -92,7 +132,7 @@ class GuruResource extends Resource
                     ->unique(ignoreRecord: true),
 
                 TextInput::make('nip')
-                    ->label('NIP')
+                    ->label('NIP / NI PPPK')
                     ->maxLength(30)
                     ->unique(ignoreRecord: true)
                     ->placeholder('198001012006041001')
@@ -102,12 +142,65 @@ class GuruResource extends Resource
                         'regex' => 'NIP tidak boleh mengandung spasi.',
                     ]),
 
+                TextInput::make('nuptk')
+                    ->label('NUPTK')
+                    ->maxLength(30),
+
+                Select::make('employment_status')
+                    ->label('Status Kepegawaian')
+                    ->options([
+                        'PNS'                       => 'PNS',
+                        'PPPK'                      => 'PPPK',
+                        'Guru Tetap'                => 'Guru Tetap',
+                        'Guru Kontrak / Honorer'    => 'Guru Kontrak / Honorer',
+                        'Pegawai Tetap'             => 'Pegawai Tetap',
+                        'Pegawai Kontrak / Honorer' => 'Pegawai Kontrak / Honorer',
+                        'Tenaga Outsourcing'        => 'Tenaga Outsourcing',
+                    ]),
+
+                TextInput::make('rank_grade')
+                    ->label('Pangkat / Golongan Ruang')
+                    ->placeholder('Contoh: Pembina (IV/a)')
+                    ->maxLength(50),
+
+                TextInput::make('position')
+                    ->label('Jabatan / Tugas')
+                    ->placeholder('Contoh: Guru Mapel / Staf Administrasi')
+                    ->maxLength(100),
+
+                TextInput::make('work_unit')
+                    ->label('Unit Kerja / Bagian (Khusus Pegawai)')
+                    ->placeholder('Contoh: Tata Usaha / Perpustakaan / Laboratorium')
+                    ->maxLength(100),
+
+                DatePicker::make('tmt_date')
+                    ->label('TMT (Mulai Bertugas)'),
+
+                Select::make('last_education')
+                    ->label('Pendidikan Terakhir')
+                    ->options([
+                        'SMA / SMK / Sederajat' => 'SMA / SMK / Sederajat',
+                        'D1 / D2 / D3'          => 'D1 / D2 / D3',
+                        'S1 / D4'               => 'S1 / D4',
+                        'S2 (Magister)'         => 'S2 (Magister)',
+                        'S3 (Doktor)'           => 'S3 (Doktor)',
+                    ]),
+
+                TextInput::make('alma_mater')
+                    ->label('Perguruan Tinggi & Jurusan')
+                    ->maxLength(150),
+
                 Select::make('subjects')
                     ->label('Mata Pelajaran (bisa lebih dari satu)')
                     ->relationship('subjects', 'name')
                     ->multiple()
                     ->preload()
                     ->searchable()
+                    ->columnSpanFull(),
+
+                TextInput::make('subject')
+                    ->label('Label Mata Pelajaran Ringkas')
+                    ->maxLength(255)
                     ->columnSpanFull(),
             ])->columns(2),
         ]);

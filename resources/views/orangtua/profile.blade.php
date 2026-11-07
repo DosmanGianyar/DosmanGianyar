@@ -8,33 +8,49 @@
 @endpush
 
 @section('content')
-<div class="max-w-xl mx-auto space-y-5 pb-8">
+<div class="max-w-3xl mx-auto space-y-5 pb-10">
+
+    @if(session('success'))
+    <div class="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200/80 text-emerald-900 text-xs font-bold flex items-center gap-2.5 shadow-xs">
+        <span class="w-6 h-6 rounded-lg bg-emerald-500 text-white flex items-center justify-center text-xs shrink-0">✓</span>
+        <span>{{ session('success') }}</span>
+    </div>
+    @endif
+
+    @if($errors->any())
+    <div class="p-3.5 rounded-2xl bg-rose-50 border border-rose-200/80 text-rose-900 text-xs space-y-1 shadow-xs">
+        <p class="font-bold flex items-center gap-1.5 text-rose-800">
+            <span>⚠️ Terdapat kesalahan pengisian data:</span>
+        </p>
+        <ul class="list-disc list-inside space-y-0.5 text-[11px] text-rose-700 font-medium pl-1">
+            @foreach($errors->all() as $err)
+                <li>{{ $err }}</li>
+            @endforeach
+        </ul>
+    </div>
+    @endif
 
     {{-- ═════════════════════════════════════════════════════════════════════════ --}}
     {{-- ─── 1. KARTU IDENTITAS ORANG TUA (DEEP NAVY GLASSMORPHISM) ────────────── --}}
     {{-- ═════════════════════════════════════════════════════════════════════════ --}}
     <div class="relative rounded-3xl p-5 sm:p-6 text-white shadow-xl shadow-blue-950/20 overflow-hidden"
          style="background: linear-gradient(135deg, #0b1e4f 0%, #123075 50%, #19439e 100%); border: 1px solid rgba(255,255,255,0.15);">
-        
-        {{-- Aksen Dekoratif Halus --}}
+
         <div class="absolute -right-10 -bottom-10 w-44 h-44 rounded-full bg-blue-400/10 blur-2xl pointer-events-none"></div>
         <div class="absolute -left-10 -top-10 w-36 h-36 rounded-full bg-indigo-400/10 blur-2xl pointer-events-none"></div>
 
         <div class="relative z-10 space-y-4">
-            {{-- Header Bar --}}
             <div class="flex items-center justify-between gap-2 flex-wrap">
                 <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-xs font-semibold text-white/90 border border-white/20 shadow-2xs">
                     <span>👨‍👩‍👧‍👦</span>
-                    <span>Profil Orang Tua / Wali</span>
+                    <span>{{ $orangtua->parent_relation ?: 'Orang Tua / Wali Siswa' }}</span>
                 </span>
                 <span class="text-[10px] font-extrabold tracking-wider uppercase px-2.5 py-1 rounded-full bg-amber-400/20 text-amber-300 border border-amber-300/30">
                     Akun Terverifikasi
                 </span>
             </div>
 
-            {{-- Avatar & Identitas --}}
             <div class="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-5 py-1">
-                {{-- Foto Profil dengan Avatar Frame --}}
                 <div class="relative shrink-0 group">
                     <div class="relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden border-2 border-white/30 shadow-xl bg-slate-900/40">
                         @if($orangtua->photo)
@@ -47,7 +63,6 @@
                         @endif
                     </div>
 
-                    {{-- Tombol Ganti Foto --}}
                     <label for="photo-input"
                            class="absolute -bottom-2 -right-2 w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white
                                   flex items-center justify-center cursor-pointer shadow-lg shadow-blue-500/40 hover:scale-110 active:scale-95 transition-all"
@@ -59,26 +74,30 @@
                         </svg>
                     </label>
 
-                    {{-- Form Upload Foto Hidden --}}
                     <form id="photo-form" method="POST" action="{{ route('orangtua.profile.photo') }}" enctype="multipart/form-data" class="hidden">
                         @csrf
                         <input type="file" id="photo-input" name="photo" accept="image/jpeg,image/png,image/webp,image/heic">
                     </form>
                 </div>
 
-                {{-- Info Teks Utama --}}
                 <div class="flex-1 text-center sm:text-left space-y-1.5 min-w-0">
                     <h1 class="text-lg sm:text-xl font-black text-white tracking-tight leading-tight truncate">
                         {{ $orangtua->name }}
                     </h1>
                     <p class="text-xs text-blue-200/90 font-medium">
-                        Orang Tua / Wali dari {{ $children->count() }} siswa SMAN 1 Gianyar
+                        {{ $orangtua->parent_relation ?: 'Orang Tua / Wali' }} dari {{ $children->count() }} siswa SMAN 1 Gianyar
                     </p>
                     <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2 pt-1">
                         <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/10 text-white border border-white/15 text-xs font-mono font-bold">
                             <span>📱</span>
                             <span>{{ $orangtua->phone ?? '—' }}</span>
                         </span>
+                        @if($orangtua->occupation)
+                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-sky-500/20 text-sky-200 border border-sky-400/30 text-xs font-semibold">
+                            <span>💼</span>
+                            <span>{{ $orangtua->occupation }}</span>
+                        </span>
+                        @endif
                         <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-semibold">
                             <span>✅</span>
                             <span>Login Aktif</span>
@@ -90,117 +109,7 @@
     </div>
 
     {{-- ═════════════════════════════════════════════════════════════════════════ --}}
-    {{-- ─── 2. FORMULIR PERBARUI DATA PROFIL ORANG TUA ───────────────────────── --}}
-    {{-- ═════════════════════════════════════════════════════════════════════════ --}}
-    <div class="bg-white rounded-3xl shadow-xs border border-slate-200/80 p-5 sm:p-6 space-y-4">
-        <div class="flex items-center gap-2.5 pb-3 border-b border-slate-100">
-            <div class="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                </svg>
-            </div>
-            <div>
-                <h2 class="text-sm font-extrabold text-slate-800">Edit Data Profil Orang Tua</h2>
-                <p class="text-[11px] text-slate-400">Anda dapat mengubah nama Anda sendiri untuk keperluan data sekolah</p>
-            </div>
-        </div>
-
-        <form method="POST" action="{{ route('orangtua.profile.update') }}" class="space-y-4">
-            @csrf
-            @method('PUT')
-
-            {{-- 1. Nama Lengkap Orang Tua (DAPAT DIEDIT) --}}
-            <div>
-                <label for="name" class="block text-xs font-bold text-slate-700 mb-1">
-                    Nama Lengkap Orang Tua / Wali <span class="text-rose-500">*</span>
-                </label>
-                <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                        </svg>
-                    </div>
-                    <input type="text" id="name" name="name" value="{{ old('name', $orangtua->name) }}" required
-                        class="w-full pl-10 pr-3.5 py-2.5 text-xs font-semibold rounded-xl border border-slate-300 bg-white focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all text-slate-800"
-                        placeholder="Masukkan nama lengkap Anda">
-                </div>
-                @error('name')
-                    <p class="text-rose-500 text-xs mt-1 font-medium">{{ $message }}</p>
-                @enderror
-                <p class="text-[10.5px] text-slate-400 mt-1">Nama ini akan tercatat sebagai nama orang tua resmi pada sistem sekolah.</p>
-            </div>
-
-            {{-- 2. Nomor HP (TIDAK DAPAT DIEDIT / READ-ONLY) --}}
-            <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
-                    <span>Nomor HP / WhatsApp (ID Login Akun)</span>
-                    <span class="inline-flex items-center gap-1 text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200">
-                        <svg class="w-3 h-3 text-amber-600" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
-                        </svg>
-                        Terkunci
-                    </span>
-                </label>
-                <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
-                        </svg>
-                    </div>
-                    <input type="text" value="{{ $orangtua->phone }}" disabled readonly
-                        class="w-full pl-10 pr-10 py-2.5 text-xs font-mono font-bold rounded-xl border border-slate-200 bg-slate-100/80 text-slate-600 cursor-not-allowed">
-                    <div class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-slate-400">
-                        <svg class="w-4 h-4 text-slate-400" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
-                        </svg>
-                    </div>
-                </div>
-
-                {{-- Alert Note: Alasan Nomor HP Terkunci --}}
-                <div class="mt-2 p-3 rounded-2xl bg-amber-50/80 border border-amber-200/80 flex items-start gap-2.5">
-                    <span class="text-amber-600 text-sm shrink-0 mt-0.5">ℹ️</span>
-                    <p class="text-[11px] text-amber-900 leading-relaxed font-medium">
-                        <strong>Nomor HP tidak dapat diganti secara mandiri</strong> karena berfungsi sebagai ID login resmi akun Anda dan menjadi kunci penghubung ke data presensi & akademik putra/putri Anda. Jika Anda mengalami perubahan nomor HP, silakan hubungi pihak tata usaha / admin sekolah.
-                    </p>
-                </div>
-            </div>
-
-            {{-- 3. Alamat Tempat Tinggal (DAPAT DIEDIT) --}}
-            <div>
-                <label for="address" class="block text-xs font-bold text-slate-700 mb-1">
-                    Alamat Domisili / Tempat Tinggal
-                </label>
-                <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                        </svg>
-                    </div>
-                    <input type="text" id="address" name="address" value="{{ old('address', $orangtua->address) }}"
-                        class="w-full pl-10 pr-3.5 py-2.5 text-xs font-semibold rounded-xl border border-slate-300 bg-white focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all text-slate-800"
-                        placeholder="Contoh: Jl. Ngurah Rai No. 10, Gianyar">
-                </div>
-                @error('address')
-                    <p class="text-rose-500 text-xs mt-1 font-medium">{{ $message }}</p>
-                @enderror
-            </div>
-
-            {{-- Tombol Submit --}}
-            <div class="pt-2">
-                <button type="submit"
-                    class="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 active:scale-[0.98] text-white text-xs font-black uppercase tracking-wider rounded-xl shadow-md shadow-blue-500/25 transition-all flex items-center justify-center gap-2 cursor-pointer">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
-                    </svg>
-                    <span>Simpan Perubahan Profil</span>
-                </button>
-            </div>
-        </form>
-    </div>
-
-    {{-- ═════════════════════════════════════════════════════════════════════════ --}}
-    {{-- ─── 3. DAFTAR PUTRA / PUTRI TERHUBUNG ────────────────────────────────── --}}
+    {{-- ─── 2. DAFTAR PUTRA / PUTRI TERHUBUNG ────────────────────────────────── --}}
     {{-- ═════════════════════════════════════════════════════════════════════════ --}}
     <div class="bg-white rounded-3xl shadow-xs border border-slate-200/80 p-5 sm:p-6 space-y-3.5">
         <div class="flex items-center justify-between gap-2 pb-2.5 border-b border-slate-100">
@@ -246,6 +155,281 @@
     </div>
 
     {{-- ═════════════════════════════════════════════════════════════════════════ --}}
+    {{-- ─── 3. FORMULIR LENGKAP PERBARUI DATA PROFIL ORANG TUA ───────────────── --}}
+    {{-- ═════════════════════════════════════════════════════════════════════════ --}}
+    <form method="POST" action="{{ route('orangtua.profile.update') }}" class="space-y-5">
+        @csrf
+        @method('PUT')
+
+        {{-- A. IDENTITAS DIRI ORANG TUA / WALI --}}
+        <div class="bg-white rounded-3xl shadow-xs border border-slate-200/80 p-5 sm:p-6 space-y-4">
+            <div class="flex items-center gap-2.5 pb-3 border-b border-slate-100">
+                <div class="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h2 class="text-sm font-extrabold text-slate-800">1. Identitas Diri Orang Tua / Wali</h2>
+                    <p class="text-[11px] text-slate-400">Data diri resmi orang tua atau wali siswa</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="sm:col-span-2">
+                    <label for="name" class="block text-xs font-bold text-slate-700 mb-1">
+                        Nama Lengkap Orang Tua / Wali <span class="text-rose-500">*</span>
+                    </label>
+                    <input type="text" id="name" name="name" value="{{ old('name', $orangtua->name) }}" required
+                        class="w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-slate-300 bg-white focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all text-slate-800"
+                        placeholder="Masukkan nama lengkap Anda">
+                    @error('name') <p class="text-rose-500 text-xs mt-1 font-medium">{{ $message }}</p> @enderror
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Nama Panggilan</label>
+                    <input type="text" name="nickname" value="{{ old('nickname', $orangtua->nickname) }}"
+                        class="w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-slate-300 bg-white focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all text-slate-800"
+                        placeholder="Nama sapaan">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Hubungan dengan Siswa</label>
+                    @php $relations = ['Ayah Kandung', 'Ibu Kandung', 'Wali']; @endphp
+                    <select name="parent_relation"
+                        class="w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-slate-300 bg-white focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all text-slate-800">
+                        <option value="">— Pilih Hubungan —</option>
+                        @foreach($relations as $rel)
+                            <option value="{{ $rel }}" @selected(old('parent_relation', $orangtua->parent_relation) === $rel)>{{ $rel }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">NIK (Nomor Induk Kependudukan)</label>
+                    <input type="text" name="nik" value="{{ old('nik', $orangtua->nik) }}"
+                        class="w-full px-3.5 py-2.5 text-xs font-semibold font-mono rounded-xl border border-slate-300 bg-white focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all text-slate-800"
+                        placeholder="16 digit NIK KTP">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Jenis Kelamin</label>
+                    <select name="gender"
+                        class="w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-slate-300 bg-white focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all text-slate-800">
+                        <option value="">— Pilih Jenis Kelamin —</option>
+                        <option value="L" @selected(old('gender', $orangtua->gender) === 'L')>Laki-laki (L)</option>
+                        <option value="P" @selected(old('gender', $orangtua->gender) === 'P')>Perempuan (P)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Tempat Lahir</label>
+                    <input type="text" name="birth_place" value="{{ old('birth_place', $orangtua->birth_place) }}"
+                        class="w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-slate-300 bg-white focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all text-slate-800"
+                        placeholder="Contoh: Gianyar">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Tanggal Lahir</label>
+                    <input type="date" name="birth_date" value="{{ old('birth_date', $orangtua->birth_date?->format('Y-m-d')) }}"
+                        class="w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-slate-300 bg-white focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all text-slate-800">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Agama</label>
+                    @php $religions = ['Hindu', 'Islam', 'Kristen', 'Katolik', 'Buddha', 'Konghucu']; @endphp
+                    <select name="religion"
+                        class="w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-slate-300 bg-white focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all text-slate-800">
+                        <option value="">— Pilih Agama —</option>
+                        @foreach($religions as $r)
+                            <option value="{{ $r }}" @selected(old('religion', $orangtua->religion) === $r)>{{ $r }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Kewarganegaraan</label>
+                    <input type="text" name="citizenship" value="{{ old('citizenship', $orangtua->citizenship ?? 'WNI') }}"
+                        class="w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-slate-300 bg-white focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all text-slate-800"
+                        placeholder="WNI">
+                </div>
+            </div>
+        </div>
+
+        {{-- B. PENDIDIKAN & PEKERJAAN ORANG TUA --}}
+        <div class="bg-white rounded-3xl shadow-xs border border-slate-200/80 p-5 sm:p-6 space-y-4">
+            <div class="flex items-center gap-2.5 pb-3 border-b border-slate-100">
+                <div class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h2 class="text-sm font-extrabold text-slate-800">2. Pendidikan & Pekerjaan Orang Tua / Wali</h2>
+                    <p class="text-[11px] text-slate-400">Informasi pendidikan terakhir, pekerjaan, dan penghasilan</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Pendidikan Terakhir</label>
+                    @php $educations = ['SD / Sederajat', 'SMP / Sederajat', 'SMA / SMK / Sederajat', 'D1 / D2 / D3', 'S1 / D4', 'S2 (Magister)', 'S3 (Doktor)', 'Tidak Sekolah']; @endphp
+                    <select name="last_education"
+                        class="w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-slate-300 bg-white focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all text-slate-800">
+                        <option value="">— Pilih Pendidikan Terakhir —</option>
+                        @foreach($educations as $edu)
+                            <option value="{{ $edu }}" @selected(old('last_education', $orangtua->last_education) === $edu)>{{ $edu }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Pekerjaan Utama</label>
+                    <input type="text" name="occupation" value="{{ old('occupation', $orangtua->occupation) }}"
+                        class="w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-slate-300 bg-white focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all text-slate-800"
+                        placeholder="Contoh: Wiraswasta, PNS, Karyawan Swasta, Petani">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Nama Instansi / Tempat Bekerja (Opsional)</label>
+                    <input type="text" name="company_name" value="{{ old('company_name', $orangtua->company_name) }}"
+                        class="w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-slate-300 bg-white focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all text-slate-800"
+                        placeholder="Nama perusahaan / usaha / instansi">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Penghasilan Rata-rata per Bulan</label>
+                    @php
+                        $incomes = [
+                            'Kurang dari Rp 1.000.000',
+                            'Rp 1.000.000 - Rp 2.500.000',
+                            'Rp 2.500.000 - Rp 5.000.000',
+                            'Rp 5.000.000 - Rp 10.000.000',
+                            'Lebih dari Rp 10.000.000',
+                            'Tidak Berpenghasilan',
+                        ];
+                    @endphp
+                    <select name="income_range"
+                        class="w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-slate-300 bg-white focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all text-slate-800">
+                        <option value="">— Pilih Rentang Penghasilan —</option>
+                        @foreach($incomes as $inc)
+                            <option value="{{ $inc }}" @selected(old('income_range', $orangtua->income_range) === $inc)>{{ $inc }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        {{-- C. KONTAK & ALAMAT DOMISILI ORANG TUA --}}
+        <div class="bg-white rounded-3xl shadow-xs border border-slate-200/80 p-5 sm:p-6 space-y-4">
+            <div class="flex items-center gap-2.5 pb-3 border-b border-slate-100">
+                <div class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h2 class="text-sm font-extrabold text-slate-800">3. Kontak & Alamat Domisili</h2>
+                    <p class="text-[11px] text-slate-400">Nomor HP/WhatsApp (sekaligus ID login), email, alamat tempat tinggal, dan kontak darurat</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">
+                        Nomor HP / WhatsApp (ID Login Akun) <span class="text-rose-500">*</span>
+                    </label>
+                    <input type="text" name="phone" value="{{ old('phone', $orangtua->phone) }}" required
+                        class="w-full px-3.5 py-2.5 text-xs font-mono font-bold rounded-xl border border-slate-300 bg-white focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all text-slate-800"
+                        placeholder="08xxxxxxxxxx">
+                    @error('phone') <p class="text-rose-500 text-xs mt-1 font-medium">{{ $message }}</p> @enderror
+                    <p class="text-[10.5px] text-slate-400 mt-1">Jika diubah, nomor login Anda dan nomor HP orang tua pada data anak otomatis diperbarui.</p>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Email (Opsional)</label>
+                    <input type="email" name="email" value="{{ old('email', $orangtua->email) }}"
+                        class="w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-slate-300 bg-white focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all text-slate-800"
+                        placeholder="email@contoh.com">
+                    @error('email') <p class="text-rose-500 text-xs mt-1 font-medium">{{ $message }}</p> @enderror
+                </div>
+
+                <div class="sm:col-span-2">
+                    <label for="address" class="block text-xs font-bold text-slate-700 mb-1">
+                        Alamat Lengkap Domisili / Tempat Tinggal
+                    </label>
+                    <input type="text" id="address" name="address" value="{{ old('address', $orangtua->address) }}"
+                        class="w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-slate-300 bg-white focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all text-slate-800"
+                        placeholder="Contoh: Jl. Ngurah Rai No. 10, Banjar Sengguan, Gianyar">
+                    @error('address') <p class="text-rose-500 text-xs mt-1 font-medium">{{ $message }}</p> @enderror
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">RT / RW (Opsional)</label>
+                    <input type="text" name="rt_rw" value="{{ old('rt_rw', $orangtua->rt_rw) }}"
+                        class="w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-slate-300 bg-white focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all text-slate-800"
+                        placeholder="Contoh: 001/002">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Desa / Kelurahan</label>
+                    <input type="text" name="kelurahan" value="{{ old('kelurahan', $orangtua->kelurahan) }}"
+                        class="w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-slate-300 bg-white focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all text-slate-800"
+                        placeholder="Contoh: Gianyar">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Kecamatan</label>
+                    <input type="text" name="kecamatan" value="{{ old('kecamatan', $orangtua->kecamatan) }}"
+                        class="w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-slate-300 bg-white focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all text-slate-800"
+                        placeholder="Contoh: Gianyar">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Kabupaten / Kota</label>
+                    <input type="text" name="kabupaten" value="{{ old('kabupaten', $orangtua->kabupaten) }}"
+                        class="w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-slate-300 bg-white focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all text-slate-800"
+                        placeholder="Contoh: Gianyar">
+                </div>
+
+                <div class="sm:col-span-2 pt-3 border-t border-slate-100">
+                    <h3 class="text-xs font-extrabold text-slate-700 mb-3">Kontak Keluarga / Cadangan Darurat</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-600 mb-1">Nama Kontak Cadangan</label>
+                            <input type="text" name="emergency_contact_name" value="{{ old('emergency_contact_name', $orangtua->emergency_contact_name) }}"
+                                class="w-full px-3.5 py-2 text-xs font-semibold rounded-xl border border-slate-300 bg-white focus:outline-none focus:border-blue-500 text-slate-800"
+                                placeholder="Nama kerabat / pasangan">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-600 mb-1">No. HP Cadangan</label>
+                            <input type="text" name="emergency_contact_phone" value="{{ old('emergency_contact_phone', $orangtua->emergency_contact_phone) }}"
+                                class="w-full px-3.5 py-2 text-xs font-semibold font-mono rounded-xl border border-slate-300 bg-white focus:outline-none focus:border-blue-500 text-slate-800"
+                                placeholder="08xxxxxxxxxx">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-600 mb-1">Hubungan</label>
+                            <input type="text" name="emergency_contact_relation" value="{{ old('emergency_contact_relation', $orangtua->emergency_contact_relation) }}"
+                                class="w-full px-3.5 py-2 text-xs font-semibold rounded-xl border border-slate-300 bg-white focus:outline-none focus:border-blue-500 text-slate-800"
+                                placeholder="Ibu / Ayah / Paman / Bibi">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-4 border-t border-slate-100">
+                <button type="submit"
+                    class="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 active:scale-[0.98] text-white text-xs font-black uppercase tracking-wider rounded-xl shadow-md shadow-blue-500/25 transition-all flex items-center justify-center gap-2 cursor-pointer">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                    </svg>
+                    <span>Simpan Seluruh Perubahan Profil Orang Tua</span>
+                </button>
+            </div>
+        </div>
+    </form>
+
+    {{-- ═════════════════════════════════════════════════════════════════════════ --}}
     {{-- ─── 4. GANTI PASSWORD AKUN ───────────────────────────────────────────── --}}
     {{-- ═════════════════════════════════════════════════════════════════════════ --}}
     <div class="bg-white rounded-3xl shadow-xs border border-slate-200/80 p-5 sm:p-6 space-y-4">
@@ -261,7 +445,6 @@
             </div>
         </div>
 
-        {{-- Syarat Password Alert Box --}}
         <div class="p-3.5 rounded-2xl bg-amber-50/80 border border-amber-200/80 space-y-1.5">
             <div class="flex items-center gap-1.5 text-xs font-bold text-amber-900">
                 <span>🛡️</span>
@@ -278,7 +461,6 @@
             @csrf
             @method('PUT')
 
-            {{-- Password Saat Ini --}}
             <div>
                 <label for="current_password" class="block text-xs font-bold text-slate-700 mb-1">
                     Password Saat Ini <span class="text-rose-500">*</span>
@@ -298,7 +480,6 @@
                 @enderror
             </div>
 
-            {{-- Password Baru --}}
             <div>
                 <label for="password" class="block text-xs font-bold text-slate-700 mb-1">
                     Password Baru (Min. 8 Karakter) <span class="text-rose-500">*</span>
@@ -318,7 +499,6 @@
                 @enderror
             </div>
 
-            {{-- Konfirmasi Password Baru --}}
             <div>
                 <label for="password_confirmation" class="block text-xs font-bold text-slate-700 mb-1">
                     Ulangi Password Baru <span class="text-rose-500">*</span>
@@ -335,7 +515,6 @@
                 </div>
             </div>
 
-            {{-- Tombol Ganti Password --}}
             <div class="pt-2">
                 <button type="submit"
                     class="w-full py-3 bg-slate-900 hover:bg-slate-800 active:scale-[0.98] text-white text-xs font-black uppercase tracking-wider rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer">

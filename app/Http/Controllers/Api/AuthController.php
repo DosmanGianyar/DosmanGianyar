@@ -236,6 +236,21 @@ class AuthController extends Controller
             'nis'          => $user->nis,
             'nisn'         => $user->nisn,
             'nip'               => $user->nip,
+            'nik'               => $user->nik,
+            'nuptk'             => $user->nuptk,
+            'teacher_code'      => $user->teacher_code,
+            'employment_status' => $user->employment_status,
+            'rank_grade'        => $user->rank_grade,
+            'position'          => $user->position,
+            'work_unit'         => $user->work_unit,
+            'last_education'    => $user->last_education,
+            'alma_mater'        => $user->alma_mater,
+            'tmt_date'          => $user->tmt_date?->toDateString(),
+            'marital_status'    => $user->marital_status,
+            'parent_relation'   => $user->parent_relation,
+            'occupation'        => $user->occupation,
+            'company_name'      => $user->company_name,
+            'income_range'      => $user->income_range,
             'subject'           => $user->subject,
             'subjects'          => $teacherSubjects,
             'photo_url'         => $user->photo_url,
@@ -346,6 +361,27 @@ class AuthController extends Controller
             'name'                 => 'sometimes|nullable|string|max:100',
             'email'                => 'nullable|email|max:255|unique:users,email,' . $user->id,
             'phone'                => 'nullable|string|max:50',
+            'nip'                  => 'nullable|string|max:30|unique:users,nip,' . $user->id,
+            'nik'                  => 'nullable|string|max:30',
+            'nuptk'                => 'nullable|string|max:30',
+            'teacher_code'         => 'nullable|string|max:50|unique:users,teacher_code,' . $user->id,
+            'employment_status'    => 'nullable|string|max:50',
+            'rank_grade'           => 'nullable|string|max:50',
+            'position'             => 'nullable|string|max:100',
+            'work_unit'            => 'nullable|string|max:100',
+            'last_education'       => 'nullable|string|max:50',
+            'alma_mater'           => 'nullable|string|max:150',
+            'tmt_date'             => 'nullable|date',
+            'marital_status'       => 'nullable|string|max:30',
+            'parent_relation'      => 'nullable|string|max:50',
+            'occupation'           => 'nullable|string|max:100',
+            'company_name'         => 'nullable|string|max:150',
+            'income_range'         => 'nullable|string|max:100',
+            'subject'              => 'nullable|string|max:255',
+            'subject_ids'          => 'nullable|array',
+            'subject_ids.*'        => 'integer|exists:subjects,id',
+            'gender'               => 'nullable|in:L,P',
+            'birth_date'           => 'nullable|date',
             'nickname'             => 'nullable|string|max:50',
             'birth_place'          => 'nullable|string|max:100',
             'religion'             => 'nullable|string|max:50',
@@ -421,9 +457,35 @@ class AuthController extends Controller
             'admission_date'       => 'nullable|date',
         ]);
 
+        $subjectIds = $validated['subject_ids'] ?? null;
+        unset($validated['subject_ids']);
+
+        if (in_array($user->role, ['guru', 'admin']) && is_array($subjectIds)) {
+            $user->subjects()->sync($subjectIds);
+            if (! empty($subjectIds) && empty($validated['subject'])) {
+                $validated['subject'] = \App\Models\Subject::whereIn('id', $subjectIds)->orderBy('name')->pluck('name')->join(', ');
+            }
+        }
+
         if ($user->isOrangtua()) {
-            // Orang tua dilarang mengganti nomor HP secara mandiri
-            unset($validated['phone']);
+            if (array_key_exists('phone', $validated) && filled($validated['phone'])) {
+                $normPhone = OrangtuaSyncService::normalizePhone((string) $validated['phone']);
+                if ($normPhone) {
+                    $existsOther = User::where('role', 'orangtua')
+                        ->where('phone', $normPhone)
+                        ->where('id', '!=', $user->id)
+                        ->exists();
+                    if ($existsOther) {
+                        return response()->json([
+                            'message' => 'Nomor HP tersebut sudah terdaftar pada akun orang tua lain.',
+                            'errors'  => ['phone' => ['Nomor HP tersebut sudah terdaftar pada akun orang tua lain.']],
+                        ], 422);
+                    }
+                    $validated['phone'] = $normPhone;
+                }
+            } else {
+                unset($validated['phone']);
+            }
 
             if (array_key_exists('name', $validated)) {
                 $trimmedName = trim((string) $validated['name']);
@@ -434,11 +496,17 @@ class AuthController extends Controller
                     ], 422);
                 }
                 $validated['name'] = $trimmedName;
-                $user->children()->update(['parent_name' => $trimmedName]);
             }
         }
 
         $user->update($validated);
+
+        if ($user->isOrangtua()) {
+            $user->children()->update(array_filter([
+                'parent_name'  => $user->name,
+                'parent_phone' => $user->phone,
+            ]));
+        }
 
         return response()->json([
             'message' => 'Profil berhasil diperbarui.',
