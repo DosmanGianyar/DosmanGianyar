@@ -222,7 +222,13 @@ class _GuruAbsensiHarianScreenState extends State<GuruAbsensiHarianScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(s.name, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.gray800)),
+                      Text(
+                        s.name,
+                        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.gray800, height: 1.25),
+                        maxLines: 3,
+                        softWrap: true,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                       if (s.nis != null)
                         Text(s.nis!, style: const TextStyle(fontSize: 11, color: AppColors.gray400)),
                     ],

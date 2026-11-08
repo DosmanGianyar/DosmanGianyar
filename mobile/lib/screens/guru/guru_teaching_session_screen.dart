@@ -1258,6 +1258,7 @@ class _StudentAttRow extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Expanded(
             child: Column(
@@ -1265,10 +1266,17 @@ class _StudentAttRow extends StatelessWidget {
               children: [
                 Text(
                   student.name,
-                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.gray800),
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.gray800,
+                    height: 1.25,
+                  ),
+                  maxLines: 3,
+                  softWrap: true,
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: 3),
                 Wrap(
                   crossAxisAlignment: WrapCrossAlignment.center,
                   spacing: 6,
@@ -1297,7 +1305,9 @@ class _StudentAttRow extends StatelessWidget {
               ],
             ),
           ),
+          const SizedBox(width: 8),
           Row(
+            mainAxisSize: MainAxisSize.min,
             children: _statuses.map<Widget>((s) {
               final (status, label, defaultColor, _) = s;
               final selected = student.status == status;
@@ -1314,7 +1324,7 @@ class _StudentAttRow extends StatelessWidget {
               }
 
               return Padding(
-                padding: const EdgeInsets.only(left: 4),
+                padding: const EdgeInsets.only(left: 3),
                 child: GestureDetector(
                   onTap: () => onStatusChanged(status),
                   child: Container(
