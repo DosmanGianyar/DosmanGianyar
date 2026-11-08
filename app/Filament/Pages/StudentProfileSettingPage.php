@@ -5,7 +5,7 @@ namespace App\Filament\Pages;
 use App\Filament\Support\AdminAccess;
 use App\Models\AppSetting;
 use Filament\Forms\Components\Toggle;
-use Filament\Forms\Components\Section;
+use Filament\Schemas\Components\Section;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Schema;
