@@ -324,16 +324,15 @@ class User extends Authenticatable implements FilamentUser
     }
 
     /**
-     * Daftarkan device baru:
-     * - Guru, Pegawai, dan Orang Tua: TIDAK dibatasi kuota 5 perangkat. Hanya boleh aktif
-     *   di 1 perangkat saja (jika berganti perangkat, perangkat lama otomatis dihapus & ter-logout).
-     * - Siswa/Pengelola: maksimal MAX_DEVICES (5 perangkat).
+     * Daftarkan device baru (Single Active Device untuk semua role: Siswa, Guru, Pegawai, Orang Tua):
+     * - Tidak dibatasi kuota 5 perangkat.
+     * - Hanya boleh login di 1 perangkat aktif pada satu waktu.
+     * - Jika berganti perangkat, perangkat lama otomatis dihapus & sesi perangkat lama otomatis ter-logout.
      */
     public function registerDevice(string $deviceId): bool
     {
-        // Guru, Pegawai, dan Orang Tua: hanya 1 perangkat aktif, tanpa batas pergantian perangkat
-        if (in_array($this->role, ['guru', 'pegawai', 'orangtua'], true)) {
-            $this->devices()->where('device_id', '!=', $deviceId)->delete();
+        // Khusus akun demo reviewer Play Store: izinkan multi-device agar reviewer Google tidak saling menendang
+        if (str_contains((string) $this->email, 'demo') || $this->nisn === '0000000001') {
             $this->devices()->updateOrCreate(
                 ['device_id' => $deviceId],
                 ['last_login_at' => now()]
@@ -341,31 +340,13 @@ class User extends Authenticatable implements FilamentUser
             return true;
         }
 
-        // Sudah terdaftar → perbarui last_login_at saja
-        $existing = $this->devices()->where('device_id', $deviceId)->first();
-        if ($existing) {
-            $existing->update(['last_login_at' => now()]);
-            return true;
-        }
-
-        // Belum terdaftar → akun demo reviewer tidak dibatasi kuota device
-        if (str_contains($this->email, 'demo')) {
-            $this->devices()->create([
-                'device_id'     => $deviceId,
-                'last_login_at' => now(),
-            ]);
-            return true;
-        }
-
-        // Belum terdaftar (Siswa) → cek kuota
-        if ($this->deviceCount() >= self::MAX_DEVICES) {
-            return false;
-        }
-
-        $this->devices()->create([
-            'device_id'     => $deviceId,
-            'last_login_at' => now(),
-        ]);
+        // Single Active Device untuk semua akun (Siswa, Guru, Pegawai, Orang Tua):
+        // Hapus perangkat lain dan aktifkan hanya perangkat yang baru login ini.
+        $this->devices()->where('device_id', '!=', $deviceId)->delete();
+        $this->devices()->updateOrCreate(
+            ['device_id' => $deviceId],
+            ['last_login_at' => now()]
+        );
 
         return true;
     }
