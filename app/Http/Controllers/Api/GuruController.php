@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Attendance;
 use App\Models\EarlyCheckoutRequest;
+use App\Models\Extracurricular;
+use App\Models\ExtracurricularMember;
 use App\Models\ForgotAttendanceRequest;
 use App\Models\Holiday;
 use App\Models\Permit;
@@ -879,35 +881,51 @@ class GuruController extends Controller
 
     public function pendingExtracurricularMembers(): JsonResponse
     {
-        $guru = Auth::user();
+        try {
+            /** @var User $guru */
+            $guru = Auth::user();
 
-        if (in_array($guru->role, ['admin', 'admin_kesiswaan'])) {
-            $extraIds = Extracurricular::pluck('id');
-        } else {
-            $extraIds = Extracurricular::where('pembina_id', $guru->id)
-                ->orWhereHas('teachers', fn($q) => $q->where('users.id', $guru->id))
-                ->pluck('id');
-        }
+            if (in_array($guru->role, ['admin', 'admin_kesiswaan'])) {
+                $extraIds = Extracurricular::pluck('id');
+            } else {
+                $extraIds = Extracurricular::where('pembina_id', $guru->id)
+                    ->orWhereHas('teachers', fn($q) => $q->where('users.id', $guru->id))
+                    ->pluck('id');
+            }
 
-        $pendingMembers = ExtracurricularMember::whereIn('extracurricular_id', $extraIds)
-            ->whereIn('status', ['pending_join', 'pending_leave', 'pending'])
-            ->with(['student:id,name,class_id,nis', 'student.schoolClass:id,name', 'extracurricular:id,name'])
-            ->latest()
-            ->get()
-            ->map(fn($m) => [
-                'id'                   => $m->id,
-                'extracurricular_id'   => $m->extracurricular_id,
-                'extracurricular_name' => $m->extracurricular?->name ?? '—',
-                'student_id'           => $m->user_id,
-                'student_name'         => $m->student?->name ?? '—',
-                'student_nis'          => $m->student?->nis,
-                'class_name'           => $m->student?->schoolClass?->name ?? '—',
-                'status'               => $m->status,
-                'status_label'         => in_array($m->status, ['pending_join', 'pending']) ? 'Pengajuan Masuk' : 'Pengajuan Keluar',
-                'requested_at'         => $m->created_at->toIso8601String(),
+            if ($extraIds->isEmpty()) {
+                return response()->json(['pending_members' => []]);
+            }
+
+            $pendingMembers = ExtracurricularMember::whereIn('extracurricular_id', $extraIds)
+                ->whereIn('status', ['pending_join', 'pending_leave', 'pending'])
+                ->with(['student.schoolClass', 'extracurricular'])
+                ->latest()
+                ->get()
+                ->map(fn($m) => [
+                    'id'                   => $m->id,
+                    'extracurricular_id'   => $m->extracurricular_id,
+                    'extracurricular_name' => $m->extracurricular?->name ?? '—',
+                    'student_id'           => $m->user_id,
+                    'student_name'         => $m->student?->name ?? '—',
+                    'student_nis'          => $m->student?->nis ?? '—',
+                    'class_name'           => $m->student?->schoolClass?->name ?? '—',
+                    'status'               => $m->status,
+                    'status_label'         => in_array($m->status, ['pending_join', 'pending']) ? 'Pengajuan Masuk' : 'Pengajuan Keluar',
+                    'requested_at'         => $m->created_at?->toIso8601String() ?? now()->toIso8601String(),
+                ]);
+
+            return response()->json(['pending_members' => $pendingMembers]);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Error in pendingExtracurricularMembers: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
             ]);
 
-        return response()->json(['pending_members' => $pendingMembers]);
+            return response()->json([
+                'pending_members' => [],
+                'message'         => 'Gagal memuat daftar pengajuan anggota ekstrakurikuler.',
+            ], 500);
+        }
     }
 
     public function approveExtracurricularMember(int $id): JsonResponse
