@@ -77,3 +77,4 @@ class UniformRegulationsSeeder extends Seeder
         }
     }
 }
+
