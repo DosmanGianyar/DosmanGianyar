@@ -30,7 +30,12 @@ class GuruTpController extends Controller
         ->orderByDesc('id');
 
         if ($request->filled('subject_id')) {
-            $query->where('subject_id', $request->subject_id);
+            $reqSubjectId = (int) $request->subject_id;
+            $query->where(function ($q) use ($reqSubjectId, $teacher) {
+                $q->where('subject_id', $reqSubjectId)
+                  ->orWhereNull('subject_id')
+                  ->orWhere('teacher_id', $teacher->id);
+            });
         }
 
         if ($request->filled('grade_level')) {

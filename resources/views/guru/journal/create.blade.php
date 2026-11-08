@@ -93,6 +93,7 @@
                 <option value="{{ $tp->id }}"
                     data-subject-id="{{ $tp->subject_id ?? '' }}"
                     data-grade-level="{{ $tp->grade_level ?? '' }}"
+                    data-is-own="{{ $tp->teacher_id === auth()->id() ? '1' : '0' }}"
                     {{ old('tp_id') == $tp->id ? 'selected' : '' }}>
                     {{ $tp->subject ? '[' . $tp->subject->name . '] ' : '' }}{{ $tp->grade_level ? '[Kls '.$tp->grade_level.'] ' : '' }}{{ $tp->code ? '('.$tp->code.') ' : '' }}{{ Str::limit($tp->description, 60) }}
                 </option>
@@ -344,8 +345,9 @@ function filterTpBySubject(subjectId, classGrade) {
     options.forEach(opt => {
         const optSubject = opt.dataset.subjectId;
         const optGrade   = opt.dataset.gradeLevel;
+        const optIsOwn   = opt.dataset.isOwn === '1';
 
-        const matchSubject = !subjectId || optSubject === '' || optSubject === subjectId;
+        const matchSubject = optIsOwn || !subjectId || optSubject === '' || optSubject === subjectId;
         const matchGrade   = !classGrade || optGrade === '' || optGrade === classGrade;
 
         const show = matchSubject && matchGrade;
