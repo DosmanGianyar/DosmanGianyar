@@ -22,6 +22,16 @@ class FcmTokenController extends Controller
 
         $user = $request->user();
 
+        // Pastikan 1 token FCM perangkat hanya terikat pada akun yang sedang aktif di perangkat tersebut
+        UserFcmToken::where('fcm_token', $request->fcm_token)
+            ->where('user_id', '!=', $user->id)
+            ->delete();
+
+        // Sesuai kebijakan Single Active Device, simpan token terbaru untuk user ini
+        UserFcmToken::where('user_id', $user->id)
+            ->where('fcm_token', '!=', $request->fcm_token)
+            ->delete();
+
         UserFcmToken::updateOrCreate(
             [
                 'user_id'   => $user->id,

@@ -154,11 +154,19 @@ class AttendanceController extends Controller
             ]
         );
 
+        $isLate   = $status === 'terlambat';
+        $label    = $isLate ? 'Terlambat' : 'Hadir';
+        $photoUrl = asset('storage/' . $filename);
+
         \App\Services\NotificationService::notifyParentsOfStudent(
             $user,
-            "Absensi Masuk Ananda {$user->name}",
-            "Ananda {$user->name} telah melakukan presensi masuk (Status: " . ucfirst($status) . " pukul " . $now->format('H:i') . ").",
-            'info'
+            $isLate
+                ? "⚠️ Presensi Masuk (Terlambat) — {$user->name}"
+                : "✅ Presensi Masuk — {$user->name}",
+            "Halo Bpk/Ibu, ananda {$user->name} telah melakukan presensi masuk sekolah pada pukul " . $now->format('H:i') . " WITA (Status: {$label}).",
+            $isLate ? 'warning' : 'success',
+            route('orangtua.attendance.index'),
+            $photoUrl
         );
 
         return response()->json([
@@ -236,11 +244,15 @@ class AttendanceController extends Controller
             ->where('type', 'dengan_absen')
             ->update(['checked_out_at' => $now]);
 
+        $photoUrl = asset('storage/' . $filename);
+
         \App\Services\NotificationService::notifyParentsOfStudent(
             $user,
-            "Absensi Pulang Ananda {$user->name}",
-            "Ananda {$user->name} telah melakukan presensi pulang pukul " . $now->format('H:i') . ".",
-            'info'
+            "👋 Presensi Pulang — {$user->name}",
+            "Halo Bpk/Ibu, ananda {$user->name} telah melakukan presensi pulang sekolah pada pukul " . $now->format('H:i') . " WITA.",
+            'info',
+            route('orangtua.attendance.index'),
+            $photoUrl
         );
 
         return response()->json([

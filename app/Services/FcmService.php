@@ -88,47 +88,60 @@ class FcmService
 
             $successCount = 0;
             $url = "https://fcm.googleapis.com/v1/projects/{$projectId}/messages:send";
+            $deadTokens = [];
 
-            // FCM v1 sends per token
-            foreach ($tokens as $token) {
-                $payload = [
-                    'message' => [
-                        'token' => $token,
-                        'notification' => [
-                            'title' => $title,
-                            'body'  => $body,
-                        ],
-                        'android' => [
-                            'priority' => 'HIGH',
-                            'notification' => [
-                                'channel_id'              => 'sims_urgent_alert_v4',
-                                'sound'                   => 'default',
-                                'default_sound'           => true,
-                                'default_vibrate_timings' => true,
-                                'notification_priority'   => 'PRIORITY_MAX',
-                                'visibility'              => 'PUBLIC',
+            // Kirim secara paralel per batch 50 token menggunakan Http::pool agar cepat & bebas timeout
+            foreach (array_chunk(array_values($tokens), 50) as $tokenChunk) {
+                $responses = Http::pool(function (\Illuminate\Http\Client\Pool $pool) use ($tokenChunk, $url, $accessToken, $title, $body, $data) {
+                    foreach ($tokenChunk as $idx => $token) {
+                        $payload = [
+                            'message' => [
+                                'token' => $token,
+                                'notification' => [
+                                    'title' => $title,
+                                    'body'  => $body,
+                                ],
+                                'android' => [
+                                    'priority' => 'HIGH',
+                                    'notification' => [
+                                        'channel_id'              => 'sims_urgent_alert_v4',
+                                        'sound'                   => 'default',
+                                        'default_sound'           => true,
+                                        'default_vibrate_timings' => true,
+                                        'notification_priority'   => 'PRIORITY_MAX',
+                                        'visibility'              => 'PUBLIC',
+                                    ],
+                                ],
+                                'data' => array_map('strval', array_merge($data, [
+                                    'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
+                                ])),
                             ],
-                        ],
-                        'data' => array_map('strval', array_merge($data, [
-                            'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
-                        ])),
-                    ],
-                ];
+                        ];
 
-                $response = Http::withToken($accessToken)
-                    ->withHeaders(['Content-Type' => 'application/json'])
-                    ->post($url, $payload);
+                        $pool->as((string) $idx)
+                            ->withToken($accessToken)
+                            ->withHeaders(['Content-Type' => 'application/json'])
+                            ->timeout(10)
+                            ->post($url, $payload);
+                    }
+                });
 
-                if ($response->successful()) {
-                    $successCount++;
-                } else {
-                    $errBody = $response->body();
-                    Log::warning("[FcmService] HTTP v1 Send Failed for token: " . substr($token, 0, 15) . "... Response: " . $errBody);
-                    // Remove dead token if unregistered
-                    if (str_contains($errBody, 'UNREGISTERED') || str_contains($errBody, 'NOT_FOUND')) {
-                        UserFcmToken::where('fcm_token', $token)->delete();
+                foreach ($tokenChunk as $idx => $token) {
+                    $response = $responses[(string) $idx] ?? null;
+                    if ($response instanceof \Illuminate\Http\Client\Response && $response->successful()) {
+                        $successCount++;
+                    } elseif ($response instanceof \Illuminate\Http\Client\Response) {
+                        $errBody = $response->body();
+                        Log::warning("[FcmService] HTTP v1 Send Failed for token: " . substr($token, 0, 15) . "... Response: " . $errBody);
+                        if (str_contains($errBody, 'UNREGISTERED') || str_contains($errBody, 'NOT_FOUND')) {
+                            $deadTokens[] = $token;
+                        }
                     }
                 }
+            }
+
+            if (!empty($deadTokens)) {
+                UserFcmToken::whereIn('fcm_token', $deadTokens)->delete();
             }
 
             Log::info("[FcmService] Sent {$successCount}/" . count($tokens) . " notifications via FCM HTTP v1.");

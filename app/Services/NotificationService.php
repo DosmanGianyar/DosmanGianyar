@@ -70,6 +70,47 @@ class NotificationService
         }
     }
 
+    /**
+     * Kirim notifikasi secara massal ke daftar user_id (bulk insert + batch FCM).
+     */
+    public static function sendToMany(
+        array   $userIds,
+        string  $title,
+        string  $body     = '',
+        string  $type     = 'info',
+        ?string $url      = null,
+        ?string $imageUrl = null,
+    ): void {
+        $userIds = array_values(array_unique(array_filter($userIds)));
+        if (empty($userIds)) {
+            return;
+        }
+
+        $now = now();
+        $rows = [];
+        foreach ($userIds as $uid) {
+            $rows[] = [
+                'user_id'    => $uid,
+                'title'      => $title,
+                'body'       => $body,
+                'type'       => $type,
+                'url'        => $url,
+                'image_url'  => $imageUrl,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ];
+        }
+
+        foreach (array_chunk($rows, 500) as $chunk) {
+            AppNotification::insert($chunk);
+        }
+
+        FcmService::sendToUsers($userIds, $title, $body, [
+            'type' => $type,
+            'url'  => $url ?? '',
+        ]);
+    }
+
     /** Broadcast ke semua user dengan peran tertentu. */
     public static function broadcastToRole(
         array   $roles,
@@ -79,9 +120,8 @@ class NotificationService
         ?string $url      = null,
         ?string $imageUrl = null,
     ): void {
-        User::whereIn('role', $roles)->pluck('id')->each(
-            fn(int $id) => static::send($id, $title, $body, $type, $url, $imageUrl)
-        );
+        $userIds = User::whereIn('role', $roles)->pluck('id')->toArray();
+        static::sendToMany($userIds, $title, $body, $type, $url, $imageUrl);
     }
 
     /**
@@ -101,7 +141,7 @@ class NotificationService
         if ($targetRole === 'guru') {
             $query->where('role', 'guru');
         } elseif ($targetRole === 'siswa') {
-            $query->where('role', 'siswa');
+            $query->whereIn('role', ['siswa', 'pengelola']);
             if (!empty($targetClassIds)) {
                 $query->whereIn('class_id', $targetClassIds);
             }
@@ -109,25 +149,69 @@ class NotificationService
             $query->where('role', 'orangtua');
             if (!empty($targetClassIds)) {
                 // Filter orang tua dari siswa yang berada di kelas target
-                $studentUserIds = User::where('role', 'siswa')->whereIn('class_id', $targetClassIds)->pluck('id');
+                $studentUserIds = User::whereIn('role', ['siswa', 'pengelola'])->whereIn('class_id', $targetClassIds)->pluck('id');
                 $parentUserIds  = \DB::table('parent_students')
                     ->whereIn('student_id', $studentUserIds)
                     ->pluck('parent_id');
                 $query->whereIn('id', $parentUserIds);
             }
         } else {
-            // 'all' -> Semua peran
+            // 'all' -> Semua peran (Guru, Siswa, Orang Tua)
             if (!empty($targetClassIds)) {
-                $query->where(function ($q) use ($targetClassIds) {
+                $studentUserIds = User::whereIn('role', ['siswa', 'pengelola'])->whereIn('class_id', $targetClassIds)->pluck('id');
+                $parentUserIds  = \DB::table('parent_students')
+                    ->whereIn('student_id', $studentUserIds)
+                    ->pluck('parent_id');
+
+                $query->where(function ($q) use ($targetClassIds, $parentUserIds) {
                     $q->where('role', 'guru')
-                      ->orWhere(fn($sq) => $sq->where('role', 'siswa')->whereIn('class_id', $targetClassIds));
+                      ->orWhere(fn ($sq) => $sq->whereIn('role', ['siswa', 'pengelola'])->whereIn('class_id', $targetClassIds))
+                      ->orWhereIn('id', $parentUserIds);
                 });
+            } else {
+                $query->whereIn('role', ['guru', 'pegawai', 'siswa', 'pengelola', 'orangtua']);
             }
         }
 
         $userIds = $query->pluck('id')->toArray();
-        foreach ($userIds as $id) {
-            static::send($id, $title, $body, $type, $url, $imageUrl);
+        static::sendToMany($userIds, $title, $body, $type, $url, $imageUrl);
+    }
+
+    /**
+     * Broadcast notifikasi saat Admin membuat Hari Libur atau Hari Sekolah Khusus.
+     */
+    public static function broadcastHoliday(\App\Models\Holiday $holiday): void
+    {
+        $dateFormatted = $holiday->date
+            ? \Illuminate\Support\Carbon::parse($holiday->date)->locale('id')->translatedFormat('l, d F Y')
+            : '';
+
+        $isLibur = $holiday->type === 'libur';
+        $title = $isLibur
+            ? "📅 Informasi Hari Libur: {$holiday->description}"
+            : "🏫 Informasi Hari Sekolah Khusus: {$holiday->description}";
+
+        $classIds = null;
+        $scopeLabel = 'seluruh kelas';
+
+        if ($holiday->applies_to === 'kelas_tertentu') {
+            $classes = $holiday->schoolClasses()->get(['classes.id', 'classes.name']);
+            $classIds = $classes->pluck('id')->toArray();
+            if ($classes->isNotEmpty()) {
+                $scopeLabel = 'Kelas ' . $classes->pluck('name')->implode(', ');
+            }
         }
+
+        $body = $isLibur
+            ? "Diberitahukan bahwa pada {$dateFormatted} ditetapkan sebagai Hari Libur ({$holiday->description}) untuk {$scopeLabel}. Presensi siswa tidak diperlukan pada tanggal tersebut."
+            : "Diberitahukan bahwa pada {$dateFormatted} ditetapkan sebagai Hari Sekolah Khusus ({$holiday->description}) untuk {$scopeLabel}. Siswa wajib melakukan presensi kehadiran seperti biasa.";
+
+        static::broadcastToTarget(
+            'all',
+            !empty($classIds) ? $classIds : null,
+            $title,
+            $body,
+            'info'
+        );
     }
 }

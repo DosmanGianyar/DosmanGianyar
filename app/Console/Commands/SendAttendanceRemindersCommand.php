@@ -104,21 +104,15 @@ class SendAttendanceRemindersCommand extends Command
         $title = '🔔 Pengingat Presensi Masuk';
         $body  = 'Halo! Jangan lupa melakukan presensi masuk hari ini sebelum jam 08:00 WITA. Selamat belajar & beraktivitas! 🏫';
 
-        // 1. Simpan ke database AppNotification (History di App)
-        foreach ($targetUserIds as $userId) {
-            AppNotification::create([
-                'user_id' => $userId,
-                'title'   => $title,
-                'message' => $body,
-                'type'    => 'reminder_checkin',
-                'is_read' => false,
-            ]);
-        }
+        // 1. Simpan ke database AppNotification (History di App) & kirim Push FCM
+        \App\Services\NotificationService::sendToMany(
+            $targetUserIds,
+            $title,
+            $body,
+            'reminder_checkin'
+        );
 
-        // 2. Meletupkan Push Notification FCM ke HP Android
-        $sent = FcmService::sendToUsers($targetUserIds, $title, $body, ['type' => 'reminder_checkin']);
-
-        $this->info("Berhasil memproses " . count($targetUserIds) . " siswa untuk pengingat masuk. FCM Sent: " . ($sent ? 'Ya' : 'Tidak'));
+        $this->info("Berhasil memproses " . count($targetUserIds) . " siswa untuk pengingat masuk.");
         Log::info("[SendAttendanceRemindersCommand] CheckIn reminder sent to " . count($targetUserIds) . " students.");
     }
 
@@ -182,21 +176,15 @@ class SendAttendanceRemindersCommand extends Command
         $title = '🔔 Pengingat Presensi Pulang';
         $body  = 'Halo! Sekarang sudah jam 13:45 WITA dan waktunya presensi pulang. Jangan lupa absen pulang melalui aplikasi ya! 👋';
 
-        // 1. Simpan ke AppNotification
-        foreach ($targetUserIds as $userId) {
-            AppNotification::create([
-                'user_id' => $userId,
-                'title'   => $title,
-                'message' => $body,
-                'type'    => 'reminder_checkout',
-                'is_read' => false,
-            ]);
-        }
+        // 1. Simpan ke AppNotification & kirim Push FCM
+        \App\Services\NotificationService::sendToMany(
+            $targetUserIds,
+            $title,
+            $body,
+            'reminder_checkout'
+        );
 
-        // 2. Meletupkan Push Notification FCM ke HP Android
-        $sent = FcmService::sendToUsers($targetUserIds, $title, $body, ['type' => 'reminder_checkout']);
-
-        $this->info("Berhasil memproses " . count($targetUserIds) . " siswa untuk pengingat pulang. FCM Sent: " . ($sent ? 'Ya' : 'Tidak'));
+        $this->info("Berhasil memproses " . count($targetUserIds) . " siswa untuk pengingat pulang.");
         Log::info("[SendAttendanceRemindersCommand] CheckOut reminder sent to " . count($targetUserIds) . " students.");
     }
 }

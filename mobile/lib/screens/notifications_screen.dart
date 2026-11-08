@@ -4,10 +4,9 @@ import 'package:provider/provider.dart';
 import '../models/notification_item.dart';
 import '../providers/auth_provider.dart';
 import '../providers/notification_provider.dart';
+import '../providers/orangtua_provider.dart';
 import '../widgets/image_viewer_dialog.dart';
 import '../theme/app_colors.dart';
-import '../services/api_client.dart';
-import '../services/push_notification_service.dart';
 import 'announcement_list_screen.dart';
 import 'chat/chat_list_screen.dart';
 import 'chat/student_chat_entry.dart';
@@ -20,6 +19,8 @@ import 'kesiswaan/early_checkout_screen.dart';
 import 'kesiswaan/permit_screen.dart';
 import 'kesiswaan/forgot_attendance_screen.dart';
 import 'kesiswaan/conduct_screen.dart';
+import 'orangtua/orangtua_attendance_screen.dart';
+import 'orangtua/orangtua_conduct_screen.dart';
 import '../widgets/rich_content_view.dart';
 
 class NotificationsScreen extends StatefulWidget {
@@ -40,45 +41,30 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     });
   }
 
-  Future<void> _triggerTestNotification() async {
-    final notifProv = context.read<NotificationProvider>();
-    await PushNotificationService.showTestNotification(
-      title: '🔔 Uji Coba Push Notifikasi SIMAK DOSMAN',
-      body: 'Selamat! Spanduk, nada alert, dan pesan notifikasi di HP Anda berfungsi 100%.',
-    );
-    try {
-      final res = await ApiClient.post('/fcm-token/test');
-      final isOk = res['success'] == true;
-      final msg = res['message']?.toString() ?? 'Uji coba selesai.';
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(msg),
-            backgroundColor: isOk ? AppColors.green500 : const Color(0xFFD97706),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Koneksi ke server: ${ApiClient.extractError(e)}'),
-            backgroundColor: AppColors.red500,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      }
-    }
-    await notifProv.fetchAll();
-  }
-
   void _handleNotificationTap(NotificationItem item) {
     final type = item.type.toLowerCase();
     final title = item.title.toLowerCase();
     final url = (item.url ?? '').toLowerCase();
     final userRole = context.read<AuthProvider>().user?.role ?? '';
     final isTeacherOrAdmin = userRole == 'guru' || userRole == 'admin';
+    final isOrangtua = userRole == 'orangtua';
+
+    // 0. Khusus Orang Tua: Presensi Masuk / Pulang Anak
+    if (isOrangtua &&
+        (title.contains('presensi') ||
+         title.contains('absensi') ||
+         url.contains('orangtua/attendance'))) {
+      final child = context.read<OrangtuaProvider>().selectedChild;
+      if (child != null) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => OrangtuaAttendanceScreen(studentId: child.id, studentName: child.name),
+          ),
+        );
+        return;
+      }
+    }
 
     // 1. Izin Pulang Lebih Awal -> Buka Halaman Verifikasi Pulang Lebih Awal
     if (type == 'early_checkout' ||
@@ -157,6 +143,16 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const GuruConductScreen()),
+          );
+        }
+      } else if (isOrangtua) {
+        final child = context.read<OrangtuaProvider>().selectedChild;
+        if (child != null) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => OrangtuaConductScreen(studentId: child.id, studentName: child.name),
+            ),
           );
         }
       } else {
@@ -252,11 +248,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           ],
         ),
         actions: [
-          IconButton(
-            tooltip: 'Uji Coba Push Notifikasi',
-            icon: const Icon(Icons.notifications_active_rounded, size: 20, color: Color(0xFFFACC15)),
-            onPressed: _triggerTestNotification,
-          ),
           Consumer<NotificationProvider>(
             builder: (_, prov, __) {
               if (prov.unreadCount == 0) return const SizedBox.shrink();

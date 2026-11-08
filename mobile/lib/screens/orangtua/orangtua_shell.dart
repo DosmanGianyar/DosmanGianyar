@@ -5,8 +5,10 @@ import '../../providers/auth_provider.dart';
 import '../../providers/orangtua_provider.dart';
 import '../../theme/app_colors.dart';
 import '../../providers/notification_provider.dart';
+import '../../services/push_notification_service.dart';
 import '../../widgets/announcement_popup_dialog.dart';
 import '../login_screen.dart';
+import '../notifications_screen.dart';
 import '../profile_screen.dart';
 import 'orangtua_achievement_screen.dart';
 import 'orangtua_attendance_screen.dart';
@@ -31,7 +33,9 @@ class _OrangtuaShellState extends State<OrangtuaShell> {
       final user = context.read<AuthProvider>().user;
       context.read<OrangtuaProvider>().initFromUser(user?.children ?? []);
       context.read<OrangtuaProvider>().refreshChildren();
+      context.read<NotificationProvider>().fetchUnreadCount();
       _checkPopupAnnouncement();
+      PushNotificationService.requestPermissionIfNeeded(context);
     });
   }
 
@@ -97,23 +101,41 @@ class _OrangtuaShellState extends State<OrangtuaShell> {
     );
   }
 
+  void _openNotifications() {
+    final notifProv = context.read<NotificationProvider>();
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const NotificationsScreen()),
+    ).then((_) {
+      if (mounted) notifProv.fetchUnreadCount();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    final user = context.watch<AuthProvider>().user;
-    final prov = context.watch<OrangtuaProvider>();
-    final child = prov.selectedChild;
+    final user   = context.watch<AuthProvider>().user;
+    final prov   = context.watch<OrangtuaProvider>();
+    final unread = context.watch<NotificationProvider>().unreadCount;
+    final child  = prov.selectedChild;
 
     return Scaffold(
       backgroundColor: AppColors.slate100,
       body: SafeArea(
         bottom: false,
         child: RefreshIndicator(
-          onRefresh: () => context.read<OrangtuaProvider>().refreshChildren(),
+          onRefresh: () async {
+            await Future.wait([
+              context.read<OrangtuaProvider>().refreshChildren(),
+              context.read<NotificationProvider>().fetchUnreadCount(),
+            ]);
+          },
           child: ListView(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
             children: [
               _TopBar(
                 userName: user?.name ?? '',
+                unread: unread,
+                onNotif: _openNotifications,
                 onProfile: _openProfile,
                 onChat: _openChat,
                 onLogout: _logout,
@@ -150,12 +172,16 @@ class _OrangtuaShellState extends State<OrangtuaShell> {
 
 class _TopBar extends StatelessWidget {
   final String       userName;
+  final int          unread;
+  final VoidCallback onNotif;
   final VoidCallback onProfile;
   final VoidCallback onChat;
   final VoidCallback onLogout;
 
   const _TopBar({
     required this.userName,
+    required this.unread,
+    required this.onNotif,
     required this.onProfile,
     required this.onChat,
     required this.onLogout,
@@ -221,6 +247,37 @@ class _TopBar extends StatelessWidget {
             icon: const Icon(Icons.chat_bubble_outline_rounded, color: AppColors.gray700, size: 20),
             tooltip: 'Chat Wali Kelas',
             visualDensity: VisualDensity.compact,
+          ),
+          Stack(
+            clipBehavior: Clip.none,
+            children: [
+              IconButton(
+                onPressed: onNotif,
+                icon: const Icon(Icons.notifications_outlined, color: AppColors.gray700, size: 22),
+                tooltip: 'Notifikasi',
+                visualDensity: VisualDensity.compact,
+              ),
+              if (unread > 0)
+                Positioned(
+                  top: 4,
+                  right: 4,
+                  child: Container(
+                    padding: const EdgeInsets.all(3.5),
+                    decoration: const BoxDecoration(
+                      color: AppColors.red500,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Text(
+                      unread > 9 ? '9+' : '$unread',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 8.5,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
           ),
           IconButton(
             onPressed: onProfile,

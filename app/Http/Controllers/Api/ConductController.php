@@ -112,6 +112,14 @@ class ConductController extends Controller
             route('guru.conduct.today')
         );
 
+        NotificationService::notifyParentsOfStudent(
+            $student,
+            "⚠️ Pelaporan Kedisiplinan — {$student->name}",
+            "Halo Bpk/Ibu, ananda {$student->name} baru saja melaporkan pembinaan mandiri di gerbang sekolah ({$displayReason}" . ($desc ? ": {$desc}" : '') . ") pada pukul " . now()->format('H:i') . " WITA.",
+            'warning',
+            route('orangtua.conduct.index', $student->id)
+        );
+
         return response()->json([
             'success' => true,
             'message' => 'Pengajuan pembinaan mandiri berhasil dikirim.',

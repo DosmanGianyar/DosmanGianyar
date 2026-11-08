@@ -25,6 +25,7 @@ import 'guru_teaching_session_screen.dart';
 import 'guru_tp_screen.dart';
 import '../chat/chat_list_screen.dart';
 import '../../widgets/announcement_popup_dialog.dart';
+import '../../services/push_notification_service.dart';
 
 class GuruShell extends StatefulWidget {
   const GuruShell({super.key});
@@ -45,6 +46,7 @@ class _GuruShellState extends State<GuruShell> {
       context.read<NotificationProvider>().fetchUnreadCount();
       _loadClasses();
       _checkPopupAnnouncement();
+      PushNotificationService.requestPermissionIfNeeded(context);
     });
   }
 
