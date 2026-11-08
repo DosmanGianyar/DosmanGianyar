@@ -5,10 +5,12 @@ import '../theme/app_colors.dart';
 /// Layar penahan wajib (non-dismissible) yang memaksa pengguna memperbarui aplikasi di Play Store
 class ForceUpdateScreen extends StatelessWidget {
   final VersionCheckResult result;
+  final VoidCallback? onRetryCheck;
 
   const ForceUpdateScreen({
     super.key,
     required this.result,
+    this.onRetryCheck,
   });
 
   @override
@@ -127,43 +129,42 @@ class ForceUpdateScreen extends StatelessWidget {
                     // Tombol Gradient: Perbarui Sekarang
                     SizedBox(
                       width: double.infinity,
-                      height: 50,
-                      child: ElevatedButton(
+                      height: 48,
+                      child: ElevatedButton.icon(
                         onPressed: () => VersionService.launchPlayStore(result.updateUrl),
                         style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.zero,
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: AppRadius.button,
+                          backgroundColor: AppColors.blue600,
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                          elevation: 4,
-                          shadowColor: AppColors.blue600.withValues(alpha: 0.4),
                         ),
-                        child: Ink(
-                          decoration: const BoxDecoration(
-                            gradient: AppColors.loginGradient,
-                            borderRadius: AppRadius.button,
-                          ),
-                          child: Container(
-                            alignment: Alignment.center,
-                            child: const Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.shop_two_rounded, color: Colors.white, size: 20),
-                                SizedBox(width: 10),
-                                Text(
-                                  'Perbarui Aplikasi di Play Store',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ],
-                            ),
+                        icon: const Icon(Icons.system_update_alt_rounded, size: 18),
+                        label: const Text(
+                          'Perbarui Aplikasi Sekarang',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                       ),
                     ),
+                    if (onRetryCheck != null) ...[
+                      const SizedBox(height: 10),
+                      TextButton.icon(
+                        onPressed: onRetryCheck,
+                        icon: const Icon(Icons.refresh_rounded, size: 16, color: AppColors.gray600),
+                        label: const Text(
+                          'Sudah memperbarui? Cek ulang',
+                          style: TextStyle(
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.gray600,
+                          ),
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),

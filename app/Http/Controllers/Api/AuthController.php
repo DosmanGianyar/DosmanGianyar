@@ -569,13 +569,20 @@ class AuthController extends Controller
     /** Cek versi aplikasi mobile & status force update. */
     public function appVersion(): JsonResponse
     {
+        $minVersion    = (string) \App\Models\AppSetting::get('min_mobile_version', config('sims.min_mobile_version', '1.5.8'));
+        $latestVersion = (string) \App\Models\AppSetting::get('latest_mobile_version', config('sims.latest_mobile_version', '1.5.8'));
+        $forceUpdate   = (bool) \App\Models\AppSetting::get('force_mobile_update', config('sims.force_mobile_update', true));
+        $updateUrl     = (string) \App\Models\AppSetting::get('play_store_url', config('sims.play_store_url', 'https://play.google.com/store/apps/details?id=com.sman1gianyar.sims_mobile'));
+        $title         = (string) \App\Models\AppSetting::get('mobile_update_title', 'Pembaruan Aplikasi Wajib');
+        $message       = (string) \App\Models\AppSetting::get('mobile_update_message', 'Versi baru aplikasi SIMAK DOSMAN telah tersedia. Anda wajib memperbarui aplikasi ke versi terbaru untuk dapat melanjutkan penggunaan aplikasi.');
+
         return response()->json([
-            'latest_version'       => config('sims.latest_mobile_version', '1.3.2'),
-            'min_required_version' => config('sims.min_mobile_version', '1.3.0'),
-            'force_update'         => (bool) config('sims.force_mobile_update', false),
-            'update_url'           => config('sims.play_store_url', 'https://play.google.com/store/apps/details?id=com.sman1gianyar.sims_mobile'),
-            'title'                => 'Pembaruan Aplikasi Diperlukan',
-            'message'              => 'Versi baru aplikasi SIMAK DOSMAN telah tersedia. Silakan perbarui aplikasi Anda untuk melanjutkan.',
+            'latest_version'       => $latestVersion,
+            'min_required_version' => $minVersion,
+            'force_update'         => $forceUpdate,
+            'update_url'           => $updateUrl,
+            'title'                => $title,
+            'message'              => $message,
         ]);
     }
 }

@@ -237,14 +237,26 @@ class ConductController extends Controller
 
     public function todayIndex(Request $request): View
     {
-        $today = now()->format('Y-m-d');
-        $classes = SchoolClass::orderBy('name')->get();
+        $selectedMonth = (string) $request->input('month', now()->format('Y-m'));
+        try {
+            $monthCarbon = \Illuminate\Support\Carbon::createFromFormat('Y-m', $selectedMonth)->startOfMonth();
+        } catch (\Throwable $e) {
+            $monthCarbon   = now()->startOfMonth();
+            $selectedMonth = $monthCarbon->format('Y-m');
+        }
 
+        $startOfMonth = $monthCarbon->copy()->startOfMonth();
+        $endOfMonth   = $monthCarbon->copy()->endOfMonth();
+        $monthLabel   = $monthCarbon->translatedFormat('F Y');
+
+        $classes         = SchoolClass::orderBy('name')->get();
         $selectedClassId = $request->input('class_id');
         $statusFilter    = $request->input('status');
+        $searchQuery     = trim((string) $request->input('q', ''));
+        $activeTab       = $request->input('tab', 'mandiri'); // 'mandiri' | 'pelanggaran'
 
         $query = ConductLog::where('is_self_reported', true)
-            ->whereDate('created_at', $today)
+            ->whereBetween('created_at', [$startOfMonth, $endOfMonth])
             ->with(['student.schoolClass', 'student.conductLogs', 'category', 'verifier'])
             ->latest();
 
@@ -252,14 +264,49 @@ class ConductController extends Controller
             $query->whereHas('student', fn ($q) => $q->where('class_id', $selectedClassId));
         }
 
+        if ($searchQuery !== '') {
+            $query->whereHas('student', function ($q) use ($searchQuery) {
+                $q->where('name', 'like', "%{$searchQuery}%")
+                  ->orWhere('nis', 'like', "%{$searchQuery}%")
+                  ->orWhere('nisn', 'like', "%{$searchQuery}%");
+            });
+        }
+
         if ($statusFilter && in_array($statusFilter, ['pending', 'verified', 'rejected'])) {
             $query->where('status', $statusFilter);
         }
 
-        $allTodayLogs = (clone $query)->get();
+        // Data pelanggaran siswa pada bulan berjalan / bulan terpilih
+        $violationQuery = ConductLog::whereBetween('created_at', [$startOfMonth, $endOfMonth])
+            ->where(function ($q) {
+                $q->where('type', 'pelanggaran')
+                  ->orWhereNotNull('severity')
+                  ->orWhere('is_self_reported', true);
+            })
+            ->where(function ($q) {
+                $q->whereNull('status')->orWhere('status', '!=', 'rejected');
+            })
+            ->with(['student.schoolClass', 'student.conductLogs', 'category', 'teacher', 'verifier'])
+            ->latest();
 
-        $logs = $query->get()->map(function ($log) {
+        if ($selectedClassId) {
+            $violationQuery->whereHas('student', fn ($q) => $q->where('class_id', $selectedClassId));
+        }
+
+        if ($searchQuery !== '') {
+            $violationQuery->whereHas('student', function ($q) use ($searchQuery) {
+                $q->where('name', 'like', "%{$searchQuery}%")
+                  ->orWhere('nis', 'like', "%{$searchQuery}%")
+                  ->orWhere('nisn', 'like', "%{$searchQuery}%");
+            });
+        }
+
+        $monthlyViolations = $violationQuery->get();
+        $monthlyCountByStudent = $monthlyViolations->groupBy('student_id')->map->count();
+
+        $logs = $query->get()->map(function ($log) use ($monthlyCountByStudent) {
             if ($log->student) {
+                $log->student->monthly_pelanggaran_count = $monthlyCountByStudent[$log->student_id] ?? 1;
                 $log->student->total_pelanggaran_count = $log->student->conductLogs
                     ->filter(fn ($l) => $l->isPelanggaran())
                     ->count();
@@ -270,13 +317,41 @@ class ConductController extends Controller
             return $log;
         });
 
-        $pendingCount  = ConductLog::where('is_self_reported', true)->whereDate('created_at', $today)->where('status', 'pending')->count();
-        $verifiedCount = ConductLog::where('is_self_reported', true)->whereDate('created_at', $today)->where('status', 'verified')->count();
-        $rejectedCount = ConductLog::where('is_self_reported', true)->whereDate('created_at', $today)->where('status', 'rejected')->count();
-        $frequentCount = $logs->filter(fn ($l) => ($l->student?->total_pelanggaran_count ?? 0) >= 3)->count();
+        $monthlyStudentRecap = $monthlyViolations
+            ->groupBy('student_id')
+            ->map(function ($studentLogs) {
+                $first = $studentLogs->first();
+                $student = $first->student;
+                return (object) [
+                    'student_id'              => $first->student_id,
+                    'student'                 => $student,
+                    'monthly_self_reports'    => $studentLogs->where('is_self_reported', true)->count(),
+                    'monthly_violation_count' => $studentLogs->count(),
+                    'total_all_time'          => $student ? $student->conductLogs->filter(fn ($l) => $l->isPelanggaran())->count() : $studentLogs->count(),
+                    'latest_log'              => $first,
+                    'logs'                    => $studentLogs,
+                ];
+            })
+            ->sortByDesc('monthly_violation_count')
+            ->values();
+
+        $pendingCount  = ConductLog::where('is_self_reported', true)->whereBetween('created_at', [$startOfMonth, $endOfMonth])->where('status', 'pending')->count();
+        $verifiedCount = ConductLog::where('is_self_reported', true)->whereBetween('created_at', [$startOfMonth, $endOfMonth])->where('status', 'verified')->count();
+        $rejectedCount = ConductLog::where('is_self_reported', true)->whereBetween('created_at', [$startOfMonth, $endOfMonth])->where('status', 'rejected')->count();
+        $frequentCount = $monthlyStudentRecap->filter(fn ($r) => $r->monthly_violation_count >= 3)->count();
+
+        $availableMonths = collect(range(0, 11))->map(function ($i) {
+            $m = now()->startOfMonth()->subMonths($i);
+            return [
+                'value' => $m->format('Y-m'),
+                'label' => $m->translatedFormat('F Y'),
+            ];
+        });
 
         return view('guru.conduct.today', compact(
-            'logs', 'classes', 'selectedClassId', 'statusFilter',
+            'logs', 'monthlyViolations', 'monthlyStudentRecap',
+            'classes', 'selectedClassId', 'statusFilter', 'searchQuery',
+            'selectedMonth', 'monthLabel', 'availableMonths', 'activeTab',
             'pendingCount', 'verifiedCount', 'rejectedCount', 'frequentCount'
         ));
     }

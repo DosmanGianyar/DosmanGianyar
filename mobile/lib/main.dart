@@ -151,34 +151,74 @@ class _AppGate extends StatefulWidget {
   State<_AppGate> createState() => _AppGateState();
 }
 
-class _AppGateState extends State<_AppGate> {
+class _AppGateState extends State<_AppGate> with WidgetsBindingObserver {
   VersionCheckResult? _forceUpdateResult;
   bool _checkingVersion = true;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final vResult = await VersionService.checkVersion();
-      if (mounted) {
-        if (vResult != null && vResult.needsForceUpdate) {
-          setState(() {
-            _forceUpdateResult = vResult;
-            _checkingVersion   = false;
-          });
-          return;
-        }
-        setState(() => _checkingVersion = false);
-        context.read<AuthProvider>().checkAuth();
-        PushNotificationService.requestPermissionIfNeeded(context);
-      }
+    WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _verifyVersionAndBoot());
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _recheckVersionOnResume();
+    }
+  }
+
+  Future<void> _verifyVersionAndBoot() async {
+    if (!mounted) return;
+    setState(() => _checkingVersion = true);
+    final vResult = await VersionService.checkVersion();
+    if (!mounted) return;
+    if (vResult != null && vResult.needsForceUpdate) {
+      setState(() {
+        _forceUpdateResult = vResult;
+        _checkingVersion   = false;
+      });
+      return;
+    }
+    setState(() {
+      _forceUpdateResult = null;
+      _checkingVersion   = false;
     });
+    context.read<AuthProvider>().checkAuth();
+    PushNotificationService.requestPermissionIfNeeded(context);
+  }
+
+  Future<void> _recheckVersionOnResume() async {
+    final vResult = await VersionService.checkVersion();
+    if (!mounted || vResult == null) return;
+    if (vResult.needsForceUpdate) {
+      PushNotificationService.navigatorKey.currentState?.popUntil((r) => r.isFirst);
+      setState(() {
+        _forceUpdateResult = vResult;
+        _checkingVersion   = false;
+      });
+    } else if (_forceUpdateResult != null && !vResult.needsForceUpdate) {
+      setState(() {
+        _forceUpdateResult = null;
+      });
+      context.read<AuthProvider>().checkAuth();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     if (_forceUpdateResult != null && _forceUpdateResult!.needsForceUpdate) {
-      return ForceUpdateScreen(result: _forceUpdateResult!);
+      return ForceUpdateScreen(
+        result: _forceUpdateResult!,
+        onRetryCheck: _verifyVersionAndBoot,
+      );
     }
 
     if (_checkingVersion) {

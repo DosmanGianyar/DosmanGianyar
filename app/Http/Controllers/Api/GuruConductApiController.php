@@ -293,67 +293,178 @@ class GuruConductApiController extends Controller
         ]);
     }
 
-    // GET /api/v1/guru/conduct-self-reports
-    public function selfReports(): JsonResponse
+    // GET /api/v1/guru/conduct-self-reports?month=YYYY-MM&class_id=&q=
+    public function selfReports(Request $request): JsonResponse
     {
-        $today = now()->format('Y-m-d');
+        $selectedMonth = (string) $request->input('month', now()->format('Y-m'));
+        try {
+            $monthCarbon = \Illuminate\Support\Carbon::createFromFormat('Y-m', $selectedMonth)->startOfMonth();
+        } catch (\Throwable $e) {
+            $monthCarbon   = now()->startOfMonth();
+            $selectedMonth = $monthCarbon->format('Y-m');
+        }
 
-        $pendingLogs = ConductLog::where('is_self_reported', true)
+        $startOfMonth = $monthCarbon->copy()->startOfMonth();
+        $endOfMonth   = $monthCarbon->copy()->endOfMonth();
+        $classId      = $request->input('class_id');
+        $searchQuery  = trim((string) $request->input('q', ''));
+
+        $applyStudentFilter = function ($query) use ($classId, $searchQuery) {
+            if ($classId) {
+                $query->whereHas('student', fn ($sq) => $sq->where('class_id', $classId));
+            }
+            if ($searchQuery !== '') {
+                $query->whereHas('student', function ($sq) use ($searchQuery) {
+                    $sq->where('name', 'like', "%{$searchQuery}%")
+                       ->orWhere('nis', 'like', "%{$searchQuery}%")
+                       ->orWhere('nisn', 'like', "%{$searchQuery}%");
+                });
+            }
+        };
+
+        $pendingQuery = ConductLog::where('is_self_reported', true)
             ->where('status', 'pending')
-            ->whereDate('created_at', $today)
-            ->with(['student:id,name,nis,class_id', 'student.schoolClass:id,name', 'category:id,name'])
-            ->latest()
-            ->get();
+            ->whereBetween('created_at', [$startOfMonth, $endOfMonth])
+            ->with(['student:id,name,nis,nisn,class_id', 'student.schoolClass:id,name', 'category:id,name']);
+        $applyStudentFilter($pendingQuery);
+        $pendingLogs = $pendingQuery->latest()->get();
 
-        $verifiedLogs = ConductLog::where('is_self_reported', true)
+        $verifiedQuery = ConductLog::where('is_self_reported', true)
             ->where('status', 'verified')
-            ->whereDate('created_at', $today)
-            ->with(['student:id,name,nis,class_id', 'student.schoolClass:id,name', 'category:id,name', 'verifier:id,name'])
-            ->latest()
-            ->limit(30)
-            ->get();
+            ->whereBetween('created_at', [$startOfMonth, $endOfMonth])
+            ->with(['student:id,name,nis,nisn,class_id', 'student.schoolClass:id,name', 'category:id,name', 'verifier:id,name']);
+        $applyStudentFilter($verifiedQuery);
+        $verifiedLogs = $verifiedQuery->latest()->limit(200)->get();
 
-        $rejectedLogs = ConductLog::where('is_self_reported', true)
+        $rejectedQuery = ConductLog::where('is_self_reported', true)
             ->where('status', 'rejected')
-            ->whereDate('created_at', $today)
-            ->with(['student:id,name,nis,class_id', 'student.schoolClass:id,name', 'category:id,name', 'verifier:id,name'])
-            ->latest()
-            ->limit(30)
-            ->get();
+            ->whereBetween('created_at', [$startOfMonth, $endOfMonth])
+            ->with(['student:id,name,nis,nisn,class_id', 'student.schoolClass:id,name', 'category:id,name', 'verifier:id,name']);
+        $applyStudentFilter($rejectedQuery);
+        $rejectedLogs = $rejectedQuery->latest()->limit(100)->get();
+
+        // Data pelanggaran siswa per bulan berjalan / bulan terpilih (semua pelanggaran & pelaporan mandiri)
+        $monthlyViolationsQuery = ConductLog::whereBetween('created_at', [$startOfMonth, $endOfMonth])
+            ->where(function ($q) {
+                $q->where('type', 'pelanggaran')
+                  ->orWhereNotNull('severity')
+                  ->orWhere('is_self_reported', true);
+            })
+            ->where(function ($q) {
+                $q->whereNull('status')->orWhere('status', '!=', 'rejected');
+            })
+            ->with(['student:id,name,nis,nisn,class_id', 'student.schoolClass:id,name', 'category:id,name,type', 'teacher:id,name', 'verifier:id,name']);
+        $applyStudentFilter($monthlyViolationsQuery);
+        $monthlyViolations = $monthlyViolationsQuery->latest()->limit(300)->get();
+
+        // Hitung jumlah pelanggaran bulan ini per siswa
+        $monthlyCountsByStudent = $monthlyViolations->groupBy('student_id')->map->count();
+
+        // Rekap siswa yang pernah lapor mandiri / melanggar pada bulan terpilih
+        $monthlyStudentRecap = $monthlyViolations
+            ->groupBy('student_id')
+            ->map(function ($studentLogs) {
+                $first = $studentLogs->first();
+                $student = $first->student;
+                $selfReportCount = $studentLogs->where('is_self_reported', true)->count();
+                $violationCount  = $studentLogs->count();
+                $allTimeCount    = $student ? $student->conductLogs()->where('type', 'pelanggaran')->count() : $violationCount;
+
+                return [
+                    'student_id'                => $first->student_id,
+                    'student_name'              => $student?->name ?? '—',
+                    'student_nis'               => $student?->nis ?? $student?->nisn ?? '—',
+                    'class_name'                => $student?->schoolClass?->name ?? '—',
+                    'monthly_self_report_count' => $selfReportCount,
+                    'monthly_violation_count'   => $violationCount,
+                    'total_all_time_count'      => max($allTimeCount, $violationCount),
+                    'last_date_label'           => $first->created_at->translatedFormat('d M Y, H:i'),
+                    'last_category'             => $first->displayCategoryName(),
+                    'items'                     => $studentLogs->take(10)->map(fn ($l) => [
+                        'id'               => $l->id,
+                        'category_name'    => $l->displayCategoryName(),
+                        'description'      => $l->parsed_description,
+                        'is_self_reported' => (bool) $l->is_self_reported,
+                        'status'           => $l->status ?? 'verified',
+                        'severity'         => $l->severity,
+                        'date_label'       => $l->created_at->translatedFormat('d M Y'),
+                        'time_label'       => $l->created_at->format('H:i'),
+                        'recorder_name'    => $l->verifier?->name ?? $l->teacher?->name ?? 'Mandiri',
+                    ])->values(),
+                ];
+            })
+            ->sortByDesc('monthly_violation_count')
+            ->values();
+
+        // Pilihan 12 bulan terakhir untuk dropdown
+        $availableMonths = collect(range(0, 11))->map(function ($i) {
+            $m = now()->startOfMonth()->subMonths($i);
+            return [
+                'value' => $m->format('Y-m'),
+                'label' => $m->translatedFormat('F Y'),
+            ];
+        })->values();
 
         return response()->json([
+            'selected_month'   => $selectedMonth,
+            'month_label'      => $monthCarbon->translatedFormat('F Y'),
+            'available_months' => $availableMonths,
             'pending'  => $pendingLogs->map(fn ($log) => [
-                'id'             => $log->id,
-                'student_id'     => $log->student_id,
-                'student_name'   => $log->student?->name ?? '—',
-                'class_name'     => $log->student?->schoolClass?->name ?? '—',
-                'lateness_count' => $log->student?->conductLogs()->where('type', 'pelanggaran')->count() ?? 1,
-                'category_name'  => $log->displayCategoryName(),
-                'description'    => $log->parsed_description,
-                'note'           => $log->note,
-                'created_at'     => $log->created_at->format('H:i'),
+                'id'                      => $log->id,
+                'student_id'              => $log->student_id,
+                'student_name'            => $log->student?->name ?? '—',
+                'class_name'              => $log->student?->schoolClass?->name ?? '—',
+                'monthly_violation_count' => $monthlyCountsByStudent[$log->student_id] ?? 1,
+                'lateness_count'          => $log->student?->conductLogs()->where('type', 'pelanggaran')->count() ?? 1,
+                'category_name'           => $log->displayCategoryName(),
+                'description'             => $log->parsed_description,
+                'note'                    => $log->note,
+                'date_label'              => $log->created_at->translatedFormat('d M Y'),
+                'created_at'              => $log->created_at->format('H:i'),
             ]),
             'verified' => $verifiedLogs->map(fn ($log) => [
-                'id'             => $log->id,
-                'student_id'     => $log->student_id,
-                'student_name'   => $log->student?->name ?? '—',
-                'class_name'     => $log->student?->schoolClass?->name ?? '—',
-                'lateness_count' => $log->student?->conductLogs()->where('type', 'pelanggaran')->count() ?? 1,
-                'category_name'  => $log->displayCategoryName(),
-                'verifier_name'  => $log->verifier?->name ?? 'Guru',
-                'verified_at'    => $log->verified_at?->format('H:i'),
+                'id'                      => $log->id,
+                'student_id'              => $log->student_id,
+                'student_name'            => $log->student?->name ?? '—',
+                'class_name'              => $log->student?->schoolClass?->name ?? '—',
+                'monthly_violation_count' => $monthlyCountsByStudent[$log->student_id] ?? 1,
+                'lateness_count'          => $log->student?->conductLogs()->where('type', 'pelanggaran')->count() ?? 1,
+                'category_name'           => $log->displayCategoryName(),
+                'description'             => $log->parsed_description,
+                'verifier_name'           => $log->verifier?->name ?? 'Guru',
+                'date_label'              => $log->created_at->translatedFormat('d M Y'),
+                'created_at'              => $log->created_at->format('H:i'),
+                'verified_at'             => $log->verified_at?->format('H:i'),
             ]),
             'rejected' => $rejectedLogs->map(fn ($log) => [
-                'id'             => $log->id,
-                'student_id'     => $log->student_id,
-                'student_name'   => $log->student?->name ?? '—',
-                'class_name'     => $log->student?->schoolClass?->name ?? '—',
-                'lateness_count' => $log->student?->conductLogs()->where('type', 'pelanggaran')->count() ?? 1,
-                'category_name'  => $log->displayCategoryName(),
-                'rejection_note' => $log->rejection_note,
-                'verifier_name'  => $log->verifier?->name ?? 'Guru',
-                'verified_at'    => $log->verified_at?->format('H:i'),
+                'id'                      => $log->id,
+                'student_id'              => $log->student_id,
+                'student_name'            => $log->student?->name ?? '—',
+                'class_name'              => $log->student?->schoolClass?->name ?? '—',
+                'monthly_violation_count' => $monthlyCountsByStudent[$log->student_id] ?? 1,
+                'lateness_count'          => $log->student?->conductLogs()->where('type', 'pelanggaran')->count() ?? 1,
+                'category_name'           => $log->displayCategoryName(),
+                'rejection_note'          => $log->rejection_note,
+                'verifier_name'           => $log->verifier?->name ?? 'Guru',
+                'date_label'              => $log->created_at->translatedFormat('d M Y'),
+                'verified_at'             => $log->verified_at?->format('H:i'),
             ]),
+            'monthly_violations' => $monthlyViolations->map(fn ($log) => [
+                'id'                      => $log->id,
+                'student_id'              => $log->student_id,
+                'student_name'            => $log->student?->name ?? '—',
+                'class_name'              => $log->student?->schoolClass?->name ?? '—',
+                'category_name'           => $log->displayCategoryName(),
+                'description'             => $log->parsed_description,
+                'is_self_reported'        => (bool) $log->is_self_reported,
+                'status'                  => $log->status ?? 'verified',
+                'severity'                => $log->severity,
+                'monthly_violation_count' => $monthlyCountsByStudent[$log->student_id] ?? 1,
+                'recorder_name'           => $log->verifier?->name ?? $log->teacher?->name ?? 'Pelaporan Mandiri',
+                'date_label'              => $log->created_at->translatedFormat('d M Y'),
+                'created_at'              => $log->created_at->format('H:i'),
+            ]),
+            'monthly_student_recap' => $monthlyStudentRecap,
         ]);
     }
 
