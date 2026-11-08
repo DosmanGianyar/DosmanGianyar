@@ -304,16 +304,16 @@
     background: #f8fafc !important;
 }
 
-/* Table Action Buttons */
-.fi-ta-actions {
+/* Table Row Action Buttons (Scoped to table body cells so header/bulk toolbar is untouched) */
+.fi-ta-table td .fi-ta-actions {
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
     gap: 0.35rem !important;
 }
 
-.fi-ta-actions .fi-icon-btn,
-.fi-ta-actions .fi-ta-action-group .fi-icon-btn {
+.fi-ta-table td .fi-ta-actions .fi-icon-btn,
+.fi-ta-table td .fi-ta-actions .fi-ta-action-group .fi-icon-btn {
     border-radius: 0.5rem !important;
     background: #f8fafc !important;
     border: 1px solid var(--tblr-border) !important;
@@ -322,23 +322,51 @@
     min-width: 1.9rem !important;
     min-height: 1.9rem !important;
     padding: 0 !important;
-    display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
     transition: all 0.15s ease !important;
 }
 
-.fi-ta-actions .fi-icon-btn:hover {
+.fi-ta-table td .fi-ta-actions .fi-icon-btn:hover {
     background: var(--tblr-primary-soft) !important;
     border-color: #93c5fd !important;
 }
 
-body.sims-users-actions-grid .fi-ta-actions {
+body.sims-users-actions-grid .fi-ta-table td .fi-ta-actions {
     display: grid !important;
     grid-template-columns: repeat(3, 2rem) !important;
     gap: 0.4rem !important;
     width: fit-content !important;
     margin: 0 auto !important;
+}
+
+/* Bulk Actions & Header Toolbar Buttons (Prevent dual mobile+desktop trigger overlap) */
+@media (min-width: 40rem) {
+    .fi-dropdown-trigger > .fi-icon-btn:has(+ .fi-btn.fi-labeled-from-sm) {
+        display: none !important;
+    }
+}
+
+@media (max-width: 39.99rem) {
+    .fi-dropdown-trigger > .fi-btn.fi-labeled-from-sm {
+        display: none !important;
+    }
+}
+
+.fi-ta-header-toolbar .fi-ac-btn-group.fi-btn {
+    background: #ffffff !important;
+    border: 1px solid var(--tblr-border-strong) !important;
+    color: #1e293b !important;
+    border-radius: 0.5rem !important;
+    font-size: 0.8125rem !important;
+    font-weight: 600 !important;
+    padding: 0.4rem 0.75rem !important;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04) !important;
+}
+
+.fi-ta-header-toolbar .fi-ac-btn-group.fi-btn:hover {
+    background: #f8fafc !important;
+    border-color: #94a3b8 !important;
 }
 
 /* ─── Sidebar Footer / User Card ───────────────────────────────────────── */
