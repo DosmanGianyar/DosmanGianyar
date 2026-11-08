@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Schedule;
 use App\Models\SchoolClass;
 use App\Models\Subject;
+use App\Models\TujuanPembelajaran;
 use App\Models\User;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -469,6 +470,12 @@ class ScheduleImportService
             ->get(['class_id', 'teacher_id', 'subject_id'])
             ->groupBy(fn($s) => $s->class_id . '_' . $s->teacher_id);
 
+        // Cache TP per teacher to infer subject by grade when teacher has multiple subjects
+        $teacherTps = TujuanPembelajaran::whereNotNull('subject_id')
+            ->where('is_active', true)
+            ->get(['teacher_id', 'subject_id', 'grade_level'])
+            ->groupBy('teacher_id');
+
         $matchedList = [];
 
         foreach ($rawItems as $index => $item) {
@@ -526,12 +533,35 @@ class ScheduleImportService
                 if ($matchedTeacher->subjects->count() === 1) {
                     $matchedSubject = $matchedTeacher->subjects->first();
                 } elseif ($matchedTeacher->subjects->count() > 1) {
-                    // Cek riwayat jadwal kelas ini
-                    $prevSch = $existingSchedules->get($classId . '_' . $matchedTeacher->id)?->first();
-                    if ($prevSch) {
-                        $matchedSubject = $subjects->find($prevSch->subject_id);
+                    // 1. Cek apakah guru sudah membuat TP khusus untuk tingkat kelas ini (10/11/12) pada salah satu mapelnya
+                    $tpsForTeacher = $teacherTps->get($matchedTeacher->id, collect())
+                        ->whereIn('subject_id', $allowedSubjectIds);
+                    $gradeTpSubjIds = $tpsForTeacher
+                        ->filter(fn($tp) => (string) $tp->grade_level === (string) $targetGrade)
+                        ->pluck('subject_id')
+                        ->unique();
+
+                    if ($gradeTpSubjIds->count() === 1) {
+                        $matchedSubject = $subjects->find($gradeTpSubjIds->first());
                     }
 
+                    // 2. Cek riwayat jadwal kelas ini (hanya jika termasuk dalam mapel yang diampu guru)
+                    if (!$matchedSubject) {
+                        $prevSch = $existingSchedules->get($classId . '_' . $matchedTeacher->id)?->first();
+                        if ($prevSch && in_array($prevSch->subject_id, $allowedSubjectIds, true)) {
+                            $matchedSubject = $subjects->find($prevSch->subject_id);
+                        }
+                    }
+
+                    // 3. Jika guru hanya membuat TP pada 1 mapel saja secara keseluruhan
+                    if (!$matchedSubject) {
+                        $allTpSubjIds = $tpsForTeacher->pluck('subject_id')->unique();
+                        if ($allTpSubjIds->count() === 1) {
+                            $matchedSubject = $subjects->find($allTpSubjIds->first());
+                        }
+                    }
+
+                    // 4. Heuristik Tingkat Kelas (Kelas 10 Umum vs Kelas 11/12 Tingkat Lanjut)
                     if (!$matchedSubject) {
                         $isGrade10 = ($targetGrade === 10 || str_starts_with($normalizedClassName, 'X-'));
                         if ($isGrade10) {
