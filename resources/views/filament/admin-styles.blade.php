@@ -1,459 +1,81 @@
 <style>
-/* ═══════════════════════════════════════════════════════════════
-   Admin Dosman — Custom Theme
-   Dark navy sidebar + 3D depth + Plus Jakarta Sans
-═══════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════════════════
+   SIMAK DOSMAN — Tabler + Filament Minimalist Unified Theme
+   Clean Cool-Slate Canvas (#F6F8FB) + Tabler Dark-Slate Sidebar (#182433)
+   + Crisp White Bordered Cards with Top Accent Indicators
+═══════════════════════════════════════════════════════════════════════════ */
 
-/* ─── Body & Layout ──────────────────────────────────────────── */
-.fi-body {
-    background: #0d1628 !important;
+:root {
+    --tblr-bg: #f6f8fb;
+    --tblr-surface: #ffffff;
+    --tblr-sidebar: #182433;
+    --tblr-sidebar-hover: #213043;
+    --tblr-primary: #206bc4;
+    --tblr-primary-soft: #ebf3fe;
+    --tblr-border: #e2e8f0;
+    --tblr-border-strong: #cbd5e1;
+    --tblr-text: #1e293b;
+    --tblr-muted: #64748b;
 }
 
-.fi-layout {
-    background: #0d1628 !important;
-}
-
+/* ─── Body & Main Layout Canvas ────────────────────────────────────────── */
+.fi-body,
+.fi-layout,
 .fi-main-ctn,
 .fi-main {
-    background: #0d1628 !important;
+    background: var(--tblr-bg) !important;
+    color: var(--tblr-text) !important;
 }
 
-/* ─── Topbar ─────────────────────────────────────────────────── */
+/* ─── Topbar (Tabler Crisp White + Top Royal Blue Accent Line) ─────────── */
 .fi-topbar-ctn {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-bottom: 1px solid var(--tblr-border) !important;
 }
 
 .fi-topbar {
-    background: linear-gradient(135deg, #0f2460 0%, #1a3a8f 50%, #1e3fad 100%) !important;
-    box-shadow: 0 4px 25px rgba(0, 0, 0, 0.4) !important;
-}
-
-/* ─── Sidebar — 3D Effect ────────────────────────────────────── */
-.fi-sidebar {
-    background: linear-gradient(175deg, #040710 0%, #060b16 50%, #05090f 100%) !important;
-    border-right: none !important;
-    box-shadow:
-        6px 0 40px rgba(0, 0, 0, 0.75),
-        3px 0 15px rgba(0, 0, 0, 0.55),
-        1px 0 4px rgba(0, 0, 0, 0.4);
-}
-
-/* Sidebar SVG Icon size cap fix */
-.fi-sidebar svg {
-    max-width: 1.5rem !important;
-    max-height: 1.5rem !important;
-    flex-shrink: 0 !important;
-}
-
-/* Amber glow strip — tepi kanan sidebar */
-.fi-sidebar::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    width: 1px;
-    background: linear-gradient(
-        180deg,
-        transparent 5%,
-        rgba(59, 130, 246, 0.4) 35%,
-        rgba(37, 99, 235, 0.6) 50%,
-        rgba(59, 130, 246, 0.4) 65%,
-        transparent 95%
-    );
-    pointer-events: none;
-}
-
-/* ─── Sidebar Header ─────────────────────────────────────────── */
-.fi-sidebar-header-ctn {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
-    background: rgba(0, 0, 0, 0.25) !important;
-}
-
-/* ─── Nav Group Labels ───────────────────────────────────────── */
-.fi-sidebar-group-label {
-    font-size: 0.78rem !important;
-    font-weight: 800 !important;
-    letter-spacing: 0.06em !important;
-    text-transform: uppercase !important;
-    color: rgba(255, 255, 255, 0.9) !important;
-    text-shadow:
-        0 0 12px rgba(59, 130, 246, 0.55),
-        0 0 24px rgba(37, 99, 235, 0.25),
-        0 1px 4px rgba(0, 0, 0, 0.6) !important;
-}
-
-.fi-sidebar-group-btn {
-    opacity: 0.85;
-    transition: opacity 0.2s !important;
-}
-
-.fi-sidebar-group-btn:hover {
-    opacity: 1;
-}
-
-/* ─── Nav Items ──────────────────────────────────────────────── */
-.fi-sidebar-item-btn {
-    border-radius: 0.75rem !important;
-    transition: background 0.18s ease, transform 0.18s ease !important;
-    border-left: 3px solid transparent;
-}
-
-.fi-sidebar-item-toggle {
-    display: flex !important;
-    align-items: center !important;
-    width: 100% !important;
-    gap: 0.5rem !important;
-}
-
-.fi-sidebar-item-btn:hover:not(.fi-active) {
-    background: rgba(255, 255, 255, 0.08) !important;
-    transform: translateX(4px);
-    border-left-color: rgba(59, 130, 246, 0.4);
-}
-
-.fi-sidebar-item-btn.fi-active,
-.fi-sidebar-item-btn[aria-current] {
-    background: linear-gradient(135deg, rgba(37, 99, 235, 0.25) 0%, rgba(67, 56, 202, 0.25) 100%) !important;
-    border-left-color: #3b82f6 !important;
-    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2) !important;
-}
-
-.fi-sidebar-item-label {
-    font-size: 0.82rem !important;
-    font-weight: 600 !important;
-}
-
-/* ─── Sidebar Footer ─────────────────────────────────────────── */
-.fi-sidebar-footer {
-    border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
-    background: rgba(0, 0, 0, 0.25) !important;
-}
-
-/* ─── Page Heading ───────────────────────────────────────────── */
-.fi-header-heading {
-    font-weight: 800 !important;
-    letter-spacing: -0.03em !important;
-}
-
-/* ─── Widgets, Stats Cards & Glassmorphism ────────────────────── */
-.fi-wi-widget,
-.fi-wi-stats-overview-stat-ctn,
-.fi-wi-chart,
-.fi-wi-account-widget,
-.fi-wi-filament-info-widget {
-    background: rgba(15, 29, 51, 0.85) !important;
-    backdrop-filter: blur(12px) !important;
-    border: 1px solid rgba(255, 255, 255, 0.09) !important;
-    border-radius: 1.25rem !important;
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4) !important;
-    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease !important;
-}
-
-.fi-wi-stats-overview-stat-ctn:hover {
-    transform: translateY(-3px) !important;
-    border-color: rgba(59, 130, 246, 0.3) !important;
-    box-shadow: 0 14px 35px rgba(0, 0, 0, 0.5), 0 0 25px rgba(37, 99, 235, 0.15) !important;
-}
-
-/* ─── Dashboard & Widget Icon Fixes ───────────────────────────── */
-.fi-wi-stats-overview-stat-icon-ctn,
-.fi-wi-stats-overview-stat-icon,
-.fi-wi-stats-overview-stat-description-icon {
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    flex-shrink: 0 !important;
-}
-
-.fi-wi-stats-overview-stat svg,
-.fi-wi-stats-overview-stat-icon svg {
-    width: 1.5rem !important;
-    height: 1.5rem !important;
-    max-width: 1.5rem !important;
-    max-height: 1.5rem !important;
-    display: inline-block !important;
-    flex-shrink: 0 !important;
-}
-
-.fi-wi-stats-overview-stat-description svg,
-.fi-wi-stats-overview-stat-description-icon svg,
-.fi-wi-stats-overview-stat-description-icon {
-    width: 1.125rem !important;
-    height: 1.125rem !important;
-    max-width: 1.125rem !important;
-    max-height: 1.125rem !important;
-    display: inline-block !important;
-    flex-shrink: 0 !important;
-    vertical-align: text-bottom !important;
-}
-
-/* Bright contrast colors for stat description icons and text */
-.fi-wi-stats-overview-stat-description {
-    font-weight: 600 !important;
-    opacity: 0.95 !important;
-}
-
-/* General SVG Icon rendering rules across Filament dashboard */
-.fi-sidebar-item-icon,
-.fi-sidebar-item-icon svg {
-    width: 1.25rem !important;
-    height: 1.25rem !important;
-    max-width: 1.25rem !important;
-    max-height: 1.25rem !important;
-    flex-shrink: 0 !important;
-}
-
-.fi-btn svg:not(.fi-loading-indicator),
-.fi-icon-btn svg:not(.fi-loading-indicator) {
-    width: 1.25rem !important;
-    height: 1.25rem !important;
-    max-width: 1.5rem !important;
-    max-height: 1.5rem !important;
-    flex-shrink: 0 !important;
-}
-
-/* Ensure hidden Livewire loading indicators are never forced visible by global CSS */
-.fi-loading-indicator:not([wire\:loading]),
-[wire\:loading]:not([wire\:loading\.flex]):not([wire\:loading\.block]):not([wire\:loading\.inline-block]):not([wire\:loading\.inline]) {
-    display: none !important;
+    background: #ffffff !important;
+    border-top: 3px solid var(--tblr-primary) !important;
+    border-bottom: 1px solid var(--tblr-border) !important;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03) !important;
 }
 
 .fi-topbar svg {
     width: 1.25rem !important;
     height: 1.25rem !important;
     flex-shrink: 0 !important;
+    color: #475569 !important;
 }
 
-/* ─── Tables ─────────────────────────────────────────────────── */
-.fi-ta-ctn {
-    background: rgba(15, 29, 51, 0.85) !important;
-    backdrop-filter: blur(12px) !important;
-    border: 1px solid rgba(255, 255, 255, 0.09) !important;
-    border-radius: 1.25rem !important;
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4) !important;
-    overflow: visible !important;
-    min-height: 380px !important;
-}
-
-.fi-ta-header-ctn {
-    background: rgba(15, 29, 51, 0.95) !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
-    border-top-left-radius: 1.25rem !important;
-    border-top-right-radius: 1.25rem !important;
-    overflow: visible !important;
-}
-
-.fi-ta-content-ctn,
-.fi-ta-content {
-    border-bottom-left-radius: 1.25rem !important;
-    border-bottom-right-radius: 1.25rem !important;
-    overflow-x: auto !important;
-}
-
-/* ─── Sticky Action Column in Tables (Seamless without harsh floating shadow) ─── */
-.fi-ta-table th.fi-ta-actions-header-cell {
-    position: sticky !important;
-    right: 0 !important;
-    z-index: 10 !important;
-    background: #0f1d33 !important;
-    border-left: 1px solid rgba(255, 255, 255, 0.04) !important;
-    box-shadow: none !important;
-    min-width: 130px !important;
-    text-align: center !important;
-}
-
-.fi-ta-table td.fi-ta-actions-cell,
-.fi-ta-table td.fi-ta-cell:has(.fi-ta-actions) {
-    position: sticky !important;
-    right: 0 !important;
-    z-index: 5 !important;
-    background: #0f1d33 !important;
-    border-left: 1px solid rgba(255, 255, 255, 0.04) !important;
-    box-shadow: none !important;
-    min-width: 130px !important;
-    padding-left: 0.5rem !important;
-    padding-right: 0.5rem !important;
-    text-align: center !important;
-}
-
-.fi-ta-table tr:hover td.fi-ta-actions-cell,
-.fi-ta-table tr:hover td.fi-ta-cell:has(.fi-ta-actions) {
-    background: #172a4a !important;
-}
-
-/* ─── Modern Table Action Buttons Styling ────────────────────── */
-.fi-ta-actions {
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 0.35rem !important;
-    flex-wrap: nowrap !important;
-    white-space: nowrap !important;
-}
-
-/* Primary View / Periksa Action Button: Sleek Glass Pill */
-.fi-ta-actions .fi-btn {
-    border-radius: 9999px !important;
-    font-size: 0.72rem !important;
-    font-weight: 600 !important;
-    letter-spacing: 0.02em !important;
-    padding: 0.25rem 0.65rem !important;
-    line-height: 1rem !important;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    gap: 0.25rem !important;
-}
-
-.fi-ta-actions .fi-btn svg {
-    width: 0.95rem !important;
-    height: 0.95rem !important;
-    flex-shrink: 0 !important;
-}
-
-/* Info Outlined Button */
-.fi-ta-actions .fi-btn-color-info {
-    background: rgba(56, 189, 248, 0.1) !important;
-    border: 1px solid rgba(56, 189, 248, 0.35) !important;
-    color: #7dd3fc !important;
-}
-
-.fi-ta-actions .fi-btn-color-info:hover {
-    background: rgba(56, 189, 248, 0.22) !important;
-    border-color: rgba(56, 189, 248, 0.65) !important;
-    color: #ffffff !important;
-    box-shadow: 0 2px 10px rgba(56, 189, 248, 0.3) !important;
-    transform: translateY(-1px) !important;
-}
-
-/* Primary Outlined Button */
-.fi-ta-actions .fi-btn-color-primary {
-    background: rgba(99, 102, 241, 0.12) !important;
-    border: 1px solid rgba(99, 102, 241, 0.35) !important;
-    color: #a5b4fc !important;
-}
-
-.fi-ta-actions .fi-btn-color-primary:hover {
-    background: rgba(99, 102, 241, 0.25) !important;
-    border-color: rgba(99, 102, 241, 0.65) !important;
-    color: #ffffff !important;
-    box-shadow: 0 2px 10px rgba(99, 102, 241, 0.3) !important;
-    transform: translateY(-1px) !important;
-}
-
-/* Icon Buttons in Table Actions: Sleek modern rounded squares with subtle border */
-.fi-ta-actions .fi-icon-btn,
-.fi-ta-actions .fi-ta-action-group .fi-icon-btn,
-.fi-ta-actions .fi-ta-action-group button {
-    border-radius: 0.5rem !important;
-    background: rgba(255, 255, 255, 0.05) !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    width: 2rem !important;
-    height: 2rem !important;
-    min-width: 2rem !important;
-    min-height: 2rem !important;
-    padding: 0 !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1) !important;
-}
-
-.fi-ta-actions .fi-icon-btn:hover,
-.fi-ta-actions .fi-ta-action-group .fi-icon-btn:hover,
-.fi-ta-actions .fi-ta-action-group button:hover {
-    background: rgba(255, 255, 255, 0.15) !important;
-    border-color: rgba(255, 255, 255, 0.28) !important;
-    transform: translateY(-1.5px) !important;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35) !important;
-}
-
-.fi-ta-actions .fi-icon-btn svg,
-.fi-ta-actions .fi-ta-action-group .fi-icon-btn svg {
-    width: 1.05rem !important;
-    height: 1.05rem !important;
-    flex-shrink: 0 !important;
-}
-
-.fi-dropdown-panel,
-.fi-popover,
-.fi-ta-filters-dropdown,
-[data-filament-dropdown-panel] {
-    z-index: 99 !important;
-}
-
-/* ─── Page Header & Action Bar Cleanup ───────────────────────── */
-.fi-header {
-    flex-wrap: wrap !important;
-    gap: 1rem !important;
-    align-items: center !important;
-}
-
-.fi-header-heading {
-    white-space: normal !important;
-    word-break: break-word !important;
-    letter-spacing: -0.01em !important;
-}
-
-.fi-header-subheading {
-    color: #94a3b8 !important;
-    font-weight: 500 !important;
-    font-size: 0.875rem !important;
-    margin-top: 0.25rem !important;
-}
-
-.fi-header .fi-ac,
-.fi-header-actions-ctn {
-    flex-wrap: wrap !important;
-    gap: 0.5rem !important;
-    max-width: 100% !important;
-}
-
-/* ─── Section / Form Panels ──────────────────────────────────── */
-.fi-section {
-    background: rgba(15, 29, 51, 0.85) !important;
-    backdrop-filter: blur(12px) !important;
-    border: 1px solid rgba(255, 255, 255, 0.09) !important;
-    border-radius: 1.25rem !important;
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4) !important;
-}
-
-.fi-section-header {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
-}
-
-/* ─── Grade Filter ToggleButtons (Mobile Segment Style) ──────── */
-.fi-fo-toggle-buttons {
-    background: rgba(15, 29, 51, 0.85) !important;
-    backdrop-filter: blur(12px) !important;
-    border-radius: 1rem !important;
-    padding: 0.35rem !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    display: inline-flex !important;
-    flex-wrap: wrap !important;
-    gap: 0.5rem !important;
-    align-items: center !important;
-    margin-bottom: 0.5rem !important;
-}
-
-.fi-fo-toggle-buttons label {
-    border-radius: 0.75rem !important;
-    font-weight: 700 !important;
-    transition: all 0.2s ease !important;
-    padding: 0.35rem 0.85rem !important;
-    font-size: 0.825rem !important;
-}
-
-/* ─── Sidebar scroll fix ──────────────────────────────────────── */
-/* Sidebar luar: flex column dengan tinggi tetap, tidak boleh scroll */
+/* ─── Sidebar (Tabler Signature Dark Slate #182433 — Tidak Monoton) ────── */
 .fi-sidebar {
+    background: var(--tblr-sidebar) !important;
+    border-right: 1px solid #0f172a !important;
+    box-shadow: none !important;
     display: flex !important;
     flex-direction: column !important;
     overflow: hidden !important;
 }
 
-/* Nav dalam: min-height:0 wajib agar flex child mau shrink & scroll */
+.fi-sidebar svg {
+    max-width: 1.35rem !important;
+    max-height: 1.35rem !important;
+    flex-shrink: 0 !important;
+}
+
+.fi-sidebar-header-ctn {
+    background: #131d2a !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07) !important;
+}
+
+.fi-sidebar-header .fi-logo,
+.fi-sidebar-header span,
+.fi-sidebar-header a {
+    color: #f8fafc !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.01em !important;
+}
+
+/* ─── Sidebar Nav Groups & Items ───────────────────────────────────────── */
 .fi-sidebar-nav {
     flex: 1 1 0% !important;
     min-height: 0 !important;
@@ -462,51 +84,297 @@
     padding-bottom: 1rem !important;
     scrollbar-width: none !important;
 }
+
 .fi-sidebar-nav::-webkit-scrollbar {
     display: none !important;
     width: 0 !important;
 }
 
-/* ─── Sidebar Footer / User Profile Card ─────────────────────── */
+.fi-sidebar-group-label {
+    font-size: 0.68rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.07em !important;
+    text-transform: uppercase !important;
+    color: #94a3b8 !important;
+}
+
+.fi-sidebar-item-btn {
+    border-radius: 0.5rem !important;
+    transition: background 0.15s ease, color 0.15s ease !important;
+    border-left: 3px solid transparent;
+}
+
+.fi-sidebar-item-label {
+    font-size: 0.8125rem !important;
+    font-weight: 500 !important;
+    color: #cbd5e1 !important;
+}
+
+.fi-sidebar-item-icon,
+.fi-sidebar-item-icon svg {
+    width: 1.15rem !important;
+    height: 1.15rem !important;
+    max-width: 1.15rem !important;
+    max-height: 1.15rem !important;
+    color: #94a3b8 !important;
+    flex-shrink: 0 !important;
+}
+
+.fi-sidebar-item-btn:hover:not(.fi-active) {
+    background: var(--tblr-sidebar-hover) !important;
+    border-left-color: rgba(59, 130, 246, 0.5);
+}
+
+.fi-sidebar-item-btn:hover:not(.fi-active) .fi-sidebar-item-label,
+.fi-sidebar-item-btn:hover:not(.fi-active) .fi-sidebar-item-icon svg {
+    color: #ffffff !important;
+}
+
+.fi-sidebar-item-btn.fi-active,
+.fi-sidebar-item-btn[aria-current] {
+    background: var(--tblr-primary) !important;
+    border-left-color: #60a5fa !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
+}
+
+.fi-sidebar-item-btn.fi-active .fi-sidebar-item-label,
+.fi-sidebar-item-btn[aria-current] .fi-sidebar-item-label,
+.fi-sidebar-item-btn.fi-active .fi-sidebar-item-icon svg,
+.fi-sidebar-item-btn[aria-current] .fi-sidebar-item-icon svg {
+    color: #ffffff !important;
+    font-weight: 600 !important;
+}
+
+/* ─── Page Header ──────────────────────────────────────────────────────── */
+.fi-header {
+    flex-wrap: wrap !important;
+    gap: 1rem !important;
+    align-items: center !important;
+}
+
+.fi-header-heading {
+    font-weight: 700 !important;
+    color: #0f172a !important;
+    letter-spacing: -0.02em !important;
+}
+
+.fi-header-subheading {
+    color: var(--tblr-muted) !important;
+    font-weight: 500 !important;
+    font-size: 0.85rem !important;
+}
+
+/* ─── Tabler Cards, Stats Overview & Widgets (Clean + Engaging Top Accent) ─ */
+.fi-wi-stats-overview-stat-ctn,
+.fi-wi-chart,
+.fi-wi-account-widget,
+.fi-wi-filament-info-widget,
+.fi-section {
+    background: #ffffff !important;
+    border: 1px solid var(--tblr-border) !important;
+    border-radius: 0.75rem !important;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04) !important;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease !important;
+}
+
+/* Berikan aksen garis atas berwarna pada kartu statistik agar menarik & tidak monoton */
+.fi-wi-stats-overview-stat-ctn {
+    border-top: 3px solid var(--tblr-primary) !important;
+}
+
+.fi-wi-stats-overview-stat-ctn:nth-child(2n) {
+    border-top-color: #0ca678 !important; /* Tabler Emerald */
+}
+
+.fi-wi-stats-overview-stat-ctn:nth-child(3n) {
+    border-top-color: #f59f00 !important; /* Tabler Amber */
+}
+
+.fi-wi-stats-overview-stat-ctn:nth-child(4n) {
+    border-top-color: #4263eb !important; /* Tabler Indigo */
+}
+
+.fi-wi-stats-overview-stat-ctn:hover {
+    transform: translateY(-2px) !important;
+    border-color: var(--tblr-border-strong) !important;
+    box-shadow: 0 6px 16px -4px rgba(15, 23, 42, 0.08) !important;
+}
+
+.fi-section-header {
+    border-bottom: 1px solid #f1f5f9 !important;
+    background: #fcfdfe !important;
+    border-top-left-radius: 0.75rem !important;
+    border-top-right-radius: 0.75rem !important;
+}
+
+/* ─── Icon Sizing Safeguards ───────────────────────────────────────────── */
+.fi-wi-stats-overview-stat svg,
+.fi-wi-stats-overview-stat-icon svg {
+    width: 1.35rem !important;
+    height: 1.35rem !important;
+    max-width: 1.35rem !important;
+    max-height: 1.35rem !important;
+    flex-shrink: 0 !important;
+}
+
+.fi-wi-stats-overview-stat-description svg,
+.fi-wi-stats-overview-stat-description-icon svg,
+.fi-wi-stats-overview-stat-description-icon {
+    width: 1rem !important;
+    height: 1rem !important;
+    max-width: 1rem !important;
+    max-height: 1rem !important;
+    flex-shrink: 0 !important;
+}
+
+.fi-btn svg:not(.fi-loading-indicator),
+.fi-icon-btn svg:not(.fi-loading-indicator) {
+    width: 1.15rem !important;
+    height: 1.15rem !important;
+    max-width: 1.35rem !important;
+    max-height: 1.35rem !important;
+    flex-shrink: 0 !important;
+}
+
+.fi-loading-indicator:not([wire\:loading]),
+[wire\:loading]:not([wire\:loading\.flex]):not([wire\:loading\.block]):not([wire\:loading\.inline-block]):not([wire\:loading\.inline]) {
+    display: none !important;
+}
+
+/* ─── Tables (Tabler Clean Data Table) ─────────────────────────────────── */
+.fi-ta-ctn {
+    background: #ffffff !important;
+    border: 1px solid var(--tblr-border) !important;
+    border-radius: 0.75rem !important;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04) !important;
+    overflow: visible !important;
+}
+
+.fi-ta-header-ctn {
+    background: #f8fafc !important;
+    border-bottom: 1px solid var(--tblr-border) !important;
+    border-top-left-radius: 0.75rem !important;
+    border-top-right-radius: 0.75rem !important;
+}
+
+.fi-ta-content-ctn,
+.fi-ta-content {
+    border-bottom-left-radius: 0.75rem !important;
+    border-bottom-right-radius: 0.75rem !important;
+    overflow-x: auto !important;
+}
+
+.fi-ta-table thead tr {
+    background: #f8fafc !important;
+    border-bottom: 1px solid var(--tblr-border) !important;
+}
+
+.fi-ta-table th {
+    font-size: 0.7rem !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+    color: #475569 !important;
+    font-weight: 700 !important;
+}
+
+/* Sticky Action Column */
+.fi-ta-table th.fi-ta-actions-header-cell {
+    position: sticky !important;
+    right: 0 !important;
+    z-index: 10 !important;
+    background: #f8fafc !important;
+    border-left: 1px solid #f1f5f9 !important;
+    min-width: 120px !important;
+    text-align: center !important;
+}
+
+.fi-ta-table td.fi-ta-actions-cell,
+.fi-ta-table td.fi-ta-cell:has(.fi-ta-actions) {
+    position: sticky !important;
+    right: 0 !important;
+    z-index: 5 !important;
+    background: #ffffff !important;
+    border-left: 1px solid #f1f5f9 !important;
+    min-width: 120px !important;
+    text-align: center !important;
+}
+
+.fi-ta-table tr:hover td.fi-ta-actions-cell,
+.fi-ta-table tr:hover td.fi-ta-cell:has(.fi-ta-actions) {
+    background: #f8fafc !important;
+}
+
+/* Table Action Buttons */
+.fi-ta-actions {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.35rem !important;
+}
+
+.fi-ta-actions .fi-icon-btn,
+.fi-ta-actions .fi-ta-action-group .fi-icon-btn {
+    border-radius: 0.5rem !important;
+    background: #f8fafc !important;
+    border: 1px solid var(--tblr-border) !important;
+    width: 1.9rem !important;
+    height: 1.9rem !important;
+    min-width: 1.9rem !important;
+    min-height: 1.9rem !important;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.15s ease !important;
+}
+
+.fi-ta-actions .fi-icon-btn:hover {
+    background: var(--tblr-primary-soft) !important;
+    border-color: #93c5fd !important;
+}
+
+body.sims-users-actions-grid .fi-ta-actions {
+    display: grid !important;
+    grid-template-columns: repeat(3, 2rem) !important;
+    gap: 0.4rem !important;
+    width: fit-content !important;
+    margin: 0 auto !important;
+}
+
+/* ─── Sidebar Footer / User Card ───────────────────────────────────────── */
 .sims-sidebar-footer-container {
-    padding: 0.75rem 0.875rem !important;
+    padding: 0.75rem !important;
     border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
-    background: rgba(4, 7, 16, 0.85) !important;
+    background: #131d2a !important;
 }
 
 .sims-sidebar-user-card {
     display: flex !important;
     flex-direction: column !important;
-    gap: 0.625rem !important;
-    padding: 0.75rem !important;
-    border-radius: 0.875rem !important;
-    background: rgba(15, 29, 51, 0.95) !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4) !important;
+    gap: 0.6rem !important;
+    padding: 0.7rem !important;
+    border-radius: 0.625rem !important;
+    background: #1e2c3f !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
 }
 
 .sims-user-profile-header {
     display: flex !important;
     align-items: center !important;
-    gap: 0.625rem !important;
-    width: 100% !important;
+    gap: 0.6rem !important;
 }
 
 .sims-user-avatar {
-    width: 2.25rem !important;
-    height: 2.25rem !important;
-    min-width: 2.25rem !important;
-    min-height: 2.25rem !important;
-    border-radius: 0.625rem !important;
-    background: rgba(245, 158, 11, 0.2) !important;
-    border: 1px solid rgba(245, 158, 11, 0.4) !important;
-    color: #fbbf24 !important;
-    font-weight: 800 !important;
-    font-size: 0.9rem !important;
+    width: 2.1rem !important;
+    height: 2.1rem !important;
+    border-radius: 0.5rem !important;
+    background: var(--tblr-primary) !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    font-size: 0.85rem !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    flex-shrink: 0 !important;
 }
 
 .sims-user-details {
@@ -515,62 +383,29 @@
 }
 
 .sims-user-name {
-    font-size: 0.85rem !important;
-    font-weight: 700 !important;
-    color: #f1f5f9 !important;
+    font-size: 0.8rem !important;
+    font-weight: 600 !important;
+    color: #f8fafc !important;
     white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
-    line-height: 1.2 !important;
     margin: 0 !important;
 }
 
 .sims-role-badge {
     display: inline-flex !important;
-    align-items: center !important;
-    padding: 0.125rem 0.4rem !important;
+    padding: 0.1rem 0.4rem !important;
     font-size: 0.65rem !important;
-    font-weight: 700 !important;
-    border-radius: 0.375rem !important;
-    border: 1px solid transparent !important;
-    margin-top: 0.25rem !important;
-}
-
-.sims-role-admin {
-    background: rgba(245, 158, 11, 0.2) !important;
-    color: #fcd34d !important;
-    border-color: rgba(245, 158, 11, 0.35) !important;
-}
-
-.sims-role-kesiswaan {
-    background: rgba(16, 185, 129, 0.2) !important;
-    color: #6ee7b7 !important;
-    border-color: rgba(16, 185, 129, 0.35) !important;
-}
-
-.sims-role-kurikulum {
-    background: rgba(99, 102, 241, 0.2) !important;
-    color: #a5b4fc !important;
-    border-color: rgba(99, 102, 241, 0.35) !important;
-}
-
-.sims-role-sarpras {
-    background: rgba(168, 85, 247, 0.2) !important;
-    color: #d8b4fe !important;
-    border-color: rgba(168, 85, 247, 0.35) !important;
-}
-
-.sims-role-humas {
-    background: rgba(6, 182, 212, 0.2) !important;
-    color: #67e8f9 !important;
-    border-color: rgba(6, 182, 212, 0.35) !important;
+    font-weight: 600 !important;
+    border-radius: 0.35rem !important;
+    background: rgba(59, 130, 246, 0.2) !important;
+    color: #93c5fd !important;
+    margin-top: 0.15rem !important;
 }
 
 .sims-user-actions-bar {
     display: flex !important;
-    align-items: center !important;
-    gap: 0.5rem !important;
-    width: 100% !important;
+    gap: 0.45rem !important;
 }
 
 .sims-profile-btn,
@@ -579,52 +414,46 @@
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    gap: 0.375rem !important;
-    padding: 0.4rem 0.5rem !important;
-    border-radius: 0.5rem !important;
-    font-size: 0.725rem !important;
-    font-weight: 700 !important;
+    gap: 0.3rem !important;
+    padding: 0.35rem 0.5rem !important;
+    border-radius: 0.45rem !important;
+    font-size: 0.7rem !important;
+    font-weight: 600 !important;
     text-decoration: none !important;
     cursor: pointer !important;
-    transition: all 0.2s ease !important;
-    box-sizing: border-box !important;
 }
 
 .sims-profile-btn {
-    color: #38bdf8 !important;
-    background: rgba(56, 189, 248, 0.12) !important;
-    border: 1px solid rgba(56, 189, 248, 0.3) !important;
+    color: #e2e8f0 !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
 }
 
 .sims-profile-btn:hover {
-    background: #0284c7 !important;
+    background: var(--tblr-primary) !important;
     color: #ffffff !important;
-    border-color: #38bdf8 !important;
 }
 
 .sims-logout-btn {
-    color: #f87171 !important;
-    background: rgba(239, 68, 68, 0.12) !important;
-    border: 1px solid rgba(239, 68, 68, 0.3) !important;
+    color: #fca5a5 !important;
+    background: rgba(239, 68, 68, 0.14) !important;
+    border: 1px solid rgba(239, 68, 68, 0.25) !important;
 }
 
 .sims-logout-btn:hover {
     background: #dc2626 !important;
     color: #ffffff !important;
-    border-color: #ef4444 !important;
 }
 
 .sims-profile-btn svg,
 .sims-logout-btn svg {
-    width: 0.875rem !important;
-    height: 0.875rem !important;
-    flex-shrink: 0 !important;
+    width: 0.85rem !important;
+    height: 0.85rem !important;
 }
 
 .sims-logout-form {
     flex: 1 !important;
     margin: 0 !important;
-    padding: 0 !important;
     display: flex !important;
 }
 
@@ -632,145 +461,214 @@
     width: 100% !important;
 }
 
-/* ─── Data Siswa: tombol aksi grid 3x3 rapi, jarak lega & proporsional ─── */
-body.sims-users-actions-grid .fi-ta-actions {
-    display: grid !important;
-    grid-template-columns: repeat(3, 2.1rem) !important;
-    grid-auto-flow: row !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 0.55rem 0.55rem !important;
-    width: fit-content !important;
-    margin: 0 auto !important;
-    padding: 0.35rem 0 !important;
-}
-
-body.sims-users-actions-grid .fi-ta-table th.fi-ta-actions-header-cell,
-body.sims-users-actions-grid .fi-ta-table td.fi-ta-actions-cell,
-body.sims-users-actions-grid .fi-ta-table td.fi-ta-cell:has(.fi-ta-actions) {
-    min-width: 145px !important;
-    max-width: 165px !important;
-    text-align: center !important;
-    box-shadow: none !important;
-    border-left: 1px solid rgba(255, 255, 255, 0.04) !important;
-}
-/* ─── Dashboard Hero Banner — Explicit CSS (No Tailwind Dependency) ─── */
+/* ─── Dashboard Hero Banner (Tabler Clean Card + Top Royal Accent) ──────── */
 .sims-dashboard-hero {
     position: relative !important;
     overflow: hidden !important;
-    border-radius: 1.25rem !important;
-    padding: 1.5rem 1.75rem !important;
-    margin-bottom: 1.5rem !important;
-    background: linear-gradient(135deg, #0f2460 0%, #1a3a8f 50%, #1e3fad 100%) !important;
-    border: 1px solid rgba(255, 255, 255, 0.12) !important;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4) !important;
-    color: #ffffff !important;
+    border-radius: 0.75rem !important;
+    padding: 1.25rem 1.5rem !important;
+    margin-bottom: 1.25rem !important;
+    background: #ffffff !important;
+    border: 1px solid var(--tblr-border) !important;
+    border-top: 3px solid var(--tblr-primary) !important;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04) !important;
+    color: var(--tblr-text) !important;
 }
 
-.sims-hero-glow-1 {
-    position: absolute !important;
-    top: -4rem !important;
-    right: -4rem !important;
-    width: 16rem !important;
-    height: 16rem !important;
-    border-radius: 9999px !important;
-    background: rgba(96, 165, 250, 0.2) !important;
-    filter: blur(40px) !important;
-    pointer-events: none !important;
-}
-
+.sims-hero-glow-1,
 .sims-hero-glow-2 {
-    position: absolute !important;
-    bottom: -4rem !important;
-    left: -4rem !important;
-    width: 16rem !important;
-    height: 16rem !important;
-    border-radius: 9999px !important;
-    background: rgba(99, 102, 241, 0.2) !important;
-    filter: blur(40px) !important;
-    pointer-events: none !important;
+    display: none !important;
 }
 
 .sims-hero-content {
-    position: relative !important;
-    z-index: 10 !important;
     display: flex !important;
     flex-wrap: wrap !important;
     align-items: center !important;
     justify-content: space-between !important;
-    gap: 1.25rem !important;
+    gap: 1rem !important;
 }
 
 .sims-hero-text-block {
     display: flex !important;
     flex-direction: column !important;
-    gap: 0.5rem !important;
+    gap: 0.25rem !important;
 }
 
 .sims-hero-status-tag {
     display: inline-flex !important;
     align-items: center !important;
-    gap: 0.5rem !important;
-    padding: 0.25rem 0.75rem !important;
+    gap: 0.45rem !important;
+    padding: 0.2rem 0.65rem !important;
     border-radius: 9999px !important;
-    background: rgba(255, 255, 255, 0.12) !important;
-    backdrop-filter: blur(8px) !important;
-    border: 1px solid rgba(255, 255, 255, 0.18) !important;
-    font-size: 0.75rem !important;
+    background: var(--tblr-primary-soft) !important;
+    border: 1px solid #bfdbfe !important;
+    font-size: 0.7rem !important;
     font-weight: 700 !important;
-    color: #bfdbfe !important;
+    color: var(--tblr-primary) !important;
     width: fit-content !important;
 }
 
 .sims-hero-dot {
-    width: 0.5rem !important;
-    height: 0.5rem !important;
+    width: 0.45rem !important;
+    height: 0.45rem !important;
     border-radius: 9999px !important;
-    background: #34d399 !important;
-    box-shadow: 0 0 8px #34d399 !important;
+    background: #10b981 !important;
 }
 
 .sims-hero-title {
-    font-size: 1.5rem !important;
-    font-weight: 800 !important;
-    color: #ffffff !important;
+    font-size: 1.25rem !important;
+    font-weight: 700 !important;
+    color: #0f172a !important;
     letter-spacing: -0.02em !important;
-    margin: 0 !important;
-    line-height: 1.25 !important;
+    margin: 0.15rem 0 0 0 !important;
 }
 
 .sims-hero-subtitle {
-    font-size: 0.9rem !important;
-    color: #93c5fd !important;
-    font-weight: 500 !important;
+    font-size: 0.825rem !important;
+    color: var(--tblr-muted) !important;
     margin: 0 !important;
 }
 
 .sims-hero-subtitle strong {
-    color: #ffffff !important;
-    font-weight: 700 !important;
+    color: var(--tblr-primary) !important;
+    font-weight: 600 !important;
 }
 
 .sims-hero-date-badge {
     display: flex !important;
     align-items: center !important;
-    gap: 0.5rem !important;
-    padding: 0.6rem 1rem !important;
-    border-radius: 0.75rem !important;
-    background: rgba(255, 255, 255, 0.12) !important;
-    backdrop-filter: blur(8px) !important;
-    border: 1px solid rgba(255, 255, 255, 0.18) !important;
-    font-size: 0.85rem !important;
-    font-weight: 700 !important;
-    color: #ffffff !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+    gap: 0.45rem !important;
+    padding: 0.5rem 0.85rem !important;
+    border-radius: 0.5rem !important;
+    background: #f8fafc !important;
+    border: 1px solid var(--tblr-border) !important;
+    font-size: 0.8rem !important;
+    font-weight: 600 !important;
+    color: #334155 !important;
 }
 
 .sims-hero-date-badge svg {
-    width: 1.1rem !important;
-    height: 1.1rem !important;
-    color: #93c5fd !important;
-    flex-shrink: 0 !important;
+    width: 1rem !important;
+    height: 1rem !important;
+    color: var(--tblr-primary) !important;
+}
+
+/* ─── Override Custom Pages (.ad-*, .ar-*, .sc-*, .imp-*) into Tabler Light ─ */
+.fi-body .ad-filter-bar,
+.fi-body .ar-filter-bar,
+.fi-body .sc-toolbar,
+.fi-body .ad-stat,
+.fi-body .ar-stat-card,
+.fi-body .sc-stat-card,
+.fi-body .sc-action-card,
+.fi-body .imp-card,
+.fi-body .imp-table-container,
+.fi-body .ad-table-wrap,
+.fi-body .ar-table-wrap,
+.fi-body .sc-table-card {
+    background: #ffffff !important;
+    border: 1px solid var(--tblr-border) !important;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04) !important;
+    color: var(--tblr-text) !important;
+}
+
+.fi-body .ad-stat,
+.fi-body .ar-stat-card,
+.fi-body .sc-stat-card {
+    border-top: 3px solid var(--tblr-primary) !important;
+}
+
+.fi-body .sc-notice-box {
+    background: #fffbeb !important;
+    border: 1px solid #fde68a !important;
+    border-left: 4px solid #f59f00 !important;
+    color: #92400e !important;
+    box-shadow: none !important;
+}
+
+.fi-body .ad-filter-label,
+.fi-body .ar-filter-label,
+.fi-body .sc-label,
+.fi-body .ad-stat-label,
+.fi-body .ar-stat-label,
+.fi-body .sc-stat-label,
+.fi-body .sc-action-desc,
+.fi-body .ar-legend {
+    color: var(--tblr-muted) !important;
+}
+
+.fi-body .ad-select,
+.fi-body .ad-input,
+.fi-body .ar-select,
+.fi-body .sc-input,
+.fi-body .sc-select,
+.fi-body .imp-input,
+.fi-body .imp-select-trigger {
+    background: #f8fafc !important;
+    border: 1px solid var(--tblr-border) !important;
+    color: #0f172a !important;
+}
+
+.fi-body .imp-dropdown-menu {
+    background: #ffffff !important;
+    border: 1px solid var(--tblr-border) !important;
+    color: #0f172a !important;
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.12) !important;
+}
+
+.fi-body .ad-stat-value,
+.fi-body .ar-stat-value,
+.fi-body .sc-stat-val,
+.fi-body .sc-action-title,
+.fi-body .imp-card-title {
+    color: #0f172a !important;
+}
+
+.fi-body .ar-stat-value.amber { color: #d97706 !important; }
+.fi-body .ar-stat-value.green { color: #059669 !important; }
+.fi-body .ar-stat-value.yellow { color: #ca8a04 !important; }
+.fi-body .ar-stat-value.red { color: #dc2626 !important; }
+
+.fi-body .imp-table-header,
+.fi-body .imp-pagination {
+    background: #f8fafc !important;
+    border-bottom: 1px solid var(--tblr-border) !important;
+    color: #334155 !important;
+}
+
+.fi-body .ad-table th,
+.fi-body .ar-table th,
+.fi-body .sc-table th,
+.fi-body .imp-table th {
+    background: #f8fafc !important;
+    color: #475569 !important;
+    border-bottom: 1px solid var(--tblr-border) !important;
+}
+
+.fi-body .ad-table td,
+.fi-body .ar-table td,
+.fi-body .sc-table td,
+.fi-body .imp-table td {
+    color: #334155 !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+}
+
+.fi-body .ad-table td.name,
+.fi-body .ar-table td.name {
+    color: #0f172a !important;
+}
+
+.fi-body .ad-table td.nis,
+.fi-body .ar-table td.nis,
+.fi-body .ar-table td.kelas {
+    color: #64748b !important;
+}
+
+.fi-body .ad-table tbody tr:hover,
+.fi-body .ar-table tbody tr:hover,
+.fi-body .sc-table tr:hover td,
+.fi-body .imp-table tr:hover td {
+    background: #f8fafc !important;
 }
 </style>
 

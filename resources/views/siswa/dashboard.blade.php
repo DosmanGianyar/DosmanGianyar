@@ -20,8 +20,8 @@
 </a>
 @endif
 
-{{-- ─── 2. Kartu Identitas & Ringkasan Kehadiran Bulan Ini ─────────────── --}}
-<div class="bg-white rounded-xl border border-slate-200 p-4 space-y-3.5">
+{{-- ─── 2. Kartu Identitas & Ringkasan Kehadiran Bulan Ini (Tabler + Filament Minimalist) ─── --}}
+<div class="bg-white rounded-xl border border-slate-200 border-t-[3px] border-t-[#206bc4] shadow-2xs p-4 space-y-3.5">
     <div class="flex items-start justify-between gap-3">
         <div class="min-w-0">
             <p class="text-[11px] font-medium text-slate-500">{{ now()->isoFormat('dddd, D MMMM Y') }}</p>
@@ -194,9 +194,9 @@
 
     {{-- Tata Tertib --}}
     <a href="{{ route('siswa.tata-tertib') }}"
-       class="bg-white hover:bg-slate-50 border border-slate-200 hover:border-slate-300 rounded-xl p-3 flex flex-col justify-between min-h-[100px] transition-colors group">
+       class="bg-white hover:bg-slate-50 border border-slate-200 hover:border-indigo-300 rounded-xl p-3 flex flex-col justify-between min-h-[100px] transition-colors group">
         <div class="flex items-center justify-between">
-            <div class="w-8 h-8 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center shrink-0">
+            <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
                 <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
                 </svg>
@@ -204,7 +204,7 @@
             <span class="text-[10px] font-medium text-slate-400">Pedoman</span>
         </div>
         <div class="mt-2.5">
-            <p class="text-xs font-bold text-slate-900 group-hover:text-blue-600 transition-colors">Tata Tertib</p>
+            <p class="text-xs font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">Tata Tertib</p>
             <p class="text-[10px] text-slate-500 mt-0.5 truncate">Aturan sekolah</p>
         </div>
     </a>

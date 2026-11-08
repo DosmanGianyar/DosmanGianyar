@@ -42,8 +42,8 @@
 
     <div class="space-y-3">
 
-        {{-- Kartu Identitas & Kehadiran Hari Ini --}}
-        <div class="bg-white rounded-xl border border-slate-200 p-4 space-y-3.5">
+        {{-- Kartu Identitas & Kehadiran Hari Ini (Tabler + Filament Minimalist) --}}
+        <div class="bg-white rounded-xl border border-slate-200 border-t-[3px] border-t-[#206bc4] shadow-2xs p-4 space-y-3.5">
             {{-- Baris Identitas Siswa --}}
             <div class="flex items-center justify-between gap-3">
                 <div class="flex items-center gap-3 min-w-0">
@@ -212,19 +212,19 @@
 
                 {{-- Card 2: Catatan SIPINTER --}}
                 <a href="{{ route('orangtua.conduct.index', $child->id) }}"
-                   class="bg-white hover:bg-slate-50 border border-slate-200 hover:border-slate-300 rounded-xl p-3.5 flex flex-col justify-between min-h-[112px] transition-colors group">
+                   class="bg-white hover:bg-slate-50 border border-slate-200 hover:border-amber-300 rounded-xl p-3.5 flex flex-col justify-between min-h-[112px] transition-colors group">
                     <div class="flex items-center justify-between">
-                        <div class="w-9 h-9 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center shrink-0">
+                        <div class="w-9 h-9 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                             </svg>
                         </div>
-                        <span class="text-xs font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded-md">
+                        <span class="text-xs font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md">
                             {{ $data['violation_count'] ?? $data['violation_points'] }}
                         </span>
                     </div>
                     <div class="mt-3">
-                        <p class="text-xs font-bold text-slate-900 group-hover:text-blue-600 transition-colors">Catatan Karakter</p>
+                        <p class="text-xs font-bold text-slate-900 group-hover:text-amber-600 transition-colors">Catatan Karakter</p>
                         <p class="text-[11px] text-slate-500 mt-0.5">SIPINTER & disiplin</p>
                     </div>
                 </a>
@@ -276,9 +276,9 @@
                 {{-- Card 5: Chat Ruang Privat (Wali & Ortu) --}}
                 @if($privateRoom)
                 <a href="{{ route('orangtua.chat.show', $privateRoom->id) }}"
-                   class="bg-white hover:bg-slate-50 border border-slate-200 hover:border-slate-300 rounded-xl p-3.5 flex flex-col justify-between min-h-[112px] transition-colors group">
+                   class="bg-white hover:bg-slate-50 border border-slate-200 hover:border-indigo-300 rounded-xl p-3.5 flex flex-col justify-between min-h-[112px] transition-colors group">
                     <div class="flex items-center justify-between">
-                        <div class="w-9 h-9 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center shrink-0">
+                        <div class="w-9 h-9 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
                             </svg>
@@ -292,7 +292,7 @@
                         @endif
                     </div>
                     <div class="mt-3">
-                        <p class="text-xs font-bold text-slate-900 group-hover:text-blue-600 transition-colors">Chat Wali Kelas</p>
+                        <p class="text-xs font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">Chat Wali Kelas</p>
                         <p class="text-[11px] text-slate-500 mt-0.5">Khusus Ortu & Wali</p>
                     </div>
                 </a>

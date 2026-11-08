@@ -182,32 +182,32 @@ class _GuruTopBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      decoration: const BoxDecoration(gradient: AppColors.topbarGradient),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        border: Border(
+          top: BorderSide(color: Color(0xFF206BC4), width: 3),
+          bottom: BorderSide(color: AppColors.gray200),
+        ),
+      ),
       child: Row(
         children: [
           // Logo Badge Icon (Pojok Kiri Atas TopBar)
           Container(
             padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.1),
-                  blurRadius: 4,
-                  offset: const Offset(0, 2),
-                ),
-              ],
+              color: AppColors.slate100,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: AppColors.gray200),
             ),
             child: Image.asset(
               'assets/images/logo_sekolah.png',
               width: 24,
               height: 24,
               fit: BoxFit.contain,
-              errorBuilder: (_, __, ___) => Image.asset(
-                'assets/images/dosman_white_icon.png',
-                width: 24,
-                height: 24,
+              errorBuilder: (_, __, ___) => const Icon(
+                Icons.school_outlined,
+                color: Color(0xFF206BC4),
+                size: 20,
               ),
             ),
           ),
@@ -219,12 +219,12 @@ class _GuruTopBar extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'DOSMAN — Portal Guru',
-                  style: TextStyle(fontSize: 10, color: Colors.white70, fontWeight: FontWeight.w600, letterSpacing: 0.5),
+                  'SIMAK DOSMAN · Portal Guru',
+                  style: TextStyle(fontSize: 10, color: AppColors.gray500, fontWeight: FontWeight.w600, letterSpacing: 0.3),
                 ),
                 Text(
                   user?.name ?? 'Guru Portal',
-                  style: const TextStyle(fontSize: 14, color: Colors.white, fontWeight: FontWeight.bold),
+                  style: const TextStyle(fontSize: 14, color: AppColors.gray900, fontWeight: FontWeight.w700),
                   overflow: TextOverflow.ellipsis,
                 ),
               ],
@@ -239,7 +239,7 @@ class _GuruTopBar extends StatelessWidget {
                 MaterialPageRoute(builder: (_) => const ChatListScreen()),
               );
             },
-            icon: const Icon(Icons.forum_outlined, color: Colors.white, size: 22),
+            icon: const Icon(Icons.forum_outlined, color: AppColors.gray700, size: 21),
             tooltip: 'Konsultasi Perwalian',
           ),
 
@@ -248,7 +248,7 @@ class _GuruTopBar extends StatelessWidget {
             children: [
               IconButton(
                 onPressed: onNotifTap,
-                icon: const Icon(Icons.notifications_outlined, color: Colors.white, size: 22),
+                icon: const Icon(Icons.notifications_outlined, color: AppColors.gray700, size: 22),
               ),
               if (unread > 0)
                 Positioned(

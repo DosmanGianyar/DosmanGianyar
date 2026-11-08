@@ -11,10 +11,10 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('head')
 </head>
-<body class="bg-slate-50 font-sans text-slate-800 antialiased pb-20">
+<body class="bg-[#f6f8fb] font-sans text-slate-800 antialiased pb-20">
 
-{{-- ─── Top Header ──────────────────────────────────────────────────── --}}
-<header class="fixed top-0 left-0 right-0 z-20 h-14 bg-white border-b border-slate-200 flex items-center justify-between px-4">
+{{-- ─── Top Header (Tabler Top Accent Line) ─────────────────────────── --}}
+<header class="fixed top-0 left-0 right-0 z-20 h-14 bg-white border-t-[3px] border-t-[#206bc4] border-b border-slate-200 flex items-center justify-between px-4">
     @php
         $isRootPage = request()->routeIs('orangtua.dashboard');
     @endphp

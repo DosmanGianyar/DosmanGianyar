@@ -333,30 +333,38 @@ class _ChildCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Colors.white, borderRadius: AppRadius.card,
-        border: Border.all(color: AppColors.gray100), boxShadow: AppShadow.sm,
+        border: Border.all(color: AppColors.gray200),
       ),
-      child: Row(
+      clipBehavior: Clip.antiAlias,
+      child: Column(
         children: [
-          CircleAvatar(
-            radius: 22,
-            backgroundColor: AppColors.blue600,
-            backgroundImage: child.photoUrl != null ? NetworkImage(child.photoUrl!) : null,
-            onBackgroundImageError: child.photoUrl != null ? (_, __) {} : null,
-            child: child.photoUrl == null
-                ? Text(child.initials, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700))
-                : null,
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          Container(height: 3, color: const Color(0xFF206BC4)),
+          Padding(
+            padding: const EdgeInsets.all(14),
+            child: Row(
               children: [
-                Text(child.name, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.gray800)),
-                if (child.className != null)
-                  Text(child.className!, style: const TextStyle(fontSize: 12, color: AppColors.gray400)),
+                CircleAvatar(
+                  radius: 22,
+                  backgroundColor: const Color(0xFFEBF3FE),
+                  backgroundImage: child.photoUrl != null ? NetworkImage(child.photoUrl!) : null,
+                  onBackgroundImageError: child.photoUrl != null ? (_, __) {} : null,
+                  child: child.photoUrl == null
+                      ? Text(child.initials, style: const TextStyle(color: Color(0xFF206BC4), fontWeight: FontWeight.w700))
+                      : null,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(child.name, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.gray800)),
+                      if (child.className != null)
+                        Text(child.className!, style: const TextStyle(fontSize: 12, color: AppColors.gray500)),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
@@ -391,8 +399,8 @@ class _MenuGrid extends StatelessWidget {
       ),
       _SquareMenuItem(
         icon: Icons.assignment_outlined,
-        iconBg: const Color(0xFFF1F5F9),
-        iconColor: AppColors.gray700,
+        iconBg: AppColors.amber50,
+        iconColor: AppColors.amber700,
         tag: 'SIPINTER',
         title: 'Catatan Karakter',
         subtitle: 'Disiplin & apresiasi',

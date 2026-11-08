@@ -5,15 +5,15 @@
 
 @section('content')
 
-{{-- ─── 1. Ringkasan Profil Guru & Statistik Utama ────────────────────── --}}
+{{-- ─── 1. Ringkasan Profil Guru & Statistik Utama (Tabler + Filament Minimalist) ─── --}}
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-5">
-    {{-- Kartu Identitas Guru --}}
-    <div class="lg:col-span-2 bg-white rounded-xl border border-slate-200 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    {{-- Kartu Identitas Guru dengan Top Accent Royal Blue --}}
+    <div class="lg:col-span-2 bg-white rounded-xl border border-slate-200 border-t-[3px] border-t-[#206bc4] shadow-2xs p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div class="flex items-start sm:items-center gap-3.5 min-w-0">
             @if($guru->photo)
                 <img src="{{ $guru->photo_url }}" class="w-12 h-12 rounded-xl object-cover border border-slate-200 shrink-0">
             @else
-                <div class="w-12 h-12 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-700 font-bold text-base shrink-0">
+                <div class="w-12 h-12 rounded-xl bg-[#ebf3fe] border border-blue-200 flex items-center justify-center text-[#206bc4] font-bold text-base shrink-0">
                     {{ $guru->initials }}
                 </div>
             @endif
@@ -30,7 +30,7 @@
                     @endif
                     @if($guru->homeroomClass)
                         <span class="text-slate-300">·</span>
-                        <span class="px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200 font-semibold text-[11px]">
+                        <span class="px-2 py-0.5 rounded bg-[#ebf3fe] text-[#206bc4] border border-blue-200 font-semibold text-[11px]">
                             Wali Kelas {{ $guru->homeroomClass->name }}
                         </span>
                     @endif
@@ -44,22 +44,22 @@
         </a>
     </div>
 
-    {{-- Statistik Ringkas (2 Kolom) --}}
-    <div class="bg-white rounded-xl border border-slate-200 divide-x divide-slate-200 grid grid-cols-2 overflow-hidden">
-        <div class="p-4 flex flex-col justify-between">
+    {{-- Statistik Ringkas (2 Kolom dengan Top Accent Emerald & Indigo) --}}
+    <div class="grid grid-cols-2 gap-3">
+        <div class="bg-white rounded-xl border border-slate-200 border-t-[3px] border-t-[#0ca678] shadow-2xs p-4 flex flex-col justify-between">
             <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Siswa Bimbingan</span>
             <div class="mt-2">
                 <p class="text-2xl font-bold text-slate-900 leading-none">{{ $stats['total_students'] }}</p>
-                <p class="text-[11px] text-slate-500 mt-1 truncate">
+                <p class="text-[11px] text-emerald-700 font-medium mt-1 truncate">
                     {{ $guru->homeroomClass?->name ? 'Kelas ' . $guru->homeroomClass->name : 'Seluruh Kelas' }}
                 </p>
             </div>
         </div>
-        <div class="p-4 flex flex-col justify-between">
+        <div class="bg-white rounded-xl border border-slate-200 border-t-[3px] border-t-[#4263eb] shadow-2xs p-4 flex flex-col justify-between">
             <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Total Jurnal</span>
             <div class="mt-2">
                 <p class="text-2xl font-bold text-slate-900 leading-none">{{ $stats['total_journals'] }}</p>
-                <a href="{{ route('guru.journal.create') }}" class="inline-block text-[11px] font-semibold text-blue-600 hover:text-blue-700 mt-1">
+                <a href="{{ route('guru.journal.create') }}" class="inline-block text-[11px] font-semibold text-[#206bc4] hover:text-blue-700 mt-1">
                     + Buat Jurnal →
                 </a>
             </div>

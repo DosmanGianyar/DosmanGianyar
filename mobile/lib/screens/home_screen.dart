@@ -272,7 +272,10 @@ class _TopHeader extends StatelessWidget {
       height: 56,
       decoration: const BoxDecoration(
         color: Colors.white,
-        border: Border(bottom: BorderSide(color: AppColors.gray200)),
+        border: Border(
+          top: BorderSide(color: Color(0xFF206BC4), width: 3),
+          bottom: BorderSide(color: AppColors.gray200),
+        ),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
@@ -600,110 +603,119 @@ class _GreetingCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppColors.gray200),
       ),
-      padding: const EdgeInsets.all(14),
+      clipBehavior: Clip.antiAlias,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                dateStr,
-                style: const TextStyle(
-                  color: AppColors.gray500,
-                  fontSize: 11,
-                  fontWeight: FontWeight.w500,
+          Container(height: 3, color: const Color(0xFF206BC4)),
+          Padding(
+            padding: const EdgeInsets.all(14),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      dateStr,
+                      style: const TextStyle(
+                        color: AppColors.gray500,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2.5),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFEBF3FE),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: const Text(
+                        'Rekap Bulan Ini',
+                        style: TextStyle(
+                          color: Color(0xFF206BC4),
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2.5),
-                decoration: BoxDecoration(
-                  color: AppColors.slate100,
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: const Text(
-                  'Rekap Bulan Ini',
-                  style: TextStyle(
-                    color: AppColors.gray600,
-                    fontSize: 10,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          Text(
-            name,
-            style: const TextStyle(
-              color: AppColors.gray900,
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-              height: 1.25,
-            ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: 4),
-          Wrap(
-            crossAxisAlignment: WrapCrossAlignment.center,
-            spacing: 6,
-            children: [
-              Text(
-                user?.className ?? 'SMA Negeri 1 Gianyar',
-                style: const TextStyle(
-                  color: AppColors.gray700,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              if (user?.angkatan != null)
+                const SizedBox(height: 6),
                 Text(
-                  '· Angkatan ${user!.angkatan}',
+                  name,
                   style: const TextStyle(
-                    color: AppColors.gray500,
-                    fontSize: 12,
+                    color: AppColors.gray900,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    height: 1.25,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 4),
+                Wrap(
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: 6,
+                  children: [
+                    Text(
+                      user?.className ?? 'SMA Negeri 1 Gianyar',
+                      style: const TextStyle(
+                        color: AppColors.gray700,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    if (user?.angkatan != null)
+                      Text(
+                        '· Angkatan ${user!.angkatan}',
+                        style: const TextStyle(
+                          color: AppColors.gray500,
+                          fontSize: 12,
+                        ),
+                      ),
+                    if (user?.nis != null)
+                      Text(
+                        '· NIS ${user!.nis}',
+                        style: const TextStyle(
+                          color: AppColors.gray500,
+                          fontSize: 11.5,
+                        ),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.gray50,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: AppColors.gray200),
+                  ),
+                  child: IntrinsicHeight(
+                    child: Row(
+                      children: [
+                        _StatBadgeItem(
+                          label: 'Telat',
+                          count: summary['terlambat']!,
+                          highlightColor: summary['terlambat']! > 0 ? AppColors.amber600 : null,
+                        ),
+                        const VerticalDivider(width: 1, thickness: 1, color: AppColors.gray200),
+                        _StatBadgeItem(
+                          label: 'Alpa',
+                          count: summary['alpa']!,
+                          highlightColor: summary['alpa']! > 0 ? AppColors.red600 : null,
+                        ),
+                        const VerticalDivider(width: 1, thickness: 1, color: AppColors.gray200),
+                        _StatBadgeItem(label: 'Izin', count: summary['izin']!),
+                        const VerticalDivider(width: 1, thickness: 1, color: AppColors.gray200),
+                        _StatBadgeItem(label: 'Sakit', count: summary['sakit']!),
+                        const VerticalDivider(width: 1, thickness: 1, color: AppColors.gray200),
+                        _StatBadgeItem(label: 'Dispen', count: summary['dispensasi']!),
+                      ],
+                    ),
                   ),
                 ),
-              if (user?.nis != null)
-                Text(
-                  '· NIS ${user!.nis}',
-                  style: const TextStyle(
-                    color: AppColors.gray500,
-                    fontSize: 11.5,
-                  ),
-                ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Container(
-            decoration: BoxDecoration(
-              color: AppColors.gray50,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: AppColors.gray200),
-            ),
-            child: IntrinsicHeight(
-              child: Row(
-                children: [
-                  _StatBadgeItem(
-                    label: 'Telat',
-                    count: summary['terlambat']!,
-                    highlightColor: summary['terlambat']! > 0 ? AppColors.amber600 : null,
-                  ),
-                  const VerticalDivider(width: 1, thickness: 1, color: AppColors.gray200),
-                  _StatBadgeItem(
-                    label: 'Alpa',
-                    count: summary['alpa']!,
-                    highlightColor: summary['alpa']! > 0 ? AppColors.red600 : null,
-                  ),
-                  const VerticalDivider(width: 1, thickness: 1, color: AppColors.gray200),
-                  _StatBadgeItem(label: 'Izin', count: summary['izin']!),
-                  const VerticalDivider(width: 1, thickness: 1, color: AppColors.gray200),
-                  _StatBadgeItem(label: 'Sakit', count: summary['sakit']!),
-                  const VerticalDivider(width: 1, thickness: 1, color: AppColors.gray200),
-                  _StatBadgeItem(label: 'Dispen', count: summary['dispensasi']!),
-                ],
-              ),
+              ],
             ),
           ),
         ],

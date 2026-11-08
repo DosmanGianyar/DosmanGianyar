@@ -42,9 +42,9 @@ class AdminPanelProvider extends PanelProvider
                     ->visible(fn (): bool => auth()->user()?->role === 'admin'),
             ])
             ->colors([
-                'primary' => Color::Blue,
+                'primary' => Color::hex('#206bc4'),
             ])
-            ->darkMode(true, isForced: true)
+            ->darkMode(false)
             ->brandName('Admin Dosman')
             ->favicon('/img/logo_sekolah.png')
             ->font('Plus Jakarta Sans', provider: \Filament\FontProviders\GoogleFontProvider::class)

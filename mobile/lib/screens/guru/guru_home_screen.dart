@@ -62,71 +62,80 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ─── Header: Profil Guru Ringkas & Bersih ─────────────────────────
+            // ─── Header: Profil Guru Ringkas & Bersih (Tabler Top Accent) ───
             Container(
-              padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: AppColors.gray200),
               ),
+              clipBehavior: Clip.antiAlias,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Builder(
-                        builder: (context) {
-                          final photoUrl = user?.photoUrl;
-                          final hasPhoto = photoUrl != null && photoUrl.trim().isNotEmpty;
-                          return CircleAvatar(
-                            radius: 22,
-                            backgroundColor: AppColors.slate100,
-                            backgroundImage: hasPhoto ? NetworkImage(photoUrl) : null,
-                            child: !hasPhoto
-                                ? Text(
-                                    user?.initials ?? 'G',
-                                    style: const TextStyle(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w700,
-                                      color: AppColors.gray800,
-                                    ),
-                                  )
-                                : null,
-                          );
-                        },
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                  Container(height: 3, color: const Color(0xFF206BC4)),
+                  Padding(
+                    padding: const EdgeInsets.all(14),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            Text(
-                              DateFormat('EEEE, d MMMM y', 'id_ID').format(DateTime.now()),
-                              style: const TextStyle(
-                                fontSize: 11,
-                                color: AppColors.gray500,
-                                fontWeight: FontWeight.w500,
-                              ),
+                            Builder(
+                              builder: (context) {
+                                final photoUrl = user?.photoUrl;
+                                final hasPhoto = photoUrl != null && photoUrl.trim().isNotEmpty;
+                                return CircleAvatar(
+                                  radius: 22,
+                                  backgroundColor: const Color(0xFFEBF3FE),
+                                  backgroundImage: hasPhoto ? NetworkImage(photoUrl) : null,
+                                  child: !hasPhoto
+                                      ? Text(
+                                          user?.initials ?? 'G',
+                                          style: const TextStyle(
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.w700,
+                                            color: Color(0xFF206BC4),
+                                          ),
+                                        )
+                                      : null,
+                                );
+                              },
                             ),
-                            const SizedBox(height: 2),
-                            Text(
-                              fullName,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.gray900,
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    DateFormat('EEEE, d MMMM y', 'id_ID').format(DateTime.now()),
+                                    style: const TextStyle(
+                                      fontSize: 11,
+                                      color: AppColors.gray500,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    fullName,
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w700,
+                                      color: AppColors.gray900,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
                               ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
                             ),
                           ],
                         ),
-                      ),
-                    ],
+                        _buildSubjectBadges(user),
+                      ],
+                    ),
                   ),
-                  _buildSubjectBadges(user),
                 ],
               ),
             ),

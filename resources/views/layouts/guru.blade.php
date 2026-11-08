@@ -8,10 +8,10 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>[x-cloak] { display: none !important; }</style>
 </head>
-<body class="bg-slate-100/90 font-sans antialiased text-slate-800">
+<body class="bg-[#f6f8fb] font-sans antialiased text-slate-800">
 
-{{-- ─── Mobile Top Bar ──────────────────────────────────────────────── --}}
-<div class="lg:hidden fixed top-0 left-0 right-0 z-30 bg-white border-b border-slate-200 h-14 flex items-center px-4 justify-between gap-2 shadow-xs">
+{{-- ─── Mobile Top Bar (Tabler Top Accent) ──────────────────────────── --}}
+<div class="lg:hidden fixed top-0 left-0 right-0 z-30 bg-white border-t-[3px] border-t-[#206bc4] border-b border-slate-200 h-14 flex items-center px-4 justify-between gap-2 shadow-2xs">
     <div class="flex items-center gap-2 shrink-0">
         <button onclick="toggleSidebar()"
             class="w-9 h-9 flex items-center justify-center rounded-xl text-slate-600 hover:bg-slate-100 active:bg-slate-200 transition-colors shrink-0">
@@ -42,35 +42,35 @@
 <div id="overlay" onclick="toggleSidebar()"
     class="hidden fixed inset-0 z-20 bg-slate-900/50 backdrop-blur-xs lg:hidden"></div>
 
-{{-- ─── Sidebar ─────────────────────────────────────────────────────── --}}
+{{-- ─── Sidebar (Tabler Signature Dark Slate #182433 — Unified with Admin) ─── --}}
 <aside id="sidebar"
-    class="fixed inset-y-0 left-0 w-64 bg-white shadow-xl lg:shadow-none z-30 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 flex flex-col overflow-hidden border-r border-slate-200">
+    class="fixed inset-y-0 left-0 w-64 bg-[#182433] shadow-xl lg:shadow-none z-30 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 flex flex-col overflow-hidden border-r border-[#0f172a]">
 
     {{-- Logo / Branding SIMAK DOSMAN --}}
-    <div class="shrink-0 h-16 flex items-center gap-3 px-4 border-b border-slate-200 bg-white">
+    <div class="shrink-0 h-16 flex items-center gap-3 px-4 border-b border-white/10 bg-[#131d2a]">
         <img src="/img/logo_sekolah.png" alt="Logo SMAN 1 Gianyar"
             class="w-8 h-8 object-contain shrink-0">
         <div class="overflow-hidden">
-            <p class="text-slate-900 font-bold text-sm tracking-tight truncate leading-none">SMAN 1 Gianyar</p>
-            <p class="text-slate-500 text-[11px] font-medium truncate mt-1">Portal Guru · SIMAK</p>
+            <p class="text-white font-bold text-sm tracking-tight truncate leading-none">SMAN 1 Gianyar</p>
+            <p class="text-slate-400 text-[11px] font-medium truncate mt-1">Portal Guru · SIMAK</p>
         </div>
     </div>
 
     {{-- User Card Profile Sidebar --}}
-    <div class="shrink-0 px-3 py-2.5 border-b border-slate-100 bg-slate-50/50">
-        <a href="{{ route('guru.profile') }}" class="flex items-center gap-2.5 bg-white border border-slate-200 rounded-xl p-2 hover:border-slate-300 transition-colors group">
+    <div class="shrink-0 px-3 py-2.5 border-b border-white/10 bg-[#182433]">
+        <a href="{{ route('guru.profile') }}" class="flex items-center gap-2.5 bg-[#1e2c3f] border border-white/10 rounded-xl p-2 hover:border-blue-400/40 transition-colors group">
             <div class="relative shrink-0">
                 @if(auth()->user()->photo)
-                    <img src="{{ auth()->user()->photo_url }}" class="w-8 h-8 rounded-lg object-cover border border-slate-200">
+                    <img src="{{ auth()->user()->photo_url }}" class="w-8 h-8 rounded-lg object-cover border border-white/15">
                 @else
-                    <div class="w-8 h-8 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-700 font-bold text-xs">
+                    <div class="w-8 h-8 rounded-lg bg-[#206bc4] flex items-center justify-center text-white font-bold text-xs">
                         {{ auth()->user()->initials }}
                     </div>
                 @endif
             </div>
             <div class="overflow-hidden flex-1 min-w-0">
-                <p class="text-xs font-bold text-slate-900 truncate group-hover:text-blue-600 transition-colors">{{ auth()->user()->name }}</p>
-                <p class="text-[11px] text-slate-500 truncate">{{ auth()->user()->subject ?? 'Guru Pengajar' }}</p>
+                <p class="text-xs font-semibold text-white truncate group-hover:text-blue-300 transition-colors">{{ auth()->user()->name }}</p>
+                <p class="text-[11px] text-slate-400 truncate">{{ auth()->user()->subject ?? 'Guru Pengajar' }}</p>
             </div>
         </a>
     </div>
@@ -141,19 +141,19 @@
                     $itemBadge = $item['badge'] ?? 0;
                 @endphp
                 <a href="{{ route($item['route']) }}"
-                    class="group flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold transition-all duration-150 mb-0.5
-                        {{ $active ? 'bg-blue-600 text-white shadow-xs shadow-blue-500/20' : 'text-slate-600 hover:bg-slate-100/80 hover:text-slate-900' }}">
-                    <svg class="w-4.5 h-4.5 shrink-0 {{ $active ? 'text-white' : 'text-slate-400 group-hover:text-slate-600' }}"
+                    class="group flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-xs font-semibold transition-all duration-150 mb-0.5 border-l-[3px]
+                        {{ $active ? 'bg-[#206bc4] text-white border-l-blue-300' : 'border-l-transparent text-slate-300 hover:bg-[#213043] hover:text-white' }}">
+                    <svg class="w-4.5 h-4.5 shrink-0 {{ $active ? 'text-white' : 'text-slate-400 group-hover:text-white' }}"
                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $item['icon'] }}"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="{{ $item['icon'] }}"/>
                     </svg>
                     <span class="truncate flex-1">{{ $item['label'] }}</span>
                     @if($item['route'] === 'guru.chat.index')
-                        <span class="chat-unread-badge {{ $itemBadge > 0 ? '' : 'hidden' }} text-[10px] font-black px-2 py-0.5 rounded-full shrink-0 {{ $active ? 'bg-white text-blue-600' : 'bg-emerald-50 text-emerald-700 border border-emerald-200' }}">
+                        <span class="chat-unread-badge {{ $itemBadge > 0 ? '' : 'hidden' }} text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 {{ $active ? 'bg-white text-[#206bc4]' : 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/30' }}">
                             {{ $itemBadge }}
                         </span>
                     @elseif($itemBadge > 0)
-                        <span class="text-[10px] font-black px-2 py-0.5 rounded-full shrink-0 {{ $active ? 'bg-white text-blue-600' : 'bg-rose-50 text-rose-700 border border-rose-200' }}">
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 {{ $active ? 'bg-white text-[#206bc4]' : 'bg-rose-500/20 text-rose-300 border border-rose-400/30' }}">
                             {{ $itemBadge }}
                         </span>
                     @endif
@@ -162,13 +162,13 @@
         @endforeach
 
         {{-- Logout --}}
-        <div class="pt-3 mt-3 border-t border-slate-100 pb-6">
+        <div class="pt-3 mt-3 border-t border-white/10 pb-6">
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
                 <button type="submit"
-                    class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold text-slate-500 hover:bg-rose-50 hover:text-rose-600 transition-all duration-150">
+                    class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-xs font-semibold text-rose-300 hover:bg-rose-500/15 hover:text-rose-200 transition-all duration-150">
                     <svg class="w-4.5 h-4.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
                             d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
                     </svg>
                     Keluar Sistem
@@ -180,8 +180,8 @@
 
 {{-- ─── Main Content ────────────────────────────────────────────────── --}}
 <main class="lg:ml-64 min-h-screen pt-14 lg:pt-0">
-    {{-- Desktop Header Bar --}}
-    <div class="hidden lg:flex items-center justify-between px-6 py-3 bg-white border-b border-slate-200">
+    {{-- Desktop Header Bar (Tabler Top Accent Line) --}}
+    <div class="hidden lg:flex items-center justify-between px-6 py-3 bg-white border-t-[3px] border-t-[#206bc4] border-b border-slate-200">
         <div>
             <h1 class="text-base font-bold text-slate-900 tracking-tight">@yield('page-title', 'Dashboard')</h1>
             <p class="text-xs text-slate-500 mt-0.5">{{ now()->isoFormat('dddd, D MMMM Y') }}</p>
