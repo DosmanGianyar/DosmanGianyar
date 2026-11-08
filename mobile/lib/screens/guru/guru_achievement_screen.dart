@@ -78,16 +78,16 @@ class _GuruAchievementScreenState extends State<GuruAchievementScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.slate100,
       appBar: AppBar(
         title: const Text('Juara & Prestasi Siswa Binaan'),
-        backgroundColor: AppColors.primary,
+        backgroundColor: AppColors.blue600,
         foregroundColor: Colors.white,
         elevation: 0,
       ),
       body: RefreshIndicator(
         onRefresh: _load,
-        color: AppColors.primary,
+        color: AppColors.blue600,
         child: _loading
             ? const Center(child: CircularProgressIndicator())
             : _error != null

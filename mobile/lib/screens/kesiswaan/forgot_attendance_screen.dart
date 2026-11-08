@@ -121,7 +121,7 @@ class _ForgotAttendanceScreenState extends State<ForgotAttendanceScreen> {
                             color: ((_quota!['remaining'] as int? ?? 0) > 0) ? AppColors.amber50 : AppColors.red50,
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: ((_quota!['remaining'] as int? ?? 0) > 0) ? AppColors.amber200 : AppColors.red200,
+                              color: ((_quota!['remaining'] as int? ?? 0) > 0) ? AppColors.amber200 : AppColors.rose200,
                             ),
                           ),
                           child: Row(
