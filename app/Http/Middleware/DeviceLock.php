@@ -36,6 +36,17 @@ class DeviceLock
             }
 
             if (! $user->isDeviceRegistered($deviceId)) {
+                if (in_array($user->role, ['guru', 'pegawai', 'orangtua'], true)) {
+                    try {
+                        $user->currentAccessToken()?->delete();
+                    } catch (\Throwable $e) {}
+
+                    return response()->json([
+                        'message' => 'Akun Anda telah login di perangkat lain. Sesi pada perangkat ini otomatis berakhir.',
+                        'code'    => 'DEVICE_REPLACED',
+                    ], 401);
+                }
+
                 return response()->json([
                     'message' => 'Perangkat tidak diizinkan. Hubungi Admin untuk reset perangkat.',
                     'code'    => 'DEVICE_MISMATCH',

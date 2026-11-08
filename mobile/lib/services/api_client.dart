@@ -16,6 +16,9 @@ class ApiClient {
     aOptions: AndroidOptions(encryptedSharedPreferences: true),
   );
 
+  /// Callback yang dipanggil otomatis ketika token dicabut (401) karena login di perangkat lain
+  static void Function()? onSessionRevoked;
+
   static final Dio _dio = _buildDio();
 
   static Dio _buildDio() {
@@ -53,8 +56,19 @@ class ApiClient {
 
           handler.next(options);
         },
-        onError: (error, handler) {
-          // Biarkan caller yang handle error spesifik
+        onError: (error, handler) async {
+          final status = error.response?.statusCode;
+          final path = error.requestOptions.path;
+          final data = error.response?.data;
+          final code = data is Map ? data['code']?.toString() : null;
+
+          // Jika token dicabut (401) atau perangkat digantikan (DEVICE_REPLACED / DEVICE_MISMATCH) di luar endpoint login
+          if (!path.contains('/auth/login') &&
+              (status == 401 || code == 'DEVICE_REPLACED' || code == 'DEVICE_MISMATCH')) {
+            await clearAuth();
+            onSessionRevoked?.call();
+          }
+
           handler.next(error);
         },
       ),

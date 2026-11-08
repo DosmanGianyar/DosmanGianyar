@@ -197,17 +197,21 @@ class _AppGateState extends State<_AppGate> with WidgetsBindingObserver {
 
   Future<void> _recheckVersionOnResume() async {
     final vResult = await VersionService.checkVersion();
-    if (!mounted || vResult == null) return;
-    if (vResult.needsForceUpdate) {
+    if (!mounted) return;
+    if (vResult != null && vResult.needsForceUpdate) {
       PushNotificationService.navigatorKey.currentState?.popUntil((r) => r.isFirst);
       setState(() {
         _forceUpdateResult = vResult;
         _checkingVersion   = false;
       });
-    } else if (_forceUpdateResult != null && !vResult.needsForceUpdate) {
+      return;
+    } else if (_forceUpdateResult != null && (vResult == null || !vResult.needsForceUpdate)) {
       setState(() {
         _forceUpdateResult = null;
       });
+    }
+    // Cek ulang sesi ke server saat aplikasi kembali ke foreground (agar otomatis ter-logout jika akun login di perangkat lain)
+    if (mounted) {
       context.read<AuthProvider>().checkAuth();
     }
   }

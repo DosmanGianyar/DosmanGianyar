@@ -13,6 +13,20 @@ class AuthProvider extends ChangeNotifier {
   String?   _error;
   bool      _isLoading = false;
 
+  AuthProvider() {
+    ApiClient.onSessionRevoked = _handleRemoteLogout;
+  }
+
+  void _handleRemoteLogout() {
+    if (_state != AuthState.unauthenticated) {
+      _user  = null;
+      _state = AuthState.unauthenticated;
+      _error = 'Sesi berakhir karena akun Anda login di perangkat lain.';
+      PushNotificationService.navigatorKey.currentState?.popUntil((r) => r.isFirst);
+      notifyListeners();
+    }
+  }
+
   AuthState get state     => _state;
   User?     get user      => _user;
   String?   get error     => _error;
@@ -35,10 +49,13 @@ class AuthProvider extends ChangeNotifier {
       _state = AuthState.authenticated;
       PushNotificationService.registerToken();
     } catch (e) {
-      final is401 = e is DioException && e.response?.statusCode == 401;
-      if (is401) {
-        // Token expired/invalid → hapus semua dan paksa login ulang
+      final status = e is DioException ? e.response?.statusCode : null;
+      final data = e is DioException ? e.response?.data : null;
+      final code = data is Map ? data['code']?.toString() : null;
+      if (status == 401 || code == 'DEVICE_REPLACED' || code == 'DEVICE_MISMATCH') {
+        // Token expired/invalid atau login di perangkat lain → hapus semua dan paksa login ulang
         await ApiClient.clearAuth();
+        _user  = null;
         _state = AuthState.unauthenticated;
       } else {
         // Network error / server unreachable → pakai data user dari cache lokal

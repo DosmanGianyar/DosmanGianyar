@@ -324,11 +324,23 @@ class User extends Authenticatable implements FilamentUser
     }
 
     /**
-     * Daftarkan device baru jika belum ada dan belum melebihi batas.
-     * Return true jika berhasil, false jika sudah penuh (>= MAX_DEVICES).
+     * Daftarkan device baru:
+     * - Guru, Pegawai, dan Orang Tua: TIDAK dibatasi kuota 5 perangkat. Hanya boleh aktif
+     *   di 1 perangkat saja (jika berganti perangkat, perangkat lama otomatis dihapus & ter-logout).
+     * - Siswa/Pengelola: maksimal MAX_DEVICES (5 perangkat).
      */
     public function registerDevice(string $deviceId): bool
     {
+        // Guru, Pegawai, dan Orang Tua: hanya 1 perangkat aktif, tanpa batas pergantian perangkat
+        if (in_array($this->role, ['guru', 'pegawai', 'orangtua'], true)) {
+            $this->devices()->where('device_id', '!=', $deviceId)->delete();
+            $this->devices()->updateOrCreate(
+                ['device_id' => $deviceId],
+                ['last_login_at' => now()]
+            );
+            return true;
+        }
+
         // Sudah terdaftar → perbarui last_login_at saja
         $existing = $this->devices()->where('device_id', $deviceId)->first();
         if ($existing) {
@@ -345,7 +357,7 @@ class User extends Authenticatable implements FilamentUser
             return true;
         }
 
-        // Belum terdaftar → cek kuota
+        // Belum terdaftar (Siswa) → cek kuota
         if ($this->deviceCount() >= self::MAX_DEVICES) {
             return false;
         }
