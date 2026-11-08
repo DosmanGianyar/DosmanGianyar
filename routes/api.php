@@ -277,6 +277,7 @@ Route::prefix('v1')->group(function () {
                 Route::get('/attendance',   [OrangtuaController::class, 'attendance']);
                 Route::get('/conduct',      [OrangtuaController::class, 'conduct']);
                 Route::get('/achievements', [OrangtuaController::class, 'achievements']);
+                Route::post('/mark-seen',   [OrangtuaController::class, 'markSeen']);
             });
 
             // Sesi Ekstrakurikuler

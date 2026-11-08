@@ -20,6 +20,15 @@ class AttendanceController extends Controller
         $month = $request->integer('month', now()->month);
         $year  = $request->integer('year', now()->year);
 
+        // Tandai bahwa orangtua telah melihat riwayat absensi anak
+        \App\Models\ParentFeatureSeen::updateOrCreate(
+            ['parent_id' => $orangtua->id, 'student_id' => $student->id, 'feature' => 'attendance'],
+            [
+                'last_seen_at' => now(),
+                'last_seen_id' => \App\Models\Attendance::where('user_id', $student->id)->max('id'),
+            ]
+        );
+
         $data = StudentDataService::attendanceHistory($student, $month, $year);
 
         $start     = \Illuminate\Support\Carbon::createFromDate($data['year'], $data['month'], 1)->startOfMonth();

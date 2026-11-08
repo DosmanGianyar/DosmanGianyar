@@ -31,6 +31,35 @@ class OrangtuaProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> markFeatureSeen(int studentId, String feature) async {
+    final index = _children.indexWhere((c) => c.id == studentId);
+    if (index != -1) {
+      final child = _children[index];
+      final currentBadges = child.badges;
+      ChildBadges updatedBadges;
+
+      if (feature == 'attendance') {
+        updatedBadges = currentBadges.copyWith(attendance: const ChildBadgeInfo(hasUnread: false, count: 0));
+      } else if (feature == 'conduct') {
+        updatedBadges = currentBadges.copyWith(conduct: const ChildBadgeInfo(hasUnread: false, count: 0));
+      } else if (feature == 'achievement') {
+        updatedBadges = currentBadges.copyWith(achievement: const ChildBadgeInfo(hasUnread: false, count: 0));
+      } else if (feature == 'chat') {
+        updatedBadges = currentBadges.copyWith(chat: const ChildBadgeInfo(hasUnread: false, count: 0));
+      } else {
+        updatedBadges = currentBadges;
+      }
+
+      _children[index] = child.copyWith(badges: updatedBadges);
+      notifyListeners();
+    }
+
+    // Panggil API mark-seen di background
+    try {
+      await OrangtuaService.markSeen(studentId: studentId, feature: feature);
+    } catch (_) {}
+  }
+
   Future<void> refreshChildren() async {
     _isLoading = true;
     _error     = null;

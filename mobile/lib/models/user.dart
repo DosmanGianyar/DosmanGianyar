@@ -8,18 +8,78 @@ class SubjectRef {
   );
 }
 
+/// Informasi badge data baru yang belum dibuka oleh orang tua
+class ChildBadgeInfo {
+  final bool hasUnread;
+  final int count;
+
+  const ChildBadgeInfo({this.hasUnread = false, this.count = 0});
+
+  factory ChildBadgeInfo.fromJson(dynamic json) {
+    if (json is Map<String, dynamic>) {
+      return ChildBadgeInfo(
+        hasUnread: json['has_unread'] == true,
+        count: (json['count'] as num?)?.toInt() ?? 0,
+      );
+    }
+    return const ChildBadgeInfo();
+  }
+}
+
+class ChildBadges {
+  final ChildBadgeInfo attendance;
+  final ChildBadgeInfo conduct;
+  final ChildBadgeInfo achievement;
+  final ChildBadgeInfo chat;
+
+  const ChildBadges({
+    this.attendance  = const ChildBadgeInfo(),
+    this.conduct     = const ChildBadgeInfo(),
+    this.achievement = const ChildBadgeInfo(),
+    this.chat        = const ChildBadgeInfo(),
+  });
+
+  factory ChildBadges.fromJson(dynamic json) {
+    if (json is Map<String, dynamic>) {
+      return ChildBadges(
+        attendance:  ChildBadgeInfo.fromJson(json['attendance']),
+        conduct:     ChildBadgeInfo.fromJson(json['conduct']),
+        achievement: ChildBadgeInfo.fromJson(json['achievement']),
+        chat:        ChildBadgeInfo.fromJson(json['chat']),
+      );
+    }
+    return const ChildBadges();
+  }
+
+  ChildBadges copyWith({
+    ChildBadgeInfo? attendance,
+    ChildBadgeInfo? conduct,
+    ChildBadgeInfo? achievement,
+    ChildBadgeInfo? chat,
+  }) {
+    return ChildBadges(
+      attendance:  attendance ?? this.attendance,
+      conduct:     conduct ?? this.conduct,
+      achievement: achievement ?? this.achievement,
+      chat:        chat ?? this.chat,
+    );
+  }
+}
+
 /// Ringkasan data anak, dikirim di payload login/me untuk akun orangtua.
 class ChildSummary {
-  final int     id;
-  final String  name;
-  final String? className;
-  final String? photoUrl;
+  final int         id;
+  final String      name;
+  final String?     className;
+  final String?     photoUrl;
+  final ChildBadges badges;
 
   const ChildSummary({
     required this.id,
     required this.name,
     this.className,
     this.photoUrl,
+    this.badges = const ChildBadges(),
   });
 
   factory ChildSummary.fromJson(Map<String, dynamic> json) => ChildSummary(
@@ -27,6 +87,21 @@ class ChildSummary {
     name:      json['name'] as String,
     className: json['class_name'] as String?,
     photoUrl:  json['photo_url'] as String?,
+    badges:    ChildBadges.fromJson(json['badges']),
+  );
+
+  ChildSummary copyWith({
+    int? id,
+    String? name,
+    String? className,
+    String? photoUrl,
+    ChildBadges? badges,
+  }) => ChildSummary(
+    id:        id ?? this.id,
+    name:      name ?? this.name,
+    className: className ?? this.className,
+    photoUrl:  photoUrl ?? this.photoUrl,
+    badges:    badges ?? this.badges,
   );
 
   String get initials {

@@ -439,6 +439,11 @@ class _MenuGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final attBadge     = child.badges.attendance;
+    final conductBadge = child.badges.conduct;
+    final achBadge     = child.badges.achievement;
+    final chatBadge    = child.badges.chat;
+
     final items = <_SquareMenuItem>[
       _SquareMenuItem(
         icon: Icons.calendar_today_outlined,
@@ -447,12 +452,18 @@ class _MenuGrid extends StatelessWidget {
         tag: 'Harian',
         title: 'Riwayat Absensi',
         subtitle: 'Kehadiran & foto',
-        onTap: () => Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => OrangtuaAttendanceScreen(studentId: child.id, studentName: child.name),
-          ),
-        ),
+        hasBadge: attBadge.hasUnread,
+        badgeText: 'Baru',
+        badgeColor: const Color(0xFF206BC4),
+        onTap: () {
+          context.read<OrangtuaProvider>().markFeatureSeen(child.id, 'attendance');
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => OrangtuaAttendanceScreen(studentId: child.id, studentName: child.name),
+            ),
+          );
+        },
       ),
       _SquareMenuItem(
         icon: Icons.assignment_outlined,
@@ -461,12 +472,18 @@ class _MenuGrid extends StatelessWidget {
         tag: 'SIPINTER',
         title: 'Catatan Karakter',
         subtitle: 'Disiplin & apresiasi',
-        onTap: () => Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => OrangtuaConductScreen(studentId: child.id, studentName: child.name),
-          ),
-        ),
+        hasBadge: conductBadge.hasUnread,
+        badgeText: conductBadge.count > 0 ? '${conductBadge.count} Baru' : 'Baru',
+        badgeColor: AppColors.red600,
+        onTap: () {
+          context.read<OrangtuaProvider>().markFeatureSeen(child.id, 'conduct');
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => OrangtuaConductScreen(studentId: child.id, studentName: child.name),
+            ),
+          );
+        },
       ),
       _SquareMenuItem(
         icon: Icons.emoji_events_outlined,
@@ -475,12 +492,18 @@ class _MenuGrid extends StatelessWidget {
         tag: 'Rekap',
         title: 'Prestasi Siswa',
         subtitle: 'Daftar penghargaan',
-        onTap: () => Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => OrangtuaAchievementScreen(studentId: child.id, studentName: child.name),
-          ),
-        ),
+        hasBadge: achBadge.hasUnread,
+        badgeText: achBadge.count > 0 ? '${achBadge.count} Baru' : 'Baru',
+        badgeColor: AppColors.emerald600,
+        onTap: () {
+          context.read<OrangtuaProvider>().markFeatureSeen(child.id, 'achievement');
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => OrangtuaAchievementScreen(studentId: child.id, studentName: child.name),
+            ),
+          );
+        },
       ),
       _SquareMenuItem(
         icon: Icons.chat_bubble_outline_rounded,
@@ -489,6 +512,9 @@ class _MenuGrid extends StatelessWidget {
         tag: 'Obrolan',
         title: 'Chat Wali Kelas',
         subtitle: 'Ruang bersama & privat',
+        hasBadge: chatBadge.hasUnread,
+        badgeText: chatBadge.count > 0 ? '${chatBadge.count}' : 'Baru',
+        badgeColor: AppColors.blue600,
         onTap: () => Navigator.push(
           context,
           MaterialPageRoute(
@@ -566,6 +592,9 @@ class _SquareMenuItem {
   final String       title;
   final String       subtitle;
   final VoidCallback onTap;
+  final bool         hasBadge;
+  final String?      badgeText;
+  final Color?       badgeColor;
 
   const _SquareMenuItem({
     required this.icon,
@@ -575,6 +604,9 @@ class _SquareMenuItem {
     required this.title,
     required this.subtitle,
     required this.onTap,
+    this.hasBadge = false,
+    this.badgeText,
+    this.badgeColor,
   });
 }
 
@@ -594,7 +626,12 @@ class _SquareMenuCard extends StatelessWidget {
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppColors.gray200),
+            border: Border.all(
+              color: item.hasBadge
+                  ? (item.badgeColor ?? AppColors.red500).withValues(alpha: 0.4)
+                  : AppColors.gray200,
+              width: item.hasBadge ? 1.5 : 1.0,
+            ),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -603,30 +640,88 @@ class _SquareMenuCard extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Container(
-                    width: 38,
-                    height: 38,
-                    decoration: BoxDecoration(
-                      color: item.iconBg,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Icon(item.icon, color: item.iconColor, size: 20),
+                  Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Container(
+                        width: 38,
+                        height: 38,
+                        decoration: BoxDecoration(
+                          color: item.iconBg,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Icon(item.icon, color: item.iconColor, size: 20),
+                      ),
+                      if (item.hasBadge)
+                        Positioned(
+                          top: -2,
+                          right: -2,
+                          child: Container(
+                            width: 10,
+                            height: 10,
+                            decoration: BoxDecoration(
+                              color: item.badgeColor ?? AppColors.red500,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.white, width: 2),
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: AppColors.slate100,
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Text(
-                      item.tag,
-                      style: const TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.gray500,
+                  if (item.hasBadge)
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: (item.badgeColor ?? AppColors.red500),
+                        borderRadius: BorderRadius.circular(6),
+                        boxShadow: [
+                          BoxShadow(
+                            color: (item.badgeColor ?? AppColors.red500).withValues(alpha: 0.35),
+                            blurRadius: 4,
+                            offset: const Offset(0, 1.5),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 5,
+                            height: 5,
+                            decoration: const BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            item.badgeText ?? 'Baru',
+                            style: const TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.white,
+                              letterSpacing: 0.2,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  else
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: AppColors.slate100,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        item.tag,
+                        style: const TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.gray500,
+                        ),
                       ),
                     ),
-                  ),
                 ],
               ),
               Column(

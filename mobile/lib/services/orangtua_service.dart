@@ -46,4 +46,17 @@ class OrangtuaService {
         .toList();
     return (stats, items);
   }
+
+  /// Menandai fitur (attendance, conduct, achievement) telah dibuka oleh orang tua
+  static Future<void> markSeen({
+    required int studentId,
+    required String feature,
+  }) async {
+    try {
+      await ApiClient.post('/orangtua/mark-seen', data: {
+        'student_id': studentId,
+        'feature':    feature,
+      });
+    } catch (_) {}
+  }
 }

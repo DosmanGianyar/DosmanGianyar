@@ -16,6 +16,15 @@ class ConductController extends Controller
         $orangtua = Auth::user();
         $student  = $orangtua->children()->where('users.id', $studentId)->firstOrFail();
 
+        // Tandai bahwa orangtua telah melihat catatan karakter anak
+        \App\Models\ParentFeatureSeen::updateOrCreate(
+            ['parent_id' => $orangtua->id, 'student_id' => $student->id, 'feature' => 'conduct'],
+            [
+                'last_seen_at' => now(),
+                'last_seen_id' => \App\Models\ConductLog::where('student_id', $student->id)->max('id'),
+            ]
+        );
+
         $data = StudentDataService::conductLogs($student);
 
         return view('orangtua.conduct.index', [
