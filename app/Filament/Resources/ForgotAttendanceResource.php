@@ -64,7 +64,8 @@ class ForgotAttendanceResource extends Resource
                     ->description(function (ForgotAttendanceRequest $record) {
                         if (! $record->student) return null;
                         $stats = $record->student->getAttendanceStatsSummary();
-                        return "📊 Lupa Absen: {$stats['lupa_absen_total']}x (ACC: {$stats['lupa_absen_approved']})";
+                        $limit = $stats['lupa_absen_limit'] ?? 10;
+                        return "📊 Lupa Absen Bulan Ini: {$stats['lupa_absen_total']}/{$limit}x (ACC: {$stats['lupa_absen_approved']})";
                     }),
 
                 TextColumn::make('student.schoolClass.name')

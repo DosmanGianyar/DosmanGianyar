@@ -233,25 +233,25 @@ class User extends Authenticatable implements FilamentUser
     public function isOrangtua(): bool        { return $this->role === 'orangtua'; }
 
     /**
-     * Ringkasan akumulasi riwayat presensi & pengajuan siswa (Lupa Absen, Sakit, Izin, Dispensasi).
+     * Ringkasan akumulasi riwayat presensi & pengajuan siswa (Lupa Absen direset setiap bulan, kuota 10x/bulan).
      */
-    public function getAttendanceStatsSummary(): array
+    public function getAttendanceStatsSummary(?int $year = null, ?int $month = null): array
     {
         $studentId = $this->id;
-
-        $forgotCount    = \App\Models\ForgotAttendanceRequest::where('student_id', $studentId)->count();
-        $forgotApproved = \App\Models\ForgotAttendanceRequest::where('student_id', $studentId)->where('status', 'approved')->count();
+        $monthlyForgot = \App\Models\ForgotAttendanceRequest::monthlySummaryForStudent($studentId, $year, $month);
 
         $sakitCount      = \App\Models\Attendance::where('user_id', $studentId)->where('status', 'sakit')->count();
         $izinCount       = \App\Models\Attendance::where('user_id', $studentId)->where('status', 'izin')->count();
         $dispensasiCount = \App\Models\Attendance::where('user_id', $studentId)->where('status', 'dispensasi')->count();
 
         return [
-            'lupa_absen_total'    => $forgotCount,
-            'lupa_absen_approved' => $forgotApproved,
-            'sakit'               => $sakitCount,
-            'izin'                => $izinCount,
-            'dispensasi'          => $dispensasiCount,
+            'lupa_absen_total'     => $monthlyForgot['used'],
+            'lupa_absen_approved'  => $monthlyForgot['approved'],
+            'lupa_absen_limit'     => $monthlyForgot['limit'],
+            'lupa_absen_remaining' => $monthlyForgot['remaining'],
+            'sakit'                => $sakitCount,
+            'izin'                 => $izinCount,
+            'dispensasi'           => $dispensasiCount,
         ];
     }
 
@@ -260,8 +260,8 @@ class User extends Authenticatable implements FilamentUser
         $stats = $this->getAttendanceStatsSummary();
 
         $html = '<div class="mt-0.5 font-sans">
-            <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-purple-50 text-purple-700 border border-purple-200/60 text-[11px] font-semibold" title="Total Pengajuan Lupa Absen Siswa">
-                📊 Lupa Absen: <strong class="ml-1">' . $stats['lupa_absen_total'] . 'x</strong> <span class="ml-1 text-[10px] text-purple-500 font-normal">(ACC: ' . $stats['lupa_absen_approved'] . ')</span>
+            <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-purple-50 text-purple-700 border border-purple-200/60 text-[11px] font-semibold" title="Pengajuan Lupa Absen Bulan Ini (Maks. ' . $stats['lupa_absen_limit'] . 'x/bulan)">
+                📊 Lupa Absen Bulan Ini: <strong class="ml-1">' . $stats['lupa_absen_total'] . '/' . $stats['lupa_absen_limit'] . 'x</strong> <span class="ml-1 text-[10px] text-purple-500 font-normal">(ACC: ' . $stats['lupa_absen_approved'] . ')</span>
             </span>
         </div>';
 

@@ -15,7 +15,8 @@ class ForgotAttendanceController extends Controller
 {
     public function index(): JsonResponse
     {
-        $requests = ForgotAttendanceRequest::where('student_id', Auth::id())
+        $studentId = Auth::id();
+        $requests  = ForgotAttendanceRequest::where('student_id', $studentId)
             ->latest()
             ->get()
             ->map(fn($r) => [
@@ -30,7 +31,10 @@ class ForgotAttendanceController extends Controller
                 'created_at'   => $r->created_at->toIso8601String(),
             ]);
 
-        return response()->json(['requests' => $requests]);
+        return response()->json([
+            'requests' => $requests,
+            'quota'    => ForgotAttendanceRequest::monthlySummaryForStudent($studentId),
+        ]);
     }
 
     public function store(Request $request): JsonResponse
@@ -49,9 +53,10 @@ class ForgotAttendanceController extends Controller
         $student = Auth::user()->load('schoolClass.homeroomTeacher');
 
         $targetType = $data['type'] ?? 'masuk';
+        $targetDate = Carbon::parse($data['date']);
 
         $existingQuery = ForgotAttendanceRequest::where('student_id', $student->id)
-            ->where('date', $data['date'])
+            ->whereDate('date', $data['date'])
             ->whereIn('status', ['pending', 'approved']);
 
         if ($targetType === 'masuk') {
@@ -71,6 +76,24 @@ class ForgotAttendanceController extends Controller
             return response()->json([
                 'message' => "Sudah ada pengajuan lupa absen {$typeLabel} untuk tanggal ini.",
             ], 422);
+        }
+
+        // Cek batas kuota bulanan (maksimal 10x per bulan, direset setiap pergantian bulan).
+        // Absen datang, absen pulang, maupun semua absen (datang & pulang) dihitung 1x per tanggal pengajuan.
+        $alreadyHasRequestOnDate = (clone $existingQuery)->exists();
+        if (! $alreadyHasRequestOnDate) {
+            $usedInTargetMonth = ForgotAttendanceRequest::monthlyUsedCount(
+                $student->id,
+                (int) $targetDate->year,
+                (int) $targetDate->month
+            );
+
+            if ($usedInTargetMonth >= ForgotAttendanceRequest::MONTHLY_LIMIT) {
+                $monthLabel = $targetDate->isoFormat('MMMM Y');
+                return response()->json([
+                    'message' => "Kuota pengajuan lupa absen Anda untuk bulan {$monthLabel} sudah habis (maksimal " . ForgotAttendanceRequest::MONTHLY_LIMIT . "x per bulan). Kuota di-reset setiap pergantian bulan.",
+                ], 422);
+            }
         }
 
         $attendance = Attendance::where('user_id', $student->id)

@@ -32,9 +32,22 @@
         Jika kamu lupa absen atau presensimu tidak terekam, ajukan permohonan di sini.
         Wali kelas akan meninjau dan menyetujui pengajuanmu.
     </p>
+    @if(isset($quota))
+    <div class="mt-3 pt-3 border-t border-white/20 flex items-center justify-between gap-2 text-xs">
+        <div>
+            <span class="font-bold">Kuota {{ $quota['month_name'] }}:</span>
+            <span>{{ $quota['used'] }} / {{ $quota['limit'] }}x digunakan</span>
+            <span class="block text-[11px] text-orange-100 mt-0.5">Absen datang, pulang, atau keduanya dihitung 1x • Direset tiap awal bulan</span>
+        </div>
+        <span class="px-2.5 py-1 rounded-xl font-bold text-xs shrink-0 {{ $quota['remaining'] > 0 ? 'bg-white/20 text-white' : 'bg-red-600 text-white' }}">
+            Sisa: {{ $quota['remaining'] }}x
+        </span>
+    </div>
+    @endif
 </div>
 
 {{-- Tombol Buat Pengajuan --}}
+@if(!isset($quota) || $quota['remaining'] > 0)
 <a href="{{ route('siswa.forgot-attendance.create') }}"
     class="flex items-center justify-center gap-2 w-full py-3 bg-amber-500 hover:bg-amber-600 text-white font-semibold rounded-2xl mb-4 transition-colors">
     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -42,6 +55,11 @@
     </svg>
     Buat Pengajuan Baru
 </a>
+@else
+<div class="w-full py-3 px-4 bg-red-50 border border-red-200 text-red-700 text-xs font-semibold rounded-2xl mb-4 text-center">
+    Kuota pengajuan lupa absen bulan ini ({{ $quota['limit'] }}x) telah habis. Kuota akan di-reset otomatis pada awal bulan berikutnya.
+</div>
+@endif
 
 {{-- Riwayat Pengajuan --}}
 <p class="text-sm font-semibold text-gray-700 px-1 mb-2">Riwayat Pengajuan</p>

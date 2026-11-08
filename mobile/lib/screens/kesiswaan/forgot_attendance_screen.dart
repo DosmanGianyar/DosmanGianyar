@@ -12,6 +12,7 @@ class ForgotAttendanceScreen extends StatefulWidget {
 
 class _ForgotAttendanceScreenState extends State<ForgotAttendanceScreen> {
   List<ForgotAttendance> _items     = [];
+  Map<String, dynamic>?  _quota;
   bool                   _isLoading = true;
   String?                _error;
 
@@ -29,6 +30,7 @@ class _ForgotAttendanceScreenState extends State<ForgotAttendanceScreen> {
         _items = (body['requests'] as List)
             .map((e) => ForgotAttendance.fromJson(e as Map<String, dynamic>))
             .toList();
+        _quota = body['quota'] as Map<String, dynamic>?;
       });
     } catch (e) {
       setState(() => _error = ApiClient.extractError(e));
@@ -94,29 +96,70 @@ class _ForgotAttendanceScreenState extends State<ForgotAttendanceScreen> {
         foregroundColor: Colors.white,
         elevation: 0,
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _openCreate,
-        backgroundColor: AppColors.amber500,
-        icon: const Icon(Icons.add_rounded),
-        label: const Text('Buat Pengajuan'),
-      ),
+      floatingActionButton: (_quota != null && (_quota!['remaining'] as int? ?? 1) <= 0)
+          ? null
+          : FloatingActionButton.extended(
+              onPressed: _openCreate,
+              backgroundColor: AppColors.amber500,
+              icon: const Icon(Icons.add_rounded),
+              label: const Text('Buat Pengajuan'),
+            ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
               ? _ErrorView(message: _error!, onRetry: _load)
               : RefreshIndicator(
                   onRefresh: _load,
-                  child: _items.isEmpty
-                      ? const _EmptyView()
-                      : ListView.separated(
-                          padding: EdgeInsets.fromLTRB(16, 16, 16, 100 + MediaQuery.of(context).padding.bottom),
-                          itemCount: _items.length,
-                          separatorBuilder: (_, __) => const SizedBox(height: 10),
-                          itemBuilder: (_, i) => _ItemCard(
-                            item: _items[i],
-                            onDelete: () => _delete(_items[i]),
+                  child: Column(
+                    children: [
+                      if (_quota != null)
+                        Container(
+                          width: double.infinity,
+                          margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                          decoration: BoxDecoration(
+                            color: ((_quota!['remaining'] as int? ?? 0) > 0) ? AppColors.amber50 : AppColors.red50,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: ((_quota!['remaining'] as int? ?? 0) > 0) ? AppColors.amber200 : AppColors.red200,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  'Kuota ${_quota!['month_name'] ?? 'Bulan Ini'}: ${_quota!['used'] ?? 0}/${_quota!['limit'] ?? 10}x (Direset tiap awal bulan)',
+                                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.gray800),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Sisa ${_quota!['remaining'] ?? 0}x',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: ((_quota!['remaining'] as int? ?? 0) > 0) ? AppColors.amber700 : AppColors.red600,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
+                      Expanded(
+                        child: _items.isEmpty
+                            ? const _EmptyView()
+                            : ListView.separated(
+                                padding: EdgeInsets.fromLTRB(16, 12, 16, 100 + MediaQuery.of(context).padding.bottom),
+                                itemCount: _items.length,
+                                separatorBuilder: (_, __) => const SizedBox(height: 10),
+                                itemBuilder: (_, i) => _ItemCard(
+                                  item: _items[i],
+                                  onDelete: () => _delete(_items[i]),
+                                ),
+                              ),
+                      ),
+                    ],
+                  ),
                 ),
     );
   }
@@ -201,7 +244,7 @@ class _CreateSheetState extends State<_CreateSheet> {
             const Text('Ajukan Lupa Absen',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.gray800)),
             const SizedBox(height: 4),
-            const Text('Berlaku untuk 30 hari ke belakang. Perlu persetujuan wali kelas.',
+            const Text('Maks. 10x/bulan (direset tiap pergantian bulan). Absen datang, pulang, atau keduanya dihitung 1x.',
               style: TextStyle(fontSize: 11, color: AppColors.gray400)),
             const SizedBox(height: 16),
 

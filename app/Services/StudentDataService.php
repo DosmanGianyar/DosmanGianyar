@@ -155,17 +155,18 @@ class StudentDataService
             ->get();
 
         $summary = [
-            'hadir'               => $all->where('status', 'hadir')->count(),
-            'terlambat'           => $all->where('status', 'terlambat')->count(),
-            'izin'                => $all->where('status', 'izin')->count(),
-            'sakit'               => $all->where('status', 'sakit')->count(),
-            'alpa'                => $all->where('status', 'alpa')->count(),
-            'dispensasi'          => $all->where('status', 'dispensasi')->count(),
-            'libur'               => $all->where('status', 'libur')->count(),
-            'lupa_absen'          => $forgotRequests->count(),
-            'lupa_absen_approved' => $forgotRequests->where('status', 'approved')->count(),
-            'lupa_absen_pending'  => $forgotRequests->where('status', 'pending')->count(),
-            'lupa_absen_rejected' => $forgotRequests->where('status', 'rejected')->count(),
+            'hadir'                => $all->where('status', 'hadir')->count(),
+            'terlambat'            => $all->where('status', 'terlambat')->count(),
+            'izin'                 => $all->where('status', 'izin')->count(),
+            'sakit'                => $all->where('status', 'sakit')->count(),
+            'alpa'                 => $all->where('status', 'alpa')->count(),
+            'dispensasi'           => $all->where('status', 'dispensasi')->count(),
+            'libur'                => $all->where('status', 'libur')->count(),
+            'lupa_absen'           => $forgotRequests->whereIn('status', ['pending', 'approved'])->unique(fn ($f) => $f->date->toDateString())->count(),
+            'lupa_absen_limit'     => ForgotAttendanceRequest::MONTHLY_LIMIT,
+            'lupa_absen_approved'  => $forgotRequests->where('status', 'approved')->unique(fn ($f) => $f->date->toDateString())->count(),
+            'lupa_absen_pending'   => $forgotRequests->where('status', 'pending')->unique(fn ($f) => $f->date->toDateString())->count(),
+            'lupa_absen_rejected'  => $forgotRequests->where('status', 'rejected')->unique(fn ($f) => $f->date->toDateString())->count(),
         ];
 
         // Hari efektif sekolah (tidak termasuk hari libur)

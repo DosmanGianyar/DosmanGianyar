@@ -272,13 +272,13 @@
                 <div class="flex items-center gap-2 min-w-0">
                     <span class="w-6 h-6 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center text-xs font-bold shrink-0">📝</span>
                     <div class="min-w-0 truncate">
-                        <span class="font-bold text-slate-800">Lupa Absen:</span>
+                        <span class="font-bold text-slate-800">Lupa Absen Bulan Ini:</span>
                         <span class="text-slate-600 ml-1">
                             @if(($summary['lupa_absen'] ?? 0) > 0)
-                                <strong class="text-amber-800">{{ $summary['lupa_absen'] }} kali</strong>
+                                <strong class="text-amber-800">{{ $summary['lupa_absen'] }}/{{ $summary['lupa_absen_limit'] ?? 10 }}x</strong>
                                 <span class="text-[11px] text-slate-500">({{ $summary['lupa_absen_approved'] ?? 0 }} disetujui{{ ($summary['lupa_absen_pending'] ?? 0) > 0 ? ', ' . $summary['lupa_absen_pending'] . ' proses' : '' }})</span>
                             @else
-                                <span class="text-slate-500 font-medium">0 kali</span>
+                                <span class="text-slate-500 font-medium">0/{{ $summary['lupa_absen_limit'] ?? 10 }}x</span>
                             @endif
                         </span>
                     </div>

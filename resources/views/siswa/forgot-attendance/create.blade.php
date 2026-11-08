@@ -18,11 +18,20 @@
             <div>
                 <p class="text-sm font-semibold text-amber-800">Ketentuan Pengajuan</p>
                 <ul class="text-xs text-amber-700 mt-1 space-y-0.5 list-disc list-inside leading-relaxed">
+                    <li>Maksimal <strong>10x pengajuan per bulan</strong> (di-reset setiap pergantian bulan)</li>
+                    <li>Absen datang, absen pulang, maupun datang &amp; pulang dihitung <strong>1x pengajuan</strong></li>
                     <li>Hanya untuk tanggal dalam 30 hari terakhir</li>
-                    <li>Satu pengajuan per tanggal</li>
                     <li>Persetujuan dari wali kelas</li>
                     <li>Tidak berlaku jika sudah ada izin/sakit/dispensasi</li>
                 </ul>
+                @if(isset($quota))
+                <div class="mt-2.5 pt-2 border-t border-amber-200/80 flex items-center justify-between text-xs font-semibold text-amber-900">
+                    <span>Kuota {{ $quota['month_name'] }}: {{ $quota['used'] }}/{{ $quota['limit'] }}x</span>
+                    <span class="px-2 py-0.5 rounded-lg {{ $quota['remaining'] > 0 ? 'bg-amber-200/70 text-amber-900' : 'bg-red-100 text-red-700' }}">
+                        Sisa {{ $quota['remaining'] }}x
+                    </span>
+                </div>
+                @endif
             </div>
         </div>
     </div>

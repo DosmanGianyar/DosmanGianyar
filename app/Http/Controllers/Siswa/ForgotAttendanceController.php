@@ -16,16 +16,20 @@ class ForgotAttendanceController extends Controller
 {
     public function index(): View
     {
-        $requests = ForgotAttendanceRequest::where('student_id', Auth::id())
+        $studentId = Auth::id();
+        $requests  = ForgotAttendanceRequest::where('student_id', $studentId)
             ->latest()
             ->paginate(10);
+        $quota = ForgotAttendanceRequest::monthlySummaryForStudent($studentId);
 
-        return view('siswa.forgot-attendance.index', compact('requests'));
+        return view('siswa.forgot-attendance.index', compact('requests', 'quota'));
     }
 
     public function create(): View
     {
-        return view('siswa.forgot-attendance.create');
+        $quota = ForgotAttendanceRequest::monthlySummaryForStudent(Auth::id());
+
+        return view('siswa.forgot-attendance.create', compact('quota'));
     }
 
     public function store(Request $request): RedirectResponse
@@ -43,10 +47,11 @@ class ForgotAttendanceController extends Controller
         $student = Auth::user()->load('schoolClass.homeroomTeacher');
 
         $targetType = $data['type'] ?? 'masuk';
+        $targetDate = Carbon::parse($data['date']);
 
         // Pengecekan pengajuan yang sudah ada berdasarkan jenis (masuk / pulang / keduanya)
         $existingQuery = ForgotAttendanceRequest::where('student_id', $student->id)
-            ->where('date', $data['date'])
+            ->whereDate('date', $data['date'])
             ->whereIn('status', ['pending', 'approved']);
 
         if ($targetType === 'masuk') {
@@ -64,6 +69,24 @@ class ForgotAttendanceController extends Controller
                 default   => 'datang & pulang',
             };
             return back()->withErrors(['date' => "Sudah ada pengajuan lupa absen {$typeLabel} untuk tanggal ini."])->withInput();
+        }
+
+        // Cek batas kuota bulanan (maksimal 10x per bulan, direset setiap pergantian bulan).
+        // Absen datang, absen pulang, maupun semua absen (datang & pulang) dihitung 1x per tanggal pengajuan.
+        $alreadyHasRequestOnDate = (clone $existingQuery)->exists();
+        if (! $alreadyHasRequestOnDate) {
+            $usedInTargetMonth = ForgotAttendanceRequest::monthlyUsedCount(
+                $student->id,
+                (int) $targetDate->year,
+                (int) $targetDate->month
+            );
+
+            if ($usedInTargetMonth >= ForgotAttendanceRequest::MONTHLY_LIMIT) {
+                $monthLabel = $targetDate->isoFormat('MMMM Y');
+                return back()->withErrors([
+                    'date' => "Kuota pengajuan lupa absen Anda untuk bulan {$monthLabel} sudah habis (maksimal " . ForgotAttendanceRequest::MONTHLY_LIMIT . "x per bulan). Kuota di-reset setiap pergantian bulan.",
+                ])->withInput();
+            }
         }
 
         // Pengecekan data presensi yang sudah tercatat

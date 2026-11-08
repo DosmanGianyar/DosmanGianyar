@@ -67,8 +67,8 @@
                 Akumulasi Riwayat Siswa Ini:
             </p>
             <div class="text-[11px]">
-                <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-purple-100/90 text-purple-900 border border-purple-200 rounded-lg font-semibold" title="Total Pengajuan Lupa Absen Siswa">
-                    <span>📊 Lupa Absen: <strong>{{ $stats['lupa_absen_total'] }}x</strong> <span class="text-[10px] text-purple-700 font-normal">(ACC: {{ $stats['lupa_absen_approved'] }})</span></span>
+                <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-purple-100/90 text-purple-900 border border-purple-200 rounded-lg font-semibold" title="Pengajuan Lupa Absen Bulan Ini (Maksimal {{ $stats['lupa_absen_limit'] ?? 10 }}x/bulan)">
+                    <span>📊 Lupa Absen Bulan Ini: <strong>{{ $stats['lupa_absen_total'] }}/{{ $stats['lupa_absen_limit'] ?? 10 }}x</strong> <span class="text-[10px] text-purple-700 font-normal">(ACC: {{ $stats['lupa_absen_approved'] }}, Sisa: {{ $stats['lupa_absen_remaining'] ?? 0 }}x)</span></span>
                 </span>
             </div>
         </div>
