@@ -33,7 +33,7 @@ class MobileVersionSettingPage extends Page
         $this->data = [
             'force_mobile_update'   => (bool) AppSetting::get('force_mobile_update', config('sims.force_mobile_update', true)),
             'min_mobile_version'    => (string) AppSetting::get('min_mobile_version', config('sims.min_mobile_version', '1.5.8')),
-            'latest_mobile_version' => (string) AppSetting::get('latest_mobile_version', config('sims.latest_mobile_version', '1.5.8')),
+            'latest_mobile_version' => (string) AppSetting::get('latest_mobile_version', config('sims.latest_mobile_version', '1.5.9')),
             'play_store_url'        => (string) AppSetting::get('play_store_url', config('sims.play_store_url', 'https://play.google.com/store/apps/details?id=com.sman1gianyar.sims_mobile')),
             'mobile_update_title'   => (string) AppSetting::get('mobile_update_title', 'Pembaruan Aplikasi Wajib'),
             'mobile_update_message' => (string) AppSetting::get('mobile_update_message', 'Versi baru aplikasi SIMAK DOSMAN telah tersedia. Anda wajib memperbarui aplikasi ke versi terbaru untuk dapat melanjutkan penggunaan aplikasi.'),
@@ -79,8 +79,8 @@ class MobileVersionSettingPage extends Page
     public function save(): void
     {
         AppSetting::set('force_mobile_update', (bool) ($this->data['force_mobile_update'] ?? true));
-        AppSetting::set('min_mobile_version', trim((string) ($this->data['min_mobile_version'] ?? '1.5.8')));
-        AppSetting::set('latest_mobile_version', trim((string) ($this->data['latest_mobile_version'] ?? '1.5.8')));
+        AppSetting::set('min_mobile_version', trim((string) ($this->data['min_mobile_version'] ?? '1.5.9')));
+        AppSetting::set('latest_mobile_version', trim((string) ($this->data['latest_mobile_version'] ?? '1.5.9')));
         AppSetting::set('play_store_url', trim((string) ($this->data['play_store_url'] ?? '')));
         AppSetting::set('mobile_update_title', trim((string) ($this->data['mobile_update_title'] ?? 'Pembaruan Aplikasi Wajib')));
         AppSetting::set('mobile_update_message', trim((string) ($this->data['mobile_update_message'] ?? '')));
@@ -92,3 +92,4 @@ class MobileVersionSettingPage extends Page
             ->send();
     }
 }
+

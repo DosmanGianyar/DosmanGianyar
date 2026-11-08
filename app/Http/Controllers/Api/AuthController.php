@@ -570,7 +570,7 @@ class AuthController extends Controller
     public function appVersion(): JsonResponse
     {
         $minVersion    = (string) \App\Models\AppSetting::get('min_mobile_version', config('sims.min_mobile_version', '1.5.8'));
-        $latestVersion = (string) \App\Models\AppSetting::get('latest_mobile_version', config('sims.latest_mobile_version', '1.5.8'));
+        $latestVersion = (string) \App\Models\AppSetting::get('latest_mobile_version', config('sims.latest_mobile_version', '1.5.9'));
         $forceUpdate   = (bool) \App\Models\AppSetting::get('force_mobile_update', config('sims.force_mobile_update', true));
         $updateUrl     = (string) \App\Models\AppSetting::get('play_store_url', config('sims.play_store_url', 'https://play.google.com/store/apps/details?id=com.sman1gianyar.sims_mobile'));
         $title         = (string) \App\Models\AppSetting::get('mobile_update_title', 'Pembaruan Aplikasi Wajib');
