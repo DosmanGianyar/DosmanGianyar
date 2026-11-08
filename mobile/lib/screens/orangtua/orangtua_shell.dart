@@ -164,34 +164,75 @@ class _TopBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      decoration: BoxDecoration(gradient: AppColors.topbarGradient, borderRadius: BorderRadius.circular(16)),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.gray200),
+      ),
       child: Row(
         children: [
+          Container(
+            width: 34,
+            height: 34,
+            padding: const EdgeInsets.all(5),
+            decoration: BoxDecoration(
+              color: AppColors.slate100,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: AppColors.gray200),
+            ),
+            child: Image.asset(
+              'assets/images/logo_sekolah.png',
+              fit: BoxFit.contain,
+              errorBuilder: (_, __, ___) => const Icon(
+                Icons.school_outlined,
+                color: AppColors.blue600,
+                size: 18,
+              ),
+            ),
+          ),
+          const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('DOSMAN — Portal Orangtua',
-                  style: TextStyle(fontSize: 11, color: Colors.white54, fontWeight: FontWeight.w500, letterSpacing: 0.5)),
-                Text(userName,
-                  style: const TextStyle(fontSize: 14, color: Colors.white, fontWeight: FontWeight.w600),
-                  overflow: TextOverflow.ellipsis),
+                const Text(
+                  'Portal Orang Tua',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: AppColors.gray500,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                Text(
+                  userName,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: AppColors.gray900,
+                    fontWeight: FontWeight.w700,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
               ],
             ),
           ),
           IconButton(
             onPressed: onChat,
-            icon: const Icon(Icons.forum_outlined, color: Colors.white, size: 22),
-            tooltip: 'Chat Konsultasi',
+            icon: const Icon(Icons.chat_bubble_outline_rounded, color: AppColors.gray700, size: 20),
+            tooltip: 'Chat Wali Kelas',
+            visualDensity: VisualDensity.compact,
           ),
           IconButton(
             onPressed: onProfile,
-            icon: const Icon(Icons.person_outline_rounded, color: Colors.white, size: 22),
+            icon: const Icon(Icons.person_outline_rounded, color: AppColors.gray700, size: 22),
+            tooltip: 'Profil',
+            visualDensity: VisualDensity.compact,
           ),
           IconButton(
             onPressed: onLogout,
-            icon: const Icon(Icons.logout_rounded, color: Colors.white, size: 20),
+            icon: const Icon(Icons.logout_rounded, color: AppColors.gray500, size: 20),
+            tooltip: 'Keluar',
+            visualDensity: VisualDensity.compact,
           ),
         ],
       ),
@@ -325,7 +366,7 @@ class _ChildCard extends StatelessWidget {
   }
 }
 
-// ─── Menu grid (Absensi / Catatan / Prestasi) ────────────────────────────────
+// ─── Menu grid (Card Kecil Kotak 2 Kolom) ────────────────────────────────────
 
 class _MenuGrid extends StatelessWidget {
   final ChildSummary child;
@@ -333,118 +374,221 @@ class _MenuGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final items = <_SquareMenuItem>[
+      _SquareMenuItem(
+        icon: Icons.calendar_today_outlined,
+        iconBg: AppColors.blue50,
+        iconColor: AppColors.blue600,
+        tag: 'Harian',
+        title: 'Riwayat Absensi',
+        subtitle: 'Kehadiran & foto',
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => OrangtuaAttendanceScreen(studentId: child.id, studentName: child.name),
+          ),
+        ),
+      ),
+      _SquareMenuItem(
+        icon: Icons.assignment_outlined,
+        iconBg: const Color(0xFFF1F5F9),
+        iconColor: AppColors.gray700,
+        tag: 'SIPINTER',
+        title: 'Catatan Karakter',
+        subtitle: 'Disiplin & apresiasi',
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => OrangtuaConductScreen(studentId: child.id, studentName: child.name),
+          ),
+        ),
+      ),
+      _SquareMenuItem(
+        icon: Icons.emoji_events_outlined,
+        iconBg: AppColors.emerald50,
+        iconColor: AppColors.emerald600,
+        tag: 'Rekap',
+        title: 'Prestasi Siswa',
+        subtitle: 'Daftar penghargaan',
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => OrangtuaAchievementScreen(studentId: child.id, studentName: child.name),
+          ),
+        ),
+      ),
+      _SquareMenuItem(
+        icon: Icons.chat_bubble_outline_rounded,
+        iconBg: AppColors.blue50,
+        iconColor: AppColors.blue600,
+        tag: 'Obrolan',
+        title: 'Chat Wali Kelas',
+        subtitle: 'Ruang bersama & privat',
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const ChatListScreen(filterType: 'all'),
+          ),
+        ),
+      ),
+      _SquareMenuItem(
+        icon: Icons.menu_book_outlined,
+        iconBg: const Color(0xFFF1F5F9),
+        iconColor: AppColors.gray700,
+        tag: 'Pedoman',
+        title: 'Tata Tertib',
+        subtitle: 'Aturan & kewajiban',
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const SchoolRegulationScreen(),
+          ),
+        ),
+      ),
+      _SquareMenuItem(
+        icon: Icons.person_outline_rounded,
+        iconBg: const Color(0xFFF1F5F9),
+        iconColor: AppColors.gray700,
+        tag: 'Akun',
+        title: 'Profil Orang Tua',
+        subtitle: 'Data diri & kontak',
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const ProfileScreen(),
+          ),
+        ),
+      ),
+    ];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Perkembangan Anak',
-          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.gray700)),
-        const SizedBox(height: 10),
-        _MenuTile(
-          icon: Icons.calendar_today_rounded,
-          iconBg: AppColors.blue50,
-          iconColor: AppColors.blue600,
-          title: 'Absensi',
-          subtitle: 'Riwayat kehadiran harian',
-          onTap: () => Navigator.push(context, MaterialPageRoute(
-            builder: (_) => OrangtuaAttendanceScreen(studentId: child.id, studentName: child.name),
-          )),
+        const Padding(
+          padding: EdgeInsets.only(left: 2, bottom: 10),
+          child: Text(
+            'MENU PEMANTAUAN ANAK',
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              color: AppColors.gray500,
+              letterSpacing: 0.6,
+            ),
+          ),
         ),
-        const SizedBox(height: 10),
-        _MenuTile(
-          icon: Icons.shield_rounded,
-          iconBg: AppColors.emerald50,
-          iconColor: AppColors.emerald600,
-          title: 'SIPINTER (Pendidikan Karakter)',
-          subtitle: 'Apresiasi & catatan kedisiplinan anak',
-          onTap: () => Navigator.push(context, MaterialPageRoute(
-            builder: (_) => OrangtuaConductScreen(studentId: child.id, studentName: child.name),
-          )),
-        ),
-        const SizedBox(height: 10),
-        _MenuTile(
-          icon: Icons.forum_rounded,
-          iconBg: const Color(0xFFEEF2FF),
-          iconColor: const Color(0xFF4F46E5),
-          title: 'Konsultasi Wali Kelas',
-          subtitle: 'Obrolan segitiga bersama anak & wali kelas',
-          onTap: () => Navigator.push(context, MaterialPageRoute(
-            builder: (_) => const ChatListScreen(filterType: 'all'),
-          )),
-        ),
-        const SizedBox(height: 10),
-        _MenuTile(
-          icon: Icons.workspace_premium_rounded,
-          iconBg: AppColors.yellow50,
-          iconColor: AppColors.yellow600,
-          title: 'Prestasi',
-          subtitle: 'Daftar prestasi yang tercatat',
-          onTap: () => Navigator.push(context, MaterialPageRoute(
-            builder: (_) => OrangtuaAchievementScreen(studentId: child.id, studentName: child.name),
-          )),
-        ),
-        const SizedBox(height: 10),
-        _MenuTile(
-          icon: Icons.balance_rounded,
-          iconBg: const Color(0xFFF5F3FF),
-          iconColor: const Color(0xFF7C3AED),
-          title: 'Tata Tertib Sekolah',
-          subtitle: 'Pedoman peraturan, sanksi, hak & kewajiban siswa',
-          onTap: () => Navigator.push(context, MaterialPageRoute(
-            builder: (_) => const SchoolRegulationScreen(),
-          )),
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: items.length,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 10,
+            mainAxisSpacing: 10,
+            childAspectRatio: 1.32,
+          ),
+          itemBuilder: (context, index) => _SquareMenuCard(item: items[index]),
         ),
       ],
     );
   }
 }
 
-class _MenuTile extends StatelessWidget {
+class _SquareMenuItem {
   final IconData     icon;
   final Color        iconBg;
   final Color        iconColor;
+  final String       tag;
   final String       title;
   final String       subtitle;
   final VoidCallback onTap;
 
-  const _MenuTile({
-    required this.icon, required this.iconBg, required this.iconColor,
-    required this.title, required this.subtitle, required this.onTap,
+  const _SquareMenuItem({
+    required this.icon,
+    required this.iconBg,
+    required this.iconColor,
+    required this.tag,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
   });
+}
+
+class _SquareMenuCard extends StatelessWidget {
+  final _SquareMenuItem item;
+  const _SquareMenuCard({required this.item});
 
   @override
   Widget build(BuildContext context) {
     return Material(
       color: Colors.white,
-      borderRadius: AppRadius.card,
+      borderRadius: BorderRadius.circular(12),
       child: InkWell(
-        borderRadius: AppRadius.card,
-        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        onTap: item.onTap,
         child: Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            borderRadius: AppRadius.card,
-            border: Border.all(color: AppColors.gray100),
-            boxShadow: AppShadow.sm,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: AppColors.gray200),
           ),
-          child: Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Container(
-                width: 44, height: 44,
-                decoration: BoxDecoration(color: iconBg, borderRadius: BorderRadius.circular(12)),
-                child: Icon(icon, color: iconColor, size: 22),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    width: 38,
+                    height: 38,
+                    decoration: BoxDecoration(
+                      color: item.iconBg,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Icon(item.icon, color: item.iconColor, size: 20),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: AppColors.slate100,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      item.tag,
+                      style: const TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.gray500,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.gray800)),
-                    const SizedBox(height: 2),
-                    Text(subtitle, style: const TextStyle(fontSize: 11, color: AppColors.gray400)),
-                  ],
-                ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    item.title,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.gray900,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    item.subtitle,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: AppColors.gray500,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
               ),
-              const Icon(Icons.chevron_right_rounded, color: AppColors.gray300),
             ],
           ),
         ),

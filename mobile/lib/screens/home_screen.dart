@@ -271,14 +271,8 @@ class _TopHeader extends StatelessWidget {
     return Container(
       height: 56,
       decoration: const BoxDecoration(
-        gradient: AppColors.topbarGradient,
-        boxShadow: [
-          BoxShadow(
-            color:      Color(0x740F2460),
-            blurRadius: 16,
-            offset:     Offset(0, 2),
-          ),
-        ],
+        color: Colors.white,
+        border: Border(bottom: BorderSide(color: AppColors.gray200)),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
@@ -287,64 +281,66 @@ class _TopHeader extends StatelessWidget {
           GestureDetector(
             onTap: onHomeTap,
             child: Row(
-            children: [
-              Container(
-                width: 38, height: 38,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  color:  Colors.white.withValues(alpha: 0.15),
-                  border: Border.all(color: Colors.white.withValues(alpha: 0.25)),
-                ),
-                clipBehavior: Clip.antiAlias,
-                child: Padding(
-                  padding: const EdgeInsets.all(4),
-                  child: Image.asset(
-                    'assets/images/logo_sekolah.png',
-                    fit: BoxFit.contain,
-                    errorBuilder: (_, __, ___) => const Icon(
-                      Icons.school_rounded,
-                      color: Colors.white,
-                      size: 20,
+              children: [
+                Container(
+                  width: 34,
+                  height: 34,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    color: AppColors.slate100,
+                    border: Border.all(color: AppColors.gray200),
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  child: Padding(
+                    padding: const EdgeInsets.all(4),
+                    child: Image.asset(
+                      'assets/images/logo_sekolah.png',
+                      fit: BoxFit.contain,
+                      errorBuilder: (_, __, ___) => const Icon(
+                        Icons.school_outlined,
+                        color: AppColors.blue600,
+                        size: 18,
+                      ),
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 10),
-              const Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('SMA N 1 Gianyar',
-                    style: TextStyle(
-                      color:       Colors.white,
-                      fontSize:    13,
-                      fontWeight:  FontWeight.w800,
-                      height:      1.2,
-                      letterSpacing: 0.5,
+                const SizedBox(width: 10),
+                const Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'SMAN 1 Gianyar',
+                      style: TextStyle(
+                        color: AppColors.gray900,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        height: 1.2,
+                      ),
                     ),
-                  ),
-                  Text('SIMAK DOSMAN',
-                    style: TextStyle(
-                      color:         AppColors.blue200,
-                      fontSize:      11,
-                      height:        1.2,
-                      letterSpacing: 1.5,
+                    Text(
+                      'SIMAK DOSMAN',
+                      style: TextStyle(
+                        color: AppColors.gray500,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w500,
+                        height: 1.2,
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+              ],
+            ),
           ),
-          ), // end GestureDetector onHomeTap
 
           // ── Tengah: Judul halaman ────────────────────────────────
           Expanded(
             child: Text(
-              title,
+              title == 'Beranda' ? '' : title,
               style: const TextStyle(
-                fontSize:   14,
+                fontSize: 13,
                 fontWeight: FontWeight.w600,
-                color:      Colors.white,
+                color: AppColors.gray700,
               ),
               textAlign: TextAlign.center,
             ),
@@ -353,54 +349,52 @@ class _TopHeader extends StatelessWidget {
           // ── Kanan: Chat + Bell + Avatar ─────────────────────────────────
           Row(
             children: [
-              // Chat button
               GestureDetector(
                 onTap: onChatTap,
-                child: SizedBox(
-                  width: 36, height: 36,
-                  child: Center(
-                    child: Container(
-                      width: 32, height: 32,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.10),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: const Icon(
-                        Icons.forum_outlined,
-                        size: 19,
-                        color: Colors.white,
-                      ),
-                    ),
+                child: Container(
+                  width: 34,
+                  height: 34,
+                  decoration: BoxDecoration(
+                    color: AppColors.slate100,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(
+                    Icons.chat_bubble_outline_rounded,
+                    size: 18,
+                    color: AppColors.gray700,
                   ),
                 ),
               ),
-              const SizedBox(width: 4),
-
-              // Notification bell
+              const SizedBox(width: 6),
               GestureDetector(
                 onTap: onNotifTap,
                 child: SizedBox(
-                  width: 36, height: 36,
+                  width: 34,
+                  height: 34,
                   child: Stack(
                     children: [
-                      Center(
-                        child: Container(
-                          width: 32, height: 32,
-                          decoration: BoxDecoration(
-                            color:        Colors.white.withValues(alpha: 0.10),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: const Icon(Icons.notifications_none_rounded,
-                            size: 20, color: Colors.white),
+                      Container(
+                        width: 34,
+                        height: 34,
+                        decoration: BoxDecoration(
+                          color: AppColors.slate100,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Icon(
+                          Icons.notifications_none_rounded,
+                          size: 19,
+                          color: AppColors.gray700,
                         ),
                       ),
                       Consumer<NotificationProvider>(
                         builder: (_, prov, __) {
                           if (prov.unreadCount == 0) return const SizedBox.shrink();
                           return Positioned(
-                            top: 2, right: 2,
+                            top: 2,
+                            right: 2,
                             child: Container(
-                              width: 16, height: 16,
+                              width: 15,
+                              height: 15,
                               decoration: const BoxDecoration(
                                 color: AppColors.red500,
                                 shape: BoxShape.circle,
@@ -410,7 +404,7 @@ class _TopHeader extends StatelessWidget {
                                 prov.unreadCount > 9 ? '9+' : '${prov.unreadCount}',
                                 style: const TextStyle(
                                   color: Colors.white,
-                                  fontSize: 9,
+                                  fontSize: 8.5,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -422,15 +416,16 @@ class _TopHeader extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: 6),
+              const SizedBox(width: 8),
               GestureDetector(
-                onTap:      onProfileTap,
+                onTap: onProfileTap,
                 onLongPress: onLogout,
                 child: Container(
-                  width: 32, height: 32,
+                  width: 32,
+                  height: 32,
                   decoration: BoxDecoration(
-                    shape:  BoxShape.circle,
-                    border: Border.all(color: Colors.white.withValues(alpha: 0.40), width: 2),
+                    shape: BoxShape.circle,
+                    border: Border.all(color: AppColors.gray200),
                   ),
                   clipBehavior: Clip.antiAlias,
                   child: _UserAvatar(user: user, size: 32),
@@ -592,14 +587,6 @@ class _GreetingCard extends StatelessWidget {
     return m;
   }
 
-  String get _greetingTime {
-    final hour = DateTime.now().hour;
-    if (hour < 11) return 'Pagi';
-    if (hour < 15) return 'Siang';
-    if (hour < 18) return 'Sore';
-    return 'Malam';
-  }
-
   @override
   Widget build(BuildContext context) {
     final now     = DateTime.now();
@@ -609,81 +596,55 @@ class _GreetingCard extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFF0A3880), Color(0xFF1565C0), Color(0xFF1D4ED8)],
-        ),
-        borderRadius: AppRadius.card,
-        border: Border.all(color: Colors.white.withValues(alpha: 0.25)),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x33000000),
-            blurRadius: 10,
-            offset: Offset(0, 4),
-          ),
-        ],
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.gray200),
       ),
       padding: const EdgeInsets.all(14),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ── Baris Atas: Tanggal & Label Rekap ─────────────────────────
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.20),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: Colors.white.withValues(alpha: 0.30)),
-                ),
-                child: Text(
-                  '📅  $dateStr',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 11,
-                    fontWeight: FontWeight.bold,
-                  ),
+              Text(
+                dateStr,
+                style: const TextStyle(
+                  color: AppColors.gray500,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2.5),
                 decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.25),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFFFBBF24).withValues(alpha: 0.4)),
+                  color: AppColors.slate100,
+                  borderRadius: BorderRadius.circular(6),
                 ),
                 child: const Text(
-                  'REKAP BULAN INI',
+                  'Rekap Bulan Ini',
                   style: TextStyle(
-                    color: Color(0xFFFBBF24),
-                    fontSize: 9.5,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 0.5,
+                    color: AppColors.gray600,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 10),
-
-          // ── Sapaan Nama Lengkap (Tanpa Duplikasi Foto Avatar) ────────
+          const SizedBox(height: 6),
           Text(
-            'Selamat $_greetingTime, $name! 👋',
+            name,
             style: const TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.w900,
+              color: AppColors.gray900,
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
               height: 1.25,
             ),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 4),
-
-          // ── Detail Kelas, Angkatan, NIS ────────────────────────────────
           Wrap(
             crossAxisAlignment: WrapCrossAlignment.center,
             spacing: 6,
@@ -691,54 +652,59 @@ class _GreetingCard extends StatelessWidget {
               Text(
                 user?.className ?? 'SMA Negeri 1 Gianyar',
                 style: const TextStyle(
-                  color: Color(0xFFDBEAFE),
+                  color: AppColors.gray700,
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                 ),
               ),
               if (user?.angkatan != null)
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF59E0B).withValues(alpha: 0.30),
-                    borderRadius: BorderRadius.circular(4),
-                    border: Border.all(color: const Color(0xFFFBBF24).withValues(alpha: 0.5)),
-                  ),
-                  child: Text(
-                    user!.angkatan!,
-                    style: const TextStyle(
-                      color: Color(0xFFFDE68A),
-                      fontSize: 10,
-                      fontWeight: FontWeight.w900,
-                    ),
+                Text(
+                  '· Angkatan ${user!.angkatan}',
+                  style: const TextStyle(
+                    color: AppColors.gray500,
+                    fontSize: 12,
                   ),
                 ),
               if (user?.nis != null)
                 Text(
-                  '·  NIS ${user!.nis}',
+                  '· NIS ${user!.nis}',
                   style: const TextStyle(
-                    color: Color(0xFFDBEAFE),
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
+                    color: AppColors.gray500,
+                    fontSize: 11.5,
                   ),
                 ),
             ],
           ),
           const SizedBox(height: 12),
-
-          // ── 5 Badge Grid Status Kehadiran (Sama Persis Seperti Web) ────
-          Row(
-            children: [
-              _StatBadgeItem(label: 'TERLAMBAT', count: summary['terlambat']!, color: const Color(0xFFFACC15), bg: const Color(0x33FACC15)),
-              const SizedBox(width: 4),
-              _StatBadgeItem(label: 'ALPA',      count: summary['alpa']!,      color: const Color(0xFFF87171), bg: const Color(0x33F87171)),
-              const SizedBox(width: 4),
-              _StatBadgeItem(label: 'IZIN',      count: summary['izin']!,      color: const Color(0xFF38BDF8), bg: const Color(0x3338BDF8)),
-              const SizedBox(width: 4),
-              _StatBadgeItem(label: 'SAKIT',     count: summary['sakit']!,     color: const Color(0xFFC084FC), bg: const Color(0x33C084FC)),
-              const SizedBox(width: 4),
-              _StatBadgeItem(label: 'DISP.',     count: summary['dispensasi']!, color: const Color(0xFFFB923C), bg: const Color(0x33FB923C)),
-            ],
+          Container(
+            decoration: BoxDecoration(
+              color: AppColors.gray50,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: AppColors.gray200),
+            ),
+            child: IntrinsicHeight(
+              child: Row(
+                children: [
+                  _StatBadgeItem(
+                    label: 'Telat',
+                    count: summary['terlambat']!,
+                    highlightColor: summary['terlambat']! > 0 ? AppColors.amber600 : null,
+                  ),
+                  const VerticalDivider(width: 1, thickness: 1, color: AppColors.gray200),
+                  _StatBadgeItem(
+                    label: 'Alpa',
+                    count: summary['alpa']!,
+                    highlightColor: summary['alpa']! > 0 ? AppColors.red600 : null,
+                  ),
+                  const VerticalDivider(width: 1, thickness: 1, color: AppColors.gray200),
+                  _StatBadgeItem(label: 'Izin', count: summary['izin']!),
+                  const VerticalDivider(width: 1, thickness: 1, color: AppColors.gray200),
+                  _StatBadgeItem(label: 'Sakit', count: summary['sakit']!),
+                  const VerticalDivider(width: 1, thickness: 1, color: AppColors.gray200),
+                  _StatBadgeItem(label: 'Dispen', count: summary['dispensasi']!),
+                ],
+              ),
+            ),
           ),
         ],
       ),
@@ -749,43 +715,36 @@ class _GreetingCard extends StatelessWidget {
 class _StatBadgeItem extends StatelessWidget {
   final String label;
   final int count;
-  final Color color;
-  final Color bg;
+  final Color? highlightColor;
 
   const _StatBadgeItem({
     required this.label,
     required this.count,
-    required this.color,
-    required this.bg,
+    this.highlightColor,
   });
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 6),
-        decoration: BoxDecoration(
-          color: bg,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: color.withValues(alpha: 0.4)),
-        ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
         child: Column(
           children: [
             Text(
-              label,
+              '$count',
               style: TextStyle(
-                color: color,
-                fontSize: 8.5,
-                fontWeight: FontWeight.bold,
+                color: highlightColor ?? AppColors.gray900,
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
               ),
             ),
             const SizedBox(height: 2),
             Text(
-              '$count',
+              label,
               style: const TextStyle(
-                color: Colors.white,
-                fontSize: 13,
-                fontWeight: FontWeight.w900,
+                color: AppColors.gray500,
+                fontSize: 10,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ],
@@ -1700,19 +1659,20 @@ class _ConductDashboardCardState extends State<_ConductDashboardCard> {
                 children: [
                   Row(
                     children: [
-                      Text('🛡️ ', style: TextStyle(fontSize: 14)),
+                      Icon(Icons.verified_user_outlined, size: 16, color: AppColors.emerald600),
+                      SizedBox(width: 6),
                       Text(
-                        'SIPINTER (Pendidikan Karakter)',
+                        'SIPINTER (Catatan Karakter)',
                         style: TextStyle(
                           fontSize: 13,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w700,
                           color: AppColors.gray800,
                         ),
                       ),
                     ],
                   ),
                   Text(
-                    'Lihat Detail →',
+                    'Detail →',
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,

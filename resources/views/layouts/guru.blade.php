@@ -19,9 +19,9 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
             </svg>
         </button>
-        <a href="{{ route('guru.dashboard') }}" class="flex items-center gap-2" title="Dashboard SIMAK_DOSMAN">
+        <a href="{{ route('guru.dashboard') }}" class="flex items-center gap-2" title="Dashboard SIMAK DOSMAN">
             <img src="/img/logo_sekolah.png" alt="Logo" class="w-7 h-7 object-contain">
-            <span class="text-sm font-black text-indigo-950 tracking-wider">SIMAK_DOSMAN</span>
+            <span class="text-sm font-bold text-slate-900 tracking-tight">SIMAK DOSMAN</span>
         </a>
     </div>
 
@@ -29,13 +29,12 @@
     <a href="{{ route('guru.profile') }}" class="relative flex items-center shrink-0">
         @if(auth()->user()->photo)
             <img src="{{ auth()->user()->photo_url }}"
-                class="w-8 h-8 rounded-full object-cover ring-2 ring-blue-500/40 shrink-0">
+                class="w-8 h-8 rounded-full object-cover border border-slate-200 shrink-0">
         @else
-            <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white text-xs font-bold ring-2 ring-blue-500/40 shrink-0">
+            <div class="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-700 text-xs font-semibold shrink-0">
                 {{ auth()->user()->initials }}
             </div>
         @endif
-        <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full ring-2 ring-white"></span>
     </a>
 </div>
 
@@ -45,34 +44,33 @@
 
 {{-- ─── Sidebar ─────────────────────────────────────────────────────── --}}
 <aside id="sidebar"
-    class="fixed inset-y-0 left-0 w-64 bg-white shadow-xl lg:shadow-md z-30 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 flex flex-col overflow-hidden border-r border-slate-200">
+    class="fixed inset-y-0 left-0 w-64 bg-white shadow-xl lg:shadow-none z-30 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 flex flex-col overflow-hidden border-r border-slate-200">
 
-    {{-- Logo / Branding SIMAK_DOSMAN --}}
-    <div class="shrink-0 h-20 flex items-center gap-3 px-4 pt-2 border-b border-slate-100 bg-gradient-to-r from-slate-950 via-slate-900 to-indigo-950 text-white">
+    {{-- Logo / Branding SIMAK DOSMAN --}}
+    <div class="shrink-0 h-16 flex items-center gap-3 px-4 border-b border-slate-200 bg-white">
         <img src="/img/logo_sekolah.png" alt="Logo SMAN 1 Gianyar"
-            class="w-9 h-9 rounded-xl object-contain shrink-0 ring-2 ring-blue-400/30 bg-white/10 p-0.5">
+            class="w-8 h-8 object-contain shrink-0">
         <div class="overflow-hidden">
-            <p class="text-white font-black text-base tracking-wider truncate leading-none">SIMAK_DOSMAN</p>
-            <p class="text-blue-300 text-[10.5px] font-semibold tracking-tight truncate mt-1">Portal Guru SMAN 1 Gianyar</p>
+            <p class="text-slate-900 font-bold text-sm tracking-tight truncate leading-none">SMAN 1 Gianyar</p>
+            <p class="text-slate-500 text-[11px] font-medium truncate mt-1">Portal Guru · SIMAK</p>
         </div>
     </div>
 
     {{-- User Card Profile Sidebar --}}
-    <div class="shrink-0 px-3 py-3 border-b border-slate-100 bg-slate-50/60">
-        <a href="{{ route('guru.profile') }}" class="flex items-center gap-3 bg-white border border-slate-200/80 rounded-2xl p-2.5 shadow-2xs hover:border-blue-300 hover:shadow-xs transition-all group">
+    <div class="shrink-0 px-3 py-2.5 border-b border-slate-100 bg-slate-50/50">
+        <a href="{{ route('guru.profile') }}" class="flex items-center gap-2.5 bg-white border border-slate-200 rounded-xl p-2 hover:border-slate-300 transition-colors group">
             <div class="relative shrink-0">
                 @if(auth()->user()->photo)
-                    <img src="{{ auth()->user()->photo_url }}" class="w-9 h-9 rounded-xl object-cover ring-2 ring-blue-500/30 group-hover:ring-blue-500 transition-all">
+                    <img src="{{ auth()->user()->photo_url }}" class="w-8 h-8 rounded-lg object-cover border border-slate-200">
                 @else
-                    <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white font-black text-xs ring-2 ring-blue-500/30">
+                    <div class="w-8 h-8 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-700 font-bold text-xs">
                         {{ auth()->user()->initials }}
                     </div>
                 @endif
-                <span class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 rounded-full ring-2 ring-white"></span>
             </div>
             <div class="overflow-hidden flex-1 min-w-0">
-                <p class="text-xs font-black text-slate-900 truncate group-hover:text-blue-600 transition-colors">{{ auth()->user()->name }}</p>
-                <p class="text-[11px] text-slate-500 font-medium truncate mt-0.5">{{ auth()->user()->subject ?? 'Guru Pengajar' }}</p>
+                <p class="text-xs font-bold text-slate-900 truncate group-hover:text-blue-600 transition-colors">{{ auth()->user()->name }}</p>
+                <p class="text-[11px] text-slate-500 truncate">{{ auth()->user()->subject ?? 'Guru Pengajar' }}</p>
             </div>
         </a>
     </div>
@@ -183,18 +181,10 @@
 {{-- ─── Main Content ────────────────────────────────────────────────── --}}
 <main class="lg:ml-64 min-h-screen pt-14 lg:pt-0">
     {{-- Desktop Header Bar --}}
-    <div class="hidden lg:flex items-center justify-between px-6 py-3.5 bg-white border-b border-slate-200 shadow-xs">
-        <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 font-black text-base shadow-2xs">
-                🎓
-            </div>
-            <div>
-                <h1 class="text-base font-black text-slate-900 tracking-tight">@yield('page-title', 'Dashboard')</h1>
-                <p class="text-xs font-medium text-slate-500 flex items-center gap-1.5 mt-0.5">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    <span>{{ now()->isoFormat('dddd, D MMMM Y') }}</span>
-                </p>
-            </div>
+    <div class="hidden lg:flex items-center justify-between px-6 py-3 bg-white border-b border-slate-200">
+        <div>
+            <h1 class="text-base font-bold text-slate-900 tracking-tight">@yield('page-title', 'Dashboard')</h1>
+            <p class="text-xs text-slate-500 mt-0.5">{{ now()->isoFormat('dddd, D MMMM Y') }}</p>
         </div>
 
         {{-- Header Sebelah Kanan: Foto Profil & Menu Guru --}}

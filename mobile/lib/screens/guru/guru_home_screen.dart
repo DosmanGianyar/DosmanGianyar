@@ -49,13 +49,6 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
     }
   }
 
-  String get _greeting {
-    final h = DateTime.now().hour;
-    if (h < 11) return 'Pagi';
-    if (h < 15) return 'Siang';
-    return 'Sore';
-  }
-
   @override
   Widget build(BuildContext context) {
     final user      = context.watch<AuthProvider>().user;
@@ -69,144 +62,75 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ─── Header: Branding SIMAK_DOSMAN, Greeting & Foto Profile ───────
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+            // ─── Header: Profil Guru Ringkas & Bersih ─────────────────────────
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.gray200),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      // ─── Branding Header SIMAK_DOSMAN ──────────────
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: BoxDecoration(
-                              color: AppColors.blue50,
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: AppColors.blue200),
-                            ),
-                            child: Image.asset(
-                              'assets/images/logo_sekolah.png',
-                              width: 20,
-                              height: 20,
-                              fit: BoxFit.contain,
-                              errorBuilder: (_, __, ___) => const Icon(Icons.school_rounded, size: 20, color: AppColors.blue600),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          const Text(
-                            'SIMAK_DOSMAN',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w900,
-                              letterSpacing: 1.1,
-                              color: AppColors.blue700,
-                            ),
-                          ),
-                        ],
+                      Builder(
+                        builder: (context) {
+                          final photoUrl = user?.photoUrl;
+                          final hasPhoto = photoUrl != null && photoUrl.trim().isNotEmpty;
+                          return CircleAvatar(
+                            radius: 22,
+                            backgroundColor: AppColors.slate100,
+                            backgroundImage: hasPhoto ? NetworkImage(photoUrl) : null,
+                            child: !hasPhoto
+                                ? Text(
+                                    user?.initials ?? 'G',
+                                    style: const TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w700,
+                                      color: AppColors.gray800,
+                                    ),
+                                  )
+                                : null,
+                          );
+                        },
                       ),
-                      const SizedBox(height: 10),
-                      Text(
-                        'Selamat $_greeting,',
-                        style: const TextStyle(fontSize: 13, color: AppColors.gray500, fontWeight: FontWeight.w500),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        '$fullName 👋',
-                        style: const TextStyle(
-                          fontSize: 19,
-                          fontWeight: FontWeight.w800,
-                          color: AppColors.gray800,
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              DateFormat('EEEE, d MMMM y', 'id_ID').format(DateTime.now()),
+                              style: const TextStyle(
+                                fontSize: 11,
+                                color: AppColors.gray500,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              fullName,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.gray900,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
                         ),
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        DateFormat('EEEE, d MMMM y', 'id_ID').format(DateTime.now()),
-                        style: const TextStyle(fontSize: 12, color: AppColors.gray500),
-                      ),
-                      // ─── Badges Mata Pelajaran yang Diampu ──────────────
-                      _buildSubjectBadges(user),
                     ],
                   ),
-                ),
-                const SizedBox(width: 14),
-
-                // ─── Foto Profile Guru Estetik (Header Kanan) ─────────────
-                Builder(
-                  builder: (context) {
-                    final photoUrl = user?.photoUrl;
-                    final hasPhoto = photoUrl != null && photoUrl.trim().isNotEmpty;
-                    return GestureDetector(
-                      onTap: () {
-                        // Toast info profile
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content: Text('Profil Guru: ${user?.name ?? ''}'),
-                          behavior: SnackBarBehavior.floating,
-                          duration: const Duration(seconds: 1),
-                        ));
-                      },
-                      child: Stack(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(2.5),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              gradient: const LinearGradient(
-                                colors: [AppColors.blue600, Color(0xFF6366F1)],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: AppColors.blue600.withValues(alpha: 0.25),
-                                  blurRadius: 10,
-                                  offset: const Offset(0, 4),
-                                ),
-                              ],
-                            ),
-                            child: CircleAvatar(
-                              radius: 26,
-                              backgroundColor: Colors.white,
-                              child: CircleAvatar(
-                                radius: 24,
-                                backgroundColor: AppColors.blue100,
-                                backgroundImage: hasPhoto ? NetworkImage(photoUrl) : null,
-                                child: !hasPhoto
-                                    ? Text(
-                                        user?.initials ?? 'G',
-                                        style: const TextStyle(
-                                          fontSize: 17,
-                                          fontWeight: FontWeight.w900,
-                                          color: AppColors.blue700,
-                                        ),
-                                      )
-                                    : null,
-                              ),
-                            ),
-                          ),
-                          Positioned(
-                            bottom: 2,
-                            right: 2,
-                            child: Container(
-                              width: 14,
-                              height: 14,
-                              decoration: BoxDecoration(
-                                color: AppColors.emerald500,
-                                shape: BoxShape.circle,
-                                border: Border.all(color: Colors.white, width: 2.5),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              ],
+                  _buildSubjectBadges(user),
+                ],
+              ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 14),
 
             // ─── Stat Cards / Loading / Error ────────────────────────────
             if (_loading)
@@ -219,8 +143,7 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
             else if (_error != null)
               _buildError()
             else if (_dashboard != null) ...[
-              _buildGatePiketShortcutCard(),
-              _buildScanKartuShortcutCard(),
+              _buildPiketAndScanRow(),
               _buildPembinaBanner(_dashboard!),
               _buildTodayScheduleCard(context, _dashboard!),
               _buildStatGrid(_dashboard!),
@@ -254,178 +177,158 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
     if (subjects.isEmpty) return const SizedBox.shrink();
 
     return Padding(
-      padding: const EdgeInsets.only(top: 6),
+      padding: const EdgeInsets.only(top: 10),
       child: Wrap(
         spacing: 6,
         runSpacing: 4,
         children: subjects.map((sub) => Container(
-          padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3.5),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3.5),
           decoration: BoxDecoration(
-            color: AppColors.blue50,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: AppColors.blue200, width: 0.8),
+            color: AppColors.slate100,
+            borderRadius: BorderRadius.circular(6),
+            border: Border.all(color: AppColors.gray200),
           ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.menu_book_rounded, size: 11, color: AppColors.blue600),
-              const SizedBox(width: 4),
-              Text(
-                sub,
-                style: const TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.blue700,
-                ),
-              ),
-            ],
+          child: Text(
+            sub,
+            style: const TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: AppColors.gray700,
+            ),
           ),
         )).toList(),
       ),
     );
   }
 
-  Widget _buildGatePiketShortcutCard() {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 14),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFFD97706), Color(0xFFB45309)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFFD97706).withValues(alpha: 0.25),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(16),
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const GuruGateVerificationScreen()),
-            );
-          },
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            child: Row(
-              children: [
-                Container(
-                  width: 44,
-                  height: 44,
+  Widget _buildPiketAndScanRow() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 14),
+      child: Row(
+        children: [
+          Expanded(
+            child: Material(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(12),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const GuruGateVerificationScreen()),
+                  );
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.white24,
                     borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppColors.gray200),
                   ),
-                  child: const Icon(Icons.flash_on_rounded, color: Colors.white, size: 24),
-                ),
-                const SizedBox(width: 14),
-                const Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  child: Row(
                     children: [
-                      Text(
-                        '⚡ Piket Gerbang — Pengajuan Terlambat',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w800,
-                          color: Colors.white,
+                      Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          color: AppColors.amber50,
+                          borderRadius: BorderRadius.circular(8),
                         ),
+                        child: const Icon(Icons.fact_check_outlined, color: AppColors.amber700, size: 19),
                       ),
-                      SizedBox(height: 2),
-                      Text(
-                        'Daftar pengajuan pembinaan mandiri siswa terlambat hari ini',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: Colors.white70,
-                          fontWeight: FontWeight.w500,
+                      const SizedBox(width: 10),
+                      const Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Piket Gerbang',
+                              style: TextStyle(
+                                fontSize: 12.5,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.gray900,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            SizedBox(height: 1),
+                            Text(
+                              'Verifikasi terlambat',
+                              style: TextStyle(
+                                fontSize: 10.5,
+                                color: AppColors.gray500,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
                         ),
                       ),
                     ],
                   ),
                 ),
-                const Icon(Icons.chevron_right_rounded, color: Colors.white, size: 22),
-              ],
+              ),
             ),
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildScanKartuShortcutCard() {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 14),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF4F46E5), Color(0xFF6366F1)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF4F46E5).withValues(alpha: 0.25),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(16),
-          onTap: _openDashboardScanDialog,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            child: Row(
-              children: [
-                Container(
-                  width: 44,
-                  height: 44,
+          const SizedBox(width: 10),
+          Expanded(
+            child: Material(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(12),
+                onTap: _openDashboardScanDialog,
+                child: Container(
+                  padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppColors.gray200),
                   ),
-                  child: const Icon(Icons.qr_code_scanner_rounded, color: Colors.white, size: 24),
-                ),
-                const SizedBox(width: 14),
-                const Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  child: Row(
                     children: [
-                      Text(
-                        '📷 Scan Kartu Siswa',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w800,
-                          color: Colors.white,
+                      Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          color: AppColors.blue50,
+                          borderRadius: BorderRadius.circular(8),
                         ),
+                        child: const Icon(Icons.qr_code_scanner_rounded, color: AppColors.blue600, size: 19),
                       ),
-                      SizedBox(height: 2),
-                      Text(
-                        'Scan barcode Kartu Pelajar untuk catat pelanggaran / prestasi',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: Colors.white70,
-                          fontWeight: FontWeight.w500,
+                      const SizedBox(width: 10),
+                      const Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Scan Kartu',
+                              style: TextStyle(
+                                fontSize: 12.5,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.gray900,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            SizedBox(height: 1),
+                            Text(
+                              'Catat poin siswa',
+                              style: TextStyle(
+                                fontSize: 10.5,
+                                color: AppColors.gray500,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
                         ),
                       ),
                     ],
                   ),
                 ),
-                const Icon(Icons.chevron_right_rounded, color: Colors.white, size: 22),
-              ],
+              ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -452,99 +355,88 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
     if (data.myExtracurriculars.isEmpty) return const SizedBox.shrink();
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.only(bottom: 14),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF312E81), Color(0xFF1E40AF)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(color: Colors.indigo.withValues(alpha: 0.2), blurRadius: 8, offset: const Offset(0, 4))
-        ],
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.gray200),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Text('🎗️', style: TextStyle(fontSize: 18)),
+              const Icon(Icons.groups_2_outlined, size: 18, color: AppColors.blue600),
               const SizedBox(width: 8),
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'PEMBINA EKSTRAKURIKULER',
-                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFFC7D2FE), letterSpacing: 0.5),
-                    ),
-                    Text(
-                      'Anda bertugas membina ${data.myExtracurriculars.length} Ekstrakurikuler',
-                      style: const TextStyle(fontSize: 11, color: Colors.white70),
-                    ),
-                  ],
+                child: Text(
+                  'Pembina Ekstrakurikuler (${data.myExtracurriculars.length})',
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.gray900,
+                  ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 8),
           Wrap(
-            spacing: 6, runSpacing: 6,
+            spacing: 6,
+            runSpacing: 6,
             children: data.myExtracurriculars.map((e) => Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.25)),
+                color: AppColors.slate100,
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(color: AppColors.gray200),
               ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Text('🏆 ', style: TextStyle(fontSize: 12)),
-                  Text(e.name, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white)),
-                  const SizedBox(width: 4),
-                  Text('(${e.membersCount} siswa)', style: const TextStyle(fontSize: 10, color: Colors.white70)),
-                ],
+              child: Text(
+                '${e.name} (${e.membersCount})',
+                style: const TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.gray700,
+                ),
               ),
             )).toList(),
           ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const GuruAchievementScreen())),
-              icon: const Icon(Icons.emoji_events_rounded, size: 16, color: Color(0xFF065F46)),
-              label: const Text(
-                '🏆 Lihat Juara & Prestasi Siswa Binaan',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF065F46)),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const GuruAchievementScreen())),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.gray800,
+                    side: const BorderSide(color: AppColors.gray200),
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                  child: const Text(
+                    'Prestasi Binaan',
+                    style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600),
+                  ),
+                ),
               ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFD1FAE5),
-                padding: const EdgeInsets.symmetric(vertical: 10),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                elevation: 0,
+              const SizedBox(width: 8),
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () => _showPendingExtraMembersModal(context),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.blue600,
+                    side: const BorderSide(color: AppColors.blue200),
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                  child: const Text(
+                    'Persetujuan Anggota',
+                    style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600),
+                  ),
+                ),
               ),
-            ),
-          ),
-          const SizedBox(height: 8),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: () => _showPendingExtraMembersModal(context),
-              icon: const Icon(Icons.check_circle_outline_rounded, size: 16, color: Color(0xFF312E81)),
-              label: const Text(
-                '📋 Persetujuan Pendaftaran Anggota Ekstra',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF312E81)),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 10),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                elevation: 0,
-              ),
-            ),
+            ],
           ),
         ],
       ),
@@ -1050,9 +942,8 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: BorderRadius.circular(AppRadius.xl2),
-        border: Border.all(color: AppColors.blue100),
-        boxShadow: AppShadow.sm,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.gray200),
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(
@@ -1060,60 +951,40 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
         children: [
           // Header Card
           Material(
-            color: Colors.transparent,
+            color: AppColors.slate100.withValues(alpha: 0.7),
             child: InkWell(
               onTap: () => _showWeeklyScheduleModal(context, data),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
                 decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Color(0xFF2563EB), Color(0xFF4F46E5)],
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                  ),
+                  border: Border(bottom: BorderSide(color: AppColors.gray200)),
                 ),
                 child: Row(
                   children: [
-                    Container(
-                      padding: const EdgeInsets.all(7),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: const Icon(Icons.calendar_today_rounded, color: Colors.white, size: 18),
-                    ),
-                    const SizedBox(width: 10),
+                    const Icon(Icons.calendar_today_outlined, color: AppColors.gray700, size: 16),
+                    const SizedBox(width: 8),
                     Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Jadwal Mengajar Hari Ini (${data.todayDayName})',
-                            style: const TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                          const Text(
-                            'Tap untuk melihat jadwal perminggu',
-                            style: TextStyle(fontSize: 10, color: Color(0xFFDBEAFE)),
-                          ),
-                        ],
+                      child: Text(
+                        'Jadwal Mengajar (${data.todayDayName})',
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.gray900,
+                        ),
                       ),
                     ),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(color: AppColors.gray200),
                       ),
                       child: const Row(
                         children: [
-                          Text('🗓️ Perminggu', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.white)),
+                          Text('Perminggu', style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: AppColors.gray700)),
                           SizedBox(width: 2),
-                          Icon(Icons.chevron_right_rounded, size: 14, color: Colors.white),
+                          Icon(Icons.chevron_right_rounded, size: 14, color: AppColors.gray500),
                         ],
                       ),
                     ),
@@ -1143,14 +1014,14 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
                             ),
                           );
                         },
-                        borderRadius: BorderRadius.circular(14),
+                        borderRadius: BorderRadius.circular(10),
                         child: Container(
-                          margin: const EdgeInsets.only(bottom: 10),
-                          padding: const EdgeInsets.all(14),
+                          margin: const EdgeInsets.only(bottom: 8),
+                          padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: AppColors.blue50.withValues(alpha: 0.7),
-                            borderRadius: BorderRadius.circular(14),
-                            border: Border.all(color: AppColors.blue200, width: 1.2),
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: AppColors.gray200),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1159,23 +1030,24 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   Wrap(
-                                    spacing: 6,
+                                    spacing: 4,
                                     runSpacing: 4,
                                     children: (sch.periods.isNotEmpty ? sch.periods : [sch.period]).map((p) => Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4.5),
+                                      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
                                       decoration: BoxDecoration(
-                                        color: AppColors.blue600,
-                                        borderRadius: BorderRadius.circular(8),
+                                        color: AppColors.blue50,
+                                        borderRadius: BorderRadius.circular(6),
+                                        border: Border.all(color: AppColors.blue200),
                                       ),
                                       child: Text(
-                                        'Jam ke-$p',
-                                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Colors.white),
+                                        'Jam $p',
+                                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.blue700),
                                       ),
                                     )).toList(),
                                   ),
                                   Text(
                                     '${sch.startTime} - ${sch.endTime}',
-                                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: AppColors.blue800),
+                                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.gray600),
                                   ),
                                 ],
                               ),
@@ -1184,37 +1056,40 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    '🏫 Kelas ${sch.className}',
-                                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: Color(0xFF1E1B4B)),
+                                    'Kelas ${sch.className}',
+                                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.gray900),
                                   ),
                                   if (sch.room != null && sch.room!.isNotEmpty)
                                     Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2.5),
+                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                       decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.circular(6),
-                                        border: Border.all(color: AppColors.gray200),
+                                        color: AppColors.slate100,
+                                        borderRadius: BorderRadius.circular(4),
                                       ),
                                       child: Text(
-                                        '📍 ${sch.room}',
-                                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.gray600),
+                                        sch.room!,
+                                        style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: AppColors.gray600),
                                       ),
                                     ),
                                 ],
                               ),
-                              const SizedBox(height: 4),
+                              const SizedBox(height: 3),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text(
-                                    '📚 ${sch.subjectName}',
-                                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.gray800),
+                                  Expanded(
+                                    child: Text(
+                                      sch.subjectName,
+                                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppColors.gray600),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
                                   ),
                                   const Row(
                                     children: [
                                       Text(
-                                        'Isi Jurnal & Absen',
-                                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.blue600),
+                                        'Isi Jurnal',
+                                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.blue600),
                                       ),
                                       SizedBox(width: 2),
                                       Icon(Icons.arrow_forward_ios_rounded, size: 10, color: AppColors.blue600),
@@ -1241,8 +1116,8 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
                           GestureDetector(
                             onTap: () => _showWeeklyScheduleModal(context, data),
                             child: const Text(
-                              'Lihat Jadwal Mengajar Hari Lain (Perminggu) →',
-                              style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.blue600),
+                              'Lihat Jadwal Perminggu →',
+                              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.blue600),
                             ),
                           ),
                         ],
@@ -1262,7 +1137,7 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
       useSafeArea: true,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
       builder: (ctx) {
         final days = [
@@ -1288,30 +1163,30 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                   decoration: const BoxDecoration(
-                    color: Color(0xFF0F172A),
-                    borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                    color: Colors.white,
+                    border: Border(bottom: BorderSide(color: AppColors.gray200)),
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
                   ),
                   child: Row(
                     children: [
-                      const Text('📅 ', style: TextStyle(fontSize: 18)),
                       const Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
                               'Jadwal Mengajar Perminggu',
-                              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white),
+                              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.gray900),
                             ),
                             Text(
                               'Senin - Sabtu',
-                              style: TextStyle(fontSize: 11, color: Color(0xFF94A3B8)),
+                              style: TextStyle(fontSize: 11, color: AppColors.gray500),
                             ),
                           ],
                         ),
                       ),
                       IconButton(
                         onPressed: () => Navigator.pop(ctx),
-                        icon: const Icon(Icons.close_rounded, color: Colors.white, size: 20),
+                        icon: const Icon(Icons.close_rounded, color: AppColors.gray600, size: 20),
                         padding: EdgeInsets.zero,
                         constraints: const BoxConstraints(),
                       ),
@@ -1327,8 +1202,8 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
                     labelColor: AppColors.blue600,
                     unselectedLabelColor: AppColors.gray500,
                     indicatorColor: AppColors.blue600,
-                    indicatorWeight: 3,
-                    labelStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                    indicatorWeight: 2.5,
+                    labelStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
                     tabs: days.map((d) {
                       final dayNum = d['day'] as int;
                       final dName  = d['name'] as String;
@@ -1345,12 +1220,12 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
                                 decoration: BoxDecoration(
-                                  color: AppColors.blue100,
-                                  borderRadius: BorderRadius.circular(8),
+                                  color: AppColors.blue50,
+                                  borderRadius: BorderRadius.circular(6),
                                 ),
                                 child: Text(
                                   '${grp.count}',
-                                  style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.blue700),
+                                  style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.blue700),
                                 ),
                               ),
                             ],
@@ -1374,16 +1249,9 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
 
                       if (grp.schedules.isEmpty) {
                         return Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(Icons.free_breakfast_outlined, size: 40, color: AppColors.gray400),
-                              const SizedBox(height: 8),
-                              Text(
-                                'Tidak ada jadwal mengajar pada hari $dName.',
-                                style: const TextStyle(fontSize: 13, color: AppColors.gray500),
-                              ),
-                            ],
+                          child: Text(
+                            'Tidak ada jadwal mengajar pada hari $dName.',
+                            style: const TextStyle(fontSize: 13, color: AppColors.gray500),
                           ),
                         );
                       }
@@ -1409,29 +1277,29 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
                                 ),
                               );
                             },
-                            borderRadius: BorderRadius.circular(14),
+                            borderRadius: BorderRadius.circular(12),
                             child: Container(
-                              padding: const EdgeInsets.all(14),
+                              padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
                                 color: AppColors.white,
-                                borderRadius: BorderRadius.circular(14),
+                                borderRadius: BorderRadius.circular(12),
                                 border: Border.all(color: AppColors.gray200),
-                                boxShadow: AppShadow.sm,
                               ),
                               child: Row(
                                 children: [
                                   Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                                     decoration: BoxDecoration(
-                                      color: AppColors.blue100,
-                                      borderRadius: BorderRadius.circular(10),
+                                      color: AppColors.blue50,
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(color: AppColors.blue200),
                                     ),
                                     child: Column(
                                       children: [
                                         const Text('Jam', style: TextStyle(fontSize: 9, color: AppColors.blue700, fontWeight: FontWeight.w600)),
                                         Text(
                                           '${sch.period}',
-                                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: AppColors.blue800),
+                                          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.blue800),
                                         ),
                                       ],
                                     ),
@@ -1443,22 +1311,22 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
                                       children: [
                                         Text(
                                           sch.subjectName,
-                                          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.gray800),
+                                          style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700, color: AppColors.gray900),
                                         ),
                                         const SizedBox(height: 2),
                                         Text(
-                                          'Kelas ${sch.className}${sch.room != null ? ' • Ruang ${sch.room}' : ''}',
+                                          'Kelas ${sch.className}${sch.room != null ? ' · Ruang ${sch.room}' : ''}',
                                           style: const TextStyle(fontSize: 12, color: AppColors.gray600),
                                         ),
                                         const SizedBox(height: 2),
                                         Text(
-                                          '⏱️ ${sch.startTime} - ${sch.endTime}',
-                                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.blue600),
+                                          '${sch.startTime} - ${sch.endTime}',
+                                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.gray500),
                                         ),
                                       ],
                                     ),
                                   ),
-                                  const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: AppColors.gray400),
+                                  const Icon(Icons.arrow_forward_ios_rounded, size: 13, color: AppColors.gray400),
                                 ],
                               ),
                             ),

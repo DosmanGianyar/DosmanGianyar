@@ -11,12 +11,10 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('head')
 </head>
-<body class="bg-gray-50 font-sans pb-20">
+<body class="bg-slate-50 font-sans text-slate-800 antialiased pb-20">
 
 {{-- ─── Top Header ──────────────────────────────────────────────────── --}}
-<header class="fixed top-0 left-0 right-0 z-20 h-14 flex items-center justify-between px-4"
-    style="background: linear-gradient(135deg, #0f2460 0%, #1a3a8f 50%, #1e3fad 100%);
-           box-shadow: 0 2px 16px rgba(15,36,96,0.45);">
+<header class="fixed top-0 left-0 right-0 z-20 h-14 bg-white border-b border-slate-200 flex items-center justify-between px-4">
     @php
         $isRootPage = request()->routeIs(
             'siswa.dashboard', 'siswa.kesiswaan',
@@ -24,43 +22,42 @@
         );
     @endphp
 
-    {{-- Kiri: Logo SMAN 1 Gianyar selalu tampil untuk kembali ke Dashboard (tombol back opsional di sub-halaman) --}}
-    <div class="flex items-center gap-1.5 shrink-0">
+    <div class="flex items-center gap-2 shrink-0">
         @if(!$isRootPage)
             <button onclick="history.back()"
-                class="w-8 h-8 flex items-center justify-center rounded-xl bg-white/10 hover:bg-white/20 transition-colors"
-                title="Kembali ke halaman sebelumnya">
-                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/>
+                class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100 transition-colors"
+                title="Kembali">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                 </svg>
             </button>
         @endif
 
-        <a href="{{ route('siswa.dashboard') }}" class="flex items-center gap-2" title="Kembali ke Dashboard">
-            <div class="w-8 h-8 rounded-lg overflow-hidden bg-white/15 flex items-center justify-center p-1 ring-1 ring-white/25 shrink-0">
-                <img src="/img/logo_sekolah.png" alt="Logo" class="w-full h-full object-contain">
-            </div>
-            <div class="leading-tight hidden sm:block">
-                <p class="font-bold text-white text-xs leading-none tracking-wide">SMA N 1 Gianyar</p>
-                <p class="text-blue-200 text-[10px] tracking-widest uppercase">SIMAK DOSMAN</p>
+        <a href="{{ route('siswa.dashboard') }}" class="flex items-center gap-2.5" title="Beranda">
+            <img src="/img/logo_sekolah.png" alt="Logo" class="w-7 h-7 object-contain shrink-0">
+            <div class="leading-tight">
+                <p class="font-bold text-slate-900 text-xs leading-none">SMAN 1 Gianyar</p>
+                <p class="text-slate-500 text-[10px] font-medium mt-0.5">SIMAK DOSMAN</p>
             </div>
         </a>
     </div>
 
-    <h2 class="text-sm font-semibold text-white tracking-wide">@yield('page-title', 'Beranda')</h2>
+    @if(!$isRootPage)
+        <h2 class="text-xs font-semibold text-slate-700 truncate max-w-[140px] sm:max-w-xs">@yield('page-title', 'Beranda')</h2>
+    @endif
 
-    <div class="flex items-center gap-2">
+    <div class="flex items-center gap-1.5">
         {{-- Chat Konsultasi Wali & Ortu --}}
         @php
             $chatUnreadSiswa = auth()->check() ? app(\App\Services\ChatService::class)->getTotalUnreadCount(auth()->user()) : 0;
         @endphp
         <a href="{{ route('siswa.chat.index') }}" title="Chat Konsultasi Wali & Ortu"
-           class="relative w-8 h-8 flex items-center justify-center rounded-xl bg-white/10 hover:bg-white/20 transition-colors">
-            <svg class="w-4.5 h-4.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+           class="relative w-8 h-8 flex items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100 transition-colors">
+            <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
                     d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
             </svg>
-            <span class="chat-unread-badge {{ $chatUnreadSiswa > 0 ? '' : 'hidden' }} absolute -top-0.5 -right-0.5 min-w-4 h-4 bg-emerald-400 text-slate-900 text-[9px] font-black rounded-full flex items-center justify-center px-1 leading-none shadow-xs">
+            <span class="chat-unread-badge {{ $chatUnreadSiswa > 0 ? '' : 'hidden' }} absolute -top-0.5 -right-0.5 min-w-4 h-4 bg-rose-600 text-white text-[9px] font-bold rounded-full flex items-center justify-center px-1 leading-none">
                 {{ $chatUnreadSiswa > 9 ? '9+' : $chatUnreadSiswa }}
             </span>
         </a>
@@ -69,24 +66,24 @@
         @php
             $unreadCount = \App\Models\AppNotification::forUser(auth()->id())->unread()->count();
         @endphp
-        <a href="{{ route('siswa.notifications.index') }}" class="relative w-8 h-8 flex items-center justify-center rounded-xl bg-white/10 hover:bg-white/20 transition-colors">
-            <svg class="w-5 h-5 text-white"
-                fill="{{ $unreadCount > 0 ? 'currentColor' : 'none' }}" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        <a href="{{ route('siswa.notifications.index') }}" class="relative w-8 h-8 flex items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100 transition-colors">
+            <svg class="w-4.5 h-4.5"
+                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
                     d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
             </svg>
             @if($unreadCount > 0)
-            <span class="absolute -top-0.5 -right-0.5 min-w-4 h-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center px-1 leading-none">
+            <span class="absolute -top-0.5 -right-0.5 min-w-4 h-4 bg-rose-600 text-white text-[9px] font-bold rounded-full flex items-center justify-center px-1 leading-none">
                 {{ $unreadCount > 9 ? '9+' : $unreadCount }}
             </span>
             @endif
         </a>
 
-        <a href="{{ route('siswa.profile') }}" class="flex items-center">
+        <a href="{{ route('siswa.profile') }}" class="flex items-center ml-0.5">
             @if(auth()->user()->photo)
-                <img src="{{ auth()->user()->photo_url }}" class="w-8 h-8 rounded-full object-cover ring-2 ring-white/40">
+                <img src="{{ auth()->user()->photo_url }}" class="w-8 h-8 rounded-full object-cover border border-slate-200">
             @else
-                <div class="w-8 h-8 rounded-full bg-white/20 ring-2 ring-white/40 flex items-center justify-center text-white text-xs font-bold">
+                <div class="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-700 text-xs font-semibold">
                     {{ auth()->user()->initials }}
                 </div>
             @endif

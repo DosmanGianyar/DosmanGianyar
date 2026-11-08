@@ -11,44 +11,41 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('head')
 </head>
-<body class="bg-gray-50 font-sans pb-20">
+<body class="bg-slate-50 font-sans text-slate-800 antialiased pb-20">
 
 {{-- ─── Top Header ──────────────────────────────────────────────────── --}}
-<header class="fixed top-0 left-0 right-0 z-20 h-14 flex items-center justify-between px-4"
-    style="background: linear-gradient(135deg, #0f2460 0%, #1a3a8f 50%, #1e3fad 100%);
-           box-shadow: 0 2px 16px rgba(15,36,96,0.45);">
+<header class="fixed top-0 left-0 right-0 z-20 h-14 bg-white border-b border-slate-200 flex items-center justify-between px-4">
     @php
         $isRootPage = request()->routeIs('orangtua.dashboard');
     @endphp
 
-    {{-- Kiri: Logo SMAN 1 Gianyar selalu tampil untuk kembali ke Dashboard (tombol back opsional di sub-halaman) --}}
-    <div class="flex items-center gap-1.5 shrink-0">
+    <div class="flex items-center gap-2 shrink-0">
         @if(!$isRootPage)
             <button onclick="history.back()"
-                class="w-8 h-8 flex items-center justify-center rounded-xl bg-white/10 hover:bg-white/20 transition-colors"
-                title="Kembali ke halaman sebelumnya">
-                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/>
+                class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100 transition-colors"
+                title="Kembali">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                 </svg>
             </button>
         @endif
 
-        <a href="{{ route('orangtua.dashboard') }}" class="flex items-center gap-2" title="Kembali ke Dashboard">
-            <div class="w-8 h-8 rounded-lg overflow-hidden bg-white/15 flex items-center justify-center p-1 ring-1 ring-white/25 shrink-0">
-                <img src="/img/logo_sekolah.png" alt="Logo" class="w-full h-full object-contain">
-            </div>
-            <div class="leading-tight hidden sm:block">
-                <p class="font-bold text-white text-xs leading-none tracking-wide">SMA N 1 Gianyar</p>
-                <p class="text-blue-200 text-[10px] tracking-widest uppercase">SIMAK DOSMAN</p>
+        <a href="{{ route('orangtua.dashboard') }}" class="flex items-center gap-2.5" title="Beranda">
+            <img src="/img/logo_sekolah.png" alt="Logo" class="w-7 h-7 object-contain shrink-0">
+            <div class="leading-tight">
+                <p class="font-bold text-slate-900 text-xs leading-none">SMAN 1 Gianyar</p>
+                <p class="text-slate-500 text-[10px] font-medium mt-0.5">Portal Orang Tua</p>
             </div>
         </a>
     </div>
 
-    <h2 class="text-sm font-semibold text-white tracking-wide">@yield('page-title', 'Beranda')</h2>
+    @if(!$isRootPage)
+        <h2 class="text-xs font-semibold text-slate-700 truncate max-w-[160px] sm:max-w-xs">@yield('page-title', 'Beranda')</h2>
+    @endif
 
-    <div class="flex items-center gap-2">
+    <div class="flex items-center gap-1.5">
         <a href="{{ route('orangtua.profile') }}"
-           class="w-8 h-8 rounded-full bg-white/20 ring-2 ring-white/40 flex items-center justify-center text-white text-xs font-bold hover:bg-white/30 transition-all overflow-hidden shrink-0 shadow-2xs"
+           class="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-700 text-xs font-semibold hover:bg-slate-200 transition-colors overflow-hidden shrink-0"
            title="Profil Saya">
             @if(auth()->user()->photo)
                 <img src="{{ auth()->user()->photo_url }}" alt="{{ auth()->user()->name }}" class="w-full h-full object-cover">
@@ -59,8 +56,8 @@
         <form method="POST" action="{{ route('logout') }}">
             @csrf
             <button type="submit" title="Keluar"
-                class="w-8 h-8 flex items-center justify-center rounded-xl bg-white/10 hover:bg-white/20 transition-colors">
-                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-500 hover:text-rose-600 hover:bg-rose-50 transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
                 </svg>
