@@ -4,16 +4,18 @@ import '../services/regulation_service.dart';
 import '../services/api_client.dart';
 
 class RegulationProvider extends ChangeNotifier {
-  List<RegulationGroup> _groups    = [];
+  List<RegulationGroup> _groups        = [];
+  List<UniformGuide>    _uniformGuides = [];
   String?               _pdfUrl;
-  bool                  _isLoading = false;
+  bool                  _isLoading     = false;
   String?               _error;
 
-  List<RegulationGroup> get groups    => _groups;
-  String?               get pdfUrl    => _pdfUrl;
-  bool                  get isLoading => _isLoading;
-  String?               get error     => _error;
-  bool                  get isEmpty   => !_isLoading && _groups.isEmpty && _error == null;
+  List<RegulationGroup> get groups        => _groups;
+  List<UniformGuide>    get uniformGuides => _uniformGuides;
+  String?               get pdfUrl        => _pdfUrl;
+  bool                  get isLoading     => _isLoading;
+  String?               get error         => _error;
+  bool                  get isEmpty       => !_isLoading && _groups.isEmpty && _error == null;
 
   Future<void> fetch() async {
     if (_isLoading) return;
@@ -22,9 +24,10 @@ class RegulationProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final res = await RegulationService.fetchAll();
-      _groups   = res.groups;
-      _pdfUrl   = res.pdfUrl;
+      final res      = await RegulationService.fetchAll();
+      _groups        = res.groups;
+      _uniformGuides = res.uniformGuides;
+      _pdfUrl        = res.pdfUrl;
     } catch (e) {
       _error = ApiClient.extractErrorMessage(e);
     } finally {

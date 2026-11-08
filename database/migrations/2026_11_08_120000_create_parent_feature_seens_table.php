@@ -27,3 +27,4 @@ return new class extends Migration
         Schema::dropIfExists('parent_feature_seens');
     }
 };
+

@@ -8,14 +8,16 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
 use App\Filament\Support\AdminAccess;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
@@ -43,11 +45,17 @@ class SchoolRegulationResource extends Resource
                 ->required()
                 ->native(false),
 
+            TextInput::make('badge_text')
+                ->label('Label Jadwal / Hari (Opsional)')
+                ->placeholder('Contoh: Senin, Selasa - Rabu, Kamis, dll.')
+                ->maxLength(50)
+                ->helperText('Cocok untuk kategori pakaian/seragam sekolah'),
+
             TextInput::make('sort_order')
-                ->label('Urutan')
+                ->label('Urutan Tampil')
                 ->numeric()
                 ->default(0)
-                ->helperText('Angka kecil = tampil lebih dulu'),
+                ->helperText('Angka kecil = tampil lebih awal'),
 
             TextInput::make('title')
                 ->label('Judul Peraturan')
@@ -55,16 +63,48 @@ class SchoolRegulationResource extends Resource
                 ->maxLength(200)
                 ->columnSpanFull(),
 
-            Textarea::make('content')
-                ->label('Isi / Penjelasan Dokumen (Verbatim)')
+            RichEditor::make('content')
+                ->label('Isi / Penjelasan Tata Tertib (Rich Text Editor)')
                 ->required()
-                ->rows(10)
+                ->toolbarButtons([
+                    'bold',
+                    'italic',
+                    'underline',
+                    'strike',
+                    'h2',
+                    'h3',
+                    'bulletList',
+                    'orderedList',
+                    'blockquote',
+                    'link',
+                    'undo',
+                    'redo',
+                ])
+                ->columnSpanFull(),
+
+            FileUpload::make('image')
+                ->label('Foto Contoh Pakaian / Ilustrasi Utama')
+                ->image()
+                ->disk('public')
+                ->directory('regulations')
+                ->imageResizeMode('cover')
+                ->helperText('Upload foto contoh seragam sekolah yang benar atau ilustrasi peraturan')
+                ->columnSpanFull(),
+
+            FileUpload::make('images')
+                ->label('Galeri Foto Tambahan (Bisa Lebih Dari 1 Foto)')
+                ->image()
+                ->multiple()
+                ->reorderable()
+                ->disk('public')
+                ->directory('regulations/gallery')
+                ->helperText('Upload foto tampak samping/belakang atau foto atribut detail')
                 ->columnSpanFull(),
 
             Toggle::make('is_active')
-                ->label('Aktif')
+                ->label('Status Aktif')
                 ->default(true)
-                ->helperText('Nonaktifkan agar tidak tampil di aplikasi siswa'),
+                ->helperText('Nonaktifkan agar tidak tampil di aplikasi siswa & orang tua'),
         ]);
     }
 
@@ -72,6 +112,11 @@ class SchoolRegulationResource extends Resource
     {
         return $table
             ->columns([
+                ImageColumn::make('image')
+                    ->label('Foto')
+                    ->circular()
+                    ->defaultImageUrl(asset('images/logo_sekolah.png')),
+
                 TextColumn::make('category')
                     ->label('Kategori')
                     ->badge()
@@ -85,10 +130,11 @@ class SchoolRegulationResource extends Resource
                     })
                     ->sortable(),
 
-                TextColumn::make('sort_order')
-                    ->label('#')
-                    ->sortable()
-                    ->width(40),
+                TextColumn::make('badge_text')
+                    ->label('Jadwal/Hari')
+                    ->badge()
+                    ->color('primary')
+                    ->placeholder('—'),
 
                 TextColumn::make('title')
                     ->label('Judul Peraturan')
@@ -96,10 +142,10 @@ class SchoolRegulationResource extends Resource
                     ->weight('semibold')
                     ->wrap(),
 
-                TextColumn::make('content')
-                    ->label('Isi')
-                    ->limit(60)
-                    ->color('gray'),
+                TextColumn::make('sort_order')
+                    ->label('Urutan')
+                    ->sortable()
+                    ->width(40),
 
                 IconColumn::make('is_active')
                     ->label('Aktif')

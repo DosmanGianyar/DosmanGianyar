@@ -7,8 +7,11 @@ import '../../providers/regulation_provider.dart';
 import '../../theme/app_colors.dart';
 
 /// Halaman Tata Tertib Siswa SMAN 1 Gianyar
-/// Tampilan Modern, Responsif, Interaktif dengan Filter Kategori,
-/// Live Search, Visual Badges, dan Fitur Salin / Akses Scan PDF.
+/// Tampilan Modern & Interaktif dengan:
+/// - Showcase Contoh Seragam Sekolah Harian (Senin - Sabtu, PJOK & Luar KBM)
+/// - Preview Foto Pakaian Sekolah Fullscreen / Zoom
+/// - HTML Rich Text Renderer dari Text Editor Admin
+/// - Filter Kategori, Live Search, dan Salin Teks
 class SchoolRegulationScreen extends StatefulWidget {
   const SchoolRegulationScreen({super.key});
 
@@ -61,10 +64,225 @@ class _SchoolRegulationScreenState extends State<SchoolRegulationScreen> {
     } catch (_) {}
   }
 
+  void _showImagePreview(BuildContext context, String imageUrl, String title) {
+    showDialog(
+      context: context,
+      builder: (_) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Align(
+              alignment: Alignment.topRight,
+              child: IconButton(
+                onPressed: () => Navigator.pop(context),
+                icon: const Icon(Icons.close_rounded, color: Colors.white, size: 28),
+                tooltip: 'Tutup',
+              ),
+            ),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: Container(
+                color: Colors.white,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    InteractiveViewer(
+                      clipBehavior: Clip.none,
+                      minScale: 1.0,
+                      maxScale: 4.0,
+                      child: Image.network(
+                        imageUrl,
+                        fit: BoxFit.contain,
+                        errorBuilder: (_, __, ___) => const Padding(
+                          padding: EdgeInsets.all(32),
+                          child: Icon(Icons.broken_image_rounded, size: 48, color: AppColors.gray400),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Text(
+                        title,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.gray900,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showUniformDetail(BuildContext context, UniformGuide guide) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => DraggableScrollableSheet(
+        initialChildSize: 0.85,
+        minChildSize: 0.5,
+        maxChildSize: 0.95,
+        builder: (_, scrollController) => Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: Column(
+            children: [
+              // Handle Drag
+              Center(
+                child: Container(
+                  margin: const EdgeInsets.only(top: 12, bottom: 8),
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: AppColors.gray300,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: ListView(
+                  controller: scrollController,
+                  padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF206BC4),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            guide.day.toUpperCase(),
+                            style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.white,
+                              letterSpacing: 0.3,
+                            ),
+                          ),
+                        ),
+                        const Spacer(),
+                        IconButton(
+                          onPressed: () => Navigator.pop(context),
+                          icon: const Icon(Icons.close_rounded, color: AppColors.gray500),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      guide.title,
+                      style: const TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.gray900,
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+
+                    // Foto Contoh Seragam
+                    if (guide.imageUrl != null && guide.imageUrl!.isNotEmpty)
+                      GestureDetector(
+                        onTap: () => _showImagePreview(context, guide.imageUrl!, guide.title),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: AppColors.gray200),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.04),
+                                blurRadius: 10,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
+                          ),
+                          clipBehavior: Clip.antiAlias,
+                          child: Stack(
+                            alignment: Alignment.bottomRight,
+                            children: [
+                              Image.network(
+                                guide.imageUrl!,
+                                width: double.infinity,
+                                height: 260,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) => Container(
+                                  height: 200,
+                                  color: AppColors.slate100,
+                                  child: const Center(
+                                    child: Icon(Icons.checkroom_rounded, size: 48, color: AppColors.gray400),
+                                  ),
+                                ),
+                              ),
+                              Container(
+                                margin: const EdgeInsets.all(10),
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withValues(alpha: 0.7),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: const Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(Icons.zoom_in_rounded, size: 14, color: Colors.white),
+                                    SizedBox(width: 4),
+                                    Text(
+                                      'Ketuk untuk Perbesar',
+                                      style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+
+                    const SizedBox(height: 18),
+                    const Text(
+                      'KETENTUAN & RINCIAN ATRIBUT:',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFF206BC4),
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: AppColors.slate50,
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: AppColors.gray200),
+                      ),
+                      child: _FormattedContent(content: guide.content),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: const Color(0xFFF6F8FB),
       body: Consumer<RegulationProvider>(
         builder: (_, p, __) {
           if (p.isLoading) {
@@ -72,7 +290,7 @@ class _SchoolRegulationScreenState extends State<SchoolRegulationScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  CircularProgressIndicator(color: AppColors.blue600),
+                  CircularProgressIndicator(color: Color(0xFF206BC4)),
                   SizedBox(height: 16),
                   Text(
                     'Memuat Tata Tertib Sekolah...',
@@ -91,7 +309,6 @@ class _SchoolRegulationScreenState extends State<SchoolRegulationScreen> {
             return const Center(child: _EmptyView());
           }
 
-          // Kumpulkan semua item dan hitung total
           final allItems = <RegulationItem>[];
           for (final g in p.groups) {
             allItems.addAll(g.items);
@@ -109,6 +326,7 @@ class _SchoolRegulationScreenState extends State<SchoolRegulationScreen> {
               final q = _searchQuery.toLowerCase();
               return item.title.toLowerCase().contains(q) ||
                   item.content.toLowerCase().contains(q) ||
+                  (item.badgeText ?? '').toLowerCase().contains(q) ||
                   g.categoryLabel.toLowerCase().contains(q);
             }).toList();
 
@@ -121,11 +339,6 @@ class _SchoolRegulationScreenState extends State<SchoolRegulationScreen> {
             }
           }
 
-          final totalFilteredItems = filteredGroups.fold<int>(
-            0,
-            (acc, g) => acc + g.items.length,
-          );
-
           return CustomScrollView(
             physics: const AlwaysScrollableScrollPhysics(
               parent: BouncingScrollPhysics(),
@@ -136,7 +349,7 @@ class _SchoolRegulationScreenState extends State<SchoolRegulationScreen> {
                 expandedHeight: 180,
                 pinned: true,
                 elevation: 0,
-                backgroundColor: const Color(0xFF0F2460),
+                backgroundColor: const Color(0xFF182433),
                 leading: IconButton(
                   icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
                   onPressed: () => Navigator.pop(context),
@@ -154,7 +367,7 @@ class _SchoolRegulationScreenState extends State<SchoolRegulationScreen> {
                       _expandAll ? Icons.unfold_less_rounded : Icons.unfold_more_rounded,
                       color: Colors.white,
                     ),
-                    tooltip: _expandAll ? 'Tutup Semua Detail' : 'Buka Semua Detail',
+                    tooltip: _expandAll ? 'Tutup Semua' : 'Buka Semua',
                     onPressed: () => _toggleExpandAll(allItems),
                   ),
                 ],
@@ -162,175 +375,173 @@ class _SchoolRegulationScreenState extends State<SchoolRegulationScreen> {
                   background: Container(
                     decoration: const BoxDecoration(
                       gradient: LinearGradient(
-                        colors: [Color(0xFF0F2460), Color(0xFF1E3A8A), Color(0xFF312E81)],
+                        colors: [Color(0xFF182433), Color(0xFF206BC4)],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
                     ),
-                    child: SafeArea(
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(20, 52, 20, 16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.end,
+                    padding: const EdgeInsets.fromLTRB(20, 60, 20, 20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Row(
                           children: [
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              padding: const EdgeInsets.all(7),
                               decoration: BoxDecoration(
-                                color: const Color.fromRGBO(255, 255, 255, 0.15),
-                                borderRadius: BorderRadius.circular(20),
-                                border: Border.all(
-                                  color: const Color.fromRGBO(255, 255, 255, 0.25),
-                                ),
+                                color: Colors.white.withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(10),
                               ),
-                              child: const Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text('📜', style: TextStyle(fontSize: 12)),
-                                  SizedBox(width: 6),
-                                  Text(
-                                    'DOKUMEN RESMI SEKOLAH',
-                                    style: TextStyle(
-                                      color: Color(0xFFBFDBFE),
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.w800,
-                                      letterSpacing: 0.8,
-                                    ),
-                                  ),
-                                ],
-                              ),
+                              child: const Icon(Icons.gavel_rounded, color: Colors.white, size: 20),
                             ),
-                            const SizedBox(height: 8),
+                            const SizedBox(width: 10),
                             const Text(
-                              'Tata Tertib Peserta Didik',
+                              'SMAN 1 GIANYAR',
                               style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 21,
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: -0.3,
-                              ),
-                            ),
-                            const SizedBox(height: 2),
-                            const Text(
-                              'SMA Negeri 1 Gianyar · Wajib ditaati seluruh siswa',
-                              style: TextStyle(
-                                color: Color(0xFFE2E8F0),
-                                fontSize: 12.5,
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF93C5FD),
+                                letterSpacing: 1.2,
                               ),
                             ),
                           ],
                         ),
+                        const SizedBox(height: 8),
+                        const Text(
+                          'Tata Tertib & Seragam Sekolah',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.white,
+                            letterSpacing: -0.2,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        const Text(
+                          'Pedoman disiplin, etika, dan ketentuan pakaian resmi',
+                          style: TextStyle(fontSize: 12, color: Color(0xFFE2E8F0)),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
+              // ─── Search Bar ───────────────────────────────────────────────
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: AppColors.gray200),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.02),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: TextField(
+                      controller: _searchCtrl,
+                      onChanged: (v) => setState(() => _searchQuery = v.trim()),
+                      decoration: InputDecoration(
+                        hintText: 'Cari tata tertib, seragam, atau kata kunci...',
+                        hintStyle: const TextStyle(fontSize: 13, color: AppColors.gray400),
+                        prefixIcon: const Icon(Icons.search_rounded, color: AppColors.gray400, size: 20),
+                        suffixIcon: _searchQuery.isNotEmpty
+                            ? IconButton(
+                                icon: const Icon(Icons.clear_rounded, size: 18, color: AppColors.gray400),
+                                onPressed: () {
+                                  _searchCtrl.clear();
+                                  setState(() => _searchQuery = '');
+                                },
+                              )
+                            : null,
+                        border: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                       ),
                     ),
                   ),
                 ),
               ),
 
-              // ─── Search Bar & Stat Bar ────────────────────────────────────
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 10),
+              // ─── Showcase Contoh Seragam Sekolah (Jika Ada) ────────────────
+              if (p.uniformGuides.isNotEmpty && _selectedCategory != 'larangan' && _selectedCategory != 'kehadiran')
+                SliverToBoxAdapter(
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Search Input Box
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.04),
-                              blurRadius: 10,
-                              offset: Offset(0, 3),
-                            ),
-                          ],
-                          border: Border.all(color: const Color(0xFFE2E8F0)),
-                        ),
-                        child: TextField(
-                          controller: _searchCtrl,
-                          onChanged: (val) {
-                            setState(() {
-                              _searchQuery = val.trim();
-                            });
-                          },
-                          decoration: InputDecoration(
-                            hintText: 'Cari tata tertib (cth: seragam, rambut, telat)...',
-                            hintStyle: const TextStyle(fontSize: 12.5, color: Color(0xFF94A3B8)),
-                            prefixIcon: const Icon(Icons.search_rounded, color: AppColors.blue600, size: 22),
-                            suffixIcon: _searchQuery.isNotEmpty
-                                ? IconButton(
-                                    icon: const Icon(Icons.clear_rounded, size: 18, color: Color(0xFF94A3B8)),
-                                    onPressed: () {
-                                      _searchCtrl.clear();
-                                      setState(() => _searchQuery = '');
-                                    },
-                                  )
-                                : null,
-                            border: InputBorder.none,
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
-                          ),
-                        ),
-                      ),
-
-                      const SizedBox(height: 12),
-
-                      // Stat Pill Banner
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFFEFF6FF), Color(0xFFEEF2FF)],
-                          ),
-                          borderRadius: BorderRadius.circular(14),
-                          border: Border.all(color: const Color(0xFFDBEAFE)),
-                        ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(18, 8, 18, 10),
                         child: Row(
                           children: [
-                            const Icon(Icons.verified_rounded, color: Color(0xFF2563EB), size: 18),
+                            Container(
+                              width: 26,
+                              height: 26,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFEBF3FE),
+                                borderRadius: BorderRadius.circular(7),
+                              ),
+                              child: const Icon(Icons.checkroom_rounded, color: Color(0xFF206BC4), size: 16),
+                            ),
                             const SizedBox(width: 8),
-                            Expanded(
+                            const Text(
+                              'PANDUAN PAKAIAN & SERAGAM SISWA',
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w800,
+                                color: Color(0xFF182433),
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                            const Spacer(),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2.5),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFEBF3FE),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
                               child: Text(
-                                _searchQuery.isEmpty
-                                    ? 'Menampilkan ${allItems.length} peraturan dalam ${p.groups.length} kategori'
-                                    : 'Ditemukan $totalFilteredItems peraturan yang cocok',
+                                '${p.uniformGuides.length} Hari',
                                 style: const TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                  color: Color(0xFF1E3A8A),
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF206BC4),
                                 ),
                               ),
                             ),
-                            if (p.pdfUrl != null && p.pdfUrl!.isNotEmpty)
-                              GestureDetector(
-                                onTap: () => _openPdf(p.pdfUrl),
-                                child: const Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(
-                                      'PDF Resmi',
-                                      style: TextStyle(
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.bold,
-                                        color: Color(0xFF2563EB),
-                                      ),
-                                    ),
-                                    SizedBox(width: 2),
-                                    Icon(Icons.open_in_new_rounded, size: 13, color: Color(0xFF2563EB)),
-                                  ],
-                                ),
-                              ),
                           ],
                         ),
                       ),
+                      SizedBox(
+                        height: 215,
+                        child: ListView.separated(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          scrollDirection: Axis.horizontal,
+                          itemCount: p.uniformGuides.length,
+                          separatorBuilder: (_, __) => const SizedBox(width: 12),
+                          itemBuilder: (ctx, idx) {
+                            final guide = p.uniformGuides[idx];
+                            return _UniformCard(
+                              guide: guide,
+                              onTap: () => _showUniformDetail(context, guide),
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 14),
                     ],
                   ),
                 ),
-              ),
 
               // ─── Filter Kategori Horizontal Chips ─────────────────────────
               SliverToBoxAdapter(
                 child: SizedBox(
-                  height: 44,
+                  height: 40,
                   child: ListView.separated(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     scrollDirection: Axis.horizontal,
@@ -343,7 +554,7 @@ class _SchoolRegulationScreenState extends State<SchoolRegulationScreen> {
                           label: 'Semua (${allItems.length})',
                           icon: Icons.apps_rounded,
                           isSelected: isSelected,
-                          activeColor: AppColors.blue600,
+                          activeColor: const Color(0xFF206BC4),
                           onTap: () => setState(() => _selectedCategory = 'all'),
                         );
                       }
@@ -364,7 +575,7 @@ class _SchoolRegulationScreenState extends State<SchoolRegulationScreen> {
                 ),
               ),
 
-              const SliverToBoxAdapter(child: SizedBox(height: 12)),
+              const SliverToBoxAdapter(child: SizedBox(height: 14)),
 
               // ─── List Kategori & Kartu Peraturan ──────────────────────────
               if (filteredGroups.isEmpty)
@@ -377,44 +588,28 @@ class _SchoolRegulationScreenState extends State<SchoolRegulationScreen> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Container(
-                            width: 68,
-                            height: 68,
+                            width: 60,
+                            height: 60,
                             decoration: BoxDecoration(
-                              color: const Color(0xFFF1F5F9),
-                              borderRadius: BorderRadius.circular(20),
+                              color: AppColors.gray100,
+                              borderRadius: BorderRadius.circular(16),
                             ),
-                            child: const Icon(Icons.search_off_rounded, size: 36, color: Color(0xFF94A3B8)),
+                            child: const Icon(Icons.search_off_rounded, size: 30, color: AppColors.gray400),
                           ),
-                          const SizedBox(height: 14),
+                          const SizedBox(height: 12),
                           const Text(
                             'Tidak ada peraturan cocok',
                             style: TextStyle(
-                              fontSize: 15,
+                              fontSize: 14,
                               fontWeight: FontWeight.bold,
-                              color: Color(0xFF334155),
+                              color: AppColors.gray800,
                             ),
                           ),
-                          const SizedBox(height: 6),
+                          const SizedBox(height: 4),
                           Text(
                             'Tidak ditemukan kata kunci "$_searchQuery" pada tata tertib.',
                             textAlign: TextAlign.center,
-                            style: const TextStyle(fontSize: 12.5, color: Color(0xFF64748B)),
-                          ),
-                          const SizedBox(height: 16),
-                          FilledButton.icon(
-                            onPressed: () {
-                              _searchCtrl.clear();
-                              setState(() {
-                                _searchQuery = '';
-                                _selectedCategory = 'all';
-                              });
-                            },
-                            icon: const Icon(Icons.restart_alt_rounded, size: 16),
-                            label: const Text('Reset Pencarian', style: TextStyle(fontSize: 12.5)),
-                            style: FilledButton.styleFrom(
-                              backgroundColor: AppColors.blue600,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                            ),
+                            style: const TextStyle(fontSize: 12, color: AppColors.gray500),
                           ),
                         ],
                       ),
@@ -429,7 +624,7 @@ class _SchoolRegulationScreenState extends State<SchoolRegulationScreen> {
                       final meta = _CategoryTheme.get(group.category, group.categoryLabel);
 
                       return Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 6, 16, 16),
+                        padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -437,9 +632,9 @@ class _SchoolRegulationScreenState extends State<SchoolRegulationScreen> {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                               decoration: BoxDecoration(
-                                color: meta.backgroundColor,
-                                borderRadius: BorderRadius.circular(14),
-                                border: Border.all(color: meta.borderColor),
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: AppColors.gray200),
                               ),
                               child: Row(
                                 children: [
@@ -447,10 +642,10 @@ class _SchoolRegulationScreenState extends State<SchoolRegulationScreen> {
                                     width: 32,
                                     height: 32,
                                     decoration: BoxDecoration(
-                                      color: meta.primaryColor,
-                                      borderRadius: BorderRadius.circular(10),
+                                      color: meta.backgroundColor,
+                                      borderRadius: BorderRadius.circular(8),
                                     ),
-                                    child: Icon(meta.icon, size: 17, color: Colors.white),
+                                    child: Icon(meta.icon, size: 17, color: meta.primaryColor),
                                   ),
                                   const SizedBox(width: 10),
                                   Expanded(
@@ -459,17 +654,17 @@ class _SchoolRegulationScreenState extends State<SchoolRegulationScreen> {
                                       children: [
                                         Text(
                                           group.categoryLabel,
-                                          style: TextStyle(
-                                            fontSize: 14,
+                                          style: const TextStyle(
+                                            fontSize: 13,
                                             fontWeight: FontWeight.bold,
-                                            color: meta.primaryColor,
+                                            color: AppColors.gray900,
                                           ),
                                         ),
                                         Text(
-                                          '${group.items.length} Ketentuan Khusus',
-                                          style: TextStyle(
+                                          '${group.items.length} Ketentuan Tertulis',
+                                          style: const TextStyle(
                                             fontSize: 11,
-                                            color: meta.primaryColor.withValues(alpha: 0.8),
+                                            color: AppColors.gray500,
                                           ),
                                         ),
                                       ],
@@ -496,6 +691,7 @@ class _SchoolRegulationScreenState extends State<SchoolRegulationScreen> {
                                   itemNumber: itemIdx + 1,
                                   theme: meta,
                                   isExpanded: isExpanded,
+                                  onImageTap: (url) => _showImagePreview(context, url, item.title),
                                   onToggle: () {
                                     setState(() {
                                       if (isExpanded) {
@@ -525,6 +721,130 @@ class _SchoolRegulationScreenState extends State<SchoolRegulationScreen> {
   }
 }
 
+// ─── Uniform Showcase Card ──────────────────────────────────────────────────
+
+class _UniformCard extends StatelessWidget {
+  final UniformGuide guide;
+  final VoidCallback onTap;
+
+  const _UniformCard({
+    required this.guide,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 180,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: AppColors.gray200),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.03),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Preview Image
+            Stack(
+              children: [
+                if (guide.imageUrl != null && guide.imageUrl!.isNotEmpty)
+                  Image.network(
+                    guide.imageUrl!,
+                    height: 110,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => Container(
+                      height: 110,
+                      color: const Color(0xFFF1F5F9),
+                      child: const Center(
+                        child: Icon(Icons.checkroom_rounded, color: AppColors.gray400, size: 36),
+                      ),
+                    ),
+                  )
+                else
+                  Container(
+                    height: 110,
+                    color: const Color(0xFFF1F5F9),
+                    child: const Center(
+                      child: Icon(Icons.checkroom_rounded, color: AppColors.gray400, size: 36),
+                    ),
+                  ),
+
+                // Badge Hari
+                Positioned(
+                  top: 8,
+                  left: 8,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF182433).withValues(alpha: 0.85),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      guide.day,
+                      style: const TextStyle(
+                        fontSize: 9.5,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+            // Deskripsi Singkat
+            Padding(
+              padding: const EdgeInsets.all(10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    guide.title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.gray900,
+                      height: 1.25,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  const Row(
+                    children: [
+                      Text(
+                        'Ketuk detail',
+                        style: TextStyle(
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF206BC4),
+                        ),
+                      ),
+                      SizedBox(width: 2),
+                      Icon(Icons.arrow_forward_ios_rounded, size: 9, color: Color(0xFF206BC4)),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 // ─── Filter Chip Component ──────────────────────────────────────────────────
 
 class _FilterChip extends StatelessWidget {
@@ -548,45 +868,29 @@ class _FilterChip extends StatelessWidget {
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
         decoration: BoxDecoration(
           color: isSelected ? activeColor : Colors.white,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: isSelected ? activeColor : const Color(0xFFCBD5E1),
-            width: 1.2,
+            color: isSelected ? activeColor : AppColors.gray200,
           ),
-          boxShadow: isSelected
-              ? [
-                  BoxShadow(
-                    color: activeColor.withValues(alpha: 0.3),
-                    blurRadius: 8,
-                    offset: const Offset(0, 3),
-                  ),
-                ]
-              : const [
-                  BoxShadow(
-                    color: Color.fromRGBO(0, 0, 0, 0.02),
-                    blurRadius: 4,
-                    offset: Offset(0, 2),
-                  ),
-                ],
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
               icon,
-              size: 15,
-              color: isSelected ? Colors.white : const Color(0xFF64748B),
+              size: 14,
+              color: isSelected ? Colors.white : AppColors.gray600,
             ),
             const SizedBox(width: 6),
             Text(
               label,
               style: TextStyle(
-                fontSize: 12,
+                fontSize: 11.5,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                color: isSelected ? Colors.white : const Color(0xFF334155),
+                color: isSelected ? Colors.white : AppColors.gray800,
               ),
             ),
           ],
@@ -603,6 +907,7 @@ class _RegulationCard extends StatelessWidget {
   final int itemNumber;
   final _CategoryTheme theme;
   final bool isExpanded;
+  final void Function(String url) onImageTap;
   final VoidCallback onToggle;
 
   const _RegulationCard({
@@ -610,6 +915,7 @@ class _RegulationCard extends StatelessWidget {
     required this.itemNumber,
     required this.theme,
     required this.isExpanded,
+    required this.onImageTap,
     required this.onToggle,
   });
 
@@ -624,7 +930,7 @@ class _RegulationCard extends StatelessWidget {
             Expanded(child: Text('Teks peraturan "${item.title}" disalin.')),
           ],
         ),
-        backgroundColor: const Color(0xFF1E293B),
+        backgroundColor: const Color(0xFF182433),
         behavior: SnackBarBehavior.floating,
         duration: const Duration(seconds: 2),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -634,173 +940,249 @@ class _RegulationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 250),
+    return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: isExpanded ? theme.primaryColor.withValues(alpha: 0.35) : const Color(0xFFE2E8F0),
+          color: isExpanded ? const Color(0xFF206BC4).withValues(alpha: 0.4) : AppColors.gray200,
           width: isExpanded ? 1.5 : 1,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: isExpanded ? theme.primaryColor.withValues(alpha: 0.06) : const Color.fromRGBO(0, 0, 0, 0.03),
-            blurRadius: isExpanded ? 12 : 6,
-            offset: const Offset(0, 3),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 3px top accent bar
+          if (isExpanded) Container(height: 3, color: const Color(0xFF206BC4)),
+
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: onToggle,
+              child: Padding(
+                padding: const EdgeInsets.all(14),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Badge Nomor
+                        Container(
+                          width: 26,
+                          height: 26,
+                          decoration: BoxDecoration(
+                            color: theme.backgroundColor,
+                            borderRadius: BorderRadius.circular(7),
+                          ),
+                          child: Center(
+                            child: Text(
+                              itemNumber < 10 ? '0$itemNumber' : '$itemNumber',
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                                color: theme.primaryColor,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+
+                        // Judul Aturan & Badge Hari
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              if (item.badgeText != null && item.badgeText!.isNotEmpty)
+                                Padding(
+                                  padding: const EdgeInsets.only(bottom: 3),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFEBF3FE),
+                                      borderRadius: BorderRadius.circular(5),
+                                    ),
+                                    child: Text(
+                                      item.badgeText!,
+                                      style: const TextStyle(
+                                        fontSize: 9.5,
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(0xFF206BC4),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              Text(
+                                item.title,
+                                style: const TextStyle(
+                                  fontSize: 13.5,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.gray900,
+                                  height: 1.35,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+
+                        // Indikator Panah Expand/Collapse
+                        AnimatedRotation(
+                          turns: isExpanded ? 0.5 : 0,
+                          duration: const Duration(milliseconds: 200),
+                          child: Container(
+                            width: 24,
+                            height: 24,
+                            decoration: BoxDecoration(
+                              color: AppColors.slate100,
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: const Icon(
+                              Icons.keyboard_arrow_down_rounded,
+                              size: 18,
+                              color: AppColors.gray600,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    // Cuplikan Isi saat collapsed
+                    if (!isExpanded) ...[
+                      const SizedBox(height: 6),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 36),
+                        child: Text(
+                          _cleanPlainText(item.content),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: AppColors.gray500,
+                            height: 1.4,
+                          ),
+                        ),
+                      ),
+                    ],
+
+                    // Detail Isi Lengkap saat Expanded
+                    if (isExpanded) ...[
+                      const SizedBox(height: 12),
+
+                      // Foto Lampiran Peraturan (Jika ada)
+                      if (item.imageUrl != null && item.imageUrl!.isNotEmpty) ...[
+                        GestureDetector(
+                          onTap: () => onImageTap(item.imageUrl!),
+                          child: Container(
+                            margin: const EdgeInsets.only(bottom: 12),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: AppColors.gray200),
+                            ),
+                            clipBehavior: Clip.antiAlias,
+                            child: Stack(
+                              alignment: Alignment.bottomRight,
+                              children: [
+                                Image.network(
+                                  item.imageUrl!,
+                                  width: double.infinity,
+                                  height: 180,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                                ),
+                                Container(
+                                  margin: const EdgeInsets.all(8),
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: Colors.black.withValues(alpha: 0.65),
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: const Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(Icons.zoom_in_rounded, size: 12, color: Colors.white),
+                                      SizedBox(width: 4),
+                                      Text(
+                                        'Perbesar Foto',
+                                        style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF8FAFC),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: AppColors.gray200),
+                        ),
+                        child: _FormattedContent(content: item.content),
+                      ),
+
+                      const SizedBox(height: 10),
+
+                      // Action Bar Mini: Tag Kategori & Tombol Salin
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: theme.backgroundColor,
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              theme.shortLabel,
+                              style: TextStyle(
+                                fontSize: 10.5,
+                                fontWeight: FontWeight.w600,
+                                color: theme.primaryColor,
+                              ),
+                            ),
+                          ),
+                          TextButton.icon(
+                            onPressed: () => _copyToClipboard(context),
+                            style: TextButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              minimumSize: Size.zero,
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              foregroundColor: AppColors.gray600,
+                            ),
+                            icon: const Icon(Icons.copy_rounded, size: 13),
+                            label: const Text('Salin', style: TextStyle(fontSize: 11)),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
           ),
         ],
       ),
-      clipBehavior: Clip.antiAlias,
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onToggle,
-          child: Padding(
-            padding: const EdgeInsets.all(14),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Badge Nomor
-                    Container(
-                      width: 28,
-                      height: 28,
-                      decoration: BoxDecoration(
-                        color: theme.backgroundColor,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: theme.borderColor),
-                      ),
-                      child: Center(
-                        child: Text(
-                          itemNumber < 10 ? '0$itemNumber' : '$itemNumber',
-                          style: TextStyle(
-                            fontSize: 11.5,
-                            fontWeight: FontWeight.bold,
-                            color: theme.primaryColor,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-
-                    // Judul Aturan
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: 3),
-                        child: Text(
-                          item.title,
-                          style: const TextStyle(
-                            fontSize: 14.5,
-                            fontWeight: FontWeight.w700,
-                            color: Color(0xFF1E293B),
-                            height: 1.35,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 6),
-
-                    // Indikator Panah Expand/Collapse
-                    AnimatedRotation(
-                      turns: isExpanded ? 0.5 : 0,
-                      duration: const Duration(milliseconds: 200),
-                      child: Container(
-                        width: 24,
-                        height: 24,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF1F5F9),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Icon(
-                          Icons.keyboard_arrow_down_rounded,
-                          size: 18,
-                          color: Color(0xFF64748B),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-
-                // Cuplikan Isi (Preview singkat saat collapsed agar tidak terlalu sepi)
-                if (!isExpanded) ...[
-                  const SizedBox(height: 8),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 38),
-                    child: Text(
-                      item.content,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 12.5,
-                        color: Color(0xFF64748B),
-                        height: 1.45,
-                      ),
-                    ),
-                  ),
-                ],
-
-                // Detail Isi Lengkap saat Expanded
-                if (isExpanded) ...[
-                  const SizedBox(height: 12),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(13),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF8FAFC),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFFE2E8F0)),
-                    ),
-                    child: _FormattedContent(content: item.content),
-                  ),
-
-                  const SizedBox(height: 10),
-
-                  // Action Bar Mini: Tag Kategori & Tombol Salin
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                        decoration: BoxDecoration(
-                          color: theme.backgroundColor,
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Text(
-                          theme.shortLabel,
-                          style: TextStyle(
-                            fontSize: 10.5,
-                            fontWeight: FontWeight.w600,
-                            color: theme.primaryColor,
-                          ),
-                        ),
-                      ),
-                      TextButton.icon(
-                        onPressed: () => _copyToClipboard(context),
-                        style: TextButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          minimumSize: Size.zero,
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          foregroundColor: const Color(0xFF64748B),
-                        ),
-                        icon: const Icon(Icons.copy_rounded, size: 13),
-                        label: const Text('Salin', style: TextStyle(fontSize: 11)),
-                      ),
-                    ],
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ),
-      ),
     );
+  }
+
+  String _cleanPlainText(String html) {
+    return html
+        .replaceAll(RegExp(r'<[^>]*>'), ' ')
+        .replaceAll('&nbsp;', ' ')
+        .replaceAll('&amp;', '&')
+        .replaceAll(RegExp(r'\s+'), ' ')
+        .trim();
   }
 }
 
-// ─── Formatter Isi Teks Agar Tidak Menumpuk Kering ───────────────────────────
+// ─── Formatter Isi Teks Rich Text HTML ──────────────────────────────────────
 
 class _FormattedContent extends StatelessWidget {
   final String content;
@@ -808,10 +1190,9 @@ class _FormattedContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final lines = content.split('\n').where((l) => l.trim().isNotEmpty).toList();
-
-    // Jika terdiri dari beberapa poin bernomor atau bullet
-    if (lines.length > 1) {
+    // Jika tidak mengandung tag HTML, gunakan fallback parser baris
+    if (!content.contains('<')) {
+      final lines = content.split('\n').where((l) => l.trim().isNotEmpty).toList();
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: lines.map((line) {
@@ -826,15 +1207,15 @@ class _FormattedContent extends StatelessWidget {
                 if (!isNumbered)
                   const Padding(
                     padding: EdgeInsets.only(top: 6, right: 8),
-                    child: Icon(Icons.circle, size: 5, color: Color(0xFF3B82F6)),
+                    child: Icon(Icons.circle, size: 5, color: Color(0xFF206BC4)),
                   ),
                 Expanded(
                   child: Text(
                     trimmed,
                     style: const TextStyle(
-                      fontSize: 13,
-                      color: Color(0xFF334155),
-                      height: 1.55,
+                      fontSize: 12.5,
+                      color: AppColors.gray800,
+                      height: 1.5,
                     ),
                   ),
                 ),
@@ -845,14 +1226,210 @@ class _FormattedContent extends StatelessWidget {
       );
     }
 
-    // Satu paragraf deskripsi
-    return Text(
-      content,
-      style: const TextStyle(
-        fontSize: 13,
-        color: Color(0xFF334155),
-        height: 1.6,
-      ),
+    // Parser HTML sederhana untuk tag <h2>, <h3>, <p>, <ul>, <ol>, <li>, <blockquote>
+    final blocks = _parseHtmlBlocks(content);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: blocks.map((b) => b.toWidget(context)).toList(),
+    );
+  }
+
+  List<_HtmlBlock> _parseHtmlBlocks(String html) {
+    final blocks = <_HtmlBlock>[];
+    final clean = html.trim();
+
+    // Regex untuk memisahkan tag-tag blok utama
+    final reg = RegExp(r'<(h2|h3|p|ul|ol|blockquote)[\s\S]*?<\/\1>', caseSensitive: false);
+    final matches = reg.allMatches(clean);
+
+    if (matches.isEmpty) {
+      // Jika tidak cocok blok terstruktur, bersihkan dan jadikan paragraf
+      blocks.add(_HtmlBlock(type: _HtmlType.paragraph, html: clean));
+      return blocks;
+    }
+
+    int lastIndex = 0;
+    for (final m in matches) {
+      if (m.start > lastIndex) {
+        final between = clean.substring(lastIndex, m.start).trim();
+        if (between.isNotEmpty) {
+          blocks.add(_HtmlBlock(type: _HtmlType.paragraph, html: between));
+        }
+      }
+
+      final tag = m.group(1)!.toLowerCase();
+      final fullMatch = m.group(0)!;
+
+      if (tag == 'h2') {
+        blocks.add(_HtmlBlock(type: _HtmlType.h2, html: fullMatch));
+      } else if (tag == 'h3') {
+        blocks.add(_HtmlBlock(type: _HtmlType.h3, html: fullMatch));
+      } else if (tag == 'blockquote') {
+        blocks.add(_HtmlBlock(type: _HtmlType.blockquote, html: fullMatch));
+      } else if (tag == 'ul' || tag == 'ol') {
+        blocks.add(_HtmlBlock(type: tag == 'ol' ? _HtmlType.orderedList : _HtmlType.bulletList, html: fullMatch));
+      } else {
+        blocks.add(_HtmlBlock(type: _HtmlType.paragraph, html: fullMatch));
+      }
+
+      lastIndex = m.end;
+    }
+
+    if (lastIndex < clean.length) {
+      final rem = clean.substring(lastIndex).trim();
+      if (rem.isNotEmpty) {
+        blocks.add(_HtmlBlock(type: _HtmlType.paragraph, html: rem));
+      }
+    }
+
+    return blocks;
+  }
+}
+
+enum _HtmlType { h2, h3, paragraph, bulletList, orderedList, blockquote }
+
+class _HtmlBlock {
+  final _HtmlType type;
+  final String html;
+
+  _HtmlBlock({required this.type, required this.html});
+
+  Widget toWidget(BuildContext context) {
+    switch (type) {
+      case _HtmlType.h2:
+        return Padding(
+          padding: const EdgeInsets.only(top: 8, bottom: 6),
+          child: Text(
+            _stripTags(html),
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w800,
+              color: Color(0xFF182433),
+            ),
+          ),
+        );
+
+      case _HtmlType.h3:
+        return Padding(
+          padding: const EdgeInsets.only(top: 6, bottom: 4),
+          child: Text(
+            _stripTags(html),
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF206BC4),
+            ),
+          ),
+        );
+
+      case _HtmlType.blockquote:
+        return Container(
+          margin: const EdgeInsets.symmetric(vertical: 6),
+          padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+          decoration: const BoxDecoration(
+            color: Color(0xFFEFF6FF),
+            borderRadius: BorderRadius.all(Radius.circular(8)),
+            border: Border(left: BorderSide(color: Color(0xFF206BC4), width: 3.5)),
+          ),
+          child: _renderInlineSpans(_stripOuterTag(html, 'blockquote')),
+        );
+
+      case _HtmlType.bulletList:
+      case _HtmlType.orderedList:
+        final liRegex = RegExp(r'<li[\s\S]*?<\/li>', caseSensitive: false);
+        final lis = liRegex.allMatches(html).map((m) => m.group(0)!).toList();
+
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: List.generate(lis.length, (i) {
+              final liContent = _stripOuterTag(lis[i], 'li');
+              final isOrdered = type == _HtmlType.orderedList;
+
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 3),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (isOrdered)
+                      Padding(
+                        padding: const EdgeInsets.only(right: 6, top: 1),
+                        child: Text(
+                          '${i + 1}.',
+                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF206BC4)),
+                        ),
+                      )
+                    else
+                      const Padding(
+                        padding: EdgeInsets.only(top: 6, right: 8),
+                        child: Icon(Icons.circle, size: 5, color: Color(0xFF206BC4)),
+                      ),
+                    Expanded(
+                      child: _renderInlineSpans(liContent),
+                    ),
+                  ],
+                ),
+              );
+            }),
+          ),
+        );
+
+      case _HtmlType.paragraph:
+        final content = _stripOuterTag(html, 'p');
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 3),
+          child: _renderInlineSpans(content),
+        );
+    }
+  }
+
+  static String _stripTags(String s) {
+    return s.replaceAll(RegExp(r'<[^>]*>'), '').trim();
+  }
+
+  static String _stripOuterTag(String s, String tag) {
+    var out = s.trim();
+    final openRegex = RegExp('^<$tag[^>]*>', caseSensitive: false);
+    final closeRegex = RegExp('</$tag>\$', caseSensitive: false);
+    out = out.replaceFirst(openRegex, '').replaceFirst(closeRegex, '').trim();
+    return out;
+  }
+
+  static Widget _renderInlineSpans(String html) {
+    final spans = <TextSpan>[];
+    final tokenRegex = RegExp(r'(<(strong|b|em|i|u)>[\s\S]*?<\/\2>)|([^<]+)', caseSensitive: false);
+    final matches = tokenRegex.allMatches(html);
+
+    for (final m in matches) {
+      final token = m.group(0)!;
+      if (token.startsWith('<strong') || token.startsWith('<b')) {
+        spans.add(TextSpan(
+          text: _stripTags(token),
+          style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.gray900),
+        ));
+      } else if (token.startsWith('<em') || token.startsWith('<i')) {
+        spans.add(TextSpan(
+          text: _stripTags(token),
+          style: const TextStyle(fontStyle: FontStyle.italic, color: AppColors.gray800),
+        ));
+      } else if (token.startsWith('<u')) {
+        spans.add(TextSpan(
+          text: _stripTags(token),
+          style: const TextStyle(decoration: TextDecoration.underline, color: AppColors.gray800),
+        ));
+      } else {
+        spans.add(TextSpan(
+          text: _stripTags(token),
+          style: const TextStyle(color: AppColors.gray800),
+        ));
+      }
+    }
+
+    return Text.rich(
+      TextSpan(children: spans),
+      style: const TextStyle(fontSize: 12.5, height: 1.5),
     );
   }
 }
@@ -868,14 +1445,14 @@ class _EmptyView extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.menu_book_rounded, size: 52, color: Color(0xFF94A3B8)),
+          Icon(Icons.menu_book_rounded, size: 52, color: AppColors.gray400),
           SizedBox(height: 14),
           Text(
             'Belum ada tata tertib aktif',
             style: TextStyle(
-              fontSize: 15,
+              fontSize: 14,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF475569),
+              color: AppColors.gray700,
             ),
           ),
         ],
@@ -897,12 +1474,12 @@ class _ErrorView extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.wifi_off_rounded, size: 48, color: Color(0xFFEF4444)),
+            const Icon(Icons.wifi_off_rounded, size: 48, color: AppColors.red500),
             const SizedBox(height: 14),
             Text(
               message,
               textAlign: TextAlign.center,
-              style: const TextStyle(color: Color(0xFF64748B), fontSize: 13),
+              style: const TextStyle(color: AppColors.gray600, fontSize: 13),
             ),
             const SizedBox(height: 16),
             FilledButton.icon(
@@ -910,8 +1487,8 @@ class _ErrorView extends StatelessWidget {
               icon: const Icon(Icons.refresh_rounded, size: 16),
               label: const Text('Coba Lagi'),
               style: FilledButton.styleFrom(
-                backgroundColor: AppColors.blue600,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                backgroundColor: const Color(0xFF206BC4),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               ),
             ),
           ],
@@ -944,8 +1521,8 @@ class _CategoryTheme {
         return const _CategoryTheme(
           shortLabel: 'Kehadiran',
           icon: Icons.access_time_filled_rounded,
-          primaryColor: Color(0xFF2563EB), // Blue
-          backgroundColor: Color(0xFFEFF6FF),
+          primaryColor: Color(0xFF206BC4), // Blue
+          backgroundColor: Color(0xFFEBF3FE),
           borderColor: Color(0xFFBFDBFE),
         );
       case 'berpakaian':

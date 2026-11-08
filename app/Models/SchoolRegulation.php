@@ -4,18 +4,31 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class SchoolRegulation extends Model
 {
-    protected $fillable = ['category', 'title', 'content', 'sort_order', 'is_active'];
+    protected $fillable = [
+        'category',
+        'badge_text',
+        'title',
+        'content',
+        'image',
+        'images',
+        'sort_order',
+        'is_active',
+    ];
 
     protected function casts(): array
     {
         return [
             'is_active'  => 'boolean',
             'sort_order' => 'integer',
+            'images'     => 'array',
         ];
     }
+
+    protected $appends = ['image_url', 'image_urls'];
 
     // ─── Scopes ───────────────────────────────────────────────────────────────
 
@@ -27,6 +40,43 @@ class SchoolRegulation extends Model
     public function scopeOrdered(Builder $query): Builder
     {
         return $query->orderBy('sort_order')->orderBy('id');
+    }
+
+    // ─── Accessors ────────────────────────────────────────────────────────────
+
+    public function getImageUrlAttribute(): ?string
+    {
+        if (! $this->image) {
+            return null;
+        }
+
+        if (str_starts_with($this->image, 'http://') || str_starts_with($this->image, 'https://')) {
+            return $this->image;
+        }
+
+        if (str_starts_with($this->image, 'images/')) {
+            return asset($this->image);
+        }
+
+        return Storage::disk('public')->url($this->image);
+    }
+
+    public function getImageUrlsAttribute(): array
+    {
+        $urls = [];
+        if (! empty($this->images) && is_array($this->images)) {
+            foreach ($this->images as $img) {
+                if (! $img) continue;
+                if (str_starts_with($img, 'http://') || str_starts_with($img, 'https://')) {
+                    $urls[] = $img;
+                } elseif (str_starts_with($img, 'images/')) {
+                    $urls[] = asset($img);
+                } else {
+                    $urls[] = Storage::disk('public')->url($img);
+                }
+            }
+        }
+        return $urls;
     }
 
     // ─── Helpers ──────────────────────────────────────────────────────────────
