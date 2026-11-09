@@ -72,3 +72,10 @@ vendor\bin\phpunit
 # atau
 php artisan test
 ```
+
+
+## Aturan Sesi (lihat juga AGENTS.md)
+
+- **WAJIB** jalankan `git pull --rebase --autostash` di awal setiap sesi sebelum mengerjakan apa pun (project dikerjakan dari banyak PC).
+- Skill prompt engineering tersedia di `.agents/skills/prompt-master/`.
+
