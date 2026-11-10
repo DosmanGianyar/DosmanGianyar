@@ -107,8 +107,14 @@
                 {{-- Mini QR Code Button / Drawer Trigger --}}
                 @if(isset($qrSvg))
                 <div class="flex flex-col items-center shrink-0 bg-white p-1.5 rounded-xl shadow-lg border border-white/40">
-                    <div class="w-14 h-14 [&>svg]:w-full [&>svg]:h-full flex items-center justify-center">
-                        {!! $qrSvg !!}
+                    <div class="w-14 h-14 flex items-center justify-center overflow-hidden">
+                        @if(str_starts_with($qrSvg, '<svg'))
+                            <div class="w-full h-full [&>svg]:w-full [&>svg]:h-full flex items-center justify-center">
+                                {!! $qrSvg !!}
+                            </div>
+                        @else
+                            <img src="{{ $qrSvg }}" alt="QR Code" class="w-full h-full object-contain block">
+                        @endif
                     </div>
                     <span class="text-[8px] font-extrabold text-gray-700 tracking-tighter uppercase mt-0.5">SCAN VERIFIKASI</span>
                 </div>
