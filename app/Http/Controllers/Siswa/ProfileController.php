@@ -32,11 +32,25 @@ class ProfileController extends Controller
 
     public function update(Request $request): RedirectResponse
     {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
         if (! \App\Models\AppSetting::canStudentEditProfile()) {
+            // Jika profil dikunci sekolah, siswa tetap dapat memperbarui alamat email mandiri
+            if ($request->filled('email') && strtolower(trim((string) $request->input('email'))) !== strtolower((string) $user->email)) {
+                $validated = $request->validate([
+                    'email' => 'required|email:filter|max:255|unique:users,email,' . $user->id,
+                ], [
+                    'email.required' => 'Alamat email wajib diisi.',
+                    'email.email'    => 'Format alamat email tidak valid.',
+                    'email.unique'   => 'Alamat email ini sudah terdaftar pada akun lain.',
+                ]);
+                $user->update(['email' => strtolower(trim((string) $validated['email']))]);
+                return back()->with('success', 'Alamat email berhasil diperbarui.');
+            }
+
             return back()->with('error', 'Pengisian & pembaruan data profil siswa sedang dikunci oleh pihak sekolah.');
         }
-
-        $user = Auth::user();
 
         $validated = $request->validate([
             'email'                => 'nullable|email|max:255|unique:users,email,' . $user->id,
@@ -121,6 +135,27 @@ class ProfileController extends Controller
         $user->update($validated);
 
         return back()->with('success', 'Data profil berhasil diperbarui.');
+    }
+
+    /** Ganti alamat email secara mandiri oleh siswa. */
+    public function updateEmail(Request $request): RedirectResponse
+    {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        $validated = $request->validate([
+            'email' => 'required|email:filter|max:255|unique:users,email,' . $user->id,
+        ], [
+            'email.required' => 'Alamat email wajib diisi.',
+            'email.email'    => 'Format alamat email tidak valid.',
+            'email.unique'   => 'Alamat email ini sudah terdaftar pada akun lain.',
+        ]);
+
+        $user->update([
+            'email' => strtolower(trim((string) $validated['email'])),
+        ]);
+
+        return back()->with('success', 'Alamat email berhasil diperbarui.');
     }
 
     public function updatePassword(Request $request): RedirectResponse

@@ -162,9 +162,16 @@
                         <h3 class="text-lg sm:text-xl font-extrabold text-white tracking-wide uppercase leading-tight font-['Plus_Jakarta_Sans']">
                             {{ $siswa->name }}
                         </h3>
-                        <p class="text-xs text-blue-200 font-medium mt-0.5">
-                            {{ $siswa->email ?? 'Siswa Terdaftar SMAN 1 Gianyar' }}
-                        </p>
+                        <div class="mt-1 flex items-center justify-center sm:justify-start gap-2 flex-wrap">
+                            <span class="text-xs text-blue-200 font-medium">
+                                {{ $siswa->email ?? 'Belum ada email' }}
+                            </span>
+                            <button type="button" onclick="openEmailModal()"
+                                class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-white/15 hover:bg-white/25 text-white text-[11px] font-bold border border-white/20 transition-all cursor-pointer shadow-sm hover:scale-105 active:scale-95">
+                                <svg class="w-3 h-3 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                                <span>Ubah Email</span>
+                            </button>
+                        </div>
                     </div>
 
                     {{-- Badge Grid Data --}}
@@ -452,9 +459,12 @@
                                 class="w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-gray-300 bg-white focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:bg-gray-100 disabled:text-gray-500 transition-all" placeholder="08xxxxxxxxxx">
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-gray-700 mb-1">Alamat E-mail</label>
-                            <input type="email" name="email" value="{{ old('email', $siswa->email) }}" @disabled(!$canEditProfile)
-                                class="w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-gray-300 bg-white focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:bg-gray-100 disabled:text-gray-500 transition-all" placeholder="siswa@sekolah.sch.id">
+                            <div class="flex items-center justify-between mb-1">
+                                <label class="block text-xs font-bold text-gray-700">Alamat E-mail</label>
+                                <span class="text-[10px] text-emerald-600 font-extrabold bg-emerald-50 px-1.5 py-0.5 rounded">✓ Mandiri</span>
+                            </div>
+                            <input type="email" name="email" value="{{ old('email', $siswa->email) }}"
+                                class="w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-gray-300 bg-white focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all" placeholder="siswa@sekolah.sch.id">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-gray-700 mb-1">Hobi / Minat</label>
@@ -820,12 +830,72 @@
         </div>
     </div>
 
+    {{-- Modal Ganti Email Mandiri --}}
+    <div id="email-modal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="relative w-full max-w-md bg-white rounded-2xl shadow-2xl p-6 overflow-hidden">
+            <div class="flex items-center justify-between pb-3 border-b border-gray-100">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-lg">
+                        ✉️
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-extrabold text-gray-900">Ubah Alamat Email</h4>
+                        <p class="text-[11px] text-gray-500">Email aktif Anda untuk keperluan akun dan sekolah</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeEmailModal()" class="text-gray-400 hover:text-gray-600 p-1.5 rounded-lg hover:bg-gray-100 transition cursor-pointer">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+
+            <form action="{{ route('siswa.profile.email') }}" method="POST" class="mt-4 space-y-4">
+                @csrf
+                @method('PUT')
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">Alamat Email Baru</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 text-xs font-bold">@</span>
+                        <input type="email" name="email" id="modal-email-input" value="{{ old('email', $siswa->email) }}" required
+                               class="w-full pl-8 pr-3.5 py-2.5 text-xs font-semibold rounded-xl border border-gray-300 bg-white focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition"
+                               placeholder="nama@gmail.com">
+                    </div>
+                    <p class="text-[10px] text-gray-400 mt-1">Pastikan email aktif dan bisa menerima pesan/notifikasi.</p>
+                </div>
+
+                <div class="flex items-center justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeEmailModal()"
+                            class="px-4 py-2 rounded-xl text-xs font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 transition cursor-pointer">
+                        Batal
+                    </button>
+                    <button type="submit"
+                            class="px-5 py-2 rounded-xl text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-500/20 transition cursor-pointer">
+                        Simpan Email
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
 </div>
 
 {{-- ═════════════════════════════════════════════════════════════════════════ --}}
 {{-- ─── JAVASCRIPT LOGIC ─────────────────────────────────────────────────── --}}
 {{-- ═════════════════════════════════════════════════════════════════════════ --}}
 <script>
+// Modal Ganti Email
+function openEmailModal() {
+    const modal = document.getElementById('email-modal');
+    if (modal) {
+        modal.classList.remove('hidden');
+        const input = document.getElementById('modal-email-input');
+        if (input) setTimeout(() => input.focus(), 100);
+    }
+}
+function closeEmailModal() {
+    const modal = document.getElementById('email-modal');
+    if (modal) modal.classList.add('hidden');
+}
+
 // Switcher Tab Profil
 function switchProfileTab(tabName) {
     const tabs = ['ringkasan', 'biodata', 'keamanan'];

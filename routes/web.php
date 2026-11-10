@@ -327,6 +327,7 @@ Route::middleware(['auth', 'role:siswa,pengelola', 'force.password.change'])->pr
     Route::get('/prasarana', [SiswaPrasarana::class, 'index'])->name('prasarana');
     Route::get('/profile', [SiswaProfile::class, 'show'])->name('profile');
     Route::put('/profile', [SiswaProfile::class, 'update'])->name('profile.update');
+    Route::put('/profile/email', [SiswaProfile::class, 'updateEmail'])->name('profile.email');
     Route::put('/profile/password', [SiswaProfile::class, 'updatePassword'])->name('profile.password');
     Route::post('/profile/photo', [SiswaProfile::class, 'updatePhoto'])->name('profile.photo');
 
