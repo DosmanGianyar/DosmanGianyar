@@ -273,7 +273,7 @@ class _GuruConductInputScreenState extends State<GuruConductInputScreen>
           _sectionLabel('2. Jenis Catatan'),
           const SizedBox(height: 8),
           DropdownButtonFormField<String>(
-            initialValue: _selectedConductType,
+            value: _selectedConductType,
             decoration: InputDecoration(
               filled: true,
               fillColor: AppColors.white,

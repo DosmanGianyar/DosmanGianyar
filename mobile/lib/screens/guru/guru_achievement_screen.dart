@@ -19,7 +19,7 @@ class _GuruAchievementScreenState extends State<GuruAchievementScreen> {
   List<Map<String, dynamic>> _achievements = [];
 
   int? _selectedExtraId;
-  String _selectedStatus = '';
+  final String _selectedStatus = '';
   String _search = '';
 
   @override

@@ -68,7 +68,4 @@
             android:value="2"/>
     </application>
 
-    <!-- Targetkan Android 12+ (API 31) ke atas -->
-    <uses-sdk android:minSdkVersion="21" android:targetSdkVersion="34"/>
-
 </manifest>

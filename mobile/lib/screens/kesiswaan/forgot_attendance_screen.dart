@@ -252,18 +252,14 @@ class _CreateSheetState extends State<_CreateSheet> {
             const Text('Jenis Lupa Absen',
               style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppColors.gray600)),
             const SizedBox(height: 6),
-            RadioGroup<String>(
-              groupValue: _type,
-              onChanged: (v) { if (v != null) setState(() => _type = v); },
-              child: Column(
-                children: [
-                  _buildTypeTile('masuk', '🟢 Lupa Absen Pagi (Datang)', 'Lupa scan pada jam masuk pagi'),
-                  const SizedBox(height: 6),
-                  _buildTypeTile('pulang', '🟠 Lupa Absen Sore (Pulang)', 'Lupa scan pada jam pulang sore'),
-                  const SizedBox(height: 6),
-                  _buildTypeTile('keduanya', '🟣 Lupa Absen Pagi & Sore', 'Lupa scan pada jam pagi dan sore'),
-                ],
-              ),
+            Column(
+              children: [
+                _buildTypeTile('masuk', '🟢 Lupa Absen Pagi (Datang)', 'Lupa scan pada jam masuk pagi'),
+                const SizedBox(height: 6),
+                _buildTypeTile('pulang', '🟠 Lupa Absen Sore (Pulang)', 'Lupa scan pada jam pulang sore'),
+                const SizedBox(height: 6),
+                _buildTypeTile('keduanya', '🟣 Lupa Absen Pagi & Sore', 'Lupa scan pada jam pagi dan sore'),
+              ],
             ),
             const SizedBox(height: 14),
 
@@ -348,6 +344,8 @@ class _CreateSheetState extends State<_CreateSheet> {
           children: [
             Radio<String>(
               value: val,
+              groupValue: _type,
+              onChanged: (v) { if (v != null) setState(() => _type = v); },
               activeColor: AppColors.amber500,
               materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),

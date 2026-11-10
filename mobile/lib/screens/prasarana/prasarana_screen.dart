@@ -619,7 +619,7 @@ class _BorrowAssetModalState extends State<_BorrowAssetModal> {
               const Text('Pilih Barang', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.gray700)),
               const SizedBox(height: 6),
               DropdownButtonFormField<int>(
-                initialValue: _selectedAssetId,
+                value: _selectedAssetId,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                   contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),

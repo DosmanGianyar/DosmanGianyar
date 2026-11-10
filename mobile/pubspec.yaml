@@ -1,6 +1,6 @@
 name: sims_mobile
 description: SIMAK DOSMAN Mobile - Smart Attendance App SMA Negeri 1 Gianyar
-version: 1.6.0+2042
+version: 1.6.1+2043
 
 environment:
   sdk: ">=3.2.0 <4.0.0"
@@ -64,9 +64,6 @@ dependencies:
   firebase_messaging: ^15.2.4
   flutter_local_notifications: ^18.0.1
 
-dependency_overrides:
-  objective_c: 9.4.1
-
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -86,8 +83,6 @@ flutter_launcher_icons:
 
 flutter:
   uses-material-design: true
-  config:
-    enable-swift-package-manager: false
   assets:
     - assets/images/
 

@@ -508,7 +508,7 @@ class _VisitFormModalState extends State<_VisitFormModal> {
 
               // Keperluan Dropdown
               DropdownButtonFormField<String>(
-                initialValue: _selectedPurpose,
+                value: _selectedPurpose,
                 decoration: InputDecoration(
                   labelText: 'Keperluan Membaca *',
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),

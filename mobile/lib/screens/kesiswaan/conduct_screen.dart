@@ -83,8 +83,8 @@ class _ConductScreenState extends State<ConductScreen> {
                               Container(
                                 margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
                                 padding: const EdgeInsets.all(14),
-                                decoration: BoxDecoration(
-                                  gradient: const LinearGradient(colors: [Color(0xFFE11D48), Color(0xFFBE123C)]),
+                                decoration: const BoxDecoration(
+                                  gradient: LinearGradient(colors: [Color(0xFFE11D48), Color(0xFFBE123C)]),
                                   borderRadius: AppRadius.card,
                                 ),
                                 child: Column(
@@ -360,7 +360,7 @@ class _ConductScreenState extends State<ConductScreen> {
                   style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.gray700)),
               const SizedBox(height: 6),
               DropdownButtonFormField<String>(
-                initialValue: selectedReason,
+                value: selectedReason,
                 decoration: InputDecoration(
                   contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.gray200)),

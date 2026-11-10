@@ -151,7 +151,7 @@ class _CreateSessionScreenState extends State<CreateSessionScreen> {
                   const _SectionLabel('Ekstrakurikuler'),
                   _Card(
                     child: DropdownButtonFormField<int>(
-                      initialValue: _selectedExtraId,
+                      value: _selectedExtraId,
                       decoration: const InputDecoration(
                         border: InputBorder.none,
                         hintText: 'Pilih ekstrakurikuler',
