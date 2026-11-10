@@ -17,6 +17,7 @@ class _SiswaProfileEditScreenState extends State<SiswaProfileEditScreen> with Si
   bool _isLoading = false;
 
   // 1. Kontak & Domisili
+  final _emailCtrl        = TextEditingController();
   final _phoneCtrl        = TextEditingController();
   final _hobbiesCtrl      = TextEditingController();
   final _aspirationsCtrl  = TextEditingController();
@@ -61,6 +62,7 @@ class _SiswaProfileEditScreenState extends State<SiswaProfileEditScreen> with Si
     final user = context.read<AuthProvider>().user;
     if (user == null) return;
 
+    _emailCtrl.text       = user.email;
     _phoneCtrl.text       = user.phone ?? '';
     _hobbiesCtrl.text     = user.hobbies ?? '';
     _aspirationsCtrl.text = user.aspirations ?? '';
@@ -96,6 +98,7 @@ class _SiswaProfileEditScreenState extends State<SiswaProfileEditScreen> with Si
   @override
   void dispose() {
     _tabController.dispose();
+    _emailCtrl.dispose();
     _phoneCtrl.dispose(); _hobbiesCtrl.dispose(); _aspirationsCtrl.dispose();
     _addressCtrl.dispose(); _rtRwCtrl.dispose(); _kelurahanCtrl.dispose();
     _kecamatanCtrl.dispose(); _kabupatenCtrl.dispose(); _distanceCtrl.dispose();
@@ -124,6 +127,7 @@ class _SiswaProfileEditScreenState extends State<SiswaProfileEditScreen> with Si
     setState(() => _isLoading = true);
     try {
       final resp = await ApiClient.put('/auth/profile', data: {
+        'email': _emailCtrl.text.trim(),
         'phone': _phoneCtrl.text.trim(),
         'hobbies': _hobbiesCtrl.text.trim(),
         'aspirations': _aspirationsCtrl.text.trim(),
@@ -259,6 +263,7 @@ class _SiswaProfileEditScreenState extends State<SiswaProfileEditScreen> with Si
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
+        _field('Alamat Email Siswa', _emailCtrl, enabled, keyboard: TextInputType.emailAddress, hint: 'siswa@email.com'),
         _field('No. WhatsApp Siswa', _phoneCtrl, enabled, keyboard: TextInputType.phone, hint: 'Misal: 081234567890'),
         _field('Hobi / Minat', _hobbiesCtrl, enabled, hint: 'Misal: Membaca, Badminton, Coding'),
         _field('Cita-Cita', _aspirationsCtrl, enabled, hint: 'Misal: Dokter, Komputer Scientist'),
@@ -276,7 +281,7 @@ class _SiswaProfileEditScreenState extends State<SiswaProfileEditScreen> with Si
         ]),
         const SizedBox(height: 12),
         DropdownButtonFormField<String>(
-          initialValue: _residenceStatus,
+          value: _residenceStatus,
           decoration: const InputDecoration(labelText: 'Status Tempat Tinggal', border: OutlineInputBorder()),
           items: const [
             DropdownMenuItem(value: 'bersama_orangtua', child: Text('Tinggal Bersama Orang Tua')),
@@ -288,7 +293,7 @@ class _SiswaProfileEditScreenState extends State<SiswaProfileEditScreen> with Si
         ),
         const SizedBox(height: 16),
         DropdownButtonFormField<String>(
-          initialValue: _transportation,
+          value: _transportation,
           decoration: const InputDecoration(labelText: 'Moda Transportasi Ke Sekolah', border: OutlineInputBorder()),
           items: const [
             DropdownMenuItem(value: 'sepeda_motor', child: Text('Sepeda Motor')),
@@ -345,7 +350,7 @@ class _SiswaProfileEditScreenState extends State<SiswaProfileEditScreen> with Si
       padding: const EdgeInsets.all(16),
       children: [
         DropdownButtonFormField<String>(
-          initialValue: _bloodType,
+          value: _bloodType,
           decoration: const InputDecoration(labelText: 'Golongan Darah', border: OutlineInputBorder()),
           items: const [
             DropdownMenuItem(value: 'A', child: Text('Golongan Darah A')),

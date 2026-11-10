@@ -22,6 +22,7 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   final _nameCtrl    = TextEditingController();
+  final _emailCtrl   = TextEditingController();
   final _phoneCtrl   = TextEditingController();
   final _addressCtrl = TextEditingController();
   final _curPassCtrl = TextEditingController();
@@ -40,6 +41,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     super.initState();
     final user = context.read<AuthProvider>().user;
     _nameCtrl.text    = user?.name    ?? '';
+    _emailCtrl.text   = user?.email   ?? '';
     _phoneCtrl.text   = user?.phone   ?? '';
     _addressCtrl.text = user?.address ?? '';
   }
@@ -47,6 +49,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void dispose() {
     _nameCtrl.dispose();
+    _emailCtrl.dispose();
     _phoneCtrl.dispose();
     _addressCtrl.dispose();
     _curPassCtrl.dispose();
@@ -73,6 +76,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         payload['name'] = _nameCtrl.text.trim();
         // Nomor HP orang tua tidak dikirim agar tidak dapat diubah
       } else {
+        payload['email'] = _emailCtrl.text.trim();
         payload['phone'] = _phoneCtrl.text.trim();
       }
 
@@ -86,6 +90,126 @@ class _ProfileScreenState extends State<ProfileScreen> {
     } finally {
       if (mounted) setState(() => _savingProfile = false);
     }
+  }
+
+  Future<void> _showChangeEmailDialog() async {
+    final authProv = context.read<AuthProvider>();
+    final currentUser = authProv.user;
+    final emailTextCtrl = TextEditingController(text: currentUser?.email ?? '');
+    String? errorText;
+    bool isSubmitting = false;
+
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (ctx, setDialogState) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              titlePadding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
+              contentPadding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+              actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              title: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: AppColors.blue50,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(Icons.mark_email_read_outlined, color: AppColors.blue600, size: 20),
+                  ),
+                  const SizedBox(width: 10),
+                  const Expanded(
+                    child: Text(
+                      'Ubah Alamat Email',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ],
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Masukkan alamat email aktif. Siswa dapat menggunakan email untuk keperluan akun dan informasi sekolah.',
+                    style: TextStyle(fontSize: 12, color: AppColors.gray500, height: 1.4),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: emailTextCtrl,
+                    keyboardType: TextInputType.emailAddress,
+                    autofocus: true,
+                    enabled: !isSubmitting,
+                    decoration: InputDecoration(
+                      labelText: 'Alamat Email',
+                      hintText: 'siswa@email.com',
+                      errorText: errorText,
+                      prefixIcon: const Icon(Icons.alternate_email_rounded, size: 18),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    ),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: isSubmitting ? null : () => Navigator.pop(ctx),
+                  child: const Text('Batal'),
+                ),
+                FilledButton(
+                  onPressed: isSubmitting
+                      ? null
+                      : () async {
+                          final newEmail = emailTextCtrl.text.trim();
+                          if (newEmail.isEmpty) {
+                            setDialogState(() => errorText = 'Email tidak boleh kosong.');
+                            return;
+                          }
+                          final emailRegExp = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+                          if (!emailRegExp.hasMatch(newEmail)) {
+                            setDialogState(() => errorText = 'Format email tidak valid.');
+                            return;
+                          }
+
+                          setDialogState(() {
+                            isSubmitting = true;
+                            errorText = null;
+                          });
+
+                          try {
+                            final res = await ApiClient.put('/auth/email', data: {'email': newEmail});
+                            if (!mounted) return;
+                            if (res['user'] != null) {
+                              final updated = User.fromJson(res['user'] as Map<String, dynamic>);
+                              authProv.updateUser(updated);
+                              _emailCtrl.text = updated.email;
+                            }
+                            if (ctx.mounted) Navigator.pop(ctx);
+                            _showSnack('Alamat email berhasil diperbarui.', success: true);
+                          } catch (err) {
+                            setDialogState(() {
+                              isSubmitting = false;
+                              errorText = ApiClient.extractError(err);
+                            });
+                          }
+                        },
+                  style: FilledButton.styleFrom(
+                    backgroundColor: AppColors.blue600,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                  child: isSubmitting
+                      ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                      : const Text('Simpan'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
   }
 
   Future<void> _changePassword() async {
@@ -209,6 +333,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               user:          user,
               uploadingPhoto: _uploadingPhoto,
               onChangePhoto: _changePhoto,
+              onEditEmail:   _showChangeEmailDialog,
             ),
             const SizedBox(height: 12),
             if (user != null && user.isSiswa) ...[
@@ -222,6 +347,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             _EditDataCard(
               user:        user,
               nameCtrl:    _nameCtrl,
+              emailCtrl:   _emailCtrl,
               phoneCtrl:   _phoneCtrl,
               addressCtrl: _addressCtrl,
               isSaving:    _savingProfile,
@@ -266,10 +392,12 @@ class _IdentityCard extends StatelessWidget {
   final User?        user;
   final bool         uploadingPhoto;
   final VoidCallback onChangePhoto;
+  final VoidCallback onEditEmail;
   const _IdentityCard({
     this.user,
     required this.uploadingPhoto,
     required this.onChangePhoto,
+    required this.onEditEmail,
   });
 
   @override
@@ -356,7 +484,12 @@ class _IdentityCard extends StatelessWidget {
                   ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: 4),
+                _EmailBadge(
+                  email: user?.email,
+                  onTap: onEditEmail,
+                ),
+                const SizedBox(height: 4),
                 Text(
                   switch (user?.role) {
                     'guru'     => user?.subject ?? user?.roleLabel ?? 'Guru',
@@ -506,6 +639,67 @@ class _InfoBox extends StatelessWidget {
   }
 }
 
+// ─── Email Badge (Di Bawah Nama) ──────────────────────────────────────────────
+
+class _EmailBadge extends StatelessWidget {
+  final String? email;
+  final VoidCallback onTap;
+
+  const _EmailBadge({required this.email, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final hasEmail = email != null && email!.trim().isNotEmpty;
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(20),
+        child: Ink(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4.5),
+          decoration: BoxDecoration(
+            color: hasEmail ? const Color(0xFFF8FAFC) : const Color(0xFFEFF6FF),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: hasEmail ? const Color(0xFFCBD5E1) : const Color(0xFF93C5FD),
+              width: 1,
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.mail_outline_rounded,
+                size: 13,
+                color: hasEmail ? const Color(0xFF475569) : AppColors.blue600,
+              ),
+              const SizedBox(width: 5),
+              Flexible(
+                child: Text(
+                  hasEmail ? email! : 'Tambah Email',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: hasEmail ? const Color(0xFF334155) : AppColors.blue700,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(width: 5),
+              Icon(
+                Icons.edit_rounded,
+                size: 12,
+                color: hasEmail ? const Color(0xFF64748B) : AppColors.blue600,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 // ─── Parent Card ──────────────────────────────────────────────────────────────
 
 class _ParentCard extends StatelessWidget {
@@ -585,6 +779,7 @@ class _ParentRow extends StatelessWidget {
 class _EditDataCard extends StatelessWidget {
   final User? user;
   final TextEditingController nameCtrl;
+  final TextEditingController emailCtrl;
   final TextEditingController phoneCtrl;
   final TextEditingController addressCtrl;
   final bool         isSaving;
@@ -593,6 +788,7 @@ class _EditDataCard extends StatelessWidget {
   const _EditDataCard({
     this.user,
     required this.nameCtrl,
+    required this.emailCtrl,
     required this.phoneCtrl,
     required this.addressCtrl,
     required this.isSaving,
@@ -652,6 +848,14 @@ class _EditDataCard extends StatelessWidget {
               hint:       'Jl. ...',
             ),
           ] else ...[
+            _ProfileInput(
+              controller: emailCtrl,
+              label:      'Alamat Email',
+              hint:       'siswa@email.com',
+              keyboard:   TextInputType.emailAddress,
+              suffix:     const Icon(Icons.alternate_email_rounded, size: 16, color: AppColors.gray400),
+            ),
+            const SizedBox(height: 10),
             _ProfileInput(
               controller: phoneCtrl,
               label:      'No. HP Siswa',

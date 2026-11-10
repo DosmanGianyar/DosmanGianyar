@@ -499,6 +499,10 @@ class AuthController extends Controller
             }
         }
 
+        if (isset($validated['email'])) {
+            $validated['email'] = strtolower(trim((string) $validated['email']));
+        }
+
         $user->update($validated);
 
         if ($user->isOrangtua()) {
@@ -510,6 +514,29 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => 'Profil berhasil diperbarui.',
+            'user'    => $this->userPayload($user->fresh()),
+        ]);
+    }
+
+    /** Ganti alamat email secara mandiri. */
+    public function updateEmail(Request $request): JsonResponse
+    {
+        /** @var User $user */
+        $user = $request->user();
+
+        $validated = $request->validate([
+            'email' => 'required|email:filter|max:255|unique:users,email,' . $user->id,
+        ], [
+            'email.required' => 'Alamat email wajib diisi.',
+            'email.email'    => 'Format alamat email tidak valid.',
+            'email.unique'   => 'Alamat email ini sudah terdaftar pada akun lain.',
+        ]);
+
+        $email = strtolower(trim((string) $validated['email']));
+        $user->update(['email' => $email]);
+
+        return response()->json([
+            'message' => 'Alamat email berhasil diperbarui.',
             'user'    => $this->userPayload($user->fresh()),
         ]);
     }

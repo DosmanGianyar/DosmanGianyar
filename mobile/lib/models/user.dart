@@ -229,7 +229,7 @@ class User {
     return User(
       id:                json['id'] as int,
       name:              json['name'] as String,
-      email:             json['email'] as String,
+      email:             json['email'] as String? ?? '',
       role:              json['role'] as String,
       nis:               json['nis'] as String?,
       nisn:              json['nisn'] as String?,
