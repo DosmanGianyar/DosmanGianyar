@@ -6,6 +6,7 @@ use App\Filament\Resources\AnnouncementResource\Pages;
 use App\Filament\Support\AdminAccess;
 use App\Models\Announcement;
 use App\Models\SchoolClass;
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -14,11 +15,13 @@ use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
-use Filament\Actions\Action;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -51,6 +54,61 @@ class AnnouncementResource extends Resource
             RichEditor::make('body')
                 ->label('Isi / Deskripsi Pengumuman (Teks Kaya)')
                 ->required()
+                ->hintActions([
+                    Action::make('pasteHtml')
+                        ->label('</> Paste / Edit HTML')
+                        ->icon('heroicon-m-code-bracket')
+                        ->color('primary')
+                        ->tooltip('Klik untuk menempelkan atau mengedit kode HTML secara langsung')
+                        ->modalHeading('Edit / Paste Kode HTML Pengumuman')
+                        ->modalDescription('Anda dapat menempelkan kode HTML di sini agar isi pengumuman langsung terformat rapi dengan heading, list, dan link.')
+                        ->modalSubmitActionLabel('Terapkan ke Editor')
+                        ->form([
+                            Textarea::make('html_content')
+                                ->label('Kode HTML')
+                                ->rows(15)
+                                ->placeholder('<p>Tulis atau paste kode HTML di sini...</p>')
+                                ->default(fn (Get $get) => $get('body'))
+                                ->required(),
+                        ])
+                        ->action(function (array $data, Set $set) {
+                            $set('body', $data['html_content']);
+                        }),
+                    Action::make('insertSasTemplate')
+                        ->label('📋 Sisipkan Format SAS')
+                        ->icon('heroicon-m-clipboard-document-check')
+                        ->color('success')
+                        ->tooltip('Klik untuk otomatis memasukkan format rapi pengumuman persiapan SAS dan panduan ganti email')
+                        ->requiresConfirmation()
+                        ->modalHeading('Gunakan Draf Format Pengumuman SAS?')
+                        ->modalDescription('Isi teks editor akan diganti dengan format rapi resmi persiapan SAS beserta panduan penggantian email Web & HP.')
+                        ->modalSubmitActionLabel('Ya, Sisipkan')
+                        ->action(function (Set $set) {
+                            $sasHtml = '<p>Kepada Seluruh Siswa/i SMA Negeri 1 Gianyar,</p>' .
+                                '<p>Dalam rangka persiapan pelaksanaan <strong>Sumatif Akhir Semester (SAS)</strong> serta sinkronisasi akun ujian online (Dosman Exam / Moodle), seluruh siswa <strong>DIWAJIBKAN</strong> untuk memperbarui alamat email pribadi masing-masing dengan ketentuan berikut:</p>' .
+                                '<p><strong>CARA PENGGANTIAN EMAIL (PILIH SALAH SATU):</strong></p>' .
+                                '<p>🌐 <strong>CARA 1: MELALUI WEB (BISA LANGSUNG / SEGERA)</strong></p>' .
+                                '<ul>' .
+                                '<li>Jika ingin segera mengubah email tanpa menunggu update aplikasi, langsung buka portal Web: <a href="https://sims.sman1-gianyar.sch.id/siswa/profile" target="_blank"><strong>https://sims.sman1-gianyar.sch.id/siswa/profile</strong></a></li>' .
+                                '<li>Login menggunakan akun pribadi masing-masing (NISN &amp; Password Anda).</li>' .
+                                '<li>Pada kartu profil tepat di bawah nama Anda, klik tombol <strong>"Ubah Email"</strong>.</li>' .
+                                '<li>Masukkan alamat email aktif (disarankan Gmail) lalu klik <strong>"Simpan Email"</strong>.</li>' .
+                                '</ul>' .
+                                '<p>📱 <strong>CARA 2: MELALUI APLIKASI DI HP (HARUS UPDATE DULU)</strong></p>' .
+                                '<ul>' .
+                                '<li>Jika ingin mengubah melalui aplikasi HP, <strong>WAJIB update aplikasi SIMAK DOSMAN</strong> terlebih dahulu di Google Play Store (khusus Android) ke versi terbaru.</li>' .
+                                '<li>Setelah di-update, buka aplikasi SIMAK DOSMAN &rarr; menu <strong>"Profil"</strong> &rarr; klik <strong>"Ubah Email"</strong> di bawah nama Anda.</li>' .
+                                '<li><em>Bagi pengguna iOS (iPhone), silakan gunakan <strong>CARA 1 (Web)</strong> terlebih dahulu karena aplikasi iOS masih dalam proses peninjauan App Store.</em></li>' .
+                                '</ul>' .
+                                '<p>⏰ <strong>BATAS AKHIR PENGISIAN &amp; PENGGANTIAN EMAIL:</strong></p>' .
+                                '<p><strong>Hari Jumat, 13 November 2026 — Pukul 12.00 Siang (WITA)</strong></p>' .
+                                '<p>Mohon dipastikan email pribadi aktif sudah tersimpan sebelum batas waktu di atas agar tidak mengalami kendala akun saat pelaksanaan SAS berlangsung.</p>' .
+                                '<p>Terima kasih atas kerja sama dan kedisiplinannya.</p>' .
+                                '<p>Salam,<br><strong>Tim IT &amp; Kurikulum SMAN 1 Gianyar</strong></p>';
+
+                            $set('body', $sasHtml);
+                        }),
+                ])
                 ->toolbarButtons([
                     'bold',
                     'italic',
@@ -60,7 +118,11 @@ class AnnouncementResource extends Resource
                     'h1',
                     'h2',
                     'h3',
+                    'alignStart',
+                    'alignCenter',
+                    'alignEnd',
                     'blockquote',
+                    'codeBlock',
                     'bulletList',
                     'orderedList',
                     'table',
