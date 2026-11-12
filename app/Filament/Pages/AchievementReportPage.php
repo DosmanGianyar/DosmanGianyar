@@ -226,21 +226,21 @@ class AchievementReportPage extends Page implements HasTable
                     ->formatStateUsing(function (StudentAchievement $record): string {
                         $levelLabel = e($record->levelLabel());
                         $levelColors = match ($record->level) {
-                            'sekolah'       => 'background: rgba(148, 163, 184, 0.2); color: #cbd5e1; border: 1px solid rgba(148, 163, 184, 0.4);',
-                            'kabupaten'     => 'background: rgba(56, 189, 248, 0.2); color: #7dd3fc; border: 1px solid rgba(56, 189, 248, 0.4);',
-                            'provinsi'      => 'background: rgba(245, 158, 11, 0.2); color: #fde68a; border: 1px solid rgba(245, 158, 11, 0.4);',
-                            'nasional'      => 'background: rgba(16, 185, 129, 0.2); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.4);',
-                            'internasional' => 'background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.4);',
-                            default         => 'background: rgba(148, 163, 184, 0.2); color: #cbd5e1; border: 1px solid rgba(148, 163, 184, 0.4);',
+                            'sekolah'       => 'background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1;',
+                            'kabupaten'     => 'background: #e0f2fe; color: #0369a1; border: 1px solid #7dd3fc;',
+                            'provinsi'      => 'background: #fef3c7; color: #92400e; border: 1px solid #fde68a;',
+                            'nasional'      => 'background: #dcfce7; color: #166534; border: 1px solid #86efac;',
+                            'internasional' => 'background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5;',
+                            default         => 'background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1;',
                         };
 
                         $teamCount = $record->team_members->count();
                         if ($record->isBeregu() || $teamCount > 1) {
                             $names = e($record->team_members->pluck('student.name')->filter()->implode(', '));
                             $tooltipAttr = $names ? "title=\"Anggota Tim: {$names}\"" : '';
-                            $partBadge = "<span {$tooltipAttr} style=\"display: inline-block; padding: 2px 7px; border-radius: 6px; font-size: 0.68rem; font-weight: 700; background: rgba(168, 85, 247, 0.2); color: #d8b4fe; border: 1px solid rgba(168, 85, 247, 0.4); white-space: nowrap;\">👥 Beregu ({$teamCount})</span>";
+                            $partBadge = "<span {$tooltipAttr} style=\"display: inline-block; padding: 2px 7px; border-radius: 6px; font-size: 0.68rem; font-weight: 700; background: #f3e8ff; color: #6b21a8; border: 1px solid #d8b4fe; white-space: nowrap;\">👥 Beregu ({$teamCount})</span>";
                         } else {
-                            $partBadge = "<span style=\"display: inline-block; padding: 2px 7px; border-radius: 6px; font-size: 0.68rem; font-weight: 700; background: rgba(100, 116, 139, 0.2); color: #94a3b8; border: 1px solid rgba(100, 116, 139, 0.3); white-space: nowrap;\">👤 Perorangan</span>";
+                            $partBadge = "<span style=\"display: inline-block; padding: 2px 7px; border-radius: 6px; font-size: 0.68rem; font-weight: 700; background: #f8fafc; color: #475569; border: 1px solid #cbd5e1; white-space: nowrap;\">👤 Perorangan</span>";
                         }
 
                         return "<div style=\"display: inline-flex; flex-direction: column; align-items: flex-start; gap: 4px;\">
@@ -266,23 +266,23 @@ class AchievementReportPage extends Page implements HasTable
                         $list = $record->pembinaList();
                         $extraName = $record->extracurricularName();
                         $extraBadge = $extraName !== '—'
-                            ? "<div style=\"font-size:0.72rem; color:#a5b4fc; margin-top:2px; font-weight:600;\">🏅 Ekstra: " . e($extraName) . "</div>"
+                            ? "<div style=\"font-size:0.75rem; color:#4338ca; margin-top:2px; font-weight:700;\">🏅 Ekstra: " . e($extraName) . "</div>"
                             : '';
 
                         $totalPembina = count($list);
                         if ($totalPembina > 1) {
                             $items = collect($list)->values()->map(function (string $name, int $idx) use ($totalPembina) {
-                                $border = ($idx < $totalPembina - 1) ? 'border-bottom:1px solid rgba(148,163,184,0.25);' : '';
-                                return "<div style=\"line-height:1.35; padding:2px 0; color:#6ee7b7; font-weight:600; {$border}\">" . ($idx + 1) . ". " . e($name) . "</div>";
+                                $border = ($idx < $totalPembina - 1) ? 'border-bottom:1px solid #e2e8f0;' : '';
+                                return "<div style=\"line-height:1.4; padding:2px 0; color:#047857; font-weight:700; {$border}\">" . ($idx + 1) . ". " . e($name) . "</div>";
                             })->implode('');
                             return "<div>{$items}{$extraBadge}</div>";
                         }
 
                         if ($totalPembina === 1) {
-                            return "<div><span style=\"color:#6ee7b7; font-weight:700;\">👨‍🏫 " . e($list[0]) . "</span>{$extraBadge}</div>";
+                            return "<div><span style=\"color:#047857; font-weight:700;\">👨‍🏫 " . e($list[0]) . "</span>{$extraBadge}</div>";
                         }
 
-                        return "<span style=\"color:#94a3b8;\">—</span>";
+                        return "<span style=\"color:#64748b;\">—</span>";
                     }),
 
                 TextColumn::make('achievement_date')

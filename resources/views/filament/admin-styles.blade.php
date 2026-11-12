@@ -283,9 +283,11 @@
     right: 0 !important;
     z-index: 10 !important;
     background: #f8fafc !important;
-    border-left: 1px solid #f1f5f9 !important;
-    min-width: 120px !important;
+    border-left: 1px solid #e2e8f0 !important;
+    box-shadow: -4px 0 10px rgba(15, 23, 42, 0.06) !important;
+    min-width: 180px !important;
     text-align: center !important;
+    white-space: nowrap !important;
 }
 
 .fi-ta-table td.fi-ta-actions-cell,
@@ -294,9 +296,11 @@
     right: 0 !important;
     z-index: 5 !important;
     background: #ffffff !important;
-    border-left: 1px solid #f1f5f9 !important;
-    min-width: 120px !important;
+    border-left: 1px solid #e2e8f0 !important;
+    box-shadow: -4px 0 10px rgba(15, 23, 42, 0.06) !important;
+    min-width: 180px !important;
     text-align: center !important;
+    white-space: nowrap !important;
 }
 
 .fi-ta-table tr:hover td.fi-ta-actions-cell,
@@ -304,12 +308,71 @@
     background: #f8fafc !important;
 }
 
+/* Checkbox Selection Hit Area & High-Visibility Styling */
+.fi-ta-record-checkbox-ctn,
+.fi-ta-select-all-checkbox-ctn {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+}
+
+.fi-ta-table input[type="checkbox"],
+.fi-ta-record-checkbox,
+.fi-ta-select-all-checkbox {
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+    border-radius: 0.35rem !important;
+    border: 1.5px solid #94a3b8 !important;
+    cursor: pointer !important;
+    accent-color: #206bc4 !important;
+    transition: all 0.15s ease !important;
+}
+
+.fi-ta-table input[type="checkbox"]:hover {
+    border-color: #206bc4 !important;
+    box-shadow: 0 0 0 3px rgba(32, 107, 196, 0.15) !important;
+}
+
+.fi-ta-table td:has(input[type="checkbox"]),
+.fi-ta-table th:has(input[type="checkbox"]) {
+    width: 48px !important;
+    min-width: 48px !important;
+    text-align: center !important;
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+}
+
+/* Table Typography & High Contrast Readability */
+.fi-ta-table td {
+    color: #1e293b !important;
+    font-size: 0.8125rem !important;
+}
+
+.fi-ta-table td .fi-ta-text-item-label {
+    color: #0f172a !important;
+}
+
+.fi-ta-table td .fi-ta-text-item-description {
+    color: #475569 !important;
+    font-size: 0.75rem !important;
+}
+
 /* Table Row Action Buttons (Scoped to table body cells so header/bulk toolbar is untouched) */
 .fi-ta-table td .fi-ta-actions {
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    gap: 0.35rem !important;
+    gap: 0.45rem !important;
+    white-space: nowrap !important;
+    flex-wrap: nowrap !important;
+}
+
+.fi-ta-table td .fi-ta-actions .fi-btn {
+    white-space: nowrap !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.3rem !important;
 }
 
 .fi-ta-table td .fi-ta-actions .fi-icon-btn,
