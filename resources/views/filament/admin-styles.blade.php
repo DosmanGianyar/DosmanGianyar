@@ -257,11 +257,210 @@
     border-top-right-radius: 0.75rem !important;
 }
 
-.fi-ta-content-ctn,
-.fi-ta-content {
+.fi-ta-content-ctn {
+    position: relative !important;
+}
+
+.fi-ta-content,
+.ad-table-wrap,
+.ar-table-wrap,
+.sc-table-card,
+.imp-table-container {
     border-bottom-left-radius: 0.75rem !important;
     border-bottom-right-radius: 0.75rem !important;
     overflow-x: auto !important;
+    scrollbar-width: thin !important;
+    scrollbar-color: #94a3b8 #f1f5f9 !important;
+}
+
+.fi-ta-content::-webkit-scrollbar,
+.ad-table-wrap::-webkit-scrollbar,
+.ar-table-wrap::-webkit-scrollbar,
+.sc-table-card::-webkit-scrollbar,
+.imp-table-container::-webkit-scrollbar {
+    height: 10px !important;
+}
+
+.fi-ta-content::-webkit-scrollbar-track,
+.ad-table-wrap::-webkit-scrollbar-track,
+.ar-table-wrap::-webkit-scrollbar-track,
+.sc-table-card::-webkit-scrollbar-track,
+.imp-table-container::-webkit-scrollbar-track {
+    background: #f1f5f9 !important;
+}
+
+.fi-ta-content::-webkit-scrollbar-thumb,
+.ad-table-wrap::-webkit-scrollbar-thumb,
+.ar-table-wrap::-webkit-scrollbar-thumb,
+.sc-table-card::-webkit-scrollbar-thumb,
+.imp-table-container::-webkit-scrollbar-thumb {
+    background: #94a3b8 !important;
+    border-radius: 5px !important;
+}
+
+.fi-ta-content::-webkit-scrollbar-thumb:hover,
+.ad-table-wrap::-webkit-scrollbar-thumb:hover,
+.ar-table-wrap::-webkit-scrollbar-thumb:hover,
+.sc-table-card::-webkit-scrollbar-thumb:hover,
+.imp-table-container::-webkit-scrollbar-thumb:hover {
+    background: #64748b !important;
+}
+
+/* ─── Top Horizontal Scrollbar (Bilah Penggeser di Bagian Atas Tabel) ──── */
+.sims-table-top-scrollbar {
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    height: 13px !important;
+    background: #f1f5f9 !important;
+    border-top: 1px solid var(--tblr-border) !important;
+    border-bottom: 1px solid var(--tblr-border) !important;
+    scrollbar-width: thin !important;
+    scrollbar-color: #94a3b8 #f1f5f9 !important;
+    display: none;
+    z-index: 5 !important;
+    position: relative !important;
+}
+
+.sims-table-top-scrollbar::-webkit-scrollbar {
+    height: 11px !important;
+}
+
+.sims-table-top-scrollbar::-webkit-scrollbar-track {
+    background: #f1f5f9 !important;
+}
+
+.sims-table-top-scrollbar::-webkit-scrollbar-thumb {
+    background: #94a3b8 !important;
+    border-radius: 5px !important;
+}
+
+.sims-table-top-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #206bc4 !important;
+}
+
+.sims-table-top-scrollbar-inner {
+    height: 1px !important;
+    pointer-events: none !important;
+}
+
+/* ─── Floating Viewport Bottom Scrollbar (Melayang di Bawah Layar Saat Tabel Panjang) */
+.sims-floating-bottom-scrollbar {
+    position: fixed !important;
+    bottom: 0 !important;
+    z-index: 9999 !important;
+    height: 14px !important;
+    background: rgba(241, 245, 249, 0.96) !important;
+    backdrop-filter: blur(6px) !important;
+    border-top: 1.5px solid #cbd5e1 !important;
+    box-shadow: 0 -4px 14px rgba(15, 23, 42, 0.12) !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    scrollbar-width: thin !important;
+    scrollbar-color: #64748b #f1f5f9 !important;
+    display: none;
+    transition: opacity 0.15s ease !important;
+}
+
+.sims-floating-bottom-scrollbar::-webkit-scrollbar {
+    height: 12px !important;
+}
+
+.sims-floating-bottom-scrollbar::-webkit-scrollbar-track {
+    background: #f1f5f9 !important;
+}
+
+.sims-floating-bottom-scrollbar::-webkit-scrollbar-thumb {
+    background: #64748b !important;
+    border-radius: 6px !important;
+}
+
+.sims-floating-bottom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #206bc4 !important;
+}
+
+.sims-floating-bottom-scrollbar-inner {
+    height: 1px !important;
+    pointer-events: none !important;
+}
+
+/* ─── Floating Quick Scroll Navigation Arrows (Tombol Panah Melayang ◀ / ▶) */
+.sims-tbl-arrow {
+    position: absolute !important;
+    top: 48px !important;
+    width: 34px !important;
+    height: 34px !important;
+    border-radius: 50% !important;
+    background: #ffffff !important;
+    border: 1.5px solid #cbd5e1 !important;
+    color: #1e293b !important;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.18) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    z-index: 25 !important;
+    opacity: 0;
+    transition: opacity 0.2s ease, transform 0.15s ease, background-color 0.15s ease !important;
+    pointer-events: none;
+    user-select: none !important;
+}
+
+.fi-ta-content-ctn:hover .sims-tbl-arrow.sims-arrow-visible,
+.fi-ta-ctn:hover .sims-tbl-arrow.sims-arrow-visible {
+    opacity: 0.95 !important;
+    pointer-events: auto !important;
+}
+
+.sims-tbl-arrow:hover {
+    opacity: 1 !important;
+    background: #206bc4 !important;
+    color: #ffffff !important;
+    border-color: #206bc4 !important;
+    transform: scale(1.12) !important;
+}
+
+.sims-tbl-arrow-left {
+    left: 10px !important;
+}
+
+.sims-tbl-arrow-right {
+    right: 10px !important;
+}
+
+/* ─── Grab to Scroll & Mouse Wheel on thead ────────────────────────────── */
+.fi-ta-content thead,
+.ad-table-wrap thead,
+.ar-table-wrap thead,
+.sc-table-card thead,
+.imp-table-container thead {
+    cursor: ew-resize !important;
+}
+
+.fi-ta-content.sims-can-drag,
+.ad-table-wrap.sims-can-drag,
+.ar-table-wrap.sims-can-drag,
+.sc-table-card.sims-can-drag,
+.imp-table-container.sims-can-drag {
+    cursor: grab;
+}
+
+.fi-ta-content.sims-is-dragging,
+.ad-table-wrap.sims-is-dragging,
+.ar-table-wrap.sims-is-dragging,
+.sc-table-card.sims-is-dragging,
+.imp-table-container.sims-is-dragging {
+    cursor: grabbing !important;
+    user-select: none !important;
+}
+
+.fi-ta-content a,
+.fi-ta-content button,
+.fi-ta-content input,
+.fi-ta-content label,
+.fi-ta-content .fi-btn,
+.fi-ta-content .fi-icon-btn,
+.fi-ta-content [role="button"] {
+    cursor: pointer !important;
 }
 
 .fi-ta-table {
@@ -861,16 +1060,257 @@ body.sims-users-actions-grid .fi-ta-table td .fi-ta-actions {
         }
     }
 
+    // Global Floating Viewport Scrollbar Singleton
+    var globalFloatingBar = null;
+    var globalFloatingInner = null;
+    var activeFloatingTarget = null;
+
+    function ensureFloatingScrollbar() {
+        if (!globalFloatingBar && document.body) {
+            globalFloatingBar = document.createElement('div');
+            globalFloatingBar.className = 'sims-floating-bottom-scrollbar';
+            globalFloatingInner = document.createElement('div');
+            globalFloatingInner.className = 'sims-floating-bottom-scrollbar-inner';
+            globalFloatingBar.appendChild(globalFloatingInner);
+            document.body.appendChild(globalFloatingBar);
+
+            globalFloatingBar.addEventListener('scroll', function () {
+                if (activeFloatingTarget && !globalFloatingBar.dataset.syncing) {
+                    activeFloatingTarget.dataset.syncing = '1';
+                    activeFloatingTarget.scrollLeft = globalFloatingBar.scrollLeft;
+                    delete activeFloatingTarget.dataset.syncing;
+                }
+            });
+        }
+    }
+
+    function updateFloatingScrollbar() {
+        ensureFloatingScrollbar();
+        if (!globalFloatingBar) return;
+
+        var tables = document.querySelectorAll('.fi-ta-content, .ad-table-wrap, .ar-table-wrap, .sc-table-card, .imp-table-container');
+        var matched = null;
+
+        for (var i = 0; i < tables.length; i++) {
+            var tbl = tables[i];
+            if (tbl.scrollWidth > tbl.clientWidth + 5) {
+                var rect = tbl.getBoundingClientRect();
+                // Check if table top is visible on screen, but table bottom is below the viewport bottom
+                if (rect.top < window.innerHeight - 80 && rect.bottom > window.innerHeight) {
+                    matched = tbl;
+                    break;
+                }
+            }
+        }
+
+        activeFloatingTarget = matched;
+
+        if (matched) {
+            var r = matched.getBoundingClientRect();
+            globalFloatingBar.style.display = 'block';
+            globalFloatingBar.style.left = Math.max(0, r.left) + 'px';
+            globalFloatingBar.style.width = Math.min(r.width, window.innerWidth - Math.max(0, r.left)) + 'px';
+            globalFloatingInner.style.width = matched.scrollWidth + 'px';
+
+            if (!globalFloatingBar.dataset.syncing) {
+                globalFloatingBar.dataset.syncing = '1';
+                globalFloatingBar.scrollLeft = matched.scrollLeft;
+                delete globalFloatingBar.dataset.syncing;
+            }
+        } else {
+            globalFloatingBar.style.display = 'none';
+        }
+    }
+
+    // Initialize all horizontal table helpers (Top Scrollbar, Arrows, Wheel, Drag)
+    function initTableHorizontalScrollHelpers() {
+        var tables = document.querySelectorAll('.fi-ta-content, .ad-table-wrap, .ar-table-wrap, .sc-table-card, .imp-table-container');
+
+        tables.forEach(function (el) {
+            var hasOverflow = el.scrollWidth > el.clientWidth + 5;
+
+            // 1. Top Horizontal Scrollbar directly above table
+            var parent = el.parentNode;
+            var topBar = el.previousElementSibling;
+            if (!topBar || !topBar.classList.contains('sims-table-top-scrollbar')) {
+                topBar = document.createElement('div');
+                topBar.className = 'sims-table-top-scrollbar';
+                topBar.innerHTML = '<div class="sims-table-top-scrollbar-inner"></div>';
+                parent.insertBefore(topBar, el);
+
+                topBar.addEventListener('scroll', function () {
+                    if (topBar.dataset.syncing) return;
+                    el.dataset.syncing = '1';
+                    el.scrollLeft = topBar.scrollLeft;
+                    delete el.dataset.syncing;
+                    updateArrows(el);
+                    updateFloatingScrollbar();
+                });
+
+                el.addEventListener('scroll', function () {
+                    if (el.dataset.syncing) return;
+                    topBar.dataset.syncing = '1';
+                    topBar.scrollLeft = el.scrollLeft;
+                    delete topBar.dataset.syncing;
+                    updateArrows(el);
+                    updateFloatingScrollbar();
+                });
+            }
+
+            // Sync top bar width & display
+            var topInner = topBar.querySelector('.sims-table-top-scrollbar-inner');
+            if (topInner) {
+                topInner.style.width = el.scrollWidth + 'px';
+            }
+            topBar.style.display = hasOverflow ? 'block' : 'none';
+
+            // 2. Navigation Arrow Buttons [ ◀ ] and [ ▶ ]
+            var prevBtn = parent.querySelector('.sims-tbl-arrow-left');
+            var nextBtn = parent.querySelector('.sims-tbl-arrow-right');
+
+            if (!prevBtn) {
+                prevBtn = document.createElement('button');
+                prevBtn.type = 'button';
+                prevBtn.className = 'sims-tbl-arrow sims-tbl-arrow-left';
+                prevBtn.title = 'Geser tabel ke kiri';
+                prevBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>';
+                parent.appendChild(prevBtn);
+
+                prevBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    el.scrollBy({ left: -320, behavior: 'smooth' });
+                });
+            }
+
+            if (!nextBtn) {
+                nextBtn = document.createElement('button');
+                nextBtn.type = 'button';
+                nextBtn.className = 'sims-tbl-arrow sims-tbl-arrow-right';
+                nextBtn.title = 'Geser tabel ke kanan';
+                nextBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>';
+                parent.appendChild(nextBtn);
+
+                nextBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    el.scrollBy({ left: 320, behavior: 'smooth' });
+                });
+            }
+
+            function updateArrows(container) {
+                var pBtn = container.parentNode.querySelector('.sims-tbl-arrow-left');
+                var nBtn = container.parentNode.querySelector('.sims-tbl-arrow-right');
+                var maxScroll = container.scrollWidth - container.clientWidth;
+                var ovf = maxScroll > 5;
+
+                if (pBtn) {
+                    if (ovf && container.scrollLeft > 15) {
+                        pBtn.classList.add('sims-arrow-visible');
+                    } else {
+                        pBtn.classList.remove('sims-arrow-visible');
+                    }
+                }
+                if (nBtn) {
+                    if (ovf && container.scrollLeft < maxScroll - 15) {
+                        nBtn.classList.add('sims-arrow-visible');
+                    } else {
+                        nBtn.classList.remove('sims-arrow-visible');
+                    }
+                }
+            }
+
+            updateArrows(el);
+
+            // 3. Mouse Wheel on thead to scroll horizontally
+            var thead = el.querySelector('thead');
+            if (thead && !thead.dataset.wheelBound) {
+                thead.dataset.wheelBound = '1';
+                thead.addEventListener('wheel', function (e) {
+                    if (el.scrollWidth > el.clientWidth) {
+                        if (e.deltaY !== 0 && e.deltaX === 0) {
+                            e.preventDefault();
+                            el.scrollLeft += (e.deltaY * 1.5);
+                            updateArrows(el);
+                            updateFloatingScrollbar();
+                        }
+                    }
+                }, { passive: false });
+            }
+
+            // 4. Click and Drag (Grab to Scroll)
+            if (!el.dataset.dragBound) {
+                el.dataset.dragBound = '1';
+                el.classList.add('sims-can-drag');
+                var isDown = false;
+                var startX = 0;
+                var scrollLeftVal = 0;
+                var dragMoved = false;
+
+                el.addEventListener('mousedown', function (e) {
+                    if (e.button !== 0) return;
+                    if (e.target.closest('a, button, input, select, textarea, label, .fi-btn, .fi-icon-btn, [role="button"], .fi-ta-actions')) {
+                        return;
+                    }
+                    if (el.scrollWidth <= el.clientWidth + 5) return;
+                    isDown = true;
+                    dragMoved = false;
+                    startX = e.pageX - el.getBoundingClientRect().left;
+                    scrollLeftVal = el.scrollLeft;
+                    el.classList.add('sims-is-dragging');
+                });
+
+                window.addEventListener('mousemove', function (e) {
+                    if (!isDown) return;
+                    var currentX = e.pageX - el.getBoundingClientRect().left;
+                    var walk = (currentX - startX) * 1.3;
+                    if (Math.abs(walk) > 4) {
+                        dragMoved = true;
+                        e.preventDefault();
+                    }
+                    el.scrollLeft = scrollLeftVal - walk;
+                    updateArrows(el);
+                    updateFloatingScrollbar();
+                });
+
+                window.addEventListener('mouseup', function () {
+                    if (!isDown) return;
+                    isDown = false;
+                    el.classList.remove('sims-is-dragging');
+                });
+
+                el.addEventListener('click', function (e) {
+                    if (dragMoved) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        dragMoved = false;
+                    }
+                }, true);
+            }
+        });
+
+        updateFloatingScrollbar();
+    }
+
+    function runAll() {
+        applySimsUsersActionsGrid();
+        initTableHorizontalScrollHelpers();
+    }
+
     document.addEventListener('click', handleCheckboxCellClick, true);
-    document.addEventListener('DOMContentLoaded', applySimsUsersActionsGrid);
-    document.addEventListener('livewire:navigated', applySimsUsersActionsGrid);
-    document.addEventListener('livewire:initialized', applySimsUsersActionsGrid);
+    document.addEventListener('DOMContentLoaded', runAll);
+    document.addEventListener('livewire:navigated', runAll);
+    document.addEventListener('livewire:initialized', runAll);
+    window.addEventListener('scroll', updateFloatingScrollbar, { passive: true });
+    window.addEventListener('resize', runAll, { passive: true });
+
     if (window.Livewire) {
         window.Livewire.hook('commit', function (ref) {
-            if (ref && ref.respond) ref.respond(applySimsUsersActionsGrid);
+            if (ref && ref.respond) ref.respond(runAll);
         });
     }
-    applySimsUsersActionsGrid();
-    setInterval(applySimsUsersActionsGrid, 500);
+
+    runAll();
+    setInterval(runAll, 800);
 })();
 </script>
