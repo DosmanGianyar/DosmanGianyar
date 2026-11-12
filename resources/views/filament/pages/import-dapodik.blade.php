@@ -1,4 +1,29 @@
 <x-filament-panels::page>
+    {{-- Card Download Email Siswa -------------------------------------------}}
+    <div class="bg-gradient-to-r from-emerald-50 via-teal-50 to-green-50 border border-emerald-200 rounded-xl p-5 mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 shadow-sm">
+        <div class="flex items-start gap-3.5">
+            <div class="w-10 h-10 rounded-lg bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow">
+                <x-heroicon-o-envelope class="w-6 h-6" />
+            </div>
+            <div>
+                <h4 class="font-semibold text-gray-900 text-sm">Download Rekap Email Seluruh Siswa</h4>
+                <p class="text-xs text-gray-600 mt-1">
+                    Unduh file Excel (.xlsx) berisi daftar email siswa lengkap dengan NISN, nama, kelas, status pengisian, dan nomor WhatsApp untuk persiapan SAS / sinkronisasi ujian online (Dosman Exam / Moodle).
+                </p>
+            </div>
+        </div>
+        <div class="flex items-center gap-2 shrink-0">
+            <x-filament::button
+                wire:click="downloadAllEmails"
+                color="success"
+                icon="heroicon-o-arrow-down-tray"
+                wire:loading.attr="disabled">
+                <span wire:loading.remove wire:target="downloadAllEmails">Download Email Siswa (Excel)</span>
+                <span wire:loading wire:target="downloadAllEmails">Membuat File Excel…</span>
+            </x-filament::button>
+        </div>
+    </div>
+
     {{-- Panduan ----------------------------------------------------------------}}
     <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6 text-sm text-blue-800 space-y-1">
         <p class="font-semibold">Cara menggunakan Import Data Siswa Terpadu:</p>

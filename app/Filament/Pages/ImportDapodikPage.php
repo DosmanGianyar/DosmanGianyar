@@ -2,12 +2,17 @@
 
 namespace App\Filament\Pages;
 
+use App\Exports\SiswaEmailExport;
 use App\Imports\DapodikImport;
+use App\Models\SchoolClass;
+use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Schema;
 use Maatwebsite\Excel\Facades\Excel;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class ImportDapodikPage extends Page
 {
@@ -38,6 +43,59 @@ class ImportDapodikPage extends Page
     public array $warningsList  = [];
 
     private const CHUNK_SIZE = 20;
+
+    // ── Header Actions ───────────────────────────────────────────────────────
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            Action::make('download_emails')
+                ->label('Download Email Siswa (Excel)')
+                ->icon('heroicon-o-arrow-down-tray')
+                ->color('success')
+                ->modalHeading('Download Rekap Email Siswa')
+                ->modalDescription('Unduh data email semua siswa dalam format Excel (.xlsx). Anda dapat memilih seluruh kelas atau memfilter per kelas dan status pengisian email.')
+                ->modalSubmitActionLabel('Download File Excel')
+                ->form([
+                    Select::make('class_id')
+                        ->label('Filter Kelas')
+                        ->placeholder('Semua Kelas (Seluruh Siswa)')
+                        ->options(SchoolClass::orderBy('grade')->orderBy('name')->pluck('name', 'id'))
+                        ->searchable()
+                        ->preload(),
+                    Select::make('status')
+                        ->label('Status Email Siswa')
+                        ->options([
+                            'all'           => 'Semua Siswa (Termasuk yang belum ada email)',
+                            'with_email'    => 'Hanya Siswa yang Sudah Ada Email',
+                            'without_email' => 'Hanya Siswa yang Belum Mengisi Email',
+                        ])
+                        ->default('all')
+                        ->required(),
+                ])
+                ->action(function (array $data): BinaryFileResponse {
+                    $classId = ! empty($data['class_id']) ? (int) $data['class_id'] : null;
+                    $status  = $data['status'] ?? 'all';
+
+                    $className = $classId ? (SchoolClass::find($classId)?->name ?? 'kelas-' . $classId) : 'semua-kelas';
+                    $cleanClassName = strtolower(preg_replace('/[^A-Za-z0-9]+/', '-', $className));
+                    $filename = 'email-siswa-' . $cleanClassName . '-' . date('Ymd-His') . '.xlsx';
+
+                    return Excel::download(
+                        new SiswaEmailExport($classId, $status),
+                        $filename
+                    );
+                }),
+        ];
+    }
+
+    public function downloadAllEmails(): BinaryFileResponse
+    {
+        return Excel::download(
+            new SiswaEmailExport(),
+            'email-semua-siswa-sman1-gianyar-' . date('Ymd-His') . '.xlsx'
+        );
+    }
 
     // ── Form ──────────────────────────────────────────────────────────────────
 
