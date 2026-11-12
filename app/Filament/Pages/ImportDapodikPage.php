@@ -19,6 +19,7 @@ class ImportDapodikPage extends Page
     protected static string|\BackedEnum|null $navigationIcon  = 'heroicon-o-arrow-up-tray';
     protected static string|\UnitEnum|null  $navigationGroup = 'Manajemen User';
     protected static ?string                $navigationLabel = 'Import Data Siswa';
+    protected static ?string                $title           = 'Import Data Siswa';
     protected static ?int                   $navigationSort  = 5;
 
     public static function canAccess(): bool { return auth()->user()?->role === 'admin'; }

@@ -1,18 +1,20 @@
 <x-filament-panels::page>
     {{-- Card Download Email Siswa -------------------------------------------}}
-    <div class="bg-gradient-to-r from-emerald-50 via-teal-50 to-green-50 border border-emerald-200 rounded-xl p-5 mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 shadow-sm">
-        <div class="flex items-start gap-3.5">
-            <div class="w-10 h-10 rounded-lg bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow">
-                <x-heroicon-o-envelope class="w-6 h-6" />
+    <div style="background: linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 100%); border: 1px solid #a7f3d0; border-radius: 14px; padding: 18px 22px; margin-bottom: 24px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+        <div style="display: flex; align-items: center; gap: 14px; max-width: 720px;">
+            <div style="width: 44px; height: 44px; min-width: 44px; border-radius: 10px; background: #059669; color: #ffffff; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(5,150,105,0.25);">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" style="width: 24px; height: 24px; display: block;" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+                </svg>
             </div>
             <div>
-                <h4 class="font-semibold text-gray-900 text-sm">Download Rekap Email Seluruh Siswa</h4>
-                <p class="text-xs text-gray-600 mt-1">
-                    Unduh file Excel (.xlsx) berisi daftar email siswa lengkap dengan NISN, nama, kelas, status pengisian, dan nomor WhatsApp untuk persiapan SAS / sinkronisasi ujian online (Dosman Exam / Moodle).
-                </p>
+                <div style="font-weight: 700; font-size: 15px; color: #065f46; margin-bottom: 3px;">Download Rekap Email Seluruh Siswa</div>
+                <div style="font-size: 12.5px; color: #047857; line-height: 1.45;">
+                    Unduh file Excel (<code>.xlsx</code>) berisi daftar email siswa lengkap dengan NISN, nama, kelas, status pengisian, dan nomor WhatsApp untuk persiapan SAS / sinkronisasi ujian online (Dosman Exam / Moodle).
+                </div>
             </div>
         </div>
-        <div class="flex items-center gap-2 shrink-0">
+        <div style="display: flex; align-items: center; gap: 8px;">
             <x-filament::button
                 wire:click="downloadAllEmails"
                 color="success"
