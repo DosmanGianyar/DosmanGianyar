@@ -38,7 +38,7 @@ class ScheduleMatrixExport
     ];
 
     /**
-     * Generate spreadsheet object matching the matrix timetable layout.
+     * Generate spreadsheet object matching the matrix timetable layout with Mapel & Guru rows.
      */
     public function generateSpreadsheet(?string $academicYear = null): Spreadsheet
     {
@@ -46,13 +46,24 @@ class ScheduleMatrixExport
         $sheet = $spreadsheet->getActiveSheet();
         $sheet->setTitle('JADWAL GURU');
 
-        // Title on B3
-        $sheet->setCellValue('B3', 'JADWAL GURU');
-        $sheet->getStyle('B3')->getFont()->setBold(true)->setSize(14);
+        // Title on A3
+        $sheet->setCellValue('A3', 'JADWAL GURU');
+        $sheet->getStyle('A3')->getFont()->setBold(true)->setSize(14);
 
         // Header Rows: Row 4 (Days), Row 5 (Jam), Row 6 (Waktu)
         $startColIndex = 3; // Col C
         $periodsPerDay = 11;
+
+        // Class Column (Col A) and Type Column (Col B)
+        $sheet->mergeCells('A4:A6');
+        $sheet->setCellValue('A4', 'KELAS');
+        $sheet->getStyle('A4')->getFont()->setBold(true)->setSize(11);
+        $sheet->getStyle('A4')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER)->setVertical(Alignment::VERTICAL_CENTER);
+
+        $sheet->mergeCells('B4:B6');
+        $sheet->setCellValue('B4', 'TIPE');
+        $sheet->getStyle('B4')->getFont()->setBold(true)->setSize(11);
+        $sheet->getStyle('B4')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER)->setVertical(Alignment::VERTICAL_CENTER);
 
         $dayColors = [
             1 => 'D9E1F2', // Soft Blue
@@ -100,8 +111,9 @@ class ScheduleMatrixExport
             }
         }
 
-        // Set Class Column Dimension (Col B)
-        $sheet->getColumnDimension('B')->setWidth(12);
+        // Set Class & Type Column Dimensions
+        $sheet->getColumnDimension('A')->setWidth(12);
+        $sheet->getColumnDimension('B')->setWidth(10);
 
         // Fetch Classes ordered by name (excluding non-student dummy classes)
         $classes = SchoolClass::where('name', '!=', 'Review')
@@ -109,27 +121,41 @@ class ScheduleMatrixExport
             ->get();
 
         // Fetch Schedule Data
-        $query = Schedule::with(['teacher', 'schoolClass']);
+        $query = Schedule::with(['teacher', 'schoolClass', 'subject']);
         if ($academicYear) {
             $query->where('academic_year', $academicYear);
         }
         $schedules = $query->get();
 
-        // Map schedules by [class_id][day][period] => teacher_code
+        // Map schedules by [class_id][day][period] => ['teacher' => ..., 'subject' => ...]
         $scheduleGrid = [];
         foreach ($schedules as $sch) {
-            $code = $sch->teacher?->teacher_code ?: ($sch->teacher?->name ?? '');
-            if (!empty($code)) {
-                $scheduleGrid[$sch->class_id][$sch->day][$sch->period] = $code;
+            $teacherCode = $sch->teacher?->teacher_code ?: ($sch->teacher?->name ?? '');
+            $subjectCode = $sch->subject?->code ?: ($sch->subject?->name ?? '');
+            if (!empty($teacherCode) || !empty($subjectCode)) {
+                $scheduleGrid[$sch->class_id][$sch->day][$sch->period] = [
+                    'teacher' => $teacherCode,
+                    'subject' => $subjectCode,
+                ];
             }
         }
 
-        // Populate Class Rows (Row 7 downwards)
+        // Populate Class Rows (2 rows per class: Row 1 = Mapel, Row 2 = Guru)
         $currentRow = 7;
         foreach ($classes as $class) {
-            $sheet->setCellValue("B{$currentRow}", $class->name);
-            $sheet->getStyle("B{$currentRow}")->getFont()->setBold(true);
-            $sheet->getStyle("B{$currentRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $guruRow = $currentRow + 1;
+
+            // Row 1: Mapel
+            $sheet->setCellValue("A{$currentRow}", $class->name);
+            $sheet->setCellValue("B{$currentRow}", 'Mapel');
+            $sheet->getStyle("A{$currentRow}:B{$currentRow}")->getFont()->setBold(true);
+            $sheet->getStyle("A{$currentRow}:B{$currentRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+            // Row 2: Guru
+            $sheet->setCellValue("A{$guruRow}", '');
+            $sheet->setCellValue("B{$guruRow}", 'Guru');
+            $sheet->getStyle("B{$guruRow}")->getFont()->setBold(true);
+            $sheet->getStyle("A{$guruRow}:B{$guruRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
             foreach (self::DAYS as $dayNum => $dayName) {
                 $dayStartColIdx = $startColIndex + ($dayNum - 1) * $periodsPerDay;
@@ -138,26 +164,32 @@ class ScheduleMatrixExport
                     $colIdx    = $dayStartColIdx + ($p - 1);
                     $colLetter = Coordinate::stringFromColumnIndex($colIdx);
 
-                    $teacherCode = $scheduleGrid[$class->id][$dayNum][$p] ?? '';
-                    if (!empty($teacherCode)) {
-                        $sheet->setCellValue("{$colLetter}{$currentRow}", $teacherCode);
-                        $sheet->getStyle("{$colLetter}{$currentRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+                    $slot = $scheduleGrid[$class->id][$dayNum][$p] ?? null;
+                    if ($slot) {
+                        if (!empty($slot['subject'])) {
+                            $sheet->setCellValue("{$colLetter}{$currentRow}", $slot['subject']);
+                            $sheet->getStyle("{$colLetter}{$currentRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+                        }
+                        if (!empty($slot['teacher'])) {
+                            $sheet->setCellValue("{$colLetter}{$guruRow}", $slot['teacher']);
+                            $sheet->getStyle("{$colLetter}{$guruRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+                        }
                     }
                 }
             }
 
-            $currentRow++;
+            $currentRow += 2;
         }
 
-        $lastRow = $currentRow - 1;
+        $lastRow = max($currentRow - 1, 7);
         $lastColLetter = Coordinate::stringFromColumnIndex($startColIndex + (6 * $periodsPerDay) - 1);
 
         // Apply grid borders to table
-        $tableRange = "B4:{$lastColLetter}{$lastRow}";
+        $tableRange = "A4:{$lastColLetter}{$lastRow}";
         $sheet->getStyle($tableRange)->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
 
         // Make headers prominent
-        $sheet->getStyle("B4:{$lastColLetter}6")->getBorders()->getOutline()->setBorderStyle(Border::BORDER_MEDIUM);
+        $sheet->getStyle("A4:{$lastColLetter}6")->getBorders()->getOutline()->setBorderStyle(Border::BORDER_MEDIUM);
 
         return $spreadsheet;
     }
@@ -180,4 +212,3 @@ class ScheduleMatrixExport
         ]);
     }
 }
-

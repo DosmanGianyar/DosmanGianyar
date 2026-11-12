@@ -39,10 +39,10 @@ class ScheduleImportService
         'SOS'      => 'Sosiologi',
         'KKA'      => 'Kewirausahaan / KKA',
         'MAT'      => 'Matematika',
-        'MAT.L'    => 'Matematika Lanjutan',
+        'MAT.L'    => 'Matematika Tingkat Lanjut',
         'INDO'     => 'Bahasa Indonesia',
         'SEJ'      => 'Sejarah',
-        'TIK'      => 'Informatika / TIK',
+        'TIK'      => 'Informatika',
         'SENI'     => 'Seni Budaya',
         'FIS'      => 'Fisika',
         'GEO'      => 'Geografi',
@@ -57,6 +57,33 @@ class ScheduleImportService
         'PJOK'     => 'Pendidikan Jasmani Olahraga Kesehatan',
         'PKWU'     => 'Prakarya dan Kewirausahaan (PKWU)',
         'ANTRO'    => 'Antropologi',
+    ];
+
+    /**
+     * Alias & variasi penamaan / kode mapel di DB (server vs lokal)
+     */
+    public const SUBJECT_ALIASES = [
+        'SOS'      => ['Sosiologi', 'SOS'],
+        'KKA'      => ['Koding', 'Kewirausahaan / KKA', 'KKA', 'Prakarya dan Kewirausahaan (PKWU)'],
+        'MAT'      => ['Matematika', 'MTK', 'MAT'],
+        'MAT.L'    => ['Matematika Tingkat Lanjut', 'Matematika Lanjutan', 'MTKTL', 'MAT.L'],
+        'INDO'     => ['Bahasa Indonesia', 'B_INDO', 'INDO'],
+        'SEJ'      => ['Sejarah', 'SEJ'],
+        'TIK'      => ['Informatika', 'Informatika / TIK', 'IT', 'TIK'],
+        'SENI'     => ['Seni Budaya', 'SB', 'SENI'],
+        'FIS'      => ['Fisika', 'FIS'],
+        'GEO'      => ['Geografi', 'GEO'],
+        'BIO'      => ['Biologi', 'BIO'],
+        'B BALI'   => ['Bahasa Bali', 'B_BALI', 'B BALI'],
+        'EKO'      => ['Ekonomi', 'EKO'],
+        'PPKN'     => ['Pendidikan Pancasila (PPKn)', 'Pendidikan Pancasila', 'PP', 'PPKN'],
+        'KIM'      => ['Kimia', 'KIM'],
+        'INGG'     => ['Bahasa Inggris', 'B_ING', 'INGG'],
+        'ING.L'    => ['Bahasa Inggris Lanjutan', 'ING.L'],
+        'AGAMA BP' => ['Pendidikan Agama & Budi Pekerti', 'AGAMA BP', 'Pendidikan Agama'],
+        'PJOK'     => ['Pendidikan Jasmani Olahraga Kesehatan', 'PJOK'],
+        'PKWU'     => ['Prakarya dan Kewirausahaan (PKWU)', 'Prakarya', 'PKWU'],
+        'ANTRO'    => ['Antropologi', 'ANTRO'],
     ];
 
     /**
@@ -308,40 +335,100 @@ class ScheduleImportService
         $startClassRowIdx = max($dayRowIdx, $periodRowIdx ?? 0, $timeRowIdx ?? 0) + 1;
         $rawItems = [];
         $emptyRowCount = 0;
+        $currentClassName = null;
 
-        for ($r = $startClassRowIdx; $r < count($rows); $r++) {
+        $r = $startClassRowIdx;
+        while ($r < count($rows)) {
             $row = $rows[$r] ?? [];
-            $rawClassName = trim((string)($row[1] ?? ''));
+            $col0 = trim((string)($row[0] ?? ''));
+            $col1 = trim((string)($row[1] ?? ''));
+            $col1Upper = strtoupper($col1);
 
-            if (empty($rawClassName)) {
+            if (empty($col0) && empty($col1)) {
                 $emptyRowCount++;
                 if ($emptyRowCount >= 15) break;
+                $r++;
                 continue;
             }
             $emptyRowCount = 0;
 
-            if (in_array(strtoupper($rawClassName), ['HARI', 'JADWAL GURU', 'JAM', 'WAKTU', 'KODE', 'DAFTAR'])) {
+            if (in_array(strtoupper($col0), ['HARI', 'JADWAL GURU', 'JAM', 'WAKTU', 'KODE', 'DAFTAR', '#N/A'])
+                || in_array($col1Upper, ['HARI', 'JADWAL GURU', 'JAM', 'WAKTU', 'KODE', 'DAFTAR'])) {
+                $r++;
                 continue;
             }
 
-            foreach ($columnsMeta as $colIdx => $meta) {
-                $cellVal = trim((string)($row[$colIdx] ?? ''));
-                if (empty($cellVal) || in_array(strtoupper($cellVal), ['-', 'LIBUR', 'UPACARA', 'ISTIRAHAT', 'SHOLAT'])) {
-                    continue;
+            // Case A: Paired Matrix (Baris Mapel diikuti Baris Guru untuk satu kelas)
+            if ($col1Upper === 'MAPEL' || $col1Upper === 'GURU') {
+                if (!empty($col0)) {
+                    $currentClassName = $col0;
                 }
 
-                $rawItems[] = [
-                    'class_name'   => $rawClassName,
-                    'day'          => $meta['day'],
-                    'period'       => $meta['period'],
-                    'start_time'   => $meta['start_time'],
-                    'end_time'     => $meta['end_time'],
-                    'subject_code' => null,
-                    'teacher_raw'  => $cellVal,
-                    'room'         => null,
-                    'target_grade' => $targetGrade,
-                ];
+                $mapelRow = [];
+                $guruRow  = [];
+
+                if ($col1Upper === 'MAPEL') {
+                    $mapelRow = $row;
+                    if (isset($rows[$r + 1]) && strtoupper(trim((string)($rows[$r + 1][1] ?? ''))) === 'GURU') {
+                        $guruRow = $rows[$r + 1];
+                        $r++;
+                    }
+                } else {
+                    $guruRow = $row;
+                    if (isset($rows[$r + 1]) && strtoupper(trim((string)($rows[$r + 1][1] ?? ''))) === 'MAPEL') {
+                        $mapelRow = $rows[$r + 1];
+                        $r++;
+                    }
+                }
+
+                if (!empty($currentClassName)) {
+                    foreach ($columnsMeta as $colIdx => $meta) {
+                        $subjCode  = trim((string)($mapelRow[$colIdx] ?? ''));
+                        $teachCode = trim((string)($guruRow[$colIdx] ?? ''));
+
+                        if (empty($subjCode) && empty($teachCode)) continue;
+                        if (in_array(strtoupper($subjCode), ['-', 'LIBUR', 'UPACARA', 'ISTIRAHAT', 'SHOLAT'])) continue;
+
+                        $rawItems[] = [
+                            'class_name'   => $currentClassName,
+                            'day'          => $meta['day'],
+                            'period'       => $meta['period'],
+                            'start_time'   => $meta['start_time'],
+                            'end_time'     => $meta['end_time'],
+                            'subject_code' => $subjCode ?: null,
+                            'teacher_raw'  => $teachCode ?: null,
+                            'room'         => null,
+                            'target_grade' => $targetGrade,
+                        ];
+                    }
+                }
+                $r++;
+                continue;
             }
+
+            // Case B: Single-row matrix format (format jadwal lama dimana col1 atau col0 adalah Nama Kelas)
+            $singleClassName = !empty($col1) ? $col1 : $col0;
+            if (!in_array(strtoupper($singleClassName), ['HARI', 'JADWAL GURU', 'JAM', 'WAKTU', 'KODE', 'DAFTAR', '#N/A'])) {
+                foreach ($columnsMeta as $colIdx => $meta) {
+                    $cellVal = trim((string)($row[$colIdx] ?? ''));
+                    if (empty($cellVal) || in_array(strtoupper($cellVal), ['-', 'LIBUR', 'UPACARA', 'ISTIRAHAT', 'SHOLAT'])) {
+                        continue;
+                    }
+
+                    $rawItems[] = [
+                        'class_name'   => $singleClassName,
+                        'day'          => $meta['day'],
+                        'period'       => $meta['period'],
+                        'start_time'   => $meta['start_time'],
+                        'end_time'     => $meta['end_time'],
+                        'subject_code' => null,
+                        'teacher_raw'  => $cellVal,
+                        'room'         => null,
+                        'target_grade' => $targetGrade,
+                    ];
+                }
+            }
+            $r++;
         }
 
         return $this->matchEntities($rawItems);
@@ -417,21 +504,21 @@ class ScheduleImportService
      */
     public function resolveSubjectForTeacher(?User $teacher, Collection $allSubjects, ?string $rawSubjectCode = null): array
     {
-        $codeUpper  = strtoupper(trim($rawSubjectCode ?? ''));
-        $mappedName = self::SUBJECT_MAP[$codeUpper] ?? $codeUpper;
-
+        $codeUpper = strtoupper(trim($rawSubjectCode ?? ''));
         if (empty($codeUpper)) {
             return ['subject_id' => null, 'allowed_subject_ids' => []];
         }
 
-        $found = $allSubjects->first(function ($s) use ($codeUpper, $mappedName) {
-            $sName = strtoupper($s->name);
-            $sCode = strtoupper($s->code ?? '');
-            $mName = strtoupper($mappedName);
+        $candidates = self::SUBJECT_ALIASES[$codeUpper] ?? [self::SUBJECT_MAP[$codeUpper] ?? $codeUpper];
+        $candidatesUpper = array_unique(array_map('strtoupper', array_merge([$codeUpper], $candidates)));
+
+        $found = $allSubjects->first(function ($s) use ($codeUpper, $candidatesUpper) {
+            $sName = strtoupper(trim($s->name));
+            $sCode = strtoupper(trim($s->code ?? ''));
 
             return ($sCode !== '' && $sCode === $codeUpper)
-                || $sName === $codeUpper
-                || $sName === $mName;
+                || in_array($sCode, $candidatesUpper, true)
+                || in_array($sName, $candidatesUpper, true);
         });
 
         if (!$found) {
@@ -505,16 +592,39 @@ class ScheduleImportService
 
             // 2. Match Teacher
             $matchedTeacher = $item['teacher_user'] ?? null;
-            $teacherRaw     = trim($item['teacher_raw']);
-            $normCode       = self::normalizeTeacherCode($teacherRaw);
+            $teacherRaw     = trim($item['teacher_raw'] ?? '');
 
             if (!$matchedTeacher && !empty($teacherRaw)) {
-                // 2a. Match by teacher_code
+                $normCode = self::normalizeTeacherCode($teacherRaw);
+                $cleanRaw = strtoupper(preg_replace('/[^a-zA-Z0-9]/', '', $teacherRaw));
+
+                // 2a. Match by normalized teacher_code
                 $matchedTeacher = $teachers->first(fn($t) => $t->teacher_code && strcasecmp(trim($t->teacher_code), $normCode) === 0);
 
-                // 2b. Match by name
+                // 2b. Match by stripped alphanumeric teacher_code
+                if (!$matchedTeacher) {
+                    $matchedTeacher = $teachers->first(fn($t) => $t->teacher_code && strtoupper(preg_replace('/[^a-zA-Z0-9]/', '', $t->teacher_code)) === $cleanRaw);
+                }
+
+                // 2c. Match by name
                 if (!$matchedTeacher) {
                     $matchedTeacher = $this->matchTeacherToDb($teacherRaw, $teachers);
+                }
+
+                // 2d. High similarity on teacher_code (e.g. P.Ngr Afriadii vs P. Ngr Afriadi)
+                if (!$matchedTeacher) {
+                    $bestScore = 0;
+                    $bestT = null;
+                    foreach ($teachers as $t) {
+                        if (empty($t->teacher_code)) continue;
+                        $tClean = strtoupper(preg_replace('/[^a-zA-Z0-9]/', '', $t->teacher_code));
+                        similar_text($cleanRaw, $tClean, $perc);
+                        if ($perc > $bestScore && $perc >= 85) {
+                            $bestScore = $perc;
+                            $bestT = $t;
+                        }
+                    }
+                    $matchedTeacher = $bestT;
                 }
             }
 

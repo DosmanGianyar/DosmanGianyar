@@ -64,8 +64,24 @@ class ScheduleMatrixImportExportTest extends TestCase
 
         $sheet = $spreadsheet->getActiveSheet();
         $this->assertEquals('JADWAL GURU', $sheet->getTitle());
-        $this->assertEquals('JADWAL GURU', $sheet->getCell('B3')->getValue());
-        $this->assertEquals('X-01', $sheet->getCell('B7')->getValue());
+        $this->assertEquals('JADWAL GURU', $sheet->getCell('A3')->getValue());
+        $this->assertEquals('X-01', $sheet->getCell('A7')->getValue());
+        $this->assertEquals('Mapel', $sheet->getCell('B7')->getValue());
+        $this->assertEquals('Guru', $sheet->getCell('B8')->getValue());
+
+        // 4. Test parsing new paired Mapel/Guru CSV format
+        $csvFilePath = base_path('public/templates/Jadwal 5 Oktober 2026 (1).csv');
+        if (file_exists($csvFilePath)) {
+            $csvItems = $service->parseCsvSchedule($csvFilePath, 'ALL');
+            $this->assertNotEmpty($csvItems);
+            $this->assertCount(1332, $csvItems);
+
+            // Verify a slot has both subject_code and teacher_code
+            $samplePuspita = array_filter($csvItems, fn($i) => $i['class_name'] === 'X-01' && $i['teacher_code'] === 'B. Puspita');
+            $this->assertNotEmpty($samplePuspita);
+            $first = reset($samplePuspita);
+            $this->assertEquals('SOS', $first['subject_code']);
+        }
     }
 }
 
