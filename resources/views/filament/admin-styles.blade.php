@@ -926,6 +926,8 @@ body.sims-users-actions-grid .fi-ta-table td .fi-ta-actions {
 .fi-body .sc-action-card,
 .fi-body .imp-card,
 .fi-body .imp-table-container,
+.fi-body .tg-card,
+.fi-body .tg-sheet-card,
 .fi-body .ad-table-wrap,
 .fi-body .ar-table-wrap,
 .fi-body .sc-table-card {
