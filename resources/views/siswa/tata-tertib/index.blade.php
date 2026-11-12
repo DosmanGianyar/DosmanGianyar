@@ -98,23 +98,7 @@
     <div id="view-doc" class="bg-white rounded-2xl shadow-xl border border-slate-200 p-6 md:p-12 space-y-8 print:shadow-none print:border-none print:p-0">
 
         {{-- Official Letterhead (Kop Surat) --}}
-        <div class="text-center pb-6 border-b-4 border-double border-slate-800 space-y-1 relative">
-            <div class="flex items-center justify-between max-w-2xl mx-auto px-4 pb-2">
-                <div class="w-16 h-16 md:w-20 md:h-20 shrink-0 flex items-center justify-center">
-                    <img src="{{ asset('images/logo.png') }}" alt="Logo SMAN 1 Gianyar" class="max-h-full max-w-full object-contain" onerror="this.style.display='none'">
-                </div>
-                <div class="text-center flex-1 px-2">
-                    <h3 class="font-bold text-slate-800 text-xs md:text-sm uppercase tracking-wider">Pemerintah Provinsi Bali</h3>
-                    <h4 class="font-bold text-slate-800 text-xs md:text-sm uppercase tracking-wider">Dinas Pendidikan Kepemudaan dan Olahraga</h4>
-                    <h2 class="font-black text-slate-900 text-lg md:text-2xl uppercase tracking-tight font-serif mt-0.5">SMA Negeri 1 Gianyar</h2>
-                    <p class="text-slate-600 text-[11px] md:text-xs mt-1">Jalan Ratna, Tegal Gianyar (80511), Telepon : (0361) 943034</p>
-                    <p class="text-slate-600 text-[11px] md:text-xs">Laman : www.sman1-gianyar.sch.id, Pos-el : sman1.gianyar1963@gmail.com</p>
-                </div>
-                <div class="w-16 h-16 md:w-20 md:h-20 shrink-0 hidden sm:flex items-center justify-center">
-                    <img src="{{ asset('images/logo-bali.png') }}" alt="Logo Pemprov Bali" class="max-h-full max-w-full object-contain" onerror="this.style.display='none'">
-                </div>
-            </div>
-        </div>
+        <x-kop-surat />
 
         {{-- Document Title --}}
         <div class="text-center space-y-1 py-2">

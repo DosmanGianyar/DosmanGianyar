@@ -50,16 +50,7 @@
 
         <div class="p-6 md:p-8">
             {{-- Kop Surat Resmi Sekolah --}}
-            <div class="flex items-center gap-4 border-b-2 border-slate-800 pb-4 mb-1">
-                <img src="{{ asset('img/logo_sekolah.png') }}" alt="Logo SMAN 1 Gianyar" class="w-16 h-16 object-contain shrink-0">
-                <div class="text-center flex-1">
-                    <h3 class="text-xs font-bold text-slate-600 tracking-wider uppercase">Pemerintah Provinsi Bali</h3>
-                    <h2 class="text-xs font-bold text-slate-700 uppercase">Dinas Pendidikan Kepemudaan dan Olahraga</h2>
-                    <h1 class="text-base md:text-lg font-black text-blue-950 uppercase tracking-tight font-serif-header">SMA Negeri 1 Gianyar</h1>
-                    <p class="text-[11px] text-slate-500 font-medium">Jl. Ratna No.1, Gianyar, Bali 80511 · Telp. (0361) 943443 · NPSN: 50102079</p>
-                </div>
-            </div>
-            <div class="h-0.5 bg-slate-800 mb-6"></div>
+            <x-kop-surat />
 
             @if($siswa)
             {{-- Judul Surat Keterangan --}}
