@@ -43,30 +43,30 @@
     }
     .kop-resmi-center {
       text-align: center;
-      line-height: 1.05;
+      line-height: 0.92;
     }
     .kop-resmi-aksara {
       font-family: 'Bali Simbar', 'Bali Simbar Dwijendra', serif;
-      font-size: 17px;
-      line-height: 0.95;
-      margin-bottom: -1px;
+      font-size: 22px;
+      line-height: 0.85;
+      margin-bottom: -3px;
       -webkit-font-smoothing: antialiased;
     }
     @media (min-width: 768px) {
       .kop-resmi-aksara {
-        font-size: 21px;
+        font-size: 28px;
       }
     }
     .kop-resmi-aksara-sm {
       font-family: 'Bali Simbar', 'Bali Simbar Dwijendra', serif;
-      font-size: 13.5px;
-      line-height: 0.95;
-      margin-bottom: -1px;
+      font-size: 17px;
+      line-height: 0.85;
+      margin-bottom: -2px;
       -webkit-font-smoothing: antialiased;
     }
     @media (min-width: 768px) {
       .kop-resmi-aksara-sm {
-        font-size: 16px;
+        font-size: 20px;
       }
     }
     .kop-resmi-pemprov {
@@ -74,6 +74,7 @@
       font-weight: bold;
       letter-spacing: 0.5px;
       margin-bottom: 2px;
+      line-height: 0.95;
     }
     @media (min-width: 768px) {
       .kop-resmi-pemprov {
@@ -85,6 +86,7 @@
       font-weight: bold;
       letter-spacing: 0.3px;
       margin-bottom: 2px;
+      line-height: 0.95;
     }
     @media (min-width: 768px) {
       .kop-resmi-disdik {
@@ -96,6 +98,7 @@
       font-weight: bold;
       letter-spacing: 0.8px;
       margin-bottom: 2px;
+      line-height: 0.98;
     }
     @media (min-width: 768px) {
       .kop-resmi-sekolah {
@@ -105,7 +108,8 @@
     .kop-resmi-alamat {
       font-size: 9.5px;
       font-weight: bold;
-      margin-bottom: 1px;
+      margin-bottom: 0px;
+      line-height: 1.0;
     }
     @media (min-width: 768px) {
       .kop-resmi-alamat {
@@ -114,7 +118,8 @@
     }
     .kop-resmi-kontak {
       font-size: 8.5px;
-      margin-bottom: 1px;
+      margin-bottom: 0px;
+      line-height: 1.0;
     }
     @media (min-width: 768px) {
       .kop-resmi-kontak {
@@ -125,6 +130,7 @@
       font-size: 9px;
       font-weight: bold;
       letter-spacing: 0.5px;
+      line-height: 1.0;
     }
     @media (min-width: 768px) {
       .kop-resmi-npsn {

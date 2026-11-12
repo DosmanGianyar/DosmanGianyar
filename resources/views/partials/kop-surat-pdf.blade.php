@@ -40,26 +40,26 @@
     background: transparent !important; 
   }
   td.kop-rab-logo-left { 
-    width: 76px; 
+    width: 80px; 
     text-align: center; 
     vertical-align: middle !important; 
   }
   td.kop-rab-logo-right { 
-    width: 76px; 
+    width: 80px; 
     text-align: center; 
     vertical-align: middle !important; 
   }
   td.kop-rab-logo-left img { 
     width: auto; 
-    max-width: 68px; 
-    height: 76px; 
+    max-width: 78px; 
+    height: 92px; 
     object-fit: contain; 
     display: inline-block;
   }
   td.kop-rab-logo-right img { 
     width: auto; 
-    max-width: 68px; 
-    height: 76px; 
+    max-width: 78px; 
+    height: 92px; 
     object-fit: contain; 
     display: inline-block;
   }
@@ -69,57 +69,57 @@
     color: #000000;
     font-family: 'Times New Roman', 'Tinos', 'DejaVu Serif', serif;
     padding: 0 4px;
-    line-height: 1.05;
+    line-height: 0.95;
   }
   .kop-aksara-row { 
     margin: 0; 
     padding: 0; 
-    line-height: 0.95; 
+    line-height: 0.8; 
     text-align: center; 
   }
   .kop-aksara-row img { 
     display: inline-block; 
-    vertical-align: bottom; 
+    vertical-align: middle; 
   }
   .kop-rab-pemprov { 
     font-size: 11pt; 
     font-weight: bold; 
     letter-spacing: 0.5px; 
     color: #000000; 
-    margin: 1px 0 2px 0; 
+    margin: 0 0 1px 0; 
     text-transform: uppercase; 
-    line-height: 1.05;
+    line-height: 0.98;
   }
   .kop-rab-disdik { 
     font-size: 10.2pt; 
     font-weight: bold; 
     letter-spacing: 0.3px; 
     color: #000000; 
-    margin: 1px 0 2px 0; 
+    margin: 0 0 1px 0; 
     text-transform: uppercase; 
-    line-height: 1.05;
+    line-height: 0.98;
   }
   .kop-rab-sekolah { 
     font-size: 13.8pt; 
     font-weight: bold; 
     letter-spacing: 0.8px; 
     color: #000000; 
-    margin: 1px 0 2px 0; 
+    margin: 0 0 1px 0; 
     text-transform: uppercase; 
-    line-height: 1.1;
+    line-height: 1.0;
   }
   .kop-rab-alamat { 
     font-size: 8.5pt; 
     font-weight: bold; 
     color: #000000; 
-    margin: 1px 0 1px 0; 
-    line-height: 1.1;
+    margin: 0; 
+    line-height: 1.05;
   }
   .kop-rab-kontak { 
     font-size: 7.8pt; 
     color: #000000; 
     margin: 0; 
-    line-height: 1.1;
+    line-height: 1.05;
   }
   .kop-rab-link { 
     color: #000000; 
@@ -130,13 +130,13 @@
     font-weight: bold; 
     color: #000000; 
     letter-spacing: 0.5px; 
-    margin-top: 1px; 
-    line-height: 1.1;
+    margin-top: 0; 
+    line-height: 1.05;
   }
   
   /* Garis Ganda Resmi KOP Surat */
   .kop-rab-border-line {
-    margin-top: 4px;
+    margin-top: 3px;
     border-top: 2.5px solid #000000;
     border-bottom: 0.8px solid #000000;
     height: 2px;
@@ -156,22 +156,22 @@
       <!-- Teks Tengah KOP Surat (Aksara Bali & Latin) -->
       <td class="kop-rab-center">
         @if($aksara1Data)
-          <div class="kop-aksara-row"><img src="{{ $aksara1Data }}" alt="Aksara Bali Pemerintah Provinsi Bali" style="height: 15px; width: auto;"></div>
+          <div class="kop-aksara-row"><img src="{{ $aksara1Data }}" alt="Aksara Bali Pemerintah Provinsi Bali" style="height: 26px; width: auto;"></div>
         @endif
         <div class="kop-rab-pemprov">PEMERINTAH PROVINSI BALI</div>
 
         @if($aksara2Data)
-          <div class="kop-aksara-row"><img src="{{ $aksara2Data }}" alt="Aksara Bali Dinas Pendidikan" style="height: 14.5px; width: auto;"></div>
+          <div class="kop-aksara-row"><img src="{{ $aksara2Data }}" alt="Aksara Bali Dinas Pendidikan" style="height: 25px; width: auto;"></div>
         @endif
         <div class="kop-rab-disdik">DINAS PENDIDIKAN KEPEMUDAAN DAN OLAHRAGA</div>
 
         @if($aksara3Data)
-          <div class="kop-aksara-row"><img src="{{ $aksara3Data }}" alt="Aksara Bali SMA Negeri 1 Gianyar" style="height: 15px; width: auto;"></div>
+          <div class="kop-aksara-row"><img src="{{ $aksara3Data }}" alt="Aksara Bali SMA Negeri 1 Gianyar" style="height: 27px; width: auto;"></div>
         @endif
         <div class="kop-rab-sekolah">SMA NEGERI 1 GIANYAR</div>
 
         @if($aksara4Data)
-          <div class="kop-aksara-row"><img src="{{ $aksara4Data }}" alt="Aksara Bali Alamat dan Telepon" style="height: 13px; width: auto;"></div>
+          <div class="kop-aksara-row"><img src="{{ $aksara4Data }}" alt="Aksara Bali Alamat dan Telepon" style="height: 19px; width: auto;"></div>
         @endif
         <div class="kop-rab-alamat">Jln. Ratna, Tegal Tugu Gianyar, Telp : (0361) 943034</div>
 
