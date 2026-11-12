@@ -10,10 +10,11 @@ Dokumen ini mencatat seluruh histori pengerjaan, spesifikasi teknis, pemetaan ka
 |---|---|---|
 | **Font Aksara Bali** | Selesai | Menggunakan font TrueType legendaris `Bali Simbar.ttf` (ANSI-mapped) |
 | **Tata Letak KOP** | Selesai | Sesuai Pergub Bali No. 80 Th 2018 (Aksara Bali di atas teks Latin) |
-| **Kerapatan Teks** | Selesai | Jarak antar baris dibuat mepet & kompak (`margin-bottom: -1px` s/d `2px`) |
-| **Ukuran Huruf Bali** | Selesai | Ditingkatkan proporsional (`26.5px` s/d `29.5px`) agar terbaca tegas |
-| **Halaman Cetak A4** | Selesai | Mendukung A4 Portrait (210×297mm) dan Landscape (297×210mm) |
-| **Garis Pembatas Ganda**| Selesai | Garis atas tebal (3px) + celah (2px) + garis bawah tipis (1px) |
+| **Kerapatan Vertikal** | Selesai | Jarak antar font dibuat sangat mepet (`line-height: 0.68 - 0.72`, `margin-bottom: -5px`) agar KOP ramping |
+| **Ukuran Huruf Bali** | Selesai | Terbaca tegas & seimbang (`29px` - `32px` pada web, `21px` - `23px` pada PDF) |
+| **Halaman Landscape** | Selesai | Lebar KOP dibatasi maksimal `820px` (centered) agar logo tidak terlempar ke pinggir |
+| **Halaman Portrait** | Selesai | Lebar KOP `740px` (centered), jarak logo ke teks rapat (12px) |
+| **Garis Pembatas Ganda**| Selesai | Garis atas tebal (2.5px) + celah (1.5px) + garis bawah tipis (0.8px) |
 | **Logo DOSMAN** | Selesai | High-Res (1016×1024 & 2032×2048), transparan luar, putih solid dalam |
 | **Logo Pemprov Bali** | Selesai | Ultra-HD (2019×1941) transparan |
 
@@ -86,3 +87,4 @@ C:\Users\dosman\Projects\KOP\
    - Menggantikan penggunaan potongan gambar raster lama (`aksara-bali-1.png`, dst.) dengan font `Bali Simbar` berbasis CSS vector atau Base64 font embedding untuk generator PDF (Browsershot / DomPDF).
 4. **Dokumentasi Histori**:
    - Salin `catatankop.md` ke root `C:\Users\dosman\Projects\sims\catatankop.md`.
+
