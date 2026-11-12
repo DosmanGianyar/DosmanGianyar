@@ -16,13 +16,13 @@
     }
     .kop-resmi-grid {
       display: grid;
-      grid-template-columns: 80px 1fr 80px;
+      grid-template-columns: 88px 1fr 88px;
       align-items: center;
       column-gap: 12px;
     }
     @media (min-width: 768px) {
       .kop-resmi-grid {
-        grid-template-columns: 95px 1fr 95px;
+        grid-template-columns: 105px 1fr 105px;
         column-gap: 16px;
       }
     }
@@ -33,106 +33,110 @@
     }
     .kop-resmi-logo img {
       max-width: 100%;
-      height: 70px;
+      height: 78px;
       object-fit: contain;
     }
     @media (min-width: 768px) {
       .kop-resmi-logo img {
-        height: 88px;
+        height: 96px;
       }
     }
     .kop-resmi-center {
       text-align: center;
-      line-height: 0.85;
+      line-height: 0.88;
     }
     .kop-resmi-aksara {
       font-family: 'Bali Simbar', 'Bali Simbar Dwijendra', serif;
-      font-size: 20px;
+      font-size: 25px;
       line-height: 0.72;
       margin-bottom: -4px;
       -webkit-font-smoothing: antialiased;
     }
     @media (min-width: 768px) {
       .kop-resmi-aksara {
-        font-size: 26px;
+        font-size: 31px;
       }
     }
     .kop-resmi-aksara-sm {
       font-family: 'Bali Simbar', 'Bali Simbar Dwijendra', serif;
-      font-size: 15px;
+      font-size: 17px;
       line-height: 0.72;
       margin-bottom: -3px;
       -webkit-font-smoothing: antialiased;
     }
     @media (min-width: 768px) {
       .kop-resmi-aksara-sm {
-        font-size: 18px;
+        font-size: 22px;
       }
     }
     .kop-resmi-pemprov {
-      font-size: 12px;
+      font-size: 13.5px;
       font-weight: bold;
       letter-spacing: 0.5px;
-      margin-bottom: 1px;
-      line-height: 0.90;
-    }
-    @media (min-width: 768px) {
-      .kop-resmi-pemprov {
-        font-size: 15px;
-      }
-    }
-    .kop-resmi-disdik {
-      font-size: 11px;
-      font-weight: bold;
-      letter-spacing: 0.3px;
-      margin-bottom: 1px;
-      line-height: 0.90;
-    }
-    @media (min-width: 768px) {
-      .kop-resmi-disdik {
-        font-size: 14px;
-      }
-    }
-    .kop-resmi-sekolah {
-      font-size: 15px;
-      font-weight: bold;
-      letter-spacing: 0.8px;
       margin-bottom: 1px;
       line-height: 0.92;
     }
     @media (min-width: 768px) {
+      .kop-resmi-pemprov {
+        font-size: 17.5px;
+      }
+    }
+    .kop-resmi-disdik {
+      font-size: 12px;
+      font-weight: bold;
+      letter-spacing: 0.4px;
+      margin-bottom: 1px;
+      line-height: 0.92;
+    }
+    @media (min-width: 768px) {
+      .kop-resmi-disdik {
+        font-size: 16px;
+      }
+    }
+    .kop-resmi-sekolah {
+      font-size: 17px;
+      font-weight: bold;
+      letter-spacing: 0.8px;
+      margin-bottom: 1px;
+      line-height: 0.94;
+    }
+    @media (min-width: 768px) {
       .kop-resmi-sekolah {
-        font-size: 19px;
+        font-size: 22px;
       }
     }
     .kop-resmi-alamat {
-      font-size: 9.5px;
+      font-size: 10.5px;
       font-weight: bold;
       margin-bottom: 0px;
-      line-height: 0.95;
+      line-height: 1.0;
     }
     @media (min-width: 768px) {
       .kop-resmi-alamat {
-        font-size: 11.5px;
+        font-size: 13.5px;
       }
     }
     .kop-resmi-kontak {
-      font-size: 8.5px;
+      font-size: 9.5px;
       margin-bottom: 0px;
-      line-height: 0.95;
+      line-height: 1.0;
     }
     @media (min-width: 768px) {
       .kop-resmi-kontak {
-        font-size: 10.5px;
+        font-size: 12px;
       }
     }
     .kop-resmi-npsn {
-      font-size: 9px;
+      font-size: 9.5px;
       font-weight: bold;
       letter-spacing: 0.5px;
-      line-height: 0.95;
+      line-height: 1.0;
     }
     @media (min-width: 768px) {
+      .kop-resmi-npsn {
+        font-size: 12px;
+      }
+    }
       .kop-resmi-npsn {
         font-size: 11px;
       }

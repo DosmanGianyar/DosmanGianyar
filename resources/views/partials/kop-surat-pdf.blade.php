@@ -24,8 +24,8 @@
 <style>
   .kop-rab-wrapper { 
     width: 100%; 
-    max-width: 760px;
-    margin: 0 auto 4px auto; 
+    max-width: 900px;
+    margin: 0 auto 6px auto; 
     padding-top: 0; 
     text-align: center;
   }
@@ -42,28 +42,28 @@
     background: transparent !important; 
   }
   td.kop-rab-logo-left { 
-    width: 75px; 
+    width: 95px; 
     text-align: right; 
-    padding-right: 8px;
+    padding-right: 12px;
     vertical-align: middle !important; 
   }
   td.kop-rab-logo-right { 
-    width: 75px; 
+    width: 95px; 
     text-align: left; 
-    padding-left: 8px;
+    padding-left: 12px;
     vertical-align: middle !important; 
   }
   td.kop-rab-logo-left img { 
     width: auto; 
-    max-width: 70px; 
-    height: 80px; 
+    max-width: 88px; 
+    height: 96px; 
     object-fit: contain; 
     display: inline-block;
   }
   td.kop-rab-logo-right img { 
     width: auto; 
-    max-width: 70px; 
-    height: 80px; 
+    max-width: 88px; 
+    height: 96px; 
     object-fit: contain; 
     display: inline-block;
   }
@@ -73,12 +73,12 @@
     color: #000000;
     font-family: 'Times New Roman', 'Tinos', 'DejaVu Serif', serif;
     padding: 0 4px;
-    line-height: 0.88;
+    line-height: 0.90;
   }
   .kop-aksara-row { 
     margin: 0; 
     padding: 0; 
-    line-height: 0.7; 
+    line-height: 0.72; 
     text-align: center; 
   }
   .kop-aksara-row img { 
@@ -86,64 +86,64 @@
     vertical-align: middle; 
   }
   .kop-rab-pemprov { 
-    font-size: 10.5pt; 
+    font-size: 14pt; 
+    font-weight: bold; 
+    letter-spacing: 0.5px; 
+    color: #000000; 
+    margin: -1px 0 0 0; 
+    text-transform: uppercase; 
+    line-height: 0.94;
+  }
+  .kop-rab-disdik { 
+    font-size: 12.5pt; 
     font-weight: bold; 
     letter-spacing: 0.4px; 
     color: #000000; 
-    margin: -2px 0 0 0; 
+    margin: -1px 0 0 0; 
     text-transform: uppercase; 
-    line-height: 0.92;
-  }
-  .kop-rab-disdik { 
-    font-size: 9.6pt; 
-    font-weight: bold; 
-    letter-spacing: 0.2px; 
-    color: #000000; 
-    margin: -2px 0 0 0; 
-    text-transform: uppercase; 
-    line-height: 0.92;
+    line-height: 0.94;
   }
   .kop-rab-sekolah { 
-    font-size: 13pt; 
+    font-size: 17.5pt; 
     font-weight: bold; 
-    letter-spacing: 0.6px; 
-    color: #000000; 
-    margin: -2px 0 0 0; 
-    text-transform: uppercase; 
-    line-height: 0.95;
-  }
-  .kop-rab-alamat { 
-    font-size: 8pt; 
-    font-weight: bold; 
+    letter-spacing: 0.8px; 
     color: #000000; 
     margin: -1px 0 0 0; 
-    line-height: 1.0;
+    text-transform: uppercase; 
+    line-height: 0.96;
   }
-  .kop-rab-kontak { 
-    font-size: 7.2pt; 
+  .kop-rab-alamat { 
+    font-size: 10pt; 
+    font-weight: bold; 
     color: #000000; 
     margin: 0; 
-    line-height: 1.0;
+    line-height: 1.05;
+  }
+  .kop-rab-kontak { 
+    font-size: 9pt; 
+    color: #000000; 
+    margin: 1px 0 0 0; 
+    line-height: 1.05;
   }
   .kop-rab-link { 
     color: #000000; 
     text-decoration: none; 
   }
   .kop-rab-npsn { 
-    font-size: 7.2pt; 
+    font-size: 9pt; 
     font-weight: bold; 
     color: #000000; 
-    letter-spacing: 0.4px; 
-    margin-top: 0; 
-    line-height: 1.0;
+    letter-spacing: 0.5px; 
+    margin-top: 1px; 
+    line-height: 1.05;
   }
   
   /* Garis Ganda Resmi KOP Surat */
   .kop-rab-border-line {
-    margin-top: 3px;
-    border-top: 2.2px solid #000000;
-    border-bottom: 0.7px solid #000000;
-    height: 1.5px;
+    margin-top: 5px;
+    border-top: 2.8px solid #000000;
+    border-bottom: 0.9px solid #000000;
+    height: 2px;
     width: 100%;
   }
 </style>
@@ -160,22 +160,22 @@
       <!-- Teks Tengah KOP Surat (Aksara Bali & Latin) -->
       <td class="kop-rab-center">
         @if($aksara1Data)
-          <div class="kop-aksara-row"><img src="{{ $aksara1Data }}" alt="Aksara Bali Pemerintah Provinsi Bali" style="height: 22px; width: auto;"></div>
+          <div class="kop-aksara-row"><img src="{{ $aksara1Data }}" alt="Aksara Bali Pemerintah Provinsi Bali" style="height: 30px; width: auto;"></div>
         @endif
         <div class="kop-rab-pemprov">PEMERINTAH PROVINSI BALI</div>
 
         @if($aksara2Data)
-          <div class="kop-aksara-row"><img src="{{ $aksara2Data }}" alt="Aksara Bali Dinas Pendidikan" style="height: 21px; width: auto;"></div>
+          <div class="kop-aksara-row"><img src="{{ $aksara2Data }}" alt="Aksara Bali Dinas Pendidikan" style="height: 29px; width: auto;"></div>
         @endif
         <div class="kop-rab-disdik">DINAS PENDIDIKAN KEPEMUDAAN DAN OLAHRAGA</div>
 
         @if($aksara3Data)
-          <div class="kop-aksara-row"><img src="{{ $aksara3Data }}" alt="Aksara Bali SMA Negeri 1 Gianyar" style="height: 23px; width: auto;"></div>
+          <div class="kop-aksara-row"><img src="{{ $aksara3Data }}" alt="Aksara Bali SMA Negeri 1 Gianyar" style="height: 32px; width: auto;"></div>
         @endif
         <div class="kop-rab-sekolah">SMA NEGERI 1 GIANYAR</div>
 
         @if($aksara4Data)
-          <div class="kop-aksara-row"><img src="{{ $aksara4Data }}" alt="Aksara Bali Alamat dan Telepon" style="height: 16px; width: auto;"></div>
+          <div class="kop-aksara-row"><img src="{{ $aksara4Data }}" alt="Aksara Bali Alamat dan Telepon" style="height: 22px; width: auto;"></div>
         @endif
         <div class="kop-rab-alamat">Jln. Ratna, Tegal Tugu Gianyar, Telp : (0361) 943034</div>
 
