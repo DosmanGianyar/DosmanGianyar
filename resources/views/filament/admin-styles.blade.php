@@ -264,43 +264,60 @@
     overflow-x: auto !important;
 }
 
+.fi-ta-table {
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+}
+
 .fi-ta-table thead tr {
     background: #f8fafc !important;
-    border-bottom: 1px solid var(--tblr-border) !important;
+    border-bottom: 2px solid var(--tblr-border) !important;
 }
 
 .fi-ta-table th {
-    font-size: 0.7rem !important;
+    font-size: 0.75rem !important;
     text-transform: uppercase !important;
     letter-spacing: 0.05em !important;
-    color: #475569 !important;
+    color: #1e293b !important;
     font-weight: 700 !important;
+    padding: 0.75rem 1rem !important;
 }
 
-/* Sticky Action Column */
+.fi-ta-table tbody tr {
+    border-bottom: 1px solid #f1f5f9 !important;
+    transition: background-color 0.12s ease !important;
+}
+
+.fi-ta-table tbody tr:hover {
+    background-color: #f8fafc !important;
+}
+
+/* Sticky Action Column across ALL Filament tables */
 .fi-ta-table th.fi-ta-actions-header-cell {
     position: sticky !important;
     right: 0 !important;
-    z-index: 10 !important;
+    z-index: 15 !important;
     background: #f8fafc !important;
     border-left: 1px solid #e2e8f0 !important;
     box-shadow: -4px 0 10px rgba(15, 23, 42, 0.06) !important;
-    min-width: 180px !important;
+    min-width: 200px !important;
     text-align: center !important;
     white-space: nowrap !important;
+    padding: 0.6rem 0.75rem !important;
 }
 
 .fi-ta-table td.fi-ta-actions-cell,
 .fi-ta-table td.fi-ta-cell:has(.fi-ta-actions) {
     position: sticky !important;
     right: 0 !important;
-    z-index: 5 !important;
+    z-index: 10 !important;
     background: #ffffff !important;
     border-left: 1px solid #e2e8f0 !important;
     box-shadow: -4px 0 10px rgba(15, 23, 42, 0.06) !important;
-    min-width: 180px !important;
+    min-width: 200px !important;
     text-align: center !important;
     white-space: nowrap !important;
+    padding: 0.5rem 0.75rem !important;
 }
 
 .fi-ta-table tr:hover td.fi-ta-actions-cell,
@@ -308,99 +325,155 @@
     background: #f8fafc !important;
 }
 
-/* Checkbox Selection Hit Area & High-Visibility Styling */
-.fi-ta-record-checkbox-ctn,
-.fi-ta-select-all-checkbox-ctn {
+/* Checkbox Selection Hit Area & High-Visibility Styling across ALL tables */
+.fi-ta-table th.fi-ta-selection-cell,
+.fi-ta-table td.fi-ta-selection-cell,
+.fi-ta-table th:has(input[type="checkbox"]),
+.fi-ta-table td:has(input[type="checkbox"]) {
+    width: 3.5rem !important;
+    min-width: 3.5rem !important;
+    max-width: 3.5rem !important;
+    text-align: center !important;
+    padding: 0 !important;
+    vertical-align: middle !important;
+    position: relative !important;
+    z-index: 2 !important;
+}
+
+.fi-ta-table td.fi-ta-selection-cell label,
+.fi-ta-table th.fi-ta-selection-cell label,
+.fi-ta-table .fi-ta-record-checkbox-ctn,
+.fi-ta-table .fi-ta-select-all-checkbox-ctn {
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 3rem !important;
+    padding: 0.6rem !important;
     cursor: pointer !important;
+    margin: 0 !important;
 }
 
 .fi-ta-table input[type="checkbox"],
 .fi-ta-record-checkbox,
 .fi-ta-select-all-checkbox {
-    width: 1.25rem !important;
-    height: 1.25rem !important;
-    border-radius: 0.35rem !important;
-    border: 1.5px solid #94a3b8 !important;
+    width: 1.3rem !important;
+    height: 1.3rem !important;
+    min-width: 1.3rem !important;
+    min-height: 1.3rem !important;
+    border-radius: 0.375rem !important;
+    border: 2px solid #64748b !important;
+    background-color: #ffffff !important;
     cursor: pointer !important;
     accent-color: #206bc4 !important;
     transition: all 0.15s ease !important;
+    margin: 0 !important;
+    display: inline-block !important;
+    vertical-align: middle !important;
 }
 
 .fi-ta-table input[type="checkbox"]:hover {
     border-color: #206bc4 !important;
-    box-shadow: 0 0 0 3px rgba(32, 107, 196, 0.15) !important;
+    box-shadow: 0 0 0 3px rgba(32, 107, 196, 0.25) !important;
+    transform: scale(1.08) !important;
 }
 
-.fi-ta-table td:has(input[type="checkbox"]),
-.fi-ta-table th:has(input[type="checkbox"]) {
-    width: 48px !important;
-    min-width: 48px !important;
-    text-align: center !important;
-    padding-left: 0.75rem !important;
-    padding-right: 0.75rem !important;
+.fi-ta-table input[type="checkbox"]:checked {
+    background-color: #206bc4 !important;
+    border-color: #206bc4 !important;
 }
 
-/* Table Typography & High Contrast Readability */
+/* Table Typography & High Contrast Readability across ALL Filament tables */
 .fi-ta-table td {
     color: #1e293b !important;
     font-size: 0.8125rem !important;
+    line-height: 1.5 !important;
+    padding: 0.75rem 1rem !important;
 }
 
 .fi-ta-table td .fi-ta-text-item-label {
     color: #0f172a !important;
+    font-weight: 600 !important;
 }
 
 .fi-ta-table td .fi-ta-text-item-description {
     color: #475569 !important;
     font-size: 0.75rem !important;
+    line-height: 1.35 !important;
+    margin-top: 0.15rem !important;
 }
 
-/* Table Row Action Buttons (Scoped to table body cells so header/bulk toolbar is untouched) */
+.fi-ta-table .fi-badge {
+    font-weight: 600 !important;
+    font-size: 0.72rem !important;
+    padding: 0.2rem 0.55rem !important;
+    border-radius: 0.375rem !important;
+    letter-spacing: 0.01em !important;
+}
+
+/* Table Row Action Buttons (Flex layout side-by-side with crisp borders, zero overlap) */
 .fi-ta-table td .fi-ta-actions {
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    gap: 0.45rem !important;
+    gap: 0.5rem !important;
     white-space: nowrap !important;
     flex-wrap: nowrap !important;
+    width: auto !important;
+}
+
+.fi-ta-table td .fi-ta-actions > * {
+    position: static !important;
+    flex-shrink: 0 !important;
+    margin: 0 !important;
 }
 
 .fi-ta-table td .fi-ta-actions .fi-btn {
     white-space: nowrap !important;
     display: inline-flex !important;
     align-items: center !important;
-    gap: 0.3rem !important;
+    gap: 0.35rem !important;
+    padding: 0.25rem 0.65rem !important;
+    font-size: 0.75rem !important;
+    font-weight: 600 !important;
+    border-radius: 0.5rem !important;
+    line-height: 1.25rem !important;
+    border-width: 1px !important;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05) !important;
 }
 
 .fi-ta-table td .fi-ta-actions .fi-icon-btn,
 .fi-ta-table td .fi-ta-actions .fi-ta-action-group .fi-icon-btn {
     border-radius: 0.5rem !important;
-    background: #f8fafc !important;
+    background: #ffffff !important;
     border: 1px solid var(--tblr-border) !important;
-    width: 1.9rem !important;
-    height: 1.9rem !important;
-    min-width: 1.9rem !important;
-    min-height: 1.9rem !important;
+    width: 2rem !important;
+    height: 2rem !important;
+    min-width: 2rem !important;
+    min-height: 2rem !important;
     padding: 0 !important;
+    display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
+    color: #475569 !important;
     transition: all 0.15s ease !important;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04) !important;
 }
 
-.fi-ta-table td .fi-ta-actions .fi-icon-btn:hover {
+.fi-ta-table td .fi-ta-actions .fi-icon-btn:hover,
+.fi-ta-table td .fi-ta-actions .fi-ta-action-group .fi-icon-btn:hover {
     background: var(--tblr-primary-soft) !important;
     border-color: #93c5fd !important;
+    color: var(--tblr-primary) !important;
 }
 
 body.sims-users-actions-grid .fi-ta-table td .fi-ta-actions {
-    display: grid !important;
-    grid-template-columns: repeat(3, 2rem) !important;
-    gap: 0.4rem !important;
-    width: fit-content !important;
-    margin: 0 auto !important;
+    display: inline-flex !important;
+    flex-wrap: wrap !important;
+    max-width: 6.8rem !important;
+    gap: 0.35rem !important;
+    justify-content: center !important;
 }
 
 /* Bulk Actions & Header Toolbar Buttons (Prevent dual mobile+desktop trigger overlap) */
@@ -768,17 +841,27 @@ body.sims-users-actions-grid .fi-ta-table td .fi-ta-actions {
     function applySimsUsersActionsGrid() {
         if (!document.body) return;
         var p = window.location.pathname;
-        if (
-            p.indexOf('/admin/users') !== -1 ||
-            p.indexOf('/admin/student-achievements') !== -1 ||
-            p.indexOf('/admin/extracurriculars') !== -1 ||
-            p.indexOf('/admin/extracurricular-members') !== -1
-        ) {
+        if (p.indexOf('/admin/users') !== -1) {
             document.body.classList.add('sims-users-actions-grid');
         } else {
             document.body.classList.remove('sims-users-actions-grid');
         }
     }
+
+    // Make entire selection checkbox cell reliably clickable across all Filament tables
+    function handleCheckboxCellClick(e) {
+        var cell = e.target.closest('.fi-ta-selection-cell, td:has(input[type="checkbox"]), th:has(input[type="checkbox"])');
+        if (cell) {
+            var checkbox = cell.querySelector('input[type="checkbox"]');
+            if (checkbox && e.target !== checkbox) {
+                e.preventDefault();
+                e.stopPropagation();
+                checkbox.click();
+            }
+        }
+    }
+
+    document.addEventListener('click', handleCheckboxCellClick, true);
     document.addEventListener('DOMContentLoaded', applySimsUsersActionsGrid);
     document.addEventListener('livewire:navigated', applySimsUsersActionsGrid);
     document.addEventListener('livewire:initialized', applySimsUsersActionsGrid);

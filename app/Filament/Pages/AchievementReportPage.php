@@ -190,20 +190,20 @@ class AchievementReportPage extends Page implements HasTable
                         if ($totalMembers > 1 || $record->isBeregu()) {
                             $lines = $members->values()->map(function (StudentAchievement $m, int $idx) use ($totalMembers) {
                                 $name = e($m->student?->name ?? 'Siswa');
-                                $cls = $m->student?->schoolClass?->name ? ' <span style="font-size:0.74rem; color:#93c5fd;">(' . e($m->student->schoolClass->name) . ')</span>' : '';
+                                $cls = $m->student?->schoolClass?->name ? ' <span style="font-size:0.74rem; color:#0369a1; font-weight:600;">(' . e($m->student->schoolClass->name) . ')</span>' : '';
                                 $border = ($idx < $totalMembers - 1) ? 'border-bottom:1px solid rgba(148,163,184,0.28);' : '';
                                 return "<div style=\"line-height:1.4; padding:3px 0; {$border}\"><strong>" . ($idx + 1) . ". {$name}</strong>{$cls}</div>";
                             })->implode('');
 
                             return "<div style=\"display:flex; flex-direction:column;\">"
-                                . "<div style=\"font-size:0.68rem; font-weight:700; color:#fcd34d; text-transform:uppercase; letter-spacing:0.03em; padding-bottom:4px; border-bottom:1px solid rgba(148,163,184,0.45); margin-bottom:2px;\">👥 Kelompok Juara ({$totalMembers} Siswa):</div>"
+                                . "<div style=\"font-size:0.68rem; font-weight:700; color:#b45309; text-transform:uppercase; letter-spacing:0.03em; padding-bottom:4px; border-bottom:1px solid rgba(148,163,184,0.45); margin-bottom:2px;\">👥 Kelompok Juara ({$totalMembers} Siswa):</div>"
                                 . $lines
                                 . "</div>";
                         }
 
                         $name = e($record->student?->name ?? '—');
                         $cls = $record->student?->schoolClass?->name
-                            ? "<div style=\"font-size:0.75rem; color:#93c5fd; font-weight:600;\">Kelas " . e($record->student->schoolClass->name) . "</div>"
+                            ? "<div style=\"font-size:0.75rem; color:#0369a1; font-weight:600;\">Kelas " . e($record->student->schoolClass->name) . "</div>"
                             : '';
 
                         return "<div><strong>{$name}</strong>{$cls}</div>";

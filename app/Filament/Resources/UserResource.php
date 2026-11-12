@@ -753,10 +753,6 @@ class UserResource extends Resource
                         blank: fn (Builder $q) => $q,
                     ),
             ])
-            ->recordUrl(fn (User $record): ?string => in_array($record->role, ['siswa', 'pengelola'])
-                ? static::getUrl('view', ['record' => $record])
-                : null
-            )
             ->recordActions([
                 ViewAction::make()
                     ->iconButton()
