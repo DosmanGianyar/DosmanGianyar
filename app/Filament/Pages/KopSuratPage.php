@@ -28,3 +28,4 @@ class KopSuratPage extends Page
         $this->orientation = in_array($orientation, ['portrait', 'landscape']) ? $orientation : 'portrait';
     }
 }
+

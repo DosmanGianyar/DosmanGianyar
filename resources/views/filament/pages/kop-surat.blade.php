@@ -167,6 +167,37 @@
             align-items: center;
             gap: 4px;
         }
+
+        /* ─── KUNCI UKURAN SVG AGAR TIDAK MELEDAK DI FILAMENT ─── */
+        .kop-page-wrap svg {
+            width: 16px !important;
+            height: 16px !important;
+            min-width: 16px !important;
+            min-height: 16px !important;
+            max-width: 16px !important;
+            max-height: 16px !important;
+            display: inline-block !important;
+            vertical-align: middle !important;
+            flex-shrink: 0 !important;
+        }
+
+        .badge-tight svg {
+            width: 14px !important;
+            height: 14px !important;
+            min-width: 14px !important;
+            min-height: 14px !important;
+            max-width: 14px !important;
+            max-height: 14px !important;
+        }
+
+        .guide-box svg {
+            width: 18px !important;
+            height: 18px !important;
+            min-width: 18px !important;
+            min-height: 18px !important;
+            max-width: 18px !important;
+            max-height: 18px !important;
+        }
     </style>
 
     <div class="kop-page-wrap" x-data="{
@@ -215,7 +246,7 @@
                 <div>
                     <div class="flex items-center gap-2 mb-1">
                         <span class="badge-tight">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                            <svg style="width: 14px; height: 14px; min-width: 14px; min-height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                             Standar Baku Resmi SMAN 1 Gianyar
                         </span>
                         <span class="badge-tight" style="background: #fef3c7; color: #92400e;">
@@ -231,11 +262,11 @@
                 {{-- Tabs Orientasi --}}
                 <div class="kop-tabs self-start md:self-auto">
                     <button class="kop-tab-btn" :class="activeTab === 'portrait' ? 'active' : ''" @click="activeTab = 'portrait'">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        <svg style="width: 16px; height: 16px; min-width: 16px; min-height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                         📄 A4 Portrait
                     </button>
                     <button class="kop-tab-btn" :class="activeTab === 'landscape' ? 'active' : ''" @click="activeTab = 'landscape'">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+                        <svg style="width: 16px; height: 16px; min-width: 16px; min-height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
                         📜 A4 Landscape
                     </button>
                 </div>
@@ -268,13 +299,13 @@
                     <button type="button" @click="copyImage()" class="kop-btn kop-btn-indigo">
                         <template x-if="!copied">
                             <span class="inline-flex items-center gap-1.5">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+                                <svg style="width: 16px; height: 16px; min-width: 16px; min-height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
                                 📋 Salin Gambar (Ctrl+V di Word)
                             </span>
                         </template>
                         <template x-if="copied">
                             <span class="inline-flex items-center gap-1.5 text-white">
-                                <svg class="w-4 h-4 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                <svg style="width: 16px; height: 16px; min-width: 16px; min-height: 16px;" class="text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                                 ✅ Tersalin ke Clipboard!
                             </span>
                         </template>
@@ -282,7 +313,7 @@
 
                     {{-- Download PNG Button --}}
                     <a :href="downloadUrl" class="kop-btn kop-btn-primary">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                        <svg style="width: 16px; height: 16px; min-width: 16px; min-height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                         <span x-text="isTransparent ? 'Download PNG Transparan' : 'Download PNG Latar Putih'"></span>
                     </a>
                 </div>
@@ -311,7 +342,7 @@
         {{-- Panduan Pemasangan di Microsoft Word --}}
         <div class="guide-box">
             <h3 class="text-sm font-bold text-blue-900 flex items-center gap-2 mb-2">
-                <svg class="w-4.5 h-4.5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <svg style="width: 18px; height: 18px; min-width: 18px; min-height: 18px;" class="text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 💡 Panduan Praktis Menempelkan KOP di Microsoft Word / Google Docs
             </h3>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-slate-700 mt-3">
@@ -331,3 +362,4 @@
         </div>
     </div>
 </x-filament-panels::page>
+
