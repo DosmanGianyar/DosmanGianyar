@@ -63,7 +63,7 @@ class TeacherSchedulePageTest extends TestCase
             ->assertSuccessful()
             ->set('selectedTeacherId', $teacher->id)
             ->assertSee('Ni Kadek Novi Ari, S.Pd')
-            ->assertSee('XI-B1')
+            ->assertSee('XI B1')
             ->assertSee('INDO');
     }
 }

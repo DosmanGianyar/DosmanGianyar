@@ -51,6 +51,17 @@ class TeacherSchedulePage extends Page
         6 => ['name' => 'SABTU',  'bg' => '#FFE0B2', 'text' => '#E65100'],
     ];
 
+    public const DISPLAY_CODE_MAP = [
+        'B_INDO' => 'INDO',
+        'MTK'    => 'MAT',
+        'B_ING'  => 'INGG',
+        'B_BALI' => 'B BALI',
+        'SB'     => 'SENI',
+        'MTKTL'  => 'MAT.L',
+        'IT'     => 'TIK',
+        'PP'     => 'PPKN',
+    ];
+
     public function mount(): void
     {
         if (request()->has('teacher_id')) {
@@ -184,11 +195,15 @@ class TeacherSchedulePage extends Page
                     }
                 }
 
+                $rawCode     = $slot->subject?->code ?: ($slot->subject?->name ?? '—');
+                $displayCode = self::DISPLAY_CODE_MAP[strtoupper(trim($rawCode))] ?? $rawCode;
+                $displayClass = str_replace('-', ' ', $slot->schoolClass?->name ?? '—');
+
                 $grid[$p][$d] = [
                     'type'         => 'slot',
                     'span'         => $span,
-                    'class_name'   => $slot->schoolClass?->name ?? '—',
-                    'subject_code' => $slot->subject?->code ?: ($slot->subject?->name ?? '—'),
+                    'class_name'   => $displayClass,
+                    'subject_code' => $displayCode,
                     'subject_name' => $slot->subject?->name ?? '—',
                     'room'         => $slot->room,
                 ];
