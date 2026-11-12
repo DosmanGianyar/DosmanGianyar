@@ -28,6 +28,7 @@ use App\Http\Controllers\Guru\GradeController as GuruGrade;
 use App\Http\Controllers\Guru\TpController as GuruTp;
 use App\Http\Controllers\Guru\JournalController as GuruJournal;
 use App\Http\Controllers\Guru\LayananController as GuruLayanan;
+use App\Http\Controllers\Guru\KopSuratController as GuruKopSurat;
 use App\Http\Controllers\Siswa\AnnouncementController as SiswaAnnouncement;
 use App\Http\Controllers\Siswa\VotingController as SiswaVoting;
 use App\Http\Controllers\Siswa\VotingManageController as SiswaVotingManage;
@@ -206,6 +207,8 @@ Route::middleware(['auth', 'role:guru,admin,pegawai'])->prefix('guru')->name('gu
     // Sarpras
     Route::prefix('sarpras')->name('sarpras.')->group(function () {
         Route::get('/', [GuruSarpras::class, 'index'])->name('index');
+        Route::get('/kop-surat', [GuruKopSurat::class, 'index'])->name('kop-surat');
+        Route::get('/kop-surat/download/{type}', [GuruKopSurat::class, 'download'])->name('kop-surat.download');
         Route::get('/damage', [GuruSarpras::class, 'damage'])->name('damage');
         Route::patch('/damage/{report}/progress', [GuruSarpras::class, 'progressDamage'])->name('damage.progress');
         Route::patch('/damage/{report}/resolve', [GuruSarpras::class, 'resolveDamage'])->name('damage.resolve');
@@ -215,6 +218,10 @@ Route::middleware(['auth', 'role:guru,admin,pegawai'])->prefix('guru')->name('gu
         Route::patch('/loans/{loan}/return', [GuruSarpras::class, 'returnLoan'])->name('loans.return');
         Route::post('/assets/{asset}/maintenance', [GuruSarpras::class, 'storeMaintenance'])->name('maintenance.store');
     });
+
+    // KOP Surat Alias Route
+    Route::get('/kop-surat', [GuruKopSurat::class, 'index'])->name('kop-surat.index');
+    Route::get('/kop-surat/download/{type}', [GuruKopSurat::class, 'download'])->name('kop-surat.download');
 
     // Izin Pulang Lebih Awal (review oleh guru/piket/admin)
     Route::prefix('early-checkout')->name('early-checkout.')->group(function () {

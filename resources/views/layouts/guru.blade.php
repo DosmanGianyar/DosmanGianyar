@@ -125,6 +125,14 @@
                         ['route' => 'guru.export.grades.form',      'label' => 'Export Rekap Nilai',   'icon' => 'M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4'],
                     ],
                 ],
+                [
+                    'label' => 'Sarpras & Fasilitas',
+                    'icon'  => 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5m0 0h4m-4 0V11m0 0h4m-4 0H9',
+                    'items' => [
+                        ['route' => 'guru.sarpras.kop-surat', 'label' => 'KOP Surat Resmi', 'icon' => 'M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4'],
+                        ['route' => 'guru.sarpras.index',     'label' => 'Aset & Inventaris', 'icon' => 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5m0 0h4m-4 0V11m0 0h4m-4 0H9'],
+                    ],
+                ],
             ];
         @endphp
 
