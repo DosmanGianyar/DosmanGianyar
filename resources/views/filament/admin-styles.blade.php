@@ -528,37 +528,36 @@
     background-color: #f8fafc !important;
 }
 
-/* Sticky Action Column across ALL Filament tables */
-.fi-ta-table th.fi-ta-actions-header-cell {
-    position: sticky !important;
-    right: 0 !important;
-    z-index: 15 !important;
+/* Action Column across ALL Filament tables (Unified with table, compact, zero overlap) */
+.fi-ta-table th.fi-ta-actions-header-cell,
+.fi-ta-table th:has(.fi-ta-actions) {
+    position: static !important;
     background: #f8fafc !important;
-    border-left: 1px solid #e2e8f0 !important;
-    box-shadow: -4px 0 10px rgba(15, 23, 42, 0.06) !important;
-    min-width: 200px !important;
-    text-align: center !important;
+    border-left: none !important;
+    box-shadow: none !important;
+    width: 1% !important;
+    min-width: auto !important;
+    text-align: right !important;
     white-space: nowrap !important;
     padding: 0.6rem 0.75rem !important;
 }
 
 .fi-ta-table td.fi-ta-actions-cell,
 .fi-ta-table td.fi-ta-cell:has(.fi-ta-actions) {
-    position: sticky !important;
-    right: 0 !important;
-    z-index: 10 !important;
-    background: #ffffff !important;
-    border-left: 1px solid #e2e8f0 !important;
-    box-shadow: -4px 0 10px rgba(15, 23, 42, 0.06) !important;
-    min-width: 200px !important;
-    text-align: center !important;
+    position: static !important;
+    background: transparent !important;
+    border-left: none !important;
+    box-shadow: none !important;
+    width: 1% !important;
+    min-width: auto !important;
+    text-align: right !important;
     white-space: nowrap !important;
-    padding: 0.5rem 0.75rem !important;
+    padding: 0.35rem 0.75rem !important;
 }
 
 .fi-ta-table tr:hover td.fi-ta-actions-cell,
 .fi-ta-table tr:hover td.fi-ta-cell:has(.fi-ta-actions) {
-    background: #f8fafc !important;
+    background: inherit !important;
 }
 
 /* Checkbox Selection Hit Area & High-Visibility Styling across ALL tables */
@@ -648,12 +647,12 @@
     letter-spacing: 0.01em !important;
 }
 
-/* Table Row Action Buttons (Flex layout side-by-side with crisp borders, zero overlap) */
+/* Table Row Action Buttons (Flex layout side-by-side, compact, zero overlap) */
 .fi-ta-table td .fi-ta-actions {
     display: inline-flex !important;
     align-items: center !important;
-    justify-content: center !important;
-    gap: 0.5rem !important;
+    justify-content: flex-end !important;
+    gap: 0.35rem !important;
     white-space: nowrap !important;
     flex-wrap: nowrap !important;
     width: auto !important;
@@ -669,11 +668,11 @@
     white-space: nowrap !important;
     display: inline-flex !important;
     align-items: center !important;
-    gap: 0.35rem !important;
-    padding: 0.25rem 0.65rem !important;
+    gap: 0.3rem !important;
+    padding: 0.2rem 0.55rem !important;
     font-size: 0.75rem !important;
     font-weight: 600 !important;
-    border-radius: 0.5rem !important;
+    border-radius: 0.375rem !important;
     line-height: 1.25rem !important;
     border-width: 1px !important;
     box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05) !important;
@@ -681,13 +680,13 @@
 
 .fi-ta-table td .fi-ta-actions .fi-icon-btn,
 .fi-ta-table td .fi-ta-actions .fi-ta-action-group .fi-icon-btn {
-    border-radius: 0.5rem !important;
+    border-radius: 0.375rem !important;
     background: #ffffff !important;
     border: 1px solid var(--tblr-border) !important;
-    width: 2rem !important;
-    height: 2rem !important;
-    min-width: 2rem !important;
-    min-height: 2rem !important;
+    width: 1.85rem !important;
+    height: 1.85rem !important;
+    min-width: 1.85rem !important;
+    min-height: 1.85rem !important;
     padding: 0 !important;
     display: inline-flex !important;
     align-items: center !important;
@@ -695,6 +694,12 @@
     color: #475569 !important;
     transition: all 0.15s ease !important;
     box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04) !important;
+}
+
+.fi-ta-table td .fi-ta-actions .fi-icon-btn svg,
+.fi-ta-table td .fi-ta-actions .fi-ta-action-group .fi-icon-btn svg {
+    width: 1.1rem !important;
+    height: 1.1rem !important;
 }
 
 .fi-ta-table td .fi-ta-actions .fi-icon-btn:hover,
