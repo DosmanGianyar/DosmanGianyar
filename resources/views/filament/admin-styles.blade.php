@@ -146,7 +146,8 @@
 .fi-sidebar-item.fi-active .fi-sidebar-item-label,
 .fi-sidebar-item.fi-active a .fi-sidebar-item-label,
 .fi-sidebar-item.fi-active button .fi-sidebar-item-label,
-.fi-sidebar-item.fi-active span,
+.fi-sidebar-item.fi-active .fi-sidebar-item-btn span:not([class*="badge"]),
+.fi-sidebar-item.fi-active span:not([class*="badge"]),
 .fi-sidebar-item-btn.fi-active .fi-sidebar-item-label,
 .fi-sidebar-item-btn.fi-sidebar-item-active .fi-sidebar-item-label,
 .fi-sidebar-item-btn[aria-current] .fi-sidebar-item-label,
@@ -155,20 +156,20 @@
     font-weight: 700 !important;
 }
 
+.fi-sidebar-item.fi-active .fi-sidebar-item-btn svg,
 .fi-sidebar-item.fi-active .fi-sidebar-item-icon,
 .fi-sidebar-item.fi-active .fi-sidebar-item-icon svg,
 .fi-sidebar-item.fi-active a svg,
 .fi-sidebar-item.fi-active button svg,
 .fi-sidebar-item-btn.fi-active .fi-sidebar-item-icon,
-.fi-sidebar-item-btn.fi-active .fi-sidebar-item-icon svg,
+.fi-sidebar-item-btn.fi-active svg,
 .fi-sidebar-item-btn.fi-sidebar-item-active .fi-sidebar-item-icon,
-.fi-sidebar-item-btn.fi-sidebar-item-active .fi-sidebar-item-icon svg,
+.fi-sidebar-item-btn.fi-sidebar-item-active svg,
 .fi-sidebar-item-btn[aria-current] .fi-sidebar-item-icon,
-.fi-sidebar-item-btn[aria-current] .fi-sidebar-item-icon svg,
+.fi-sidebar-item-btn[aria-current] svg,
 .fi-sidebar-item[aria-current] .fi-sidebar-item-icon,
-.fi-sidebar-item[aria-current] .fi-sidebar-item-icon svg {
+.fi-sidebar-item[aria-current] svg {
     color: #0f172a !important;
-    stroke: #0f172a !important;
 }
 
 .fi-sidebar-item.fi-active:hover .fi-sidebar-item-btn,
@@ -176,7 +177,8 @@
     background: #ffffff !important;
 }
 .fi-sidebar-item.fi-active:hover .fi-sidebar-item-label,
-.fi-sidebar-item.fi-active:hover .fi-sidebar-item-icon svg {
+.fi-sidebar-item.fi-active:hover .fi-sidebar-item-icon svg,
+.fi-sidebar-item.fi-active:hover svg {
     color: #0f172a !important;
 }
 

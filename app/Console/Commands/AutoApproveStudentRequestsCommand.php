@@ -266,3 +266,4 @@ class AutoApproveStudentRequestsCommand extends Command
         return $count;
     }
 }
+

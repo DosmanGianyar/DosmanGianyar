@@ -140,3 +140,4 @@ class AutoApproveStudentRequestsCommandTest extends TestCase
         Carbon::setTestNow();
     }
 }
+
