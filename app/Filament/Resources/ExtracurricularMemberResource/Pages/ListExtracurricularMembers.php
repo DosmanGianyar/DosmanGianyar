@@ -4,14 +4,14 @@ namespace App\Filament\Resources\ExtracurricularMemberResource\Pages;
 
 use App\Filament\Resources\ExtracurricularMemberResource;
 use Filament\Resources\Pages\ListRecords;
-use Filament\Support\Enums\MaxWidth;
+use Filament\Support\Enums\Width;
 
 class ListExtracurricularMembers extends ListRecords
 {
     protected static string $resource = ExtracurricularMemberResource::class;
 
-    public function getMaxContentWidth(): MaxWidth | string | null
+    public function getMaxContentWidth(): Width | string | null
     {
-        return MaxWidth::Full;
+        return Width::Full;
     }
 }
