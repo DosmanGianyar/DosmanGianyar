@@ -503,6 +503,8 @@
 .fi-ta-table {
     border-collapse: separate !important;
     border-spacing: 0 !important;
+    width: 100% !important;
+    min-width: 100% !important;
 }
 
 .fi-ta-table thead tr {
@@ -516,7 +518,7 @@
     letter-spacing: 0.05em !important;
     color: #1e293b !important;
     font-weight: 700 !important;
-    padding: 0.75rem 1rem !important;
+    padding: 0.55rem 0.65rem !important;
 }
 
 .fi-ta-table tbody tr {
@@ -539,7 +541,7 @@
     min-width: auto !important;
     text-align: right !important;
     white-space: nowrap !important;
-    padding: 0.6rem 0.75rem !important;
+    padding: 0.55rem 0.65rem !important;
 }
 
 .fi-ta-table td.fi-ta-actions-cell,
@@ -552,7 +554,7 @@
     min-width: auto !important;
     text-align: right !important;
     white-space: nowrap !important;
-    padding: 0.35rem 0.75rem !important;
+    padding: 0.35rem 0.65rem !important;
 }
 
 .fi-ta-table tr:hover td.fi-ta-actions-cell,
@@ -565,9 +567,9 @@
 .fi-ta-table td.fi-ta-selection-cell,
 .fi-ta-table th:has(input[type="checkbox"]),
 .fi-ta-table td:has(input[type="checkbox"]) {
-    width: 3.5rem !important;
-    min-width: 3.5rem !important;
-    max-width: 3.5rem !important;
+    width: 2.75rem !important;
+    min-width: 2.75rem !important;
+    max-width: 2.75rem !important;
     text-align: center !important;
     padding: 0 !important;
     vertical-align: middle !important;
@@ -623,8 +625,8 @@
 .fi-ta-table td {
     color: #1e293b !important;
     font-size: 0.8125rem !important;
-    line-height: 1.5 !important;
-    padding: 0.75rem 1rem !important;
+    line-height: 1.4 !important;
+    padding: 0.55rem 0.65rem !important;
 }
 
 .fi-ta-table td .fi-ta-text-item-label {

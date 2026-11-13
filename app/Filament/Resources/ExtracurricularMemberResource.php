@@ -349,7 +349,9 @@ class ExtracurricularMemberResource extends Resource
                         }),
                 ]),
             ])
-            ->defaultSort('created_at', 'desc');
+            ->defaultSort('created_at', 'desc')
+            ->paginationPageOptions(['all', 25, 50, 100])
+            ->defaultPaginationPageOption('all');
     }
 
     public static function getEloquentQuery(): Builder
