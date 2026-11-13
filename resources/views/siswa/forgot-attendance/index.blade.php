@@ -14,6 +14,15 @@
 </div>
 @endif
 
+@if(session('error'))
+<div class="bg-red-50 border border-red-200 rounded-2xl p-3 mb-4 flex items-center gap-2">
+    <svg class="w-5 h-5 text-red-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+    </svg>
+    <p class="text-sm text-red-700 font-medium">{{ session('error') }}</p>
+</div>
+@endif
+
 {{-- Header info --}}
 <div class="rounded-2xl p-4 mb-4 text-white shadow-md" style="background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%) !important; color: #ffffff !important;">
     <div class="flex items-center gap-3 mb-2">
@@ -56,8 +65,9 @@
     Buat Pengajuan Baru
 </a>
 @else
-<div class="w-full py-3 px-4 bg-red-50 border border-red-200 text-red-700 text-xs font-semibold rounded-2xl mb-4 text-center">
-    Kuota pengajuan lupa absen bulan ini ({{ $quota['limit'] }}x) telah habis. Kuota akan di-reset otomatis pada awal bulan berikutnya.
+<div class="w-full py-3.5 px-4 bg-red-50 border border-red-200 text-red-700 text-xs font-semibold rounded-2xl mb-4 text-center leading-relaxed">
+    ⚠️ <strong>Limit Pemakaian Batas Lupa Absen di Bulan Ini Telah Habis</strong><br>
+    Pengajuan lupa absen Anda untuk bulan ini sudah mencapai batas maksimal ({{ $quota['limit'] }}x per bulan). Anda tidak dapat mengajukan lupa absen lagi untuk bulan ini. Kuota akan otomatis di-reset pada awal bulan berikutnya.
 </div>
 @endif
 

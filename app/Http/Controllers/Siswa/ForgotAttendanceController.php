@@ -25,9 +25,14 @@ class ForgotAttendanceController extends Controller
         return view('siswa.forgot-attendance.index', compact('requests', 'quota'));
     }
 
-    public function create(): View
+    public function create(): View|RedirectResponse
     {
         $quota = ForgotAttendanceRequest::monthlySummaryForStudent(Auth::id());
+
+        if (($quota['remaining'] ?? 0) <= 0) {
+            return redirect()->route('siswa.forgot-attendance.index')
+                ->with('error', 'Limit pemakaian batas lupa absen di bulan ini telah habis (maksimal ' . ForgotAttendanceRequest::MONTHLY_LIMIT . 'x per bulan). Anda tidak dapat mengajukan lupa absen lagi untuk bulan ini.');
+        }
 
         return view('siswa.forgot-attendance.create', compact('quota'));
     }
@@ -84,7 +89,7 @@ class ForgotAttendanceController extends Controller
             if ($usedInTargetMonth >= ForgotAttendanceRequest::MONTHLY_LIMIT) {
                 $monthLabel = $targetDate->isoFormat('MMMM Y');
                 return back()->withErrors([
-                    'date' => "Kuota pengajuan lupa absen Anda untuk bulan {$monthLabel} sudah habis (maksimal " . ForgotAttendanceRequest::MONTHLY_LIMIT . "x per bulan). Kuota di-reset setiap pergantian bulan.",
+                    'date' => "Limit pemakaian batas lupa absen di bulan {$monthLabel} telah habis (maksimal " . ForgotAttendanceRequest::MONTHLY_LIMIT . "x per bulan). Anda tidak dapat mengajukan lupa absen lagi untuk bulan ini.",
                 ])->withInput();
             }
         }

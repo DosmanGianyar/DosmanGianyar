@@ -77,16 +77,52 @@ class _ForgotAttendanceScreenState extends State<ForgotAttendanceScreen> {
   }
 
   void _openCreate() {
+    final remaining = _quota != null ? (_quota!['remaining'] as int? ?? 0) : 1;
+    if (_quota != null && remaining <= 0) {
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: const Row(
+            children: [
+              Icon(Icons.warning_amber_rounded, color: AppColors.red500, size: 24),
+              SizedBox(width: 8),
+              Expanded(
+                child: Text('Batas Pengajuan Habis', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              ),
+            ],
+          ),
+          content: Text(
+            'Limit pemakaian batas lupa absen di bulan ${_quota?['month_name'] ?? 'ini'} telah habis (maksimal ${_quota?['limit'] ?? 10}x per bulan).\n\nAnda tidak dapat mengajukan lupa absen lagi untuk bulan ini. Kuota akan otomatis di-reset pada awal bulan berikutnya.',
+            style: const TextStyle(fontSize: 13, height: 1.45, color: AppColors.gray700),
+          ),
+          actions: [
+            FilledButton(
+              onPressed: () => Navigator.pop(context),
+              style: FilledButton.styleFrom(backgroundColor: const Color(0xFF0F2460)),
+              child: const Text('Mengerti'),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => _CreateSheet(onCreated: () { Navigator.pop(context); _load(); }),
+      builder: (_) => _CreateSheet(
+        quota: _quota,
+        onCreated: () { Navigator.pop(context); _load(); },
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final bool isQuotaExhausted = _quota != null && (_quota!['remaining'] as int? ?? 1) <= 0;
+
     return Scaffold(
       backgroundColor: AppColors.slate100,
       appBar: AppBar(
@@ -96,14 +132,12 @@ class _ForgotAttendanceScreenState extends State<ForgotAttendanceScreen> {
         foregroundColor: Colors.white,
         elevation: 0,
       ),
-      floatingActionButton: (_quota != null && (_quota!['remaining'] as int? ?? 1) <= 0)
-          ? null
-          : FloatingActionButton.extended(
-              onPressed: _openCreate,
-              backgroundColor: AppColors.amber500,
-              icon: const Icon(Icons.add_rounded),
-              label: const Text('Buat Pengajuan'),
-            ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _openCreate,
+        backgroundColor: isQuotaExhausted ? AppColors.gray400 : AppColors.amber500,
+        icon: const Icon(Icons.add_rounded),
+        label: const Text('Buat Pengajuan'),
+      ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
@@ -112,6 +146,40 @@ class _ForgotAttendanceScreenState extends State<ForgotAttendanceScreen> {
                   onRefresh: _load,
                   child: Column(
                     children: [
+                      if (isQuotaExhausted)
+                        Container(
+                          width: double.infinity,
+                          margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFEF2F2),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: const Color(0xFFFECACA)),
+                          ),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Icon(Icons.error_outline_rounded, color: Color(0xFFDC2626), size: 20),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      'Limit Pemakaian Bulan Ini Habis',
+                                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF991B1B)),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      'Limit pemakaian batas lupa absen di bulan ${_quota!['month_name'] ?? 'ini'} telah habis (maksimal ${_quota!['limit'] ?? 10}x per bulan). Anda tidak dapat mengajukan lupa absen lagi untuk bulan ini.',
+                                      style: const TextStyle(fontSize: 11.5, color: Color(0xFFB91C1C), height: 1.35),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       if (_quota != null)
                         Container(
                           width: double.infinity,
@@ -168,8 +236,9 @@ class _ForgotAttendanceScreenState extends State<ForgotAttendanceScreen> {
 // ─── Create Sheet ─────────────────────────────────────────────────────────────
 
 class _CreateSheet extends StatefulWidget {
+  final Map<String, dynamic>? quota;
   final VoidCallback onCreated;
-  const _CreateSheet({required this.onCreated});
+  const _CreateSheet({this.quota, required this.onCreated});
 
   @override
   State<_CreateSheet> createState() => _CreateSheetState();
@@ -197,6 +266,11 @@ class _CreateSheetState extends State<_CreateSheet> {
   }
 
   Future<void> _submit() async {
+    final remaining = widget.quota != null ? (widget.quota!['remaining'] as int? ?? 0) : 1;
+    if (widget.quota != null && remaining <= 0) {
+      _showSnack('Limit pemakaian batas lupa absen di bulan ini telah habis (maksimal ${widget.quota!['limit'] ?? 10}x per bulan).');
+      return;
+    }
     if (_date == null) { _showSnack('Pilih tanggal terlebih dahulu.'); return; }
     if (_reasonCtrl.text.trim().isEmpty) { _showSnack('Alasan tidak boleh kosong.'); return; }
     setState(() => _isSaving = true);

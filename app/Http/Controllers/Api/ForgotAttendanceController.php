@@ -91,7 +91,7 @@ class ForgotAttendanceController extends Controller
             if ($usedInTargetMonth >= ForgotAttendanceRequest::MONTHLY_LIMIT) {
                 $monthLabel = $targetDate->isoFormat('MMMM Y');
                 return response()->json([
-                    'message' => "Kuota pengajuan lupa absen Anda untuk bulan {$monthLabel} sudah habis (maksimal " . ForgotAttendanceRequest::MONTHLY_LIMIT . "x per bulan). Kuota di-reset setiap pergantian bulan.",
+                    'message' => "Limit pemakaian batas lupa absen di bulan {$monthLabel} telah habis (maksimal " . ForgotAttendanceRequest::MONTHLY_LIMIT . "x per bulan). Anda tidak dapat mengajukan lupa absen lagi untuk bulan ini.",
                 ], 422);
             }
         }
