@@ -31,3 +31,7 @@ Schedule::command('attendance:send-reminders checkout')
 // Auto check & pull GitHub repository updates weekly (Senin 03:00 WITA)
 Schedule::command('git:check-update')->weeklyOn(1, '03:00')->timezone('Asia/Makassar');
 
+// Auto-approve lupa absen, reset password siswa, dan izin/sakit siswa (maksimal 2 hari) setiap 1 jam
+Schedule::command('requests:auto-approve')->hourly();
+
+
