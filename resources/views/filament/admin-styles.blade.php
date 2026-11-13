@@ -130,19 +130,54 @@
     color: #ffffff !important;
 }
 
+/* Item Aktif / Terpilih di Sidebar (Background Putih, Teks & Icon Hitam) */
+.fi-sidebar-item.fi-active .fi-sidebar-item-btn,
+.fi-sidebar-item.fi-active a,
+.fi-sidebar-item.fi-active button,
 .fi-sidebar-item-btn.fi-active,
-.fi-sidebar-item-btn[aria-current] {
-    background: var(--tblr-primary) !important;
-    border-left-color: #60a5fa !important;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
+.fi-sidebar-item-btn.fi-sidebar-item-active,
+.fi-sidebar-item-btn[aria-current],
+.fi-sidebar-item[aria-current] .fi-sidebar-item-btn {
+    background: #ffffff !important;
+    border-left: 3px solid #2563eb !important;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15) !important;
 }
 
+.fi-sidebar-item.fi-active .fi-sidebar-item-label,
+.fi-sidebar-item.fi-active a .fi-sidebar-item-label,
+.fi-sidebar-item.fi-active button .fi-sidebar-item-label,
+.fi-sidebar-item.fi-active span,
 .fi-sidebar-item-btn.fi-active .fi-sidebar-item-label,
+.fi-sidebar-item-btn.fi-sidebar-item-active .fi-sidebar-item-label,
 .fi-sidebar-item-btn[aria-current] .fi-sidebar-item-label,
+.fi-sidebar-item[aria-current] .fi-sidebar-item-label {
+    color: #0f172a !important;
+    font-weight: 700 !important;
+}
+
+.fi-sidebar-item.fi-active .fi-sidebar-item-icon,
+.fi-sidebar-item.fi-active .fi-sidebar-item-icon svg,
+.fi-sidebar-item.fi-active a svg,
+.fi-sidebar-item.fi-active button svg,
+.fi-sidebar-item-btn.fi-active .fi-sidebar-item-icon,
 .fi-sidebar-item-btn.fi-active .fi-sidebar-item-icon svg,
-.fi-sidebar-item-btn[aria-current] .fi-sidebar-item-icon svg {
-    color: #ffffff !important;
-    font-weight: 600 !important;
+.fi-sidebar-item-btn.fi-sidebar-item-active .fi-sidebar-item-icon,
+.fi-sidebar-item-btn.fi-sidebar-item-active .fi-sidebar-item-icon svg,
+.fi-sidebar-item-btn[aria-current] .fi-sidebar-item-icon,
+.fi-sidebar-item-btn[aria-current] .fi-sidebar-item-icon svg,
+.fi-sidebar-item[aria-current] .fi-sidebar-item-icon,
+.fi-sidebar-item[aria-current] .fi-sidebar-item-icon svg {
+    color: #0f172a !important;
+    stroke: #0f172a !important;
+}
+
+.fi-sidebar-item.fi-active:hover .fi-sidebar-item-btn,
+.fi-sidebar-item.fi-active .fi-sidebar-item-btn:hover {
+    background: #ffffff !important;
+}
+.fi-sidebar-item.fi-active:hover .fi-sidebar-item-label,
+.fi-sidebar-item.fi-active:hover .fi-sidebar-item-icon svg {
+    color: #0f172a !important;
 }
 
 /* ─── Page Header ──────────────────────────────────────────────────────── */
