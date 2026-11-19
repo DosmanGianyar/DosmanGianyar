@@ -1,0 +1,71 @@
+======================================================================
+PANDUAN BACKUP & RESTORE SERVER SMAN 1 GIANYAR (PROXMOX & E-RAPOR)
+======================================================================
+
+1. DAFTAR IP STATIS SERVER & AKSES
+----------------------------------------------------------------------
+- Host Proxmox VE : 192.168.50.2 (Tailscale: 100.102.109.39)
+  Web GUI         : https://100.102.109.39:8006 (atau https://192.168.50.2:8006)
+  SSH / SFTP      : root@100.102.109.39 (Port 22)
+
+- VM 100 (SIMAK)  : 192.168.50.253 (Tailscale: 100.73.61.126)
+- VM 105 (Moodle) : 192.168.50.243
+- CT 110 (Apps)   : 192.168.50.246
+- CT 120 (e-Rapor): 192.168.50.248
+  Web Lokal       : http://192.168.50.248
+  Web Publik      : http://36.93.15.146:8240
+
+- PC Dapodik      : 192.168.50.247:5774 (Bisa dibuka via Tailscale Subnet)
+- MikroTik Router : 192.168.50.1
+
+
+2. JADWAL BACKUP OTOMATIS E-RAPOR (CT 120)
+----------------------------------------------------------------------
+A. Backup Database PostgreSQL (Mingguan - Ukuran ~13 MB/file)
+   - Jadwal   : Setiap hari Minggu pukul 02:00 WITA
+   - Script   : /usr/local/bin/backup-erapor.sh (di dalam CT 120)
+   - Cron     : /etc/cron.d/erapor-backup
+   - Lokasi   : /var/backups/erapor/db_neweraporsma_YYYY-MM-DD_HHMM.sql.gz
+   - Retensi  : Otomatis menyimpan 60 hari terakhir (~2 bulan)
+
+B. Backup Penuh Container Proxmox (Bulanan - Ukuran ~558 MB/file)
+   - Jadwal   : Bulanan (setiap tanggal 1, mode Snapshot tanpa downtime)
+   - Lokasi   : /var/lib/vz/dump/vzdump-lxc-120-*.tar.zst (di Host Proxmox)
+   - Retensi  : Otomatis menyimpan 3 versi backup terakhir (keep-last=3)
+
+
+3. CARA MENGAMBIL / DOWNLOAD BACKUP KE LAPTOP
+----------------------------------------------------------------------
+Pastikan Tailscale di laptop menyala (atau laptop tersambung LAN sekolah).
+
+A. Mengambil Backup Penuh Container Proxmox (~558 MB) via PowerShell:
+   Buka PowerShell / Terminal di Windows, jalankan perintah:
+   scp root@100.102.109.39:/var/lib/vz/dump/vzdump-lxc-120-*.tar.zst $HOME\Downloads\
+
+B. Mengambil Backup Database Mingguan (~13 MB) via PowerShell (2 langkah):
+   1) Salin dari CT 120 ke Host Proxmox (atau langsung lewat SSH Proxmox):
+      ssh root@100.102.109.39 "pct pull 120 /var/backups/erapor/$(ssh root@100.102.109.39 'pct exec 120 -- ls -t /var/backups/erapor | head -n1') /tmp/erapor_latest.sql.gz"
+   2) Atau gunakan aplikasi WinSCP / FileZilla:
+      - Protocol : SFTP
+      - Host     : 100.102.109.39 (atau 192.168.50.2 jika di sekolah), Port: 22
+      - Username : root
+      - Folder Backup Full Proxmox : /var/lib/vz/dump/
+
+C. Download Langsung Backup Database Lewat Browser e-Rapor:
+   1) Buka http://36.93.15.146:8240 (atau http://192.168.50.248)
+   2) Login sebagai Administrator
+   3) Masuk menu Backup & Restore -> klik tombol Backup Database
+
+
+4. CARA RESTORE BACKUP JIKA TERJADI KERUSAKAN
+----------------------------------------------------------------------
+A. Restore Penuh Container di Proxmox (Paling Mudah):
+   1) Buka Proxmox Web GUI: https://100.102.109.39:8006
+   2) Klik "120 (erapor-dosman)" di panel kiri -> pilih tab "Backup"
+   3) Pilih file backup berdasarkan tanggal yang diinginkan -> klik "Restore"
+   (Catatan: Untuk membuat backup manual sebelum rapotan, klik "Backup now" di menu yang sama).
+
+B. Restore Database Harian (.sql.gz) ke PostgreSQL CT 120:
+   Masuk ke terminal Proxmox lalu jalankan:
+   pct exec 120 -- bash -c "gunzip -c /var/backups/erapor/NAMA_FILE.sql.gz | su - postgres -c 'psql -d db_neweraporsma'"
+======================================================================
