@@ -21,9 +21,15 @@
   .summary { display: flex; gap: 8px; margin-bottom: 16px; }
   .summary-card { flex: 1; text-align: center; padding: 8px; border-radius: 6px; }
   .summary-card.hadir { background: #dcfce7; color: #14532d; }
+  .summary-card.izin  { background: #e0f2fe; color: #0c4a6e; }
+  .summary-card.sakit { background: #f3e8ff; color: #581c87; }
   .summary-card.alpa  { background: #fee2e2; color: #7f1d1d; }
   .summary-card .count { font-size: 22px; font-weight: bold; }
   .summary-card .label { font-size: 10px; }
+
+  .journal-box { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; padding: 10px 12px; margin-bottom: 14px; }
+  .journal-box .j-title { font-size: 10px; font-weight: bold; text-transform: uppercase; color: #475569; margin-bottom: 4px; }
+  .journal-box p { margin: 2px 0; font-size: 10.5px; line-height: 1.45; }
 
   table { width: 100%; border-collapse: collapse; }
   thead tr th { background: #1d4ed8; color: #fff; font-size: 10px; padding: 8px 10px; text-align: left; }
@@ -31,6 +37,8 @@
   tbody tr:nth-child(even) td { background: #f9fafb; }
   .badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 10px; font-weight: bold; }
   .badge-hadir { background: #dcfce7; color: #14532d; }
+  .badge-izin  { background: #e0f2fe; color: #0c4a6e; }
+  .badge-sakit { background: #f3e8ff; color: #581c87; }
   .badge-alpa  { background: #fee2e2; color: #7f1d1d; }
   .badge-ketua { background: #fef3c7; color: #78350f; }
 
@@ -71,6 +79,14 @@
     <div class="count">{{ $hadirCount }}</div>
     <div class="label">Hadir</div>
   </div>
+  <div class="summary-card izin">
+    <div class="count">{{ $izinCount ?? 0 }}</div>
+    <div class="label">Izin</div>
+  </div>
+  <div class="summary-card sakit">
+    <div class="count">{{ $sakitCount ?? 0 }}</div>
+    <div class="label">Sakit</div>
+  </div>
   <div class="summary-card alpa">
     <div class="count">{{ $alpaCount }}</div>
     <div class="label">Alpa</div>
@@ -80,6 +96,21 @@
     <div class="label">Total Anggota</div>
   </div>
 </div>
+
+@if($session->material || $session->activity || $session->obstacles)
+<div class="journal-box">
+  <div class="j-title">Jurnal Kegiatan Ekstrakurikuler</div>
+  @if($session->material)
+    <p><strong>Materi:</strong> {{ $session->material }}</p>
+  @endif
+  @if($session->activity)
+    <p><strong>Kegiatan:</strong> {{ $session->activity }}</p>
+  @endif
+  @if($session->obstacles)
+    <p><strong>Kendala / Evaluasi:</strong> {{ $session->obstacles }}</p>
+  @endif
+</div>
+@endif
 
 <table>
   <thead>
@@ -102,6 +133,8 @@
       <td>
         @if($row->role === 'ketua')
           <span class="badge badge-ketua">Ketua</span>
+        @elseif($row->role === 'wakil_ketua')
+          <span class="badge badge-ketua">Wakil Ketua</span>
         @else
           Anggota
         @endif
@@ -109,6 +142,10 @@
       <td>
         @if($row->attendance_status === 'hadir')
           <span class="badge badge-hadir">Hadir</span>
+        @elseif($row->attendance_status === 'izin')
+          <span class="badge badge-izin">Izin</span>
+        @elseif($row->attendance_status === 'sakit')
+          <span class="badge badge-sakit">Sakit</span>
         @else
           <span class="badge badge-alpa">Alpa</span>
         @endif

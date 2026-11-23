@@ -3,6 +3,7 @@ import '../../models/guru_models.dart';
 import '../../theme/app_colors.dart';
 import 'guru_conduct_screen.dart';
 import 'guru_achievement_screen.dart';
+import 'guru_extracurricular_screen.dart';
 import 'guru_gate_verification_screen.dart';
 import '../kesiswaan/school_regulation_screen.dart';
 
@@ -100,11 +101,14 @@ class GuruKesiswaanScreen extends StatelessWidget {
             context,
             icon: Icons.sports_soccer_rounded,
             label: 'Ekstrakurikuler',
-            subtitle: 'Data kegiatan ekstra siswa',
+            subtitle: 'Absensi anggota & jurnal ekstrakurikuler binaan',
             color: AppColors.emerald600,
             bg: AppColors.emerald50,
-            onTap: null,
-            comingSoon: true,
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const GuruExtracurricularScreen()),
+            ),
+            comingSoon: false,
           ),
         ],
       ),

@@ -11,8 +11,10 @@ class ExtracurricularSession extends Model
 {
     protected $fillable = [
         'extracurricular_id', 'title', 'session_date',
-        'start_time', 'end_time', 'location', 'notes',
-        'created_by', 'is_open',
+        'start_time', 'end_time', 'location',
+        'material', 'activity', 'obstacles',
+        'notes', 'photo',
+        'created_by', 'updated_by', 'is_open',
     ];
 
     protected function casts(): array
@@ -33,6 +35,11 @@ class ExtracurricularSession extends Model
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function updater(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'updated_by');
     }
 
     public function attendances(): HasMany
@@ -59,9 +66,24 @@ class ExtracurricularSession extends Model
         return $this->attendances()->where('status', 'hadir')->count();
     }
 
+    public function izinCount(): int
+    {
+        return $this->attendances()->where('status', 'izin')->count();
+    }
+
+    public function sakitCount(): int
+    {
+        return $this->attendances()->where('status', 'sakit')->count();
+    }
+
     public function alpaCount(): int
     {
         return $this->attendances()->where('status', 'alpa')->count();
+    }
+
+    public function hasJournal(): bool
+    {
+        return filled($this->material) || filled($this->activity);
     }
 
     public function attendanceFor(int $userId): ?ExtracurricularAttendance

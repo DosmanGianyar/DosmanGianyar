@@ -36,12 +36,16 @@ class ExtracurricularExportController extends Controller
         });
 
         $hadirCount = $rows->where('attendance_status', 'hadir')->count();
+        $izinCount  = $rows->where('attendance_status', 'izin')->count();
+        $sakitCount = $rows->where('attendance_status', 'sakit')->count();
         $alpaCount  = $rows->where('attendance_status', 'alpa')->count();
 
         $pdf = Pdf::loadView('exports.extracurricular_attendance_pdf', [
             'session'    => $session,
             'rows'       => $rows,
             'hadirCount' => $hadirCount,
+            'izinCount'  => $izinCount,
+            'sakitCount' => $sakitCount,
             'alpaCount'  => $alpaCount,
             'totalCount' => $rows->count(),
         ])->setPaper('a4', 'portrait');

@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class ExtracurricularAttendance extends Model
 {
     protected $fillable = [
-        'session_id', 'user_id', 'status', 'marked_by', 'marked_at',
+        'session_id', 'user_id', 'status', 'note', 'marked_by', 'marked_at',
     ];
 
     protected function casts(): array

@@ -81,6 +81,14 @@ class ExtracurricularAttendanceExport implements
         $sheet->mergeCells('A3:F3');
         $sheet->mergeCells('A4:F4');
 
+        $rowIdx = 5;
+        if ($this->session->material) {
+            $sheet->insertNewRowBefore(5, 1);
+            $sheet->setCellValue('A5', 'Materi : ' . $this->session->material);
+            $sheet->mergeCells('A5:F5');
+            $rowIdx = 6;
+        }
+
         return [
             1 => [
                 'font'      => ['bold' => true, 'size' => 14, 'color' => ['argb' => 'FF1D4ED8']],
@@ -90,7 +98,7 @@ class ExtracurricularAttendanceExport implements
                 'font'      => ['bold' => true, 'size' => 11],
                 'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
             ],
-            5 => [
+            $rowIdx => [
                 'font' => ['bold' => true, 'color' => ['argb' => 'FFFFFFFF']],
                 'fill' => ['fillType' => 'solid', 'startColor' => ['argb' => 'FF1D4ED8']],
             ],

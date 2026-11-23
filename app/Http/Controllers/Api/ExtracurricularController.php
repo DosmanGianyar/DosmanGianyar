@@ -155,9 +155,15 @@ class ExtracurricularController extends Controller
             ->where('status', 'active')
             ->pluck('extracurricular_id');
 
+        $pembinaExtraIds = Extracurricular::where('pembina_id', $user->id)
+            ->orWhereHas('teachers', fn ($q) => $q->where('users.id', $user->id))
+            ->pluck('id');
+
+        $allExtraIds = $myExtraIds->merge($pembinaExtraIds)->unique();
+
         $filter    = $request->query('filter', 'upcoming'); // upcoming | past
         $sessQuery = ExtracurricularSession::with('extracurricular:id,name')
-            ->whereIn('extracurricular_id', $myExtraIds);
+            ->whereIn('extracurricular_id', $allExtraIds);
 
         $sessions = $filter === 'past'
             ? $sessQuery->past()->limit(30)->get()
@@ -176,15 +182,18 @@ class ExtracurricularController extends Controller
         /** @var \App\Models\User $user */
         $user = $request->user();
 
-        $session->load('extracurricular.pembina:id,name', 'creator:id,name');
+        $session->load('extracurricular.pembina:id,name', 'extracurricular.teachers:id,name', 'creator:id,name');
 
-        // Cek akses: harus anggota aktif
+        // Cek akses: anggota aktif, pembina ekstra ini, atau admin
         $myMember = ExtracurricularMember::where('extracurricular_id', $session->extracurricular_id)
             ->where('user_id', $user->id)
             ->where('status', 'active')
             ->first();
 
-        if (!$myMember) {
+        $isPembina = $session->extracurricular?->isTeacherPembina($user->id) ?? false;
+        $isAdmin   = in_array($user->role, ['admin', 'admin_kesiswaan'], true);
+
+        if (!$myMember && !$isPembina && !$isAdmin) {
             return response()->json(['message' => 'Akses ditolak.'], 403);
         }
 
@@ -197,9 +206,11 @@ class ExtracurricularController extends Controller
         $attendances = ExtracurricularAttendance::where('session_id', $session->id)
             ->pluck('status', 'user_id');
 
+        $effectiveRole = $myMember?->role ?? ($isPembina ? 'pembina' : ($isAdmin ? 'admin' : 'member'));
+
         return response()->json([
             'session'   => $this->sessionResource($session, $user->id),
-            'my_role'   => $myMember->role,
+            'my_role'   => $effectiveRole,
             'members'   => $members->map(fn ($m) => [
                 'user_id'    => $m->user_id,
                 'name'       => $m->user?->name,
@@ -271,7 +282,7 @@ class ExtracurricularController extends Controller
         $data = $request->validate([
             'attendances'             => 'required|array|min:1',
             'attendances.*.user_id'   => 'required|integer|exists:users,id',
-            'attendances.*.status'    => 'required|in:hadir,alpa',
+            'attendances.*.status'    => 'required|in:hadir,izin,sakit,alpa',
         ]);
 
         foreach ($data['attendances'] as $item) {

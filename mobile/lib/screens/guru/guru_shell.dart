@@ -13,6 +13,7 @@ import 'guru_achievement_screen.dart';
 import '../kesiswaan/school_regulation_screen.dart';
 import 'guru_conduct_screen.dart';
 import 'guru_early_checkout_screen.dart';
+import 'guru_extracurricular_screen.dart';
 import 'guru_forgot_attendance_screen.dart';
 import 'guru_gate_verification_screen.dart';
 import 'guru_home_screen.dart';
@@ -451,6 +452,17 @@ class _GuruServicesTab extends StatelessWidget {
             bg: const Color(0xFFFEF3C7),
             badge: 'Pembina Ekstra',
             onTap: () => onNavigate(const GuruAchievementScreen()),
+          ),
+          const SizedBox(height: 12),
+
+          _buildHubCard(
+            title: '⚽ Ekstrakurikuler (Absen & Jurnal)',
+            subtitle: 'Lihat siswa anggota ekstra, catat absensi & isi jurnal pembina',
+            icon: Icons.sports_soccer_rounded,
+            color: AppColors.emerald600,
+            bg: AppColors.emerald50,
+            badge: 'Pembina Ekstra',
+            onTap: () => onNavigate(const GuruExtracurricularScreen()),
           ),
           const SizedBox(height: 12),
 

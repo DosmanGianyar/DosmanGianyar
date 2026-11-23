@@ -20,6 +20,7 @@ import 'guru_teaching_session_screen.dart';
 import 'guru_layanan_screen.dart';
 import 'guru_gate_verification_screen.dart';
 import 'guru_achievement_screen.dart';
+import 'guru_extracurricular_screen.dart';
 
 class GuruHomeScreen extends StatefulWidget {
   const GuruHomeScreen({super.key});
@@ -394,24 +395,59 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
           Wrap(
             spacing: 6,
             runSpacing: 6,
-            children: data.myExtracurriculars.map((e) => Container(
-              padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
-              decoration: BoxDecoration(
-                color: AppColors.slate100,
-                borderRadius: BorderRadius.circular(6),
-                border: Border.all(color: AppColors.gray200),
+            children: data.myExtracurriculars.map((e) => GestureDetector(
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => GuruExtracurricularScreen(initialExtracurricularId: e.id),
+                ),
               ),
-              child: Text(
-                '${e.name} (${e.membersCount})',
-                style: const TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.gray700,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppColors.emerald50,
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(color: AppColors.emerald200),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      '${e.name} (${e.membersCount})',
+                      style: const TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.emerald700,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    const Icon(Icons.open_in_new_rounded, size: 11, color: AppColors.emerald600),
+                  ],
                 ),
               ),
             )).toList(),
           ),
           const SizedBox(height: 10),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const GuruExtracurricularScreen()),
+              ),
+              icon: const Icon(Icons.fact_check_outlined, size: 16),
+              label: const Text(
+                'Jurnal & Absen Ekstra',
+                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+              ),
+              style: FilledButton.styleFrom(
+                backgroundColor: AppColors.emerald600,
+                padding: const EdgeInsets.symmetric(vertical: 9),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
           Row(
             children: [
               Expanded(

@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\EarlyCheckoutController;
 use App\Http\Controllers\Api\ExtracurricularController;
 use App\Http\Controllers\Api\ForgotAttendanceController;
 use App\Http\Controllers\Api\GradeController;
+use App\Http\Controllers\Api\GuruExtracurricularController;
 use App\Http\Controllers\Api\HomeroomConsultationController;
 use App\Http\Controllers\Api\KesiswaanController;
 use App\Http\Controllers\Api\NotificationController;
@@ -171,9 +172,19 @@ Route::prefix('v1')->group(function () {
             Route::post('/guru/early-checkouts/{earlyCheckout}/reject',   [GuruController::class, 'rejectEarlyCheckout']);
             
             // Ekstrakurikuler Pembina
-            Route::get('/guru/extracurriculars/pending-members',          [GuruController::class, 'pendingExtracurricularMembers']);
-            Route::post('/guru/extracurriculars/members/{id}/approve',     [GuruController::class, 'approveExtracurricularMember']);
-            Route::post('/guru/extracurriculars/members/{id}/reject',      [GuruController::class, 'rejectExtracurricularMember']);
+            Route::get('/guru/extracurriculars',                                     [GuruExtracurricularController::class, 'index']);
+            Route::get('/guru/extracurriculars/pending-members',                     [GuruController::class, 'pendingExtracurricularMembers']);
+            Route::post('/guru/extracurriculars/members/{id}/approve',               [GuruController::class, 'approveExtracurricularMember']);
+            Route::post('/guru/extracurriculars/members/{id}/reject',                [GuruController::class, 'rejectExtracurricularMember']);
+            Route::get('/guru/extracurriculars/{extracurricular}/members',           [GuruExtracurricularController::class, 'members']);
+            Route::get('/guru/extracurriculars/{extracurricular}/journals',          [GuruExtracurricularController::class, 'journals']);
+            Route::post('/guru/extracurriculars/{extracurricular}/journals',         [GuruExtracurricularController::class, 'storeJournal']);
+            Route::get('/guru/extracurricular-journals/{session}',                   [GuruExtracurricularController::class, 'showJournal']);
+            Route::put('/guru/extracurricular-journals/{session}',                   [GuruExtracurricularController::class, 'updateJournal']);
+            Route::post('/guru/extracurricular-journals/{session}/update',           [GuruExtracurricularController::class, 'updateJournal']);
+            Route::post('/guru/extracurricular-journals/{session}/attendance',       [GuruExtracurricularController::class, 'saveAttendance']);
+            Route::match(['delete', 'post'], '/guru/extracurricular-journals/{session}/delete', [GuruExtracurricularController::class, 'destroyJournal']);
+            Route::delete('/guru/extracurricular-journals/{session}',                [GuruExtracurricularController::class, 'destroyJournal']);
             Route::get('/guru/conduct',                                   [GuruController::class, 'conduct']);
 
             // Guru Conduct API (catat pelanggaran & prestasi)

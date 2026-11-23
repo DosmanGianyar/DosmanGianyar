@@ -1,4 +1,8 @@
+import 'dart:convert';
+import 'dart:io';
+import 'package:dio/dio.dart';
 import '../models/guru_dashboard.dart';
+import '../models/guru_extracurricular.dart';
 import '../models/guru_models.dart';
 import '../models/user.dart';
 import 'api_client.dart';
@@ -755,5 +759,203 @@ class GuruService {
       data: {'cancelled_reason': reason},
     );
     return GuruHomeroomConsultation.fromJson(body['consultation'] as Map<String, dynamic>);
+  }
+
+  // ─── Pembina Ekstrakurikuler (Anggota & Jurnal) ──────────────────────────
+
+  static Future<List<GuruExtraSummary>> getMyExtracurriculars() async {
+    final body = await ApiClient.get('/guru/extracurriculars');
+    return (body['extracurriculars'] as List<dynamic>? ?? [])
+        .map((e) => GuruExtraSummary.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  static Future<List<GuruExtraMember>> getExtracurricularMembers(int extraId) async {
+    final body = await ApiClient.get('/guru/extracurriculars/$extraId/members');
+    return (body['members'] as List<dynamic>? ?? [])
+        .map((e) => GuruExtraMember.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  static Future<({List<GuruExtraJournal> data, int currentPage, int lastPage, int total})>
+      getExtracurricularJournals(
+    int extraId, {
+    int? month,
+    int? year,
+    int page = 1,
+  }) async {
+    final body = await ApiClient.get(
+      '/guru/extracurriculars/$extraId/journals',
+      params: {
+        if (month != null) 'month': month,
+        if (year != null) 'year': year,
+        'page': page,
+      },
+    );
+    final meta = body['meta'] as Map<String, dynamic>? ?? {};
+    return (
+      data: (body['data'] as List<dynamic>? ?? [])
+          .map((e) => GuruExtraJournal.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      currentPage: (meta['current_page'] as num?)?.toInt() ?? 1,
+      lastPage: (meta['last_page'] as num?)?.toInt() ?? 1,
+      total: (meta['total'] as num?)?.toInt() ?? 0,
+    );
+  }
+
+  static Future<({GuruExtraJournal journal, List<GuruExtraAttendanceRow> members})>
+      getExtracurricularJournalDetail(int sessionId) async {
+    final body = await ApiClient.get('/guru/extracurricular-journals/$sessionId');
+    return (
+      journal: GuruExtraJournal.fromJson(body['journal'] as Map<String, dynamic>),
+      members: (body['members'] as List<dynamic>? ?? [])
+          .map((e) => GuruExtraAttendanceRow.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+
+  static Future<({String message, GuruExtraJournal journal})>
+      createExtracurricularJournal(
+    int extraId, {
+    required String title,
+    required String sessionDate,
+    required String startTime,
+    required String endTime,
+    String? location,
+    required String material,
+    required String activity,
+    String? obstacles,
+    String? notes,
+    File? photo,
+    required List<Map<String, dynamic>> attendances,
+  }) async {
+    final Map<String, dynamic> body;
+    if (photo != null) {
+      final formData = FormData.fromMap({
+        'title': title,
+        'session_date': sessionDate,
+        'start_time': startTime,
+        'end_time': endTime,
+        if (location != null && location.isNotEmpty) 'location': location,
+        'material': material,
+        'activity': activity,
+        if (obstacles != null && obstacles.isNotEmpty) 'obstacles': obstacles,
+        if (notes != null && notes.isNotEmpty) 'notes': notes,
+        'attendances': jsonEncode(attendances),
+        'photo': await MultipartFile.fromFile(
+          photo.path,
+          filename: photo.path.split(Platform.pathSeparator).last,
+        ),
+      });
+      body = await ApiClient.postForm(
+        '/guru/extracurriculars/$extraId/journals',
+        formData,
+      );
+    } else {
+      body = await ApiClient.post(
+        '/guru/extracurriculars/$extraId/journals',
+        data: {
+          'title': title,
+          'session_date': sessionDate,
+          'start_time': startTime,
+          'end_time': endTime,
+          if (location != null && location.isNotEmpty) 'location': location,
+          'material': material,
+          'activity': activity,
+          if (obstacles != null && obstacles.isNotEmpty) 'obstacles': obstacles,
+          if (notes != null && notes.isNotEmpty) 'notes': notes,
+          'attendances': attendances,
+        },
+      );
+    }
+    return (
+      message: body['message'] as String? ?? 'Jurnal berhasil disimpan.',
+      journal: GuruExtraJournal.fromJson(body['journal'] as Map<String, dynamic>),
+    );
+  }
+
+  static Future<({String message, GuruExtraJournal journal})>
+      updateExtracurricularJournal(
+    int sessionId, {
+    required String title,
+    required String sessionDate,
+    required String startTime,
+    required String endTime,
+    String? location,
+    required String material,
+    required String activity,
+    String? obstacles,
+    String? notes,
+    File? photo,
+    bool removePhoto = false,
+    List<Map<String, dynamic>>? attendances,
+  }) async {
+    final Map<String, dynamic> body;
+    if (photo != null) {
+      final formData = FormData.fromMap({
+        'title': title,
+        'session_date': sessionDate,
+        'start_time': startTime,
+        'end_time': endTime,
+        'location': location ?? '',
+        'material': material,
+        'activity': activity,
+        'obstacles': obstacles ?? '',
+        'notes': notes ?? '',
+        'remove_photo': removePhoto ? '1' : '0',
+        if (attendances != null) 'attendances': jsonEncode(attendances),
+        'photo': await MultipartFile.fromFile(
+          photo.path,
+          filename: photo.path.split(Platform.pathSeparator).last,
+        ),
+      });
+      body = await ApiClient.postForm(
+        '/guru/extracurricular-journals/$sessionId/update',
+        formData,
+      );
+    } else {
+      body = await ApiClient.post(
+        '/guru/extracurricular-journals/$sessionId/update',
+        data: {
+          'title': title,
+          'session_date': sessionDate,
+          'start_time': startTime,
+          'end_time': endTime,
+          'location': (location ?? '').isEmpty ? null : location,
+          'material': material,
+          'activity': activity,
+          'obstacles': (obstacles ?? '').isEmpty ? null : obstacles,
+          'notes': (notes ?? '').isEmpty ? null : notes,
+          'remove_photo': removePhoto,
+          if (attendances != null) 'attendances': attendances,
+        },
+      );
+    }
+    return (
+      message: body['message'] as String? ?? 'Jurnal berhasil diperbarui.',
+      journal: GuruExtraJournal.fromJson(body['journal'] as Map<String, dynamic>),
+    );
+  }
+
+  static Future<({String message, GuruExtraJournal journal})>
+      saveExtracurricularAttendance(
+    int sessionId,
+    List<Map<String, dynamic>> attendances,
+  ) async {
+    final body = await ApiClient.post(
+      '/guru/extracurricular-journals/$sessionId/attendance',
+      data: {'attendances': attendances},
+    );
+    return (
+      message: body['message'] as String? ?? 'Absensi berhasil disimpan.',
+      journal: GuruExtraJournal.fromJson(body['journal'] as Map<String, dynamic>),
+    );
+  }
+
+  static Future<String> deleteExtracurricularJournal(int sessionId) async {
+    final body = await ApiClient.post(
+      '/guru/extracurricular-journals/$sessionId/delete',
+    );
+    return body['message'] as String? ?? 'Jurnal berhasil dihapus.';
   }
 }
