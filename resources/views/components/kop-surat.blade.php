@@ -1,8 +1,8 @@
 <div class="kop-resmi-wrapper">
   <style>
     @font-face {
-      font-family: 'Noto Sans Balinese';
-      src: url('{{ asset("fonts/NotoSansBalinese-Regular.ttf") }}') format('truetype');
+      font-family: 'Vimala';
+      src: url('{{ asset("fonts/Vimala.ttf") }}') format('truetype');
       font-weight: normal;
       font-style: normal;
     }
@@ -47,33 +47,33 @@
       justify-content: center;
     }
     .kop-resmi-aksara {
-      font-family: 'Noto Sans Balinese', serif;
+      font-family: 'Vimala', 'Arial', sans-serif;
       font-weight: 400;
-      font-size: 13.5px;
-      line-height: 1.15;
-      margin-bottom: 8px;
+      font-size: 14.5px;
+      line-height: 1.3;
+      margin-bottom: 4px;
       -webkit-font-smoothing: antialiased;
     }
     @media (min-width: 768px) {
       .kop-resmi-aksara {
-        font-size: 17.5px;
-        margin-bottom: 10px;
+        font-size: 18px;
+        margin-bottom: 5px;
         white-space: nowrap;
       }
     }
     .kop-resmi-aksara-sm {
-      font-family: 'Noto Sans Balinese', serif;
+      font-family: 'Vimala', 'Arial', sans-serif;
       font-weight: 400;
-      font-size: 10.5px;
-      line-height: 1.15;
-      margin-top: 2px;
-      margin-bottom: 7px;
+      font-size: 11.5px;
+      line-height: 1.3;
+      margin-top: 1px;
+      margin-bottom: 4px;
       -webkit-font-smoothing: antialiased;
     }
     @media (min-width: 768px) {
       .kop-resmi-aksara-sm {
-        font-size: 13.5px;
-        margin-bottom: 9px;
+        font-size: 14px;
+        margin-bottom: 5px;
         white-space: nowrap;
       }
     }

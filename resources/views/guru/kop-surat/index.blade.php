@@ -11,10 +11,10 @@
     showArsip: false,
     arsipTab: 'portrait',
     arsipTrans: false,
-    portraitImg: '{{ asset('img/kop-surat-portrait.png') }}?v=20261123',
-    portraitTransImg: '{{ asset('img/kop-surat-portrait-transparan.png') }}?v=20261123',
-    landscapeImg: '{{ asset('img/kop-surat-landscape.png') }}?v=20261123',
-    landscapeTransImg: '{{ asset('img/kop-surat-landscape-transparan.png') }}?v=20261123',
+    portraitImg: '{{ asset('img/kop-surat-portrait.png') }}?v=20261123b',
+    portraitTransImg: '{{ asset('img/kop-surat-portrait-transparan.png') }}?v=20261123b',
+    landscapeImg: '{{ asset('img/kop-surat-landscape.png') }}?v=20261123b',
+    landscapeTransImg: '{{ asset('img/kop-surat-landscape-transparan.png') }}?v=20261123b',
 
     arsipPortraitImg: '{{ asset('img/arsip-kop-lama/kop-surat-portrait.png') }}',
     arsipPortraitTransImg: '{{ asset('img/arsip-kop-lama/kop-surat-portrait-transparan.png') }}',
@@ -76,7 +76,7 @@
                 </div>
                 <h1 class="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">KOP Surat Resmi SMAN 1 Gianyar (Terbaru)</h1>
                 <p class="text-xs sm:text-sm text-slate-500 mt-1 max-w-2xl leading-relaxed">
-                    KOP surat resmi terbaru (tanpa baris Disdikpora, garis pembatas tunggal, dengan Aksara Bali Unicode Noto Sans Balinese). Gambar dipotong rapi sesuai tinggi KOP sehingga saat disisipkan ke Microsoft Word atau Google Docs tidak menimbulkan ruang kosong ke bawah.
+                    KOP surat resmi terbaru (tanpa baris Disdikpora, garis pembatas tunggal, dengan Aksara Bali Unicode kaligrafi Vimala). Gambar dipotong rapi sesuai tinggi KOP sehingga saat disisipkan ke Microsoft Word atau Google Docs tidak menimbulkan ruang kosong ke bawah.
                 </p>
             </div>
 
@@ -155,7 +155,7 @@
             <div class="flex items-center gap-2">
                 <span class="text-xs font-bold text-slate-800" x-text="activeTab === 'portrait' ? 'Pratinjau KOP Portrait (Lebar A4 210mm)' : 'Pratinjau KOP Landscape (Lebar A4 297mm)'"></span>
                 <span class="text-[11px] font-mono text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-200"
-                    x-text="activeTab === 'portrait' ? '2960 × 772 px (Ultra HD)' : '3280 × 832 px (Ultra HD)'">
+                    x-text="activeTab === 'portrait' ? '2960 × 760 px (Ultra HD)' : '3280 × 824 px (Ultra HD)'">
                 </span>
             </div>
             <span class="text-[11px] font-medium text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">

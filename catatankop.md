@@ -9,18 +9,18 @@ Dokumen ini mencatat seluruh histori pengerjaan, spesifikasi teknis, pengarsipan
 | Komponen | Pembaruan | Keterangan |
 |---|---|---|
 | **Struktur Teks** | Hapus Disdikpora | Baris `DINAS PENDIDIKAN KEPEMUDAAN DAN OLAHRAGA` (Bali & Latin) dihilangkan sesuai standar KOP baru |
-| **Font Aksara Bali** | Unicode OpenType | Beralih dari `Bali Simbar.ttf` (ANSI) ke **`NotoSansBalinese-Regular.ttf`** (Unicode resmi) |
+| **Font Aksara Bali** | Unicode OpenType Kaligrafi | Beralih dari `Bali Simbar.ttf` (ANSI) / `NotoSansBalinese-Regular.ttf` ke **`Vimala.ttf`** (kaligrafi lontar Unicode resmi) |
 | **Font Teks Latin** | Arial Sans-Serif | Beralih dari Times New Roman ke **`Arial`**. Hanya `SMA NEGERI 1 GIANYAR` yang dicetak **Bold** |
 | **Alamat & Kontak** | Format EYD Terbaru | `Jalan Ratna, Tegal Tugu Gianyar (80511), Telepon : (0361) 943034`, `Laman : www.sman1-gianyar.sch.id, Pos-el : sman1.gianyar1963@gmail.com`, `NPSN. 50102079` |
 | **Garis Pembatas** | Garis Tunggal Tebal | Menggunakan garis hitam tunggal solid (`3.5px` di web/PNG, `3px` di PDF) |
-| **PNG Ultra-HD** | 4× Scale Puppeteer | `kop-surat-portrait.png` (`2960 × 772 px`), `kop-surat-landscape.png` (`3280 × 832 px`), serta varian transparan |
+| **PNG Ultra-HD** | 4× Scale Puppeteer | `kop-surat-portrait.png` (`2960 × 760 px`), `kop-surat-landscape.png` (`3280 × 824 px`), serta varian transparan |
 | **Arsip KOP Lama** | Dipindah (Tidak Dihapus) | Seluruh aset KOP lama dipindahkan ke `public/img/arsip-kop-lama/` dan `templates/kop/arsip-kop-lama/` |
 
 ---
 
-## 2. Pengkodean Aksara Bali Unicode (Noto Sans Balinese)
+## 2. Pengkodean Aksara Bali Unicode (Vimala Kaligrafi)
 
-Aksara Bali diketik langsung menggunakan karakter Unicode resmi (`U+1B00..U+1B7F`) sehingga tampil konsisten di browser modern maupun saat di-render oleh Chromium/Puppeteer (`generate-kop.cjs`):
+Aksara Bali diketik langsung menggunakan karakter Unicode resmi (`U+1B00..U+1B7F`) dengan font kaligrafi palm-leaf **`Vimala.ttf`** (fallback `'Arial', sans-serif` untuk tanda baca `:`, `(`, `)`) sehingga tampil artistik sekaligus konsisten di browser modern maupun saat di-render oleh Chromium/Puppeteer (`generate-kop.cjs`):
 
 1. **Baris 1 (Pemerintah Provinsi Bali)**:
    - Unicode: `ᬧᭂᬫᭂᬭᬶᬦ᭄ᬢᬄᬧ᭄ᬭᭀᬧᬶᬦ᭄ᬲᬶᬩᬮᬶ`
@@ -36,7 +36,7 @@ Aksara Bali diketik langsung menggunakan karakter Unicode resmi (`U+1B00..U+1B7F
 
 ### Catatan DomPDF (Ekspor PDF):
 - DomPDF tidak mendukung *OpenType GSUB/GPOS shaping* untuk Aksara Bali Unicode.
-- Oleh karena itu, `generate-kop.cjs` ikut merender 3 potongan gambar transparan beresolusi tinggi (`public/img/aksara-bali-1.png`, `aksara-bali-2.png`, `aksara-bali-3.png`) dari `NotoSansBalinese-Regular.ttf` untuk disisipkan sebagai Base64 PNG di `resources/views/partials/kop-surat-pdf.blade.php`.
+- Oleh karena itu, `generate-kop.cjs` ikut merender 3 potongan gambar transparan beresolusi tinggi (`public/img/aksara-bali-1.png`, `aksara-bali-2.png`, `aksara-bali-3.png`) dari `Vimala.ttf` untuk disisipkan sebagai Base64 PNG di `resources/views/partials/kop-surat-pdf.blade.php`.
 
 ---
 
@@ -44,7 +44,7 @@ Aksara Bali diketik langsung menggunakan karakter Unicode resmi (`U+1B00..U+1B7F
 
 ### File Aktif:
 - Master Template: `templates/kop/kop-surat.html` & `templates/kop/index.html`
-- Font Aksara Bali: `public/fonts/NotoSansBalinese-Regular.ttf` & `templates/kop/NotoSansBalinese-Regular.ttf`
+- Font Aksara Bali: `public/fonts/Vimala.ttf` & `templates/kop/Vimala.ttf` (`public/fonts/NotoSansBalinese*.ttf` tetap dipertahankan untuk halaman login & mobile)
 - Generator PNG Hi-Res: `generate-kop.cjs`
 - Gambar Output: `public/img/kop-surat-{portrait,landscape}{,-transparan}.png`, `public/img/kop-surat-sman1-gianyar-hires.png`, `public/img/aksara-bali-{1,2,3}.png`
 - Komponen Web & PDF: `resources/views/components/kop-surat.blade.php` & `resources/views/partials/kop-surat-pdf.blade.php`

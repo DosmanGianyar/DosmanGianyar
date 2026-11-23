@@ -8,7 +8,7 @@
 
 1. **Pergub Bali No. 80 Tahun 2018**:
    - Mewajibkan penempatan **Aksara Bali di atas huruf Latin** pada kop naskah dinas dan identitas resmi instansi di wilayah Provinsi Bali.
-   - Menggunakan font Unicode resmi **`Noto Sans Balinese`** (`public/fonts/NotoSansBalinese-Regular.ttf`) dengan shaping OpenType penuh.
+   - Menggunakan font Unicode kaligrafi **`Vimala`** (`public/fonts/Vimala.ttf`) dengan shaping OpenType penuh.
 2. **Format Terbaru (Tanpa Baris Disdikpora & Garis Tunggal)**:
    - Hanya menggunakan 3 baris Aksara Bali + 5 baris teks Latin dengan font **Arial**.
    - Menggunakan **garis pembatas tunggal hitam tebal** (`3.5px` di web/PNG, `3px` di DomPDF).
@@ -25,7 +25,7 @@
 ### Standar Tata Letak:
 | Parameter | A4 Portrait (Tegak / 210×297 mm) | A4 Landscape (Mendatar / 297×210 mm) |
 |---|---|---|
-| **Lebar Maksimal KOP** | `740px` (`2960 × 772 px` saat 4× render) | **`820px` (`3280 × 832 px` saat 4× render)** |
+| **Lebar Maksimal KOP** | `740px` (`2960 × 760 px` saat 4× render) | **`820px` (`3280 × 824 px` saat 4× render)** |
 | **Grid Proporsi Kolom** | `96px` (Logo Kiri) - `1fr` (Teks) - `96px` (Logo Kanan) | `104px` (Logo Kiri) - `1fr` (Teks) - `104px` (Logo Kanan) |
 | **Jarak Kolom Logo ke Teks** | `12px` | `16px` |
 | **Tinggi Maksimal Logo** | `114px` (lebar maks `94px`) | `120px` (lebar maks `100px`) |
@@ -35,15 +35,15 @@
 ## 3. Hierarki Tipografi & Susunan Baris Resmi
 
 Font Latin utama: **`Arial, 'Helvetica Neue', Helvetica, sans-serif`**
-Font Aksara Bali: **`Noto Sans Balinese`**
+Font Aksara Bali: **`Vimala`** (Kaligrafi lontar Unicode, fallback `'Arial', sans-serif`)
 
 | Baris | Konten Teks | Portrait | Landscape | PDF (DomPDF) | Gaya Huruf |
 |:---:|---|:---:|:---:|:---:|:---:|
-| **1a** | `ᬧᭂᬫᭂᬭᬶᬦ᭄ᬢᬄᬧ᭄ᬭᭀᬧᬶᬦ᭄ᬲᬶᬩᬮᬶ` | `16.5px` | `18px` | `height: 24px` (`aksara-bali-1.png`) | Normal, Noto Sans Balinese |
+| **1a** | `ᬧᭂᬫᭂᬭᬶᬦ᭄ᬢᬄᬧ᭄ᬭᭀᬧᬶᬦ᭄ᬲᬶᬩᬮᬶ` | `18px` | `19.5px` | `height: 24px` (`aksara-bali-1.png`) | Normal, Vimala |
 | **1b** | PEMERINTAH PROVINSI BALI | `16px` | `17.5px` | `13pt` | Regular (`400`), All-Caps |
-| **2a** | `᭞ᬏᬲ᭄ ᬏᬫ᭄ ᬅ᭞ ᬦᭂᬕᭂᬭᬶ ᭞᭑᭞ ᬕ᭄ᬬᬜᬃ` | `16.5px` | `18px` | `height: 24px` (`aksara-bali-2.png`) | Normal, Noto Sans Balinese |
+| **2a** | `᭞ᬏᬲ᭄ ᬏᬫ᭄ ᬅ᭞ ᬦᭂᬕᭂᬭᬶ ᭞᭑᭞ ᬕ᭄ᬬᬜᬃ` | `18px` | `19.5px` | `height: 24px` (`aksara-bali-2.png`) | Normal, Vimala |
 | **2b** | **SMA NEGERI 1 GIANYAR** | `22px` | `24px` | `17.5pt` | **Bold (`700`)**, All-Caps, Dominan |
-| **3a** | `ᬚᬮᬦ᭄‌ᬭᬢ᭄ᬦᬢᭂᬕᬮ᭄ᬢᬸᬕᬸᬕ᭄ᬬᬜᬃ᭞᭘᭐᭕᭑᭑᭞ᬢᬾᬮᬾᬧᭀᬦ᭄:(᭐᭓᭖᭑)᭙᭔᭓᭐᭓᭔` | `13px` | `14px` | `height: 19px` (`aksara-bali-3.png`) | Normal, Noto Sans Balinese (dengan ZWNJ `U+200C` setelah `ᬦ᭄`) |
+| **3a** | `ᬚᬮᬦ᭄‌ᬭᬢ᭄ᬦᬢᭂᬕᬮ᭄ᬢᬸᬕᬸᬕ᭄ᬬᬜᬃ᭞᭘᭐᭕᭑᭑᭞ᬢᬾᬮᬾᬧᭀᬦ᭄:(᭐᭓᭖᭑)᭙᭔᭓᭐᭓᭔` | `14px` | `15px` | `height: 19px` (`aksara-bali-3.png`) | Normal, Vimala (dengan ZWNJ `U+200C` setelah `ᬦ᭄`) |
 | **3b** | Jalan Ratna, Tegal Tugu Gianyar (80511), Telepon : (0361) 943034 | `12px` | `13px` | `9.5pt` | Regular (`400`) |
 | **4** | Laman : www.sman1-gianyar.sch.id, Pos-el : sman1.gianyar1963@gmail.com | `11.5px` | `12.5px` | `9pt` | Regular (`400`) |
 | **5** | NPSN. 50102079 | `12px` | `13px` | `9.5pt` | Regular (`400`) |
@@ -84,4 +84,4 @@ Font Aksara Bali: **`Noto Sans Balinese`**
    ```bash
    node generate-kop.cjs
    ```
-   Menggunakan template master `templates/kop/kop-surat.html` dan `templates/kop/NotoSansBalinese-Regular.ttf`.
+   Menggunakan template master `templates/kop/kop-surat.html` dan `templates/kop/Vimala.ttf`.

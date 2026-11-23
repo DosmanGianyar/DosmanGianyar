@@ -15,7 +15,7 @@
                     ?? $kopReadBase64('img/logo-sman1-gianyar.png')
                     ?? $kopReadBase64('img/logo_sekolah.png');
 
-    // 3 Baris Aksara Bali Resolusi Tinggi (300+ DPI Transparent, Noto Sans Balinese)
+    // 3 Baris Aksara Bali Resolusi Tinggi (300+ DPI Transparent, Font Kaligrafi Vimala)
     $aksara1Data     = $kopReadBase64('img/aksara-bali-1.png');
     $aksara2Data     = $kopReadBase64('img/aksara-bali-2.png');
     $aksara3Data     = $kopReadBase64('img/aksara-bali-3.png');

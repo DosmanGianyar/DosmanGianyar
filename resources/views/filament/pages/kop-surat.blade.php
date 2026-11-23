@@ -205,10 +205,10 @@
         showArsip: false,
         arsipTab: 'portrait',
         arsipTrans: false,
-        portraitImg: '{{ asset('img/kop-surat-portrait.png') }}?v=20261123',
-        portraitTransImg: '{{ asset('img/kop-surat-portrait-transparan.png') }}?v=20261123',
-        landscapeImg: '{{ asset('img/kop-surat-landscape.png') }}?v=20261123',
-        landscapeTransImg: '{{ asset('img/kop-surat-landscape-transparan.png') }}?v=20261123',
+        portraitImg: '{{ asset('img/kop-surat-portrait.png') }}?v=20261123b',
+        portraitTransImg: '{{ asset('img/kop-surat-portrait-transparan.png') }}?v=20261123b',
+        landscapeImg: '{{ asset('img/kop-surat-landscape.png') }}?v=20261123b',
+        landscapeTransImg: '{{ asset('img/kop-surat-landscape-transparan.png') }}?v=20261123b',
 
         arsipPortraitImg: '{{ asset('img/arsip-kop-lama/kop-surat-portrait.png') }}',
         arsipPortraitTransImg: '{{ asset('img/arsip-kop-lama/kop-surat-portrait-transparan.png') }}',
@@ -269,7 +269,7 @@
                     </div>
                     <h2 class="text-xl font-bold text-slate-800 tracking-tight">KOP Surat Resmi Sekolah (Terbaru)</h2>
                     <p class="text-xs text-slate-500 mt-1 max-w-2xl">
-                        Gambar KOP surat resmi terbaru (tanpa baris Disdikpora, garis pembatas tunggal, dengan Aksara Bali Unicode Noto Sans Balinese) sudah dipotong pas untuk disisipkan ke Microsoft Word, Google Docs, atau aplikasi administrasi lainnya.
+                        Gambar KOP surat resmi terbaru (tanpa baris Disdikpora, garis pembatas tunggal, dengan Aksara Bali Unicode kaligrafi Vimala) sudah dipotong pas untuk disisipkan ke Microsoft Word, Google Docs, atau aplikasi administrasi lainnya.
                     </p>
                 </div>
 
@@ -339,7 +339,7 @@
             <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
                 <div class="flex items-center gap-2 flex-wrap">
                     <span class="font-bold text-sm text-slate-800" x-text="activeTab === 'portrait' ? 'Pratinjau KOP Surat (A4 Portrait)' : 'Pratinjau KOP Surat (A4 Landscape)'"></span>
-                    <span class="text-xs text-slate-400 font-mono" x-text="activeTab === 'portrait' ? 'Resolusi: 2960 × 772 px (Ultra HD 300+ DPI)' : 'Resolusi: 3280 × 832 px (Ultra HD 300+ DPI)'"></span>
+                    <span class="text-xs text-slate-400 font-mono" x-text="activeTab === 'portrait' ? 'Resolusi: 2960 × 760 px (Ultra HD 300+ DPI)' : 'Resolusi: 3280 × 824 px (Ultra HD 300+ DPI)'"></span>
                 </div>
                 <span class="text-xs font-semibold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-md">
                     Rasio pas tanpa sisa margin bawah
