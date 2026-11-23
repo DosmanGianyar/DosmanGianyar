@@ -18,11 +18,12 @@ class KopSuratController extends Controller
     }
 
     /**
-     * Download file gambar KOP Surat langsung sebagai attachment (anti gagal di HP/Laptop).
+     * Download file gambar KOP Surat langsung sebagai attachment (aktif maupun arsip lama).
      */
     public function download(string $type): BinaryFileResponse
     {
         $map = [
+            // KOP Surat Baru (Aktif)
             'portrait' => [
                 'file' => 'kop-surat-portrait.png',
                 'name' => 'KOP-Surat-SMAN1-Gianyar-Portrait-LatarPutih.png',
@@ -38,6 +39,24 @@ class KopSuratController extends Controller
             'landscape-transparan' => [
                 'file' => 'kop-surat-landscape-transparan.png',
                 'name' => 'KOP-Surat-SMAN1-Gianyar-Landscape-Transparan.png',
+            ],
+
+            // Arsip KOP Surat Lama (Format Disdikpora)
+            'arsip-portrait' => [
+                'file' => 'arsip-kop-lama/kop-surat-portrait.png',
+                'name' => 'KOP-Surat-LAMA-Disdikpora-SMAN1-Gianyar-Portrait-LatarPutih.png',
+            ],
+            'arsip-portrait-transparan' => [
+                'file' => 'arsip-kop-lama/kop-surat-portrait-transparan.png',
+                'name' => 'KOP-Surat-LAMA-Disdikpora-SMAN1-Gianyar-Portrait-Transparan.png',
+            ],
+            'arsip-landscape' => [
+                'file' => 'arsip-kop-lama/kop-surat-landscape.png',
+                'name' => 'KOP-Surat-LAMA-Disdikpora-SMAN1-Gianyar-Landscape-LatarPutih.png',
+            ],
+            'arsip-landscape-transparan' => [
+                'file' => 'arsip-kop-lama/kop-surat-landscape-transparan.png',
+                'name' => 'KOP-Surat-LAMA-Disdikpora-SMAN1-Gianyar-Landscape-Transparan.png',
             ],
         ];
 
@@ -58,4 +77,3 @@ class KopSuratController extends Controller
         ]);
     }
 }
-

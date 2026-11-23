@@ -8,10 +8,18 @@
     activeTab: 'portrait',
     isTransparent: false,
     copied: false,
-    portraitImg: '{{ asset('img/kop-surat-portrait.png') }}',
-    portraitTransImg: '{{ asset('img/kop-surat-portrait-transparan.png') }}',
-    landscapeImg: '{{ asset('img/kop-surat-landscape.png') }}',
-    landscapeTransImg: '{{ asset('img/kop-surat-landscape-transparan.png') }}',
+    showArsip: false,
+    arsipTab: 'portrait',
+    arsipTrans: false,
+    portraitImg: '{{ asset('img/kop-surat-portrait.png') }}?v=20261123',
+    portraitTransImg: '{{ asset('img/kop-surat-portrait-transparan.png') }}?v=20261123',
+    landscapeImg: '{{ asset('img/kop-surat-landscape.png') }}?v=20261123',
+    landscapeTransImg: '{{ asset('img/kop-surat-landscape-transparan.png') }}?v=20261123',
+
+    arsipPortraitImg: '{{ asset('img/arsip-kop-lama/kop-surat-portrait.png') }}',
+    arsipPortraitTransImg: '{{ asset('img/arsip-kop-lama/kop-surat-portrait-transparan.png') }}',
+    arsipLandscapeImg: '{{ asset('img/arsip-kop-lama/kop-surat-landscape.png') }}',
+    arsipLandscapeTransImg: '{{ asset('img/arsip-kop-lama/kop-surat-landscape-transparan.png') }}',
 
     get currentImg() {
         if (this.activeTab === 'portrait') {
@@ -26,6 +34,14 @@
             return this.isTransparent ? '{{ route('guru.kop-surat.download', 'portrait-transparan') }}' : '{{ route('guru.kop-surat.download', 'portrait') }}';
         } else {
             return this.isTransparent ? '{{ route('guru.kop-surat.download', 'landscape-transparan') }}' : '{{ route('guru.kop-surat.download', 'landscape') }}';
+        }
+    },
+
+    get currentArsipImg() {
+        if (this.arsipTab === 'portrait') {
+            return this.arsipTrans ? this.arsipPortraitTransImg : this.arsipPortraitImg;
+        } else {
+            return this.arsipTrans ? this.arsipLandscapeTransImg : this.arsipLandscapeImg;
         }
     },
 
@@ -52,15 +68,15 @@
                 <div class="flex items-center gap-2 mb-1.5 flex-wrap">
                     <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
                         <svg style="width: 14px; height: 14px; min-width: 14px; min-height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                        Standar Resmi Pemprov Bali &amp; Disdikpora
+                        Standar Resmi Pemerintah Provinsi Bali
                     </span>
                     <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-800 border border-amber-200">
                         ✂️ Crop Pas (Hanya Banner KOP)
                     </span>
                 </div>
-                <h1 class="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">KOP Surat Resmi SMAN 1 Gianyar</h1>
+                <h1 class="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">KOP Surat Resmi SMAN 1 Gianyar (Terbaru)</h1>
                 <p class="text-xs sm:text-sm text-slate-500 mt-1 max-w-2xl leading-relaxed">
-                    Halaman unduh KOP surat sekolah format Portrait &amp; Landscape. Gambar dipotong rapi sesuai tinggi KOP sehingga saat disisipkan ke Microsoft Word atau Google Docs tidak menimbulkan ruang kosong ke bawah.
+                    KOP surat resmi terbaru (tanpa baris Disdikpora, garis pembatas tunggal, dengan Aksara Bali Unicode Noto Sans Balinese). Gambar dipotong rapi sesuai tinggi KOP sehingga saat disisipkan ke Microsoft Word atau Google Docs tidak menimbulkan ruang kosong ke bawah.
                 </p>
             </div>
 
@@ -139,7 +155,7 @@
             <div class="flex items-center gap-2">
                 <span class="text-xs font-bold text-slate-800" x-text="activeTab === 'portrait' ? 'Pratinjau KOP Portrait (Lebar A4 210mm)' : 'Pratinjau KOP Landscape (Lebar A4 297mm)'"></span>
                 <span class="text-[11px] font-mono text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-200"
-                    x-text="activeTab === 'portrait' ? '2960 × 652 px (Ultra HD)' : '3280 × 712 px (Ultra HD)'">
+                    x-text="activeTab === 'portrait' ? '2960 × 772 px (Ultra HD)' : '3280 × 832 px (Ultra HD)'">
                 </span>
             </div>
             <span class="text-[11px] font-medium text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
@@ -190,6 +206,53 @@
         </div>
     </div>
 
+    {{-- ─── 4. Arsip KOP Surat Lama (Format Disdikpora) ─────────────────────────── --}}
+    <div class="bg-white rounded-xl border border-slate-200 border-t-[3px] border-t-slate-500 shadow-2xs p-4 sm:p-5">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-600 border border-slate-200 mb-1">
+                    🗄️ Arsip Historis
+                </span>
+                <h3 class="text-sm sm:text-base font-bold text-slate-800">Arsip KOP Surat Lama (Format Disdikpora)</h3>
+                <p class="text-xs text-slate-500 mt-0.5">
+                    KOP surat versi sebelumnya tetap disimpan di arsip untuk referensi atau keperluan surat terdahulu.
+                </p>
+            </div>
+            <button type="button" @click="showArsip = !showArsip"
+                class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-all self-start sm:self-auto shrink-0">
+                <span x-text="showArsip ? 'Tutup Arsip' : 'Lihat & Download Arsip KOP Lama'"></span>
+            </button>
+        </div>
+
+        <div x-show="showArsip" x-cloak class="mt-4 pt-4 border-t border-slate-100 space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center gap-2 flex-wrap">
+                    <div class="flex bg-slate-100 p-1 rounded-lg border border-slate-200/60">
+                        <button type="button" class="px-3 py-1 rounded-md text-xs font-bold" :class="arsipTab === 'portrait' ? 'bg-white text-blue-700 shadow-xs' : 'text-slate-600'" @click="arsipTab = 'portrait'">A4 Portrait</button>
+                        <button type="button" class="px-3 py-1 rounded-md text-xs font-bold" :class="arsipTab === 'landscape' ? 'bg-white text-blue-700 shadow-xs' : 'text-slate-600'" @click="arsipTab = 'landscape'">A4 Landscape</button>
+                    </div>
+                    <div class="inline-flex rounded-lg border border-slate-200 p-0.5 bg-slate-50">
+                        <button type="button" class="px-2.5 py-1 text-xs font-semibold rounded-md" :class="!arsipTrans ? 'bg-white text-slate-800 shadow-xs' : 'text-slate-500'" @click="arsipTrans = false">Putih</button>
+                        <button type="button" class="px-2.5 py-1 text-xs font-semibold rounded-md" :class="arsipTrans ? 'bg-white text-slate-800 shadow-xs' : 'text-slate-500'" @click="arsipTrans = true">Transparan</button>
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-2">
+                    <a href="{{ route('guru.kop-surat.download', 'arsip-portrait') }}" class="px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-200 bg-white hover:bg-slate-50 text-slate-700">⬇ Portrait (Putih)</a>
+                    <a href="{{ route('guru.kop-surat.download', 'arsip-portrait-transparan') }}" class="px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-200 bg-white hover:bg-slate-50 text-slate-700">⬇ Portrait (Transparan)</a>
+                    <a href="{{ route('guru.kop-surat.download', 'arsip-landscape') }}" class="px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-200 bg-white hover:bg-slate-50 text-slate-700">⬇ Landscape (Putih)</a>
+                    <a href="{{ route('guru.kop-surat.download', 'arsip-landscape-transparan') }}" class="px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-200 bg-white hover:bg-slate-50 text-slate-700">⬇ Landscape (Transparan)</a>
+                </div>
+            </div>
+
+            <div class="w-full overflow-x-auto bg-slate-100/70 border border-slate-200/80 rounded-xl p-3 sm:p-5 flex items-center justify-center">
+                <div class="bg-white rounded-lg p-2 shadow-sm border border-slate-200/60 max-w-full"
+                    :class="arsipTrans ? 'bg-[linear-gradient(45deg,#e2e8f0_25%,transparent_25%),linear-gradient(-45deg,#e2e8f0_25%,transparent_25%),linear-gradient(45deg,transparent_75%,#e2e8f0_75%),linear-gradient(-45deg,transparent_75%,#e2e8f0_75%)] [background-size:16px_16px] [background-position:0_0,0_8px,8px_-8px,-8px_0px]' : ''">
+                    <img :src="currentArsipImg" alt="Arsip KOP Surat Lama SMAN 1 Gianyar" class="max-w-full h-auto block rounded mx-auto" style="min-width: 280px; max-width: 820px;">
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 @endsection
-

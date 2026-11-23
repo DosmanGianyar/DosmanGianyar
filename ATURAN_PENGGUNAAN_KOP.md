@@ -1,106 +1,87 @@
 # 📜 PEDOMAN & ATURAN RESMI PENGGUNAAN KOP SURAT
 ## SMAN 1 GIANYAR (DOSMAN)
-*Sesuai Standar Tata Naskah Dinas & Pergub Bali No. 80 Tahun 2018*
+*Sesuai Standar Tata Naskah Dinas Terbaru Pemprov Bali & Pergub Bali No. 80 Tahun 2018*
 
 ---
 
 ## 1. Landasan Hukum & Filosofi Desain
 
 1. **Pergub Bali No. 80 Tahun 2018**:
-   - Mewajibkan penempatan **Aksara Bali di atas huruf Latin** pada papan nama instansi, kop naskah dinas, dan identitas resmi pemerintah daerah di wilayah Provinsi Bali.
-   - Penulisan Aksara Bali menggunakan font **Bali Simbar** dengan kaidah *Pasang Aksara Bali* resmi.
-2. **Kerapatan Vertikal (Kompak & Efisien)**:
-   - KOP surat dirancang ramping (*compact*) agar tidak memakan ruang halaman dokumen/laporan (*tidak terlalu tinggi/lebar*), sehingga ruang untuk isi surat, tabel data, atau keputusan resmi tetap maksimal.
+   - Mewajibkan penempatan **Aksara Bali di atas huruf Latin** pada kop naskah dinas dan identitas resmi instansi di wilayah Provinsi Bali.
+   - Menggunakan font Unicode resmi **`Noto Sans Balinese`** (`public/fonts/NotoSansBalinese-Regular.ttf`) dengan shaping OpenType penuh.
+2. **Format Terbaru (Tanpa Baris Disdikpora & Garis Tunggal)**:
+   - Hanya menggunakan 3 baris Aksara Bali + 5 baris teks Latin dengan font **Arial**.
+   - Menggunakan **garis pembatas tunggal hitam tebal** (`3.5px` di web/PNG, `3px` di DomPDF).
 3. **Proporsi Simetris & Berwibawa**:
-   - Diapit oleh dua lambang resmi: **Lambang Daerah Provinsi Bali** di sisi kiri dan **Lambang SMAN 1 Gianyar (Widya Wahana Bhakti)** di sisi kanan.
+   - Diapit oleh dua lambang resmi Ultra-HD: **Lambang Daerah Provinsi Bali** di sisi kiri (`logo-provinsi.png`) dan **Lambang SMAN 1 Gianyar (Widya Wahana Bhakti)** di sisi kanan (`logo-dosman.png`).
 
 ---
 
 ## 2. Aturan Batasan Lebar & Tata Letak Logo (Portrait vs Landscape)
 
 ### ⚠️ Aturan Kritis Mode Landscape:
-> **PANTANGAN UTAMA:** Pada dokumen berorientasi **Landscape (Mendatar / A4 297×210 mm)**, KOP **TIDAK BOLEH melebar 100% mengikuti lebar kertas** (misal 1120px). Jika melebar 100%, kedua logo akan terbuang jauh ke ujung kertas dan meninggalkan ruang kosong (*blank whitespace*) yang sangat mengganggu estetika naskah resmi.
+> **PANTANGAN UTAMA:** Pada dokumen berorientasi **Landscape (Mendatar / A4 297×210 mm)**, KOP **TIDAK BOLEH melebar 100% mengikuti lebar kertas**. Lebar dibatasi dan dipusatkan agar kedua logo tetap merangkul blok teks tengah secara proporsional.
 
 ### Standar Tata Letak:
 | Parameter | A4 Portrait (Tegak / 210×297 mm) | A4 Landscape (Mendatar / 297×210 mm) |
 |---|---|---|
-| **Lebar Maksimal KOP** | `740px` (atau 100% area cetak margin 1.5 cm) | **Maksimal `820px` (Wajib Centered / `margin: 0 auto`)** |
-| **Grid Proporsi Kolom** | `82px` (Logo Kiri) - `1fr` (Teks) - `82px` (Logo Kanan) | `88px` (Logo Kiri) - `1fr` (Teks) - `88px` (Logo Kanan) |
+| **Lebar Maksimal KOP** | `740px` (`2960 × 772 px` saat 4× render) | **`820px` (`3280 × 832 px` saat 4× render)** |
+| **Grid Proporsi Kolom** | `96px` (Logo Kiri) - `1fr` (Teks) - `96px` (Logo Kanan) | `104px` (Logo Kiri) - `1fr` (Teks) - `104px` (Logo Kanan) |
 | **Jarak Kolom Logo ke Teks** | `12px` | `16px` |
-| **Tinggi Maksimal Logo** | `85px` (lebar maks `78px`) | `88px` (lebar maks `82px`) |
-| **Tinggi Total KOP** | ~`88px` s/d `95px` | ~`90px` s/d `98px` |
+| **Tinggi Maksimal Logo** | `114px` (lebar maks `94px`) | `120px` (lebar maks `100px`) |
 
 ---
 
-## 3. Aturan Jarak Antar-Font Vertikal (Sangat Rapat / Mepet)
+## 3. Hierarki Tipografi & Susunan Baris Resmi
 
-Untuk menjaga KOP tetap ramping dan huruf Bali tetap terbaca besar tanpa membuat KOP terlalu tinggi:
+Font Latin utama: **`Arial, 'Helvetica Neue', Helvetica, sans-serif`**
+Font Aksara Bali: **`Noto Sans Balinese`**
 
-1. **Aksara Bali**:
-   - Memiliki `line-height: 0.68 - 0.72`.
-   - Menggunakan `margin-bottom: -5px` s/d `-6px` untuk memangkas *bounding-box descent* bawaan font, sehingga huruf Aksara menempel padat tepat di atas teks Latin padanannya.
-2. **Teks Latin (Instansi & Sekolah)**:
-   - `line-height: 0.88 - 0.92`.
-   - `margin-top: 0px` dan `margin-bottom: 1px`.
-3. **Alamat, Kontak, & NPSN**:
-   - `line-height: 0.95`.
-   - `margin: 0px` (bebas jeda kosong vertikal).
-4. **Garis Pembatas Ganda**:
-   - Celah pemisah dari baris NPSN hanya `3px`.
-
----
-
-## 4. Hierarki Tipografi & Ukuran Huruf
-
-| Baris | Konten Teks | Ukuran (Portrait) | Ukuran (Landscape) | Ukuran PDF (DomPDF) | Gaya Huruf |
+| Baris | Konten Teks | Portrait | Landscape | PDF (DomPDF) | Gaya Huruf |
 |:---:|---|:---:|:---:|:---:|:---:|
-| **1a** | Aksara Bali Pemprov Bali | `29px` | `31px` | `height: 22px` | Normal, Bali Simbar |
-| **1b** | **PEMERINTAH PROVINSI BALI** | `16.5px` | `17.5px` | `10.5pt` | Bold, All-Caps, Tracking 0.5px |
-| **2a** | Aksara Bali Dinas Dikpora | `29px` | `31px` | `height: 21px` | Normal, Bali Simbar |
-| **2b** | **DINAS PENDIDIKAN KEPEMUDAAN DAN OLAHRAGA** | `15px` | `16px` | `9.6pt` | Bold, All-Caps, Tracking 0.3px |
-| **3a** | Aksara Bali SMAN 1 Gianyar | `29px` | `31px` | `height: 23px` | Normal, Bali Simbar |
-| **3b** | **SMA NEGERI 1 GIANYAR** | `21px` | `22.5px` | `13pt` | Bold, All-Caps, Tracking 0.8px (Paling Dominan) |
-| **4a** | Aksara Bali Alamat & Telp | `20px` | `22px` | `height: 16px` | Normal, Bali Simbar |
-| **4b** | **Jln. Ratna, Tegal Tugu Gianyar, Telp : (0361) 943034** | `12px` | `13px` | `8pt` | Bold, Regular Case |
-| **5** | Website : https://sman1-gianyar.sch.id, E-mail : ... | `11px` | `11.5px` | `7.2pt` | Regular |
-| **6** | **NPSN : 50102079** | `11px` | `11.5px` | `7.2pt` | Bold, Tracking 0.4px |
+| **1a** | `ᬧᭂᬫᭂᬭᬶᬦ᭄ᬢᬄᬧ᭄ᬭᭀᬧᬶᬦ᭄ᬲᬶᬩᬮᬶ` | `16.5px` | `18px` | `height: 24px` (`aksara-bali-1.png`) | Normal, Noto Sans Balinese |
+| **1b** | PEMERINTAH PROVINSI BALI | `16px` | `17.5px` | `13pt` | Regular (`400`), All-Caps |
+| **2a** | `᭞ᬏᬲ᭄ ᬏᬫ᭄ ᬅ᭞ ᬦᭂᬕᭂᬭᬶ ᭞᭑᭞ ᬕ᭄ᬬᬜᬃ` | `16.5px` | `18px` | `height: 24px` (`aksara-bali-2.png`) | Normal, Noto Sans Balinese |
+| **2b** | **SMA NEGERI 1 GIANYAR** | `22px` | `24px` | `17.5pt` | **Bold (`700`)**, All-Caps, Dominan |
+| **3a** | `ᬚᬮᬦ᭄‌ᬭᬢ᭄ᬦᬢᭂᬕᬮ᭄ᬢᬸᬕᬸᬕ᭄ᬬᬜᬃ᭞᭘᭐᭕᭑᭑᭞ᬢᬾᬮᬾᬧᭀᬦ᭄:(᭐᭓᭖᭑)᭙᭔᭓᭐᭓᭔` | `13px` | `14px` | `height: 19px` (`aksara-bali-3.png`) | Normal, Noto Sans Balinese (dengan ZWNJ `U+200C` setelah `ᬦ᭄`) |
+| **3b** | Jalan Ratna, Tegal Tugu Gianyar (80511), Telepon : (0361) 943034 | `12px` | `13px` | `9.5pt` | Regular (`400`) |
+| **4** | Laman : www.sman1-gianyar.sch.id, Pos-el : sman1.gianyar1963@gmail.com | `11.5px` | `12.5px` | `9pt` | Regular (`400`) |
+| **5** | NPSN. 50102079 | `12px` | `13px` | `9.5pt` | Regular (`400`) |
 
 ---
 
-## 5. Standar Aset Visual
+## 4. Standar Aset Visual & Arsip
 
-### A. Logo Kiri: Pemerintah Provinsi Bali
-- **Format File**: `public/img/logo-provinsi.png` (PNG-24 Transparan).
-- **Karakteristik**: Berwarna penuh, ketajaman tinggi (Ultra-HD), tepi bersih tanpa halo putih.
+### A. Aset Aktif (`public/img/`)
+- Logo Kiri: `public/img/logo-provinsi.png` (PNG-24 Transparan)
+- Logo Kanan: `public/img/logo-dosman.png` & `logo-dosman-hd.png` (PNG-24 Transparan, 300 DPI)
+- Banner KOP siap pakai (4× scale, 300+ DPI):
+  - `public/img/kop-surat-portrait.png` & `kop-surat-portrait-transparan.png`
+  - `public/img/kop-surat-landscape.png` & `kop-surat-landscape-transparan.png`
+  - `public/img/kop-surat-sman1-gianyar-hires.png`
+- Potongan Aksara Bali untuk DomPDF (`300+ DPI` render Chromium/Puppeteer):
+  - `public/img/aksara-bali-1.png`, `aksara-bali-2.png`, `aksara-bali-3.png`
 
-### B. Logo Kanan: SMAN 1 Gianyar (DOSMAN)
-- **Format File**: `public/img/logo-dosman-hd.png` & `logo-dosman.png` (PNG-24 Transparan, 300 DPI).
-- **Karakteristik**:
-  - Kontur terluar presisi mengikuti garis hitam perisai & pita semboyan *"WIDYA WAHANA BHAKTI"*.
-  - Warna dalam perisai, pita semboyan, buku terbuka, dan 3 figur wajib **putih solid (`#FFFFFF`) murni 100% opacity**.
-  - Background luar logo 100% transparan tanpa *fringe* abu-abu/putih.
+### B. Garis Pembatas Bawah
+- **Garis Tunggal Hitam Tebal**: `border-top: 3.5px solid #000000;` (web/PNG) dan `3px solid #000000;` (PDF).
 
-### C. Garis Ganda Pembatas (Double Border)
-- **Garis Atas**: Tebal `2.5px` (solid `#000000`).
-- **Celah Jeda**: Tinggi `1.5px` (kosong/putih).
-- **Garis Bawah**: Tipis `0.8px` (solid `#000000`).
-
----
-
-## 6. Panduan Pemanggilan di Kode Program
-
-### 1. Di Template Blade Web (HTML Screen):
-```blade
-<x-kop-surat />
-```
-
-### 2. Di Seluruh Ekspor Laporan PDF (DomPDF):
-```blade
-@include('partials.kop-surat-pdf')
-```
-
-### 3. File Referensi Standalone:
-- Halaman pratinjau interaktif A4 Portrait & Landscape: `templates/kop/kop-surat.html` (atau `index.html`).
+### C. Arsip KOP Lama (`public/img/arsip-kop-lama/` & `templates/kop/arsip-kop-lama/`)
+- Seluruh file KOP format lama (yang mencantumkan Disdikpora, font Bali Simbar ANSI, Times New Roman, dan garis ganda) **diarsipkan** di folder tersebut tanpa dihapus, dan tetap tersedia di bagian **Arsip KOP Surat Lama** pada halaman Download KOP Admin & Guru.
 
 ---
-*Ditetapkan untuk seluruh dokumen resmi SIMAK DOSMAN SMAN 1 Gianyar.*
+
+## 5. Panduan Pemanggilan & Regenerasi Aset
+
+1. **Di Template Blade Web (HTML Screen)**:
+   ```blade
+   <x-kop-surat />
+   ```
+2. **Di Seluruh Ekspor Laporan PDF (DomPDF)**:
+   ```blade
+   @include('partials.kop-surat-pdf')
+   ```
+3. **Regenerasi PNG Resolusi Tinggi (300+ DPI)**:
+   ```bash
+   node generate-kop.cjs
+   ```
+   Menggunakan template master `templates/kop/kop-surat.html` dan `templates/kop/NotoSansBalinese-Regular.ttf`.

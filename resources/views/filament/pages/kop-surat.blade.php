@@ -19,6 +19,15 @@
             box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05) !important;
         }
 
+        .kop-card-arsip {
+            background: #ffffff !important;
+            border: 1px solid #e2e8f0 !important;
+            border-top: 3px solid #64748b !important;
+            border-radius: 0.75rem !important;
+            padding: 1.25rem 1.5rem !important;
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05) !important;
+        }
+
         .kop-tabs {
             display: flex;
             background: #f1f5f9;
@@ -87,17 +96,6 @@
             border-color: #17549c !important;
         }
 
-        .kop-btn-emerald {
-            background: #059669 !important;
-            border-color: #059669 !important;
-            color: #ffffff !important;
-        }
-
-        .kop-btn-emerald:hover {
-            background: #047857 !important;
-            border-color: #047857 !important;
-        }
-
         .kop-btn-indigo {
             background: #4f46e5 !important;
             border-color: #4f46e5 !important;
@@ -132,10 +130,10 @@
         }
 
         .kop-preview-stage.is-transparan {
-            background-image: 
-                linear-gradient(45deg, #e2e8f0 25%, transparent 25%), 
-                linear-gradient(-45deg, #e2e8f0 25%, transparent 25%), 
-                linear-gradient(45deg, transparent 75%, #e2e8f0 75%), 
+            background-image:
+                linear-gradient(45deg, #e2e8f0 25%, transparent 25%),
+                linear-gradient(-45deg, #e2e8f0 25%, transparent 25%),
+                linear-gradient(45deg, transparent 75%, #e2e8f0 75%),
                 linear-gradient(-45deg, transparent 75%, #e2e8f0 75%);
             background-size: 16px 16px;
             background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
@@ -204,11 +202,19 @@
         activeTab: 'portrait',
         isTransparent: false,
         copied: false,
-        portraitImg: '{{ asset('img/kop-surat-portrait.png') }}',
-        portraitTransImg: '{{ asset('img/kop-surat-portrait-transparan.png') }}',
-        landscapeImg: '{{ asset('img/kop-surat-landscape.png') }}',
-        landscapeTransImg: '{{ asset('img/kop-surat-landscape-transparan.png') }}',
-        
+        showArsip: false,
+        arsipTab: 'portrait',
+        arsipTrans: false,
+        portraitImg: '{{ asset('img/kop-surat-portrait.png') }}?v=20261123',
+        portraitTransImg: '{{ asset('img/kop-surat-portrait-transparan.png') }}?v=20261123',
+        landscapeImg: '{{ asset('img/kop-surat-landscape.png') }}?v=20261123',
+        landscapeTransImg: '{{ asset('img/kop-surat-landscape-transparan.png') }}?v=20261123',
+
+        arsipPortraitImg: '{{ asset('img/arsip-kop-lama/kop-surat-portrait.png') }}',
+        arsipPortraitTransImg: '{{ asset('img/arsip-kop-lama/kop-surat-portrait-transparan.png') }}',
+        arsipLandscapeImg: '{{ asset('img/arsip-kop-lama/kop-surat-landscape.png') }}',
+        arsipLandscapeTransImg: '{{ asset('img/arsip-kop-lama/kop-surat-landscape-transparan.png') }}',
+
         get currentImg() {
             if (this.activeTab === 'portrait') {
                 return this.isTransparent ? this.portraitTransImg : this.portraitImg;
@@ -216,12 +222,20 @@
                 return this.isTransparent ? this.landscapeTransImg : this.landscapeImg;
             }
         },
-        
+
         get downloadUrl() {
             if (this.activeTab === 'portrait') {
                 return this.isTransparent ? '{{ route('guru.kop-surat.download', 'portrait-transparan') }}' : '{{ route('guru.kop-surat.download', 'portrait') }}';
             } else {
                 return this.isTransparent ? '{{ route('guru.kop-surat.download', 'landscape-transparan') }}' : '{{ route('guru.kop-surat.download', 'landscape') }}';
+            }
+        },
+
+        get currentArsipImg() {
+            if (this.arsipTab === 'portrait') {
+                return this.arsipTrans ? this.arsipPortraitTransImg : this.arsipPortraitImg;
+            } else {
+                return this.arsipTrans ? this.arsipLandscapeTransImg : this.arsipLandscapeImg;
             }
         },
 
@@ -244,18 +258,18 @@
         <div class="kop-card">
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <div class="flex items-center gap-2 mb-1">
+                    <div class="flex items-center gap-2 mb-1 flex-wrap">
                         <span class="badge-tight">
                             <svg style="width: 14px; height: 14px; min-width: 14px; min-height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                            Standar Baku Resmi SMAN 1 Gianyar
+                            Standar Resmi Pemerintah Provinsi Bali
                         </span>
                         <span class="badge-tight" style="background: #fef3c7; color: #92400e;">
                             ✂️ Ukuran Pas (Hanya KOP Saja)
                         </span>
                     </div>
-                    <h2 class="text-xl font-bold text-slate-800 tracking-tight">KOP Surat Resmi Sekolah</h2>
+                    <h2 class="text-xl font-bold text-slate-800 tracking-tight">KOP Surat Resmi Sekolah (Terbaru)</h2>
                     <p class="text-xs text-slate-500 mt-1 max-w-2xl">
-                        Gambar KOP surat resmi ini sudah dipotong pas dengan ukuran header (tanpa ruang kosong di bawah garis pembatas ganda). Guru & pegawai dapat langsung menyalin atau mengunduh untuk disisipkan ke Microsoft Word, Google Docs, atau aplikasi administrasi lainnya.
+                        Gambar KOP surat resmi terbaru (tanpa baris Disdikpora, garis pembatas tunggal, dengan Aksara Bali Unicode Noto Sans Balinese) sudah dipotong pas untuk disisipkan ke Microsoft Word, Google Docs, atau aplikasi administrasi lainnya.
                     </p>
                 </div>
 
@@ -278,13 +292,13 @@
                 <div class="flex items-center gap-2">
                     <label class="text-xs font-bold text-slate-600">Varian Latar:</label>
                     <div class="inline-flex rounded-lg border border-slate-200 p-0.5 bg-slate-50">
-                        <button type="button" 
+                        <button type="button"
                             class="px-2.5 py-1 text-xs font-semibold rounded-md transition-all"
                             :class="!isTransparent ? 'bg-white text-blue-600 shadow-xs' : 'text-slate-500 hover:text-slate-900'"
                             @click="isTransparent = false">
                             ⚪ Latar Putih (Standar)
                         </button>
-                        <button type="button" 
+                        <button type="button"
                             class="px-2.5 py-1 text-xs font-semibold rounded-md transition-all"
                             :class="isTransparent ? 'bg-white text-blue-600 shadow-xs' : 'text-slate-500 hover:text-slate-900'"
                             @click="isTransparent = true">
@@ -322,10 +336,10 @@
 
         {{-- Preview Stage Card --}}
         <div class="kop-card">
-            <div class="flex items-center justify-between mb-3">
-                <div class="flex items-center gap-2">
+            <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+                <div class="flex items-center gap-2 flex-wrap">
                     <span class="font-bold text-sm text-slate-800" x-text="activeTab === 'portrait' ? 'Pratinjau KOP Surat (A4 Portrait)' : 'Pratinjau KOP Surat (A4 Landscape)'"></span>
-                    <span class="text-xs text-slate-400 font-mono" x-text="activeTab === 'portrait' ? 'Resolusi: 2960 × 652 px (Ultra HD 300+ DPI)' : 'Resolusi: 3280 × 712 px (Ultra HD 300+ DPI)'"></span>
+                    <span class="text-xs text-slate-400 font-mono" x-text="activeTab === 'portrait' ? 'Resolusi: 2960 × 772 px (Ultra HD 300+ DPI)' : 'Resolusi: 3280 × 832 px (Ultra HD 300+ DPI)'"></span>
                 </div>
                 <span class="text-xs font-semibold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-md">
                     Rasio pas tanpa sisa margin bawah
@@ -360,6 +374,66 @@
                 </div>
             </div>
         </div>
+
+        {{-- Arsip KOP Surat Lama (Format Disdikpora) --}}
+        <div class="kop-card-arsip">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="badge-tight" style="background: #f1f5f9; color: #475569;">
+                            🗄️ Arsip Historis
+                        </span>
+                    </div>
+                    <h3 class="text-base font-bold text-slate-800">Arsip KOP Surat Lama (Format Disdikpora)</h3>
+                    <p class="text-xs text-slate-500 mt-0.5">
+                        KOP surat versi sebelumnya (mencantumkan Dinas Pendidikan Kepemudaan dan Olahraga &amp; garis ganda) tetap disimpan untuk keperluan arsip atau referensi surat lama.
+                    </p>
+                </div>
+                <button type="button" @click="showArsip = !showArsip" class="kop-btn self-start sm:self-auto shrink-0">
+                    <svg style="width: 16px; height: 16px; min-width: 16px; min-height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                    <span x-text="showArsip ? 'Tutup Arsip' : 'Lihat & Download Arsip KOP Lama'"></span>
+                </button>
+            </div>
+
+            <div x-show="showArsip" x-cloak class="mt-4 pt-4 border-t border-slate-100 space-y-4">
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                    <div class="flex items-center gap-2">
+                        <div class="kop-tabs">
+                            <button type="button" class="kop-tab-btn" :class="arsipTab === 'portrait' ? 'active' : ''" @click="arsipTab = 'portrait'">A4 Portrait</button>
+                            <button type="button" class="kop-tab-btn" :class="arsipTab === 'landscape' ? 'active' : ''" @click="arsipTab = 'landscape'">A4 Landscape</button>
+                        </div>
+                        <div class="inline-flex rounded-lg border border-slate-200 p-0.5 bg-slate-50">
+                            <button type="button" class="px-2.5 py-1 text-xs font-semibold rounded-md" :class="!arsipTrans ? 'bg-white text-slate-800 shadow-xs' : 'text-slate-500'" @click="arsipTrans = false">Putih</button>
+                            <button type="button" class="px-2.5 py-1 text-xs font-semibold rounded-md" :class="arsipTrans ? 'bg-white text-slate-800 shadow-xs' : 'text-slate-500'" @click="arsipTrans = true">Transparan</button>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-2">
+                        <a href="{{ route('guru.kop-surat.download', 'arsip-portrait') }}" class="kop-btn text-xs">
+                            <svg style="width: 16px; height: 16px; min-width: 16px; min-height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                            Portrait (Putih)
+                        </a>
+                        <a href="{{ route('guru.kop-surat.download', 'arsip-portrait-transparan') }}" class="kop-btn text-xs">
+                            <svg style="width: 16px; height: 16px; min-width: 16px; min-height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                            Portrait (Transparan)
+                        </a>
+                        <a href="{{ route('guru.kop-surat.download', 'arsip-landscape') }}" class="kop-btn text-xs">
+                            <svg style="width: 16px; height: 16px; min-width: 16px; min-height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                            Landscape (Putih)
+                        </a>
+                        <a href="{{ route('guru.kop-surat.download', 'arsip-landscape-transparan') }}" class="kop-btn text-xs">
+                            <svg style="width: 16px; height: 16px; min-width: 16px; min-height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                            Landscape (Transparan)
+                        </a>
+                    </div>
+                </div>
+
+                <div class="kop-preview-container">
+                    <div class="kop-preview-stage" :class="arsipTrans ? 'is-transparan' : ''">
+                        <img :src="currentArsipImg" alt="Arsip KOP Surat Lama SMAN 1 Gianyar" class="kop-preview-img">
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </x-filament-panels::page>
-

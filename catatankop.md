@@ -1,90 +1,55 @@
 # Histori Pengerjaan & Dokumentasi Teknis KOP Surat SMAN 1 Gianyar
 
-Dokumen ini mencatat seluruh histori pengerjaan, spesifikasi teknis, pemetaan karakter font, dan aset yang telah dibangun pada project KOP Surat SMAN 1 Gianyar (DOSMAN) sebelum dipindahkan ke project **SIMS** (`C:\Users\dosman\Projects\sims`).
+Dokumen ini mencatat seluruh histori pengerjaan, spesifikasi teknis, pengarsipan KOP lama, dan pembaruan KOP terbaru pada project **SIMS** (`C:\Users\dosman\Projects\sims`).
 
 ---
 
-## 1. Ringkasan Pengerjaan
+## 1. Pembaruan Terbaru (23 November 2026) — KOP Resmi Tanpa Disdikpora
 
-| Komponen | Status | Keterangan |
+| Komponen | Pembaruan | Keterangan |
 |---|---|---|
-| **Font Aksara Bali** | Selesai | Menggunakan font TrueType legendaris `Bali Simbar.ttf` (ANSI-mapped) |
-| **Tata Letak KOP** | Selesai | Sesuai Pergub Bali No. 80 Th 2018 (Aksara Bali di atas teks Latin) |
-| **Kerapatan Vertikal** | Selesai | Jarak antar font dibuat sangat mepet (`line-height: 0.68 - 0.72`, `margin-bottom: -5px`) agar KOP ramping |
-| **Ukuran Huruf Bali** | Selesai | Terbaca tegas & seimbang (`29px` - `32px` pada web, `21px` - `23px` pada PDF) |
-| **Halaman Landscape** | Selesai | Lebar KOP dibatasi maksimal `820px` (centered) agar logo tidak terlempar ke pinggir |
-| **Halaman Portrait** | Selesai | Lebar KOP `740px` (centered), jarak logo ke teks rapat (12px) |
-| **Garis Pembatas Ganda**| Selesai | Garis atas tebal (2.5px) + celah (1.5px) + garis bawah tipis (0.8px) |
-| **Logo DOSMAN** | Selesai | High-Res (1016×1024 & 2032×2048), transparan luar, putih solid dalam |
-| **Logo Pemprov Bali** | Selesai | Ultra-HD (2019×1941) transparan |
+| **Struktur Teks** | Hapus Disdikpora | Baris `DINAS PENDIDIKAN KEPEMUDAAN DAN OLAHRAGA` (Bali & Latin) dihilangkan sesuai standar KOP baru |
+| **Font Aksara Bali** | Unicode OpenType | Beralih dari `Bali Simbar.ttf` (ANSI) ke **`NotoSansBalinese-Regular.ttf`** (Unicode resmi) |
+| **Font Teks Latin** | Arial Sans-Serif | Beralih dari Times New Roman ke **`Arial`**. Hanya `SMA NEGERI 1 GIANYAR` yang dicetak **Bold** |
+| **Alamat & Kontak** | Format EYD Terbaru | `Jalan Ratna, Tegal Tugu Gianyar (80511), Telepon : (0361) 943034`, `Laman : www.sman1-gianyar.sch.id, Pos-el : sman1.gianyar1963@gmail.com`, `NPSN. 50102079` |
+| **Garis Pembatas** | Garis Tunggal Tebal | Menggunakan garis hitam tunggal solid (`3.5px` di web/PNG, `3px` di PDF) |
+| **PNG Ultra-HD** | 4× Scale Puppeteer | `kop-surat-portrait.png` (`2960 × 772 px`), `kop-surat-landscape.png` (`3280 × 832 px`), serta varian transparan |
+| **Arsip KOP Lama** | Dipindah (Tidak Dihapus) | Seluruh aset KOP lama dipindahkan ke `public/img/arsip-kop-lama/` dan `templates/kop/arsip-kop-lama/` |
 
 ---
 
-## 2. Pemetaan Keystroke Font Bali Simbar
+## 2. Pengkodean Aksara Bali Unicode (Noto Sans Balinese)
 
-Font `Bali Simbar.ttf` adalah font berbasis Windows-1252 (ANSI/ASCII mapped), bukan Unicode raw. Setiap huruf Latin dan simbol tanda baca memetakan langsung ke glif Aksara Bali tertentu:
-
-### A. Teks KOP Lengkap:
+Aksara Bali diketik langsung menggunakan karakter Unicode resmi (`U+1B00..U+1B7F`) sehingga tampil konsisten di browser modern maupun saat di-render oleh Chromium/Puppeteer (`generate-kop.cjs`):
 
 1. **Baris 1 (Pemerintah Provinsi Bali)**:
-   - **Aksara Bali**: `p;merin\tH p]opinsi bli`
-   - **Teks Latin**: `PEMERINTAH PROVINSI BALI`
-   - *Penjelasan*: `p` (pa), `;` (pepet), `m` (ma), `e` (taleng), `r` + `i` (ra ulu), `n` + `\` + `t` (na adeg-adeg gantungan ta), `H` (bisah) = *Pemerintah*. `p` + `]` + `o` (pa gantungan ra tedong) + `p` + `i` + `n` + `s` + `i` = *Propinsi*. `b` + `l` + `i` (ba la ulu) = *Bali*.
+   - Unicode: `ᬧᭂᬫᭂᬭᬶᬦ᭄ᬢᬄᬧ᭄ᬭᭀᬧᬶᬦ᭄ᬲᬶᬩᬮᬶ`
+   - Codepoint: `\u1B27\u1B42\u1B2B\u1B42\u1B2D\u1B36\u1B26\u1B44\u1B22\u1B04\u1B27\u1B44\u1B2D\u1B40\u1B27\u1B36\u1B26\u1B44\u1B32\u1B36\u1B29\u1B2E\u1B36`
 
-2. **Baris 2 (Dinas Pendidikan Kepemudaan dan Olahraga)**:
-   - **Aksara Bali**: `dinS p;n\didikn\ k;p;mudan\ dn\ aoLHrg`
-   - **Teks Latin**: `DINAS PENDIDIKAN KEPEMUDAAN DAN OLAHRAGA`
-   - *Penjelasan*: Menggunakan susunan ejaan resmi pasang aksara Bali instansi dinas.
+2. **Baris 2 (SMA Negeri 1 Gianyar)**:
+   - Unicode: `᭞ᬏᬲ᭄ ᬏᬫ᭄ ᬅ᭞ ᬦᭂᬕᭂᬭᬶ ᭞᭑᭞ ᬕ᭄ᬬᬜᬃ`
+   - Codepoint: `\u1B5E\u1B0F\u1B32\u1B44 \u1B0F\u1B2B\u1B44 \u1B05\u1B5E \u1B26\u1B42\u1B15\u1B42\u1B2D\u1B36 \u1B5E\u1B51\u1B5E \u1B15\u1B44\u1B2C\u1B1C\u1B03`
 
-3. **Baris 3 (SMA Negeri 1 Gianyar)**:
-   - **Aksara Bali**: `,es,em,a, neg]i ,1, giy/`
-   - **Teks Latin**: `SMA NEGERI 1 GIANYAR`
-   - *Penjelasan*: Singkatan akronim `SMA` ditulis dieja fonetik `,es,em,a,` diapit tanda carik (`,`). Angka `1` Bali diapit carik `,1,`. Gianyar ditulis `giy/` (surang `/` untuk akhiran r).
+3. **Baris 3 (Jalan Ratna, Tegal Tugu Gianyar (80511), Telepon : (0361) 943034)**:
+   - Unicode: `ᬚᬮᬦ᭄‌ᬭᬢ᭄ᬦᬢᭂᬕᬮ᭄ᬢᬸᬕᬸᬕ᭄ᬬᬜᬃ᭞᭘᭐᭕᭑᭑᭞ᬢᬾᬮᬾᬧᭀᬦ᭄:(᭐᭓᭖᭑)᭙᭔᭓᭐᭓᭔`
+   - Catatan teknis: Terdapat **Zero-Width Non-Joiner (`U+200C` / `&#x200C;`)** tepat setelah `ᬚᬮᬦ᭄` agar tanda *adeg-adeg* tetap berdiri jelas dan tidak melebur menjadi *guwung* dengan `ᬭ`.
 
-4. **Baris 4 (Alamat, Wilayah & Nomor Telepon)**:
-   - **Aksara Bali**: `jln\rt\\n, t;gl\tugu giy/, t;l\p : (0361) 943034`
-   - **Teks Latin**: `Jln. Ratna, Tegal Tugu Gianyar, Telp : (0361) 943034`
-   - *Penjelasan*: Angka Latin `(0361) 943034` pada font Bali Simbar otomatis menghasilkan angka aksara Bali `(᭐᭓᭖᭑) ᭙᭔᭓᭐᭓᭔`.
+### Catatan DomPDF (Ekspor PDF):
+- DomPDF tidak mendukung *OpenType GSUB/GPOS shaping* untuk Aksara Bali Unicode.
+- Oleh karena itu, `generate-kop.cjs` ikut merender 3 potongan gambar transparan beresolusi tinggi (`public/img/aksara-bali-1.png`, `aksara-bali-2.png`, `aksara-bali-3.png`) dari `NotoSansBalinese-Regular.ttf` untuk disisipkan sebagai Base64 PNG di `resources/views/partials/kop-surat-pdf.blade.php`.
 
 ---
 
-## 3. Spesifikasi Restorasi Logo DOSMAN
+## 3. Lokasi File & Arsip KOP Lama
 
-- **File Master**: `logo-dosman.png` (1016 × 1024 px, 300 DPI) & `logo-dosman-hd.png` (2032 × 2048 px).
-- **Kontur Terluar**: Mengikuti garis hitam terluar perisai dan pita semboyan *"WIDYA WAHANA BHAKTI"*.
-- **Pembersihan Fringe/Halo**: Sebanyak ~7.800 pixel abu-abu/putih semi-transparan yang mengotori tepi luar garis hitam telah dibersihkan secara presisi menggunakan algoritma boundary detection.
-- **Warna Putih Solid**: Bagian dalam perisai, semboyan pita bawah, buku terbuka, dan 3 figur tetap solid murni `RGB(255, 255, 255)` dengan Opacity 100%.
-- **Background**: 100% transparan (`Alpha: 0`) dengan antialiasing tepi hitam yang halus tanpa efek jaggies/gerigi.
+### File Aktif:
+- Master Template: `templates/kop/kop-surat.html` & `templates/kop/index.html`
+- Font Aksara Bali: `public/fonts/NotoSansBalinese-Regular.ttf` & `templates/kop/NotoSansBalinese-Regular.ttf`
+- Generator PNG Hi-Res: `generate-kop.cjs`
+- Gambar Output: `public/img/kop-surat-{portrait,landscape}{,-transparan}.png`, `public/img/kop-surat-sman1-gianyar-hires.png`, `public/img/aksara-bali-{1,2,3}.png`
+- Komponen Web & PDF: `resources/views/components/kop-surat.blade.php` & `resources/views/partials/kop-surat-pdf.blade.php`
 
----
-
-## 4. Struktur File Saat Ini
-
-```
-C:\Users\dosman\Projects\KOP\
-├── catatankop.md               # Dokumentasi histori pengerjaan (file ini)
-├── index.html                  # File KOP Surat interaktif (Portrait & Landscape)
-├── kop-surat.html              # Salinan KOP Surat mandiri
-├── logo-dosman.png             # Logo DOSMAN resolusi tinggi transparan (300 DPI)
-├── logo-dosman-hd.png          # Logo DOSMAN Ultra-HD 2x (300 DPI)
-├── logo-provinsi.png           # Logo Pemprov Bali Ultra-HD transparan
-└── fonts\
-    └── Bali Simbar.ttf         # Master font TrueType Bali Simbar
-```
-
----
-
-## 5. Rencana Migrasi ke Project SIMS (`C:\Users\dosman\Projects\sims`)
-
-1. **Aset Gambar**:
-   - Salin `logo-dosman.png` dan `logo-provinsi.png` ke:
-     - `C:\Users\dosman\Projects\sims\public\img\`
-     - `C:\Users\dosman\Projects\sims\public\images\`
-2. **Aset Font**:
-   - Salin `Bali Simbar.ttf` ke `C:\Users\dosman\Projects\sims\public\fonts\`
-3. **Template Blade**:
-   - Perbarui `resources/views/partials/kop-surat-pdf.blade.php` atau buat komponen `resources/views/components/kop-surat.blade.php`.
-   - Menggantikan penggunaan potongan gambar raster lama (`aksara-bali-1.png`, dst.) dengan font `Bali Simbar` berbasis CSS vector atau Base64 font embedding untuk generator PDF (Browsershot / DomPDF).
-4. **Dokumentasi Histori**:
-   - Salin `catatankop.md` ke root `C:\Users\dosman\Projects\sims\catatankop.md`.
-
+### Arsip KOP Lama (Dipindahkan, Tidak Dihapus):
+- `public/img/arsip-kop-lama/`: berisi `kop-surat-portrait*.png`, `kop-surat-landscape*.png`, `kop-surat-sman1-gianyar-hires.png`, dan `aksara-bali-1..4.png` lama.
+- `templates/kop/arsip-kop-lama/`: berisi `kop-surat-lama.html` dan `Bali Simbar.ttf`.
+- Halaman Admin (`KopSuratPage`) dan Guru (`KopSuratController@index`) menyediakan panel lipat **"Arsip KOP Surat Lama (Format Disdikpora)"** untuk pratinjau dan pengunduhan KOP lama.

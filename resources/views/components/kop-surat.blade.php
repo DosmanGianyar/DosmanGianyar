@@ -1,28 +1,26 @@
 <div class="kop-resmi-wrapper">
   <style>
     @font-face {
-      font-family: 'Bali Simbar';
-      src: local('Bali Simbar'),
-           local('Bali Simbar Dwijendra'),
-           url('{{ asset("fonts/Bali Simbar.ttf") }}') format('truetype');
+      font-family: 'Noto Sans Balinese';
+      src: url('{{ asset("fonts/NotoSansBalinese-Regular.ttf") }}') format('truetype');
       font-weight: normal;
       font-style: normal;
     }
     .kop-resmi-wrapper {
       width: 100%;
       margin-bottom: 12px;
-      font-family: 'Times New Roman', Times, Georgia, serif;
+      font-family: 'Arial', 'Helvetica Neue', Helvetica, sans-serif;
       color: #000;
     }
     .kop-resmi-grid {
       display: grid;
-      grid-template-columns: 88px 1fr 88px;
+      grid-template-columns: 74px 1fr 74px;
       align-items: center;
-      column-gap: 12px;
+      column-gap: 10px;
     }
     @media (min-width: 768px) {
       .kop-resmi-grid {
-        grid-template-columns: 105px 1fr 105px;
+        grid-template-columns: 104px 1fr 104px;
         column-gap: 16px;
       }
     }
@@ -33,127 +31,117 @@
     }
     .kop-resmi-logo img {
       max-width: 100%;
-      height: 78px;
+      height: 76px;
       object-fit: contain;
     }
     @media (min-width: 768px) {
       .kop-resmi-logo img {
-        height: 96px;
+        height: 110px;
       }
     }
     .kop-resmi-center {
       text-align: center;
-      line-height: 0.88;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
     }
     .kop-resmi-aksara {
-      font-family: 'Bali Simbar', 'Bali Simbar Dwijendra', serif;
-      font-size: 25px;
-      line-height: 0.72;
-      margin-bottom: -4px;
+      font-family: 'Noto Sans Balinese', serif;
+      font-weight: 400;
+      font-size: 13.5px;
+      line-height: 1.15;
+      margin-bottom: 8px;
       -webkit-font-smoothing: antialiased;
     }
     @media (min-width: 768px) {
       .kop-resmi-aksara {
-        font-size: 31px;
+        font-size: 17.5px;
+        margin-bottom: 10px;
+        white-space: nowrap;
       }
     }
     .kop-resmi-aksara-sm {
-      font-family: 'Bali Simbar', 'Bali Simbar Dwijendra', serif;
-      font-size: 17px;
-      line-height: 0.72;
-      margin-bottom: -3px;
+      font-family: 'Noto Sans Balinese', serif;
+      font-weight: 400;
+      font-size: 10.5px;
+      line-height: 1.15;
+      margin-top: 2px;
+      margin-bottom: 7px;
       -webkit-font-smoothing: antialiased;
     }
     @media (min-width: 768px) {
       .kop-resmi-aksara-sm {
-        font-size: 22px;
+        font-size: 13.5px;
+        margin-bottom: 9px;
+        white-space: nowrap;
       }
     }
     .kop-resmi-pemprov {
-      font-size: 13.5px;
-      font-weight: bold;
-      letter-spacing: 0.5px;
-      margin-bottom: 1px;
-      line-height: 0.92;
+      font-size: 13px;
+      font-weight: 400;
+      letter-spacing: 0.4px;
+      margin-bottom: 3px;
+      line-height: 1.1;
     }
     @media (min-width: 768px) {
       .kop-resmi-pemprov {
-        font-size: 17.5px;
-      }
-    }
-    .kop-resmi-disdik {
-      font-size: 12px;
-      font-weight: bold;
-      letter-spacing: 0.4px;
-      margin-bottom: 1px;
-      line-height: 0.92;
-    }
-    @media (min-width: 768px) {
-      .kop-resmi-disdik {
-        font-size: 16px;
+        font-size: 16.5px;
       }
     }
     .kop-resmi-sekolah {
       font-size: 17px;
-      font-weight: bold;
-      letter-spacing: 0.8px;
-      margin-bottom: 1px;
-      line-height: 0.94;
+      font-weight: 700;
+      letter-spacing: 0.6px;
+      margin-bottom: 2px;
+      line-height: 1.08;
     }
     @media (min-width: 768px) {
       .kop-resmi-sekolah {
-        font-size: 22px;
+        font-size: 22.5px;
       }
     }
     .kop-resmi-alamat {
-      font-size: 10.5px;
-      font-weight: bold;
+      font-size: 9.5px;
+      font-weight: 400;
       margin-bottom: 0px;
-      line-height: 1.0;
+      line-height: 1.24;
     }
     @media (min-width: 768px) {
       .kop-resmi-alamat {
-        font-size: 13.5px;
+        font-size: 12.5px;
+        white-space: nowrap;
       }
     }
     .kop-resmi-kontak {
-      font-size: 9.5px;
+      font-size: 9px;
+      font-weight: 400;
       margin-bottom: 0px;
-      line-height: 1.0;
+      line-height: 1.24;
     }
     @media (min-width: 768px) {
       .kop-resmi-kontak {
         font-size: 12px;
+        white-space: nowrap;
       }
     }
     .kop-resmi-npsn {
       font-size: 9.5px;
-      font-weight: bold;
-      letter-spacing: 0.5px;
-      line-height: 1.0;
+      font-weight: 400;
+      letter-spacing: 0.3px;
+      line-height: 1.24;
     }
     @media (min-width: 768px) {
       .kop-resmi-npsn {
-        font-size: 12px;
-      }
-    }
-      .kop-resmi-npsn {
-        font-size: 11px;
+        font-size: 12.5px;
       }
     }
     .kop-resmi-border {
-      margin-top: 5px;
+      margin-top: 6px;
       width: 100%;
     }
-    .kop-resmi-border .line-thick {
-      border-top: 2.5px solid #000;
-      margin: 0;
-    }
-    .kop-resmi-border .line-gap {
-      height: 2px;
-    }
-    .kop-resmi-border .line-thin {
-      border-top: 0.8px solid #000;
+    .kop-resmi-border .line-single {
+      border-top: 3.5px solid #000;
       margin: 0;
     }
   </style>
@@ -166,20 +154,17 @@
 
     <!-- Teks Tengah -->
     <div class="kop-resmi-center">
-      <div class="kop-resmi-aksara">p;merin\tH p]opinsi bli</div>
+      <div class="kop-resmi-aksara">ᬧᭂᬫᭂᬭᬶᬦ᭄ᬢᬄᬧ᭄ᬭᭀᬧᬶᬦ᭄ᬲᬶᬩᬮᬶ</div>
       <div class="kop-resmi-pemprov">PEMERINTAH PROVINSI BALI</div>
 
-      <div class="kop-resmi-aksara">dinS p;n\didikn\ k;p;mudan\ dn\ aoLHrg</div>
-      <div class="kop-resmi-disdik">DINAS PENDIDIKAN KEPEMUDAAN DAN OLAHRAGA</div>
-
-      <div class="kop-resmi-aksara">,es,em,a, neg]i ,1, giy/</div>
+      <div class="kop-resmi-aksara">᭞ᬏᬲ᭄ ᬏᬫ᭄ ᬅ᭞ ᬦᭂᬕᭂᬭᬶ ᭞᭑᭞ ᬕ᭄ᬬᬜᬃ</div>
       <div class="kop-resmi-sekolah">SMA NEGERI 1 GIANYAR</div>
 
-      <div class="kop-resmi-aksara-sm">jln\rt\\n, t;gl\tugu giy/, t;l\p : (0361) 943034</div>
-      <div class="kop-resmi-alamat">Jln. Ratna, Tegal Tugu Gianyar, Telp : (0361) 943034</div>
+      <div class="kop-resmi-aksara-sm">ᬚᬮᬦ᭄&#x200C;ᬭᬢ᭄ᬦᬢᭂᬕᬮ᭄ᬢᬸᬕᬸᬕ᭄ᬬᬜᬃ᭞᭘᭐᭕᭑᭑᭞ᬢᬾᬮᬾᬧᭀᬦ᭄:(᭐᭓᭖᭑)᭙᭔᭓᭐᭓᭔</div>
+      <div class="kop-resmi-alamat">Jalan Ratna, Tegal Tugu Gianyar (80511), Telepon : (0361) 943034</div>
 
-      <div class="kop-resmi-kontak">Website : https://sman1-gianyar.sch.id, E-mail : sman1.gianyar1963@gmail.com</div>
-      <div class="kop-resmi-npsn">NPSN : 50102079</div>
+      <div class="kop-resmi-kontak">Laman : www.sman1-gianyar.sch.id, Pos-el : sman1.gianyar1963@gmail.com</div>
+      <div class="kop-resmi-npsn">NPSN. 50102079</div>
     </div>
 
     <!-- Logo DOSMAN (Kanan) -->
@@ -189,9 +174,6 @@
   </div>
 
   <div class="kop-resmi-border">
-    <div class="line-thick"></div>
-    <div class="line-gap"></div>
-    <div class="line-thin"></div>
+    <div class="line-single"></div>
   </div>
 </div>
-
