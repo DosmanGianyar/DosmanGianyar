@@ -295,14 +295,23 @@
     <div class="space-y-1.5">
         <h3 class="font-bold text-xs sm:text-sm text-slate-900">Pembina Ekstrakurikuler & Prestasi Binaan</h3>
         @if(isset($myExtracurriculars) && $myExtracurriculars->count() > 0)
-            <div class="flex flex-wrap gap-1.5">
+            <div class="flex flex-wrap gap-2">
                 @foreach($myExtracurriculars as $ex)
-                    <span class="bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1 text-xs font-semibold text-slate-700 inline-flex items-center gap-1.5">
+                    <div class="bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1 text-xs font-semibold text-slate-700 inline-flex items-center gap-1.5">
                         <span>{{ $ex->name }}</span>
                         <span class="text-[10px] text-slate-500 bg-white px-1.5 py-0.2 rounded border border-slate-200">
                             {{ $ex->members_count ?? 0 }} siswa
                         </span>
-                    </span>
+                        <a href="{{ route('guru.extracurricular.members.pdf', $ex->id) }}"
+                           target="_blank"
+                           title="Download Daftar Peserta {{ $ex->name }} (PDF A4)"
+                           class="inline-flex items-center gap-1 ml-1 px-2 py-0.5 rounded bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-bold transition-colors">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                            </svg>
+                            <span>Download PDF</span>
+                        </a>
+                    </div>
                 @endforeach
             </div>
         @else

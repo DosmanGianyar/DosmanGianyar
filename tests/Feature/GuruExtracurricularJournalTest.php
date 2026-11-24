@@ -309,4 +309,86 @@ class GuruExtracurricularJournalTest extends TestCase
         $this->assertSame(0, ExtracurricularAttendance::where('session_id', $sessionId)->count());
         Storage::disk('public')->assertMissing($firstPhoto);
     }
+
+    public function test_pembina_can_download_members_pdf_via_web_and_non_pembina_is_forbidden(): void
+    {
+        $pembina = User::factory()->create(['role' => 'guru', 'name' => 'Pembina PDF']);
+        $intruder = User::factory()->create(['role' => 'guru', 'name' => 'Guru Bukan Pembina']);
+        $classXI = SchoolClass::create(['name' => 'XI-B1', 'grade' => 'XI']);
+
+        $student1 = User::factory()->create(['role' => 'siswa', 'name' => 'Siswa Satu', 'nisn' => '0102173896', 'class_id' => $classXI->id]);
+        $student2 = User::factory()->create(['role' => 'siswa', 'name' => 'Siswa Dua', 'nisn' => '0102173897', 'class_id' => $classXI->id]);
+
+        $extra = Extracurricular::create([
+            'name'       => 'Basket',
+            'pembina_id' => $pembina->id,
+            'is_active'  => true,
+        ]);
+
+        ExtracurricularMember::create([
+            'extracurricular_id' => $extra->id,
+            'user_id'            => $student1->id,
+            'role'               => 'ketua',
+            'status'             => 'active',
+        ]);
+        DB::table('extracurricular_students')->insert([
+            'extracurricular_id' => $extra->id,
+            'student_id'         => $student2->id,
+            'role'               => 'anggota',
+            'created_at'         => now(),
+            'updated_at'         => now(),
+        ]);
+
+        $okRes = $this->actingAs($pembina)
+            ->get(route('guru.extracurricular.members.pdf', $extra->id));
+        $okRes->assertOk();
+        $this->assertStringContainsString('application/pdf', (string) $okRes->headers->get('content-type'));
+
+        $this->actingAs($intruder)
+            ->get(route('guru.extracurricular.members.pdf', $extra->id))
+            ->assertForbidden();
+    }
+
+    public function test_pembina_can_get_signed_pdf_url_and_download_without_session(): void
+    {
+        $pembina = User::factory()->create(['role' => 'guru', 'name' => 'Pembina Mobile']);
+        $intruder = User::factory()->create(['role' => 'guru', 'name' => 'Guru Lain']);
+        $classX = SchoolClass::create(['name' => 'X-A', 'grade' => 'X']);
+        $student = User::factory()->create(['role' => 'siswa', 'name' => 'Siswa Ekstra', 'class_id' => $classX->id]);
+
+        $extra = Extracurricular::create([
+            'name'       => 'Robotik',
+            'pembina_id' => $pembina->id,
+            'is_active'  => true,
+        ]);
+        ExtracurricularMember::create([
+            'extracurricular_id' => $extra->id,
+            'user_id'            => $student->id,
+            'role'               => 'member',
+            'status'             => 'active',
+        ]);
+
+        $this->actingAs($intruder)
+            ->getJson("/api/v1/guru/extracurriculars/{$extra->id}/members-pdf-url", $this->headers())
+            ->assertForbidden();
+
+        $res = $this->actingAs($pembina)
+            ->getJson("/api/v1/guru/extracurriculars/{$extra->id}/members-pdf-url", $this->headers());
+
+        $res->assertOk()->assertJsonStructure(['url', 'filename']);
+        $signedUrl = (string) $res->json('url');
+        $parsed = parse_url($signedUrl);
+        $signedPath = ($parsed['path'] ?? '') . (isset($parsed['query']) ? '?' . $parsed['query'] : '');
+
+        // Reset session/auth state to verify unauthenticated signed download
+        auth()->guard('web')->logout();
+        $this->app['auth']->forgetGuards();
+
+        $downloadRes = $this->get($signedPath);
+        $downloadRes->assertOk();
+        $this->assertStringContainsString('application/pdf', (string) $downloadRes->headers->get('content-type'));
+
+        $tampered = preg_replace('/signature=[^&]+/', 'signature=tampered000', $signedPath);
+        $this->get($tampered)->assertForbidden();
+    }
 }

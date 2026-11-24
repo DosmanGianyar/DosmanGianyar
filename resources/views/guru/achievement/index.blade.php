@@ -21,11 +21,17 @@
                     Menampilkan seluruh capaian juara & prestasi siswa yang mencantumkan Anda sebagai <strong>Guru Pembina / Pendamping</strong> maupun yang terhubung dengan ekstrakurikuler binaan Anda.
                 </p>
                 @if($myExtracurriculars->isNotEmpty())
-                    <div class="flex flex-wrap items-center gap-1.5 pt-1">
+                    <div class="flex flex-wrap items-center gap-2 pt-1">
                         <span class="text-[11px] text-emerald-200 font-semibold">Ekstrakurikuler Binaan:</span>
                         @foreach($myExtracurriculars as $ex)
-                            <span class="px-2.5 py-0.5 rounded-lg bg-white/20 text-white text-xs font-bold border border-white/25">
-                                🏅 {{ $ex->name }}
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/20 text-white text-xs font-bold border border-white/25">
+                                <span>🏅 {{ $ex->name }}</span>
+                                <a href="{{ route('guru.extracurricular.members.pdf', $ex->id) }}"
+                                   target="_blank"
+                                   title="Download Daftar Peserta {{ $ex->name }} (PDF A4)"
+                                   class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-white text-emerald-900 hover:bg-emerald-50 text-[10px] font-extrabold transition">
+                                    ⬇ Download PDF
+                                </a>
                             </span>
                         @endforeach
                     </div>

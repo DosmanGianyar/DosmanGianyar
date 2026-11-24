@@ -137,6 +137,11 @@ Route::post('/logout', [LoginController::class, 'logout'])
     ->middleware('auth')
     ->name('logout');
 
+// Signed download PDF daftar peserta ekstra (untuk akses dari aplikasi mobile)
+Route::get('/signed/extracurricular/{extracurricular}/members/pdf', [\App\Http\Controllers\Guru\ExtracurricularExportController::class, 'membersPdfSigned'])
+    ->middleware('signed:relative')
+    ->name('extracurricular.members.pdf.signed');
+
 // ─── Guru & Pegawai ───────────────────────────────────────────────────────────
 Route::middleware(['auth', 'role:guru,admin,pegawai'])->prefix('guru')->name('guru.')->group(function () {
     Route::get('/dashboard', [GuruDashboard::class, 'index'])->name('dashboard');
@@ -163,6 +168,7 @@ Route::middleware(['auth', 'role:guru,admin,pegawai'])->prefix('guru')->name('gu
 
     // Kesiswaan & Prestasi Siswa Binaan
     Route::get('/achievements', [\App\Http\Controllers\Guru\AchievementController::class, 'index'])->name('achievements.index');
+    Route::get('/extracurricular/{extracurricular}/members/pdf', [\App\Http\Controllers\Guru\ExtracurricularExportController::class, 'membersPdf'])->name('extracurricular.members.pdf');
 
     Route::prefix('conduct')->name('conduct.')->group(function () {
         Route::get('/', [GuruConduct::class, 'index'])->name('index');

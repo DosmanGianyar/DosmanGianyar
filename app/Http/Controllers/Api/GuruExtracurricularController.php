@@ -14,6 +14,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\URL;
 
 class GuruExtracurricularController extends Controller
 {
@@ -447,6 +448,36 @@ class GuruExtracurricularController extends Controller
 
         return response()->json([
             'message' => 'Jurnal ekstrakurikuler berhasil dihapus.',
+        ]);
+    }
+
+    // ─── Private Helpers ──────────────────────────────────────────────────────
+
+    public function membersPdfUrl(Request $request, Extracurricular $extracurricular): JsonResponse
+    {
+        /** @var User $user */
+        $user = $request->user();
+        if (! $this->canManageExtra($user, $extracurricular)) {
+            return response()->json(['message' => 'Anda bukan pembina ekstrakurikuler ini.'], 403);
+        }
+
+        $params = array_filter([
+            'extracurricular' => $extracurricular->id,
+            'grade'           => $request->query('grade'),
+            'class_id'        => $request->query('class_id'),
+        ], fn ($v) => $v !== null && $v !== '');
+
+        $relativePath = URL::temporarySignedRoute(
+            'extracurricular.members.pdf.signed',
+            now()->addMinutes(10),
+            $params,
+            absolute: false
+        );
+        $fullUrl = rtrim($request->getSchemeAndHttpHost(), '/') . $relativePath;
+
+        return response()->json([
+            'url'      => $fullUrl,
+            'filename' => 'anggota-' . str($extracurricular->name)->slug() . '.pdf',
         ]);
     }
 

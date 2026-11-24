@@ -958,4 +958,19 @@ class GuruService {
     );
     return body['message'] as String? ?? 'Jurnal berhasil dihapus.';
   }
+
+  static Future<String> getExtracurricularMembersPdfUrl(
+    int extraId, {
+    String? grade,
+    int? classId,
+  }) async {
+    final body = await ApiClient.get(
+      '/guru/extracurriculars/$extraId/members-pdf-url',
+      params: {
+        if (grade != null && grade.isNotEmpty) 'grade': grade,
+        if (classId != null) 'class_id': classId,
+      },
+    );
+    return body['url'] as String;
+  }
 }

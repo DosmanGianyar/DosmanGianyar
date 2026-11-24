@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../models/guru_extracurricular.dart';
 import '../../services/api_client.dart';
 import '../../services/guru_service.dart';
@@ -66,6 +67,37 @@ class _GuruExtracurricularScreenState extends State<GuruExtracurricularScreen>
   bool _journalHasMore = true;
   int? _filterMonth;
   int _filterYear = DateTime.now().year;
+  bool _downloadingPdf = false;
+
+  Future<void> _downloadMembersPdf() async {
+    final extra = _selectedExtra;
+    if (extra == null || _downloadingPdf) return;
+    setState(() => _downloadingPdf = true);
+    try {
+      final url = await GuruService.getExtracurricularMembersPdfUrl(extra.id);
+      final uri = Uri.parse(url);
+      final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+      if (!launched && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Tidak dapat membuka tautan unduhan PDF.'),
+            backgroundColor: AppColors.red500,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(ApiClient.extractError(e)),
+            backgroundColor: AppColors.red500,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _downloadingPdf = false);
+    }
+  }
 
   @override
   void initState() {
@@ -320,6 +352,18 @@ class _GuruExtracurricularScreenState extends State<GuruExtracurricularScreen>
       appBar: AppBar(
         title: const Text('Ekstrakurikuler Pembina'),
         actions: [
+          if (_selectedExtra != null)
+            IconButton(
+              onPressed: _downloadingPdf ? null : _downloadMembersPdf,
+              icon: _downloadingPdf
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.download_rounded),
+              tooltip: 'Download PDF Peserta',
+            ),
           IconButton(
             onPressed: _loadExtras,
             icon: const Icon(Icons.refresh_rounded),
@@ -1215,6 +1259,29 @@ class _GuruExtracurricularScreenState extends State<GuruExtracurricularScreen>
       child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              onPressed: _downloadingPdf ? null : _downloadMembersPdf,
+              icon: _downloadingPdf
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                    )
+                  : const Icon(Icons.picture_as_pdf_rounded, size: 18),
+              label: Text(
+                _downloadingPdf ? 'Menyiapkan PDF...' : 'Download Daftar Peserta (PDF)',
+                style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700),
+              ),
+              style: FilledButton.styleFrom(
+                backgroundColor: AppColors.emerald600,
+                padding: const EdgeInsets.symmetric(vertical: 11),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+            ),
+          ),
+          const SizedBox(height: 10),
           if (extra.pendingMembersCount > 0)
             Container(
               margin: const EdgeInsets.only(bottom: 10),
