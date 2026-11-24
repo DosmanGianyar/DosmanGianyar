@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 <title>Laporan Siswa Tanpa Ekstrakurikuler</title>
 <style>
-  @page { size: A4 portrait; margin: 14mm 16mm 14mm 16mm; }
+  @page { size: A4 portrait; margin: 14mm 15mm 14mm 15mm; }
   * { box-sizing: border-box; }
-  body { font-family: 'Times New Roman', Times, serif; font-size: 11pt; color: #000; line-height: 1.3; margin: 0; padding: 4px 8px; }
+  body { font-family: 'Times New Roman', Times, serif; font-size: 11pt; color: #000; line-height: 1.3; margin: 0; padding: 0; }
 
   /* ── Kop Surat Formal ────────────────────────────────────────── */
   .kop-container { width: 100%; border-collapse: collapse; margin-bottom: 4px; }
@@ -28,15 +28,15 @@
   .doc-filter { font-size: 9.5pt; font-style: italic; color: #374151; margin-top: 2px; }
 
   /* ── Info Table ──────────────────────────────────────────────── */
-  .meta-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 10pt; }
-  .meta-table td { padding: 4px 6px; border: none; vertical-align: top; }
-  .meta-label { width: 180px; font-weight: bold; color: #1f2937; }
-  .meta-colon { width: 10px; font-weight: bold; text-align: center; }
+  .meta-table { width: 100%; table-layout: fixed; border-collapse: collapse; margin-bottom: 12px; font-size: 9.5pt; }
+  .meta-table td { padding: 3px 4px; border: none; vertical-align: top; word-wrap: break-word; }
+  .meta-label { width: 220px; font-weight: bold; color: #1f2937; }
+  .meta-colon { width: 12px; font-weight: bold; text-align: center; }
 
   /* ── Data Table ───────────────────────────────────────────────── */
-  table.data-table { width: 100%; border-collapse: collapse; margin-bottom: 16px; font-size: 10pt; }
-  table.data-table th { background-color: #991b1b; color: #ffffff; font-weight: bold; padding: 6px 8px; border: 1px solid #991b1b; text-align: center; font-size: 9.5pt; }
-  table.data-table td { padding: 5px 8px; border: 1px solid #9ca3af; vertical-align: top; }
+  table.data-table { width: 100%; table-layout: fixed; border-collapse: collapse; margin-bottom: 16px; font-size: 9.5pt; }
+  table.data-table th { background-color: #991b1b; color: #ffffff; font-weight: bold; padding: 6px 5px; border: 1px solid #991b1b; text-align: center; font-size: 8.5pt; word-wrap: break-word; }
+  table.data-table td { padding: 5px 6px; border: 1px solid #9ca3af; vertical-align: top; word-wrap: break-word; }
   table.data-table tr:nth-child(even) td { background-color: #fef2f2; }
   .text-center { text-align: center; }
 
@@ -85,11 +85,11 @@
 <table class="data-table">
   <thead>
     <tr>
-      <th style="width: 32px;">NO</th>
-      <th style="width: 200px;">NAMA SISWA</th>
-      <th style="width: 110px;">NISN / NIS</th>
-      <th style="width: 90px;">KELAS</th>
-      <th style="width: 90px;">ANGKATAN</th>
+      <th style="width: 7%;">NO</th>
+      <th style="width: 38%;">NAMA SISWA</th>
+      <th style="width: 20%;">NISN / NIS</th>
+      <th style="width: 17%;">KELAS</th>
+      <th style="width: 18%;">ANGKATAN</th>
     </tr>
   </thead>
   <tbody>
@@ -97,7 +97,7 @@
     <tr>
       <td class="text-center">{{ $i + 1 }}</td>
       <td><strong>{{ $student->name }}</strong></td>
-      <td class="text-center" style="font-family: monospace;">{{ $student->nisn ?? $student->nis ?? '—' }}</td>
+      <td class="text-center" style="font-family: monospace; font-size: 9pt;">{{ $student->nisn ?? $student->nis ?? '—' }}</td>
       <td class="text-center">{{ $student->schoolClass?->name ?? '—' }}</td>
       <td class="text-center">Kelas {{ $student->schoolClass?->grade ?? '—' }}</td>
     </tr>

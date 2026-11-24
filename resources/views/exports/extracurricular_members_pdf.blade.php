@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 <title>Daftar Anggota Ekstrakurikuler {{ $extracurricular->name }}</title>
 <style>
-  @page { size: A4 portrait; margin: 14mm 16mm 14mm 16mm; }
+  @page { size: A4 portrait; margin: 14mm 15mm 14mm 15mm; }
   * { box-sizing: border-box; }
-  body { font-family: 'Times New Roman', Times, serif; font-size: 11pt; color: #000; line-height: 1.3; margin: 0; padding: 4px 8px; }
+  body { font-family: 'Times New Roman', Times, serif; font-size: 11pt; color: #000; line-height: 1.3; margin: 0; padding: 0; }
 
   /* ── Kop Surat Formal ────────────────────────────────────────── */
   .kop-container { width: 100%; border-collapse: collapse; margin-bottom: 4px; }
@@ -28,15 +28,15 @@
   .doc-filter { font-size: 9.5pt; font-style: italic; color: #374151; margin-top: 2px; }
 
   /* ── Info & Summary Table ─────────────────────────────────────── */
-  .meta-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 10pt; }
-  .meta-table td { padding: 4px 6px; border: none; vertical-align: top; }
-  .meta-label { width: 130px; font-weight: bold; color: #1f2937; }
-  .meta-colon { width: 10px; font-weight: bold; text-align: center; }
+  .meta-table { width: 100%; table-layout: fixed; border-collapse: collapse; margin-bottom: 12px; font-size: 9.5pt; }
+  .meta-table td { padding: 3px 4px; border: none; vertical-align: top; word-wrap: break-word; }
+  .meta-label { width: 22%; font-weight: bold; color: #1f2937; }
+  .meta-colon { width: 2%; font-weight: bold; text-align: center; }
 
   /* ── Data Table ───────────────────────────────────────────────── */
-  table.data-table { width: 100%; border-collapse: collapse; margin-bottom: 16px; font-size: 10pt; }
-  table.data-table th { background-color: #1e3a8a; color: #ffffff; font-weight: bold; padding: 6px 8px; border: 1px solid #1e3a8a; text-align: center; font-size: 9.5pt; }
-  table.data-table td { padding: 5px 8px; border: 1px solid #9ca3af; vertical-align: top; }
+  table.data-table { width: 100%; table-layout: fixed; border-collapse: collapse; margin-bottom: 16px; font-size: 9.5pt; }
+  table.data-table th { background-color: #1e3a8a; color: #ffffff; font-weight: bold; padding: 6px 4px; border: 1px solid #1e3a8a; text-align: center; font-size: 8.5pt; word-wrap: break-word; }
+  table.data-table td { padding: 5px 5px; border: 1px solid #9ca3af; vertical-align: top; word-wrap: break-word; }
   table.data-table tr:nth-child(even) td { background-color: #f8fafc; }
   .text-center { text-align: center; }
   .text-left { text-align: left; }
@@ -94,13 +94,13 @@
 <table class="data-table">
   <thead>
     <tr>
-      <th style="width: 32px;">NO</th>
-      <th style="width: 180px;">NAMA SISWA</th>
-      <th style="width: 90px;">NISN / NIS</th>
-      <th style="width: 75px;">KELAS</th>
-      <th style="width: 75px;">ANGKATAN</th>
-      <th style="width: 80px;">PERAN</th>
-      <th style="width: 90px;">TGL. BERGABUNG</th>
+      <th style="width: 5%;">NO</th>
+      <th style="width: 30%;">NAMA SISWA</th>
+      <th style="width: 15%;">NISN / NIS</th>
+      <th style="width: 9%;">KELAS</th>
+      <th style="width: 13%;">ANGKATAN</th>
+      <th style="width: 12%;">PERAN</th>
+      <th style="width: 16%;">TGL. BERGABUNG</th>
     </tr>
   </thead>
   <tbody>
@@ -108,12 +108,14 @@
     <tr>
       <td class="text-center">{{ $i + 1 }}</td>
       <td><strong>{{ $member->user?->name ?? '—' }}</strong></td>
-      <td class="text-center" style="font-family: monospace;">{{ $member->user?->nisn ?? $member->user?->nis ?? '—' }}</td>
+      <td class="text-center" style="font-family: monospace; font-size: 9pt;">{{ $member->user?->nisn ?? $member->user?->nis ?? '—' }}</td>
       <td class="text-center">{{ $member->user?->schoolClass?->name ?? '—' }}</td>
       <td class="text-center">Kelas {{ $member->user?->schoolClass?->grade ?? '—' }}</td>
       <td class="text-center">
         @if($member->role === 'ketua')
           <span class="badge-role role-ketua">Ketua</span>
+        @elseif($member->role === 'wakil_ketua')
+          <span class="badge-role role-ketua">Wakil Ketua</span>
         @else
           <span class="badge-role role-anggota">Anggota</span>
         @endif
