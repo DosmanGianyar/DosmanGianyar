@@ -17,6 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'role'                  => \App\Http\Middleware\RoleMiddleware::class,
+            'piket.teacher'         => \App\Http\Middleware\EnsurePiketTeacherSelected::class,
             'guest'                 => \App\Http\Middleware\RedirectIfAuthenticated::class,
             'device.lock'           => \App\Http\Middleware\DeviceLock::class,
             'force.password.change' => \App\Http\Middleware\ForcePasswordChange::class,

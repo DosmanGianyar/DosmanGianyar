@@ -8,6 +8,8 @@ use App\Http\Controllers\Guru\DashboardController as GuruDashboard;
 use App\Http\Controllers\Guru\DispensationController as GuruDispensation;
 use App\Http\Controllers\Guru\ProfileController as GuruProfile;
 use App\Http\Controllers\Guru\SarprasController as GuruSarpras;
+use App\Http\Controllers\Piket\PiketController;
+use App\Http\Controllers\Piket\PiketDutyController;
 use App\Http\Controllers\Siswa\AttendanceController as SiswaAttendance;
 use App\Http\Controllers\Siswa\ConductController as SiswaConduct;
 use App\Http\Controllers\Siswa\DashboardController as SiswaDashboard;
@@ -141,6 +143,40 @@ Route::post('/logout', [LoginController::class, 'logout'])
 Route::get('/signed/extracurricular/{extracurricular}/members/pdf', [\App\Http\Controllers\Guru\ExtracurricularExportController::class, 'membersPdfSigned'])
     ->middleware('signed:relative')
     ->name('extracurricular.members.pdf.signed');
+
+// ─── Meja Piket (1 Akun Bersama + Wajib Pilih Guru Bertugas) ──────────────────
+Route::middleware(['auth', 'role:piket,admin'])->prefix('piket')->name('piket.')->group(function () {
+    Route::get('/pilih-guru',  [PiketDutyController::class, 'selectForm'])->name('select-teacher');
+    Route::post('/pilih-guru', [PiketDutyController::class, 'selectStore'])->name('select-teacher.store');
+
+    Route::middleware('piket.teacher')->group(function () {
+        Route::get('/dashboard', [PiketController::class, 'dashboard'])->name('dashboard');
+
+        Route::get('/permits', [PiketController::class, 'permits'])->name('permits.index');
+        Route::patch('/permits/{permit}/approve', [PiketController::class, 'approvePermit'])->name('permits.approve');
+        Route::patch('/permits/{permit}/reject', [PiketController::class, 'rejectPermit'])->name('permits.reject');
+
+        Route::get('/early-checkouts', [PiketController::class, 'earlyCheckouts'])->name('early-checkouts.index');
+        Route::patch('/early-checkouts/{earlyCheckout}/approve', [PiketController::class, 'approveEarlyCheckout'])->name('early-checkouts.approve');
+        Route::patch('/early-checkouts/{earlyCheckout}/reject', [PiketController::class, 'rejectEarlyCheckout'])->name('early-checkouts.reject');
+
+        Route::get('/forgot-attendance', [PiketController::class, 'forgotAttendance'])->name('forgot-attendance.index');
+        Route::patch('/forgot-attendance/{forgotAttendance}/approve', [PiketController::class, 'approveForgotAttendance'])->name('forgot-attendance.approve');
+        Route::patch('/forgot-attendance/{forgotAttendance}/reject', [PiketController::class, 'rejectForgotAttendance'])->name('forgot-attendance.reject');
+
+        Route::get('/late-verification', [PiketController::class, 'lateVerification'])->name('late-verification.index');
+        Route::post('/late-verification/{log}/verify', [PiketController::class, 'verifyLate'])->name('late-verification.verify');
+        Route::post('/late-verification/{log}/reject', [PiketController::class, 'rejectLate'])->name('late-verification.reject');
+
+        Route::get('/dispensation', [PiketController::class, 'dispensationForm'])->name('dispensation.create');
+        Route::post('/dispensation', [PiketController::class, 'storeDispensation'])->name('dispensation.store');
+
+        Route::get('/exit-passes', [PiketController::class, 'exitPasses'])->name('exit-passes.index');
+        Route::patch('/exit-passes/{exitPass}/return', [PiketController::class, 'markExitPassReturned'])->name('exit-passes.return');
+
+        Route::get('/logs', [PiketController::class, 'logs'])->name('logs.index');
+    });
+});
 
 // ─── Guru & Pegawai ───────────────────────────────────────────────────────────
 Route::middleware(['auth', 'role:guru,admin,pegawai'])->prefix('guru')->name('guru.')->group(function () {

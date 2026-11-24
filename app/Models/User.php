@@ -226,6 +226,7 @@ class User extends Authenticatable implements FilamentUser
     }
 
     public function isGuru(): bool            { return $this->role === 'guru'; }
+    public function isPiket(): bool           { return $this->role === 'piket'; }
     public function isPegawai(): bool         { return $this->role === 'pegawai'; }
     public function isGuruOrPegawai(): bool   { return in_array($this->role, ['guru', 'pegawai']); }
     public function isSiswa(): bool           { return in_array($this->role, ['siswa', 'pengelola']); }
@@ -290,6 +291,7 @@ class User extends Authenticatable implements FilamentUser
             'admin_perpustakaan',
             'admin_prestasi',
             'admin_reset_password' => '/admin',
+            'piket'            => route('piket.dashboard'),
             'guru',
             'pegawai'          => route('guru.dashboard'),
             'siswa'            => route('siswa.dashboard'),

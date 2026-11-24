@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
+use App\Models\PiketSession;
 use App\Models\User;
 use App\Services\OrangtuaSyncService;
 use Illuminate\Http\RedirectResponse;
@@ -67,6 +68,11 @@ class LoginController extends Controller
         $user = Auth::user();
         ActivityLog::record('login');
 
+        if ($user->isPiket()) {
+            $request->session()->forget(['piket_teacher_id', 'piket_teacher_name', 'piket_session_id']);
+            return redirect()->route('piket.select-teacher');
+        }
+
         return redirect($user->dashboardRoute());
     }
 
@@ -87,6 +93,20 @@ class LoginController extends Controller
 
     public function logout(Request $request): RedirectResponse
     {
+        $piketSessionId = $request->session()->get('piket_session_id');
+        if ($piketSessionId) {
+            $piketSession = PiketSession::where('id', $piketSessionId)
+                ->whereNull('ended_at')
+                ->first();
+            if ($piketSession) {
+                $piketSession->update(['ended_at' => now()]);
+                ActivityLog::record('piket_duty_end', $piketSession, [
+                    'teacher_id'   => $piketSession->teacher_id,
+                    'teacher_name' => $request->session()->get('piket_teacher_name'),
+                ]);
+            }
+        }
+
         ActivityLog::record('logout');
 
         Auth::logout();
