@@ -24,10 +24,10 @@ class PiketPortalTest extends TestCase
 
     private function createPiketAccount(): User
     {
-        return User::where('email', 'piket@sims.sch.id')->first()
+        return User::where('email', 'piket@sman1-gianyar.sch.id')->first()
             ?? User::factory()->create([
                 'name'     => 'Meja Piket SMAN 1 Gianyar',
-                'email'    => 'piket@sims.sch.id',
+                'email'    => 'piket@sman1-gianyar.sch.id',
                 'nip'      => 'piket',
                 'role'     => 'piket',
                 'password' => Hash::make('Dosman123'),
@@ -39,7 +39,7 @@ class PiketPortalTest extends TestCase
         $piket = $this->createPiketAccount();
 
         $loginRes = $this->post('/login', [
-            'login'    => 'piket',
+            'login'    => 'piket@sman1-gianyar.sch.id',
             'password' => 'Dosman123',
         ]);
         $loginRes->assertRedirect(route('piket.select-teacher'));
@@ -50,6 +50,15 @@ class PiketPortalTest extends TestCase
 
         $this->get(route('piket.permits.index'))
             ->assertRedirect(route('piket.select-teacher'));
+
+        $this->post('/logout');
+
+        $nipLoginRes = $this->post('/login', [
+            'login'    => 'piket',
+            'password' => 'Dosman123',
+        ]);
+        $nipLoginRes->assertRedirect(route('piket.select-teacher'));
+        $this->assertAuthenticatedAs($piket);
     }
 
     public function test_non_piket_users_are_forbidden_from_piket_portal(): void
