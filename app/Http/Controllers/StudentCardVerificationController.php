@@ -29,12 +29,9 @@ class StudentCardVerificationController extends Controller
         $siswa = null;
         if (! empty($identifier)) {
             $siswa = User::where(function ($q) use ($identifier) {
-                    $q->where('qr_code_token', $identifier);
-                    $q->orWhere('nis', $identifier);
-                    $q->orWhere('nisn', $identifier);
-                    if (is_numeric($identifier)) {
-                        $q->orWhere('id', (int) $identifier);
-                    }
+                    $q->where('qr_code_token', $identifier)
+                      ->orWhere('nis', $identifier)
+                      ->orWhere('nisn', $identifier);
                 })
                 ->where(function ($q) {
                     $q->where('role', 'like', 'siswa%')

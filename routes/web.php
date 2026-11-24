@@ -66,7 +66,9 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', fn() => redirect()->route('login'));
 
 // ─── Verifikasi Keabsahan Kartu Pelajar (Public Scan) ───────────────────────
-Route::get('/verifikasi/kartu-pelajar/{identifier?}', [StudentCardVerificationController::class, 'verify'])->name('student-card.verify');
+Route::get('/verifikasi/kartu-pelajar/{identifier?}', [StudentCardVerificationController::class, 'verify'])
+    ->middleware('throttle:30,1')
+    ->name('student-card.verify');
 
 // ─── Biodata Siswa (wajib login demi keamanan data) ───────────────────────────
 Route::get('/biodata/{identifier}', [PublicBiodataController::class, 'show'])->name('public.biodata')->middleware('auth');
@@ -512,19 +514,25 @@ Route::middleware(['auth', 'role:siswa,pengelola', 'force.password.change'])->pr
     });
 });
 
-Route::middleware(['auth'])->post('/admin/students/{user}/delete-photo', function (\App\Models\User $user) {
+Route::middleware(['auth', 'role:admin,superadmin,admin_kesiswaan'])->post('/admin/students/{user}/delete-photo', function (\App\Models\User $user) {
     if ($user->photo && \Illuminate\Support\Facades\Storage::disk('public')->exists($user->photo)) {
         \Illuminate\Support\Facades\Storage::disk('public')->delete($user->photo);
     }
     $user->update(['photo' => null]);
     return back()->with('success', 'Foto profil ' . $user->name . ' berhasil dihapus.');
 })->name('admin.students.delete-photo');
-Route::middleware(['auth'])->get('/admin/library/clearance-card/{user}', [App\Http\Controllers\Siswa\LibraryController::class, 'adminClearanceCard'])->name('admin.library.clearance-card');
-Route::middleware(['auth'])->get('/admin/library/visit-qr-card', fn () => view('exports.library-visit-qr-pdf'))->name('admin.library.visit-qr-card');
-Route::middleware(['auth'])->get('/admin/library/monthly-loan-report', [App\Http\Controllers\Siswa\LibraryController::class, 'adminMonthlyLoanReport'])->name('admin.library.monthly-loan-report');
-Route::middleware(['auth'])->get('/admin/library/visit-report', [App\Http\Controllers\Siswa\LibraryController::class, 'adminVisitReport'])->name('admin.library.visit-report');
-Route::middleware(['auth'])->get('/admin/buku-induk/print/{siswa}', [App\Http\Controllers\Admin\BukuIndukController::class, 'printSingle'])->name('admin.buku-induk.print');
-Route::middleware(['auth'])->get('/admin/buku-induk/print-class/{class}', [App\Http\Controllers\Admin\BukuIndukController::class, 'printClass'])->name('admin.buku-induk.print-class');
+
+Route::middleware(['auth', 'role:admin,superadmin,admin_kesiswaan,admin_kurikulum,admin_prestasi,guru,pegawai'])->group(function () {
+    Route::get('/admin/library/clearance-card/{user}', [App\Http\Controllers\Siswa\LibraryController::class, 'adminClearanceCard'])->name('admin.library.clearance-card');
+    Route::get('/admin/library/visit-qr-card', fn () => view('exports.library-visit-qr-pdf'))->name('admin.library.visit-qr-card');
+    Route::get('/admin/library/monthly-loan-report', [App\Http\Controllers\Siswa\LibraryController::class, 'adminMonthlyLoanReport'])->name('admin.library.monthly-loan-report');
+    Route::get('/admin/library/visit-report', [App\Http\Controllers\Siswa\LibraryController::class, 'adminVisitReport'])->name('admin.library.visit-report');
+});
+
+Route::middleware(['auth', 'role:admin,superadmin,admin_kesiswaan,admin_kurikulum,admin_prestasi'])->group(function () {
+    Route::get('/admin/buku-induk/print/{siswa}', [App\Http\Controllers\Admin\BukuIndukController::class, 'printSingle'])->name('admin.buku-induk.print');
+    Route::get('/admin/buku-induk/print-class/{class}', [App\Http\Controllers\Admin\BukuIndukController::class, 'printClass'])->name('admin.buku-induk.print-class');
+});
 
 // ─── Orangtua ─────────────────────────────────────────────────────────────────
 Route::middleware(['auth', 'role:orangtua'])->prefix('orangtua')->name('orangtua.')->group(function () {

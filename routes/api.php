@@ -123,7 +123,7 @@ Route::prefix('v1')->group(function () {
             Route::get('/achievements/categories', [AchievementController::class, 'categories']);
             Route::get('/achievements',            [AchievementController::class, 'index']);
             Route::post('/achievements',           [AchievementController::class, 'store']);
-            Route::get('/students/search',         [AchievementController::class, 'searchStudents']);
+            Route::get('/students/search',         [AchievementController::class, 'searchStudents'])->middleware('throttle:60,1');
 
             // Nilai / Rapor
             Route::get('/grades',         [GradeController::class, 'index']);
@@ -154,114 +154,116 @@ Route::prefix('v1')->group(function () {
             Route::post('/siswa/library/visits',        [SiswaLibraryApiController::class, 'storeVisit']);
             Route::get('/siswa/library/clearance',      [SiswaLibraryApiController::class, 'clearanceCard']);
 
-            // Guru
-            Route::get('/guru/dashboard',                                 [GuruController::class, 'dashboard']);
-            Route::get('/guru/layanan',                                   [GuruController::class, 'layanan']);
-            Route::get('/guru/achievements',                              [GuruController::class, 'binaanAchievements']);
-            Route::get('/guru/classes',                                   [GuruController::class, 'classes']);
-            Route::get('/guru/attendance/daily',                          [GuruController::class, 'attendanceDaily']);
-            Route::get('/guru/attendance/rekap',                          [GuruController::class, 'attendanceRekap']);
-            Route::get('/guru/permits',                                   [GuruController::class, 'permits']);
-            Route::post('/guru/permits/{permit}/approve',                 [GuruController::class, 'approvePermit']);
-            Route::post('/guru/permits/{permit}/reject',                  [GuruController::class, 'rejectPermit']);
-            Route::get('/guru/forgot-attendance',                         [GuruController::class, 'forgotAttendance']);
-            Route::post('/guru/forgot-attendance/{forgotAttendance}/approve', [GuruController::class, 'approveForgotAttendance']);
-            Route::post('/guru/forgot-attendance/{forgotAttendance}/reject',  [GuruController::class, 'rejectForgotAttendance']);
-            Route::get('/guru/early-checkouts',                           [GuruController::class, 'earlyCheckouts']);
-            Route::post('/guru/early-checkouts/{earlyCheckout}/approve',  [GuruController::class, 'approveEarlyCheckout']);
-            Route::post('/guru/early-checkouts/{earlyCheckout}/reject',   [GuruController::class, 'rejectEarlyCheckout']);
-            
-            // Ekstrakurikuler Pembina
-            Route::get('/guru/extracurriculars',                                     [GuruExtracurricularController::class, 'index']);
-            Route::get('/guru/extracurriculars/pending-members',                     [GuruController::class, 'pendingExtracurricularMembers']);
-            Route::post('/guru/extracurriculars/members/{id}/approve',               [GuruController::class, 'approveExtracurricularMember']);
-            Route::post('/guru/extracurriculars/members/{id}/reject',                [GuruController::class, 'rejectExtracurricularMember']);
-            Route::get('/guru/extracurriculars/{extracurricular}/members',           [GuruExtracurricularController::class, 'members']);
-            Route::get('/guru/extracurriculars/{extracurricular}/members-pdf-url',   [GuruExtracurricularController::class, 'membersPdfUrl']);
-            Route::get('/guru/extracurriculars/{extracurricular}/journals',          [GuruExtracurricularController::class, 'journals']);
-            Route::post('/guru/extracurriculars/{extracurricular}/journals',         [GuruExtracurricularController::class, 'storeJournal']);
-            Route::get('/guru/extracurricular-journals/{session}',                   [GuruExtracurricularController::class, 'showJournal']);
-            Route::put('/guru/extracurricular-journals/{session}',                   [GuruExtracurricularController::class, 'updateJournal']);
-            Route::post('/guru/extracurricular-journals/{session}/update',           [GuruExtracurricularController::class, 'updateJournal']);
-            Route::post('/guru/extracurricular-journals/{session}/attendance',       [GuruExtracurricularController::class, 'saveAttendance']);
-            Route::match(['delete', 'post'], '/guru/extracurricular-journals/{session}/delete', [GuruExtracurricularController::class, 'destroyJournal']);
-            Route::delete('/guru/extracurricular-journals/{session}',                [GuruExtracurricularController::class, 'destroyJournal']);
-            Route::get('/guru/conduct',                                   [GuruController::class, 'conduct']);
+            // Guru (wajib role guru/staff/admin/piket)
+            Route::middleware('role:guru,admin,superadmin,admin_kesiswaan,admin_kurikulum,admin_prestasi,pegawai,piket')->group(function () {
+                Route::get('/guru/dashboard',                                 [GuruController::class, 'dashboard']);
+                Route::get('/guru/layanan',                                   [GuruController::class, 'layanan']);
+                Route::get('/guru/achievements',                              [GuruController::class, 'binaanAchievements']);
+                Route::get('/guru/classes',                                   [GuruController::class, 'classes']);
+                Route::get('/guru/attendance/daily',                          [GuruController::class, 'attendanceDaily']);
+                Route::get('/guru/attendance/rekap',                          [GuruController::class, 'attendanceRekap']);
+                Route::get('/guru/permits',                                   [GuruController::class, 'permits']);
+                Route::post('/guru/permits/{permit}/approve',                 [GuruController::class, 'approvePermit']);
+                Route::post('/guru/permits/{permit}/reject',                  [GuruController::class, 'rejectPermit']);
+                Route::get('/guru/forgot-attendance',                         [GuruController::class, 'forgotAttendance']);
+                Route::post('/guru/forgot-attendance/{forgotAttendance}/approve', [GuruController::class, 'approveForgotAttendance']);
+                Route::post('/guru/forgot-attendance/{forgotAttendance}/reject',  [GuruController::class, 'rejectForgotAttendance']);
+                Route::get('/guru/early-checkouts',                           [GuruController::class, 'earlyCheckouts']);
+                Route::post('/guru/early-checkouts/{earlyCheckout}/approve',  [GuruController::class, 'approveEarlyCheckout']);
+                Route::post('/guru/early-checkouts/{earlyCheckout}/reject',   [GuruController::class, 'rejectEarlyCheckout']);
+                
+                // Ekstrakurikuler Pembina
+                Route::get('/guru/extracurriculars',                                     [GuruExtracurricularController::class, 'index']);
+                Route::get('/guru/extracurriculars/pending-members',                     [GuruController::class, 'pendingExtracurricularMembers']);
+                Route::post('/guru/extracurriculars/members/{id}/approve',               [GuruController::class, 'approveExtracurricularMember']);
+                Route::post('/guru/extracurriculars/members/{id}/reject',                [GuruController::class, 'rejectExtracurricularMember']);
+                Route::get('/guru/extracurriculars/{extracurricular}/members',           [GuruExtracurricularController::class, 'members']);
+                Route::get('/guru/extracurriculars/{extracurricular}/members-pdf-url',   [GuruExtracurricularController::class, 'membersPdfUrl']);
+                Route::get('/guru/extracurriculars/{extracurricular}/journals',          [GuruExtracurricularController::class, 'journals']);
+                Route::post('/guru/extracurriculars/{extracurricular}/journals',         [GuruExtracurricularController::class, 'storeJournal']);
+                Route::get('/guru/extracurricular-journals/{session}',                   [GuruExtracurricularController::class, 'showJournal']);
+                Route::put('/guru/extracurricular-journals/{session}',                   [GuruExtracurricularController::class, 'updateJournal']);
+                Route::post('/guru/extracurricular-journals/{session}/update',           [GuruExtracurricularController::class, 'updateJournal']);
+                Route::post('/guru/extracurricular-journals/{session}/attendance',       [GuruExtracurricularController::class, 'saveAttendance']);
+                Route::match(['delete', 'post'], '/guru/extracurricular-journals/{session}/delete', [GuruExtracurricularController::class, 'destroyJournal']);
+                Route::delete('/guru/extracurricular-journals/{session}',                [GuruExtracurricularController::class, 'destroyJournal']);
+                Route::get('/guru/conduct',                                   [GuruController::class, 'conduct']);
 
-            // Guru Conduct API (catat pelanggaran & prestasi)
-            Route::get('/guru/conduct-categories',                        [GuruConductApiController::class, 'categories']);
-            Route::get('/guru/conduct-classes',                           [GuruConductApiController::class, 'classes']);
-            Route::get('/guru/conduct-students',                          [GuruConductApiController::class, 'students']);
-            Route::post('/guru/conduct-scan-lookup',                      [GuruConductApiController::class, 'scanLookup']);
-            Route::post('/guru/conduct-logs',                             [GuruConductApiController::class, 'store']);
-            Route::get('/guru/conduct-history',                           [GuruConductApiController::class, 'history']);
-            Route::get('/guru/conduct-self-reports',                      [GuruConductApiController::class, 'selfReports']);
-            Route::post('/guru/conduct-self-reports/{id}/verify',         [GuruConductApiController::class, 'verifySelfReport']);
-            Route::post('/guru/conduct-self-reports/{id}/reject',         [GuruConductApiController::class, 'rejectSelfReport']);
-            Route::delete('/guru/conduct-self-reports/{id}',              [GuruConductApiController::class, 'destroySelfReport']);
+                // Guru Conduct API (catat pelanggaran & prestasi)
+                Route::get('/guru/conduct-categories',                        [GuruConductApiController::class, 'categories']);
+                Route::get('/guru/conduct-classes',                           [GuruConductApiController::class, 'classes']);
+                Route::get('/guru/conduct-students',                          [GuruConductApiController::class, 'students']);
+                Route::post('/guru/conduct-scan-lookup',                      [GuruConductApiController::class, 'scanLookup']);
+                Route::post('/guru/conduct-logs',                             [GuruConductApiController::class, 'store']);
+                Route::get('/guru/conduct-history',                           [GuruConductApiController::class, 'history']);
+                Route::get('/guru/conduct-self-reports',                      [GuruConductApiController::class, 'selfReports']);
+                Route::post('/guru/conduct-self-reports/{id}/verify',         [GuruConductApiController::class, 'verifySelfReport']);
+                Route::post('/guru/conduct-self-reports/{id}/reject',         [GuruConductApiController::class, 'rejectSelfReport']);
+                Route::delete('/guru/conduct-self-reports/{id}',              [GuruConductApiController::class, 'destroySelfReport']);
 
-            // Guru Teaching Session (absensi mengajar per sesi)
-            Route::get('/guru/teaching-classes',                          [GuruTeachingSessionController::class, 'classes']);
-            Route::get('/guru/teaching-sessions',                         [GuruTeachingSessionController::class, 'index']);
-            Route::get('/guru/teaching-sessions/occupied-periods',       [GuruTeachingSessionController::class, 'occupiedPeriods']);
-            Route::post('/guru/teaching-sessions',                        [GuruTeachingSessionController::class, 'store']);
-            Route::get('/guru/teaching-sessions/export',                  [GuruTeachingSessionController::class, 'export']);
-            Route::get('/guru/teaching-sessions/class-students/{classId}',[GuruTeachingSessionController::class, 'classStudents']);
-            Route::post('/guru/teaching-sessions/delete-session',         [GuruTeachingSessionController::class, 'destroyPost']);
-            Route::get('/guru/teaching-sessions/{id}',                    [GuruTeachingSessionController::class, 'show'])->where('id', '[0-9]+');
-            Route::post('/guru/teaching-sessions/{id}/update',            [GuruTeachingSessionController::class, 'update'])->where('id', '[0-9]+');
-            Route::put('/guru/teaching-sessions/{id}',                    [GuruTeachingSessionController::class, 'update'])->where('id', '[0-9]+');
-            Route::match(['delete', 'post'], '/guru/teaching-sessions/{id}/delete', [GuruTeachingSessionController::class, 'destroy'])->where('id', '[0-9]+');
-            Route::match(['delete', 'post'], '/guru/teaching-sessions/{id}',        [GuruTeachingSessionController::class, 'destroy'])->where('id', '[0-9]+');
+                // Guru Teaching Session (absensi mengajar per sesi)
+                Route::get('/guru/teaching-classes',                          [GuruTeachingSessionController::class, 'classes']);
+                Route::get('/guru/teaching-sessions',                         [GuruTeachingSessionController::class, 'index']);
+                Route::get('/guru/teaching-sessions/occupied-periods',       [GuruTeachingSessionController::class, 'occupiedPeriods']);
+                Route::post('/guru/teaching-sessions',                        [GuruTeachingSessionController::class, 'store']);
+                Route::get('/guru/teaching-sessions/export',                  [GuruTeachingSessionController::class, 'export']);
+                Route::get('/guru/teaching-sessions/class-students/{classId}',[GuruTeachingSessionController::class, 'classStudents']);
+                Route::post('/guru/teaching-sessions/delete-session',         [GuruTeachingSessionController::class, 'destroyPost']);
+                Route::get('/guru/teaching-sessions/{id}',                    [GuruTeachingSessionController::class, 'show'])->where('id', '[0-9]+');
+                Route::post('/guru/teaching-sessions/{id}/update',            [GuruTeachingSessionController::class, 'update'])->where('id', '[0-9]+');
+                Route::put('/guru/teaching-sessions/{id}',                    [GuruTeachingSessionController::class, 'update'])->where('id', '[0-9]+');
+                Route::match(['delete', 'post'], '/guru/teaching-sessions/{id}/delete', [GuruTeachingSessionController::class, 'destroy'])->where('id', '[0-9]+');
+                Route::match(['delete', 'post'], '/guru/teaching-sessions/{id}',        [GuruTeachingSessionController::class, 'destroy'])->where('id', '[0-9]+');
 
-            // Tujuan Pembelajaran (TP) — master data per guru
-            Route::get('/guru/tp',                                        [GuruTpController::class, 'index']);
-            Route::post('/guru/tp',                                       [GuruTpController::class, 'store']);
-            Route::put('/guru/tp/{id}',                                   [GuruTpController::class, 'update'])->where('id', '[0-9]+');
-            Route::patch('/guru/tp/{id}/toggle',                          [GuruTpController::class, 'toggle'])->where('id', '[0-9]+');
-            Route::delete('/guru/tp/{id}',                                [GuruTpController::class, 'destroy'])->where('id', '[0-9]+');
+                // Tujuan Pembelajaran (TP) — master data per guru
+                Route::get('/guru/tp',                                        [GuruTpController::class, 'index']);
+                Route::post('/guru/tp',                                       [GuruTpController::class, 'store']);
+                Route::put('/guru/tp/{id}',                                   [GuruTpController::class, 'update'])->where('id', '[0-9]+');
+                Route::patch('/guru/tp/{id}/toggle',                          [GuruTpController::class, 'toggle'])->where('id', '[0-9]+');
+                Route::delete('/guru/tp/{id}',                                [GuruTpController::class, 'destroy'])->where('id', '[0-9]+');
 
-            // Jurnal Guru
-            Route::get('/guru/journals',                                  [GuruJournalController::class, 'index']);
-            Route::post('/guru/journals',                                 [GuruJournalController::class, 'store']);
-            Route::post('/guru/journals/delete-journal',                 [GuruJournalController::class, 'destroyPost']);
-            Route::get('/guru/journals/class-students/{classId}',         [GuruJournalController::class, 'classStudents'])->where('classId', '[0-9]+');
-            Route::get('/guru/journals/{id}',                             [GuruJournalController::class, 'show'])->where('id', '[0-9]+');
-            Route::put('/guru/journals/{id}',                             [GuruJournalController::class, 'update'])->where('id', '[0-9]+');
-            Route::post('/guru/journals/{id}/update',                     [GuruJournalController::class, 'update'])->where('id', '[0-9]+');
-            Route::match(['delete', 'post'], '/guru/journals/{id}/delete',[GuruJournalController::class, 'destroy'])->where('id', '[0-9]+');
-            Route::match(['delete', 'post'], '/guru/journals/{id}',       [GuruJournalController::class, 'destroy'])->where('id', '[0-9]+');
+                // Jurnal Guru
+                Route::get('/guru/journals',                                  [GuruJournalController::class, 'index']);
+                Route::post('/guru/journals',                                 [GuruJournalController::class, 'store']);
+                Route::post('/guru/journals/delete-journal',                 [GuruJournalController::class, 'destroyPost']);
+                Route::get('/guru/journals/class-students/{classId}',         [GuruJournalController::class, 'classStudents'])->where('classId', '[0-9]+');
+                Route::get('/guru/journals/{id}',                             [GuruJournalController::class, 'show'])->where('id', '[0-9]+');
+                Route::put('/guru/journals/{id}',                             [GuruJournalController::class, 'update'])->where('id', '[0-9]+');
+                Route::post('/guru/journals/{id}/update',                     [GuruJournalController::class, 'update'])->where('id', '[0-9]+');
+                Route::match(['delete', 'post'], '/guru/journals/{id}/delete',[GuruJournalController::class, 'destroy'])->where('id', '[0-9]+');
+                Route::match(['delete', 'post'], '/guru/journals/{id}',       [GuruJournalController::class, 'destroy'])->where('id', '[0-9]+');
 
-            // Input Nilai Guru
-            Route::get('/guru/grades/classes',                    [GuruGradeApiController::class, 'classes']);
-            Route::get('/guru/grades/subjects',                   [GuruGradeApiController::class, 'subjects']);
-            Route::get('/guru/grades/export',                     [GuruGradeApiController::class, 'export']);
-            Route::get('/guru/grades',                            [GuruGradeApiController::class, 'index']);
-            Route::post('/guru/grades/batch',                     [GuruGradeApiController::class, 'storeBatch']);
-            Route::post('/guru/grades',                           [GuruGradeApiController::class, 'store']);
-            Route::delete('/guru/grades/{id}',                    [GuruGradeApiController::class, 'destroy']);
+                // Input Nilai Guru
+                Route::get('/guru/grades/classes',                    [GuruGradeApiController::class, 'classes']);
+                Route::get('/guru/grades/subjects',                   [GuruGradeApiController::class, 'subjects']);
+                Route::get('/guru/grades/export',                     [GuruGradeApiController::class, 'export']);
+                Route::get('/guru/grades',                            [GuruGradeApiController::class, 'index']);
+                Route::post('/guru/grades/batch',                     [GuruGradeApiController::class, 'storeBatch']);
+                Route::post('/guru/grades',                           [GuruGradeApiController::class, 'store']);
+                Route::delete('/guru/grades/{id}',                    [GuruGradeApiController::class, 'destroy']);
 
-            // Jurnal Bimbingan Guru Wali (Homeroom Consultation — sisi guru)
-            Route::get('/guru/homeroom-consultations',                        [GuruHomeroomConsultationApiController::class, 'index']);
-            Route::patch('/guru/homeroom-consultations/{id}/schedule',        [GuruHomeroomConsultationApiController::class, 'schedule']);
-            Route::patch('/guru/homeroom-consultations/{id}/complete',        [GuruHomeroomConsultationApiController::class, 'complete']);
-            Route::patch('/guru/homeroom-consultations/{id}/cancel',          [GuruHomeroomConsultationApiController::class, 'cancel']);
+                // Jurnal Bimbingan Guru Wali (Homeroom Consultation — sisi guru)
+                Route::get('/guru/homeroom-consultations',                        [GuruHomeroomConsultationApiController::class, 'index']);
+                Route::patch('/guru/homeroom-consultations/{id}/schedule',        [GuruHomeroomConsultationApiController::class, 'schedule']);
+                Route::patch('/guru/homeroom-consultations/{id}/complete',        [GuruHomeroomConsultationApiController::class, 'complete']);
+                Route::patch('/guru/homeroom-consultations/{id}/cancel',          [GuruHomeroomConsultationApiController::class, 'cancel']);
 
-            // BK (Bimbingan Konseling) Guru
-            Route::get('/guru/bk/classes',                        [GuruBkApiController::class, 'classes']);
-            Route::get('/guru/bk/students',                       [GuruBkApiController::class, 'students']);
-            Route::get('/guru/bk',                                [GuruBkApiController::class, 'index']);
-            Route::post('/guru/bk',                               [GuruBkApiController::class, 'store']);
+                // BK (Bimbingan Konseling) Guru
+                Route::get('/guru/bk/classes',                        [GuruBkApiController::class, 'classes']);
+                Route::get('/guru/bk/students',                       [GuruBkApiController::class, 'students']);
+                Route::get('/guru/bk',                                [GuruBkApiController::class, 'index']);
+                Route::post('/guru/bk',                               [GuruBkApiController::class, 'store']);
 
-            // Sarpras Guru
-            Route::get('/guru/sarpras/stats',                     [GuruSarprasApiController::class, 'stats']);
-            Route::get('/guru/sarpras/categories',                [GuruSarprasApiController::class, 'categories']);
-            Route::get('/guru/sarpras/assets',                    [GuruSarprasApiController::class, 'assets']);
-            Route::get('/guru/sarpras/damage',                    [GuruSarprasApiController::class, 'damage']);
-            Route::post('/guru/sarpras/damage',                   [GuruSarprasApiController::class, 'storeDamage']);
-            Route::get('/guru/sarpras/loans',                     [GuruSarprasApiController::class, 'loans']);
-            Route::post('/guru/sarpras/loans',                    [GuruSarprasApiController::class, 'storeLoan']);
-            Route::patch('/guru/sarpras/loans/{id}/return',       [GuruSarprasApiController::class, 'returnLoan']);
+                // Sarpras Guru
+                Route::get('/guru/sarpras/stats',                     [GuruSarprasApiController::class, 'stats']);
+                Route::get('/guru/sarpras/categories',                [GuruSarprasApiController::class, 'categories']);
+                Route::get('/guru/sarpras/assets',                    [GuruSarprasApiController::class, 'assets']);
+                Route::get('/guru/sarpras/damage',                    [GuruSarprasApiController::class, 'damage']);
+                Route::post('/guru/sarpras/damage',                   [GuruSarprasApiController::class, 'storeDamage']);
+                Route::get('/guru/sarpras/loans',                     [GuruSarprasApiController::class, 'loans']);
+                Route::post('/guru/sarpras/loans',                    [GuruSarprasApiController::class, 'storeLoan']);
+                Route::patch('/guru/sarpras/loans/{id}/return',       [GuruSarprasApiController::class, 'returnLoan']);
+            });
 
             // Kesiswaan Summary
             Route::get('/kesiswaan/summary', [KesiswaanController::class, 'summary']);
@@ -279,10 +281,12 @@ Route::prefix('v1')->group(function () {
             Route::patch('/bk-consultations/{id}/change-teacher',    [BkConsultationController::class, 'changeTeacher']);
 
             // Bimbingan BK (guru BK)
-            Route::get('/guru/bk-consultations',                          [GuruBkConsultationApiController::class, 'index']);
-            Route::patch('/guru/bk-consultations/{id}/schedule',          [GuruBkConsultationApiController::class, 'schedule']);
-            Route::patch('/guru/bk-consultations/{id}/complete',          [GuruBkConsultationApiController::class, 'complete']);
-            Route::patch('/guru/bk-consultations/{id}/cancel',            [GuruBkConsultationApiController::class, 'cancel']);
+            Route::middleware('role:guru,admin,superadmin,admin_kesiswaan,admin_kurikulum,admin_prestasi,pegawai,piket')->group(function () {
+                Route::get('/guru/bk-consultations',                          [GuruBkConsultationApiController::class, 'index']);
+                Route::patch('/guru/bk-consultations/{id}/schedule',          [GuruBkConsultationApiController::class, 'schedule']);
+                Route::patch('/guru/bk-consultations/{id}/complete',          [GuruBkConsultationApiController::class, 'complete']);
+                Route::patch('/guru/bk-consultations/{id}/cancel',            [GuruBkConsultationApiController::class, 'cancel']);
+            });
 
             // Orangtua (read-only: data anak sendiri)
             Route::prefix('orangtua')->middleware('role:orangtua')->group(function () {

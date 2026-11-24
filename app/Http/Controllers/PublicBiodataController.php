@@ -39,6 +39,26 @@ class PublicBiodataController extends Controller
             ->with('schoolClass')
             ->firstOrFail();
 
+        $viewer = auth()->user();
+        $staffRoles = [
+            'guru',
+            'pegawai',
+            'piket',
+            'admin',
+            'superadmin',
+            'admin_kesiswaan',
+            'admin_kurikulum',
+            'admin_prestasi',
+        ];
+
+        if ($viewer && in_array($viewer->role, ['siswa', 'pengelola'], true)) {
+            abort_if($siswa->id !== $viewer->id, 403, 'Anda hanya dapat melihat biodata Anda sendiri.');
+        } elseif ($viewer && $viewer->role === 'orangtua') {
+            abort_unless($viewer->children()->where('users.id', $siswa->id)->exists(), 403, 'Anda hanya dapat melihat biodata anak Anda sendiri.');
+        } elseif (! $viewer || ! in_array($viewer->role, $staffRoles, true)) {
+            abort(403, 'Akses tidak diizinkan.');
+        }
+
         return view('public.biodata', compact('siswa'));
     }
 }
