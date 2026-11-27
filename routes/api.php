@@ -33,6 +33,7 @@ use App\Http\Controllers\Api\SiswaVotingApiController;
 use App\Http\Controllers\Api\SiswaSarprasApiController;
 use App\Http\Controllers\Api\SiswaLibraryApiController;
 use App\Http\Controllers\Api\ChatApiController;
+use App\Http\Controllers\Api\GalleryApiController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -313,6 +314,12 @@ Route::prefix('v1')->group(function () {
                 Route::delete('/messages/{message}',     [ChatApiController::class, 'deleteMessage']);
                 Route::get('/unread-count',              [ChatApiController::class, 'unreadCount']);
             });
+
+            // Dokumentasi & Galeri Kegiatan (Synology Data Sekolah)
+            Route::get('/galleries',                             [GalleryApiController::class, 'index']);
+            Route::get('/galleries/{gallery}',                   [GalleryApiController::class, 'show']);
+            Route::post('/galleries/{gallery}/photos',           [GalleryApiController::class, 'storePhotos'])->middleware('throttle:20,1');
+            Route::delete('/galleries/{gallery}/photos/{photo}', [GalleryApiController::class, 'destroyPhoto']);
         });
     });
 });

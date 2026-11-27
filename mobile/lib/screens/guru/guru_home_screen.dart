@@ -21,6 +21,7 @@ import 'guru_layanan_screen.dart';
 import 'guru_gate_verification_screen.dart';
 import 'guru_achievement_screen.dart';
 import 'guru_extracurricular_screen.dart';
+import '../humas/gallery_list_screen.dart';
 
 class GuruHomeScreen extends StatefulWidget {
   const GuruHomeScreen({super.key});
@@ -780,6 +781,14 @@ class _GuruHomeScreenState extends State<GuruHomeScreen> {
         'color': const Color(0xFF0284C7),
         'bg': const Color(0xFFE0F2FE),
         'onTap': () => Navigator.push(context, MaterialPageRoute(builder: (_) => const GuruHomeroomConsultationScreen())),
+      },
+      {
+        'title': 'Galeri Kegiatan',
+        'subtitle': 'Upload Foto (Maks 10)',
+        'icon': Icons.photo_library_rounded,
+        'color': const Color(0xFFDB2777),
+        'bg': const Color(0xFFFCE7F3),
+        'onTap': () => Navigator.push(context, MaterialPageRoute(builder: (_) => const GalleryListScreen())),
       },
     ];
 

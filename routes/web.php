@@ -60,6 +60,7 @@ use App\Http\Controllers\Orangtua\AchievementController as OrangtuaAchievement;
 use App\Http\Controllers\Orangtua\ProfileController as OrangtuaProfile;
 use App\Http\Controllers\StudentCardVerificationController;
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\GalleryMediaController;
 use Illuminate\Support\Facades\Route;
 
 // ─── Halaman Utama ────────────────────────────────────────────────────────────
@@ -69,6 +70,13 @@ Route::get('/', fn() => redirect()->route('login'));
 Route::get('/verifikasi/kartu-pelajar/{identifier?}', [StudentCardVerificationController::class, 'verify'])
     ->middleware('throttle:30,1')
     ->name('student-card.verify');
+
+// ─── Media Dokumentasi Kegiatan (Synology Data Sekolah) ──────────────────────
+Route::get('/media/gallery-photos/{photo}', [GalleryMediaController::class, 'photo'])
+    ->name('media.gallery-photo');
+Route::get('/media/gallery-reports/{report}', [GalleryMediaController::class, 'report'])
+    ->middleware('auth')
+    ->name('media.gallery-report');
 
 // ─── Biodata Siswa (wajib login demi keamanan data) ───────────────────────────
 Route::get('/biodata/{identifier}', [PublicBiodataController::class, 'show'])->name('public.biodata')->middleware('auth');

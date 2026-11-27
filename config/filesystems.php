@@ -47,6 +47,24 @@ return [
             'report' => false,
         ],
 
+        'synology' => [
+            'driver' => 'local',
+            'root' => env('SYNOLOGY_DATA_ROOT', storage_path('app/synology_data_sekolah')),
+            'visibility' => 'public',
+            'permissions' => [
+                'file' => [
+                    'public'  => 0664,
+                    'private' => 0664,
+                ],
+                'dir' => [
+                    'public'  => 0775,
+                    'private' => 0775,
+                ],
+            ],
+            'throw' => false,
+            'report' => false,
+        ],
+
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../providers/notification_provider.dart';
 import '../../theme/app_colors.dart';
 import '../announcement_list_screen.dart';
+import 'gallery_list_screen.dart';
 
 class HumasScreen extends StatelessWidget {
   const HumasScreen({super.key});
@@ -82,7 +83,7 @@ class HumasScreen extends StatelessWidget {
               iconBg: AppColors.pink100,
               iconColor: AppColors.pink500,
               label: 'Galeri',
-              onTap: () => _showComingSoon(context, 'Galeri'),
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const GalleryListScreen())),
             )),
           ]),
           const SizedBox(height: 16),
