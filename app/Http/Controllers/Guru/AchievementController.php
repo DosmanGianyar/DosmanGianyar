@@ -49,7 +49,9 @@ class AchievementController extends Controller
             'pending'            => $allBinaanGrouped->where('status', 'pending')->count(),
             'nasional_inter'     => $allBinaanGrouped->whereIn('level', ['nasional', 'internasional'])->count(),
             'provinsi_kabupaten' => $allBinaanGrouped->whereIn('level', ['provinsi', 'kabupaten'])->count(),
-            'total_students'     => $allBinaanRaw->pluck('student_id')->unique()->count(),
+            'total_students'     => $allBinaanRaw
+                ->groupBy(fn (StudentAchievement $a) => $a->competitionGroupKey())
+                ->sum(fn ($group) => $group->pluck('student_id')->filter()->unique()->count()),
         ];
 
         $years = $allBinaanRaw

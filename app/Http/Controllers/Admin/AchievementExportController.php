@@ -140,8 +140,7 @@ class AchievementExportController extends Controller
 
         $allStudentIds = $achievements
             ->flatMap(fn (StudentAchievement $item) => ($item->grouped_members ?? collect([$item]))->pluck('student_id'))
-            ->filter()
-            ->unique();
+            ->filter();
 
         $stats = [
             'total'           => $achievements->count(),

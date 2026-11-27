@@ -152,7 +152,8 @@ class GuruController extends Controller
             'pending'            => $grouped->where('status', 'pending')->count(),
             'nasional_inter'     => $grouped->whereIn('level', ['nasional', 'internasional'])->count(),
             'provinsi_kabupaten' => $grouped->whereIn('level', ['provinsi', 'kabupaten'])->count(),
-            'total_students'     => $raw->pluck('student_id')->unique()->count(),
+            'total_students'     => $raw->groupBy(fn (\App\Models\StudentAchievement $a) => $a->competitionGroupKey())
+                ->sum(fn ($group) => $group->pluck('student_id')->filter()->unique()->count()),
         ];
 
         $data = $grouped->map(function (\App\Models\StudentAchievement $a) {

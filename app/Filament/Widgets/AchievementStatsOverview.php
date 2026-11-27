@@ -40,7 +40,10 @@ class AchievementStatsOverview extends BaseWidget
 
         $totalSchoolAchievements = $groupedCompetitions->count();
         $nasionalInternasional   = $groupedCompetitions->filter(fn ($group) => in_array($group->first()?->level, ['nasional', 'internasional'], true))->count();
-        $uniqueStudents          = $allMatching->pluck('student_id')->unique()->count();
+        $totalWinningStudents    = $groupedCompetitions->sum(
+            fn ($group) => $group->pluck('student_id')->filter()->unique()->count()
+        );
+        $uniqueStudents          = $allMatching->pluck('student_id')->filter()->unique()->count();
 
         $gradeLabel = $grade === 'all' ? '' : " (Kelas {$grade})";
 
@@ -50,8 +53,8 @@ class AchievementStatsOverview extends BaseWidget
                 ->descriptionIcon('heroicon-m-academic-cap')
                 ->color('success'),
 
-            Stat::make('Siswa Berprestasi' . $gradeLabel, number_format($uniqueStudents) . ' Siswa')
-                ->description('Total siswa unik penerima apresiasi/kejuaraan')
+            Stat::make('Siswa Berprestasi' . $gradeLabel, number_format($totalWinningStudents) . ' Siswa')
+                ->description("Dihitung per prestasi ({$uniqueStudents} siswa unik)")
                 ->descriptionIcon('heroicon-m-user-group')
                 ->color('primary'),
 
