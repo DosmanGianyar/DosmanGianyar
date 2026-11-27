@@ -209,6 +209,44 @@ class _MyExtraCard extends StatelessWidget {
                       ],
                     ],
                   ),
+                  if (item.latestGrade != null) ...[
+                    const SizedBox(height: 10),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: AppColors.blue50,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: AppColors.blue200),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Nilai Ekstra (Smt ${item.latestGrade!.semester} • ${item.latestGrade!.academicYear}): '
+                            '${item.latestGrade!.predicateLabel} (${item.latestGrade!.predicate})',
+                            style: const TextStyle(
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.blue700,
+                            ),
+                          ),
+                          if (item.latestGrade!.description != null &&
+                              item.latestGrade!.description!.trim().isNotEmpty) ...[
+                            const SizedBox(height: 3),
+                            Text(
+                              item.latestGrade!.description!,
+                              style: const TextStyle(
+                                fontSize: 11,
+                                color: AppColors.gray700,
+                                height: 1.35,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),

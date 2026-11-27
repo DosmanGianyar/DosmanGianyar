@@ -72,6 +72,11 @@ class Extracurricular extends Model
         return $this->hasMany(ExtracurricularSession::class, 'extracurricular_id');
     }
 
+    public function grades(): HasMany
+    {
+        return $this->hasMany(ExtracurricularGrade::class, 'extracurricular_id');
+    }
+
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('is_active', true);

@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Extracurricular;
 use App\Models\ExtracurricularAttendance;
+use App\Models\ExtracurricularGrade;
 use App\Models\ExtracurricularMember;
 use App\Models\ExtracurricularSession;
+use App\Models\StudentGrade;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -478,6 +480,221 @@ class GuruExtracurricularController extends Controller
         return response()->json([
             'url'      => $fullUrl,
             'filename' => 'anggota-' . str($extracurricular->name)->slug() . '.pdf',
+        ]);
+    }
+
+    /**
+     * Daftar nilai ekstrakurikuler seluruh anggota aktif per semester & tahun ajaran.
+     */
+    public function grades(Request $request, Extracurricular $extracurricular): JsonResponse
+    {
+        /** @var User $user */
+        $user = $request->user();
+        if (! $this->canManageExtra($user, $extracurricular)) {
+            return response()->json(['message' => 'Anda bukan pembina ekstrakurikuler ini.'], 403);
+        }
+
+        $currentYear     = StudentGrade::currentAcademicYear();
+        $currentSemester = StudentGrade::currentSemester();
+
+        $academicYear = trim((string) ($request->query('academic_year') ?: $currentYear));
+        $semester     = (int) ($request->query('semester') ?: $currentSemester);
+        if (! in_array($semester, [1, 2], true)) {
+            $semester = $currentSemester;
+        }
+
+        $baseStart = (int) substr($currentYear, 0, 4);
+        $defaultYears = [
+            ($baseStart - 1) . '/' . $baseStart,
+            $currentYear,
+            ($baseStart + 1) . '/' . ($baseStart + 2),
+        ];
+        $existingYears = ExtracurricularGrade::where('extracurricular_id', $extracurricular->id)
+            ->distinct()
+            ->pluck('academic_year')
+            ->all();
+        $academicYears = collect(array_merge($defaultYears, $existingYears, [$academicYear]))
+            ->filter()
+            ->unique()
+            ->sortDesc()
+            ->values()
+            ->all();
+
+        $members = $this->getActiveMembersCollection($extracurricular);
+
+        $sessionIds    = ExtracurricularSession::where('extracurricular_id', $extracurricular->id)->pluck('id');
+        $totalSessions = $sessionIds->count();
+        $attByUser     = $sessionIds->isEmpty()
+            ? collect()
+            : ExtracurricularAttendance::whereIn('session_id', $sessionIds)->get()->groupBy('user_id');
+
+        $gradesByUser = ExtracurricularGrade::with('grader:id,name')
+            ->where('extracurricular_id', $extracurricular->id)
+            ->where('academic_year', $academicYear)
+            ->where('semester', $semester)
+            ->get()
+            ->keyBy('user_id');
+
+        $rows = $members->map(function (array $m) use ($attByUser, $totalSessions, $gradesByUser) {
+            /** @var Collection $userAtts */
+            $userAtts = $attByUser->get($m['user_id'], collect());
+            /** @var ExtracurricularGrade|null $grade */
+            $grade    = $gradesByUser->get($m['user_id']);
+
+            return [
+                'user_id'         => $m['user_id'],
+                'name'            => $m['name'],
+                'nis'             => $m['nis'],
+                'class_name'      => $m['class_name'],
+                'role'            => $m['role'],
+                'role_label'      => $m['role_label'],
+                'hadir_count'     => $userAtts->where('status', 'hadir')->count(),
+                'izin_count'      => $userAtts->where('status', 'izin')->count(),
+                'sakit_count'     => $userAtts->where('status', 'sakit')->count(),
+                'alpa_count'      => $userAtts->where('status', 'alpa')->count(),
+                'total_sessions'  => $totalSessions,
+                'grade_id'        => $grade?->id,
+                'predicate'       => $grade?->predicate,
+                'predicate_label' => ExtracurricularGrade::labelFor($grade?->predicate),
+                'description'     => $grade?->description,
+                'graded_by_name'  => $grade?->grader?->name,
+                'updated_at'      => $grade?->updated_at?->toIso8601String(),
+            ];
+        })->values();
+
+        return response()->json([
+            'extracurricular' => [
+                'id'            => $extracurricular->id,
+                'name'          => $extracurricular->name,
+                'pembina_names' => $extracurricular->pembina_names,
+                'members_count' => $members->count(),
+            ],
+            'academic_years'    => $academicYears,
+            'current_year'      => $currentYear,
+            'current_semester'  => $currentSemester,
+            'selected_year'     => $academicYear,
+            'selected_semester' => $semester,
+            'summary' => [
+                'total_members' => $rows->count(),
+                'graded_count'  => $rows->whereNotNull('predicate')->count(),
+                'count_a'       => $rows->where('predicate', 'A')->count(),
+                'count_b'       => $rows->where('predicate', 'B')->count(),
+                'count_c'       => $rows->where('predicate', 'C')->count(),
+                'count_d'       => $rows->where('predicate', 'D')->count(),
+            ],
+            'members' => $rows,
+        ]);
+    }
+
+    /**
+     * Simpan / perbarui penilaian anggota ekstrakurikuler secara massal.
+     */
+    public function saveGradesBatch(Request $request, Extracurricular $extracurricular): JsonResponse
+    {
+        /** @var User $user */
+        $user = $request->user();
+        if (! $this->canManageExtra($user, $extracurricular)) {
+            return response()->json(['message' => 'Anda bukan pembina ekstrakurikuler ini.'], 403);
+        }
+
+        $data = $request->validate([
+            'academic_year'        => 'required|string|max:9',
+            'semester'             => 'required|integer|in:1,2',
+            'grades'               => 'required|array|min:1',
+            'grades.*.user_id'     => 'required|integer|exists:users,id',
+            'grades.*.predicate'   => 'nullable|in:A,B,C,D',
+            'grades.*.description' => 'nullable|string|max:500',
+        ]);
+
+        $activeMemberIds = $this->getActiveMembersCollection($extracurricular)
+            ->pluck('user_id')
+            ->all();
+
+        foreach ($data['grades'] as $item) {
+            if (! in_array((int) $item['user_id'], $activeMemberIds, true)) {
+                return response()->json([
+                    'message' => 'Terdapat siswa yang bukan anggota aktif ekstrakurikuler ini.',
+                ], 422);
+            }
+        }
+
+        $year    = trim((string) $data['academic_year']);
+        $sem     = (int) $data['semester'];
+        $saved   = 0;
+        $deleted = 0;
+
+        DB::transaction(function () use ($data, $extracurricular, $year, $sem, $user, &$saved, &$deleted) {
+            foreach ($data['grades'] as $item) {
+                $uid       = (int) $item['user_id'];
+                $predicate = $item['predicate'] ?? null;
+                $desc      = isset($item['description']) ? trim((string) $item['description']) : '';
+
+                if ($predicate === null || $predicate === '') {
+                    $removed = ExtracurricularGrade::where('extracurricular_id', $extracurricular->id)
+                        ->where('user_id', $uid)
+                        ->where('academic_year', $year)
+                        ->where('semester', $sem)
+                        ->delete();
+                    $deleted += $removed;
+                    continue;
+                }
+
+                ExtracurricularGrade::updateOrCreate(
+                    [
+                        'extracurricular_id' => $extracurricular->id,
+                        'user_id'            => $uid,
+                        'academic_year'      => $year,
+                        'semester'           => $sem,
+                    ],
+                    [
+                        'predicate'   => $predicate,
+                        'description' => $desc !== '' ? $desc : null,
+                        'graded_by'   => $user->id,
+                    ]
+                );
+                $saved++;
+            }
+        });
+
+        return response()->json([
+            'message'       => "{$saved} penilaian anggota berhasil disimpan.",
+            'saved_count'   => $saved,
+            'deleted_count' => $deleted,
+        ]);
+    }
+
+    /**
+     * Hasilkan tautan bertanda tangan untuk mengunduh PDF nilai ekstrakurikuler.
+     */
+    public function gradesPdfUrl(Request $request, Extracurricular $extracurricular): JsonResponse
+    {
+        /** @var User $user */
+        $user = $request->user();
+        if (! $this->canManageExtra($user, $extracurricular)) {
+            return response()->json(['message' => 'Anda bukan pembina ekstrakurikuler ini.'], 403);
+        }
+
+        $academicYear = trim((string) ($request->query('academic_year') ?: StudentGrade::currentAcademicYear()));
+        $semester     = (int) ($request->query('semester') ?: StudentGrade::currentSemester());
+        if (! in_array($semester, [1, 2], true)) {
+            $semester = StudentGrade::currentSemester();
+        }
+
+        $relativePath = URL::temporarySignedRoute(
+            'extracurricular.grades.pdf.signed',
+            now()->addMinutes(10),
+            [
+                'extracurricular' => $extracurricular->id,
+                'academic_year'   => $academicYear,
+                'semester'        => $semester,
+            ],
+            absolute: false
+        );
+        $fullUrl = rtrim($request->getSchemeAndHttpHost(), '/') . $relativePath;
+
+        return response()->json([
+            'url'      => $fullUrl,
+            'filename' => 'nilai-' . str($extracurricular->name)->slug() . '-smt' . $semester . '.pdf',
         ]);
     }
 

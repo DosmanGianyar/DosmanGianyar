@@ -215,3 +215,100 @@ class GuruExtraJournal {
         totalMembers: (json['total_members'] as num?)?.toInt() ?? 0,
       );
 }
+
+class GuruExtraGradeRow {
+  final int userId;
+  final String name;
+  final String? nis;
+  final String className;
+  final String role;
+  final String roleLabel;
+  final int hadirCount;
+  final int totalSessions;
+  final String? gradedByName;
+  String? predicate; // A | B | C | D | null
+  String description;
+
+  GuruExtraGradeRow({
+    required this.userId,
+    required this.name,
+    this.nis,
+    required this.className,
+    required this.role,
+    required this.roleLabel,
+    required this.hadirCount,
+    required this.totalSessions,
+    this.gradedByName,
+    this.predicate,
+    this.description = '',
+  });
+
+  bool get isLeader => role == 'ketua' || role == 'wakil_ketua';
+
+  factory GuruExtraGradeRow.fromJson(Map<String, dynamic> json) =>
+      GuruExtraGradeRow(
+        userId: (json['user_id'] as num).toInt(),
+        name: json['name'] as String? ?? 'Siswa',
+        nis: json['nis'] as String?,
+        className: json['class_name'] as String? ?? '—',
+        role: json['role'] as String? ?? 'member',
+        roleLabel: json['role_label'] as String? ?? 'Anggota',
+        hadirCount: (json['hadir_count'] as num?)?.toInt() ?? 0,
+        totalSessions: (json['total_sessions'] as num?)?.toInt() ?? 0,
+        gradedByName: json['graded_by_name'] as String?,
+        predicate: json['predicate'] as String?,
+        description: json['description'] as String? ?? '',
+      );
+
+  Map<String, dynamic> toPayload() => {
+        'user_id': userId,
+        'predicate': predicate,
+        'description': description.trim().isEmpty ? null : description.trim(),
+      };
+}
+
+class GuruExtraGradesData {
+  final List<String> academicYears;
+  final String selectedYear;
+  final int selectedSemester;
+  final int totalMembers;
+  final int gradedCount;
+  final int countA;
+  final int countB;
+  final int countC;
+  final int countD;
+  final List<GuruExtraGradeRow> rows;
+
+  const GuruExtraGradesData({
+    required this.academicYears,
+    required this.selectedYear,
+    required this.selectedSemester,
+    required this.totalMembers,
+    required this.gradedCount,
+    required this.countA,
+    required this.countB,
+    required this.countC,
+    required this.countD,
+    required this.rows,
+  });
+
+  factory GuruExtraGradesData.fromJson(Map<String, dynamic> json) {
+    final summary = json['summary'] as Map<String, dynamic>? ?? const {};
+    return GuruExtraGradesData(
+      academicYears: (json['academic_years'] as List<dynamic>? ?? [])
+          .map((e) => e.toString())
+          .toList(),
+      selectedYear: json['selected_year'] as String? ?? '',
+      selectedSemester: (json['selected_semester'] as num?)?.toInt() ?? 1,
+      totalMembers: (summary['total_members'] as num?)?.toInt() ?? 0,
+      gradedCount: (summary['graded_count'] as num?)?.toInt() ?? 0,
+      countA: (summary['count_a'] as num?)?.toInt() ?? 0,
+      countB: (summary['count_b'] as num?)?.toInt() ?? 0,
+      countC: (summary['count_c'] as num?)?.toInt() ?? 0,
+      countD: (summary['count_d'] as num?)?.toInt() ?? 0,
+      rows: (json['members'] as List<dynamic>? ?? [])
+          .map((e) => GuruExtraGradeRow.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+}

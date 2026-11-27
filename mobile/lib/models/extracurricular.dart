@@ -52,6 +52,30 @@ class ExtracurricularItem {
   };
 }
 
+class MyExtraGrade {
+  final String academicYear;
+  final int semester;
+  final String predicate;
+  final String predicateLabel;
+  final String? description;
+
+  const MyExtraGrade({
+    required this.academicYear,
+    required this.semester,
+    required this.predicate,
+    required this.predicateLabel,
+    this.description,
+  });
+
+  factory MyExtraGrade.fromJson(Map<String, dynamic> json) => MyExtraGrade(
+        academicYear: json['academic_year'] as String? ?? '',
+        semester: (json['semester'] as num?)?.toInt() ?? 1,
+        predicate: json['predicate'] as String? ?? '',
+        predicateLabel: json['predicate_label'] as String? ?? '',
+        description: json['description'] as String?,
+      );
+}
+
 class MyExtracurricularItem {
   final int     id;
   final String  name;
@@ -63,6 +87,7 @@ class MyExtracurricularItem {
   final String  roleLabel;
   final String  statusLabel;
   final DateTime joinedAt;
+  final MyExtraGrade? latestGrade;
 
   const MyExtracurricularItem({
     required this.id,
@@ -75,6 +100,7 @@ class MyExtracurricularItem {
     required this.roleLabel,
     required this.statusLabel,
     required this.joinedAt,
+    this.latestGrade,
   });
 
   bool get isKetua        => myRole   == 'ketua';
@@ -83,6 +109,7 @@ class MyExtracurricularItem {
   bool get isPendingLeave => myStatus == 'pending_leave';
 
   factory MyExtracurricularItem.fromJson(Map<String, dynamic> json) {
+    final gradeJson = json['latest_grade'];
     return MyExtracurricularItem(
       id:          json['id']           as int,
       name:        json['name']         as String,
@@ -94,6 +121,9 @@ class MyExtracurricularItem {
       roleLabel:   json['role_label']   as String,
       statusLabel: json['status_label'] as String,
       joinedAt:    DateTime.parse(json['joined_at'] as String),
+      latestGrade: gradeJson is Map<String, dynamic>
+          ? MyExtraGrade.fromJson(gradeJson)
+          : null,
     );
   }
 }

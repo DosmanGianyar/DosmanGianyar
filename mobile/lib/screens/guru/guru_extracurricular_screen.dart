@@ -69,6 +69,24 @@ class _GuruExtracurricularScreenState extends State<GuruExtracurricularScreen>
   int _filterYear = DateTime.now().year;
   bool _downloadingPdf = false;
 
+  // Penilaian Ekstra
+  List<String> _gradeAcademicYears = [];
+  String? _selectedGradeYear;
+  int? _selectedGradeSemester;
+  List<GuruExtraGradeRow> _gradeRows = [];
+  final Map<int, TextEditingController> _gradeDescCtrls = {};
+  int _gradeCountA = 0;
+  int _gradeCountB = 0;
+  int _gradeCountC = 0;
+  int _gradeCountD = 0;
+  int _gradedCount = 0;
+  bool _loadingGrades = false;
+  bool _savingGrades = false;
+  bool _downloadingGradesPdf = false;
+  String? _gradesError;
+  String _gradeSearch = '';
+  final _gradeSearchCtrl = TextEditingController();
+
   Future<void> _downloadMembersPdf() async {
     final extra = _selectedExtra;
     if (extra == null || _downloadingPdf) return;
@@ -102,9 +120,16 @@ class _GuruExtracurricularScreenState extends State<GuruExtracurricularScreen>
   @override
   void initState() {
     super.initState();
-    final idx = widget.initialTabIndex.clamp(0, 2);
-    _tabCtrl = TabController(length: 3, vsync: this, initialIndex: idx);
+    final idx = widget.initialTabIndex.clamp(0, 3);
+    _tabCtrl = TabController(length: 4, vsync: this, initialIndex: idx);
     _loadExtras();
+  }
+
+  void _disposeGradeDescCtrls() {
+    for (final c in _gradeDescCtrls.values) {
+      c.dispose();
+    }
+    _gradeDescCtrls.clear();
   }
 
   @override
@@ -112,6 +137,8 @@ class _GuruExtracurricularScreenState extends State<GuruExtracurricularScreen>
     _tabCtrl.dispose();
     _attSearchCtrl.dispose();
     _memberSearchCtrl.dispose();
+    _gradeSearchCtrl.dispose();
+    _disposeGradeDescCtrls();
     _titleCtrl.dispose();
     _locationCtrl.dispose();
     _materialCtrl.dispose();
@@ -153,6 +180,7 @@ class _GuruExtracurricularScreenState extends State<GuruExtracurricularScreen>
         await Future.wait([
           _loadMembers(selected.id),
           _loadJournals(selected.id, reset: true),
+          _loadGrades(selected.id),
         ]);
       }
     } catch (e) {
@@ -171,15 +199,161 @@ class _GuruExtracurricularScreenState extends State<GuruExtracurricularScreen>
       _members = [];
       _attendanceRows = [];
       _journals.clear();
+      _gradeRows = [];
+      _disposeGradeDescCtrls();
       _attSearch = '';
       _attSearchCtrl.clear();
       _memberSearch = '';
       _memberSearchCtrl.clear();
+      _gradeSearch = '';
+      _gradeSearchCtrl.clear();
     });
     await Future.wait([
       _loadMembers(extra.id),
       _loadJournals(extra.id, reset: true),
+      _loadGrades(extra.id),
     ]);
+  }
+
+  Future<void> _loadGrades(int extraId) async {
+    setState(() {
+      _loadingGrades = true;
+      _gradesError = null;
+    });
+    try {
+      final res = await GuruService.getExtracurricularGrades(
+        extraId,
+        academicYear: _selectedGradeYear,
+        semester: _selectedGradeSemester,
+      );
+      if (!mounted) return;
+      _disposeGradeDescCtrls();
+      for (final r in res.rows) {
+        _gradeDescCtrls[r.userId] = TextEditingController(text: r.description);
+      }
+      setState(() {
+        _gradeAcademicYears = res.academicYears;
+        _selectedGradeYear = res.selectedYear;
+        _selectedGradeSemester = res.selectedSemester;
+        _gradeRows = res.rows;
+        _gradedCount = res.gradedCount;
+        _gradeCountA = res.countA;
+        _gradeCountB = res.countB;
+        _gradeCountC = res.countC;
+        _gradeCountD = res.countD;
+        _loadingGrades = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _gradesError = ApiClient.extractError(e);
+        _loadingGrades = false;
+      });
+    }
+  }
+
+  void _recomputeGradeSummary() {
+    _gradedCount = _gradeRows.where((r) => r.predicate != null).length;
+    _gradeCountA = _gradeRows.where((r) => r.predicate == 'A').length;
+    _gradeCountB = _gradeRows.where((r) => r.predicate == 'B').length;
+    _gradeCountC = _gradeRows.where((r) => r.predicate == 'C').length;
+    _gradeCountD = _gradeRows.where((r) => r.predicate == 'D').length;
+  }
+
+  String _defaultGradeDescription(String extraName, String predicate) {
+    return switch (predicate) {
+      'A' =>
+        'Sangat aktif dan menunjukkan prestasi serta kedisiplinan yang sangat baik dalam kegiatan ekstrakurikuler $extraName.',
+      'B' =>
+        'Aktif mengikuti kegiatan dan menunjukkan sikap serta keterampilan yang baik dalam ekstrakurikuler $extraName.',
+      'C' =>
+        'Cukup aktif mengikuti kegiatan ekstrakurikuler $extraName, perlu meningkatkan konsistensi kehadiran dan partisipasi.',
+      'D' =>
+        'Kurang aktif mengikuti kegiatan ekstrakurikuler $extraName, perlu pembinaan dan peningkatan kehadiran.',
+      _ => '',
+    };
+  }
+
+  Future<void> _saveAllGrades() async {
+    final extra = _selectedExtra;
+    final year = _selectedGradeYear;
+    final sem = _selectedGradeSemester;
+    if (extra == null ||
+        year == null ||
+        sem == null ||
+        _savingGrades ||
+        _gradeRows.isEmpty) {
+      return;
+    }
+
+    setState(() => _savingGrades = true);
+    try {
+      for (final r in _gradeRows) {
+        final ctrl = _gradeDescCtrls[r.userId];
+        if (ctrl != null) {
+          r.description = ctrl.text.trim();
+        }
+      }
+      final msg = await GuruService.saveExtracurricularGradesBatch(
+        extra.id,
+        academicYear: year,
+        semester: sem,
+        grades: _gradeRows.map((r) => r.toPayload()).toList(),
+      );
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(msg), backgroundColor: AppColors.green600),
+      );
+      await _loadGrades(extra.id);
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(ApiClient.extractError(e)),
+          backgroundColor: AppColors.red500,
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _savingGrades = false);
+    }
+  }
+
+  Future<void> _downloadGradesPdf() async {
+    final extra = _selectedExtra;
+    final year = _selectedGradeYear;
+    final sem = _selectedGradeSemester;
+    if (extra == null || year == null || sem == null || _downloadingGradesPdf) {
+      return;
+    }
+    setState(() => _downloadingGradesPdf = true);
+    try {
+      final url = await GuruService.getExtracurricularGradesPdfUrl(
+        extra.id,
+        academicYear: year,
+        semester: sem,
+      );
+      final launched =
+          await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+      if (!launched && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Tidak dapat membuka tautan unduhan PDF nilai.'),
+            backgroundColor: AppColors.red500,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(ApiClient.extractError(e)),
+            backgroundColor: AppColors.red500,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _downloadingGradesPdf = false);
+    }
   }
 
   Future<void> _loadMembers(int extraId) async {
@@ -384,6 +558,8 @@ class _GuruExtracurricularScreenState extends State<GuruExtracurricularScreen>
                           color: Colors.white,
                           child: TabBar(
                             controller: _tabCtrl,
+                            isScrollable: true,
+                            tabAlignment: TabAlignment.start,
                             labelColor: AppColors.blue600,
                             unselectedLabelColor: AppColors.gray500,
                             indicatorColor: AppColors.blue600,
@@ -393,8 +569,9 @@ class _GuruExtracurricularScreenState extends State<GuruExtracurricularScreen>
                             ),
                             tabs: [
                               const Tab(text: 'Jurnal & Absen'),
-                              const Tab(text: 'Riwayat Jurnal'),
+                              const Tab(text: 'Riwayat'),
                               Tab(text: 'Anggota (${_members.length})'),
+                              const Tab(text: 'Penilaian'),
                             ],
                           ),
                         ),
@@ -405,6 +582,7 @@ class _GuruExtracurricularScreenState extends State<GuruExtracurricularScreen>
                               _buildCreateJournalTab(),
                               _buildHistoryTab(),
                               _buildMembersTab(),
+                              _buildGradesTab(),
                             ],
                           ),
                         ),
@@ -1436,6 +1614,351 @@ class _GuruExtracurricularScreenState extends State<GuruExtracurricularScreen>
                     ],
                   ),
                 )),
+        ],
+      ),
+    );
+  }
+
+  // ─── Tab 4: Penilaian Ekstrakurikuler ─────────────────────────────────────
+
+  Widget _buildGradesTab() {
+    final extra = _selectedExtra!;
+    final q = _gradeSearch.trim().toLowerCase();
+    final filtered = q.isEmpty
+        ? _gradeRows
+        : _gradeRows.where((r) {
+            return r.name.toLowerCase().contains(q) ||
+                (r.nis ?? '').toLowerCase().contains(q) ||
+                r.className.toLowerCase().contains(q);
+          }).toList();
+
+    return RefreshIndicator(
+      onRefresh: () => _loadGrades(extra.id),
+      child: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: AppColors.gray200),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: DropdownButtonFormField<String>(
+                        initialValue: _gradeAcademicYears.contains(_selectedGradeYear)
+                            ? _selectedGradeYear
+                            : null,
+                        decoration: InputDecoration(
+                          labelText: 'Tahun Ajaran',
+                          isDense: true,
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                        ),
+                        items: _gradeAcademicYears
+                            .map((y) => DropdownMenuItem(value: y, child: Text(y, style: const TextStyle(fontSize: 13))))
+                            .toList(),
+                        onChanged: (val) {
+                          if (val == null || val == _selectedGradeYear) return;
+                          setState(() => _selectedGradeYear = val);
+                          _loadGrades(extra.id);
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: DropdownButtonFormField<int>(
+                        initialValue: _selectedGradeSemester ?? 1,
+                        decoration: InputDecoration(
+                          labelText: 'Semester',
+                          isDense: true,
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                        ),
+                        items: const [
+                          DropdownMenuItem(value: 1, child: Text('Smt 1 (Ganjil)', style: TextStyle(fontSize: 13))),
+                          DropdownMenuItem(value: 2, child: Text('Smt 2 (Genap)', style: TextStyle(fontSize: 13))),
+                        ],
+                        onChanged: (val) {
+                          if (val == null || val == _selectedGradeSemester) return;
+                          setState(() => _selectedGradeSemester = val);
+                          _loadGrades(extra.id);
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      _sumChip('Dinilai', _gradedCount, AppColors.blue600),
+                      const SizedBox(width: 6),
+                      _sumChip('A', _gradeCountA, AppColors.green600),
+                      const SizedBox(width: 6),
+                      _sumChip('B', _gradeCountB, AppColors.sky600),
+                      const SizedBox(width: 6),
+                      _sumChip('C', _gradeCountC, AppColors.amber700),
+                      const SizedBox(width: 6),
+                      _sumChip('D', _gradeCountD, AppColors.red500),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: _gradeRows.isEmpty
+                            ? null
+                            : () {
+                                setState(() {
+                                  for (final r in _gradeRows) {
+                                    r.predicate ??= 'B';
+                                    final ctrl = _gradeDescCtrls[r.userId];
+                                    if (ctrl != null && ctrl.text.trim().isEmpty) {
+                                      ctrl.text = _defaultGradeDescription(extra.name, r.predicate!);
+                                      r.description = ctrl.text;
+                                    }
+                                  }
+                                  _recomputeGradeSummary();
+                                });
+                              },
+                        icon: const Icon(Icons.auto_fix_high_rounded, size: 16),
+                        label: const Text('Isi B yg Kosong', style: TextStyle(fontSize: 12)),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: FilledButton.icon(
+                        onPressed: _downloadingGradesPdf ? null : _downloadGradesPdf,
+                        style: FilledButton.styleFrom(backgroundColor: AppColors.emerald600),
+                        icon: _downloadingGradesPdf
+                            ? const SizedBox(
+                                width: 15,
+                                height: 15,
+                                child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                              )
+                            : const Icon(Icons.picture_as_pdf_rounded, size: 16),
+                        label: const Text('PDF Nilai', style: TextStyle(fontSize: 12)),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 10),
+          TextField(
+            controller: _gradeSearchCtrl,
+            onChanged: (v) => setState(() => _gradeSearch = v),
+            decoration: InputDecoration(
+              hintText: 'Cari nama siswa, NIS, atau kelas...',
+              hintStyle: const TextStyle(fontSize: 12.5, color: AppColors.gray400),
+              prefixIcon: const Icon(Icons.search_rounded, size: 18),
+              suffixIcon: _gradeSearch.isNotEmpty
+                  ? IconButton(
+                      icon: const Icon(Icons.clear_rounded, size: 16),
+                      onPressed: () {
+                        _gradeSearchCtrl.clear();
+                        setState(() => _gradeSearch = '');
+                      },
+                    )
+                  : null,
+              filled: true,
+              fillColor: Colors.white,
+              isDense: true,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: const BorderSide(color: AppColors.gray200),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: const BorderSide(color: AppColors.gray200),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          if (_loadingGrades)
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 30),
+              child: Center(child: CircularProgressIndicator()),
+            )
+          else if (_gradesError != null)
+            _buildError(_gradesError!, () => _loadGrades(extra.id))
+          else if (filtered.isEmpty)
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 24),
+              child: Center(
+                child: Text(
+                  'Tidak ada anggota aktif untuk dinilai.',
+                  style: TextStyle(fontSize: 13, color: AppColors.gray500),
+                ),
+              ),
+            )
+          else ...[
+            ...filtered.map((r) => _buildGradeCard(r, extra.name)),
+            const SizedBox(height: 8),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                onPressed: _savingGrades ? null : _saveAllGrades,
+                style: FilledButton.styleFrom(
+                  backgroundColor: AppColors.blue600,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                icon: _savingGrades
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                      )
+                    : const Icon(Icons.save_rounded),
+                label: Text(
+                  _savingGrades ? 'Menyimpan Penilaian...' : 'Simpan Semua Penilaian',
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGradeCard(GuruExtraGradeRow r, String extraName) {
+    final descCtrl = _gradeDescCtrls.putIfAbsent(
+      r.userId,
+      () => TextEditingController(text: r.description),
+    );
+
+    const predicates = [
+      ('A', 'Sangat Baik', AppColors.green600),
+      ('B', 'Baik', AppColors.blue600),
+      ('C', 'Cukup', AppColors.amber700),
+      ('D', 'Kurang', AppColors.red500),
+    ];
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: r.predicate != null
+              ? AppColors.blue600.withValues(alpha: 0.35)
+              : AppColors.gray200,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  r.name,
+                  style: const TextStyle(
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.gray900,
+                  ),
+                ),
+              ),
+              if (r.totalSessions > 0)
+                _miniBadge('Hadir ${r.hadirCount}/${r.totalSessions}', AppColors.emerald600),
+            ],
+          ),
+          const SizedBox(height: 2),
+          Text(
+            'Kelas ${r.className}${r.nis != null && r.nis!.isNotEmpty ? ' • NIS ${r.nis}' : ''} • ${r.roleLabel}',
+            style: const TextStyle(fontSize: 11.5, color: AppColors.gray500),
+          ),
+          const SizedBox(height: 10),
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: predicates.map((item) {
+              final code = item.$1;
+              final label = item.$2;
+              final color = item.$3;
+              final selected = r.predicate == code;
+              return ChoiceChip(
+                label: Text('$code · $label'),
+                selected: selected,
+                selectedColor: color,
+                backgroundColor: AppColors.gray50,
+                labelStyle: TextStyle(
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.w700,
+                  color: selected ? Colors.white : AppColors.gray700,
+                ),
+                side: BorderSide(color: selected ? color : AppColors.gray200),
+                onSelected: (_) {
+                  setState(() {
+                    r.predicate = selected ? null : code;
+                    _recomputeGradeSummary();
+                  });
+                },
+              );
+            }).toList(),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: descCtrl,
+                  maxLines: 2,
+                  minLines: 1,
+                  style: const TextStyle(fontSize: 12.5, color: AppColors.gray800),
+                  onChanged: (v) => r.description = v,
+                  decoration: InputDecoration(
+                    hintText: 'Deskripsi capaian rapor (opsional)...',
+                    hintStyle: const TextStyle(fontSize: 12, color: AppColors.gray400),
+                    isDense: true,
+                    filled: true,
+                    fillColor: AppColors.gray50,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: const BorderSide(color: AppColors.gray200),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: const BorderSide(color: AppColors.gray200),
+                    ),
+                  ),
+                ),
+              ),
+              if (r.predicate != null) ...[
+                const SizedBox(width: 6),
+                TextButton(
+                  onPressed: () {
+                    final text = _defaultGradeDescription(extraName, r.predicate!);
+                    descCtrl.text = text;
+                    r.description = text;
+                  },
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  child: const Text('Template', style: TextStyle(fontSize: 11.5)),
+                ),
+              ],
+            ],
+          ),
         ],
       ),
     );

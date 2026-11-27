@@ -196,6 +196,7 @@ class ExtracurricularResource extends Resource
         return [
             RelationManagers\MembersRelationManager::class,
             RelationManagers\SessionsRelationManager::class,
+            RelationManagers\GradesRelationManager::class,
         ];
     }
 

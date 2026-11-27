@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Extracurricular;
 use App\Models\ExtracurricularAttendance;
+use App\Models\ExtracurricularGrade;
 use App\Models\ExtracurricularMember;
 use App\Models\ExtracurricularSession;
 use Illuminate\Http\JsonResponse;
@@ -62,19 +63,37 @@ class ExtracurricularController extends Controller
             ->where('user_id', $user->id)
             ->get();
 
+        $latestGrades = ExtracurricularGrade::where('user_id', $user->id)
+            ->orderByDesc('academic_year')
+            ->orderByDesc('semester')
+            ->get()
+            ->groupBy('extracurricular_id')
+            ->map(fn ($items) => $items->first());
+
         return response()->json([
-            'my_extracurriculars' => $members->map(fn ($m) => [
-                'id'             => $m->extracurricular->id,
-                'name'           => $m->extracurricular->name,
-                'description'    => $m->extracurricular->description,
-                'logo_url'       => $m->extracurricular->logo ? Storage::disk('public')->url($m->extracurricular->logo) : null,
-                'pembina_name'   => $m->extracurricular?->pembina_names,
-                'my_role'        => $m->role,
-                'my_status'      => $m->status,
-                'role_label'     => $m->roleLabel(),
-                'status_label'   => $m->statusLabel(),
-                'joined_at'      => $m->created_at->toIso8601String(),
-            ]),
+            'my_extracurriculars' => $members->map(function ($m) use ($latestGrades) {
+                $grade = $latestGrades->get($m->extracurricular_id);
+
+                return [
+                    'id'             => $m->extracurricular->id,
+                    'name'           => $m->extracurricular->name,
+                    'description'    => $m->extracurricular->description,
+                    'logo_url'       => $m->extracurricular->logo ? Storage::disk('public')->url($m->extracurricular->logo) : null,
+                    'pembina_name'   => $m->extracurricular?->pembina_names,
+                    'my_role'        => $m->role,
+                    'my_status'      => $m->status,
+                    'role_label'     => $m->roleLabel(),
+                    'status_label'   => $m->statusLabel(),
+                    'joined_at'      => $m->created_at->toIso8601String(),
+                    'latest_grade'   => $grade ? [
+                        'academic_year'   => $grade->academic_year,
+                        'semester'        => $grade->semester,
+                        'predicate'       => $grade->predicate,
+                        'predicate_label' => $grade->predicateLabel(),
+                        'description'     => $grade->description,
+                    ] : null,
+                ];
+            }),
         ]);
     }
 

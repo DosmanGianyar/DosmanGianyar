@@ -149,10 +149,15 @@ Route::post('/logout', [LoginController::class, 'logout'])
     ->middleware('auth')
     ->name('logout');
 
-// Signed download PDF daftar peserta ekstra (untuk akses dari aplikasi mobile)
+// Signed download PDF daftar peserta & nilai ekstra (untuk akses dari aplikasi mobile)
 Route::get('/signed/extracurricular/{extracurricular}/members/pdf', [\App\Http\Controllers\Guru\ExtracurricularExportController::class, 'membersPdfSigned'])
     ->middleware('signed:relative')
     ->name('extracurricular.members.pdf.signed');
+Route::get('/signed/extracurricular/{extracurricular}/grades/pdf', [\App\Http\Controllers\Guru\ExtracurricularExportController::class, 'gradesPdfSigned'])
+    ->middleware('signed:relative')
+    ->name('extracurricular.grades.pdf.signed');
+Route::middleware(['auth', 'role:admin,admin_kesiswaan,guru'])->get('/extracurricular/{extracurricular}/grades/pdf', [\App\Http\Controllers\Guru\ExtracurricularExportController::class, 'gradesPdf'])
+    ->name('extracurricular.grades.pdf');
 
 // ─── Meja Piket (1 Akun Bersama + Wajib Pilih Guru Bertugas) ──────────────────
 Route::middleware(['auth', 'role:piket,admin'])->prefix('piket')->name('piket.')->group(function () {

@@ -180,6 +180,9 @@ Route::prefix('v1')->group(function () {
                 Route::post('/guru/extracurriculars/members/{id}/reject',                [GuruController::class, 'rejectExtracurricularMember']);
                 Route::get('/guru/extracurriculars/{extracurricular}/members',           [GuruExtracurricularController::class, 'members']);
                 Route::get('/guru/extracurriculars/{extracurricular}/members-pdf-url',   [GuruExtracurricularController::class, 'membersPdfUrl']);
+                Route::get('/guru/extracurriculars/{extracurricular}/grades',            [GuruExtracurricularController::class, 'grades']);
+                Route::post('/guru/extracurriculars/{extracurricular}/grades/batch',     [GuruExtracurricularController::class, 'saveGradesBatch']);
+                Route::get('/guru/extracurriculars/{extracurricular}/grades-pdf-url',    [GuruExtracurricularController::class, 'gradesPdfUrl']);
                 Route::get('/guru/extracurriculars/{extracurricular}/journals',          [GuruExtracurricularController::class, 'journals']);
                 Route::post('/guru/extracurriculars/{extracurricular}/journals',         [GuruExtracurricularController::class, 'storeJournal']);
                 Route::get('/guru/extracurricular-journals/{session}',                   [GuruExtracurricularController::class, 'showJournal']);

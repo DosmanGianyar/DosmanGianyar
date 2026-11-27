@@ -973,4 +973,52 @@ class GuruService {
     );
     return body['url'] as String;
   }
+
+  static Future<GuruExtraGradesData> getExtracurricularGrades(
+    int extraId, {
+    String? academicYear,
+    int? semester,
+  }) async {
+    final body = await ApiClient.get(
+      '/guru/extracurriculars/$extraId/grades',
+      params: {
+        if (academicYear != null && academicYear.isNotEmpty)
+          'academic_year': academicYear,
+        if (semester != null) 'semester': semester,
+      },
+    );
+    return GuruExtraGradesData.fromJson(body);
+  }
+
+  static Future<String> saveExtracurricularGradesBatch(
+    int extraId, {
+    required String academicYear,
+    required int semester,
+    required List<Map<String, dynamic>> grades,
+  }) async {
+    final body = await ApiClient.post(
+      '/guru/extracurriculars/$extraId/grades/batch',
+      data: {
+        'academic_year': academicYear,
+        'semester': semester,
+        'grades': grades,
+      },
+    );
+    return body['message'] as String? ?? 'Penilaian berhasil disimpan.';
+  }
+
+  static Future<String> getExtracurricularGradesPdfUrl(
+    int extraId, {
+    required String academicYear,
+    required int semester,
+  }) async {
+    final body = await ApiClient.get(
+      '/guru/extracurriculars/$extraId/grades-pdf-url',
+      params: {
+        'academic_year': academicYear,
+        'semester': semester,
+      },
+    );
+    return body['url'] as String;
+  }
 }
